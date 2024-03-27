@@ -3,6 +3,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { isAF } from "../../lib/instanceSettings";
 import { useCurrentUser } from "../common/withUser";
 import { useMessages } from "../common/withMessages";
+import { useTracking } from "../../lib/analyticsEvents";
 
 /**
  * Hook to initiate a conversation with a user. This get's the existing conversation (first conversation
@@ -12,6 +13,10 @@ import { useMessages } from "../common/withMessages";
  * by the hook
  */
 export const useInitiateConversation = (props?: { includeModerators?: boolean }) => {
+  const {captureEvent} = useTracking({
+    eventType: "initiateConversation",
+    eventProps: props,
+  });
   const { includeModerators = false } = props || {};
 
   const currentUser = useCurrentUser();
@@ -53,10 +58,10 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
 
   const conversation = results?.[0];
 
-  const initiateConversation = useCallback(
-    (userIds: string[]) => setUserIds(userIds?.length ? userIds : null),
-    []
-  );
+  const initiateConversation = useCallback((userIds: string[]) => {
+    setUserIds(userIds?.length ? userIds : null);
+    captureEvent();
+  }, [captureEvent]);
 
   return {
     conversation,

@@ -1,7 +1,7 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
 import { forumTypeSetting, isEAForum } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
+import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
@@ -586,3 +586,23 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
 export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   return { fail: false };
 };
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export const profileFieldToSocialMediaHref = (
+  field: SocialMediaProfileField,
+  userUrl: string,
+) => `https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field], userUrl)}`;
+
+export const socialMediaSiteNameToHref = (
+  siteName: SocialMediaSiteName | "website",
+  userUrl: string,
+) => siteName === "website"
+  ? `https://${userUrl}`
+  : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);

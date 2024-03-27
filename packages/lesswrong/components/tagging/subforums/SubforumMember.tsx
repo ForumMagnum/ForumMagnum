@@ -6,7 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import {
   SocialMediaProfileField,
   SOCIAL_MEDIA_PROFILE_FIELDS,
-} from '../../../lib/collections/users/schema';
+} from '../../../lib/collections/users/helpers';
 import { useCheckMeritsCollapse } from '../../common/useCheckMeritsCollapse';
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 

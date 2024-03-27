@@ -42,6 +42,8 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
+const allowedFacetFields = ["jobTitle", "organization", "location"];
+
 class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
@@ -176,6 +178,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
         COALESCE(u."deleted", FALSE) AS "deleted",
         COALESCE(u."deleteContent", FALSE) AS "deleteContent",
+        COALESCE(u."hideFromPeopleDirectory", FALSE) AS "hideFromPeopleDirectory",
         u."profileImageId",
         u."biography"->>'html' AS "bio",
         u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
@@ -189,6 +192,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         u."profileTagIds" AS "tags",
+        NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
+          'website', NULLIF(TRIM(u."website"), ''),
+          'github', NULLIF(TRIM(u."githubProfileURL"), ''),
+          'twitter', NULLIF(TRIM(u."twitterProfileURL"), ''),
+          'linkedin', NULLIF(TRIM(u."linkedinProfileURL"), ''),
+          'facebook', NULLIF(TRIM(u."facebookProfileURL"), '')
+        )), '{}') AS "socialMediaUrls",
         CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN NULL ELSE
           JSONB_BUILD_OBJECT(
             'type', 'point',
@@ -634,6 +644,45 @@ class UsersRepo extends AbstractRepo<"Users"> {
       ORDER BY u."createdAt" desc
       LIMIT $1;
     `, [limit])
+  }
+
+  async searchFacets(facetField: string, query: string): Promise<string[]> {
+    if (!allowedFacetFields.includes(facetField)) {
+      throw new Error(`Invalid facet field: ${facetField}`);
+    }
+
+    const normalizedFacetField = facetField === "location"
+      ? `TRIM("${facetField}")`
+      : `INITCAP(TRIM("${facetField}"))`;
+
+    const results = await this.getRawDb().any(`
+      -- UsersRepo.searchFacets
+      SELECT
+        DISTINCT ${normalizedFacetField} AS "result",
+        TS_RANK_CD(
+          TO_TSVECTOR('english', "${facetField}"),
+          WEBSEARCH_TO_TSQUERY($1),
+          1
+        ) * 5 + COALESCE(SIMILARITY("${facetField}", $1), 0) AS "rank"
+      FROM "Users"
+      WHERE
+        "${facetField}" IS NOT NULL AND
+        (
+          TO_TSVECTOR('english', "${facetField}") @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY("${facetField}", $1), 0) > 0.22 OR
+          "${facetField}" ILIKE ($1 || '%')
+        ) AND
+        "noindex" IS NOT TRUE AND
+        "deleted" IS NOT TRUE AND
+        "voteBanned" IS NOT TRUE AND
+        "deleteContent" IS NOT TRUE AND
+        "nullifyVotes" IS NOT TRUE AND
+        "banned" IS NULL
+      ORDER BY "rank" DESC
+      LIMIT 8
+    `, [query]);
+
+    return results.map(({result}) => result);
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {

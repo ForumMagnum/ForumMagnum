@@ -2,8 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Input from '@material-ui/core/Input';
 import InputAdornment from '@material-ui/core/InputAdornment';
-import { SocialMediaSiteName } from '../icons/SocialMediaIcon';
-import type { SocialMediaProfileField } from '../../lib/collections/users/schema';
+import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
