@@ -6,7 +6,7 @@ import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
-  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
+  EditorTypeString, styles, FormProps, shouldSubmitContents, deserializeEditorContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
@@ -19,6 +19,7 @@ import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { getRestorableState } from './LocalStorageCheck';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -391,6 +392,21 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
   
+  useEffect(() => {
+    if (editorRef.current) {
+      if (isBlank(editorRef.current.props.value)) {
+        const restorableState = getRestorableState(currentUser, getLocalStorageHandlers);
+        if (restorableState) {
+          const restoredEditorContents = deserializeEditorContents(restorableState.savedDocument);
+          if (restoredEditorContents) {
+            onRestoreLocalStorage(restoredEditorContents);
+          }
+        }
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!editorRef.current]);
+
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
@@ -420,7 +436,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         value={contents} setValue={wrappedSetContents}
       />
     }
-    {!isCollabEditor &&<Components.LocalStorageCheck
+    {!isCollabEditor && isFriendlyUI && <Components.LocalStorageCheck
       getLocalStorageHandlers={getLocalStorageHandlers}
       onRestore={onRestoreLocalStorage}
     />}
