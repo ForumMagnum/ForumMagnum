@@ -3,6 +3,11 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 
+interface RecombeeRecommendedPost {
+  post: PostsListWithVotes,
+  recommId: string,
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
 
@@ -20,7 +25,10 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
     query getRecombeeLatestPosts($limit: Int, $settings: JSON) {
       RecombeeLatestPosts(limit: $limit, settings: $settings) {
         results {
-          ...PostsListWithVotes
+          post {
+            ...PostsListWithVotes
+          }
+          recommId
         }
       }
     }
@@ -37,14 +45,14 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
     },
   });
 
-  const results: PostsListWithVotes[] | undefined = data?.RecombeeLatestPosts?.results;
+  const results: RecombeeRecommendedPost[] | undefined = data?.RecombeeLatestPosts?.results;
 
   if (loading) {
     return <Loading />;
   }
 
   return <div className={classes.root}>
-    {results?.map(post => <PostsItem key={post._id} post={post} />)}
+    {results?.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
   </div>;
 }
 

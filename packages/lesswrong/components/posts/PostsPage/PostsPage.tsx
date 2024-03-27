@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
@@ -38,11 +38,14 @@ import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
+import { recombeeApi } from '../../../lib/recombee/client';
+import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
+export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
 
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
@@ -335,6 +338,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
+  const { query, params } = location;
+  const [recommId, setRecommId] = useState<string | undefined>();
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -381,11 +386,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   }
 
   const getSequenceId = () => {
-    const { params } = location;
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
   }
 
-  const { query, params } = location;
 
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
@@ -413,6 +416,20 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }, [navigate, location.location, openDialog, fullPost, query]);
+
+  useEffect(() => {
+    const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+    if (!currentUser || !recommId || !recombeeEnabledSetting.get()) return;
+
+    setRecommId(recommId);
+    void recombeeApi.createDetailView(post._id, currentUser._id, recommId)
+
+    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
+    // sharing links with a recommId
+    const currentQuery = isEmpty(query) ? {} : query
+    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined}
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }, [navigate, location.location, query, currentUser, post._id]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answersAndReplies } = useMulti({
@@ -711,7 +728,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1}}>
+      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1, recommId}}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -756,6 +773,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={fullPost ?? null}>
+    <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -805,6 +823,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </ImageProvider>
+    </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }

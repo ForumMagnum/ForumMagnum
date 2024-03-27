@@ -23,8 +23,6 @@ import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
 import { UsersRepo } from './repos';
 import { syncDocumentWithLatestRevision } from './editor/utils';
-import { recombeeEnabledSetting } from '../lib/publicSettings';
-import { recombeeApi } from './recombee/client';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -365,18 +363,6 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     //
     // EDIT 2022-09-16: This is still the case in postgres ^
     const readStatus = await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);
-
-    if (recombeeEnabledSetting.get()) {
-      void recombeeApi
-        .createReadStatus(readStatus)
-        // eslint-disable-next-line no-console
-        .catch(e => {
-          if (e.statusCode !== 404) {
-            // eslint-disable-next-line no-console
-            console.log('Error when sending read status to recombee', { e })
-          }
-        });
-    }
   }
   return event;
 });

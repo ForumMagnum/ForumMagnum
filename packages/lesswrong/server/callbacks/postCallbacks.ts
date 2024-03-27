@@ -625,8 +625,4 @@ voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, contex
   void recombeeApi.upsertPost(newDocument as DbPost, context)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending voted-on post to recombee', { e }));  
-  void recombeeApi.createVote(vote)
-    // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending vote to recombee', { e }));  
-
 });

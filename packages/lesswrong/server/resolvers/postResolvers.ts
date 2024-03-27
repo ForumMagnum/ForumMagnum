@@ -568,15 +568,27 @@ createPaginatedResolver({
   cacheMaxAgeMs: 0, 
 });
 
+addGraphQLSchema(`
+  type RecombeeRecommendedPost {
+    post: Post!
+    recommId: String!
+  }
+`)
+
+interface RecombeeRecommendedPost {
+  post: DbPost,
+  recommId: string
+}
+
 createPaginatedResolver({
   name: "RecombeeLatestPosts",
-  graphQLType: "Post",
+  graphQLType: "RecombeeRecommendedPost",
   args: { settings: "JSON" },
   callback: async (
     context: ResolverContext,
     limit: number,
     args: { settings: RecombeeRecommendationArgs }
-  ): Promise<DbPost[]> => {
+  ): Promise<RecombeeRecommendedPost[]> => {
     const { repos, currentUser } = context;
     if (!userIsAdmin(currentUser)) {
       throw new Error(`Only admins may use Recombee recommendations right now`);

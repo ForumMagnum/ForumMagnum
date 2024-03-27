@@ -9,6 +9,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import findByIds from '../vulcan-lib/findbyids';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
+import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -145,9 +146,10 @@ const recombeeApi = {
     ])
 
     const unreadPosts = posts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
+    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, unreadPosts, context)
     
     // TODO: loop over the above if we don't get enough posts?
-    return unreadPosts.slice(0, count);
+    return filteredPosts.slice(0, count).map(post => ({post, recommId: response.recommId}));
   },
 
 

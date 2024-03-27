@@ -1,4 +1,4 @@
-import { ApiClient, SetViewPortion } from 'recombee-js-api-client';
+import { AddDetailView, AddRating, ApiClient, SetViewPortion } from 'recombee-js-api-client';
 import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../publicSettings';
 import { captureException } from '@sentry/core';
 
@@ -30,6 +30,13 @@ const getRecombeeClientOrThrow = (() => {
   };
 })();
 
+const voteTypeRatingsMap: Partial<Record<string, number>> = {
+  bigDownvote: -1,
+  smallDownvote: -0.5,
+  neutral: 0,
+  smallUpvote: 0.5,
+  bigUpvote: 1,
+};
 
 const recombeeRequestHelpers = {
   createViewPortionRequest(viewPortionProps: RecombeeViewPortionProps) {
@@ -39,7 +46,30 @@ const recombeeRequestHelpers = {
       cascadeCreate: false,
       recommId: recommId
     });
-  }
+  },
+
+  createDetailViewRequest(postId: string, userId: string, recommId?: string) {
+    return new AddDetailView(userId, postId, {
+      timestamp: new Date().toISOString(),
+      recommId,
+      cascadeCreate: false
+    });
+  },
+
+  createRatingRequest(postId: string, userId: string, voteType: string, recommId?: string) {
+    const rating = voteTypeRatingsMap[voteType];
+    if (typeof rating !== 'number') {
+      // eslint-disable-next-line no-console
+      console.log(`Attempted to create a recombee rating request for a non-karma vote on post with id ${postId}, voteType: ${voteType}`);
+      return;
+    }
+
+    return new AddRating(userId, postId, rating, {
+      timestamp: new Date().toISOString(),
+      recommId,
+      cascadeCreate: false
+    });
+  },
 }
 
 
@@ -55,7 +85,32 @@ const recombeeApi = {
         captureException(error);
       }
     }
-  }
+  },
+
+  async createDetailView(postId: string, userId: string, recommId?: string) {
+    const client = getRecombeeClientOrThrow();
+    const request = recombeeRequestHelpers.createDetailViewRequest(postId, userId, recommId);
+
+    try {
+      await client.send(request);
+    } catch (error) {
+      captureException(error);
+    }
+  },
+
+  async createRating(postId: string, userId: string, voteType: string, recommId?: string) {
+    const client = getRecombeeClientOrThrow();
+    const request = recombeeRequestHelpers.createRatingRequest(postId, userId, voteType, recommId);
+    if (!request) {
+      return;
+    }
+
+    try {
+      await client.send(request);
+    } catch (error) {
+      captureException(error);
+    }
+  },
 }
 
 export { recombeeRequestHelpers, recombeeApi }
