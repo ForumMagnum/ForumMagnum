@@ -158,8 +158,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     right: 16,
     top: 70,
-    color: 'black',
-    textShadow: '0 0 3px white, 0 0 3px white',
+    color: theme.palette.text.alwaysBlack,
+    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
     textAlign: 'right',
     width: '240px',
     '& h2': {
@@ -174,7 +174,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& button': {
       ...theme.typography.commentStyle,
-      backgroundColor: 'rgba(255, 255, 255, 0.6)',
+      backgroundColor: theme.palette.panelBackground.translucent3,
       border: 'none',
       color: 'black',
       borderRadius: '3px',
