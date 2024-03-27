@@ -77,13 +77,16 @@ const postBatchQuery = `
   )
   SELECT
     p.*,
-    ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core)) AS tags
+    CASE WHEN COUNT(t.*) = 0
+      THEN '{}'::JSONB[]
+      ELSE ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core))
+    END AS tags
   FROM selected_posts
   INNER JOIN "Posts" AS p
   USING(_id)
   LEFT JOIN "TagRels" AS tr
   ON selected_posts._id = tr."postId"
-  INNER JOIN "Tags" AS t
+  LEFT JOIN "Tags" AS t
   ON tr."tagId" = t._id
   GROUP BY p._id
   ORDER BY p."createdAt" ASC
@@ -105,12 +108,15 @@ async function backfillPosts(offsetDate?: Date) {
   }
 
   // eslint-disable-next-line no-console
-  console.log(`Initial post batch offset date: ${offsetDate}`);
+  console.log(`Initial post batch offset date: ${offsetDate.toISOString()}`);
 
   let batch = await getPostBatch(offsetDate);
 
   try {
     while (batch.length) {
+      // eslint-disable-next-line no-console
+      console.log(`Post batch size: ${batch.length}.  From offset date: ${offsetDate.toISOString()}`);
+
       const postsWithTags = batch.map(({ tags, ...post }) => ({
         post,
         tags: tags.map(([_, name, core]) => ({ name, core }))
@@ -120,7 +126,12 @@ async function backfillPosts(offsetDate?: Date) {
       const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
       await recombeeClient.send(batchRequest);
   
-      offsetDate = batch.slice(-1)[0].createdAt;
+      const nextOffsetDate = batch.slice(-1)[0].createdAt;
+      if (offsetDate.getTime() === nextOffsetDate.getTime()) {
+        console.log(`Next post batch offset date is the same as previous offset date: ${offsetDate.toISOString()}.  Returning early, investigate!`);
+        return;
+      }
+      offsetDate = nextOffsetDate;
       // eslint-disable-next-line no-console
       console.log(`Next post batch offset date: ${offsetDate.toISOString()}`);
       batch = await getPostBatch(offsetDate);
