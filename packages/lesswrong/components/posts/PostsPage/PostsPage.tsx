@@ -340,6 +340,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
+  const [alreadySentRecombeeEvent, setAlreadySentRecombeeEvent] = useState(false);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -419,17 +420,18 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
-    if (!currentUser || !recommId || !recombeeEnabledSetting.get()) return;
+    if (alreadySentRecombeeEvent || !currentUser || !recombeeEnabledSetting.get()) return;
 
+    void recombeeApi.createDetailView(post._id, currentUser._id, recommId);
     setRecommId(recommId);
-    void recombeeApi.createDetailView(post._id, currentUser._id, recommId)
+    setAlreadySentRecombeeEvent(true);
 
     // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
     // sharing links with a recommId
-    const currentQuery = isEmpty(query) ? {} : query
-    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined}
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
-  }, [navigate, location.location, query, currentUser, post._id]);
+    const currentQuery = isEmpty(query) ? {} : query;
+    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
+  }, [alreadySentRecombeeEvent, navigate, location.location, query, currentUser, post._id]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answersAndReplies } = useMulti({
