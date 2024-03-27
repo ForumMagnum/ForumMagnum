@@ -176,7 +176,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       ...theme.typography.commentStyle,
       backgroundColor: theme.palette.panelBackground.translucent3,
       border: 'none',
-      color: 'black',
+      color: theme.palette.text.alwaysBlack,
       borderRadius: '3px',
       textAlign: 'center',
       padding: 8

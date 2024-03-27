@@ -35,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label="", color = "white"}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label="", color = "black"}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
