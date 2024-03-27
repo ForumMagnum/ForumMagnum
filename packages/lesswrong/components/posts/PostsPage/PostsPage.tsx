@@ -38,12 +38,9 @@ import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
-<<<<<<< HEAD
 import { recombeeApi } from '../../../lib/recombee/client';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
-=======
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
->>>>>>> origin/master
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
