@@ -1,6 +1,6 @@
 import { AddDetailView, AddRating, ApiClient, SetViewPortion } from 'recombee-js-api-client';
-import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../publicSettings';
 import { captureException } from '@sentry/core';
+import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../instanceSettings';
 
 export interface RecombeeViewPortionProps {
   timestamp: Date;

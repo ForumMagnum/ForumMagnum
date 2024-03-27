@@ -1,8 +1,6 @@
 import { ApiClient, requests } from 'recombee-api-client';
 import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
-import { recombeePrivateApiTokenSetting } from '../databaseSettings';
-import { recombeeDatabaseIdSetting } from '../../lib/publicSettings';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -10,6 +8,7 @@ import findByIds from '../vulcan-lib/findbyids';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;

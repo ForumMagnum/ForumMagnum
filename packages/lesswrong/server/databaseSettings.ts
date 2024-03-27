@@ -95,5 +95,3 @@ function validateSettings(registeredSettings: Record<string, "server" | "public"
 
 export const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
 export const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
-
-export const recombeePrivateApiTokenSetting = new DatabaseServerSetting<string | null>('recombee.privateApiToken', null);
