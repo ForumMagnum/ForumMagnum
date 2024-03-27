@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run eslint
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
@@ -30,15 +30,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
+    - name: Save coverage report
+      uses: coverallsapp/github-action@v2
       with:
-        name: unit-coverage-lcov.info
-        path: unit-coverage/lcov.info
+        file: unit-coverage/lcov.info
+        format: lcov
+        flag-name: Unit
+        parallel: true
 
   runIntegrationTests:
     runs-on: ubuntu-latest
@@ -61,18 +63,13 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Setup database schema
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: integration-coverage-lcov.info
-        path: integration-coverage/lcov.info
 
   runPostgresBootstrap:
     runs-on: ubuntu-latest
@@ -96,7 +93,7 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Execute Accepted Schema
@@ -104,21 +101,11 @@ jobs:
     - name: Run Database Bootstrap
       run: yarn migrate up
 
-  mergeCoverageReports:
+  uploadCoverageReports:
     needs: [runUnitTests, runIntegrationTests]
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    - name: Setup Environment
-      uses: ./.github/actions/setupEnvironment
-    - name: Download all coverage reports
-      uses: actions/download-artifact@v2
-      with:
-        path: .
-    - name: Merge coverage reports
-      run: yarn combine-coverage
-    - name: Coveralls
+    - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
       with:
-        file: combined-coverage/lcov.info
+        parallel-finished: true
