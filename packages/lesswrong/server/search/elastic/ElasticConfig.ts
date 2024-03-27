@@ -204,7 +204,6 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
-      {range: {baseScore: {gte: 0}}},
     ],
     mappings: {
       title: fullTextMapping,
