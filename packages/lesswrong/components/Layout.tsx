@@ -174,7 +174,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& button': {
       ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.panelBackground.translucent3,
+      backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 0.8,
       border: 'none',
       color: theme.palette.text.alwaysBlack,
       borderRadius: '3px',
