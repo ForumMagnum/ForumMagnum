@@ -34,11 +34,8 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: unit-coverage-lcov.info
-        path: unit-coverage/lcov.info
+    - name: Preserve coverage report # Files in $HOME are preserved between steps
+      run: mv unit-coverage/lcov.info $HOME/unit-lcov.info
 
   runIntegrationTests:
     runs-on: ubuntu-latest
@@ -68,11 +65,8 @@ jobs:
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: integration-coverage-lcov.info
-        path: integration-coverage/lcov.info
+    - name: Preserve coverage report # Files in $HOME are preserved between steps
+      run: mv integration-coverage/lcov.info $HOME/integration-lcov.info
 
   runPostgresBootstrap:
     runs-on: ubuntu-latest
@@ -112,15 +106,10 @@ jobs:
       uses: actions/checkout@v3
     - name: Install dependencies
       run: sudo apt-get install -y lcov
-    - name: Download all coverage reports
-      uses: actions/download-artifact@v4
-      with:
-        path: .
-        merge-multiple: true
     - name: DEBUG STUFF
-      run: ls -l
+      run: ls -l $HOME
     - name: Merge coverage reports
-      run: yarn combine-coverage unit-coverage-lcov.info integration-coverage-lcov.info
+      run: yarn combine-coverage $HOME/unit-lcov.info $HOME/integration-lcov.info
     - name: Coveralls
       uses: coverallsapp/github-action@v2
       with:
