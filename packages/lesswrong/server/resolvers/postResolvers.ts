@@ -28,6 +28,9 @@ import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { recombeeApi } from '../recombee/client';
+import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -564,3 +567,33 @@ createPaginatedResolver({
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
 });
+
+addGraphQLSchema(`
+  type RecombeeRecommendedPost {
+    post: Post!
+    recommId: String!
+  }
+`)
+
+interface RecombeeRecommendedPost {
+  post: Partial<DbPost>,
+  recommId: string
+}
+
+createPaginatedResolver({
+  name: "RecombeeLatestPosts",
+  graphQLType: "RecombeeRecommendedPost",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args: { settings: RecombeeRecommendationArgs }
+  ): Promise<RecombeeRecommendedPost[]> => {
+    const { repos, currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error(`Only admins may use Recombee recommendations right now`);
+    }
+
+    return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);
+  }
+})

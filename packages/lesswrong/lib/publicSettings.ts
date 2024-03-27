@@ -34,6 +34,11 @@ export class DatabasePublicSetting<SettingValueType> {
     private defaultValue: SettingValueType
   ) {
     initializeSetting(settingName, "public")
+
+    // Affords for a more convenient lazy usage, 
+    // so you can refer to setting getter as `setting.get` vs having to wrap it in a function like `() => setting.get()`
+    this.get = this.get.bind(this)
+    this.getOrThrow = this.getOrThrow.bind(this)
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
@@ -41,6 +46,12 @@ export class DatabasePublicSetting<SettingValueType> {
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
+  }
+
+  getOrThrow(): SettingValueType {
+    const value = this.get()
+    if (value === null || value === undefined) throw Error(`Tried to access public setting ${this.settingName} but it was not set`)
+    return value
   }
 }
 
@@ -164,3 +175,7 @@ export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number
 export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
 
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
+
+export const latestPostsAlgorithmsSetting = new DatabasePublicSetting<string[]>('latestPosts.algorithms', []);
+
+export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
