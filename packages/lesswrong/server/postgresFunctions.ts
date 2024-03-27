@@ -200,7 +200,28 @@ export const postgresFunctions = [
       END LOOP;
       RETURN false;
     END;
-  $$`
+  $$`,
+  // Fetches user by hashed login token. First attempts to read from the cached
+  // version in the `UserLoginTokens` materialized view, otherwise falls back
+  // to reading directly from the user object (which is slower).
+  `CREATE OR REPLACE FUNCTION fm_get_user_by_login_token(hashed_token TEXT)
+    RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
+    DECLARE
+    BEGIN
+      RETURN QUERY
+        SELECT u.*
+        FROM "Users" u
+        JOIN "UserLoginTokens" lt ON lt."userId" = u."_id"
+        WHERE lt."hashedToken" = hashed_token;
+      IF (FOUND = FALSE) THEN
+        RETURN QUERY
+          SELECT *
+          FROM "Users"
+          WHERE "services"->'resume'->'loginTokens' @>
+            ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
+      END IF;
+    END
+  $$`,
 ] as const;
 
 export type PostgresFunction = typeof postgresFunctions[number];

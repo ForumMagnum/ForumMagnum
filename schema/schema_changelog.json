@@ -588,5 +588,10 @@
     "acceptsSchemaHash": "5fb909476a7c6ef9567f7efb1abd005f",
     "acceptedByMigration": "20240316T002500.add_CurationEmails_table.ts",
     "timestamp": "2024-03-16T00:25:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "536f72d73311be48e421692e5c2a8608",
+    "acceptedByMigration": "20240322T131845.add_fm_get_user_by_login_token_function.ts",
+    "timestamp": "2024-03-22T13:18:45.000Z"
   }
 ]
