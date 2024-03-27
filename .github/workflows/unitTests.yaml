@@ -117,6 +117,8 @@ jobs:
       with:
         path: .
         merge-multiple: true
+    - name: DEBUG STUFF
+      run: ls -l
     - name: Merge coverage reports
       run: yarn combine-coverage unit-coverage-lcov.info integration-coverage-lcov.info
     - name: Coveralls
