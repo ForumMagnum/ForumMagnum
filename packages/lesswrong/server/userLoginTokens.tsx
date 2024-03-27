@@ -16,7 +16,7 @@ const createUserLoginTokensIndexQuery = `
 `;
 
 const refreshUserLoginTokensIndexQuery = `
-  REFRESH MATERIALIZED VIEW "UserLoginTokens"
+  REFRESH MATERIALIZED VIEW CONCURRENTLY "UserLoginTokens"
 `;
 
 createPostgresView(
