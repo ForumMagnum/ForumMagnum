@@ -12,6 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.background.primaryTranslucentHeavy
     }
   },
+  popper: {
+    height: 0,
+  },
   button: {
     zIndex: 1000,
     position: "relative",
@@ -81,11 +84,12 @@ export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling,
   }, [detectSelection, commentBodyRef]);
   
   const buttonOffsetLeft = (styling==="comment") ? 12 : 30;
-  const buttonOffsetTop = (styling==="comment") ? 10 : 20;
+  const buttonOffsetTop = (styling==="comment") ? -10 : 0;
 
   return (
     <div className={classes.root} ref={commentTextRef}>
       <LWPopper
+        className={classes.popper}
         open={!!anchorEl} anchorEl={anchorEl}
         placement="right"
         allowOverflow={true}
