@@ -38,7 +38,6 @@ import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
-import { recombeeApi } from '../../../lib/recombee/client';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 
@@ -341,7 +340,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
-  const [alreadySentRecombeeEvent, setAlreadySentRecombeeEvent] = useState(false);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -426,21 +424,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }, [navigate, location.location, openDialog, fullPost, query]);
 
-  useEffect(() => {
-    const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
-    if (alreadySentRecombeeEvent || !currentUser || !recombeeEnabledSetting.get()) return;
-
-    void recombeeApi.createDetailView(post._id, currentUser._id, recommId);
-    setRecommId(recommId);
-    setAlreadySentRecombeeEvent(true);
-
-    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
-    // sharing links with a recommId
-    const currentQuery = isEmpty(query) ? {} : query;
-    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
-    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
-  }, [alreadySentRecombeeEvent, navigate, location.location, query, currentUser, post._id]);
-
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answersAndReplies } = useMulti({
     terms: {
@@ -504,12 +487,28 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   } = Components
 
   useEffect(() => {
-    recordPostView({
+    const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+
+    void recordPostView({
       post: post,
       extraEventProperties: {
         sequenceId: getSequenceId()
+      },
+      recombeeOptions: {
+        recommId
       }
+
     });
+
+    if (!currentUser || !recombeeEnabledSetting.get()) return;
+    setRecommId(recommId);
+
+    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
+    // sharing links with a recommId
+    const currentQuery = isEmpty(query) ? {} : query;
+    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
+
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   

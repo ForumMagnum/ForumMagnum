@@ -76,6 +76,7 @@ const recombeeRequestHelpers = {
       curated: !!post.curatedDate,
       frontpage: !!post.frontpageDate,
       draft: !!post.draft,
+      lastCommentedAt: post.lastCommentedAt,
     }, { cascadeCreate: true });
   },
 
@@ -121,7 +122,7 @@ const recombeeApi = {
    * WARNING: this does not do permissions checks on the posts it returns.  The caller is responsible for this.
    */
   async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
-    const modifiedCount = Math.ceil(count * 3);
+    const modifiedCount = Math.ceil(count * 2);
 
     const client = getRecombeeClientOrThrow();
     const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, lwAlgoSettings);
@@ -129,7 +130,7 @@ const recombeeApi = {
     const response = await client.send(request);
 
     // remove posts read more than a week ago
-    const oneWeekAgo = moment(new Date()).subtract(1, 'week').toDate();
+    const twoWeeksAgo = moment(new Date()).subtract(2, 'week').toDate();
     const postIds = response.recomms.map(rec => rec.id);
     const [
       posts,
@@ -140,15 +141,19 @@ const recombeeApi = {
         postId: { $in: postIds }, 
         userId, 
         isRead: true, 
-        lastUpdated: { $lt: oneWeekAgo } 
+        lastUpdated: { $lt: twoWeeksAgo } 
       }).fetch()
     ])
 
-    const unreadPosts = posts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, unreadPosts, context)
-    
-    // TODO: loop over the above if we don't get enough posts?
-    return filteredPosts.slice(0, count).map(post => ({post, recommId: response.recommId}));
+    //should basically never take any out
+    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
+
+    //sort the posts by read/unread but ensure otherwise preserving Recombee's returned order
+    const unreadOrRecentlyReadPosts = filteredPosts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
+    const remainingPosts = filteredPosts.filter(post => readStatuses.find(readStatus => (readStatus.postId === post._id)));
+
+    //concatenate unread and read posts and return requested number
+    return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: response.recommId}));
   },
 
 
