@@ -174,7 +174,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& button': {
       ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.panelBackground.translucent3,
+      backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 0.8,
       border: 'none',
       color: theme.palette.text.alwaysBlack,
       borderRadius: '3px',
@@ -356,7 +357,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
+  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : isLW ? 'rgba(0, 0, 0, 0.7)' : undefined;
 
   const render = () => {
     const {
