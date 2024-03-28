@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
-import { gql, useQuery } from '@apollo/client';
+import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 
 interface RecombeeRecommendedPost {
@@ -14,45 +14,94 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+const RESOLVER_NAME = 'RecombeeLatestPosts';
+
+const getRecombeeLatestPostsQuery = gql`
+  query get${RESOLVER_NAME}($limit: Int, $settings: JSON) {
+    ${RESOLVER_NAME}(limit: $limit, settings: $settings) {
+      results {
+        post {
+          ...PostsListWithVotes
+        }
+        recommId
+      }
+    }
+  }
+  ${fragmentTextForQuery('PostsListWithVotes')}
+`;
+
 export const RecombeePostsList = ({ algorithm, settings, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, PostsItem } = Components;
+  const { Loading, LoadMore, PostsItem, SectionFooter } = Components;
+  
+  const [loadedPosts, setLoadedPosts] = useState<RecombeeRecommendedPost[]>([]);
 
-  const query = gql`
-    query getRecombeeLatestPosts($limit: Int, $settings: JSON) {
-      RecombeeLatestPosts(limit: $limit, settings: $settings) {
-        results {
-          post {
-            ...PostsListWithVotes
-          }
-          recommId
-        }
-      }
-    }
-    ${fragmentTextForQuery('PostsListWithVotes')}
-  `;
+  const recombeeSettings = { ...settings, scenario: algorithm };
 
-  const { data, loading } = useQuery(query, {
+  const { data, loading, fetchMore, networkStatus } = useQuery(getRecombeeLatestPostsQuery, {
     ssr: true,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
       limit: 13,
-      settings: { ...settings, scenario: algorithm }
+      settings: recombeeSettings,
     },
   });
 
-  const results: RecombeeRecommendedPost[] | undefined = data?.RecombeeLatestPosts?.results;
+  const results: RecombeeRecommendedPost[] | undefined = data?.[RESOLVER_NAME]?.results;
 
-  if (loading) {
+  // To avoid needing to e.g. send previously-loaded postIds to the server on loadMore,
+  // and fetch an ever-increasing number of posts, the resolver only returns the "next" posts (based on recombee's RecommendNextItems api).
+  // This means we need to manage combining the previously and newly loaded posts on the client.
+  // loadedPosts is also used by the `updateQuery` inside of `fetchMore`.
+  useEffect(() => {
+    if (results) {
+      setLoadedPosts([...loadedPosts, ...results]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [results]);
+
+  if (loading && !results) {
     return <Loading />;
   }
 
-  return <div className={classes.root}>
-    {results?.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
+  if (!results) {
+    return null;
+  }
+
+  const recommId = results.slice(-1)[0]?.recommId;
+
+  return <div>
+    <div className={classes.root}>
+      {loadedPosts.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
+    </div>
+    <SectionFooter>
+      <LoadMore
+        loading={loading || networkStatus === NetworkStatus.fetchMore}
+        loadMore={() => {
+          void fetchMore({
+            variables: {
+              settings: { ...recombeeSettings, loadMore: { prevRecommId: recommId } },
+            },
+            // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
+            updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
+              if (!fetchMoreResult) return prev;
+
+              return {
+                RecombeeLatestPosts: {
+                  __typename: fetchMoreResult[RESOLVER_NAME].__typename,
+                  results: [...loadedPosts, ...fetchMoreResult[RESOLVER_NAME].results]
+                }
+              };
+            }
+          });
+        }}
+        sectionFooterStyles
+      />
+    </SectionFooter>
   </div>;
 }
 
