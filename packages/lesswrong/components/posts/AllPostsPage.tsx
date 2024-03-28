@@ -94,7 +94,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               <SectionTitle title={preferredHeadingCase("All Posts")}>
                 {isFriendlyUI ?
                   <SortButton label={formatSort(currentSorting)} /> :
-                  <SettingsButton textShadow label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
+                  <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 }
               </SectionTitle>
             </div>
