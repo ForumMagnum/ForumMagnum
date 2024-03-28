@@ -100,15 +100,17 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
     return false;
   }
 
-  if (!userIsAdmin(currentUser)) {
-    return !currentUser?.hideFrontpageFilterSettingsDesktop;
-  }
+  return !currentUser?.hideFrontpageFilterSettingsDesktop;
 
-  if (selectedAlgorithm === 'lesswrong-classic') {
-    return true;
-  }
+  // if (!userIsAdmin(currentUser)) {
+  //   return !currentUser?.hideFrontpageFilterSettingsDesktop;
+  // }
 
-  return false;
+  // if (selectedAlgorithm === 'lesswrong-classic') {
+  //   return true;
+  // }
+
+  // return false;
 };
 
 const getDefaultScenario = () => {
@@ -128,7 +130,7 @@ function useRecombeeSettings(onUpdateSelectedScenario: (selectedScenario: string
   const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultScenarioConfig);
 
   const updateSelectedScenario = (newScenario: string) => {
-    onUpdateSelectedScenario(newScenario);
+    // onUpdateSelectedScenario(newScenario);
 
     // If we don't yet have this cookie, or have this scenario stored in the cookie, add it as the first item
     // Otherwise, reorder the existing scenario + config tuples to have that scenario be first
