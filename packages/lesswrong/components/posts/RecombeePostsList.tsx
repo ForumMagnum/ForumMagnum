@@ -2,6 +2,7 @@ import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { useMulti } from '../../lib/crud/withMulti';
 
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
@@ -14,12 +15,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RecombeePostsList = ({ algorithm, settings, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, showSticky=false, limit=12, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
+  showSticky?: boolean,
+  limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, PostsItem } = Components;
+  const { Loading, PostsItem, CuratedPostsList } = Components;
 
   const query = gql`
     query getRecombeeLatestPosts($limit: Int, $settings: JSON) {
@@ -35,12 +38,25 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
     ${fragmentTextForQuery('PostsListWithVotes')}
   `;
 
+  const stickiedPostTerms: PostsViewTerms = {
+      view: 'stickied',
+      limit: 4, //seriously, shouldn't have more than 4 stickied posts
+      forum: true
+    }
+
+  const { results: stickiedPosts, loading: stickiedLoading } = useMulti({
+    collectionName: "Posts",
+    fragmentName: 'PostsListWithVotes',
+    terms: stickiedPostTerms,
+    skip: !showSticky,
+  })
+
   const { data, loading } = useQuery(query, {
     ssr: true,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
-      limit: 13,
+      limit: limit,
       settings: { ...settings, scenario: algorithm }
     },
   });
@@ -52,6 +68,8 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
   }
 
   return <div className={classes.root}>
+    <CuratedPostsList/>
+    {stickiedPosts?.map(post => <PostsItem key={post._id} post={post} terms={stickiedPostTerms}/>)}
     {results?.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
   </div>;
 }
