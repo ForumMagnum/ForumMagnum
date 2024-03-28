@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
@@ -23,6 +23,8 @@ import Select from '@material-ui/core/Select';
 import classNames from 'classnames';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
+import { filterSettingsToggleLabels } from '../common/HomeLatestPosts';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 // Key is the algorithm/scenario name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -60,6 +62,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     },
+  },
+  settingsVisibilityControls: {
+    display: "flex",
+    gap: "4px",
   },
 })
 
@@ -167,8 +173,10 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
 }) => {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList, SectionTitle,
-    StickiedPosts, MenuItem, RecombeePostsList, RecombeePostsListSettings
+    StickiedPosts, MenuItem, RecombeePostsList, RecombeePostsListSettings, SettingsButton
   } = Components;
+  
+  const updateCurrentUser = useUpdateCurrentUser();
 
   const updateTagFilterSettingsVisibility = (selectedScenario: string) => {
     const showFilterSettings = usingClassicLWAlgorithm(selectedScenario);
@@ -183,7 +191,17 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const defaultDesktopFilterSettingsVisibility = getDefaultDesktopFilterSettingsVisibility(currentUser, selectedScenario);
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(defaultDesktopFilterSettingsVisibility);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  
+  const { captureEvent } = useOnMountTracking({
+    eventType: "frontpageFilterSettings",
+    eventProps: {
+      filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts",
+      recombee: true
+    },
+    captureOnMount: true,
+  });
+
   const location = useLocation();
   const { query } = location;
 
@@ -199,9 +217,46 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     view: "magic",
     forum: true,
     limit:limit
-  }
+  };
 
-  const showCurated = isFriendlyUI || (isLW && reviewIsActive())
+  const showCurated = isFriendlyUI || (isLW && reviewIsActive());
+
+  const changeShowTagFilterSettingsDesktop = () => {
+    setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
+    if (isLWorAF) {
+      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
+    }
+    
+    captureEvent("filterSettingsClicked", {
+      settingsVisible: !filterSettingsVisibleDesktop,
+      settings: filterSettings,
+    })
+  };
+
+  const settingsButton = (<>
+    <SettingsButton
+      className={classes.hideOnMobile}
+      label={filterSettingsVisibleDesktop ?
+        filterSettingsToggleLabels.desktopVisible :
+        filterSettingsToggleLabels.desktopHidden}
+      showIcon={false}
+      onClick={changeShowTagFilterSettingsDesktop}
+    />
+    <SettingsButton
+      className={classes.hideOnDesktop}
+      label={filterSettingsVisibleMobile ?
+        filterSettingsToggleLabels.mobileVisible :
+        filterSettingsToggleLabels.mobileHidden}
+      showIcon={false}
+      onClick={() => {
+        setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+        captureEvent("filterSettingsClicked", {
+          settingsVisible: !filterSettingsVisibleMobile,
+          settings: filterSettings,
+          pageSectionContext: "latestPosts"
+        })
+      }} />
+  </>);
 
   const algorithmPicker = (
     <Select
@@ -235,13 +290,21 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           />
         </div>
       </AnalyticsContext>)
-    : <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />
+    : <div className={classNames({
+        [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+        [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+      })}>
+        <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />
+      </div>
 
   return (
-    <AnalyticsContext pageSectionContext="latestPosts">
+    <AnalyticsContext pageSectionContext="latestPosts" >
       <SingleColumnSection>
         <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
-          {algorithmPicker}
+          <div className={classes.settingsVisibilityControls}>
+            {settingsButton}
+            {algorithmPicker}
+          </div>
         </SectionTitle>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
