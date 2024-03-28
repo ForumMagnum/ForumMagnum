@@ -115,7 +115,7 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
     ])
 
     // update the lastCommentedAt field in Recombee version of post
-    if (recombeeEnabledSetting.get()  && !comment.debateResponse) {
+    if (recombeeEnabledSetting.get() && !comment.debateResponse) {
       const post = await context.loaders.Posts.load(comment.postId)
       if (post) {
         // eslint-disable-next-line no-console
