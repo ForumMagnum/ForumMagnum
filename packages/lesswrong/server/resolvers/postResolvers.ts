@@ -302,7 +302,7 @@ augmentFieldsDict(Posts, {
           "https://youtube.com",
           "https://youtu.be",
         ];
-        const $ = cheerioParse(post.contents.html);
+        const $ = cheerioParse(post.contents?.html);
         const iframes = $("iframe").toArray();
         for (const iframe of iframes) {
           if ("attribs" in iframe) {
