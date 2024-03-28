@@ -119,7 +119,6 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
       const post = await context.loaders.Posts.load(comment.postId)
       if (post) {
         // eslint-disable-next-line no-console
-        console.log("recombee lastCommentedAt update firing", comment.postId)
         void recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e }));  
       }
     }
