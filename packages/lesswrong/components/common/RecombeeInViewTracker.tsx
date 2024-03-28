@@ -3,6 +3,7 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { useIsInView } from "../../lib/analyticsEvents";
 import { useCurrentUser } from './withUser';
 import { RecombeeViewPortionProps, recombeeApi } from '../../lib/recombee/client';
+import { recombeeEnabledSetting } from '../../lib/publicSettings';
 
 
 const RecombeeInViewTracker = ({eventProps, observerProps, children}: {
@@ -20,7 +21,7 @@ const RecombeeInViewTracker = ({eventProps, observerProps, children}: {
   [])
 
   useEffect(() => {
-    if (!!entry && !!currentUser) {
+    if (recombeeEnabledSetting.get() && !!entry && !!currentUser) {
       const {isIntersecting, intersectionRatio} = entry
 
       if (!alreadySent && isIntersecting && intersectionRatio > 0) {

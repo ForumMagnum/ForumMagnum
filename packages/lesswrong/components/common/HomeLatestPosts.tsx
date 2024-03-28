@@ -60,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
-const filterSettingsToggleLabels = forumSelect({
+export const filterSettingsToggleLabels = forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -171,6 +171,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
+              textShadow
             />
             <SettingsButton
               className={classes.hideOnDesktop}

@@ -5,7 +5,7 @@ import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
@@ -414,39 +414,63 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   return {...comment, ...votedComment} as DbComment;
 });
 
-getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
-  if (modifier.$set) {
-    const { deleted, deletedPublic, deletedReason } = modifier.$set
-    if (deleted || deletedPublic || deletedReason) {
-      if (deletedPublic && !deleted) {
-        throw new Error("You cannot publicly delete a comment without also deleting it")
-      }
+getCollectionHooks("Comments").updateBefore.add(async function validateDeleteOperations (data, properties) {
+  // Validate changes to comment deletion fields (deleted, deletedPublic,
+  // deletedReason). This could be deleting a comment, undoing a delete, or
+  // changing the reason/public-ness of the deletion.
+  //
+  // Note that this is normally called via the mutaiton inside the
+  // moderateComment mutator, which has already enforced some things; in
+  // particular it will have checked `userCanModerateComment` and filled in
+  // deletedByUserId and deletedDate.
 
-      if (
-        (comment.deleted || comment.deletedPublic) &&
-        (deletedPublic || deletedReason) &&
-        !userCanDo(currentUser, 'comments.remove.all') &&
-        comment.deletedByUserId !== currentUser._id) {
-          throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
-      }
-
-      if (deletedReason && !deleted && !deletedPublic) {
-        throw new Error("You cannot set a deleted reason without deleting a comment")
-      }
-
-      const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch()
+  // First check that anything relevant to deletion has changed
+  if (properties.oldDocument.deleted !== properties.newDocument.deleted
+   || properties.oldDocument.deletedPublic !== properties.newDocument.deletedPublic
+   || properties.oldDocument.deletedReason !== properties.newDocument.deletedReason
+  ) {
+    if (properties.newDocument.deletedPublic && !properties.newDocument.deleted) {
+      throw new Error("You cannot publicly delete a comment without also deleting it")
+    }
+    
+    if (properties.newDocument.deleted && !properties.oldDocument.deleted) {
+      // Deletion
+      const childrenComments = await Comments.find({parentCommentId: properties.newDocument._id}).fetch()
       const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
       if (
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
-        (deletedPublic || deleted) &&
-        !userCanDo(currentUser, 'comment.remove.all')
+        !userCanDo(properties.currentUser, 'comment.remove.all')
       ) {
         throw new Error("You cannot delete a comment that has children")
       }
+    } else if (properties.oldDocument.deleted && !properties.newDocument.deleted) {
+      // Undeletion
+      //
+      // Deletions can be undone by mods and by the person who did the deletion
+      // (regardless of whether they would still have permission to do that
+      // deletion now).
+      if (
+        !userIsAdminOrMod(properties.currentUser)
+        && properties.oldDocument.deletedByUserId !== properties.currentUser?._id
+      ) {
+        throw new Error("You cannot undo deletion of a comment deleted by someone else");
+      }
+    } else if (properties.newDocument.deleted) {
+      // Changing metadata on a deleted comment requires the same permissions as
+      // undeleting (either a moderator, or was the person who did the deletion
+      // in the first place)
+      if (
+        properties.newDocument.deleted
+        && properties.currentUser?._id !== properties.oldDocument.deletedByUserId
+        && !userIsAdminOrMod(properties.currentUser)
+      ) {
+        throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
+      }
     }
   }
-  return modifier
+
+  return data;
 });
 
 getCollectionHooks("Comments").editSync.add(async function moveToAnswers (modifier, comment: DbComment) {

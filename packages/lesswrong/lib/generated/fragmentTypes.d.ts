@@ -844,6 +844,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
   readonly dialogueMessageContents: string|null,
+  readonly firstVideoAttribsForPreview: any,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1568,6 +1569,7 @@ interface PostsEditCriticismTips { // fragment on Posts
 interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
   readonly socialPreviewData: any,
+  readonly firstVideoAttribsForPreview: any,
 }
 
 interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
@@ -1603,6 +1605,7 @@ interface CommentsList { // fragment on Comments
   readonly userId: string,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
+  readonly deletedByUserId: string,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
   readonly authorIsUnreviewed: boolean,
