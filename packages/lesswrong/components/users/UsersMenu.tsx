@@ -22,7 +22,7 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
-    color: theme.palette.header.text,
+    color: isLW ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     wordBreak: 'break-word',
   },
   userImageButton: {
@@ -177,15 +177,15 @@ const UsersMenu = ({classes}: {
       )
     : null,
     /*
-      * This is currently disabled for unreviewed users on the EA forum
+      * This is currently disabled for unreviewed users
       * as there's issues with the new quick takes entry for such users.
       * Long-term, we should fix these issues and reenable this option.
       */
     newShortform: () =>
-      showNewButtons && (!isFriendlyUI || userCanComment(currentUser))
+      showNewButtons && userCanComment(currentUser)
         ? (
           <DropdownItem
-            title={isFriendlyUI ? "New quick take" : "New Shortform"}
+            title={preferredHeadingCase("New Quick Take")}
             onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
@@ -311,7 +311,8 @@ const UsersMenu = ({classes}: {
               />
               {currentUser.shortformFeedId &&
                 <DropdownItem
-                  title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
+                  // TODO: get Habryka's take on what the title here should be
+                  title={preferredHeadingCase("Your Quick Takes")}
                   to={postGetPageUrl({
                     _id: currentUser.shortformFeedId,
                     slug: "shortform",

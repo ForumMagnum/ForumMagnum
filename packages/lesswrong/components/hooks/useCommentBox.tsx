@@ -1,15 +1,10 @@
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react';
 import { Components } from '../../lib/vulcan-lib';
 import { hookToHoc } from '../../lib/hocUtils';
-
-type FromPartial<T> = T extends Partial<infer U> ? U : never;
-
-type CloseableComponents = {
-  [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['defaultProps']> extends { onClose: any } | undefined ? T : never
-}[keyof ComponentTypes];
+import type { CloseableComponent } from '../common/withDialog';
 
 interface CommentBoxContextType {
-  openCommentBox: <T extends CloseableComponents>({componentName, componentProps}: {componentName: T, componentProps: Omit<ComponentProps<ComponentTypes[T]>, 'onClose' | 'classes'>}) => void,
+  openCommentBox: <T extends CloseableComponent>({componentName, componentProps}: {componentName: T, componentProps: Omit<ComponentProps<ComponentTypes[T]>, 'onClose' | 'classes'>}) => void,
   close: () => void,
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
@@ -17,7 +12,7 @@ export const CommentBoxContext = React.createContext<CommentBoxContextType|null>
 export const CommentBoxManager = ({ children }: {
   children: React.ReactNode
 }) => {
-  const [ componentName, setComponentName] = useState<CloseableComponents|null>(null)
+  const [ componentName, setComponentName] = useState<CloseableComponent|null>(null)
   const [ componentProps, setComponentProps] = useState<Record<string,any>|null>(null)
 
   const CommentBoxComponent = componentName ? Components[componentName] : null;

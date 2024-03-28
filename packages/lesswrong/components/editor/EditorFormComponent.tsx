@@ -18,11 +18,12 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
-export function isCollaborative(post: DbPost, fieldName: string): boolean {
+export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
@@ -409,7 +410,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
   if (!document) return null;
-    
+
   return <div className={classes.root}>
     {showEditorWarning &&
       <Components.LastEditedInWarning

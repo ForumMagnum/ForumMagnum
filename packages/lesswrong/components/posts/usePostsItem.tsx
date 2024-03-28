@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useHideRepeatedPosts } from "./HideRepeatedPostsContext";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
@@ -12,7 +12,10 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
-import { AnnualReviewMarketInfo, getMarketInfo } from "../../lib/annualReviewMarkets";
+import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
+import { Link } from '../../lib/reactRouterWrapper';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -77,6 +80,7 @@ export type PostsItemConfig = {
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
+  recombeeRecommId?: string,
   className?: string,
 }
 
@@ -121,6 +125,7 @@ export const usePostsItem = ({
   showMostValuableCheckbox = false,
   showKarma = true,
   isVoteable = false,
+  recombeeRecommId,
   className,
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
@@ -162,9 +167,13 @@ export const usePostsItem = ({
   const hadUnreadComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentedAt);
   const hasNewPromotedComments =  compareVisitedAndCommentedAt(post.lastVisitedAt, lastCommentPromotedAt);
 
-  const postLink = post.draft && !post.debate
+  let postLink = post.draft && !post.debate
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
+
+  if (recombeeRecommId) {
+    postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
+  }
 
   const showDismissButton = Boolean(currentUser && resumeReading);
   const onArchive = toggleDeleteDraft && (() => toggleDeleteDraft(post));
@@ -190,6 +199,16 @@ export const usePostsItem = ({
 
   const annualReviewMarketInfo = getMarketInfo(post)
 
+  const annualReviewMarketComment = post.annualReviewMarketComment
+
+  const highlightMarketForLinking = !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && !!annualReviewMarketComment
+
+  const marketLink = highlightMarketForLinking && annualReviewMarketComment &&
+    <Link to={commentGetPageUrl(annualReviewMarketComment)}>
+      <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
+    </Link>
+  
+
   return {
     post,
     postLink,
@@ -213,6 +232,7 @@ export const usePostsItem = ({
     showIcons,
     showKarma,
     annualReviewMarketInfo,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,

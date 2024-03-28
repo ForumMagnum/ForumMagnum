@@ -132,6 +132,13 @@ export function startWebserver() {
   app.use('/analyticsEvent', express.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
+  if (isElasticEnabled) {
+    // We register this here (before the auth middleware) to avoid blocking
+    // search requests whilst waiting to fetch the current user from Postgres,
+    // which is never actually used.
+    ElasticController.addRoutes(app);
+  }
+
   addStripeMiddleware(addMiddleware);
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
@@ -262,10 +269,6 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
-
-  if (isElasticEnabled) {
-    ElasticController.addRoutes(app);
-  }
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

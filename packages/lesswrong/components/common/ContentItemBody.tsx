@@ -140,6 +140,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.markElicitBlocks(element);
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
+      this.exposeInternalIds(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -364,7 +365,6 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         button.setAttribute('href', validateUrl(dataHref));
       }
       button.addEventListener('click', () => {
-        // Note: there is some concern about this 
         this.props.captureEvent("ctaButtonClicked", {href: dataHref})
       })
     }
@@ -422,6 +422,27 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     }
   }
 
+  /**
+   * Convert data-internal-id to id, handling duplicates
+   */
+  exposeInternalIds = (element: HTMLElement) => {
+    const elementsWithDataInternalId = element.querySelectorAll('[data-internal-id]');
+    elementsWithDataInternalId.forEach((el: Element) => {
+      const internalId = el.getAttribute('data-internal-id');
+      if (internalId && !document.getElementById(internalId)) {
+        if (!el.id) {
+          el.id = internalId;
+        } else {
+          const wrapperSpan = document.createElement('span');
+          wrapperSpan.id = internalId;
+          while (el.firstChild) {
+            wrapperSpan.appendChild(el.firstChild);
+          }
+          el.appendChild(wrapperSpan);
+        }
+      }
+    });
+  }
 
   replaceElement = (replacedElement: HTMLElement|Element, replacementElement: React.ReactNode) => {
     const replacementContainer = document.createElement("span");
@@ -451,9 +472,6 @@ const addNofollowToHTML = (html: string): string => {
 
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  // This component can't have HoCs because it's used with a ref, to call
-  // methods on it from afar, and many HoCs won't pass the ref through.
-  // TODO clarify in PR review
   hocs: [withTracking]
 });
 

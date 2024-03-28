@@ -204,7 +204,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
-
+    reviewWinner: {
+      title: shades.greyAlpha(.75),
+      author: shades.greyAlpha(.65),
+    },
     eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
@@ -295,6 +298,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
+    grey800: `1px solid ${shades.grey[800]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
     tableHeadingDivider: shades.greyBorder("2px", 1.0),
     table: `1px double ${shades.grey[410]}`,
@@ -335,6 +339,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
+    digestAdBannerInput: shades.grey[0],
   },
   panelBackground: {
     default: shades.grey[0],
@@ -374,7 +379,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
     modalBackground: "#fff",
-    loginInput: "#f2f2f2",
+    loginInput: "#efefef",
+    loginInputHovered: "#e4e4e4",
     tenPercent: shades.greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
@@ -397,6 +403,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       rgba(255,255,255,0.25) 50%,
       rgba(0,0,0,0) 66%
     ) ${shades.grey[500]}`,
+    reviewGold: 'lch(68 34.48 85.39 / 76%)',
+    onboardingSection: "#f5f5f5",
+    onboardingPodcast: "#e7e7e7",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -459,18 +468,25 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       selected: "#198cf0",
       selectedHover: "#0e7fe1",
     },
+    digestAdBannerNoThanks: {
+      background: shades.grey[700],
+      hoverBackground: shades.grey[800],
+    },
   },
   tag: {
     text: shades.greyAlpha(.9),
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
     coreTagText: shades.grey[600],
-    coreTagBackground: "transparent",
+    coreTagBackground: shades.grey[0],
     coreTagBorder: shades.greyBorder("1px", .15),
     hollowTagBackground: shades.grey[0],
     hollowTagBorder: shades.greyBorder("1px", .15),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
+    onboardingBackground: "rgba(0, 0, 0, 0.4)",
+    onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
+    onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
   },
   geosuggest: {
     dropdownText: "#000",
@@ -485,6 +501,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     progressBar: 'rgba(127, 175, 131, 0.7)',
     adminButton: "rgba(200,150,100)",
     winner: "rgba(179, 136, 79, 1)",
+  },
+  leastwrong: {
+    fadeOut: 'rgba(0,0,0,0.38)',
+    imageGridHeaderHighlighted: 'rgba(241, 209, 150, .75)',
+    imageGridHeader: 'rgba(241, 209, 150, .4)',
+    highlightedPost: 'rgba(0,0,0,0.27)',
+    imageGridBackground: '#f8f4ee',
+    postBodyScrim: 'rgba(0,0,0,var(--top-posts-page-scrim-opacity))'
   },
   header: {
     text: shades.greyAlpha(.87),

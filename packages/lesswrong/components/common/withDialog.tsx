@@ -4,12 +4,10 @@ import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 
-export type CloseableComponents = {
-  [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['propTypes']> extends { onClose: any } | undefined ? T : never
-}[keyof ComponentTypes];
+export type CloseableComponent = ComponentWithProps<{ onClose?: any }>
 
 export interface OpenDialogContextType {
-  openDialog: <T extends CloseableComponents>({componentName, componentProps, noClickawayCancel}: {
+  openDialog: <T extends CloseableComponent>({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
     componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
     noClickawayCancel?: boolean,
@@ -23,7 +21,7 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 export const DialogManager = ({children}: {
   children: React.ReactNode,
 }) => {
-  const [componentNameWithProps, setComponentNameWithProps] = useState<{componentName: CloseableComponents, componentProps: any} | null>(null);
+  const [componentNameWithProps, setComponentNameWithProps] = useState<{componentName: CloseableComponent, componentProps: any} | null>(null);
   const [noClickawayCancel, setNoClickawayCancel] = useState<any>(false);
   const [closeOnNavigate, setCloseOnNavigate] = useState<boolean>(false);
   const {captureEvent} = useTracking();

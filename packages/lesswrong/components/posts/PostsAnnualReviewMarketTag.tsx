@@ -1,5 +1,4 @@
 import { AnnualReviewMarketInfo } from '../../lib/annualReviewMarkets';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useHover } from '../common/withHover';
@@ -22,7 +21,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -30,19 +29,13 @@ const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
   const { CommentsNode, LWPopper } = Components;
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  const annualReviewMarketCommentId = post.annualReviewMarketCommentId
-
-  const { document: comment } = useSingle({
-    documentId: annualReviewMarketCommentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsList",
-  });
+  const { annualReviewMarketComment } = post;
 
   const decimalPlaces = 0;
   return <span>
     <div className={classes.expectedWinner} {...eventHandlers}>
       {annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability * 100).toFixed(decimalPlaces))}%
-      {!!comment &&
+      {!!annualReviewMarketComment &&
         <LWPopper
           open={hover}
           anchorEl={anchorEl}
@@ -53,7 +46,7 @@ const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
             <CommentsNode
               truncated
               nestingLevel={1}
-              comment={comment}
+              comment={annualReviewMarketComment}
               treeOptions={{
                 post: post,
                 forceNotSingleLine: true,

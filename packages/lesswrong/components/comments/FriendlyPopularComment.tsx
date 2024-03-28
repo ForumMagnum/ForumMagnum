@@ -119,7 +119,7 @@ const PopularCommentTitle: FC<{
   );
 }
 
-const PopularComment = ({comment, classes}: {
+const FriendlyPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType,
 }) => {
@@ -131,7 +131,10 @@ const PopularComment = ({comment, classes}: {
     captureEvent("popularCommentToggleExpanded", {expanded: !expanded});
   }, [expanded, captureEvent]);
 
-  const {onClick} = useClickableCell({onClick: onClickCallback});
+  const {onClick} = useClickableCell({
+    onClick: onClickCallback,
+    ignoreLinks: true,
+  });
 
   const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
@@ -181,14 +184,14 @@ const PopularComment = ({comment, classes}: {
   );
 }
 
-const PopularCommentComponent = registerComponent(
-  "PopularComment",
-  PopularComment,
+const FriendlyPopularCommentComponent = registerComponent(
+  "FriendlyPopularComment",
+  FriendlyPopularComment,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PopularComment: typeof PopularCommentComponent
+    FriendlyPopularComment: typeof FriendlyPopularCommentComponent
   }
 }

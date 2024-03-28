@@ -64,11 +64,13 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 import DialogueCommentBox from './ckeditor5-dialogue-comments/dialogue-comment-box';
+import InternalBlockLinks from './internal-block-links';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import {CloudinaryAdapterPlugin} from "./cloudinary"
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -116,12 +118,14 @@ const sharedPlugins = [
 	UploadAdapter,
 	Mathematics,
 	SanitizeTags,
+	InternalBlockLinks,
 	Spoilers,
 	AutoLink,
 	Footnote,
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
+	CloudinaryAdapterPlugin,
 ];
 
 const postEditorPlugins = [

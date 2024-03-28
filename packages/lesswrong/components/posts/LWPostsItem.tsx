@@ -12,11 +12,11 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { highlightMarket } from '../../lib/annualReviewMarkets';
 
-export const KARMA_WIDTH = 32
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const KARMA_WIDTH = 32;
+
+export const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -51,6 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     position: "relative",
     padding: 10,
+    paddingLeft: 6,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -70,6 +71,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       top: -5,
     }
   },
+  hasSequenceImage: {
+    paddingRight: 0,
+  },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
   },
@@ -82,7 +86,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   karma: {
     width: KARMA_WIDTH,
-    justifyContent: "center",
+    marginRight: 4,
     [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
@@ -338,7 +342,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
@@ -363,6 +367,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showIcons,
     showKarma,
     annualReviewMarketInfo,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -425,25 +430,26 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               classes.postsItem,
               classes.withGrayHover, {
                 [classes.dense]: dense,
-                [classes.withRelevanceVoting]: !!tagRel
+                [classes.withRelevanceVoting]: !!tagRel,
+                [classes.hasSequenceImage]: !!resumeReading,
               }
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
               classes.karma, {
-                [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
-
+                [classes.karmaPredictedReviewWinner]: !!marketLink
               })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} annualReviewMarketCommentId={post.annualReviewMarketCommentId}/>
+                : <KarmaDisplay document={post} linkItem={marketLink}/>
               }
             </PostsItem2MetaInfo>}
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
               <AnalyticsTracker
                   eventType={"postItem"}
+                  eventProps={{mountedPostId: post._id, mountedPostScore: post.score, mountedPostBaseScore: post.baseScore}}
                   captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                   captureOnClick={false}
               >
@@ -496,12 +502,12 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
             <div className={classes.mobileSecondRowSpacer}/>
 
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostActionsButton post={post} />}
-            </div>}
-
             {showIcons && <div className={classes.nonMobileIcons}>
               <PostsItemIcons post={post}/>
+            </div>}
+
+            {<div className={classes.mobileActions}>
+              {!resumeReading && <PostActionsButton post={post} autoPlace />}
             </div>}
 
             {!resumeReading && <div className={classes.commentsIcon}>

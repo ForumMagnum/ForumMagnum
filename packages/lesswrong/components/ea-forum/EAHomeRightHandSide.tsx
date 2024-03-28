@@ -16,18 +16,20 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { userHasEAHomeRHS } from '../../lib/betas';
-import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
-import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
-import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
-import { podcastAddictLogoIcon } from '../icons/PodcastAddictLogoIcon';
+import { podcastPost, podcasts } from '../../lib/eaPodcasts';
+
+/**
+ * The max screen width where the Home RHS is visible
+ */
+export const HOME_RHS_MAX_SCREEN_WIDTH = 1370
 
 const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: 50,
     marginTop: 10,
     marginLeft: 50,
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -46,7 +48,7 @@ const styles = (theme: ThemeType) => ({
       width: 34,
       backgroundColor: theme.palette.grey[250],
     },
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -268,7 +270,7 @@ export const EAHomeRightHandSide = ({classes}: {
   if (!userHasEAHomeRHS(currentUser)) return null
   
   const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, DigestAd
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd
   } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
@@ -277,35 +279,22 @@ export const EAHomeRightHandSide = ({classes}: {
     </LWTooltip>
   </div>
   
-  if (isHidden) return sidebarToggleNode
+  if (isHidden) {
+    // We include an empty root here so that when the sidebar is hidden,
+    // the center column is slightly closer to the center of the screen.
+    return <AnalyticsContext pageSectionContext="homeRhs">
+      {sidebarToggleNode}
+      <div className={classes.root}></div>
+    </AnalyticsContext>
+  }
   
   // NoSSR sections that could affect the logged out user cache
-  let digestAdNode = <DigestAd className={classes.digestAd} />
+  let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
     digestAdNode = <NoSSR>{digestAdNode}</NoSSR>
     upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
   }
-
-  // data for podcasts section
-  const podcasts = [{
-    url: 'https://open.spotify.com/show/3NwXq1GGCveAbeH1Sk3yNq',
-    icon: spotifyLogoIcon,
-    name: 'Spotify'
-  }, {
-    url: 'https://podcasts.apple.com/us/podcast/1657526204',
-    icon: applePodcastsLogoIcon,
-    name: 'Apple Podcasts'
-  }, {
-    url: 'https://pca.st/zlt4n89d',
-    icon: pocketCastsLogoIcon,
-    name: 'Pocket Casts'
-  }, {
-    url: 'https://podcastaddict.com/podcast/ea-forum-podcast-curated-popular/4160487',
-    icon: podcastAddictLogoIcon,
-    name: 'Podcast Addict'
-  }]
-  const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}

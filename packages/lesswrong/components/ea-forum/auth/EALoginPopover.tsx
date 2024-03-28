@@ -6,6 +6,7 @@ import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { FacebookIcon } from "../../icons/FacebookIcon";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { useRefetchCurrentUser } from "../../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -230,6 +231,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [policy, setPolicy] = useState<string | null>(null);
+  const refetchCurrentUser = useRefetchCurrentUser();
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -282,15 +284,19 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
           ? client.signup(email, password)
           : client.login(email, password)
       );
-      window.location.reload();
+      await refetchCurrentUser();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
       setError(e.description || e.message || String(e) || "An error occurred");
       setPolicy(e.policy ?? null);
+    } finally {
       setLoading(false);
     }
-  }, [client, email, password, isSignup, isResettingPassword, onSendPasswordReset]);
+  }, [
+    client, email, password, isSignup, isResettingPassword,
+    onSendPasswordReset, refetchCurrentUser,
+  ]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);

@@ -1,4 +1,4 @@
-import { isActionActive, MODERATOR_ACTION_TYPES } from '../../lib/collections/moderatorActions/schema';
+import { isActionActive, MODERATOR_ACTION_TYPES, RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { getCollectionHooks } from '../mutationCallbacks';
@@ -8,7 +8,7 @@ getCollectionHooks('ModeratorActions').createAsync.add(async function triggerRev
   const moderatorAction = newDocument;
   const logger = loggerConstructor('callbacks-moderatoractions');
   logger('ModeratorAction created, triggering review if necessary')
-  if (isActionActive(moderatorAction)) {
+  if (isActionActive(moderatorAction) || moderatorAction.type === RECEIVED_SENIOR_DOWNVOTES_ALERT) {
     logger('isActionActive truthy')
     void triggerReview(moderatorAction.userId);
   }

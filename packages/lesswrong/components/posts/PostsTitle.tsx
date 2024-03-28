@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -9,8 +9,11 @@ import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/con
 import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
@@ -101,7 +104,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-})
+  eventTag: {
+    ...tagStyle(theme),
+    ...smallTagTextStyle(theme),
+    display: "inline-flex",
+    alignItems: "center",
+    marginLeft: 10,
+    padding: "0 6px",
+    height: 20,
+    border: "none",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-foreground)"
+      : "var(--post-title-tag-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-background)"
+      : "var(--post-title-tag-foreground)",
+    "&:hover": {
+      opacity: 0.9,
+    },
+  },
+  highlightedTagTooltip: {
+    marginTop: -2,
+  },
+});
 
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
@@ -124,7 +149,6 @@ const DefaultWrapper: FC = ({children}) => <>{children}</>;
 const PostsTitle = ({
   post, 
   postLink, 
-  classes, 
   sticky, 
   read, 
   showPersonalIcon=true, 
@@ -135,12 +159,13 @@ const PostsTitle = ({
   curatedIconLeft=true,
   strikethroughTitle=false,
   Wrapper=DefaultWrapper,
+  showEventTag,
   linkEventProps,
   className,
+  classes,
 }: {
   post: PostsBase|PostsListBase,
   postLink?: string,
-  classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showPersonalIcon?: boolean
@@ -151,12 +176,15 @@ const PostsTitle = ({
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
   Wrapper?: FC,
+  showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
-  className?: string
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const { PostsItemIcons, CuratedIcon, ForumIcon } = Components
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
@@ -203,9 +231,28 @@ const PostsTitle = ({
           <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
         </InteractionWrapper>
       </span>}
+      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <TagsTooltip
+            tagSlug={currentForumEvent.tag.slug}
+            className={classes.highlightedTagTooltip}
+          >
+            <Link to={tagGetUrl(currentForumEvent.tag)}>
+              <span
+                className={classes.eventTag}
+                style={{
+                  "--post-title-tag-background": currentForumEvent.lightColor,
+                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                } as CSSProperties}
+              >
+                {currentForumEvent.tag.name}
+              </span>
+            </Link>
+          </TagsTooltip>
+        </InteractionWrapper>
+      }
     </span>
   )
-
 }
 
 const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
