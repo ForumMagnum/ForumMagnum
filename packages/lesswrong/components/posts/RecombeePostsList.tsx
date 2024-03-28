@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { useMulti } from '../../lib/crud/withMulti';
 
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
@@ -30,14 +31,29 @@ const getRecombeeLatestPostsQuery = gql`
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
-export const RecombeePostsList = ({ algorithm, settings, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, showSticky = false, limit = 12, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
+  showSticky?: boolean,
+  limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, LoadMore, PostsItem, SectionFooter } = Components;
+  const { Loading, LoadMore, PostsItem, SectionFooter, CuratedPostsList } = Components;
   
   const [loadedPosts, setLoadedPosts] = useState<RecombeeRecommendedPost[]>([]);
+
+  const stickiedPostTerms: PostsViewTerms = {
+    view: 'stickied',
+    limit: 4, // seriously, shouldn't have more than 4 stickied posts
+    forum: true
+  }
+
+  const { results: stickiedPosts } = useMulti({
+    collectionName: "Posts",
+    fragmentName: 'PostsListWithVotes',
+    terms: stickiedPostTerms,
+    skip: !showSticky,
+  });
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -46,7 +62,7 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
-      limit: 13,
+      limit,
       settings: recombeeSettings,
     },
   });
@@ -76,6 +92,8 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
 
   return <div>
     <div className={classes.root}>
+      <CuratedPostsList />
+      {stickiedPosts?.map(post => <PostsItem key={post._id} post={post} terms={stickiedPostTerms}/>)}
       {loadedPosts.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
     </div>
     <SectionFooter>

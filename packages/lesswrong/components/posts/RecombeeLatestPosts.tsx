@@ -262,7 +262,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       >
         <Link to={"/allPosts"}>{advancedSortingText}</Link>
       </PostsList2>)
-    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />;
+    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />;
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">

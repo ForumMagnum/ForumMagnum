@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: 2,
+    paddingLeft: isFriendlyUI ? 2 : undefined,
     paddingRight: isFriendlyUI ? 8 : 10,
     position: "relative",
     top: 2,
