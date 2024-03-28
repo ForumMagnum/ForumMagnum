@@ -76,6 +76,7 @@ const recombeeRequestHelpers = {
       curated: !!post.curatedDate,
       frontpage: !!post.frontpageDate,
       draft: !!post.draft,
+      lastCommentedAt: post.lastCommentedAt,
     }, { cascadeCreate: true });
   },
 

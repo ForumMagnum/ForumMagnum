@@ -138,19 +138,19 @@ export const usePostsItem = ({
 
   const toggleComments = useCallback(
     () => {
-      recordPostView({post, extraEventProperties: {type: "toggleComments"}})
+      void recordPostView({post, extraEventProperties: {type: "toggleComments"}, recombeeOptions: {recommId: recombeeRecommId}})
       setShowComments(!showComments);
       setReadComments(true);
     },
-    [post, recordPostView, setShowComments, showComments, setReadComments],
+    [post, recordPostView, setShowComments, showComments, setReadComments, recombeeRecommId],
   );
 
   const toggleDialogueMessages = useCallback(
     () => {
-      recordPostView({post, extraEventProperties: {type: "toggleDialogueMessages"}})
+      void recordPostView({post, extraEventProperties: {type: "toggleDialogueMessages"}, recombeeOptions: {recommId: recombeeRecommId}})
       setShowDialogueMessages(!showDialogueMessages);
     },
-    [post, recordPostView, setShowDialogueMessages, showDialogueMessages],
+    [post, recordPostView, setShowDialogueMessages, showDialogueMessages, recombeeRecommId],
   );
 
   const compareVisitedAndCommentedAt = (
