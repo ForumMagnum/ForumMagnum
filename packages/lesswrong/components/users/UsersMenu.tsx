@@ -22,7 +22,7 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
-    color: theme.palette.header.text,
+    color: isLW ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     wordBreak: 'break-word',
   },
   userImageButton: {
