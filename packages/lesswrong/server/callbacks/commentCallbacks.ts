@@ -18,7 +18,8 @@ import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { adminAccountSetting } from '../../lib/publicSettings';
+import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeApi } from '../recombee/client';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -85,7 +86,7 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
   return comment
 });
 
-getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment) {
+getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment, _, context: ResolverContext) {
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
     const lastCommentedAt = new Date()
@@ -112,6 +113,15 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
       updateLastCommentedAtPromise,
       updateReadStatusesPromise
     ])
+
+    // update the lastCommentedAt field in Recombee version of post
+    if (recombeeEnabledSetting.get() && !comment.debateResponse) {
+      const post = await context.loaders.Posts.load(comment.postId)
+      if (post) {
+        // eslint-disable-next-line no-console
+        void recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e }));  
+      }
+    }
 
   } else if (comment.tagId) {
     const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
