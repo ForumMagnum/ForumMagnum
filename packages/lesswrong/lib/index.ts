@@ -300,6 +300,9 @@ import './collections/dialogueMatchPreferences/views';
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
 
+// Arbital link cache
+import './collections/arbitalCache/collection';
+
 // Review winners
 import './collections/reviewWinners/collection';
 import './collections/reviewWinners/fragments';

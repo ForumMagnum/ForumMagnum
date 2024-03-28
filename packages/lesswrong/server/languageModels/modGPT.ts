@@ -111,7 +111,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     return
   }
 
-  const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, true)
+  const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, { sanitize: true })
   const html = sanitizeHtml(data, {
     allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
     nonTextTags: ['img', 'style']
