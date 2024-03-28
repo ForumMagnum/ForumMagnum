@@ -30,6 +30,11 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
+import { isServer } from '../lib/executionEnvironment';
+import type ReactJkMusicPlayer from 'react-jinke-music-player';
+import { usePrefersDarkMode } from './themes/usePrefersDarkMode';
+
+let MusicPlayer: typeof ReactJkMusicPlayer | undefined = undefined
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -263,6 +268,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   stickyWrapperHeaderVisible: {
     transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
+  audioPlayer: {
+    '&&&': {
+      ...theme.typography.commentStyle,
+    }
+  }
 });
 
 const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
@@ -418,6 +428,20 @@ const Layout = ({currentUser, children, classes}: {
         && currentTime < afterTime
     }
 
+    const [musicPlayerLoaded, setMusicPlayerLoaded] = useState(false)
+    useEffect(() => {
+      if (!isServer) {
+        import('react-jinke-music-player')
+          .then((module) => {
+            console.log({module})
+            MusicPlayer = module.default
+            setMusicPlayerLoaded(true)
+          })
+      }
+    })
+    
+    const prefersDarkMode = usePrefersDarkMode();
+
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -449,6 +473,151 @@ const Layout = ({currentUser, children, classes}: {
               {/* Only show intercom after they have accepted cookies */}
               <NoSSR>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
+              </NoSSR>
+
+              <NoSSR>
+                <Helmet>
+                  <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711587893/index_wqsiku.css' rel='stylesheet' />
+                </Helmet>
+                {musicPlayerLoaded && MusicPlayer && <MusicPlayer
+                  ref={el => {
+                    el && (el as any).toggleAudioLyric()
+                  }}
+                  className={classes.audioPlayer}
+                  autoPlay={false}
+                  showReload={false}
+                  showThemeSwitch={false}
+                  theme={prefersDarkMode ? "dark" : "light"}
+                  audioLists={[
+                  {
+                    name: 'The Last of Us Part II - Main Theme',
+                    singer: 'Gustavo Santaolalla',
+                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
+                    lyric: `
+                    [offset:0]
+                    [00:01] the big creaky wheel
+                    [00:10] a thousand years to turn
+                    
+                    [00:20] thousand meetings, thousand emails, thousand rules
+                    to keep things from changing
+                    and heaven forbid
+                    the setting of a precedent
+                    
+                    yet in this magisterial inefficiency
+                    there are spaces and hiding places
+                    for fragile weeds to bloom
+                    and maybe bear some singular fruit
+                    
+                    like the F H I, a misfit prodigy
+                    daytime a tweedy don
+                    at dark a superhero
+                    flying off into the night
+                    cape a-fluttering
+                    to intercept villains and stop catastrophes
+                    
+                    and why not base it here?
+                    our spandex costumes
+                    blend in with the scholarly gowns
+                    our unusual proclivities
+                    are shielded from ridicule
+                    where mortar boards are still in vogue
+                    
+                    thousand meetings, thousand emails, thousand rules
+                    to keep things from changing
+                    and heaven forbid
+                    the setting of a precedent
+                            
+                    our unusual proclivities
+                    are shielded from ridicule
+                    where mortar boards are still in vogue`
+                  },
+                  {
+                    name: 'The Last of Us Part II - The Cycle of Violence',
+                    singer: 'Gustavo Santaolalla',
+                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
+                    lyric: `the big creaky wheel
+                    a thousand years to turn
+                    
+                    thousand meetings, thousand emails, thousand rules
+                    to keep things from changing
+                    and heaven forbid
+                    the setting of a precedent
+                    
+                    yet in this magisterial inefficiency
+                    there are spaces and hiding places
+                    for fragile weeds to bloom
+                    and maybe bear some singular fruit
+                    
+                    like the F H I, a misfit prodigy
+                    daytime a tweedy don
+                    at dark a superhero
+                    flying off into the night
+                    cape a-fluttering
+                    to intercept villains and stop catastrophes
+                    
+                    and why not base it here?
+                    our spandex costumes
+                    blend in with the scholarly gowns
+                    our unusual proclivities
+                    are shielded from ridicule
+                    where mortar boards are still in vogue
+                    
+                    thousand meetings, thousand emails, thousand rules
+                    to keep things from changing
+                    and heaven forbid
+                    the setting of a precedent
+                            
+                    our unusual proclivities
+                    are shielded from ridicule
+                    where mortar boards are still in vogue`
+                  },
+                  {
+                    name: 'The Last of Us Part II - The Last of Us (Cycles)',
+                    singer: 'Gustavo Santaolalla',
+                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
+                    lyric: `the big creaky wheel
+                    a thousand years to turn
+                    
+                    thousand meetings, thousand emails, thousand rules
+                    to keep things from changing
+                    and heaven forbid
+                    the setting of a precedent
+                    
+                    yet in this magisterial inefficiency
+                    there are spaces and hiding places
+                    for fragile weeds to bloom
+                    and maybe bear some singular fruit
+                    
+                    like the F H I, a misfit prodigy
+                    daytime a tweedy don
+                    at dark a superhero
+                    flying off into the night
+                    cape a-fluttering
+                    to intercept villains and stop catastrophes
+                    
+                    and why not base it here?
+                    our spandex costumes
+                    blend in with the scholarly gowns
+                    our unusual proclivities
+                    are shielded from ridicule
+                    where mortar boards are still in vogue
+                    
+                    thousand meetings, thousand emails, thousand rules
+                    to keep things from changing
+                    and heaven forbid
+                    the setting of a precedent
+                            
+                    our unusual proclivities
+                    are shielded from ridicule
+                    where mortar boards are still in vogue`
+                  },
+                ]}
+                showLyric={true}
+                mode="full"
+                />}
               </NoSSR>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
