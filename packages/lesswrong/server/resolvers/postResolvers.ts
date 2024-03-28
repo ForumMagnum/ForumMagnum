@@ -292,6 +292,32 @@ augmentFieldsDict(Posts, {
       }
     }
   },
+  
+  firstVideoAttribsForPreview: {
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        const videoHosts = [
+          "https://www.youtube.com",
+          "https://youtube.com",
+          "https://youtu.be",
+        ];
+        const $ = cheerioParse(post.contents?.html);
+        const iframes = $("iframe").toArray();
+        for (const iframe of iframes) {
+          if ("attribs" in iframe) {
+            const src = iframe.attribs.src ?? "";
+            for (const host of videoHosts) {
+              if (src.indexOf(host) === 0) {
+                return iframe.attribs;
+              }
+            }
+          }
+        }
+        return null;
+      },
+    },
+  },
 })
 
 
