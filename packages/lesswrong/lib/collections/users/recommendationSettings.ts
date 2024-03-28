@@ -113,6 +113,9 @@ export interface RecombeeConfiguration {
   rotationTime: number,
   booster?: string,
   refreshKey?: string,
+  loadMore?: {
+    prevRecommId: string,
+  },
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
