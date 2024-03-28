@@ -19,6 +19,8 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { recombeeEnabledSetting } from '../../lib/publicSettings';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -58,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
-const filterSettingsToggleLabels = forumSelect({
+export const filterSettingsToggleLabels = forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -120,7 +122,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts
+    CuratedPostsList, SectionTitle, StickiedPosts, RecombeeLatestPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -150,6 +152,10 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
+  if (isLW && userIsAdmin(currentUser) && recombeeEnabledSetting.get()) {
+    return <RecombeeLatestPosts currentUser={currentUser} />
+  }
+
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -165,6 +171,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
+              textShadow
             />
             <SettingsButton
               className={classes.hideOnDesktop}
