@@ -100,15 +100,7 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
     return false;
   }
 
-  if (!userIsAdmin(currentUser)) {
-    return !currentUser?.hideFrontpageFilterSettingsDesktop;
-  }
-
-  if (selectedAlgorithm === 'lesswrong-classic') {
-    return true;
-  }
-
-  return false;
+  return !currentUser?.hideFrontpageFilterSettingsDesktop;
 };
 
 const getDefaultScenario = () => {
@@ -120,7 +112,7 @@ const defaultScenarioConfig: RecombeeConfiguration = {
   rotationTime: 24 * 60,
 };
 
-function useRecombeeSettings(onUpdateSelectedScenario: (selectedScenario: string) => void) {
+function useRecombeeSettings() {
   const [cookies, setCookie] = useCookiesWithConsent();
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
@@ -128,8 +120,6 @@ function useRecombeeSettings(onUpdateSelectedScenario: (selectedScenario: string
   const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultScenarioConfig);
 
   const updateSelectedScenario = (newScenario: string) => {
-    onUpdateSelectedScenario(newScenario);
-
     // If we don't yet have this cookie, or have this scenario stored in the cookie, add it as the first item
     // Otherwise, reorder the existing scenario + config tuples to have that scenario be first
     const newCookieValue: RecombeeCookieSettings = !recombeeCookieSettings?.find(([scenario]) => newScenario === scenario)
@@ -178,12 +168,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   
   const updateCurrentUser = useUpdateCurrentUser();
 
-  const updateTagFilterSettingsVisibility = (selectedScenario: string) => {
-    const showFilterSettings = usingClassicLWAlgorithm(selectedScenario);
-    setFilterSettingsVisibleDesktop(showFilterSettings);
-  };
-
-  const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings(updateTagFilterSettingsVisibility);
+  const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings();
   
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
@@ -277,7 +262,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       >
         <Link to={"/allPosts"}>{advancedSortingText}</Link>
       </PostsList2>)
-    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />;
+    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />;
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
