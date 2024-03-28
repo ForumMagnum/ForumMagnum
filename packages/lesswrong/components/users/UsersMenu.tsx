@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
-    color: isLW ? 'white' : theme.palette.header.text,
+    color: isLW ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     wordBreak: 'break-word',
   },
   userImageButton: {
