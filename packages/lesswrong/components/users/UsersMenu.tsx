@@ -24,6 +24,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -120,7 +121,8 @@ const UsersMenu = ({classes}: {
       </Button>
     </div>
   }
-
+  
+  const bulbyIsVisible = isEAForum && moment().isAfter(moment.utc('2024-04-01 04:00')) && moment().isBefore(moment.utc('2024-04-02 08:00'))
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
@@ -258,7 +260,7 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
-              <div className={classes.bulby}>
+              {bulbyIsVisible && <div className={classes.bulby}>
                 <div className={classes.bulbyClickTarget} onClick={(e) => {
                   e.stopPropagation();
                   setBulbyIsSad(true);
@@ -271,7 +273,7 @@ const UsersMenu = ({classes}: {
                   src={makeCloudinaryImageUrl('bulby-sentient', {})}
                   className={classes.bulbySpeechBubbleImg}
                 />}
-              </div>
+              </div>}
               <div onClick={(ev) => {
                 if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
                   ev.preventDefault()
