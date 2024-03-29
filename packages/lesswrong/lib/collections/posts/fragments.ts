@@ -736,5 +736,6 @@ registerFragment(`
       text
       imageUrl
     }
+    firstVideoAttribsForPreview
   }
 `);

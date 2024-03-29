@@ -182,7 +182,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
   const { recordPostView } = useRecordPostView(post);
   const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    void recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 
   }
 

@@ -8,13 +8,13 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
+import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postPageFixedDigestAd, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -38,11 +38,14 @@ import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
+import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
+import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
+export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
 
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
@@ -335,6 +338,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
+  const { query, params } = location;
+  const [recommId, setRecommId] = useState<string | undefined>();
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -361,11 +366,19 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar
   });
+  
+  // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
+  const ls = getBrowserLocalStorage()
+  useEffect(() => {
+    if (ls && hasDigests) {
+      const postReadCount = ls.getItem('postReadCount') ?? 0
+      ls.setItem('postReadCount', parseInt(postReadCount) + 1)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
-  const digestAdAbTestGroup = useABTest(postPageFixedDigestAd);
   useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform || digestAdAbTestGroup !== 'show') return
+    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
 
     checkShowDigestAd()
     window.addEventListener('scroll', checkShowDigestAd)
@@ -375,17 +388,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     };
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const checkShowDigestAd = () => {
-    if (digestAdAbTestGroup !== 'show') return
     // Ad stays visible once shown
     setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
   }
 
   const getSequenceId = () => {
-    const { params } = location;
     return params.sequenceId || fullPost?.canonicalSequenceId || null;
   }
 
-  const { query, params } = location;
 
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
@@ -473,16 +483,32 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, RecombeeInViewTracker
   } = Components
 
   useEffect(() => {
-    recordPostView({
+    const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+
+    void recordPostView({
       post: post,
       extraEventProperties: {
         sequenceId: getSequenceId()
+      },
+      recombeeOptions: {
+        recommId
       }
+
     });
+
+    if (!currentUser || !recombeeEnabledSetting.get()) return;
+    setRecommId(recommId);
+
+    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
+    // sharing links with a recommId
+    const currentQuery = isEmpty(query) ? {} : query;
+    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
+
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
@@ -710,37 +736,39 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const answersTree = unflattenComments(answersAndReplies ?? []);
   
   const commentsSection =
-    <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
-      {/* Answers Section */}
-      {post.question && <div className={classes.centralColumn}>
-        <div id="answers"/>
-        {fullPost && <AnalyticsContext pageSectionContext="answersSection">
-          <PostsPageQuestionContent post={fullPost} answersTree={answersTree ?? []} refetch={refetch}/>
-        </AnalyticsContext>}
-      </div>}
-      {/* Comments Section */}
-      <div className={classes.commentsSection}>
-        <AnalyticsContext pageSectionContext="commentsSection">
-          {fullPost && <CommentsListSection
-            comments={results ?? []}
-            loadMoreComments={loadMore}
-            totalComments={totalCount as number}
-            commentCount={commentCount}
-            loadingMoreComments={loadingMore}
-            post={fullPost}
-            newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-            highlightDate={highlightDate ?? undefined}
-            setHighlightDate={setHighlightDate}
-          />}
-          {isAF && <AFUnreviewedCommentCount post={post}/>}
-        </AnalyticsContext>
-        {isFriendlyUI && post.commentCount < 1 &&
-          <div className={classes.noCommentsPlaceholder}>
-            <div>No comments on this post yet.</div>
-            <div>Be the first to respond.</div>
-          </div>
-        }
-      </div>
+    <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
+      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1, recommId}}>
+        {/* Answers Section */}
+        {post.question && <div className={classes.centralColumn}>
+          <div id="answers"/>
+          {fullPost && <AnalyticsContext pageSectionContext="answersSection">
+            <PostsPageQuestionContent post={fullPost} answersTree={answersTree ?? []} refetch={refetch}/>
+          </AnalyticsContext>}
+        </div>}
+        {/* Comments Section */}
+        <div className={classes.commentsSection}>
+          <AnalyticsContext pageSectionContext="commentsSection">
+            {fullPost && <CommentsListSection
+              comments={results ?? []}
+              loadMoreComments={loadMore}
+              totalComments={totalCount as number}
+              commentCount={commentCount}
+              loadingMoreComments={loadingMore}
+              post={fullPost}
+              newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
+              highlightDate={highlightDate ?? undefined}
+              setHighlightDate={setHighlightDate}
+            />}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
+          </AnalyticsContext>
+          {isFriendlyUI && post.commentCount < 1 &&
+            <div className={classes.noCommentsPlaceholder}>
+              <div>No comments on this post yet.</div>
+              <div>Be the first to respond.</div>
+            </div>
+          }
+        </div>
+      </RecombeeInViewTracker>
     </AnalyticsInViewTracker>
 
   const commentsToC = fullPost
@@ -754,6 +782,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={fullPost ?? null}>
+    <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -803,6 +832,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </ImageProvider>
+    </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>
 }
