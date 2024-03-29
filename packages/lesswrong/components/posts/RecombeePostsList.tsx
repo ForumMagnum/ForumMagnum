@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useMulti } from '../../lib/crud/withMulti';
-import isEqual from 'lodash/isEqual';
 
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
