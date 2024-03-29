@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
@@ -178,17 +178,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const defaultDesktopFilterSettingsVisibility = getDefaultDesktopFilterSettingsVisibility(currentUser, selectedScenario);
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(defaultDesktopFilterSettingsVisibility);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  const { captureEvent } = useOnMountTracking({
-    eventType: "frontpageFilterSettings",
-    eventProps: {
-      filterSettings,
-      filterSettingsVisible: filterSettingsVisibleDesktop,
-      pageSectionContext: "latestPosts",
-      recombee: true
-    },
-    captureOnMount: true,
-  });
-
+  const { captureEvent } = useTracking({eventProps: {recombee: true}}) 
+  
   const location = useLocation();
   const { query } = location;
 
@@ -217,6 +208,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     captureEvent("filterSettingsClicked", {
       settingsVisible: !filterSettingsVisibleDesktop,
       settings: filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts",
     })
   };
 
@@ -242,7 +235,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         captureEvent("filterSettingsClicked", {
           settingsVisible: !filterSettingsVisibleMobile,
           settings: filterSettings,
-          pageSectionContext: "latestPosts"
+          pageSectionContext: "latestPosts",
+          mobile: true
         })
       }} />
   </div>);
@@ -254,22 +248,32 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     availableAlgorithms.push(...testingFeeds);
   }
 
+  const handleSwitchTab = (tabName: string) => {
+    captureEvent("postFeedSwitched", {
+      previousTab: selectedScenario,
+      newTab: tabName,
+    });
+    updateSelectedScenario(tabName);
+  }
+
   const algorithmPicker = <TabPicker 
     sortedTabs={availableAlgorithms} 
     defaultTab={selectedScenario} 
-    onTabSelectionUpdate={updateSelectedScenario}
+    onTabSelectionUpdate={handleSwitchTab}
     showDescriptionOnHover
   />
 
-  const postsList = usingClassicLWAlgorithm(selectedScenario)
-    ? (<PostsList2
-        terms={recentPostsTerms}
-        alwaysShowLoadMore
-        hideHiddenFrontPagePosts
-      >
-        <Link to={"/allPosts"}>{advancedSortingText}</Link>
-      </PostsList2>)
-    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />;
+  const postsList = <AnalyticsContext feedType={selectedScenario}>
+      { usingClassicLWAlgorithm(selectedScenario)
+      ? (<PostsList2
+          terms={recentPostsTerms}
+          alwaysShowLoadMore
+          hideHiddenFrontPagePosts
+        >
+          <Link to={"/allPosts"}>{advancedSortingText}</Link>
+        </PostsList2>)
+      : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
+    </AnalyticsContext>
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
@@ -290,7 +294,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       </div>
 
   return (
-    <AnalyticsContext pageSectionContext="latestPosts" >
+    // TODO: do we need capturePostItemOnMount here?
+    <AnalyticsContext pageSectionContext="postsFeed" capturePostItemOnMount>
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {algorithmPicker}
