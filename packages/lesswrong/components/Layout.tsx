@@ -303,6 +303,18 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
+  const [musicPlayerLoaded, setMusicPlayerLoaded] = useState(false)
+  const prefersDarkMode = usePrefersDarkMode();
+  const [lyricsToggled, setLyricsToggled] = useState(false)
+  useEffect(() => {
+    if (!isServer) {
+      void import('react-jinke-music-player')
+        .then((module) => {
+          MusicPlayer = module.default
+          setMusicPlayerLoaded(true)
+        })
+    }
+  })
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
@@ -428,20 +440,6 @@ const Layout = ({currentUser, children, classes}: {
         && currentTime < afterTime
     }
 
-    const [musicPlayerLoaded, setMusicPlayerLoaded] = useState(false)
-    useEffect(() => {
-      if (!isServer) {
-        import('react-jinke-music-player')
-          .then((module) => {
-            console.log({module})
-            MusicPlayer = module.default
-            setMusicPlayerLoaded(true)
-          })
-      }
-    })
-    
-    const prefersDarkMode = usePrefersDarkMode();
-
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -481,7 +479,7 @@ const Layout = ({currentUser, children, classes}: {
                 </Helmet>
                 {musicPlayerLoaded && MusicPlayer && <MusicPlayer
                   ref={el => {
-                    el && (document.getElementsByClassName('lyric-btn-active').length === 0) && (el as any).toggleAudioLyric()
+                    el && !lyricsToggled && (el as any).toggleAudioLyric()
                   }}
                   locale={{
                     emptyLyricText: ""
