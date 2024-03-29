@@ -56,6 +56,7 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
+export const userHasRecombeeFrontpage = isLW ? adminOnly : disabled;
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();

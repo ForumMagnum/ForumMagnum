@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
-import { useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
@@ -40,12 +40,14 @@ export const DismissibleSpotlightItem = ({
   }, [setCookie, cookieName, displaySpotlight, captureEvent]);
 
   if (displaySpotlight && !isHidden) {
-    return <SpotlightItem
-      key={displaySpotlight._id}
-      spotlight={displaySpotlight}
-      hideBanner={hideBanner}
-      className={className}
-    />
+    return <AnalyticsContext pageSubSectionContext="spotlightItem">
+      <SpotlightItem
+        key={displaySpotlight._id}
+        spotlight={displaySpotlight}
+        hideBanner={hideBanner}
+        className={className}
+      />
+    </AnalyticsContext>
   }
   return null
 }
