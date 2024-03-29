@@ -481,7 +481,7 @@ const Layout = ({currentUser, children, classes}: {
                 </Helmet>
                 {musicPlayerLoaded && MusicPlayer && <MusicPlayer
                   ref={el => {
-                    el && (el as any).toggleAudioLyric()
+                    el && (document.getElementsByClassName('lyric-btn-active').length === 0) && (el as any).toggleAudioLyric()
                   }}
                   locale={{
                     emptyLyricText: ""
