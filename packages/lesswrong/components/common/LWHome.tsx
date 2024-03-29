@@ -21,7 +21,7 @@ const LWHome = () => {
   }, [setCookie])
 
   const currentUser = useCurrentUser()
-  const recombeeFrontpagePrototypeEnabled = userHasRecombeeFrontpage(currentUser) && recombeeEnabledSetting.get()
+  const recombeeFrontpagePrototypeEnabled = userHasRecombeeFrontpage(currentUser)
   
   return (
       <AnalyticsContext pageContext="homePage">

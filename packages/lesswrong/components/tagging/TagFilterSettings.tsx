@@ -65,14 +65,14 @@ const TagFilterSettings = ({
   setPersonalBlogFilter,
   setTagFilter,
   removeTagFilter,
-  disableFlexWrapEndGrow = false,
+  flexWrapEndGrow = true,
   classes
 }: {
   filterSettings: FilterSettings,
   setPersonalBlogFilter: (filterMode: FilterMode) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
   removeTagFilter: (tagId: string) => void,
-  disableFlexWrapEndGrow?: boolean,
+  flexWrapEndGrow?: boolean,
   classes: ClassesType,
 }) => {
   const { AddTagButton, FilterMode, LWTooltip } = Components
@@ -127,7 +127,7 @@ const TagFilterSettings = ({
           </AddTagButton>
       </LWTooltip>}
     </div>
-    {!disableFlexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
+    {flexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
   </span>
 }
 

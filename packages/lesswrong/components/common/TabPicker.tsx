@@ -53,9 +53,6 @@ export interface TabRecord {
 
 /**
  * A horizontal bar of clickable tabs as alternative to a dropdown
- * By default - displays core tags in order defined by defaultOrder. Used on EA and WakingUP home pages.
- * 
- * @param tabNames - array of tab names
  */
 const TabPicker = <T extends TabRecord[]>(
   {
@@ -75,7 +72,7 @@ const TabPicker = <T extends TabRecord[]>(
 
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name)
 
-  const { LWTooltip} = Components
+  const { LWTooltip } = Components
 
   const updateActiveTab = useCallback((activeTab: T[number]['name']) => {
     setActiveTab(activeTab)

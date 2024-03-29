@@ -40,7 +40,7 @@ export const DismissibleSpotlightItem = ({
   }, [setCookie, cookieName, displaySpotlight, captureEvent]);
 
   if (displaySpotlight && !isHidden) {
-    return <AnalyticsContext pageSubSectionContext="spotlightItem">
+    return <AnalyticsContext pageElementContext="spotlightItem">
       <SpotlightItem
         key={displaySpotlight._id}
         spotlight={displaySpotlight}

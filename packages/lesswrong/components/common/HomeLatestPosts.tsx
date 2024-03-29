@@ -153,7 +153,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
-  if (isLW && currentUser && userHasRecombeeFrontpage(currentUser) && recombeeEnabledSetting.get()) {
+  if (isLW && currentUser && userHasRecombeeFrontpage(currentUser)) {
     return <RecombeeLatestPosts currentUser={currentUser} />
   }
 

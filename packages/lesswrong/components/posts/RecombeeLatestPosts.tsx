@@ -248,11 +248,11 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       }} />
   </div>);
 
-  let availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
 
   if (userIsAdmin(currentUser)) {
     const testingFeeds =  postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
-    availableAlgorithms = [...availableAlgorithms, ...testingFeeds];
+    availableAlgorithms.push(...testingFeeds);
   }
 
   const algorithmPicker = <TabPicker 
