@@ -611,11 +611,12 @@ postPublishedCallback.add((post, context) => {
     .catch(e => console.log('Error when sending published post to recombee', { e }));  
 });
 
-getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, context }) => {
+getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
   //newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
   //This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
-  if (!recombeeEnabledSetting.get() || post.draft || post.shortform || post.unlisted || post.rejected) return;
+  const redrafted = post.draft && !oldDocument.draft
+  if (!recombeeEnabledSetting.get() || (post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
 
   void recombeeApi.upsertPost(post, context)
     // eslint-disable-next-line no-console

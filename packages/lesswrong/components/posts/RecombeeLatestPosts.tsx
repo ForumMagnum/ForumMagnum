@@ -221,6 +221,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     })
   };
 
+  const showSettingsButton = userIsAdmin(currentUser) || usingClassicLWAlgorithm(selectedScenario);
+
   const settingsButton = (<div>
     <SettingsButton
       className={classes.hideOnMobile}
@@ -277,7 +279,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           [classes.hideOnMobile]: !filterSettingsVisibleMobile,
         })}>
           <TagFilterSettings
-            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} disableFlexWrapEndGrow
           />
         </div>
       </AnalyticsContext>)
@@ -285,7 +287,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
-        <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />
+        {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
       </div>
 
   return (
@@ -293,7 +295,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {algorithmPicker}
-          {settingsButton}
+          {showSettingsButton && settingsButton}
         </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}

@@ -616,8 +616,9 @@ createPaginatedResolver({
     args: { settings: RecombeeRecommendationArgs }
   ): Promise<RecombeeRecommendedPost[]> => {
     const { repos, currentUser } = context;
-    if (!userIsAdmin(currentUser)) {
-      throw new Error(`Only admins may use Recombee recommendations right now`);
+
+    if (!currentUser) {
+      throw new Error(`You must be logged in to use Recombee recommendations right now`);
     }
 
     return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);

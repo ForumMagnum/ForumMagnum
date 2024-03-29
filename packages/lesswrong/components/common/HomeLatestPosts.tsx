@@ -69,10 +69,10 @@ export const filterSettingsToggleLabels = forumSelect({
     mobileHidden: "Customize feed",
   },
   default: {
-    desktopVisible: "Customize Feed (Hide)",
-    desktopHidden: "Customize Feed",
-    mobileVisible: "Customize Feed (Hide)",
-    mobileHidden: "Customize Feed (Show)",
+    desktopVisible: "Customize (Hide)",
+    desktopHidden: "Customize",
+    mobileVisible: "Customize (Hide)",
+    mobileHidden: "Customize",
   }
 })
 
