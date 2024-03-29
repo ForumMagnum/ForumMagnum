@@ -182,7 +182,7 @@ const LWRecommendations = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="spotlightItem">
           <DismissibleSpotlightItem current />
         </AnalyticsContext>}
 

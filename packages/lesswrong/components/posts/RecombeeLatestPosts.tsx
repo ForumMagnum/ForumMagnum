@@ -5,7 +5,7 @@ import { RecombeeConfiguration } from '../../lib/collections/users/recommendatio
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import moment from '../../lib/moment-timezone';
-import { latestPostsAlgorithmsSetting } from '../../lib/publicSettings';
+import { postFeedsProductionSetting, postFeedsTestingSetting } from '../../lib/publicSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { useLocation } from '../../lib/routeUtil';
@@ -19,12 +19,12 @@ import { useTimezone } from '../common/withTimezone';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 
-import Select from '@material-ui/core/Select';
 import classNames from 'classnames';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { filterSettingsToggleLabels } from '../common/HomeLatestPosts';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { TabRecord } from '../common/TabPicker';
 
 // Key is the algorithm/scenario name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -66,10 +66,11 @@ const styles = (theme: ThemeType) => ({
   settingsVisibilityControls: {
     display: "flex",
     gap: "4px",
+    marginBottom: "8px",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 })
-
-const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
 const advancedSortingText = isFriendlyUI
   ? "Advanced sorting & filtering"
@@ -104,7 +105,7 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
 };
 
 const getDefaultScenario = () => {
-  return latestPostsAlgorithmsSetting.get()[0];
+  return postFeedsProductionSetting.get()[0].name;
 };
 
 const defaultScenarioConfig: RecombeeConfiguration = {
@@ -158,12 +159,13 @@ function usingClassicLWAlgorithm(selectedScenario: string) {
 }
 
 const RecombeeLatestPosts = ({ currentUser, classes }: {
-  currentUser: UsersCurrent & { isAdmin: true },
+  currentUser: UsersCurrent
   classes: ClassesType<typeof styles>
 }) => {
   const {
-    SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList, SectionTitle,
-    StickiedPosts, MenuItem, RecombeePostsList, RecombeePostsListSettings, SettingsButton
+    SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
+    StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
+    TabPicker
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -218,7 +220,9 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     })
   };
 
-  const settingsButton = (<>
+  const showSettingsButton = userIsAdmin(currentUser) || usingClassicLWAlgorithm(selectedScenario);
+
+  const settingsButton = (<div>
     <SettingsButton
       className={classes.hideOnMobile}
       label={filterSettingsVisibleDesktop ?
@@ -241,18 +245,21 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           pageSectionContext: "latestPosts"
         })
       }} />
-  </>);
+  </div>);
 
-  const algorithmPicker = (
-    <Select
-      value={selectedScenario}
-      onChange={(e) => updateSelectedScenario(e.target.value)}
-    >
-      {latestPostsAlgorithmsSetting.get().map(algorithm => (
-        <MenuItem key={algorithm} value={algorithm}>{algorithm}</MenuItem>
-      ))}
-    </Select>
-  );
+  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+
+  if (userIsAdmin(currentUser)) {
+    const testingFeeds =  postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+    availableAlgorithms.push(...testingFeeds);
+  }
+
+  const algorithmPicker = <TabPicker 
+    sortedTabs={availableAlgorithms} 
+    defaultTab={selectedScenario} 
+    onTabSelectionUpdate={updateSelectedScenario}
+    showDescriptionOnHover
+  />
 
   const postsList = usingClassicLWAlgorithm(selectedScenario)
     ? (<PostsList2
@@ -271,7 +278,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           [classes.hideOnMobile]: !filterSettingsVisibleMobile,
         })}>
           <TagFilterSettings
-            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
           />
         </div>
       </AnalyticsContext>)
@@ -279,18 +286,16 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
-        <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />
+        {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
       </div>
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts" >
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
-          <div className={classes.settingsVisibilityControls}>
-            {settingsButton}
-            {algorithmPicker}
-          </div>
-        </SectionTitle>
+        <div className={classes.settingsVisibilityControls}>
+          {algorithmPicker}
+          {showSettingsButton && settingsButton}
+        </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
