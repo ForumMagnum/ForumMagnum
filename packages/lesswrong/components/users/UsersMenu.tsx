@@ -122,7 +122,7 @@ const UsersMenu = ({classes}: {
     </div>
   }
   
-  const bulbyIsVisible = isEAForum && moment().isAfter(moment.utc('2024-04-01 04:00')) && moment().isBefore(moment.utc('2024-04-02 08:00'))
+  const bulbyIsVisible = isEAForum && moment().isAfter(moment.utc('2024-04-01 11:00')) && moment().isBefore(moment.utc('2024-04-02 08:00'))
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
