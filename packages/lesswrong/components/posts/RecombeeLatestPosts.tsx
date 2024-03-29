@@ -279,7 +279,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           [classes.hideOnMobile]: !filterSettingsVisibleMobile,
         })}>
           <TagFilterSettings
-            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} disableFlexWrapEndGrow
+            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
           />
         </div>
       </AnalyticsContext>)
