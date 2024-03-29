@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '14px',
     fontWeight: isFriendlyUI ? undefined : 400,
     opacity: .8,
-    color: isLW ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    color: theme.palette.header.text,
   },
   login: {
     marginLeft: 12,

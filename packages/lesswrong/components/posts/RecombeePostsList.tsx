@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
@@ -31,6 +31,12 @@ const getRecombeeLatestPostsQuery = gql`
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
+const stickiedPostTerms: PostsViewTerms = {
+  view: 'stickied',
+  limit: 4, // seriously, shouldn't have more than 4 stickied posts
+  forum: true
+};
+
 export const RecombeePostsList = ({ algorithm, settings, showSticky = false, limit = 12, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
@@ -39,14 +45,6 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, LoadMore, PostsItem, SectionFooter, CuratedPostsList } = Components;
-  
-  const [loadedPosts, setLoadedPosts] = useState<RecombeeRecommendedPost[]>([]);
-
-  const stickiedPostTerms: PostsViewTerms = {
-    view: 'stickied',
-    limit: 4, // seriously, shouldn't have more than 4 stickied posts
-    forum: true
-  }
 
   const { results: stickiedPosts } = useMulti({
     collectionName: "Posts",
@@ -69,17 +67,6 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
 
   const results: RecombeeRecommendedPost[] | undefined = data?.[RESOLVER_NAME]?.results;
 
-  // To avoid needing to e.g. send previously-loaded postIds to the server on loadMore,
-  // and fetch an ever-increasing number of posts, the resolver only returns the "next" posts (based on recombee's RecommendNextItems api).
-  // This means we need to manage combining the previously and newly loaded posts on the client.
-  // loadedPosts is also used by the `updateQuery` inside of `fetchMore`.
-  useEffect(() => {
-    if (results) {
-      setLoadedPosts([...loadedPosts, ...results]);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [results]);
-
   if (loading && !results) {
     return <Loading />;
   }
@@ -94,7 +81,7 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
     <div className={classes.root}>
       <CuratedPostsList />
       {stickiedPosts?.map(post => <PostsItem key={post._id} post={post} terms={stickiedPostTerms}/>)}
-      {loadedPosts.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
+      {results.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
     </div>
     <SectionFooter>
       <LoadMore
@@ -111,7 +98,7 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
               return {
                 RecombeeLatestPosts: {
                   __typename: fetchMoreResult[RESOLVER_NAME].__typename,
-                  results: [...loadedPosts, ...fetchMoreResult[RESOLVER_NAME].results]
+                  results: [...prev[RESOLVER_NAME].results, ...fetchMoreResult[RESOLVER_NAME].results]
                 }
               };
             }

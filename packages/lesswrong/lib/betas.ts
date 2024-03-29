@@ -18,6 +18,8 @@ import {
 } from './instanceSettings'
 import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
+import { allOf } from './utils/functionUtils';
+import { recombeeEnabledSetting } from './publicSettings';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -56,6 +58,7 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
+export const userHasRecombeeFrontpage = isLW ? allOf(adminOnly, () => recombeeEnabledSetting.get()) : disabled;
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
