@@ -483,6 +483,9 @@ const Layout = ({currentUser, children, classes}: {
                   ref={el => {
                     el && (el as any).toggleAudioLyric()
                   }}
+                  locale={{
+                    emptyLyricText: ""
+                  } as any}
                   className={classes.audioPlayer}
                   autoPlay={false}
                   showReload={false}
@@ -573,7 +576,6 @@ const Layout = ({currentUser, children, classes}: {
                 ]}
                 showLyric={true}
                 mode="full"
-                locale={{emptyLyricText: ''}}
                 />}
               </NoSSR>
 
