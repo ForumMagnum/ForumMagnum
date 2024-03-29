@@ -490,133 +490,90 @@ const Layout = ({currentUser, children, classes}: {
                   theme={prefersDarkMode ? "dark" : "light"}
                   audioLists={[
                   {
-                    name: 'The Last of Us Part II - Main Theme',
-                    singer: 'Gustavo Santaolalla',
-                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
+                    name: 'Curiosity (The First Virtue)',
+                    singer: 'General Chaos',
+                    cover: 'https://preview.redd.it/1f132hb4r2g31.png?width=2079&format=png&auto=webp&s=3068f4d0ebcc4e6cff2afd17035957216dc7a0cd',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711745635/curiosity_f2xlm5.mp3',
                     lyric: `
-                    [offset:0]
-                    [00:01] the big creaky wheel
-                    [00:10] a thousand years to turn
-                    
-                    [00:20] thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                    
-                    yet in this magisterial inefficiency
-                    there are spaces and hiding places
-                    for fragile weeds to bloom
-                    and maybe bear some singular fruit
-                    
-                    like the F H I, a misfit prodigy
-                    daytime a tweedy don
-                    at dark a superhero
-                    flying off into the night
-                    cape a-fluttering
-                    to intercept villains and stop catastrophes
-                    
-                    and why not base it here?
-                    our spandex costumes
-                    blend in with the scholarly gowns
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue
-                    
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                            
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue`
+                    [00:00]  The first virtue is curiosity
+                    [00:05]  A burning itch to know is higher than a solemn vow to pursue truth
+                    [00:11]  To feel the burning itch of curiosity
+                    [00:15]  Requires both that you be ignorant
+                    [00:19]  And that you desire to relinquish your ignorance
+                    [00:23]  If in your heart you believe you already know
+                    [00:28]  Or if in your heart you do not wish to know
+                    [00:32]  Then your quest to know, then your questioning
+                    [00:36]  Will be purposeless
+                    [00:39]  And your skills without direction
+                    [00:44]  Curiosity seeks to annihilate itself
+                    [00:49]  There is no curiosity that does not want an answer
+                    [00:55]  The glory of glorious mystery is to be solved`
+                  },
+
+                  {
+                    name: 'FHI at Oxford',
+                    singer: 'The Boss Storm',
+                    cover: 'https://nickbostrom.com/poetry/poop10.jpg',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
+                    lyric:  `
+                    [00:07] the big creaky wheel
+                    [00:09] a thousand years to turn
+
+                    [00:12] thousand meetings, thousand emails, thousand rules
+                    [00:16] to keep things from changing
+                    [00:18] and heaven forbid
+                    [00:19] the setting of a precedent
+
+                    [00:23] yet in this magisterial inefficiency
+                    [00:26] there are spaces and hiding places
+                    [00:29] for fragile weeds to bloom
+                    [00:31] and maybe bear some singular fruit
+
+                    [00:35] like the FHI, a misfit prodigy
+                    [00:38] daytime a tweedy don
+                    [00:40] at dark a superhero
+                    [00:42] flying off into the night
+                    [00:44] cape a-fluttering
+                    [00:45] to intercept villains and stop catastrophes
+
+                    [00:50] and why not base it here?
+                    [00:52] our spandex costumes
+                    [00:54] blend in with the scholarly gowns
+                    [00:56] our unusual proclivities
+                    [00:58] are shielded from ridicule
+                    [01:01] where mortar boards are still in vogue
+
+                    [01:13] thousand meetings, thousand emails, thousand rules
+                    [01:18] to keep things from changing
+                    [01:20] and heaven forbid
+                    [01:22] the setting of a precedent`
                   },
                   {
-                    name: 'The Last of Us Part II - The Cycle of Violence',
-                    singer: 'Gustavo Santaolalla',
-                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
-                    lyric: `the big creaky wheel
-                    a thousand years to turn
-                    
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                    
-                    yet in this magisterial inefficiency
-                    there are spaces and hiding places
-                    for fragile weeds to bloom
-                    and maybe bear some singular fruit
-                    
-                    like the F H I, a misfit prodigy
-                    daytime a tweedy don
-                    at dark a superhero
-                    flying off into the night
-                    cape a-fluttering
-                    to intercept villains and stop catastrophes
-                    
-                    and why not base it here?
-                    our spandex costumes
-                    blend in with the scholarly gowns
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue
-                    
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                            
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue`
-                  },
-                  {
-                    name: 'The Last of Us Part II - The Last of Us (Cycles)',
-                    singer: 'Gustavo Santaolalla',
-                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
-                    lyric: `the big creaky wheel
-                    a thousand years to turn
-                    
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                    
-                    yet in this magisterial inefficiency
-                    there are spaces and hiding places
-                    for fragile weeds to bloom
-                    and maybe bear some singular fruit
-                    
-                    like the F H I, a misfit prodigy
-                    daytime a tweedy don
-                    at dark a superhero
-                    flying off into the night
-                    cape a-fluttering
-                    to intercept villains and stop catastrophes
-                    
-                    and why not base it here?
-                    our spandex costumes
-                    blend in with the scholarly gowns
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue
-                    
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                            
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue`
+                    name: 'Seeing the Smoke',
+                    singer: 'Yashkaf in the Valley',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711743328/seeing_the_smoke_jmhbi5.mp3',
+                    lyric: `
+                    [00:00]  I'm not an expert on viral diseases, global supply chains, or prepping.
+                    [00:12]  I don't have special information or connections.
+                    [00:17]  My only differentiation is that I care a bit less than others about appearing weird or foolish.
+                    [00:28]  And I trust a bit more in my own judgment.
+                    [00:33]  Seeing the smoke and reacting is a learnable skill,
+                    [00:38]  and I'm going to give credit to rationality for teaching it.
+                    [00:46]  COVID-19 is the best exam for rationalists
+                    [00:52]  doing much better than common sense since Bitcoin.
+                    [00:57]  So instead of waiting two months, I'm submitting my answer for reality to grade.
+                    [01:06]  I think I'm seeing smoke, I'm submitting my answer for reality to grade.
+                    [01:17]  I think I'm seeing smoke, I'm not an expert.
+                    [01:24]  I think I'm seeing smoke.
+                    [01:30]  I think I'm seeing smoke.
+                    [01:36]  I'm not an expert.
+                    [01:41]  I think I'm seeing smoke.`
                   },
                 ]}
                 showLyric={true}
                 mode="full"
+                locale={{emptyLyricText: ''}}
                 />}
               </NoSSR>
 
