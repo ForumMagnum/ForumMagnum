@@ -21,7 +21,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
-const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
+export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
