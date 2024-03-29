@@ -483,67 +483,47 @@ const Layout = ({currentUser, children, classes}: {
                   ref={el => {
                     el && (el as any).toggleAudioLyric()
                   }}
+                  locale={{
+                    emptyLyricText: ""
+                  } as any}
                   className={classes.audioPlayer}
                   autoPlay={false}
                   showReload={false}
                   showThemeSwitch={false}
-                  theme={prefersDarkMode ? "dark" : "light"}
+                  theme={"dark"}
                   audioLists={[
                   {
-                    name: 'The Last of Us Part II - Main Theme',
-                    singer: 'Gustavo Santaolalla',
-                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
-                    lyric: `
-                    [offset:0]
-                    [00:01] the big creaky wheel
-                    [00:10] a thousand years to turn
+                    name: 'The First Virtue',
+                    singer: 'Eliezer Yudkowsky and the Dancing Shoggoths',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711592805/Screenshot_2024-03-27_at_7.26.38_PM_iu1qap.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711592594/The_12_virtues_of_rationality_yetq1k.mp3',
+                    lyric: `The first virtue is curiosity. 
+
+                    A burning itch to know is higher than a solemn vow to pursue truth. 
                     
-                    [00:20] thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
+                    To feel the burning itch of curiosity requires both that you be ignorant, and that you desire to relinquish your ignorance. 
                     
-                    yet in this magisterial inefficiency
-                    there are spaces and hiding places
-                    for fragile weeds to bloom
-                    and maybe bear some singular fruit
+                    If in your heart you believe you already know, or if in your heart you do not wish to know, then your questioning will be purposeless and your skills without direction. 
                     
-                    like the F H I, a misfit prodigy
-                    daytime a tweedy don
-                    at dark a superhero
-                    flying off into the night
-                    cape a-fluttering
-                    to intercept villains and stop catastrophes
+                    Curiosity seeks to annihilate itself; there is no curiosity that does not want an answer. 
                     
-                    and why not base it here?
-                    our spandex costumes
-                    blend in with the scholarly gowns
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue
+                    The glory of glorious mystery is to be solved, after which it ceases to be mystery. 
                     
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
-                            
-                    our unusual proclivities
-                    are shielded from ridicule
-                    where mortar boards are still in vogue`
+                    Be wary of those who speak of being open-minded and modestly confess their ignorance.`
                   },
                   {
-                    name: 'The Last of Us Part II - The Cycle of Violence',
-                    singer: 'Gustavo Santaolalla',
-                    cover: 'https://upload.wikimedia.org/wikipedia/en/0/0b/The_Last_of_Us_Part_II_cover_art.jpg',
+                    name: 'FHI at Oxford',
+                    singer: 'Nick Bostrom and the Dancing Shoggoths',
+                    cover: 'https://cdn1.suno.ai/image_fed199f5-2e5e-414f-a705-49115c459e91.png',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
-                    lyric: `the big creaky wheel
-                    a thousand years to turn
+                    lyric: `
+                    [00:08] the big creaky wheel
+                    [00:09.5] a thousand years to turn
                     
-                    thousand meetings, thousand emails, thousand rules
-                    to keep things from changing
-                    and heaven forbid
-                    the setting of a precedent
+                    [00:11] thousand meetings, thousand emails, thousand rules
+                    [00:13] to keep things from changing
+                    [00:14] and heaven forbid
+                    [00:15] the setting of a precedent
                     
                     yet in this magisterial inefficiency
                     there are spaces and hiding places
