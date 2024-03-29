@@ -69,7 +69,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: "8px",
     justifyContent: "space-between",
     alignItems: "center",
-    
   },
 })
 
