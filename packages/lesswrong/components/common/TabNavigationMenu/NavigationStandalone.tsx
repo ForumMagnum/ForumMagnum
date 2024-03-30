@@ -15,6 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   // the center column is positioned slightly closer to the center of the screen.
   sidebarWrapper: {
     minWidth: 100,
+    zIndex: theme.zIndexes.footerNav,
     [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       minWidth: 0,
     },

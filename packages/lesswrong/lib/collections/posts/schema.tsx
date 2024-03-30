@@ -2848,6 +2848,14 @@ const schema: SchemaType<"Posts"> = {
     optional: true
     //implementation in postResolvers.ts
   },
+  
+  firstVideoAttribsForPreview: {
+    type: GraphQLJSON,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
 
   /* subforum-related fields */
 

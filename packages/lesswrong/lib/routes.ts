@@ -814,8 +814,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true,
-      subtitleLink: "/tag/death", 
-      subtitle: "Kahneman & Vinge have died, far too young"
     },
     {
       name: 'dialogues',

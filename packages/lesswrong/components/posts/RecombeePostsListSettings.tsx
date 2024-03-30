@@ -46,7 +46,7 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   const [rotationRateOverride, setRotationRateOverride] = useState<number>(settings.rotationRate);
   const [rotationTimeOverride, setRotationTimeOverride] = useState<number>(settings.rotationTime);
 
-  const updateAdminOverrides = (e?: React.FocusEvent | React.MouseEvent, forceUpdate?: boolean) => {
+  const updateAdminOverrides = (e?: React.FocusEvent | React.MouseEvent, forceUpdate?: boolean, overrides?: Partial<RecombeeConfiguration>) => {
     const { refreshKey: oldRefreshKey, ...oldSettings } = settings;
 
     const newSettings = {
@@ -54,19 +54,21 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
       booster: boosterOverride,
       rotationRate: rotationRateOverride,
       rotationTime: rotationTimeOverride,
+      ...overrides,
     };
 
     if (forceUpdate || !isEqual(oldSettings, newSettings)) {
-      updateSettings({
+      const updatedSettings = {
         ...newSettings,
         ...{ refreshKey: forceUpdate ? randomId() : oldRefreshKey },
-      });
+      };
+
+      updateSettings(updatedSettings);
     }
   };
 
   const updateUserIdOverride = (newUserIdOverride: string | null) => {
-    setUserIdOverride(newUserIdOverride);
-    updateAdminOverrides();
+    updateAdminOverrides(undefined, undefined, { userId: newUserIdOverride ?? undefined });
   };
 
   const updateBoosterOverride = (e: React.FocusEvent<HTMLInputElement>) => {

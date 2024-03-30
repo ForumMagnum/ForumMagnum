@@ -292,6 +292,32 @@ augmentFieldsDict(Posts, {
       }
     }
   },
+  
+  firstVideoAttribsForPreview: {
+    resolveAs: {
+      type: GraphQLJSON,
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        const videoHosts = [
+          "https://www.youtube.com",
+          "https://youtube.com",
+          "https://youtu.be",
+        ];
+        const $ = cheerioParse(post.contents?.html);
+        const iframes = $("iframe").toArray();
+        for (const iframe of iframes) {
+          if ("attribs" in iframe) {
+            const src = iframe.attribs.src ?? "";
+            for (const host of videoHosts) {
+              if (src.indexOf(host) === 0) {
+                return iframe.attribs;
+              }
+            }
+          }
+        }
+        return null;
+      },
+    },
+  },
 })
 
 
@@ -590,8 +616,9 @@ createPaginatedResolver({
     args: { settings: RecombeeRecommendationArgs }
   ): Promise<RecombeeRecommendedPost[]> => {
     const { repos, currentUser } = context;
+
     if (!userIsAdmin(currentUser)) {
-      throw new Error(`Only admins may use Recombee recommendations right now`);
+      throw new Error(`You must be an admin to use Recombee recommendations right now`);
     }
 
     return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);
