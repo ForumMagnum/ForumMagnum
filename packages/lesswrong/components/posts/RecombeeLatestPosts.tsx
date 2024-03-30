@@ -295,7 +295,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
 
   return (
     // TODO: do we need capturePostItemOnMount here?
-    <AnalyticsContext pageSectionContext="postsFeed" capturePostItemOnMount>
+    <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {algorithmPicker}

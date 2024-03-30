@@ -16,10 +16,10 @@ import {
   hasPostInlineReactionsSetting,
   isLW,
 } from './instanceSettings'
-import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
+import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { allOf } from './utils/functionUtils';
 import { recombeeEnabledSetting } from './publicSettings';
+import { newFrontpagePostFeedsWithRecommendationsOptIn, useABTest } from './abTests';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -58,7 +58,14 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
-export const userHasRecombeeFrontpage = isLW ? allOf(adminOnly, () => recombeeEnabledSetting.get()) : disabled;
+
+//defining as Hook so as to combine with ABTest
+export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
+  const recombeeOptInABTest = useABTest(newFrontpagePostFeedsWithRecommendationsOptIn)
+  const optedIntoRecombee = (recombeeOptInABTest === "frontpageWithTabs")
+
+  return isLW && (isAdmin(currentUser) || optedIntoRecombee) && recombeeEnabledSetting.get()
+}
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();

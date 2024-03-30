@@ -3,6 +3,7 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useOnMountTracking } from '../../lib/analyticsEvents';
 
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
@@ -37,7 +38,7 @@ const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, showSticky = false, limit = 12, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, showSticky = false, limit = 10, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   showSticky?: boolean,
@@ -66,6 +67,16 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
   });
 
   const results: RecombeeRecommendedPost[] | undefined = data?.[RESOLVER_NAME]?.results;
+  const postIds = results?.map(({post}) => post._id) || []
+  const stickiedPostIds = stickiedPosts?.map(post => post._id) || []
+  postIds.push(...stickiedPostIds);
+
+  useOnMountTracking({
+    eventType: "postList",
+    eventProps: { postIds },
+    captureOnMount: (eventProps) => eventProps.postIds.length > 0,
+    skip: !postIds.length || loading,
+  });
 
   if (loading && !results) {
     return <Loading />;
