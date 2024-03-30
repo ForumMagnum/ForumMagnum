@@ -25,6 +25,7 @@ import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { filterSettingsToggleLabels } from '../common/HomeLatestPosts';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TabRecord } from '../common/TabPicker';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 // Key is the algorithm/scenario name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -165,7 +166,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker
+    TabPicker, PostsItem
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -205,6 +206,13 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     forum: true,
     limit:limit
   };
+
+  const { results } = usePaginatedResolver({
+    resolverName: "PostsWithActiveDiscussion",
+    fragmentName: "PostsListWithVotes",
+    limit: 13,
+    // skip: selectedScenario !== 'lesswrong-active'
+  });
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive());
 
@@ -303,7 +311,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {postsList}
+              {results?.map(post => <PostsItem key={post._id} post={post} />)}
+              {/* {postsList} */}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
         </HideRepeatedPostsProvider>

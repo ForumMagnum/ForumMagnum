@@ -685,6 +685,30 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       readLikelihoodRatio: ratio
     }));
   }
+
+  async getActivelyDiscussedPosts(userId: string, limit: number) {
+    return await this.any(`
+      SELECT
+        p.*,
+        (
+          SELECT SUM(
+            CASE WHEN c."postedAt" > rs."lastUpdated"
+              THEN ((1.0) / ln((CURRENT_DATE::DATE - DATE_TRUNC('days', c."postedAt")::DATE) + 1))
+            END
+          )
+          FROM "Comments" AS c
+          WHERE c."postId" = p._id
+        ) AS "unreadComments"
+      FROM "Posts" AS p
+      JOIN "ReadStatuses" AS rs
+      ON p._id = rs."postId"
+      WHERE p.shortform IS FALSE
+      AND rs."isRead" IS TRUE
+      AND rs."userId" = $1
+      ORDER BY "unreadComments" DESC NULLS LAST
+      LIMIT $2
+    `, [userId, limit]);
+  }
 }
 
 recordPerfMetrics(PostsRepo);
