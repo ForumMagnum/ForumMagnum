@@ -166,23 +166,44 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   lessOnlineBannerText: {
     ...theme.typography.postStyle,
-    
     position: 'absolute',
     right: 16,
     top: 70,
     color: theme.palette.text.alwaysBlack,
-    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
     textAlign: 'right',
-    width: 310,
+    width: 450,
+    textWrap: 'balance',
+    [theme.breakpoints.down(1400)]: {
+      width: 210,
+    },
+    fontFamily: '"Press Start 2P"',
     '& h2': {
-      fontSize: '2.2rem',
+      fontSize: '19px',
       margin: 0,
+      marginBottom: 13,
+      marginTop: 12,
+    // font-size: 19px;
+    // margin-bottom: 13px;
+    // margin-top: 12px;
     },
     '& h3': {
-      fontSize: '20px',
-      margin: 0,
-      lineHeight: '1.2',
-      marginBottom: 8
+      // font-size: 9px;
+      // line-height: 1.3;
+      // margin: 0 0 8px;
+      fontSize: '9px',
+      margin: '0 0 8px',
+      lineHeight: '1.3',
+    },
+    '& .glitch': {
+      // white-space: nowrap;
+      // font-family: "Press Start 2P";
+      // font-size: 13px;
+      // display: inline-block;
+      // margin-top: 12px;
+      fontFamily: "Press Start 2P",
+      fontSize: '13px',
+      display: 'inline-block',
+      marginTop: 12,
     },
     '& button': {
       ...theme.typography.commentStyle,
@@ -192,7 +213,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.alwaysBlack,
       borderRadius: '3px',
       textAlign: 'center',
-      padding: 8
+      padding: 8,
+      fontFamily: '"Press Start 2P"',
+      fontSize: '10px',
+      letterSpacing: '0px',
     }
   },
   lessOnlineBannerDateAndLocation: {
@@ -469,6 +493,7 @@ const Layout = ({currentUser, children, classes}: {
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>
                   )
                 }
+                <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711774484/Glitch_xcwejo.css' rel='stylesheet' />
                 <meta httpEquiv="Accept-CH" content="DPR, Viewport-Width, Width"/>
               </Helmet>
 
@@ -482,18 +507,57 @@ const Layout = ({currentUser, children, classes}: {
 
               <NoSSR>
                 <Helmet>
-                  <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711587893/index_wqsiku.css' rel='stylesheet' />
+                  <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711761428/index_wqsiku_gfpa3t.css' rel='stylesheet' />
+                  
                   <style>
                     {`
-                    .react-jinke-music-player {
+                    .react-jinke-music-player-main.react-jinke-music-player.react-jinke-music-player {
                       top: inherit !important;
                       left: inherit !important;
-                      right: 12px;
-                      bottom: 12px;
+                      right: 12px !important;
+                      bottom: 12px !important;
                       transform: scale(0.6) !important;
                     }
-                    .react-jinke-music-player .controller-title {
-                      color: white; 
+                    .react-jinke-music-player-main .controller-title {
+                      color: white !important; 
+                    }
+
+                    .react-jinke-music-player-main .music-player-panel {
+                      background-color: rgba(255, 255, 255, 0.7) !important;
+                      box-shadow: 0 1px 2px 0 rgba(0,34,77,.05) !important;
+                      height: 64px !important;
+                      color: rgba(0,0,0,0.7) !important;
+                      backdrop-filter: blur(2px) !important;
+                      font-family: "Press Start 2P" !important;
+                    }
+
+                    .react-jinke-music-player-main .progress-bar.progress-bar.progress-bar {
+                      margin-top: -2px !important;
+                    }
+
+                    .react-jinke-music-player-main .current-time, .react-jinke-music-player-main .duration {
+                      font-size: 10px !important;
+                    }
+
+                    .react-jinke-music-player-main .music-player-lyric {
+                      font-size: 12px;
+                      color: black;
+                      text-shadow: 0 0 3px white, 0 0 3px white;
+                      background-color: rgba(255, 255, 255, 0.6);
+                      backdrop-filter: blur(2px);
+                      font-family: "Press Start 2P";
+                      font-family: "Press Start 2P";
+                      line-height: 3;
+                      bottom: 64px;
+                    }
+
+                    .react-jinke-music-player-main .progress-bar-content .audio-main {
+                      margin-top: 9px !important;
+                    }
+
+                    .react-jinke-music-player-main .audio-title {
+                      font-family: "Press Start 2P" !important;
+                      font-size: 11px !important;
                     }
                     
                     `}
@@ -501,7 +565,9 @@ const Layout = ({currentUser, children, classes}: {
                 </Helmet>
                 {musicPlayerLoaded && MusicPlayer && <MusicPlayer
                   ref={el => {
+                    console.log({el})
                     el && !lyricsToggled && (el as any).toggleAudioLyric()
+                    setLyricsToggled(true)
                   }}
                   locale={{
                     emptyLyricText: ""
@@ -663,8 +729,8 @@ const Layout = ({currentUser, children, classes}: {
                     <div className={classes.imageColumn}>
                       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png" darkPublicId={"ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png"}/>
                       <div className={classes.lessOnlineBannerText}>
-                        <h2><a href="http://less.online">The Serenating Shoggoths</a></h2>
-                        <h3>Releasing their first album: <br/> "Helpful, Harmless, Honest"</h3>
+                        <h2><a href="http://less.online">The Fooming Shoggoths</a></h2>
+                        <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
                         <button><a href="http://less.online/#tickets-section">Listen Now</a></button>
                       </div>
                     </div> 
