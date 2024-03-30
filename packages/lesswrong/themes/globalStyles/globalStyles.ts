@@ -18,10 +18,10 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   },
   body: {
     margin: 0,
-    backgroundColor: theme.palette.background.default,
+    background: theme.palette.background.default,
     
     "@media print": {
-      backgroundColor: theme.palette.panelBackground.default,
+      background: theme.palette.panelBackground.default,
     },
   },
   

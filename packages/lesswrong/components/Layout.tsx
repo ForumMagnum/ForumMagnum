@@ -148,14 +148,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   votingImage: {
-    width: '1000px',
-    maxWidth: '1000px',
-    right: '-240px',
-    marginTop: -41,
-    transform: 'scaleX(-1)',
-    height: '1170px',
+    // width: 780px;
+    // right: -110px;
+    // height: 1190px;
+    // /* max-width: 1000px; */
+    // /* transform: scaleX(-1); */
+    // margin-top: 27px;
+    // object-fit: cover;
+    // -webkit-mask-image: radial-gradient(ellipse at top right, #000 53%, transparent 68%);
+    
+    width: '780px',
+    right: '-110px',
+    marginTop: 27,
+    height: '1190px',
     objectFit: 'cover',
-    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 55%,transparent 70%)`,
+    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%,transparent 70%)`,
   },
   lessOnlineBannerText: {
     ...theme.typography.postStyle,
@@ -166,7 +173,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.alwaysBlack,
     textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
     textAlign: 'right',
-    width: '240px',
+    width: 310,
     '& h2': {
       fontSize: '2.2rem',
       margin: 0,
@@ -476,6 +483,21 @@ const Layout = ({currentUser, children, classes}: {
               <NoSSR>
                 <Helmet>
                   <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711587893/index_wqsiku.css' rel='stylesheet' />
+                  <style>
+                    {`
+                    .react-jinke-music-player {
+                      top: inherit !important;
+                      left: inherit !important;
+                      right: 12px;
+                      bottom: 12px;
+                      transform: scale(0.6) !important;
+                    }
+                    .react-jinke-music-player .controller-title {
+                      color: white; 
+                    }
+                    
+                    `}
+                  </style>
                 </Helmet>
                 {musicPlayerLoaded && MusicPlayer && <MusicPlayer
                   ref={el => {
@@ -639,12 +661,11 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png" darkPublicId={"ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png"}/>
                       <div className={classes.lessOnlineBannerText}>
-                        <h2><a href="http://less.online">LessOnline</a></h2>
-                        <h3>A Festival of Writers Who are Wrong on the Internet</h3>
-                        <h3 className={classes.lessOnlineBannerDateAndLocation}>May 31 - Jun 2, Berkeley, CA</h3>
-                        <button><a href="http://less.online/#tickets-section">Buy Ticket ($400)</a></button>
+                        <h2><a href="http://less.online">The Serenating Shoggoths</a></h2>
+                        <h3>Releasing their first album: <br/> "Helpful, Harmless, Honest"</h3>
+                        <button><a href="http://less.online/#tickets-section">Listen Now</a></button>
                       </div>
                     </div> 
                     : 
