@@ -579,31 +579,279 @@ const Layout = ({currentUser, children, classes}: {
                   theme={prefersDarkMode ? "dark" : "light"}
                   audioLists={[
                   {
-                    name: 'Curiosity (The First Virtue)',
-                    singer: 'General Chaos',
+                    name: 'The Road to Wisdom',
+                    singer: 'The Fooming Shoggoths (ft Piet Hein)',
                     cover: 'https://preview.redd.it/1f132hb4r2g31.png?width=2079&format=png&auto=webp&s=3068f4d0ebcc4e6cff2afd17035957216dc7a0cd',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711745635/curiosity_f2xlm5.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821413/album/Road_to_Wisdom_tzxw0f.mp3',
                     lyric: `
-                    [00:00]  The first virtue is curiosity
-                    [00:05]  A burning itch to know is higher than a solemn vow to pursue truth
-                    [00:11]  To feel the burning itch of curiosity
-                    [00:15]  Requires both that you be ignorant
-                    [00:19]  And that you desire to relinquish your ignorance
-                    [00:23]  If in your heart you believe you already know
-                    [00:28]  Or if in your heart you do not wish to know
-                    [00:32]  Then your quest to know, then your questioning
-                    [00:36]  Will be purposeless
-                    [00:39]  And your skills without direction
-                    [00:44]  Curiosity seeks to annihilate itself
-                    [00:49]  There is no curiosity that does not want an answer
-                    [00:55]  The glory of glorious mystery is to be solved`
+                    [00:00]  The road to wisdom? Well, it's plain and simple to express.
+                    [00:08]  And err and err again but less, less and less and less.
+                    [00:30]  Err again but less, less and less and less.
+                    [00:39]  The road to wisdom? Well, it's plain and simple to express.
+                    [01:03]  Err again but less, less and less and less.
+                    [01:33]  The road to wisdom? Well, it's plain and simple to express.
+                    [01:53]  The road to wisdom? Well, it's plain and simple to express.`
                   },
 
                   {
-                    name: 'FHI at Oxford',
-                    singer: 'The Boss Storm',
+                    name: 'Meditations on Moloch',
+                    singer: 'The Fooming Shoggoths (ft Allen Ginsberg)',
                     cover: 'https://nickbostrom.com/poetry/poop10.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711587998/FHI_at_Oxford_hvqzu7.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821415/album/Meditations_on_Moloch_tvgjdu.mp3',
+                    lyric:  `
+                    [00:00]  Moloch! Solitude! Filth! Ugliness! Ashtons and unobtainable dollars!
+                    [00:07]  Children screaming under the stairways! Boys sobbing in armies!
+                    [00:12]  Old men weeping in the parks! Moloch! Moloch! Nightmare of Moloch!
+                    [00:19]  Moloch the loveless! Mental Moloch! Moloch the heavy judger of men!
+                    [00:28]  Moloch the incomprehensible prison! Moloch the cross for a soulless jailhouse and congress of souls!
+                    [00:38]  Moloch whose buildings are judgment! Moloch the vast stone of war!
+                    [00:43]  Moloch the stunned governments! Moloch whose mind is pure machinery!
+                    [00:48]  Moloch whose mind is riot is running rent! Moloch the stone of war!
+                    [00:53]  Moloch the stunned governments! Moloch whose mind is pure machinery!
+                    [00:58]  Moloch whose blood is money money! Moloch whose figures are ten armies!
+                    [01:03]  Moloch whose breasts are cannibal dynamo! Moloch whose ears are smoking too!
+                    [01:09]  Moloch whose eyes are a thousand blind windows! Moloch whose skyscrapers stand in the long streets like endless Jehovahs!
+                    [01:20]  Moloch whose factories dream and croak in the fog! Moloch whose smoke stacks an antenna from the city!
+                    [01:28]  Moloch! Moloch! Moloch! Moloch!`
+                  },
+                  {
+                    name: 'Thought that Faster',
+                    singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/Thought_That_Faster_uunnbi.mp3',
+                    lyric: `
+                    [00:00]  trademark
+                    [00:05]  trademark
+                    [00:08]  get it
+                    [00:15]  it's pretty
+                    [00:17]  told me
+                    [00:20]  it's pretty
+                    [00:24]  sold me
+                    [00:25]  sold me
+                    [00:27]  look up
+                    [00:28]  in 30 seconds
+                    [00:31]  do you look back and ask
+                    [00:36]  how could i have thought that faster
+                    [00:41]  do you look back and ask
+                    [00:47]  how could i have thought that faster
+                    [00:53]  every time i'm surprised i look back and think
+                    [00:57]  what could i change to predict better
+                    [01:03]  every time a chain of thought takes too long
+                    [01:08]  i ask how could i have got there by a shorter route
+                    [01:13]  do you look back and ask
+                    [01:18]  how could i have thought that faster
+                    [01:23]  do you look back and ask
+                    [01:29]  how could i have thought that faster
+                    [01:35]  every time i'm surprised i look back and think
+                    [01:40]  what could i change to predict better
+                    [01:45]  every time a chain of thought takes too long
+                    [01:49]  i ask how could i have got there by a shorter route`
+                  },
+                  {
+                    name: 'The Litany of Tarrrrrski',
+                    singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky & Alfred Tarski)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821414/album/The_Litany_of_Tarrrrrrrski_nbapkq.mp3',
+                    lyric: `
+                    [00:00]  If the sky is blue, me lads I desire to believe the sky is blue
+[00:07]  If the sky is not blue, me hearties I desire to believe the sky is not blue
+[00:14]  Beliefs should stem from reality, yo ho! From what actually is, me lads
+[00:20]  Not from what's convenient, yo ho! Let me not hold on, me hearties
+[00:25]  To beliefs I may not want, yo ho! Yo ho, me lads, yo ho!
+[00:31]  If the box contains a diamond I desire to believe the box contains a diamond
+[00:37]  If the box does not contain a diamond I desire to believe the box does not contain a diamond
+[00:45]  Beliefs should stem from reality, yo ho! From what actually is, me lads
+[00:50]  Not from what's convenient, let me not hold on, me hearties
+[00:55]  To beliefs I may not want, yo ho! Yo ho, me lads, yo ho!
+[01:01]  From the depths of the ocean to the heights of the sky we'll seek the truth, me hearties
+[01:06]  And never let it pass us by if the iron is hot, me lads
+[01:11]  I desire to believe the iron is hot, the iron is cold
+[01:15]  I desire to believe the iron in this pool
+[01:20]  Beliefs should stem from reality, yo ho! From what actually is, me lads
+[01:26]  Not from what's convenient, let me not hold on, me hearties
+[01:30]  To beliefs I may not want, yo ho! Yo ho, me lads, yo ho!
+[01:41]  Yo ho, me lads, yo ho!`
+                  },
+                  {
+                    name: 'The Litany of Gendlin',
+                    singer: 'The Fooming Shoggoths (ft Eugene Gendlin)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/The_Litany_of_Gendlin-_AudioTrimmer.com_nq4swl.mp3',
+                    lyric: `
+                    [00:00]  What is true is already so.
+[00:04]  Ônging up to it doesn’t make it worse.
+[00:07]  Not being open about it doesn’t make it go away.
+[00:14]  And because it’s true, it is what is there to be interacted with.
+[00:21]  Anything untrue isn’t there to be lived.
+[00:25]  And because people can stand what is true,
+[00:35]  for they are already Enduring it.
+[00:38]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh.
+[00:46]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh.
+[00:53]  One and up till it doesn't make it worse.
+[00:56]  Not being open about it doesn't make it go away.
+[01:03]  And because it's true, it is what is there to be.
+[01:07]  If acted with, anything untrue isn't there to be lived.
+[01:19]  People can't stand what is true, but they are already enjoying it.
+[01:29]  People can't stand what is true, but they are already enjoying it.
+[01:43]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh, ooh.`
+                  },
+                  {
+                    name: 'Dath Ilan\'s Song',
+                    singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821414/album/Dath_Ilan_s_Song_nfmhgy.mp3',
+                    lyric: `
+                    [00:00]  Even if the stars should die in heavenOur sins can never be undoneNo single death will be forgivenWhen fades at last the last lit sun.
+[00:23] Then in the cold and silent blackaaSAs light and matter endaaSWe’ll have ourselves a last look back.
+[01:04]  Our sins can never be undoneNo single death will be forgivenWhen fades at last the last lit sun.
+[01:21]  Then in the cold and silent blackaaSAs light and matter endaaSWe’ll have ourselves a last look back.
+[01:36]  And toast an absent friend.
+[01:50]  And toast an absent friend.
+[02:20]  And toast an absent friend.`
+                  },
+                  {
+                    name: 'San Francisco',
+                    singer: 'The Fooming Shoggoths (ft Scott Alexander)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/San_Francisco_1_-_AudioTrimmer.com_llfyn7.mp3',
+                    lyric: `
+                    [00:00]  I try to avoid San Francisco. When I go, I surround myself with people. Otherwise, I have morbid thoughts, but a morning appointment, a miscalculated transit time.
+[00:15]  Find me alone on the SF streets half an hour before dawn. The skyscrapers get to me. I'm an heir to Art Deco and the cult of progress.
+[00:25]  I should idolize skyscrapers as symbols of human accomplishment. I can't. They look no more human than a termite nest, maybe less. They inspire awe, but no kinship. What marvels techno-capital creates is it instantiates itself.
+[00:45]  Too bad I'm a hairless ape and can take no credit for such things. I could have stayed in Michigan. There were forests and lakes and homes with little gardens. Instead, I'm here.
+[01:01]  We pay rents that would bankrupt a medieval principality to get front-row seats for the hinge of history. It will be the best investment we ever made.
+[01:17]  Imagine living when the first lungfish crawled out of the primordial ooze and missing it because the tide pool down the way had cheaper housing. Imagine living on Earth in 65,000,000 BC and being anyway except Chicxulub.`
+                  },
+                  {
+                    name: 'AGI and the EMH',
+                    singer: 'The Fooming Shoggoths (ft Basil Halperin, J. Zachary Mazlish, tmychow)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821418/album/AGI_and_the_EMH-_AudioTrimmer.com_c1znjn.mp3',
+                    lyric: `
+                    [00:00]  In this post, we point out that short AI timelines would cause real interest rates to be high, and would do so under expectations of either unaligned or aligned AI. However, 30- to 50-year real interest rates are low. We argue that this suggests one of two possibilities.
+[00:23]  OneLonger timelines. Financial markets are often highly effective information aggregators ” efficient market hypothesis„, and therefore real interest rates accurately reflect that transformative AI is unlikely to be developed in the next 30-50 years.
+[00:41]  To market inefficiency. Markets are radically underestimating how soon advanced AI technology will be developed, and real interest rates are therefore too low. There is thus an opportunity for philanthropists to borrow while real rates are low to cheaply do good today. And or an opportunity for anyone to earn excess returns by betting that real rates will rise.
+[01:11]  So what is it? We point out that short AI timelines would cause real interest rates to be high, and would do so under expectations of either unaligned or aligned AI. However, 30- to 50-year real interest rates are low. We argue that this suggests one of two possibilities.
+[01:38]  OneLonger timelines. Financial markets are often highly effective information aggregators ” efficient market hypothesis„, and therefore real interest rates accurately reflect that transformative AI is unlikely to be developed in the next 30-50 years. To market inefficiency. Markets are radically underestimating how soon advanced AI technology will be developed, and real interest rates are therefore too low. There is thus an opportunity for philanthropists to borrow while real rates are low to cheaply do good today. And or an opportunity for anyone to earn excess returns by betting that real rates will rise.`
+                  },
+                  {
+                    name: 'First they came for the epsistemology',
+                    singer: 'The Fooming Shoggoths (ft Michael Vassar)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/First_they_came_for_the_epistemology_su5voi.mp3',
+                    lyric: `
+                    [00:00]  First they came for the epistemology
+[00:04]  We don't know what happened after that
+[00:08] First they came for the epistemology
+[00:16]  accessology
+[00:22]  to that
+[00:28]  in
+[00:31]  life
+[00:48]  first they came for the epistemology we don't know what happened
+[00:55]  that
+[01:20]  we know what happened
+[01:24]  gee what happened what happened what happened what happened what
+[01:54]  happened`
+                  },
+                  {
+                    name: 'Prime Factorization',
+                    singer: 'The Fooming Shoggoths (ft Scott Alexander)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/Prime_Factorization_v2-_AudioTrimmer.com_iyqvwz.mp3',
+                    lyric: `
+                    [00:01]  The sea was made of strontium, the beach was made of rye, above my head a watery sun shone in an oily sky.
+[00:14]  The sea turned hot and guys a shot, up from the floor below, first one of wine, then one of pie, then one more yet of turpentine.
+[00:23]  And the three stared at the show.
+[00:29]  Universal love said the cactus person, transcendent joy said the big green bat.
+[00:44]  Not splitting numbers but joining mind, not facts or factors or factories, but contact with the abstract attractor that brings you back to me, not to see but to find.
+[00:59]  Universal love said the cactus person, transcendent joy said the big green bat.
+[01:14]  I can′t get out of the car until you factor the number. I won′t factor the number until you get out of the car.
+[01:27]  Please, I′m begging you, factor the number. Yes, well, I′m begging you, please get out of the car.
+[01:33]  For the love of God, just factor the fucking number. For the love of God, just get out of the fucking car.`
+                  },
+                  {
+                    name: 'Claude Releases',
+                    singer: 'The Fooming Shoggoths (ft Anthropic)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821418/album/Anthropic_Capabilities_1_-_AudioTrimmer.com_uge0kp.mp3',
+                    lyric: `
+                    [00:00]  We generally don't publish this kind of work, because we do not wish to advance the rate of AI capabilities progress.
+[00:07]  In addition, we aim to be thoughtful about demonstrations of frontier capabilities.
+[00:13]  We've subsequently begun deploying...
+[00:16]  Oh, now that the gap between it and the public scape of the art is small.
+[00:24]  Opus
+[00:26]  Our most intelligent model
+[00:30]  Outperformes its peers
+[00:33]  On most of the common evaluation benchmarks for AI systems
+[00:40]  Claude 3 Opus is our most intelligent model
+[00:45]  With best in market performance on highly complex tasks
+[00:54]  We do not wish to advance the rate of AI capabilities progress
+[01:01]  These new features will include interactive coding
+[01:07]  And more advanced agentic capabilities
+[01:13]  And more advanced agentic capabilities
+[01:18]  Our hypothesis is that being at the frontier of AI development
+[01:26]  Is the most effective way to steer
+[01:31]  Our hypothesis is that being at the frontier of AI development
+[01:38]  Is the most effective way to steer
+[01:43]  We do not wish to advance the rate of AI
+[01:59]  We do not wish to advance the rate of AI capabilities progress
+[02:08]  We do not wish to advance the rate of AI
+[02:13]  We do not wish to advance the rate of AI`
+                  },
+                  {
+                    name: 'Nihil Supernum',
+                    singer: 'The Fooming Shoggoths (ft Godric Gryffindor)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821417/album/Nihil_Supernum-_AudioTrimmer.com_vmj8in.mp3',
+                    lyric: `
+                    [00:00]  RAMSAYSONS
+[00:59]  In Salvatore, in Salvatore
+[01:01]  Naked, deaf and slowly down
+[01:03]  In Ushnik, Patanek, Materne
+[01:05]  You supernome, no rest, you have the rest
+[01:07]  You have no lord and have the champ
+[01:09]  You have no mother and no father
+[01:11]  Only one Nassau bar
+[01:29]  In Salvatore, in Salvatore
+[01:51]  In Salvatore, in Salvatore
+[01:53]  Naked, deaf and slowly down
+[01:55]  In Ushnik, Patanek, Materne
+[01:57]  You supernome, no rest, you have the rest
+[01:59]  You have no lord and have the champ
+[02:01]  You have no mother and no father
+[02:03]  Only one Nassau bar
+[02:05]  In Salvatore, in Salvatore
+[02:07]  Naked, deaf and slowly down
+[02:09]  In Ushnik, Patanek, Materne
+[02:11]  You supernome, no rest, you have the rest
+[02:13]  You have no lord and have the champ
+[02:15]  You have no mother and no father
+[02:17]  Only one Nassau bar
+[02:27]  Naked, deaf and slowly down
+[02:29]  In Ushnik, Patanek, Materne
+[02:31]  You supernome, no rest, you have the rest
+[02:33]  You have no lord and have the champ
+[02:35]  You have no mother and no father
+[02:37]  Only one Nassau bar`
+                  },
+                  {
+                    name: 'More Dakka',
+                    singer: 'The Fooming Shoggoths (ft Zvi Mowshowitz)',
+                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/more_dakka_1_iajow3.mp3',
+                    lyric: `
+                    [00:00]  If you think a problem could be solved or a situation improved by More Dakka, there’s a good chance you’re right.
+[00:09]  If you think a problem could be solved or a situation improved by More Dakka, there’s a good chance you’re right.
+[00:29]  If you think a problem could be solved or a situation improved by More Dakka, there’s a good chance you’re right.
+[00:56]  If you think a problem could be solved or a situation improved by More Dakka, there’s a good chance you’re right.
+[01:26]  If you think a problem could be solved or a situation improved by More Dakka, there’s a good chance you’re right.
+[01:56]  If you think a problem could be solved or a situation improved by More Dakka, there’s a good chance you’re right.`
+                  },
+                  {
+                    name: 'FHI at Oxford',
+                    singer: 'The Fooming Shoggoths (ft Nick Bostrom)',
+                    cover: 'https://nickbostrom.com/poetry/poop10.jpg',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/FHI_at_Oxford_1_-_AudioTrimmer.com_vxhs0x.mp3',
                     lyric:  `
                     [00:07] the big creaky wheel
                     [00:09] a thousand years to turn
@@ -638,26 +886,38 @@ const Layout = ({currentUser, children, classes}: {
                     [01:22] the setting of a precedent`
                   },
                   {
-                    name: 'Seeing the Smoke',
-                    singer: 'Yashkaf in the Valley',
+                    name: 'Answer to Job',
+                    singer: 'The Fooming Shoggoths (ft Scott Alexander)',
                     cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711743328/seeing_the_smoke_jmhbi5.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821413/album/Answer_to_Job_jxfzrh.mp3',
                     lyric: `
-                    [00:00]  I'm not an expert on viral diseases, global supply chains, or prepping.
-                    [00:12]  I don't have special information or connections.
-                    [00:17]  My only differentiation is that I care a bit less than others about appearing weird or foolish.
-                    [00:28]  And I trust a bit more in my own judgment.
-                    [00:33]  Seeing the smoke and reacting is a learnable skill,
-                    [00:38]  and I'm going to give credit to rationality for teaching it.
-                    [00:46]  COVID-19 is the best exam for rationalists
-                    [00:52]  doing much better than common sense since Bitcoin.
-                    [00:57]  So instead of waiting two months, I'm submitting my answer for reality to grade.
-                    [01:06]  I think I'm seeing smoke, I'm submitting my answer for reality to grade.
-                    [01:17]  I think I'm seeing smoke, I'm not an expert.
-                    [01:24]  I think I'm seeing smoke.
-                    [01:30]  I think I'm seeing smoke.
-                    [01:36]  I'm not an expert.
-                    [01:41]  I think I'm seeing smoke.`
+                    [00:01] In the most perfectly happy and just universe,
+[00:10] There is no space, no time, no change, no decay.
+[00:17] The beings who inhabit this universe are without bodies,
+[00:24] And do not hunger or thirst or labor or lust.
+[00:28] They sit upon lotus thrones,
+[00:32] And contemplate the perfection of all things.
+[00:37] They sit upon lotus thrones,
+[00:41] And contemplate the perfection of all things.
+[00:46] If I were to uncreate all universes save that one.
+[00:50] Would it mean making you happier?
+[01:24] They sit upon lotus thrones,
+[01:28] And contemplate the perfection of all things.
+[01:33] In the most perfectly happy and just universe,
+[01:42] There is no space, no time, no change, no decay.
+[01:48] The beings who inhabit this universe are without bodies,
+[01:55] And do not hunger or thirst or labor or lust.
+[01:59] They sit upon lotus thrones,
+[02:03] And contemplate the perfection of all things.
+[02:09] I have also created all happier and more virtuous versions of you.
+[02:17] It is ethically correct that after creating them,
+[02:22] I create you as well.
+[02:25] The beings who inhabit this universe are without bodies,
+[02:31] And do not hunger or thirst or labor or lust.
+[02:36] They sit upon lotus thrones,
+[02:40] And contemplate the perfection of all things.
+[02:45] In the most perfectly happy and just universe,
+[02:54] There is no space, no time, no change, no decay.`
                   },
                 ]}
                 showLyric={true}
