@@ -117,6 +117,7 @@ registerMigration({
           meetupLink: meetupUrlExists ? eventUrl : undefined,
           facebookLink: fbUrlExists ? eventUrl : undefined,
           googleLocation,
+          hideFromRecentDiscussions: true,
           contents: {
             originalContents: {
               type: 'ckEditorMarkup',
