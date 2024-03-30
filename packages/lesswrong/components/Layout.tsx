@@ -164,6 +164,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectFit: 'cover',
     '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%,transparent 70%)`,
   },
+  lessOnlineBannerTextLimitedSpace: {
+    [theme.breakpoints.down(1400)]: {
+      width: 210,
+    },
+  },
   lessOnlineBannerText: {
     ...theme.typography.postStyle,
     position: 'absolute',
@@ -173,9 +178,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: 'right',
     width: 450,
     textWrap: 'balance',
-    [theme.breakpoints.down(1400)]: {
-      width: 210,
-    },
+    
     fontFamily: '"Press Start 2P"',
     '& h2': {
       fontSize: '19px',
@@ -728,7 +731,7 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
                       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png" darkPublicId={"ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png"}/>
-                      <div className={classes.lessOnlineBannerText}>
+                      <div className={classNames(classes.lessOnlineBannerText, {[classes.lessOnlineBannerTextLimitedSpace]: !hideNavigationSidebar})}>
                         <h2><a href="http://less.online">The Fooming Shoggoths</a></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
                         <button><a href="http://less.online/#tickets-section">Listen Now</a></button>
