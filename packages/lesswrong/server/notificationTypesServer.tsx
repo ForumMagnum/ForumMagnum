@@ -18,6 +18,7 @@ import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
 import './emailComponents/NewDialogueMatchEmail';
+import './emailComponents/SequenceNewPostsEmail';
 import {getDocumentSummary, taggedPostMessage, NotificationDocument, getDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
@@ -30,7 +31,6 @@ import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
 import DialogueChecks from '../lib/collections/dialogueChecks/collection';
 import Sequences from '../lib/collections/sequences/collection';
-import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 
 interface ServerNotificationType {
   name: string,
@@ -183,18 +183,7 @@ export const NewSequencePostsNotification = serverRegisterNotificationType({
     
     if (!posts.length) throw Error(`No valid new posts for notification: ${notifications[0]}`)
     
-    return <div>
-      <p>
-        The following posts have been added to <a href={sequenceGetPageUrl(sequence, true)}>{sequence.title}</a>:
-      </p>
-      <ul>
-        {posts.map(post => {
-          return <li key={post._id}>
-            <a href={postGetPageUrl(post, true)}>{post.title}</a>
-          </li>
-        })}
-      </ul>
-    </div>
+    return <Components.SequenceNewPostsEmail sequence={sequence} posts={posts} />;
   }
 })
 

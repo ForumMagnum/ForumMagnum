@@ -185,7 +185,6 @@ const SequencesPage = ({ documentId, classes }: {
               publicId={bannerId}
               width="auto"
               height="380"
-              imgProps={{quality: '100'}}
             />
             <div className={classes.imageScrim}/>
           </div>
@@ -223,9 +222,9 @@ const SequencesPage = ({ documentId, classes }: {
           </div>}
         </section>
         
-        <ContentStyles contentType="post" className={classes.description}>
-          {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>}
-        </ContentStyles>
+        {html && <ContentStyles contentType="post" className={classes.description}>
+          <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>
+        </ContentStyles>}
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
             <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
