@@ -27,6 +27,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
+  topSection: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    columnGap: 16,
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    },
+  },
+  titleCol: {
+    flexGrow: 1
+  },
+  notifyCol: {
+    flex: 'none',
+    paddingTop: 3,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 0
+    },
+  },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
   },
@@ -38,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   description: {
     marginTop: theme.spacing.unit * 2,
     marginLeft: theme.spacing.unit/2,
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: isFriendlyUI ? 40 : theme.spacing.unit * 2,
   },
   banner: {
     position: "absolute",
@@ -115,7 +133,7 @@ const SequencesPage = ({ documentId, classes }: {
 
   const { SequencesEditForm, HeadTags, CloudinaryImage, SingleColumnSection, SectionSubtitle,
     ChaptersList, ChaptersNewForm, FormatDate, Loading, SectionFooter, UsersName,
-    ContentItemBody, Typography, SectionButton, ContentStyles,
+    ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
   } = Components
   
   if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
@@ -175,20 +193,34 @@ const SequencesPage = ({ documentId, classes }: {
     </div>}
     <SingleColumnSection>
       <div className={classes.content}>
-        <div className={classes.titleWrapper}>
-          <Typography variant='display2' className={classes.title}>
-            {document.draft && <span>[Draft] </span>}{document.title}
-          </Typography>
-        </div>
-        <SectionFooter>
-          <div className={classes.meta}>
-            <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
+        <section className={classes.topSection}>
+          <div className={classes.titleCol}>
+            <div className={classes.titleWrapper}>
+              <Typography variant='display2' className={classes.title}>
+                {document.draft && <span>[Draft] </span>}{document.title}
+              </Typography>
+            </div>
+            <SectionFooter>
+              <div className={classes.meta}>
+                <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
+                {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
+              </div>
+              {canEdit && <span className={classes.leftAction}><SectionSubtitle>
+                <a onClick={showEdit}>edit</a>
+              </SectionSubtitle></span>}
+            </SectionFooter>
           </div>
-          {canEdit && <span className={classes.leftAction}><SectionSubtitle>
-            <a onClick={showEdit}>edit</a>
-          </SectionSubtitle></span>}
-        </SectionFooter>
+          {!canEdit && <div className={classes.notifyCol}>
+            <NotifyMeButton
+              document={document}
+              subscribeMessage="Get notified"
+              unsubscribeMessage="Get notified"
+              showIcon
+              asButton={isFriendlyUI}
+              hideFlashes
+            />
+          </div>}
+        </section>
         
         <ContentStyles contentType="post" className={classes.description}>
           {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>}

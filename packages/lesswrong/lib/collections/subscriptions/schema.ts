@@ -10,6 +10,7 @@ export const subscriptionTypes = {
   newEvents: 'newEvents',
   newReplies: 'newReplies',
   newTagPosts: 'newTagPosts',
+  newSequencePosts: 'newSequencePosts',
   newDebateComments: 'newDebateComments',
   newDialogueMessages: 'newDialogueMessages',
   newPublishedDialogueMessages: 'newPublishedDialogueMessages',
@@ -44,7 +45,7 @@ const schema: SchemaType<"Subscriptions"> = {
     canCreate: ['members']
   },
   collectionName: {
-    type: String, 
+    type: String,
     nullable: false,
     typescriptType: "CollectionNameString",
     canRead: [userOwns],

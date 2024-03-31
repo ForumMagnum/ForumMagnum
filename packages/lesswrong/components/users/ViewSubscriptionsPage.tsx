@@ -7,6 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { allowSubscribeToUserComments } from '../../lib/betas';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
@@ -215,6 +216,15 @@ const ViewSubscriptionsPage = ({classes}: {
       fragmentName="TagPreviewFragment"
       renderDocument={(tag: TagPreviewFragment) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
       noSubscriptionsMessage="You are not subscribed to any tags."
+    />
+    
+    <SubscriptionsList
+      title="Subscribed to Sequences"
+      collectionName="Sequences"
+      subscriptionType="newSequencePosts"
+      fragmentName="SequencesPageTitleFragment"
+      renderDocument={(sequence: SequencesPageTitleFragment) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
+      noSubscriptionsMessage="You are not subscribed to any sequences."
     />
     
     

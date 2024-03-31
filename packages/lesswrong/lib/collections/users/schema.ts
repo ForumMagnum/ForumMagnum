@@ -1383,6 +1383,10 @@ const schema: SchemaType<"Users"> = {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
+  notificationSubscribedSequencePost: {
+    label: "Posts added to sequences I'm subscribed to",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
   notificationPrivateMessage: {
     label: "Private messages",
     ...notificationTypeSettingsField({ channel: "both" }),
