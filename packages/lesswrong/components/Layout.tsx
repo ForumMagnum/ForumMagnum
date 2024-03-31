@@ -562,6 +562,112 @@ const Layout = ({currentUser, children, classes}: {
                       font-family: "Press Start 2P" !important;
                       font-size: 11px !important;
                     }
+
+                    .audio-lists-panel.show.audio-lists-panel-mobile {
+                      z-index: 10000 !important;
+                    }
+
+                    @media (max-width: 940px) {
+
+                      .react-jinke-music-player-main .group.audio-download {
+                          display: none;
+                      }
+
+                      .react-jinke-music-player-main .group.audio-download {
+                          display: none !important;
+                      }
+
+                      .react-jinke-music-player-main .group.lyric-btn.lyric-btn-active {
+                          display: none !important;
+                      }
+
+                      .react-jinke-music-player-main .group.loop-btn {
+                          display: none !important;
+                      }
+
+                      .react-jinke-music-player-main .group.hide-panel {
+                          display: none !important;
+                      }
+
+                      .react-jinke-music-player-main .group.play-sounds {
+                        display: none !important;
+                      }
+
+                      .react-jinke-music-player-main .progress-bar-content.progress-bar-content.progress-bar-content.progress-bar-content {
+                          display: block !important;
+                          flex-basis: 100%;
+                          padding-top: 8px;
+                      }
+
+                      .react-jinke-music-player-main section.audio-main {
+                          display: none !important;
+                      }
+
+                      .react-jinke-music-player-main .player-content {
+                        padding-left: 18px !important;
+                      }
+
+                      .react-jinke-music-player-main section.panel-content {
+                          flex-wrap: wrap;
+                      }
+
+                      .react-jinke-music-player-main .music-player-panel.translate {
+                          height: 71px !important;
+                      }
+
+                      .react-jinke-music-player-main section.panel-content {
+                          display: grid !important;
+                          grid-template-columns: min-content 1fr min-content;
+                          grid-template-rows: min-content min-content;
+                      }
+
+                      .react-jinke-music-player-main section.panel-content {
+                          padding: 0 10px !important;
+                      }
+
+                      .react-jinke-music-player-main .img-content {
+                          grid-row: 1 / 3;
+                      }
+
+                      .react-jinke-music-player-main .progress-bar-content {
+                          grid-column: 2 / 4;
+                      }
+
+                      .react-jinke-music-player-main .player-content {
+                          grid-row: 2;
+                          justify-content: space-between !important;
+                      }
+
+                      .react-jinke-music-player-main .music-player-panel.translate {
+                          font-family: inherit !important;
+                      }
+
+                      .react-jinke-music-player-main span.audio-title.audio-title.audio-title.audio-title.audio-title {
+                          font-family: inherit !important;
+                          font-size: 16px !important;
+                      }
+
+                      .react-jinke-music-player-main span.group {
+                          margin: 0px !important;
+                      }
+
+                      .react-jinke-music-player-main span.group.audio-lists-btn {
+                          display: flex !important;
+                          max-width: 70px;
+                      }
+
+                      .react-jinke-music-player-main span.group {
+                          /* margin-right: auto !important; */
+                      }
+
+                      .react-jinke-music-player-main .player-content:first-child {
+                          justify-content: flex-start !important;
+                      }
+
+                      .react-jinke-music-player-main .group:first-child {
+                        justify-content: flex-start !important;
+                      }
+                    }
                     
                     `}
                   </style>
@@ -578,6 +684,8 @@ const Layout = ({currentUser, children, classes}: {
                   autoPlay={false}
                   showReload={false}
                   showThemeSwitch={false}
+                  responsive={false}
+                  showMediaSession={true}
                   theme={prefersDarkMode ? "dark" : "light"}
                   audioLists={[
                   {

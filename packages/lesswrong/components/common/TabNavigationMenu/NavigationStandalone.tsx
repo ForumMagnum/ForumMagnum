@@ -33,6 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: 10,
   },
   footerBar: {
+    display: "none",
     [theme.breakpoints.up('lg')]: {
       display: "none"
     },
