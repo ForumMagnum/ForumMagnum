@@ -616,21 +616,21 @@ const Layout = ({currentUser, children, classes}: {
                     lyric: `
                     [00:11]  if i'd noticed myself doing anything like that
                     [00:15]  i'd go back and figure out which steps of thought were necessary
-                    [00:23]  and retrain myself to perform those steps in 30 seconds
+                    [00:23]  and retrain myself to perform only those steps in 30 seconds
                     [00:31]  do you look back and ask
-                    [00:34.50]  how could i have thought that faster
+                    [00:34.50]  how could i have thought that faster?
                     [00:41]  do you look back and ask
-                    [00:46]  how could i have thought that faster
+                    [00:46]  how could i have thought that faster?
                     [00:53]  every time i'm surprised i look back and think
-                    [00:57]  what could i change to predict better
+                    [00:57]  what could i change to predict better?
                     [01:03]  every time a chain of thought takes too long
                     [01:08]  i ask how could i have got there by a shorter route
                     [01:13]  do you look back and ask
-                    [01:18]  how could i have thought that faster
+                    [01:18]  how could i have thought that faster?
                     [01:23]  do you look back and ask
-                    [01:29]  how could i have thought that faster
+                    [01:29]  how could i have thought that faster?
                     [01:35]  every time i'm surprised i look back and think
-                    [01:40]  what could i change to predict better
+                    [01:40]  what could i change to predict better?
                     [01:45]  every time a chain of thought takes too long
                     [01:49]  i ask how could i have got there by a shorter route
                     [01:57]   `
