@@ -213,6 +213,7 @@ const SequencesPage = ({ documentId, classes }: {
           {allowSubscribeToSequencePosts && !canEdit && <div className={classes.notifyCol}>
             <NotifyMeButton
               document={document}
+              tooltip="Get notified when a new post is added to this sequence"
               subscribeMessage="Get notified"
               unsubscribeMessage="Get notified"
               showIcon
