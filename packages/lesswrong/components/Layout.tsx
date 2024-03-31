@@ -775,7 +775,7 @@ const Layout = ({currentUser, children, classes}: {
 [01:38]  Unlikely to be developed in the next 30-50 years.
 [01:43] 2. Market inefficiency.
 [01:44.80] Markets are radically underestimating how soon advanced AI technology will be developed, and real interest rates are therefore too low.
-[01:53] There is thus an opportunity for philanthropists to borrow while real rates are low to cheaply do good today
+[01:53] There is thus an opportunity for philanthropists to borrow while real rates are low
 [01:59] To cheaply do good today
 [02:01] And/or an opportunity for anyone to earn excess returns by betting that real rates will rise.`
                   },
