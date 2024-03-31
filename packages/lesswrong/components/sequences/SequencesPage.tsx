@@ -11,6 +11,7 @@ import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicS
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { allowSubscribeToSequencePosts } from '../../lib/betas';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -210,7 +211,7 @@ const SequencesPage = ({ documentId, classes }: {
               </SectionSubtitle></span>}
             </SectionFooter>
           </div>
-          {!canEdit && <div className={classes.notifyCol}>
+          {allowSubscribeToSequencePosts && !canEdit && <div className={classes.notifyCol}>
             <NotifyMeButton
               document={document}
               subscribeMessage="Get notified"
