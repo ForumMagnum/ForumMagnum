@@ -2,7 +2,7 @@ name: Deploy EA Staging
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ ea-deploy, master ]
+    branches: [ ea-deploy, master, sequence-new-post-notifications ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
