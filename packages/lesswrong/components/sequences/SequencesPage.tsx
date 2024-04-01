@@ -169,77 +169,81 @@ const SequencesPage = ({ documentId, classes }: {
     g: "auto:faces",
   }) : undefined;
     
-  return <div className={classes.root}>
-    <HeadTags
-      canonicalUrl={sequenceGetPageUrl(document, true)}
-      title={document.title}
-      description={plaintextDescription || undefined}
-      image={socialImageUrl}
-      noIndex={document.noindex}
-    />
-    {bannerId && <div className={classes.banner}>
-      <div className={classes.bannerWrapper}>
-        <NoSSR>
-          <div>
-            <CloudinaryImage
-              publicId={bannerId}
-              width="auto"
-              height="380"
-            />
-            <div className={classes.imageScrim}/>
-          </div>
-        </NoSSR>
-      </div>
-    </div>}
-    <SingleColumnSection>
-      <div className={classes.content}>
-        <section className={classes.topSection}>
-          <div className={classes.titleCol}>
-            <div className={classes.titleWrapper}>
-              <Typography variant='display2' className={classes.title}>
-                {document.draft && <span>[Draft] </span>}{document.title}
-              </Typography>
+  return <AnalyticsContext pageContext="sequencesPage">
+    <div className={classes.root}>
+      <HeadTags
+        canonicalUrl={sequenceGetPageUrl(document, true)}
+        title={document.title}
+        description={plaintextDescription || undefined}
+        image={socialImageUrl}
+        noIndex={document.noindex}
+      />
+      {bannerId && <div className={classes.banner}>
+        <div className={classes.bannerWrapper}>
+          <NoSSR>
+            <div>
+              <CloudinaryImage
+                publicId={bannerId}
+                width="auto"
+                height="380"
+              />
+              <div className={classes.imageScrim}/>
             </div>
-            <SectionFooter>
-              <div className={classes.meta}>
-                <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-                {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
-              </div>
-              {canEdit && <span className={classes.leftAction}><SectionSubtitle>
-                <a onClick={showEdit}>edit</a>
-              </SectionSubtitle></span>}
-            </SectionFooter>
-          </div>
-          {allowSubscribeToSequencePosts && !canEdit && <div className={classes.notifyCol}>
-            <NotifyMeButton
-              document={document}
-              tooltip="Get notified when a new post is added to this sequence"
-              subscribeMessage="Get notified"
-              unsubscribeMessage="Get notified"
-              showIcon
-              asButton={isFriendlyUI}
-              hideFlashes
-            />
-          </div>}
-        </section>
-        
-        {html && <ContentStyles contentType="post" className={classes.description}>
-          <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>
-        </ContentStyles>}
-        <div>
-          <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
-          </AnalyticsContext>
-          {canCreateChapter && <SectionFooter>
-            <SectionButton>
-              <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
-            </SectionButton>
-          </SectionFooter>}
-          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
+          </NoSSR>
         </div>
-      </div>
-    </SingleColumnSection>
-  </div>
+      </div>}
+      <SingleColumnSection>
+        <div className={classes.content}>
+          <section className={classes.topSection}>
+            <div className={classes.titleCol}>
+              <div className={classes.titleWrapper}>
+                <Typography variant='display2' className={classes.title}>
+                  {document.draft && <span>[Draft] </span>}{document.title}
+                </Typography>
+              </div>
+              <SectionFooter>
+                <div className={classes.meta}>
+                  <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
+                  {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
+                </div>
+                {canEdit && <span className={classes.leftAction}><SectionSubtitle>
+                  <a onClick={showEdit}>edit</a>
+                </SectionSubtitle></span>}
+              </SectionFooter>
+            </div>
+            {allowSubscribeToSequencePosts && !canEdit && <div className={classes.notifyCol}>
+              <AnalyticsContext pageElementContext="notifyMeButton">
+                <NotifyMeButton
+                  document={document}
+                  tooltip="Get notified when a new post is added to this sequence"
+                  subscribeMessage="Get notified"
+                  unsubscribeMessage="Notifications set"
+                  showIcon
+                  asButton={isFriendlyUI}
+                  hideFlashes
+                />
+              </AnalyticsContext>
+            </div>}
+          </section>
+          
+          {html && <ContentStyles contentType="post" className={classes.description}>
+            <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`sequence ${document._id}`} nofollow={(document.user?.karma || 0) < nofollowKarmaThreshold.get()}/>
+          </ContentStyles>}
+          <div>
+            <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
+              <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
+            </AnalyticsContext>
+            {canCreateChapter && <SectionFooter>
+              <SectionButton>
+                <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
+              </SectionButton>
+            </SectionFooter>}
+            {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
+          </div>
+        </div>
+      </SingleColumnSection>
+    </div>
+  </AnalyticsContext>
 }
 
 const SequencesPageComponent = registerComponent('SequencesPage', SequencesPage, {styles});
