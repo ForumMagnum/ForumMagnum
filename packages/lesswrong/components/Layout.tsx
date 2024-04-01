@@ -885,7 +885,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Half An Hour Before Dawn In San Francisco',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004590/San_Francisco_gujlc3.mp33',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004590/San_Francisco_gujlc3.mp3',
                     lyric: `
                     [00:00]  I try to avoid San Francisco.
                     [00:02.50] When I go, I surround myself with people.
