@@ -755,7 +755,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'The Road to Wisdom',
                     singer: 'The Fooming Shoggoths (ft Piet Hein)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821413/album/Road_to_Wisdom_tzxw0f.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004589/Road_to_Wisdom_lurs6i.mp3',
                     lyric: `
                     [00:00]  The road to wisdom? Well, it's plain and simple to express.
                     [00:08]  Err and err again, but less and less and less and less.
@@ -770,7 +770,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'The Litany of Gendlin',
                     singer: 'The Fooming Shoggoths (ft Eugene Gendlin)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/The_Litany_of_Gendlin-_AudioTrimmer.com_nq4swl.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004589/The_Litany_of_Gendlin_geuxzp.mp3',
                     lyric: `
                     [00:00]  What is true is already so.
 [00:04]  Owning up to it doesn’t make it worse.
@@ -792,7 +792,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'The Litany of Tarrrrrski',
                     singer: 'The Fooming Shoggoths (ft Cap\'n Tarski & E.Y.)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821414/album/The_Litany_of_Tarrrrrrrski_nbapkq.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004590/The_Litany_of_Tarrrrrrrski_p7kqgx.mp3',
                     lyric: `
                     [00:00]  If the sky is blue, me lads
                     [00:02.80] I desire to believe the sky is blue
@@ -833,7 +833,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Thought that Faster',
                     singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/Thought_That_Faster_uunnbi.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004590/Thought_That_Faster_zb1rov.mp3',
                     lyric: `
                     [00:11]  if i'd noticed myself doing anything like that
                     [00:15]  i'd go back and figure out which steps of thought were necessary
@@ -860,7 +860,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Dath Ilan\'s Song',
                     singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821414/album/Dath_Ilan_s_Song_nfmhgy.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004588/Dath_Ilan_s_Song_r8hzet.mp3',
                     lyric: `
                     [00:00]  Even if the stars should die in heaven
                     [00:06] Our sins can never be undone
@@ -885,7 +885,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Half An Hour Before Dawn In San Francisco',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/San_Francisco_1_-_AudioTrimmer.com_llfyn7.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004590/San_Francisco_gujlc3.mp33',
                     lyric: `
                     [00:00]  I try to avoid San Francisco.
                     [00:02.50] When I go, I surround myself with people.
@@ -910,7 +910,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Moloch',
                     singer: 'The Fooming Shoggoths (ft Allen Ginsberg)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711853476/Meditations_on_Moloch_wmug7s.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004588/Moloch_zz5o3j.mp3',
                     lyric:  `
                     [00:00]  Moloch! Solitude! Filth! Ugliness! Ashcans and unobtainable dollars!
                     [00:07]  Children screaming under the stairways! Boys sobbing in armies!
@@ -922,7 +922,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'AGI and the EMH',
                     singer: 'The Fooming Shoggoths (ft Basil Halperin, J. Zachary Mazlish, Trevor Chow)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821418/album/AGI_and_the_EMH-_AudioTrimmer.com_c1znjn.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004588/AGI_and_the_EMH_ncj68j.mp3',
                     lyric: `
                     [00:00] In this post, we point out that short AI timelines would cause real interest rates to be high,
                     [00:08] and would do so under expectations of either unaligned or aligned AI.
@@ -953,7 +953,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'First they came for the epistemology',
                     singer: 'The Fooming Shoggoths (ft Michael Vassar)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/First_they_came_for_the_epistemology_su5voi.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004588/First_they_came_for_the_epistemology_g4ugbq.mp3',
                     lyric: `
                     [00:00] First they came for the epistemology
 [00:04] We don't know what happened after that
@@ -978,7 +978,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Prime Factorization',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/Prime_Factorization_v2-_AudioTrimmer.com_iyqvwz.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004589/Prime_Factorization_s3kgt5.mp3',
                     lyric: `
                     [00:03]  The sea was made of strontium, the beach was made of rye,
                     [00:07] Above my head a watery sun shone in an oily sky.
@@ -1007,7 +1007,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'We Do Not Wish to Advance',
                     singer: 'The Fooming Shoggoths (ft Anthropic)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821418/album/Anthropic_Capabilities_1_-_AudioTrimmer.com_uge0kp.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004591/We_Do_Not_Wish_to_Advance_yuw0ln.mp3',
                     lyric: `
                     [00:00]  We generally don't publish this kind of work, because we do not wish to advance the rate of AI capabilities progress.
 [00:07]  In addition, we aim to be thoughtful about demonstrations of frontier capabilities.
@@ -1033,7 +1033,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Nihil Supernum',
                     singer: 'The Fooming Shoggoths (ft Godric Gryffindor)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821417/album/Nihil_Supernum-_AudioTrimmer.com_vmj8in.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004590/Nihil_Supernum_taswgb.mp3',
                     lyric: `
                     [00:00]  Non est salvatori salvator, neque defensori dominus,
 [00:04]  Nec pater nec mater, nihil supernum.
@@ -1060,7 +1060,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'More Dakka',
                     singer: 'The Fooming Shoggoths (ft Zvi Mowshowitz)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/more_dakka_1_iajow3.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004588/more_dakka_g4w0em.mp3',
                     lyric: `
                     [00:00]  If you think a problem could be solved
                     [00:04] or a situation improved
@@ -1094,7 +1094,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'FHI at Oxford',
                     singer: 'The Fooming Shoggoths (ft Nick Bostrom)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/FHI_at_Oxford_1_-_AudioTrimmer.com_vxhs0x.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004589/FHI_at_Oxford_pexyrk.mp3',
                     lyric:  `
                     [00:07] the big creaky wheel
                     [00:09] a thousand years to turn
@@ -1132,7 +1132,7 @@ const Layout = ({currentUser, children, classes}: {
                     name: 'Answer to Job',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
                     cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821413/album/Answer_to_Job_jxfzrh.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1712004588/Answer_to_Job_pve4dq.mp3',
                     lyric: `
                     [00:01] In the most perfectly happy and just universe,
 [00:10] There is no space, no time, no change, no decay.
