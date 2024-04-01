@@ -339,7 +339,8 @@ const Layout = ({currentUser, children, classes}: {
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [musicPlayerLoaded, setMusicPlayerLoaded] = useState(false)
   const prefersDarkMode = usePrefersDarkMode();
-  const [lyricsToggled, setLyricsToggled] = useState(false)
+  const [audioPlayerStatesIntitialized, setaudioPlayerStatesInitialized] = useState(false)
+  const [audioPlayer, setAudioPlayer] = useState<any | null>(null)
   useEffect(() => {
     if (!isServer) {
       void import('react-jinke-music-player')
@@ -567,6 +568,12 @@ const Layout = ({currentUser, children, classes}: {
                       z-index: 10000 !important;
                     }
 
+                    @media (min-width: 940px) {
+                      .react-jinke-music-player-main .audio-lists-panel {
+                        margin-bottom: 21px;
+                      }
+                    }
+
                     @media (max-width: 940px) {
 
                       .react-jinke-music-player-main .group.audio-download {
@@ -668,14 +675,16 @@ const Layout = ({currentUser, children, classes}: {
                         justify-content: flex-start !important;
                       }
                     }
-                    
                     `}
                   </style>
                 </Helmet>
                 {musicPlayerLoaded && MusicPlayer && <MusicPlayer
                   ref={el => {
-                    el && !lyricsToggled && (el as any).toggleAudioLyric()
-                    setLyricsToggled(true)
+                    if (!el || audioPlayerStatesIntitialized) return
+                    (el as any).toggleAudioLyric();
+                    if (window.innerWidth > 940) (el as any).openAudioListsPanel();
+                    setaudioPlayerStatesInitialized(true)
+                    setAudioPlayer(el)
                   }}
                   locale={{
                     emptyLyricText: ""
@@ -1177,7 +1186,7 @@ const Layout = ({currentUser, children, classes}: {
                       <div className={classNames(classes.lessOnlineBannerText, {[classes.lessOnlineBannerTextLimitedSpace]: !hideNavigationSidebar})}>
                         <h2><a href="http://less.online">The Fooming Shoggoths</a></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
-                        <button><a href="http://less.online/#tickets-section">Listen Now</a></button>
+                        <button onClick={() => audioPlayer && audioPlayer.play()}>Listen Now</button>
                       </div>
                     </div> 
                     : 
