@@ -33,6 +33,7 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import { isServer } from '../lib/executionEnvironment';
 import type ReactJkMusicPlayer from 'react-jinke-music-player';
 import { usePrefersDarkMode } from './themes/usePrefersDarkMode';
+import { Link } from '../lib/reactRouterWrapper';
 
 let MusicPlayer: typeof ReactJkMusicPlayer | undefined = undefined
 
@@ -1226,7 +1227,7 @@ const Layout = ({currentUser, children, classes}: {
                     <div className={classes.imageColumn}>
                       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png" darkPublicId={"ohabryka_Solarpunk_band_poster_fade_to_yellow_eb4a63fd-03ea-472f-a656-d6d152a2f268_fdu41f.png"}/>
                       <div className={classNames(classes.lessOnlineBannerText, {[classes.lessOnlineBannerTextLimitedSpace]: !hideNavigationSidebar})}>
-                        <h2><a href="http://less.online">The Fooming Shoggoths</a></h2>
+                        <h2><Link to="/posts/YMo5PuXnZDwRjhHhE/i-have-been-a-good-bing">The Fooming Shoggoths</Link></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
                         <button onClick={() => audioPlayer && audioPlayer.play()}>Listen Now</button>
                       </div>
