@@ -545,6 +545,7 @@ declare global {
     palette: ThemePalette,
     typography: {
       fontFamily: string,
+      fontPreference: string,
       fontDownloads: string[],
       cloudinaryFont: {
         stack: string,
