@@ -27,10 +27,10 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, fallbackText, c
   });
 
   if (loading) {
-      return <Loading/>
+    return <Loading/>
   }
 
-  if (!results ) {
+  if (!results) {
     return <div>{fallbackText}</div>;
   }
 
