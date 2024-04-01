@@ -755,45 +755,27 @@ const Layout = ({currentUser, children, classes}: {
                     [01:06]  Err and err again and again, but less and less and less.
                     [01:33]  `
                   },
-
                   {
-                    name: 'Moloch',
-                    singer: 'The Fooming Shoggoths (ft Allen Ginsberg)',
-                    cover: 'https://nickbostrom.com/poetry/poop10.jpg',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711853476/Meditations_on_Moloch_wmug7s.mp3',
-                    lyric:  `
-                    [00:00]  Moloch! Solitude! Filth! Ugliness! Ashcans and unobtainable dollars!
-                    [00:07]  Children screaming under the stairways! Boys sobbing in armies!
-                    [00:12]  Old men weeping in the parks! Moloch! Moloch! Nightmare of Moloch!
-                    [00:19]  Moloch the loveless! Mental Moloch! Moloch the heavy judger of men!
-                    [00:29]  Moloch!`
-                  },
-                  {
-                    name: 'Thought that Faster',
-                    singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
+                    name: 'The Litany of Gendlin',
+                    singer: 'The Fooming Shoggoths (ft Eugene Gendlin)',
                     cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/Thought_That_Faster_uunnbi.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/The_Litany_of_Gendlin-_AudioTrimmer.com_nq4swl.mp3',
                     lyric: `
-                    [00:11]  if i'd noticed myself doing anything like that
-                    [00:15]  i'd go back and figure out which steps of thought were necessary
-                    [00:23]  and retrain myself to perform only those steps in 30 seconds
-                    [00:31]  do you look back and ask
-                    [00:34.50]  how could i have thought that faster?
-                    [00:41]  do you look back and ask
-                    [00:46]  how could i have thought that faster?
-                    [00:53]  every time i'm surprised i look back and think
-                    [00:57]  what could i change to predict better?
-                    [01:03]  every time a chain of thought takes too long
-                    [01:08]  i ask how could i have got there by a shorter route
-                    [01:13]  do you look back and ask
-                    [01:18]  how could i have thought that faster?
-                    [01:23]  do you look back and ask
-                    [01:29]  how could i have thought that faster?
-                    [01:35]  every time i'm surprised i look back and think
-                    [01:40]  what could i change to predict better?
-                    [01:45]  every time a chain of thought takes too long
-                    [01:49]  i ask how could i have got there by a shorter route
-                    [01:57]   `
+                    [00:00]  What is true is already so.
+[00:04]  Owning up to it doesn’t make it worse.
+[00:08]  Not being open about it doesn’t make it go away.
+[00:14]  And because it’s true, it is what is there to be interacted with.
+[00:21]  Anything untrue isn’t there to be lived.
+[00:26.50]  People can stand what is true,
+[00:35]  for they are already enduring it.
+[00:38]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh.
+[00:46]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh.
+[00:53]  Owning up to it doesn't make it worse.
+[00:56.80]  Not being open about it doesn't make it go away.
+[01:03]  And because it's true, it is what is there to be interacted with.
+[01:11]  Anything untrue isn't there to be lived.
+[01:19.80]  People can stand what is true, for they are already enduring it.
+[01:45]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh, ooh.`
                   },
                   {
                     name: 'The Litany of Tarrrrrski',
@@ -837,26 +819,31 @@ const Layout = ({currentUser, children, classes}: {
 [01:46] Yo ho, me lads, yo ho!`
                   },
                   {
-                    name: 'The Litany of Gendlin',
-                    singer: 'The Fooming Shoggoths (ft Eugene Gendlin)',
+                    name: 'Thought that Faster',
+                    singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
                     cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
-                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/The_Litany_of_Gendlin-_AudioTrimmer.com_nq4swl.mp3',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/Thought_That_Faster_uunnbi.mp3',
                     lyric: `
-                    [00:00]  What is true is already so.
-[00:04]  Owning up to it doesn’t make it worse.
-[00:08]  Not being open about it doesn’t make it go away.
-[00:14]  And because it’s true, it is what is there to be interacted with.
-[00:21]  Anything untrue isn’t there to be lived.
-[00:26.50]  People can stand what is true,
-[00:35]  for they are already enduring it.
-[00:38]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh.
-[00:46]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh.
-[00:53]  Owning up to it doesn't make it worse.
-[00:56.80]  Not being open about it doesn't make it go away.
-[01:03]  And because it's true, it is what is there to be interacted with.
-[01:11]  Anything untrue isn't there to be lived.
-[01:19.80]  People can stand what is true, for they are already enduring it.
-[01:45]  Ooh, ooh, ooh, ooh, ooh, ooh, ooh, ooh.`
+                    [00:11]  if i'd noticed myself doing anything like that
+                    [00:15]  i'd go back and figure out which steps of thought were necessary
+                    [00:23]  and retrain myself to perform only those steps in 30 seconds
+                    [00:31]  do you look back and ask
+                    [00:34.50]  how could i have thought that faster?
+                    [00:41]  do you look back and ask
+                    [00:46]  how could i have thought that faster?
+                    [00:53]  every time i'm surprised i look back and think
+                    [00:57]  what could i change to predict better?
+                    [01:03]  every time a chain of thought takes too long
+                    [01:08]  i ask how could i have got there by a shorter route
+                    [01:13]  do you look back and ask
+                    [01:18]  how could i have thought that faster?
+                    [01:23]  do you look back and ask
+                    [01:29]  how could i have thought that faster?
+                    [01:35]  every time i'm surprised i look back and think
+                    [01:40]  what could i change to predict better?
+                    [01:45]  every time a chain of thought takes too long
+                    [01:49]  i ask how could i have got there by a shorter route
+                    [01:57]   `
                   },
                   {
                     name: 'Dath Ilan\'s Song',
@@ -907,6 +894,18 @@ const Layout = ({currentUser, children, classes}: {
 [01:18] Imagine living when the first lungfish crawled out of the primordial ooze and missing it because the tide pool down the way had cheaper housing.
 [01:31] Imagine living on Earth in 65,000,000 BC and being anywhere except Chicxulub.
 [01:43] `
+                  },
+                  {
+                    name: 'Moloch',
+                    singer: 'The Fooming Shoggoths (ft Allen Ginsberg)',
+                    cover: 'https://nickbostrom.com/poetry/poop10.jpg',
+                    musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711853476/Meditations_on_Moloch_wmug7s.mp3',
+                    lyric:  `
+                    [00:00]  Moloch! Solitude! Filth! Ugliness! Ashcans and unobtainable dollars!
+                    [00:07]  Children screaming under the stairways! Boys sobbing in armies!
+                    [00:12]  Old men weeping in the parks! Moloch! Moloch! Nightmare of Moloch!
+                    [00:19]  Moloch the loveless! Mental Moloch! Moloch the heavy judger of men!
+                    [00:29]  Moloch!`
                   },
                   {
                     name: 'AGI and the EMH',
