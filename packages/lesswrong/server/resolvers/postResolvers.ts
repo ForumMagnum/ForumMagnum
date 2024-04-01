@@ -599,7 +599,7 @@ addGraphQLSchema(`
     post: Post!
     recommId: String!
   }
-`)
+`);
 
 interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
@@ -623,4 +623,30 @@ createPaginatedResolver({
 
     return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);
   }
-})
+});
+
+createPaginatedResolver({
+  name: "PostsWithActiveDiscussion",
+  graphQLType: "Post",
+  callback: async (context, limit): Promise<DbPost[]> => {
+    const { currentUser, repos } = context;
+    if (!currentUser) {
+      throw new Error('You must be logged in to see actively discussed posts.');
+    }
+
+    return await repos.posts.getActivelyDiscussedPosts(limit);
+  }
+});
+
+createPaginatedResolver({
+  name: "PostsWithSubscribeeActivity",
+  graphQLType: "Post",
+  callback: async (context, limit): Promise<DbPost[]> => {
+    const { currentUser, repos } = context;
+    if (!currentUser) {
+      throw new Error('You must be logged in to see posts with activity from your subscrptions.');
+    }
+
+    return await repos.posts.getPostsWithActivityBySubscribees(currentUser._id, limit);
+  }
+});

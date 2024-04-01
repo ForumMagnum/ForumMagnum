@@ -165,7 +165,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker
+    TabPicker, ResolverPostsList
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -261,15 +261,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     showDescriptionOnHover
   />
 
-  const postsList = usingClassicLWAlgorithm(selectedScenario)
-    ? (<PostsList2
-        terms={recentPostsTerms}
-        alwaysShowLoadMore
-        hideHiddenFrontPagePosts
-      >
-        <Link to={"/allPosts"}>{advancedSortingText}</Link>
-      </PostsList2>)
-    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />;
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
@@ -303,7 +294,23 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {postsList}
+              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
+              {(selectedScenario === 'lesswrong-good-discussions') && <ResolverPostsList
+                resolverName="PostsWithActiveDiscussion"
+                limit={13}
+              />}
+              {(selectedScenario === 'lesswrong-subscribee-activity') && <ResolverPostsList
+                resolverName="PostsWithSubscribeeActivity"
+                limit={13}
+                fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+              />}
+              {(selectedScenario === 'lesswrong-classic') && <PostsList2 
+                terms={recentPostsTerms} 
+                alwaysShowLoadMore 
+                hideHiddenFrontPagePosts
+              >
+                <Link to={"/allPosts"}>{advancedSortingText}</Link>
+              </PostsList2>} 
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
