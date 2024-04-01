@@ -533,7 +533,12 @@ const Layout = ({currentUser, children, classes}: {
                       height: 64px !important;
                       color: rgba(0,0,0,0.7) !important;
                       backdrop-filter: blur(2px) !important;
+                      -webkit-backdrop-filter: blur(2px) !important; 
                       font-family: "Press Start 2P" !important;
+                    }
+
+                    .react-jinke-music-player-main .glass-bg {
+                      -webkit-backdrop-filter: blur(10px) !important; 
                     }
 
                     .react-jinke-music-player-main .progress-bar.progress-bar.progress-bar {
@@ -550,6 +555,7 @@ const Layout = ({currentUser, children, classes}: {
                       text-shadow: 0 0 3px white, 0 0 3px white;
                       background-color: rgba(255, 255, 255, 0.6);
                       backdrop-filter: blur(2px);
+                      -webkit-backdrop-filter: blur(2px);
                       font-family: "Press Start 2P";
                       font-family: "Press Start 2P";
                       line-height: 3;
