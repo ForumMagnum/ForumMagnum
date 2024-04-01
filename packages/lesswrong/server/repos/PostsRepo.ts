@@ -707,6 +707,60 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   LIMIT $1
     `, [limit]);
   }
+
+  async getPostsWithActivityBySubscribees(userId: string, limit: number) {
+    return await this.any(`
+    WITH user_subscriptions AS (
+      SELECT DISTINCT type, "documentId" AS "userId"
+      FROM "Subscriptions" s
+      WHERE state = 'subscribed'
+        AND s.deleted IS NOT TRUE
+        AND "collectionName" = 'Users'
+        AND "type" IN ('newUserComments', 'newPosts')
+        AND "userId" = $1
+      ),
+      posts_with_comments_from_subscibees AS (
+        SELECT "postId",
+            SUM((c."contents" ->> 'wordCount')::numeric) AS total_words,
+            SUM(c."baseScore")                           AS sum_karma,
+            MAX(c."postedAt")                            AS most_recent_comment
+        FROM "Comments" c
+              JOIN user_subscriptions us USING ("userId")
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '28 days'
+          AND us.type = 'newUserComments'
+        GROUP BY "postId"
+        HAVING (SUM((c."contents" ->> 'wordCount')::numeric) > 200) OR (SUM(c."baseScore") > 30)
+      ),
+      posts_by_subscribees AS (
+        SELECT p._id AS "postId", "postedAt", us.*
+          FROM "Posts" p
+            JOIN user_subscriptions us USING ("userId")
+          WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL '90 days'
+            AND type = 'newPosts'
+      ),
+      combined AS (
+        SELECT "postId", most_recent_comment AS last_updated, 'userComments' AS type
+        FROM posts_with_comments_from_subscibees
+        UNION
+        SELECT "postId", "postedAt" AS last_updated, 'newPost' AS type
+        FROM posts_by_subscribees
+        ORDER BY last_updated
+      ),
+      deduped AS (
+      SELECT
+        "postId" AS _id,
+        MAX(last_updated) AS last_updated
+      FROM combined
+      GROUP BY "postId"
+      ORDER BY last_updated DESC
+      )
+      SELECT * 
+      FROM "Posts"
+      JOIN deduped USING (_id)
+      WHERE shortform IS NOT TRUE AND draft IS NOT TRUE
+  LIMIT $2
+    `, [userId, limit]);
+  }
 }
 
 recordPerfMetrics(PostsRepo);

@@ -25,7 +25,6 @@ import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { filterSettingsToggleLabels } from '../common/HomeLatestPosts';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TabRecord } from '../common/TabPicker';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 // Key is the algorithm/scenario name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -166,7 +165,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker, PostsItem
+    TabPicker, ResolverPostsList
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -207,13 +206,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     limit:limit
   };
 
-  const { results: goodDiscussionResults } = usePaginatedResolver({
-    resolverName: "PostsWithActiveDiscussion",
-    fragmentName: "PostsListWithVotes",
-    limit: 13,
-    skip: selectedScenario !== 'lesswrong-good-discussions'
-  });
-  
   const showCurated = isFriendlyUI || (isLW && reviewIsActive());
 
   const changeShowTagFilterSettingsDesktop = () => {
@@ -303,8 +295,20 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
               {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
-              {(selectedScenario === 'lesswrong-good-discussions') && goodDiscussionResults?.map(post => <PostsItem key={post._id} post={post} />)}
-              {(selectedScenario === 'lesswrong-classic') && <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+              {(selectedScenario === 'lesswrong-good-discussions') && <ResolverPostsList
+                resolverName="PostsWithActiveDiscussion"
+                limit={13}
+              />}
+              {(selectedScenario === 'lesswrong-subscribee-activity') && <ResolverPostsList
+                resolverName="PostsWithSubscribeeActivity"
+                limit={13}
+                fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+              />}
+              {(selectedScenario === 'lesswrong-classic') && <PostsList2 
+                terms={recentPostsTerms} 
+                alwaysShowLoadMore 
+                hideHiddenFrontPagePosts
+              >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>} 
             </AllowHidingFrontPagePostsContext.Provider>
