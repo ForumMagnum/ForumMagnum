@@ -743,6 +743,10 @@ const Layout = ({currentUser, children, classes}: {
                   responsive={false}
                   showMediaSession={true}
                   theme={"light"}
+                  drag={false}
+                  sortableOptions={{
+                    disabled: window?.innerWidth > 1100 ? false : true
+                  }}
                   showPlayMode={false}
                   toggleMode={false}
                   glassBg={true}
