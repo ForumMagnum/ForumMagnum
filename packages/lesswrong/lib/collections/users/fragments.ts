@@ -490,6 +490,7 @@ registerFragment(`
     notificationSubscribedUserPost
     notificationSubscribedUserComment
     notificationSubscribedTagPost
+    notificationSubscribedSequencePost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe

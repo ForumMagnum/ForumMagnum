@@ -21,6 +21,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { userHasRecombeeFrontpage } from '../../lib/betas';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -68,10 +69,10 @@ export const filterSettingsToggleLabels = forumSelect({
     mobileHidden: "Customize feed",
   },
   default: {
-    desktopVisible: "Customize Feed (Hide)",
-    desktopHidden: "Customize Feed",
-    mobileVisible: "Customize Feed (Hide)",
-    mobileHidden: "Customize Feed (Show)",
+    desktopVisible: "Customize (Hide)",
+    desktopHidden: "Customize",
+    mobileVisible: "Customize (Hide)",
+    mobileHidden: "Customize",
   }
 })
 
@@ -152,7 +153,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
-  if (isLW && userIsAdmin(currentUser) && recombeeEnabledSetting.get()) {
+  if (isLW && currentUser && userHasRecombeeFrontpage(currentUser)) {
     return <RecombeeLatestPosts currentUser={currentUser} />
   }
 
