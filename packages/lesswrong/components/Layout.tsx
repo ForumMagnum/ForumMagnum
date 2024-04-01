@@ -350,7 +350,7 @@ const Layout = ({currentUser, children, classes}: {
         })
     }
   })
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : true
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -553,6 +553,7 @@ const Layout = ({currentUser, children, classes}: {
                       font-family: "Press Start 2P";
                       line-height: 3;
                       bottom: 64px;
+                      z-index: 100000;
                     }
 
                     .react-jinke-music-player-main .progress-bar-content .audio-main {
@@ -568,10 +569,49 @@ const Layout = ({currentUser, children, classes}: {
                       z-index: 10000 !important;
                     }
 
-                    @media (min-width: 940px) {
-                      .react-jinke-music-player-main .audio-lists-panel {
-                        margin-bottom: 21px;
-                      }
+                    .react-jinke-music-player-main .audio-lists-panel {
+                      bottom: 64px;
+                      right: 0px;
+                    }
+                    
+                    .react-jinke-music-player-main.light-theme .audio-lists-btn {
+                      background-color: transparent !important;
+                    }
+
+                    .react-jinke-music-player-main .audio-lists-panel.show.glass-bg {
+                      background-color: transparent !important;
+                    }
+                    
+                    .react-jinke-music-player-main h2.audio-lists-panel-header-title {
+                        background-color: rgba(255,255,255,0.5) !important;
+                    }
+                    
+                    .react-jinke-music-player-main .audio-lists-panel-header {
+                        background-color: rgba(255,255,255,0.6);
+                    }
+                    
+                    .react-jinke-music-player-main .audio-lists-panel-header {
+                        background-color: rgba(255,255,255,0.2) !important;
+                    }
+                    
+                    .react-jinke-music-player-main li.audio-item.playing.audio-item.playing.audio-item.playing {
+                        background-color: rgba(255,255,255,0.85) !important;
+                    }
+                    
+                    .react-jinke-music-player-main .audio-item.audio-item.audio-item.audio-item {
+                        background-color: rgba(255,255,255,0.6);
+                    }
+                    
+                    .react-jinke-music-player-main .audio-item.audio-item.audio-item.audio-item:nth-child(odd) {
+                        background-color: rgba(255,255,255,0.4) !important;
+                    }
+                    
+                    .react-jinke-music-player-main .group.player-singer.player-singer.player-singer.player-singer {
+                        color: rgba(0,0,0,0.6) !important;
+                    }
+                    
+                    .react-jinke-music-player-main .audio-item.audio-item.audio-item.audio-item:hover {
+                      background-color: #fafafa !important;
                     }
 
                     @media (max-width: 940px) {
@@ -682,7 +722,7 @@ const Layout = ({currentUser, children, classes}: {
                   ref={el => {
                     if (!el || audioPlayerStatesIntitialized) return
                     (el as any).toggleAudioLyric();
-                    if (window.innerWidth > 940) (el as any).openAudioListsPanel();
+                    if (window.innerWidth > 940 && currentRoute?.name === 'home') (el as any).openAudioListsPanel();
                     setaudioPlayerStatesInitialized(true)
                     setAudioPlayer(el)
                   }}
@@ -696,6 +736,9 @@ const Layout = ({currentUser, children, classes}: {
                   responsive={false}
                   showMediaSession={true}
                   theme={prefersDarkMode ? "dark" : "light"}
+                  showPlayMode={false}
+                  toggleMode={false}
+                  glassBg={true}
                   audioLists={[
                   {
                     name: 'The Road to Wisdom',
