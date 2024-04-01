@@ -65,6 +65,7 @@ export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
 export const inlineReactsHoverEnabled = hasPostInlineReactionsSetting.get();
 export const allowSubscribeToUserComments = true;
+export const allowSubscribeToSequencePosts = isFriendlyUI;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
