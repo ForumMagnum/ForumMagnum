@@ -686,28 +686,26 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     }));
   }
 
-  async getActivelyDiscussedPosts(userId: string, limit: number) {
+  async getActivelyDiscussedPosts(limit: number) {
     return await this.any(`
-      SELECT
-        p.*,
-        (
-          SELECT SUM(
-            CASE WHEN c."postedAt" > rs."lastUpdated"
-              THEN ((1.0) / ln((CURRENT_DATE::DATE - DATE_TRUNC('days', c."postedAt")::DATE) + 1))
-            END
-          )
-          FROM "Comments" AS c
-          WHERE c."postId" = p._id
-        ) AS "unreadComments"
-      FROM "Posts" AS p
-      JOIN "ReadStatuses" AS rs
-      ON p._id = rs."postId"
-      WHERE p.shortform IS FALSE
-      AND rs."isRead" IS TRUE
-      AND rs."userId" = $1
-      ORDER BY "unreadComments" DESC NULLS LAST
-      LIMIT $2
-    `, [userId, limit]);
+    WITH post_ids AS (
+      SELECT "postId" AS _id,
+      COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0) AS total_karma_from_high_karma_comments
+      FROM "Comments" c
+             LEFT JOIN "Posts" p ON p._id = c."postId"
+      WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '14 days'
+      AND p.shortform IS NOT TRUE
+      GROUP BY c."postId"
+      HAVING COUNT(*) FILTER (WHERE c."baseScore" > 10) > 0
+      ORDER BY COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0)
+  )
+  SELECT
+      p.*
+  FROM "Posts" p
+  JOIN post_ids pid USING (_id)
+  ORDER BY pid.total_karma_from_high_karma_comments DESC
+  LIMIT $1
+    `, [limit]);
   }
 }
 

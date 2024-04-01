@@ -634,6 +634,6 @@ createPaginatedResolver({
       throw new Error('You must be logged in to see actively discussed posts.');
     }
 
-    return await repos.posts.getActivelyDiscussedPosts(currentUser._id, limit);
+    return await repos.posts.getActivelyDiscussedPosts(limit);
   }
 });

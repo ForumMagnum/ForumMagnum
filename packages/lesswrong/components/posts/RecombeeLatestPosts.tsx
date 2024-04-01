@@ -207,13 +207,13 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     limit:limit
   };
 
-  const { results } = usePaginatedResolver({
+  const { results: goodDiscussionResults } = usePaginatedResolver({
     resolverName: "PostsWithActiveDiscussion",
     fragmentName: "PostsListWithVotes",
     limit: 13,
-    // skip: selectedScenario !== 'lesswrong-active'
+    skip: selectedScenario !== 'lesswrong-good-discussions'
   });
-
+  
   const showCurated = isFriendlyUI || (isLW && reviewIsActive());
 
   const changeShowTagFilterSettingsDesktop = () => {
@@ -269,15 +269,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     showDescriptionOnHover
   />
 
-  const postsList = usingClassicLWAlgorithm(selectedScenario)
-    ? (<PostsList2
-        terms={recentPostsTerms}
-        alwaysShowLoadMore
-        hideHiddenFrontPagePosts
-      >
-        <Link to={"/allPosts"}>{advancedSortingText}</Link>
-      </PostsList2>)
-    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />;
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
@@ -311,8 +302,11 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {results?.map(post => <PostsItem key={post._id} post={post} />)}
-              {/* {postsList} */}
+              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
+              {(selectedScenario === 'lesswrong-good-discussions') && goodDiscussionResults?.map(post => <PostsItem key={post._id} post={post} />)}
+              {(selectedScenario === 'lesswrong-classic') && <PostsList2 terms={recentPostsTerms} alwaysShowLoadMore hideHiddenFrontPagePosts>
+                <Link to={"/allPosts"}>{advancedSortingText}</Link>
+              </PostsList2>} 
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
