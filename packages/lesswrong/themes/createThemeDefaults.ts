@@ -94,6 +94,7 @@ export const baseTheme: BaseThemeSpecification = {
         small: 3,
       },
       typography: {
+        fontPreference: "GreekFallback, 'Comic Sans MS', 'MarkerFelt-Thin', Lobster, sans-serif",
         cloudinaryFont: {
           stack: "'Merriweather', serif",
           url: "https://fonts.googleapis.com/css?family=Merriweather",
