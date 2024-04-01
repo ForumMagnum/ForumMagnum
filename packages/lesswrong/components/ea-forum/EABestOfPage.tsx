@@ -180,12 +180,12 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     return <Components.Loading />;
   }
 
-  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
-  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]);
-  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
-  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
-  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
-  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
+  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
+  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
+  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
 
   const {
     HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,

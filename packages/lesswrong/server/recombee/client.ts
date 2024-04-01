@@ -125,7 +125,8 @@ const recombeeApi = {
   async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
-    const modifiedCount = count * 2;
+    // TODO: Now having Recombee filter out read posts, maybe clean up?
+    const modifiedCount = count * 1;
     const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, lwAlgoSettings);
 
     // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
