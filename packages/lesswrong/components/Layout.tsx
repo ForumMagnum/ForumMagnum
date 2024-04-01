@@ -714,7 +714,7 @@ const Layout = ({currentUser, children, classes}: {
                   },
 
                   {
-                    name: 'Meditations on Moloch',
+                    name: 'Moloch',
                     singer: 'The Fooming Shoggoths (ft Allen Ginsberg)',
                     cover: 'https://nickbostrom.com/poetry/poop10.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711853476/Meditations_on_Moloch_wmug7s.mp3',
