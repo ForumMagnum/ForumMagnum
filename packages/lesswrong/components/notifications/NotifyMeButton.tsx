@@ -108,16 +108,15 @@ const NotifyMeButton = ({
     {message}
   </>
 
-  // Determine if this component should look like a link, menu item, or button
-  let maybeMenuItemButton = asMenuItem ?
-    <MenuItem onClick={onSubscribe}>
+  // Determine if this component should look like a link (default), menu item, or button
+  let maybeMenuItemButton = null;
+  if (asMenuItem) {
+    maybeMenuItemButton = <MenuItem onClick={onSubscribe}>
       <a className={classNames(classes.root, className)}>
         {button}
       </a>
-    </MenuItem> : <a onClick={onSubscribe} className={classNames(className, classes.root)}>
-      {button}
-    </a>
-  if (asButton) {
+    </MenuItem>
+  } else if (asButton) {
     maybeMenuItemButton = isFriendlyUI ? (
       <EAButton style="grey" onClick={onSubscribe}>{button}</EAButton>
     ) : (
@@ -125,6 +124,10 @@ const NotifyMeButton = ({
         {button}
       </button>
     )
+  } else {
+    maybeMenuItemButton = <a onClick={onSubscribe} className={classNames(className, classes.root)}>
+      {button}
+    </a>
   }
 
   const maybeToolipButton = tooltip ? <LWTooltip title={tooltip}>
