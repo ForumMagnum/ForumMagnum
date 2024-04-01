@@ -744,7 +744,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'The Road to Wisdom',
                     singer: 'The Fooming Shoggoths (ft Piet Hein)',
-                    cover: 'https://preview.redd.it/1f132hb4r2g31.png?width=2079&format=png&auto=webp&s=3068f4d0ebcc4e6cff2afd17035957216dc7a0cd',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821413/album/Road_to_Wisdom_tzxw0f.mp3',
                     lyric: `
                     [00:00]  The road to wisdom? Well, it's plain and simple to express.
@@ -759,7 +759,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'The Litany of Gendlin',
                     singer: 'The Fooming Shoggoths (ft Eugene Gendlin)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/The_Litany_of_Gendlin-_AudioTrimmer.com_nq4swl.mp3',
                     lyric: `
                     [00:00]  What is true is already so.
@@ -781,7 +781,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'The Litany of Tarrrrrski',
                     singer: 'The Fooming Shoggoths (ft Cap\'n Tarski & E.Y.)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821414/album/The_Litany_of_Tarrrrrrrski_nbapkq.mp3',
                     lyric: `
                     [00:00]  If the sky is blue, me lads
@@ -822,7 +822,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Thought that Faster',
                     singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/Thought_That_Faster_uunnbi.mp3',
                     lyric: `
                     [00:11]  if i'd noticed myself doing anything like that
@@ -849,7 +849,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Dath Ilan\'s Song',
                     singer: 'The Fooming Shoggoths (ft Eliezer Yudkowsky)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821414/album/Dath_Ilan_s_Song_nfmhgy.mp3',
                     lyric: `
                     [00:00]  Even if the stars should die in heaven
@@ -874,7 +874,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Half An Hour Before Dawn In San Francisco',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821420/album/San_Francisco_1_-_AudioTrimmer.com_llfyn7.mp3',
                     lyric: `
                     [00:00]  I try to avoid San Francisco.
@@ -899,7 +899,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Moloch',
                     singer: 'The Fooming Shoggoths (ft Allen Ginsberg)',
-                    cover: 'https://nickbostrom.com/poetry/poop10.jpg',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711853476/Meditations_on_Moloch_wmug7s.mp3',
                     lyric:  `
                     [00:00]  Moloch! Solitude! Filth! Ugliness! Ashcans and unobtainable dollars!
@@ -911,7 +911,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'AGI and the EMH',
                     singer: 'The Fooming Shoggoths (ft Basil Halperin, J. Zachary Mazlish, Trevor Chow)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821418/album/AGI_and_the_EMH-_AudioTrimmer.com_c1znjn.mp3',
                     lyric: `
                     [00:00] In this post, we point out that short AI timelines would cause real interest rates to be high,
@@ -942,7 +942,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'First they came for the epistemology',
                     singer: 'The Fooming Shoggoths (ft Michael Vassar)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/First_they_came_for_the_epistemology_su5voi.mp3',
                     lyric: `
                     [00:00] First they came for the epistemology
@@ -967,7 +967,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Prime Factorization',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/Prime_Factorization_v2-_AudioTrimmer.com_iyqvwz.mp3',
                     lyric: `
                     [00:03]  The sea was made of strontium, the beach was made of rye,
@@ -996,7 +996,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'We Do Not Wish to Advance',
                     singer: 'The Fooming Shoggoths (ft Anthropic)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821418/album/Anthropic_Capabilities_1_-_AudioTrimmer.com_uge0kp.mp3',
                     lyric: `
                     [00:00]  We generally don't publish this kind of work, because we do not wish to advance the rate of AI capabilities progress.
@@ -1022,7 +1022,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Nihil Supernum',
                     singer: 'The Fooming Shoggoths (ft Godric Gryffindor)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821417/album/Nihil_Supernum-_AudioTrimmer.com_vmj8in.mp3',
                     lyric: `
                     [00:00]  Non est salvatori salvator, neque defensori dominus,
@@ -1049,7 +1049,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'More Dakka',
                     singer: 'The Fooming Shoggoths (ft Zvi Mowshowitz)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821416/album/more_dakka_1_iajow3.mp3',
                     lyric: `
                     [00:00]  If you think a problem could be solved
@@ -1083,7 +1083,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'FHI at Oxford',
                     singer: 'The Fooming Shoggoths (ft Nick Bostrom)',
-                    cover: 'https://nickbostrom.com/poetry/poop10.jpg',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821419/album/FHI_at_Oxford_1_-_AudioTrimmer.com_vxhs0x.mp3',
                     lyric:  `
                     [00:07] the big creaky wheel
@@ -1121,7 +1121,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     name: 'Answer to Job',
                     singer: 'The Fooming Shoggoths (ft Scott Alexander)',
-                    cover: 'https://putanumonit.files.wordpress.com/2020/02/ex-china-cases.png',
+                    cover: 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1711955670/mirroredImages/YMo5PuXnZDwRjhHhE/vpergd6y8jhlua7gdukl.jpg',
                     musicSrc: 'https://res.cloudinary.com/lesswrong-2-0/video/upload/v1711821413/album/Answer_to_Job_jxfzrh.mp3',
                     lyric: `
                     [00:01] In the most perfectly happy and just universe,
