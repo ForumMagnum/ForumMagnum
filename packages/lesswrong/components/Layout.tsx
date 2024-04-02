@@ -339,6 +339,7 @@ const Layout = ({currentUser, children, classes}: {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [musicPlayerLoaded, setMusicPlayerLoaded] = useState(false)
+  const [showMusicPlayer, setShowMusicPlayer] = useState(false)
   const prefersDarkMode = usePrefersDarkMode();
   const [audioPlayerStatesIntitialized, setaudioPlayerStatesInitialized] = useState(false)
   const [audioPlayer, setAudioPlayer] = useState<any | null>(null)
@@ -510,7 +511,7 @@ const Layout = ({currentUser, children, classes}: {
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
               </NoSSR>
 
-              <NoSSR>
+              {showMusicPlayer && <NoSSR>
                 <Helmet>
                   <link href='https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1711761428/index_wqsiku_gfpa3t.css' rel='stylesheet' />
                   
@@ -1171,7 +1172,7 @@ const Layout = ({currentUser, children, classes}: {
                 showLyric={true}
                 mode="full"
                 />}
-              </NoSSR>
+              </NoSSR>}
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -1239,7 +1240,7 @@ const Layout = ({currentUser, children, classes}: {
                       <div className={classNames(classes.lessOnlineBannerText, {[classes.lessOnlineBannerTextLimitedSpace]: !hideNavigationSidebar})}>
                         <h2><Link to="/posts/YMo5PuXnZDwRjhHhE/i-have-been-a-good-bing">The Fooming Shoggoths</Link></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
-                        <button onClick={() => audioPlayer && audioPlayer.play()}>Listen Now</button>
+                        <button onClick={() => setShowMusicPlayer(true)}>Listen Now</button>
                       </div>
                     </div> 
                     : 
