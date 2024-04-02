@@ -19,7 +19,6 @@ import {
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 import { recombeeEnabledSetting } from './publicSettings';
-import { newFrontpagePostFeedsWithRecommendationsOptIn, useABTest } from './abTests';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -61,10 +60,11 @@ export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
-  const recombeeOptInABTest = useABTest(newFrontpagePostFeedsWithRecommendationsOptIn)
-  const optedIntoRecombee = (recombeeOptInABTest === "frontpageWithTabs")
+  // TODO: figure out what went wrong with the AB tests causing caching issues, beyond `affectsLoggedOut` being set to false
+  // const recombeeOptInABTest = useABTest(newFrontpagePostFeedsWithRecommendationsOptIn)
+  // const optedIntoRecombee = (recombeeOptInABTest === "frontpageWithTabs")
 
-  return isLW && (isAdmin(currentUser) || optedIntoRecombee) && recombeeEnabledSetting.get()
+  return isLW && isAdmin(currentUser) && recombeeEnabledSetting.get()
 }
 
 // Non-user-specific features
