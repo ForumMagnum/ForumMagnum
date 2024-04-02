@@ -349,6 +349,9 @@ const Layout = ({currentUser, children, classes}: {
         .then((module) => {
           MusicPlayer = module.default
           setMusicPlayerLoaded(true)
+          if (window?.innerWidth < 1280 && currentRoute?.name === 'home') {
+            setShowMusicPlayer(true)
+          }
         })
     }
   })
@@ -730,7 +733,7 @@ const Layout = ({currentUser, children, classes}: {
                   ref={el => {
                     if (!el || audioPlayerStatesIntitialized) return
                     (el as any).toggleAudioLyric();
-                    if (window.innerWidth > 940 && currentRoute?.name === 'home') (el as any).openAudioListsPanel();
+                    // if (window.innerWidth > 940 && currentRoute?.name === 'home') (el as any).openAudioListsPanel();
                     setaudioPlayerStatesInitialized(true)
                     setAudioPlayer(el)
                   }}
