@@ -16,7 +16,7 @@ import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
-import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY, sectionsWithAnswersSorted } from './TableOfContentsList';
+import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
   if (sections.length === 0) {
@@ -157,6 +157,8 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { TableOfContentsRow, AnswerTocRow } = Components;
+
   const navigate = useNavigate();
   const location = useLocation();
   const { timezone } = useTimezone();
@@ -164,6 +166,17 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const { tocVisible } = useContext(SidebarsContext)!;
 
   const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const postContext = usePostsPageContext();
+  const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
+
+  const { readingProgressBarRef } = usePostReadProgress({
+    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
+    disabled: disableProgressBar || !hasLoaded,
+    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`),
+    useFirstViewportHeight: true
+  });
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
@@ -180,14 +193,17 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     }
   }
 
-  const { TableOfContentsRow, AnswerTocRow } = Components;
-
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
+  }
+
+  // Filter out answers in the full-height ToC, along with the section heading and divider (which are only present if there's at least one answer)
+  if (filteredSections.some(section => section.answer)) {
+    filteredSections = filteredSections.filter(section => !['answers', 'postAnswersDivider'].includes(section.anchor) && !section.answer);
   }
   
   const { landmarkName: currentSection } = useScrollHighlight([
@@ -217,18 +233,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     jumpToSection();
   }
 
-  // Since the Table of Contents data is sent as part of the post data and
-  // partially generated from the post html, changing the answers ordering
-  // in the ToC is not trivial to do via a graphql query.
-  // Separating the ToC part with answers would require some refactoring,
-  // but for now we can just sort the answers client side.
-  const answersSorting = query?.answersSorting;
-  if (answersSorting === "newest" || answersSorting === "oldest") {
-    filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
-  }
-
-  const [hasLoaded, setHasLoaded] = useState(false)
-
   useEffect(() => {
     const postBodyRef = document.getElementById('postBody');
     if (!postBodyRef) return;
@@ -257,16 +261,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       setNormalizedSections(newNormalizedSections);
     }
   }, [filteredSections, normalizedSections, hasLoaded]);
-
-  const postContext = usePostsPageContext();
-  const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
-
-  const { readingProgressBarRef } = usePostReadProgress({
-    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar || !hasLoaded,
-    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`),
-    useFirstViewportHeight: true
-  });
 
   const titleRow = (
     <TableOfContentsRow

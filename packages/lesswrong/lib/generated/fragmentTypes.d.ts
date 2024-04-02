@@ -163,6 +163,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationSubscribedSequencePost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly notificationPrivateMessage: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -844,6 +850,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
   readonly dialogueMessageContents: string|null,
+  readonly firstVideoAttribsForPreview: any,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1568,6 +1575,7 @@ interface PostsEditCriticismTips { // fragment on Posts
 interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
   readonly socialPreviewData: any,
+  readonly firstVideoAttribsForPreview: any,
 }
 
 interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
@@ -1603,6 +1611,7 @@ interface CommentsList { // fragment on Comments
   readonly userId: string,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
+  readonly deletedByUserId: string,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
   readonly authorIsUnreviewed: boolean,
@@ -2699,7 +2708,7 @@ interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
+  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
 }
 
 interface SubscriptionState { // fragment on Subscriptions
@@ -2710,7 +2719,7 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
+  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
 }
 
 interface PodcastsDefaultFragment { // fragment on Podcasts
@@ -3208,6 +3217,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly notificationSubscribedTagPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
+  readonly notificationSubscribedSequencePost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,

@@ -2,19 +2,19 @@ import ArbitalCaches from "../../lib/collections/arbitalCache/collection";
 import { createTable } from "./meta/utils";
 
 /**
- * Generated on 2024-03-26T18:23:16.022Z by `yarn makemigrations`
+ * Generated on 2024-04-02T18:39:30.167Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/jbabcock/repositories/Lesserwrong/alt-LessWrong2/schema/accepted_schema.sql b/Users/jbabcock/repositories/Lesserwrong/alt-LessWrong2/schema/schema_to_accept.sql
- * index 8d642a25c9..655713fd11 100644
+ * index b4c59ebf7e..2e56a7bb76 100644
  * --- a/Users/jbabcock/repositories/Lesserwrong/alt-LessWrong2/schema/accepted_schema.sql
  * +++ b/Users/jbabcock/repositories/Lesserwrong/alt-LessWrong2/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: 5fb909476a7c6ef9567f7efb1abd005f
+ * --- Overall schema hash: 15e67a7cabc41723b3215bcb7dc9488e
  * -
- * --- Accepted on 2024-03-16T00:25:00.000Z by 20240316T002500.add_CurationEmails_table.ts
- * +-- Overall schema hash: 22ccbc8a4a9ad5a0c0308f996f79ef0b
+ * --- Accepted on 2024-03-29T22:11:18.000Z by 20240329T221118.add_notificationSubscribedSequencePost_to_Users.ts
+ * +-- Overall schema hash: 86723d78e7eb5d43201e0be72ee6f5f0
  *  
  * @@ -31,2 +29,14 @@ CREATE TABLE "AdvisorRequests" (
  *  
@@ -40,7 +40,7 @@ import { createTable } from "./meta/utils";
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "22ccbc8a4a9ad5a0c0308f996f79ef0b";
+export const acceptsSchemaHash = "86723d78e7eb5d43201e0be72ee6f5f0";
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, ArbitalCaches);

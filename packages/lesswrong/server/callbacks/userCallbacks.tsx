@@ -12,7 +12,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
@@ -30,6 +30,7 @@ import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
+import { recombeeApi } from '../recombee/client';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -491,4 +492,12 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
   }
   return data;
+});
+
+getCollectionHooks("Users").createAsync.add(({ document }) => {
+  if (!recombeeEnabledSetting.get()) return;
+
+  void recombeeApi.createUser(document)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending created user to recombee', { e }));
 });
