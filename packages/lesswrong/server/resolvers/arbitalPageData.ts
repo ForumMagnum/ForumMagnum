@@ -6,7 +6,7 @@ import { trimLatexAndAddCSS } from '../editor/utils';
 import { ArbitalCaches } from '../../lib/collections/arbitalCache/collection';
 import { addCronJob } from '../cronUtil';
 
-export const arbitalCacheExpirationMs = 15*60*1000;
+export const arbitalCacheExpirationMs = 2*60*60*1000;
 
 addGraphQLSchema(`type ArbitalPageData {
   html: String
