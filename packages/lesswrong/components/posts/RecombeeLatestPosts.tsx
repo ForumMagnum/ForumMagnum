@@ -240,7 +240,9 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       }} />
   </div>);
 
-  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get()
+    .filter(feed => !feed.disabled)
+    .map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
 
   if (userIsAdmin(currentUser)) {
     const testingFeeds =  postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));

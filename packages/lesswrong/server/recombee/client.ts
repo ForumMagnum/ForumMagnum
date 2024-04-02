@@ -126,7 +126,7 @@ const recombeeApi = {
     const client = getRecombeeClientOrThrow();
 
     // TODO: Now having Recombee filter out read posts, maybe clean up?
-    const modifiedCount = count * 2;
+    const modifiedCount = count * 1;
     const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, lwAlgoSettings);
 
     // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
@@ -151,12 +151,16 @@ const recombeeApi = {
     //should basically never take any out
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
 
-    //sort the posts by read/unread but ensure otherwise preserving Recombee's returned order
-    const unreadOrRecentlyReadPosts = filteredPosts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
-    const remainingPosts = filteredPosts.filter(post => readStatuses.find(readStatus => (readStatus.postId === post._id)));
+    // TO-DO: clean up. Recombee should now be handling this for us but maybe we'll need it again for some reason
 
-    //concatenate unread and read posts and return requested number
-    return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: recombeeResponse.recommId}));
+    // //sort the posts by read/unread but ensure otherwise preserving Recombee's returned order
+    // const unreadOrRecentlyReadPosts = filteredPosts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
+    // const remainingPosts = filteredPosts.filter(post => readStatuses.find(readStatus => (readStatus.postId === post._id)));
+
+    // //concatenate unread and read posts and return requested number
+    // return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: recombeeResponse.recommId}));
+
+    return filteredPosts.map(post => ({ post, recommId: recombeeResponse.recommId }));
   },
 
 
