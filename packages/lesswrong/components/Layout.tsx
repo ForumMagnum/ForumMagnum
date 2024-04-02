@@ -344,7 +344,7 @@ const Layout = ({currentUser, children, classes}: {
   const [audioPlayerStatesIntitialized, setaudioPlayerStatesInitialized] = useState(false)
   const [audioPlayer, setAudioPlayer] = useState<any | null>(null)
   
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : true
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
