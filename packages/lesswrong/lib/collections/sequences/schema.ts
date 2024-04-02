@@ -1,5 +1,16 @@
 import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { userOwns } from '../../vulcan-users';
+
+const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
+  advancedOptions: {
+    name: "advancedOptions",
+    order: 2,
+    label: isFriendlyUI ? "Advanced options" : "Advanced Options",
+    startCollapsed: true,
+  },
+};
 
 const schema: SchemaType<"Sequences"> = {
   userId: {
@@ -23,7 +34,7 @@ const schema: SchemaType<"Sequences"> = {
     type: String,
     optional: false,
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
     order: 10,
     placeholder: "Sequence Title",
@@ -60,7 +71,7 @@ const schema: SchemaType<"Sequences"> = {
     optional: true,
     order:25,
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
     control: "ImageUpload",
     label: "Card Image"
@@ -71,7 +82,7 @@ const schema: SchemaType<"Sequences"> = {
     type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
     label: "Banner Image",
     control: "ImageUpload",
@@ -92,12 +103,22 @@ const schema: SchemaType<"Sequences"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
   },
+  
+  hideFromAuthorPage: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
+    canCreate: ['members'],
+    label: "Hide from my user profile",
+    ...schemaDefaultValue(false),
+  },
 
   draft: {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
     control: "checkbox",
     ...schemaDefaultValue(false),
@@ -107,9 +128,11 @@ const schema: SchemaType<"Sequences"> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['members'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
-    hidden: true,
+    group: formGroups.advancedOptions,
+    label: "Delete",
+    tooltip: "Make sure you want to delete this sequence - it will be completely hidden from the forum.",
     control: "checkbox",
     ...schemaDefaultValue(false),
   },
@@ -149,15 +172,6 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    ...schemaDefaultValue(false),
-  },
-
-  hideFromAuthorPage: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['members'],
-    canCreate: ['members'],
     ...schemaDefaultValue(false),
   },
 
