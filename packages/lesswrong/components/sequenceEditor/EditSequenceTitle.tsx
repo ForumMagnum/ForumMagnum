@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     left: -308,
     width: 702,
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: theme.palette.background.default,
     padding: 32,
     borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
     zIndex: theme.zIndexes.editSequenceTitleInput,

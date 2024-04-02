@@ -1,6 +1,6 @@
 import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 import { userOwns } from '../../vulcan-users';
 
 const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
@@ -37,7 +37,7 @@ const schema: SchemaType<"Sequences"> = {
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     canCreate: ['members'],
     order: 10,
-    placeholder: "Sequence Title",
+    placeholder: preferredHeadingCase("Sequence Title"),
     control: 'EditSequenceTitle',
   },
 
