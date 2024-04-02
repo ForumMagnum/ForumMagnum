@@ -39,11 +39,11 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: 2,
+    paddingLeft: isFriendlyUI ? 2 : undefined,
     paddingRight: isFriendlyUI ? 8 : 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon[isFriendlyUI ? "dim4" : "slightlyDim3"],
+    color: theme.palette.icon["dim4"],
   },
   stickyIcon: isFriendlyUI
     ? {
