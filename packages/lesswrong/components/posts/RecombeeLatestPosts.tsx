@@ -284,7 +284,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
 
   return (
     // TODO: do we need capturePostItemOnMount here?
-    <AnalyticsContext pageSectionContext="postsFeed">
+    <AnalyticsContext pageSectionContext="postsFeed" feedType={selectedScenario}>
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {algorithmPicker}
@@ -298,22 +298,28 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
               {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
-              {(selectedScenario === 'lesswrong-good-discussions') && <ResolverPostsList
-                resolverName="PostsWithActiveDiscussion"
-                limit={13}
-              />}
-              {(selectedScenario === 'lesswrong-subscribee-activity') && <ResolverPostsList
-                resolverName="PostsWithSubscribeeActivity"
-                limit={13}
-                fallbackText="Visits users' profile pages to subscribe to their posts and comments."
-              />}
-              {(selectedScenario === 'lesswrong-classic') && <PostsList2 
-                terms={recentPostsTerms} 
-                alwaysShowLoadMore 
-                hideHiddenFrontPagePosts
-              >
-                <Link to={"/allPosts"}>{advancedSortingText}</Link>
-              </PostsList2>} 
+              {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
+                <ResolverPostsList
+                  resolverName="PostsWithActiveDiscussion"
+                  limit={13}
+                />
+               </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-subscribee-activity') && <AnalyticsContext feedType={selectedScenario}>
+                <ResolverPostsList
+                  resolverName="PostsWithSubscribeeActivity"
+                  limit={13}
+                  fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+                />
+               </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
+                <PostsList2 
+                  terms={recentPostsTerms} 
+                  alwaysShowLoadMore 
+                  hideHiddenFrontPagePosts
+                >
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </PostsList2> 
+              </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
         </HideRepeatedPostsProvider>

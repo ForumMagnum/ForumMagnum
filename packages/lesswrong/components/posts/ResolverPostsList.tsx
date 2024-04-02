@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
+import { useOnMountTracking, useTracking } from "../../lib/analyticsEvents";
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 const styles = (theme: ThemeType) => ({
@@ -24,6 +24,15 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, fallbackText, c
     fragmentName: "PostsListWithVotes",
     limit,
     skip
+  });
+
+  const postIds = results?.map((post) => post._id) || []
+
+  useOnMountTracking({
+    eventType: "postList",
+    eventProps: { postIds, resolverName },
+    captureOnMount: (eventProps) => eventProps.postIds.length > 0,
+    skip: !postIds.length || loading,
   });
 
   if (loading) {
