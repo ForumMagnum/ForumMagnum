@@ -343,18 +343,7 @@ const Layout = ({currentUser, children, classes}: {
   const prefersDarkMode = usePrefersDarkMode();
   const [audioPlayerStatesIntitialized, setaudioPlayerStatesInitialized] = useState(false)
   const [audioPlayer, setAudioPlayer] = useState<any | null>(null)
-  useEffect(() => {
-    if (!isServer) {
-      void import('react-jinke-music-player')
-        .then((module) => {
-          MusicPlayer = module.default
-          setMusicPlayerLoaded(true)
-          if (window?.innerWidth < 1280 && currentRoute?.name === 'home') {
-            setShowMusicPlayer(true)
-          }
-        })
-    }
-  })
+  
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : true
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
@@ -363,6 +352,25 @@ const Layout = ({currentUser, children, classes}: {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
+
+
+  useEffect(() => {
+    if (!isServer) {
+      void import('react-jinke-music-player')
+        .then((module) => {
+          MusicPlayer = module.default
+          setMusicPlayerLoaded(true)
+          
+        })
+    }
+    
+  })
+  useEffect(() => {
+    console.log({currentRoute})
+    if ((window?.innerWidth < 1280 && (currentRoute?.name === 'home')) || window?.location?.pathname.includes("YMo5PuXnZDwRjhHhE")) {
+      setShowMusicPlayer(true)
+    }
+  }, [currentRoute?.path])
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
