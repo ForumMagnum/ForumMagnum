@@ -29,6 +29,18 @@ CREATE TABLE "AdvisorRequests" (
     "legacyData" jsonb
 );
 
+-- Schema for "ArbitalCaches", hash: 1a82bece3c7ebfc2c84dc38779fcdbfd
+CREATE TABLE "ArbitalCaches" (
+    _id varchar(27) PRIMARY KEY,
+    "pageAlias" text NOT NULL,
+    "title" text NOT NULL,
+    "fetchedAt" timestamptz NOT NULL,
+    "sanitizedHtml" text NOT NULL,
+    "schemaVersion" double precision NOT NULL DEFAULT 1,
+    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    "legacyData" jsonb
+);
+
 -- Schema for "Bans", hash: 85e3d29ad4d1fe9da07e91ac13e29cff
 CREATE TABLE "Bans" (
     _id varchar(27) PRIMARY KEY,
