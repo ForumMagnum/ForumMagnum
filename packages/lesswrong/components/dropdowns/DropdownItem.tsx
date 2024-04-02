@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, MouseEvent } from "react";
+import React, { FC, ReactElement, MouseEvent, PropsWithChildren } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
@@ -77,13 +77,13 @@ export type DropdownItemProps = DropdownItemAction & {
   rawLink?: boolean,
 }
 
-const DummyWrapper: FC<{className?: string}> = ({className, children}) =>
+const DummyWrapper: FC<PropsWithChildren<{className?: string}>> = ({className, children}) =>
   <div className={className}>{children}</div>;
 
-const RawLink: FC<{
+const RawLink: FC<PropsWithChildren<{
   to: string,
   className?: string,
-}> = ({to, className, children}) => (
+}>> = ({to, className, children}) => (
   <a href={to} className={className}>
     {children}
   </a>

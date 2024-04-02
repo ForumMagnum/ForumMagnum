@@ -48,7 +48,6 @@ export const useRecordPostView = (post: ViewablePost) => {
   const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
   const recordPostView = useCallback(async ({post, extraEventProperties, recombeeOptions}: RecordPostViewArgs) => {
-    
     try {
       if (!post) throw new Error("Tried to record view of null post");
       
@@ -98,7 +97,10 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
   const {tagsRead, setTagRead} = useItemsRead();
   const isRead = tag && !!((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
   
-  const recordTagView = useCallback(async ({tag, extraEventProperties}) => {
+  const recordTagView = useCallback(async ({tag, extraEventProperties}: {
+    tag: TagBasicInfo
+    extraEventProperties: AnyBecauseHard
+  }) => {
     try {
       if (!tag) throw new Error("Tried to record view of null tag");
       

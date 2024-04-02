@@ -30,7 +30,7 @@ export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}) => 
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
-  const handleMouseOver = useCallback((event) => {
+  const handleMouseOver = useCallback((event: React.MouseEvent) => {
     setHover((currentValue) => {
       // Sometimes the event is retriggered by moving the mouse inside the
       // hovered element, if the hovered element contains children which can

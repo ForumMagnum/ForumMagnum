@@ -4,16 +4,19 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import ReactMapGL, { Marker } from 'react-map-gl';
-import { Helmet } from 'react-helmet'
+import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
+import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
+
+const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
+const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -78,7 +81,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
-  initialOpenWindows: Array<any>,
+  initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
   classes: ClassesType,
@@ -94,11 +97,11 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
   const handleClose = useCallback(
-    (id) => { setOpenWindows(_.without(openWindows, id))}
+    (id: string) => { setOpenWindows(_.without(openWindows, id))}
     , [openWindows]
   )
 
