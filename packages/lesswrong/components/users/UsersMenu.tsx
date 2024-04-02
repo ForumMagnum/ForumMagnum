@@ -1,7 +1,7 @@
-import React, { MouseEvent, useContext, useState } from 'react';
+import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
@@ -22,9 +22,7 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum, isLW } from '../../lib/instanceSettings';
-import moment from 'moment';
-import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+import { isAF, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -75,38 +73,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   } : {},
-  bulby: {
-    position: 'absolute',
-    top: 50,
-    left: -184,
-    zIndex: theme.zIndexes.commentBoxPopup,
-    pointerEvents: 'none',
-  },
-  bulbyClickTarget: {
-    position: 'absolute',
-    height: 270,
-    width: 108,
-    right: 108,
-    pointerEvents: 'auto',
-    cursor: 'pointer',
-  },
-  bulbyImg: {
-    height: 300,
-  },
-  bulbySpeechBubbleImg: {
-    position: 'absolute',
-    top: -70,
-    left: 10,
-    height: 100,
-  },
 })
 
 const UsersMenu = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const [bulbyIsSad, setBulbyIsSad] = useState(false);
-  const {eventHandlers, hover, forceUnHover, anchorEl} = useHover({onLeave: () => setBulbyIsSad(false)});
+  const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
@@ -122,7 +95,6 @@ const UsersMenu = ({classes}: {
     </div>
   }
   
-  const bulbyIsVisible = isEAForum && moment().isAfter(moment.utc('2024-04-01 11:00')) && moment().isBefore(moment.utc('2024-04-02 08:00'))
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
@@ -260,20 +232,6 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
-              {bulbyIsVisible && <div className={classes.bulby}>
-                <div className={classes.bulbyClickTarget} onClick={(e) => {
-                  e.stopPropagation();
-                  setBulbyIsSad(true);
-                }} />
-                <img
-                  src={makeCloudinaryImageUrl(bulbyIsSad ? 'sadbulby' : 'bulby', {})}
-                  className={classes.bulbyImg}
-                />
-                {bulbyIsSad && <img
-                  src={makeCloudinaryImageUrl('bulby-sentient', {})}
-                  className={classes.bulbySpeechBubbleImg}
-                />}
-              </div>}
               <div onClick={(ev) => {
                 if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
                   ev.preventDefault()
