@@ -68,7 +68,7 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
 
   const results: RecombeeRecommendedPost[] | undefined = data?.[RESOLVER_NAME]?.results;
   const postIds = results?.map(({post}) => post._id) || []
-  const stickiedPostIds = stickiedPosts?.map(post => post._id) || []
+  const stickiedPostIds = stickiedPosts?.map(post => post._id) ?? []
   postIds.push(...stickiedPostIds);
 
   useOnMountTracking({

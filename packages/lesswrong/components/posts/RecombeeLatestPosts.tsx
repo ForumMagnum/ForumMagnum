@@ -206,7 +206,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     }
     
     captureEvent("filterSettingsClicked", {
-      settingsVisible: !filterSettingsVisibleDesktop,
       settings: filterSettings,
       filterSettingsVisible: filterSettingsVisibleDesktop,
       pageSectionContext: "latestPosts",
@@ -284,7 +283,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
 
   return (
     // TODO: do we need capturePostItemOnMount here?
-    <AnalyticsContext pageSectionContext="postsFeed" feedType={selectedScenario}>
+    <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {algorithmPicker}

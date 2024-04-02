@@ -26,7 +26,7 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, fallbackText, c
     skip
   });
 
-  const postIds = results?.map((post) => post._id) || []
+  const postIds = results?.map((post) => post._id) ?? []
 
   useOnMountTracking({
     eventType: "postList",
