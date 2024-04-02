@@ -151,12 +151,16 @@ const recombeeApi = {
     //should basically never take any out
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
 
-    //sort the posts by read/unread but ensure otherwise preserving Recombee's returned order
-    const unreadOrRecentlyReadPosts = filteredPosts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
-    const remainingPosts = filteredPosts.filter(post => readStatuses.find(readStatus => (readStatus.postId === post._id)));
+    // TO-DO: clean up. Recombee should now be handling this for us but maybe we'll need it again for some reason
 
-    //concatenate unread and read posts and return requested number
-    return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: recombeeResponse.recommId}));
+    // //sort the posts by read/unread but ensure otherwise preserving Recombee's returned order
+    // const unreadOrRecentlyReadPosts = filteredPosts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
+    // const remainingPosts = filteredPosts.filter(post => readStatuses.find(readStatus => (readStatus.postId === post._id)));
+
+    // //concatenate unread and read posts and return requested number
+    // return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: recombeeResponse.recommId}));
+
+    return filteredPosts.map(post => ({ post, recommId: recombeeResponse.recommId }));
   },
 
 
