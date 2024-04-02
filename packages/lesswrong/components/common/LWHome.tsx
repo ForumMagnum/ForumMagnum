@@ -6,7 +6,7 @@ import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { userHasRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { useRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { useCurrentUser } from './withUser';
 
 const LWHome = () => {
@@ -21,7 +21,7 @@ const LWHome = () => {
   }, [setCookie])
 
   const currentUser = useCurrentUser()
-  const recombeeFrontpagePrototypeEnabled = userHasRecombeeFrontpage(currentUser)
+  const recombeeFrontpagePrototypeEnabled = useRecombeeFrontpage(currentUser)
   
   return (
       <AnalyticsContext pageContext="homePage">
