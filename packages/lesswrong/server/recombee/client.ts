@@ -1,5 +1,5 @@
 import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
-import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
@@ -161,6 +161,35 @@ const recombeeApi = {
     // return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: recombeeResponse.recommId}));
 
     return filteredPosts.map(post => ({ post, recommId: recombeeResponse.recommId }));
+  },
+
+
+  async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
+    const client = getRecombeeClientOrThrow();
+
+    const split = 0.5;
+    const firstCount = Math.floor(count * split);
+    const secondCount = count - firstCount;
+
+    const { loadMore, ...rest } = lwAlgoSettings;
+    const firstRequestSettings = { ...rest, scenario: 'recombee-hybrid-1-nearterm', ...(loadMore ? { loadMore: { prevRecommId: loadMore.prevRecommIds[0] } } : {}) };
+    const secondRequestSettings = { ...rest, scenario: 'recombee-hybrid-2-global', ...(loadMore ? { loadMore: { prevRecommId: loadMore.prevRecommIds[1] } } : {}) };
+
+    const firstRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, firstCount, firstRequestSettings);
+    const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
+    const batchRequest = recombeeRequestHelpers.getBatchRequest([firstRequest, secondRequest]);
+
+    // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
+    const batchResponse = await client.send(batchRequest)  
+    const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
+
+    const recommendations = recombeeResponses.flatMap(response => response.recomms.map(rec => ({ id: rec.id, recommId: response.recommId })));
+    const postIds = recommendations.map(rec => rec.id);
+    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds))
+    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
+
+
+    return filteredPosts.map(post => ({ post, recommId: recommendations.find(rec => rec.id === post._id)?.recommId}));
   },
 
 
