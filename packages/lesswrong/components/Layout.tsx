@@ -1243,7 +1243,7 @@ const Layout = ({currentUser, children, classes}: {
                       <div className={classNames(classes.lessOnlineBannerText, {[classes.lessOnlineBannerTextLimitedSpace]: !hideNavigationSidebar})}>
                         <h2><Link to="/posts/YMo5PuXnZDwRjhHhE/i-have-been-a-good-bing">The Fooming Shoggoths</Link></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
-                        <button onClick={() => setShowMusicPlayer(true)}>Listen Now</button>
+                        <button onClick={() => setShowMusicPlayer(!showMusicPlayer)}>{showMusicPlayer ? "Stop Listening" : "Listen Now"}</button>
                       </div>
                     </div> 
                     : 
