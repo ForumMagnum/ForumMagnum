@@ -310,8 +310,8 @@ export function useIsInView<T extends HTMLElement>({rootMargin='0px', threshold=
 // For purposes of calculating rate limits, the size of an event is the JSON
 // string length. This undercounts slightly due to Unicode and protocol
 // overhead, and overcounts greatly due to compression.
-const burstLimitEventCount = 20;
-const burstLimitKB = 25;
+const burstLimitEventCount = 10;
+const burstLimitKB = 20;
 const rateLimitEventsPerSec = 3.0;
 const rateLimitKBps = 5;
 const rateLimitEventIntervalMs = 5000;
