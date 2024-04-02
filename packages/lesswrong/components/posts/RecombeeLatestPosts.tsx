@@ -206,7 +206,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     }
     
     captureEvent("filterSettingsClicked", {
-      settingsVisible: !filterSettingsVisibleDesktop,
       settings: filterSettings,
       filterSettingsVisible: filterSettingsVisibleDesktop,
       pageSectionContext: "latestPosts",
