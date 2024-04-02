@@ -1,13 +1,19 @@
 import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
-import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { userOwns } from '../../vulcan-users';
 
 const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
+  adminOptions: {
+    name: "adminOptions",
+    order: 2,
+    label: preferredHeadingCase("Admin Options"),
+    startCollapsed: false,
+  },
   advancedOptions: {
     name: "advancedOptions",
-    order: 2,
-    label: isFriendlyUI ? "Advanced options" : "Advanced Options",
+    order: 3,
+    label: preferredHeadingCase("Advanced Options"),
     startCollapsed: true,
   },
 };
@@ -26,8 +32,11 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
+    group: formGroups.adminOptions,
     control: 'FormUserSelect',
-    tooltip: 'The user id of the author',
+    form: {
+      label: "Set author",
+    },
   },
 
   title: {
@@ -40,44 +49,8 @@ const schema: SchemaType<"Sequences"> = {
     placeholder: preferredHeadingCase("Sequence Title"),
     control: 'EditSequenceTitle',
   },
-
-  // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
-  chaptersDummy: {
-    type: Array,
-    optional: true,
-    canRead: ['guests'],
-    resolveAs: {
-      fieldName: 'chapters',
-      type: '[Chapter]',
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]> => {
-        const chapters = await context.Chapters.find(
-          {sequenceId: sequence._id},
-          {sort: {number: 1}},
-        ).fetch();
-        return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
-      }
-    }
-  },
-
-  'chaptersDummy.$': {
-    type: String,
-    foreignKey: "Chapters",
-    optional: true,
-  },
   
-  //Cloudinary image id for the grid Image
-  gridImageId: {
-    type: String,
-    optional: true,
-    order:25,
-    canRead: ['guests'],
-    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
-    canCreate: ['members'],
-    control: "ImageUpload",
-    label: "Card Image"
-  },
-
-  //Cloudinary image id for the banner image (high resolution)
+  // Cloudinary image id for the banner image (high resolution)
   bannerImageId: {
     type: String,
     optional: true,
@@ -87,21 +60,16 @@ const schema: SchemaType<"Sequences"> = {
     label: "Banner Image",
     control: "ImageUpload",
   },
-
-  curatedOrder: {
-    type: Number,
+  
+  // Cloudinary image id for the card image
+  gridImageId: {
+    type: String,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
-  },
-
-  userProfileOrder: {
-    type: Number,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
+    canCreate: ['members'],
+    control: "ImageUpload",
+    label: "Card Image"
   },
   
   hideFromAuthorPage: {
@@ -137,6 +105,24 @@ const schema: SchemaType<"Sequences"> = {
     ...schemaDefaultValue(false),
   },
 
+  curatedOrder: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+  },
+
+  userProfileOrder: {
+    type: Number,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    group: formGroups.adminOptions,
+  },
+
   canonicalCollectionSlug: {
     type: String,
     foreignKey: {
@@ -148,9 +134,9 @@ const schema: SchemaType<"Sequences"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     hidden: false,
+    group: formGroups.adminOptions,
     control: "text",
-    order: 30,
-    label: "Collection Slug",
+    label: preferredHeadingCase("Collection Slug"),
     tooltip: "The machine-readable slug for the collection this sequence belongs to. Will affect links, so don't set it unless you have the slug exactly right.",
     resolveAs: {
       fieldName: 'canonicalCollection',
@@ -173,6 +159,8 @@ const schema: SchemaType<"Sequences"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
+    group: formGroups.adminOptions,
+    tooltip: "Hidden sequences don't show up on lists/search results on this site, but can still be accessed directly by anyone",
   },
 
   noindex: {
@@ -182,6 +170,7 @@ const schema: SchemaType<"Sequences"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
+    group: formGroups.adminOptions,
   },
 
   postsCount: resolverOnlyField({
@@ -229,6 +218,30 @@ const schema: SchemaType<"Sequences"> = {
       return count;
     }
   }),
+  
+  // This resolver isn't used within LessWrong AFAICT, but is used by an external API user
+  chaptersDummy: {
+    type: Array,
+    optional: true,
+    canRead: ['guests'],
+    resolveAs: {
+      fieldName: 'chapters',
+      type: '[Chapter]',
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]> => {
+        const chapters = await context.Chapters.find(
+          {sequenceId: sequence._id},
+          {sort: {number: 1}},
+        ).fetch();
+        return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
+      }
+    }
+  },
+
+  'chaptersDummy.$': {
+    type: String,
+    foreignKey: "Chapters",
+    optional: true,
+  },
 
   /* Alignment Forum fields */
 
