@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useMutation, useQuery } from "@apollo/client";
 import { newUserCompleteProfileMutation } from "../../users/NewUserCompleteProfile";
@@ -65,23 +64,28 @@ const displayNameTakenQuery = gql`
 export const EAOnboardingUserStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {goToNextStageAfter} = useEAOnboarding();
+  const { goToNextStage, goToNextStageAfter, captureOnboardingEvent, viewAsAdmin } = useEAOnboarding();
   const [name, setName] = useState("");
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
-  const {captureEvent} = useTracking();
   const [updateUser] = useMutation(newUserCompleteProfileMutation);
 
-  const onToggleAcceptedTos = useCallback((ev) => {
-    if (ev.target.tagName !== "A") {
+  const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
+    if ((ev.target as HTMLElement).tagName !== "A") {
       setAcceptedTos((value) => {
-        captureEvent("toggledTos", {newValue: !value});
+        captureOnboardingEvent("toggledTos", {newValue: !value});
         return !value;
       });
     }
-  }, [captureEvent]);
+  }, [captureOnboardingEvent]);
 
   const onContinue = useCallback(async () => {
+    // If this is an admin testing, don't make any changes
+    if (viewAsAdmin) {
+      await goToNextStage()
+      return
+    }
+    
     await goToNextStageAfter(
       updateUser({
         variables: {
@@ -91,7 +95,7 @@ export const EAOnboardingUserStage = ({classes}: {
         },
       }),
     );
-  }, [name, acceptedTos, updateUser, goToNextStageAfter]);
+  }, [name, acceptedTos, updateUser, goToNextStage, goToNextStageAfter, viewAsAdmin]);
 
   const {data, loading} = useQuery(displayNameTakenQuery, {
     ssr: false,

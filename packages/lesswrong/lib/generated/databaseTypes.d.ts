@@ -18,6 +18,18 @@ interface DbAdvisorRequest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ArbitalCachesCollection = CollectionBase<"ArbitalCaches">;
+
+interface DbArbitalCaches extends DbObject {
+  __collectionName?: "ArbitalCaches"
+  pageAlias: string
+  title: string
+  fetchedAt: Date
+  sanitizedHtml: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
@@ -225,6 +237,16 @@ interface DbCronHistory extends DbObject {
   result: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type CurationEmailsCollection = CollectionBase<"CurationEmails">;
+
+interface DbCurationEmail extends DbObject {
+  __collectionName?: "CurationEmails"
+  userId: string
+  postId: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
 
 interface DbDatabaseMetadata extends DbObject {
@@ -411,6 +433,25 @@ interface DbFeaturedResource extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ForumEventsCollection = CollectionBase<"ForumEvents">;
+
+interface DbForumEvent extends DbObject {
+  __collectionName?: "ForumEvents"
+  title: string
+  startDate: Date
+  endDate: Date
+  darkColor: string
+  lightColor: string
+  tagId: string
+  bannerImageId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  frontpageDescription: EditableFieldContents
+  frontpageDescription_latest: string | null
+  postPageDescription: EditableFieldContents
+  postPageDescription_latest: string | null
+}
+
 type GardenCodesCollection = CollectionBase<"GardenCodes">;
 
 interface DbGardenCode extends DbObject {
@@ -431,6 +472,19 @@ interface DbGardenCode extends DbObject {
   contents: EditableFieldContents
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
+}
+
+type GoogleServiceAccountSessionsCollection = CollectionBase<"GoogleServiceAccountSessions">;
+
+interface DbGoogleServiceAccountSession extends DbObject {
+  __collectionName?: "GoogleServiceAccountSessions"
+  email: string
+  refreshToken: string
+  estimatedExpiry: Date
+  active: boolean
+  revoked: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type ImagesCollection = CollectionBase<"Images">;
@@ -554,7 +608,7 @@ type ModeratorActionsCollection = CollectionBase<"ModeratorActions">;
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -967,6 +1021,31 @@ interface DbReviewVote extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ReviewWinnerArtsCollection = CollectionBase<"ReviewWinnerArts">;
+
+interface DbReviewWinnerArt extends DbObject {
+  __collectionName?: "ReviewWinnerArts"
+  postId: string
+  splashArtImagePrompt: string
+  splashArtImageUrl: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
+
+interface DbReviewWinner extends DbObject {
+  __collectionName?: "ReviewWinners"
+  postId: string
+  reviewYear: number
+  category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical"
+  curatedOrder: number
+  reviewRanking: number
+  isAI: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type RevisionsCollection = CollectionBase<"Revisions">;
 
 interface DbRevision extends DbObject {
@@ -988,6 +1067,7 @@ interface DbRevision extends DbObject {
   html: string | null
   wordCount: number | null
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
@@ -1044,6 +1124,30 @@ interface DbSideCommentCache extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
+
+interface DbSplashArtCoordinate extends DbObject {
+  __collectionName?: "SplashArtCoordinates"
+  reviewWinnerArtId: string
+  leftXPct: number
+  leftYPct: number
+  leftHeightPct: number
+  leftWidthPct: number
+  leftFlipped: boolean
+  middleXPct: number
+  middleYPct: number
+  middleHeightPct: number
+  middleWidthPct: number
+  middleFlipped: boolean
+  rightXPct: number
+  rightYPct: number
+  rightHeightPct: number
+  rightWidthPct: number
+  rightFlipped: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type SpotlightsCollection = CollectionBase<"Spotlights">;
 
 interface DbSpotlight extends DbObject {
@@ -1078,7 +1182,7 @@ interface DbSubscription extends DbObject {
   documentId: string | null
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1198,6 +1302,22 @@ interface DbUserActivity extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type UserEAGDetailsCollection = CollectionBase<"UserEAGDetails">;
+
+interface DbUserEAGDetail extends DbObject {
+  __collectionName?: "UserEAGDetails"
+  userId: string
+  careerStage: Array<string> | null
+  countryOrRegion: string | null
+  nearestCity: string | null
+  willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/
+  experiencedIn: Array<string> | null
+  interestedIn: Array<string> | null
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type UserJobAdsCollection = CollectionBase<"UserJobAds">;
 
 interface DbUserJobAd extends DbObject {
@@ -1205,6 +1325,7 @@ interface DbUserJobAd extends DbObject {
   userId: string
   jobName: string
   adState: "seen" | "expanded" | "applied" | "reminderSet"
+  reminderSetAt: Date | null
   lastUpdated: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1373,6 +1494,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationSubscribedTagPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationSubscribedSequencePost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -1621,6 +1748,7 @@ interface DbUser extends DbObject {
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
+  inactiveSurveyEmailSentAt: Date | null
   wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1689,6 +1817,7 @@ interface DbVote extends DbObject {
 
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
+  ArbitalCaches: ArbitalCachesCollection
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
@@ -1699,6 +1828,7 @@ interface CollectionsByName {
   Comments: CommentsCollection
   Conversations: ConversationsCollection
   CronHistories: CronHistoriesCollection
+  CurationEmails: CurationEmailsCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
@@ -1711,7 +1841,9 @@ interface CollectionsByName {
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
+  ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
+  GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
@@ -1736,10 +1868,13 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   Reports: ReportsCollection
   ReviewVotes: ReviewVotesCollection
+  ReviewWinnerArts: ReviewWinnerArtsCollection
+  ReviewWinners: ReviewWinnersCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
   SideCommentCaches: SideCommentCachesCollection
+  SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1747,6 +1882,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
+  UserEAGDetails: UserEAGDetailsCollection
   UserJobAds: UserJobAdsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
@@ -1757,6 +1893,7 @@ interface CollectionsByName {
 
 interface ObjectsByCollectionName {
   AdvisorRequests: DbAdvisorRequest
+  ArbitalCaches: DbArbitalCaches
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
@@ -1767,6 +1904,7 @@ interface ObjectsByCollectionName {
   Comments: DbComment
   Conversations: DbConversation
   CronHistories: DbCronHistory
+  CurationEmails: DbCurationEmail
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
@@ -1779,7 +1917,9 @@ interface ObjectsByCollectionName {
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
+  ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
+  GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
@@ -1804,10 +1944,13 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   Reports: DbReport
   ReviewVotes: DbReviewVote
+  ReviewWinnerArts: DbReviewWinnerArt
+  ReviewWinners: DbReviewWinner
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
   SideCommentCaches: DbSideCommentCache
+  SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
@@ -1815,6 +1958,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
+  UserEAGDetails: DbUserEAGDetail
   UserJobAds: DbUserJobAd
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
@@ -1825,6 +1969,7 @@ interface ObjectsByCollectionName {
 
 interface ObjectsByTypeName {
   AdvisorRequest: DbAdvisorRequest
+  ArbitalCaches: DbArbitalCaches
   Ban: DbBan
   Book: DbBook
   Chapter: DbChapter
@@ -1835,6 +1980,7 @@ interface ObjectsByTypeName {
   Comment: DbComment
   Conversation: DbConversation
   CronHistory: DbCronHistory
+  CurationEmail: DbCurationEmail
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck
@@ -1847,7 +1993,9 @@ interface ObjectsByTypeName {
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
+  ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
+  GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
@@ -1872,10 +2020,13 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   Report: DbReport
   ReviewVote: DbReviewVote
+  ReviewWinnerArt: DbReviewWinnerArt
+  ReviewWinner: DbReviewWinner
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
   SideCommentCache: DbSideCommentCache
+  SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
   TagFlag: DbTagFlag
@@ -1883,6 +2034,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
+  UserEAGDetail: DbUserEAGDetail
   UserJobAd: DbUserJobAd
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit

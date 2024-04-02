@@ -97,7 +97,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."shortform" is not true AND
         p."isFuture" is not true AND
         p."authorIsUnreviewed" is not true AND
-        p."draft" is not true
+        p."draft" is not true AND
+        p."deletedDraft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end], "getEligiblePostsForDigest");
@@ -577,7 +578,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         rs."lastUpdated" >= NOW() - interval '6 months'
         AND rs."userId" = $1
         AND rs."isRead" IS TRUE
-        AND tr."tagId" IN (SELECT _id FROM core_tags)
+        AND (
+          tr."tagId" = 'u3Xg8MjDe2e6BvKtv' -- special case to include "AI governance"
+          OR tr."tagId" IN (SELECT _id FROM core_tags)
+        )
         AND tr."deleted" IS FALSE
       GROUP BY tr."tagId"
       `,
@@ -681,6 +685,89 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       userReadCount: read_count,
       readLikelihoodRatio: ratio
     }));
+  }
+
+  async getActivelyDiscussedPosts(limit: number) {
+    return await this.any(`
+      WITH post_ids AS (
+        SELECT "postId" AS _id,
+        COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0) AS total_karma_from_high_karma_comments
+        FROM "Comments" c
+              LEFT JOIN "Posts" p ON p._id = c."postId"
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '14 days'
+        AND p.shortform IS NOT TRUE
+        GROUP BY c."postId"
+        HAVING COUNT(*) FILTER (WHERE c."baseScore" > 10) > 0
+        ORDER BY COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0)
+      )
+      SELECT
+          p.*
+      FROM "Posts" p
+      JOIN post_ids pid USING (_id)
+      ORDER BY pid.total_karma_from_high_karma_comments DESC
+      LIMIT $1
+    `,
+    [limit]);
+  }
+
+  async getPostsWithActivityBySubscribees(userId: string, limit: number) {
+    return await this.any(`
+      WITH user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" IN ('newUserComments', 'newPosts')
+          AND "userId" = $1
+        ),
+      posts_with_comments_from_subscibees AS (
+        SELECT 
+          "postId",
+          SUM((c."contents" ->> 'wordCount')::numeric) AS total_words,
+          SUM(c."baseScore")                           AS sum_karma,
+          MAX(c."postedAt")                            AS most_recent_comment
+        FROM "Comments" c
+          JOIN user_subscriptions us USING ("userId")
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '28 days'
+          AND us.type = 'newUserComments'
+        GROUP BY "postId"
+        HAVING 
+          (SUM((c."contents" ->> 'wordCount')::numeric) > 200) 
+          OR (SUM(c."baseScore") > 30)
+      ),
+      posts_by_subscribees AS (
+        SELECT p._id AS "postId", "postedAt", us.*
+        FROM "Posts" p
+        JOIN user_subscriptions us USING ("userId")
+        WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL '90 days'
+          AND type = 'newPosts'
+      ),
+      combined AS (
+        SELECT "postId", most_recent_comment AS last_updated, 'userComments' AS type
+        FROM posts_with_comments_from_subscibees
+        UNION
+        SELECT "postId", "postedAt" AS last_updated, 'newPost' AS type
+        FROM posts_by_subscribees
+        ORDER BY last_updated
+      ),
+      deduped AS (
+        SELECT
+          "postId" AS _id,
+          MAX(last_updated) AS last_updated
+        FROM combined
+        GROUP BY "postId"
+        ORDER BY last_updated DESC
+      )
+      SELECT * 
+      FROM "Posts"
+      JOIN deduped USING (_id)
+      WHERE 
+        shortform IS NOT TRUE 
+        AND draft IS NOT TRUE
+      LIMIT $2
+    `, 
+    [userId, limit]);
   }
 }
 

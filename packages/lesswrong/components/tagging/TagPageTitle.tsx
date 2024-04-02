@@ -1,12 +1,12 @@
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from 'react-helmet';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { Link } from '../../lib/reactRouterWrapper';
 import { styles } from '../common/HeaderSubtitle';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { getAllTagsPath } from '../../lib/routes';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const TagPageTitle = ({isSubtitle, classes, siteName}: {
   isSubtitle: boolean,

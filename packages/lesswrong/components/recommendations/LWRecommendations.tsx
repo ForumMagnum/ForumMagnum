@@ -150,7 +150,7 @@ const LWRecommendations = ({
         >
           {currentUser && (
             <LWTooltip title="Customize your recommendations">
-              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" />
+              <SettingsButton showIcon={false} onClick={toggleSettings} label="Customize" textShadow />
             </LWTooltip>
           )}
         </SectionTitle>
@@ -182,7 +182,7 @@ const LWRecommendations = ({
             settings={frontpageRecommendationSettings}
             onChange={(newSettings) => setSettings(newSettings)}
           /> }
-        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
+        {!bookDisplaySetting.get() && <AnalyticsContext pageSubSectionContext="spotlightItem">
           <DismissibleSpotlightItem current />
         </AnalyticsContext>}
 

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSingle, UseSingleProps } from '../../../lib/crud/withSingle';
+import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
@@ -9,6 +8,9 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { postsCommentsThreadMultiOptions } from './PostsPage';
+import { useDisplayedPost } from '../usePost';
+import { useSingle } from '../../../lib/crud/withSingle';
+import { useApolloClient } from '@apollo/client';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -18,22 +20,14 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
 
-  const extraVariables = {sequenceId: 'String', ...(version && {version: 'String'}) }
-  // Note: including batchKey ensures that the post query is not batched together with the
-  // comments query when sent from the client (i.e. not during SSR). This makes the main post body load
-  // much faster
-  const extraVariablesValues = {sequenceId, batchKey: "singlePost", ...(version && {version}) }
-  const fragmentName = version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation'
+  const apolloClient = useApolloClient();
+  const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
+    fragment: getFragment("PostsListWithVotes"),
+    fragmentName: "PostsListWithVotes",
+    id: 'Post:'+documentId,
+  });
 
-  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
-    collectionName: "Posts",
-    fragmentName,
-    extraVariables,
-    extraVariablesValues,
-    documentId,
-  };
-
-  const { document: post, refetch, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
+  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR
@@ -62,25 +56,26 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
-  } else if (loading) {
+  } else if (loading && !postPreload) {
     return <div><Loading/></div>
   } else if (error) {
     if (isMissingDocumentError(error)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
-      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."}/>
+      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
     } else {
       throw new Error(error.message);
     }
-  } else if (!post) {
+  } else if (!post && !postPreload) {
     return <Error404/>
-  } else if (isPostWithForeignId(post)) {
+  } else if (post && isPostWithForeignId(post)) {
     return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
   }
 
   return (
     <PostsPage
-      post={post}
+      fullPost={post}
+      postPreload={postPreload ?? undefined}
       eagerPostComments={eagerPostComments}
       refetch={refetch}
     />

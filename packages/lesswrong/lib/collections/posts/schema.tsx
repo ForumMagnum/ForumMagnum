@@ -35,6 +35,8 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
 import { hasSideComments } from '../../betas';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -50,7 +52,7 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-function getDefaultVotingSystem() {
+export function getDefaultVotingSystem() {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
@@ -1129,6 +1131,9 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "ReviewVote",
     canRead: ['members'],
     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
+      if (!isLWorAF) {
+        return null;
+      }
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1152,7 +1157,29 @@ const schema: SchemaType<"Posts"> = {
       resolver: (reviewVotesField) => reviewVotesField("*"),
     }),
   }),
-  
+
+  reviewWinner: resolverOnlyField({
+    type: "ReviewWinner",
+    graphQLtype: "ReviewWinner",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!isLWorAF) {
+        return null;
+      }
+      const { currentUser, ReviewWinners } = context;
+      const winner = await getPostReviewWinnerInfo(post._id, context);
+      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "ReviewWinners",
+      type: "left",
+      on: {
+        postId: field("_id"),
+      },
+      resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,
@@ -2374,7 +2401,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2843,6 +2870,14 @@ const schema: SchemaType<"Posts"> = {
 
   dialogueMessageContents: {
     type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
+  
+  firstVideoAttribsForPreview: {
+    type: GraphQLJSON,
     canRead: ['guests'],
     hidden: true,
     optional: true

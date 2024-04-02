@@ -1,7 +1,6 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
-import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
@@ -17,7 +16,7 @@ import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import NoSSR from 'react-no-ssr';
+import { Helmet, NoSSR } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
@@ -28,8 +27,8 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
-import { reviewIsActive } from '../lib/reviewUtils';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
+import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -129,7 +128,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'imageGap',
     [theme.breakpoints.down('md')]: {
       display: 'none'
-    }
+    },
   },
   backgroundImage: {
     position: 'absolute',
@@ -143,9 +142,51 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   votingImage: {
-    width: '55vw',
+    width: '1000px',
     maxWidth: '1000px',
-    marginLeft: '-15px'
+    right: '-240px',
+    marginTop: -41,
+    transform: 'scaleX(-1)',
+    height: '1170px',
+    objectFit: 'cover',
+    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 55%,transparent 70%)`,
+  },
+  lessOnlineBannerText: {
+    ...theme.typography.postStyle,
+    
+    position: 'absolute',
+    right: 16,
+    top: 70,
+    color: theme.palette.text.alwaysBlack,
+    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
+    textAlign: 'right',
+    width: '240px',
+    '& h2': {
+      fontSize: '2.2rem',
+      margin: 0,
+    },
+    '& h3': {
+      fontSize: '20px',
+      margin: 0,
+      lineHeight: '1.2',
+      marginBottom: 8
+    },
+    '& button': {
+      ...theme.typography.commentStyle,
+      backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 0.8,
+      border: 'none',
+      color: theme.palette.text.alwaysBlack,
+      borderRadius: '3px',
+      textAlign: 'center',
+      padding: 8
+    }
+  },
+  lessOnlineBannerDateAndLocation: {
+    ...theme.typography.commentStyle,
+    fontSize: '16px !important',
+    fontStyle: 'normal',
+    marginBottom: '16px !important',
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -251,7 +292,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -315,7 +356,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
+  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined;
 
   const render = () => {
     const {
@@ -339,7 +380,7 @@ const Layout = ({currentUser, children, classes}: {
       SunshineSidebar,
       EAHomeRightHandSide,
       CloudinaryImage2,
-      ReviewVotingCanvas
+      ForumEventBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -385,6 +426,7 @@ const Layout = ({currentUser, children, classes}: {
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
+      <CurrentForumEventProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -420,6 +462,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={!!currentRoute?.staticHeader}
                 backgroundColor={headerBackgroundColor}
               />}
+              <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
@@ -468,10 +511,15 @@ const Layout = ({currentUser, children, classes}: {
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-                      </div> 
+                    <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
+                      <div className={classes.lessOnlineBannerText}>
+                        <h2><a href="http://less.online">LessOnline</a></h2>
+                        <h3>A Festival of Writers Who are Wrong on the Internet</h3>
+                        <h3 className={classes.lessOnlineBannerDateAndLocation}>May 31 - Jun 2, Berkeley, CA</h3>
+                        <button><a href="http://less.online/#tickets-section">Buy Ticket ($400)</a></button>
+                      </div>
+                    </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
@@ -500,6 +548,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>

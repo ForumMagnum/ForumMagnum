@@ -16,6 +16,7 @@ import { createMutator } from './vulcan-lib/mutators';
 import { createAnonymousContext } from './vulcan-lib/query';
 import keyBy from 'lodash/keyBy';
 import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
+import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -140,6 +141,8 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
     case "tagRel":
       const post = await Posts.findOne({_id: (document as DbTagRel).postId})
       return postGetPageUrl(post as DbPost);
+    case "sequence":
+      return sequenceGetPageUrl(document as DbSequence)
     default:
       //eslint-disable-next-line no-console
       console.error("Invalid notification type");
@@ -210,7 +213,7 @@ export const createNotification = async ({userId, notificationType, documentType
       validate: false
     });
     if (!notificationDebouncers[notificationType])
-      throw new Error("Invalid notification type");
+      throw new Error(`Invalid notification type: ${notificationType}`);
     await notificationDebouncers[notificationType]!.recordEvent({
       key: {notificationType, userId},
       data: createdNotification.data._id,

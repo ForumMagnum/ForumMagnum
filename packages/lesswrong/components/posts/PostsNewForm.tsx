@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation } from '../../lib/routeUtil';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
@@ -218,6 +218,13 @@ const PostsNewForm = ({classes}: {
     fragmentName: 'PostsEdit',
     skip: !templateId,
   });
+  // `UsersCurrent` doesn't have the editable field with their originalContents for performance reasons, so we need to fetch them explicitly
+  const { document: currentUserWithModerationGuidelines } = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersEdit",
+    skip: !currentUser,
+  });
 
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
@@ -225,7 +232,6 @@ const PostsNewForm = ({classes}: {
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
 
-  const userHasModerationGuidelines = !!currentUser?.moderationGuidelines?.html;
   const debateForm = !!(query && query.debate);
 
   const questionInQuery = query && !!query.question
@@ -246,7 +252,7 @@ const PostsNewForm = ({classes}: {
     af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
+    moderationGuidelines: currentUserWithModerationGuidelines?.moderationGuidelines ?? undefined,
     debate: debateForm,
     postCategory
   }

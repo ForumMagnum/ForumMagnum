@@ -2,7 +2,7 @@ export function fieldIn<T extends {}>(field: string | number | symbol, ...object
   return objects.every(object => field in object);
 }
 
-type Literal<T> = string|number extends T ? never : T;
+type Literal<T> = string extends T ? number extends T ? never : never : T;
 type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
 /**

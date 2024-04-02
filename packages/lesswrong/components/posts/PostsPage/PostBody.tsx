@@ -12,7 +12,7 @@ import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
 const PostBody = ({post, html, sideCommentMode}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   html: string,
   sideCommentMode?: SideCommentMode
 }) => {

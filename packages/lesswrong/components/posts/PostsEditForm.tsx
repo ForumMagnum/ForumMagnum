@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation } from '../../lib/routeUtil'
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
@@ -21,8 +21,9 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
 
-const PostsEditForm = ({ documentId, classes }: {
+const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
+  version?: string | null,
   classes: ClassesType,
 }) => {
   const { query, params } = useLocation();
@@ -164,7 +165,7 @@ const PostsEditForm = ({ documentId, classes }: {
                 version: 'String'
               }}
               extraVariablesValues={{
-                version: 'draft'
+                version: version ?? 'draft'
               }}
               noSubmitOnCmdEnter
               repeatErrors

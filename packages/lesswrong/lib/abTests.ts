@@ -231,19 +231,19 @@ export const offerToAddCalendlyLink = new ABTest({
   },
 });
 
-export const postPageFixedDigestAd = new ABTest({
-  name: "postPageFixedDigestAd",
+export const newFrontpagePostFeedsWithRecommendationsOptIn = new ABTest({
+  name: "newFrontpagePostFeedsWithRecommendationsOptIn",
   active: true,
-  affectsLoggedOut: true,
-  description: "Whether or not to display the digest ad that's fixed at the bottom of the screen on the post page",
+  affectsLoggedOut: false,
+  description: "New LW frontpage with multiple tabs for different post feeds",
   groups: {
-    noShow: {
-      description: "Don't show digest ad",
+    classicFrontpage: {
+      description: "Control. Existing frontpage",
       weight: 1,
     },
-    show: {
-      description: "Show digest ad",
-      weight: 1,
+    frontpageWithTabs: {
+      description: "New frontpage with multiple tabs for different post feeds",
+      weight: 0,
     },
-  },
+  }
 });

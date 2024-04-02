@@ -78,6 +78,13 @@ const buildNotificationTag = (prefix: string) =>
     'name', ${prefix}."name",
     'slug', ${prefix}."slug"
   ) END`;
+  
+// This should return an object of type `NotificationDisplaySequence`
+const buildNotificationSequence = (prefix: string) =>
+  `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
+    '_id', ${prefix}."_id",
+    'title', ${prefix}."title"
+  ) END`;
 
 export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
   constructor() {
@@ -111,6 +118,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         ) "post",
         ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
         ${buildNotificationTag("t")} "tag",
+        ${buildNotificationSequence("s")} "sequence",
         COALESCE(
           ${buildNotificationUser("nma")},
           ${buildNotificationUser("u")}
@@ -144,6 +152,9 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         trp."_id" = tr."postId"
       LEFT JOIN "Users" trpu ON
         trpu."_id" = trp."userId"
+      LEFT JOIN "Sequences" s ON
+        n."documentType" = 'sequence' AND
+        n."documentId" = s."_id"
       LEFT JOIN "Localgroups" trpl ON
         trpl."_id" = trp."groupId"
       LEFT JOIN "Users" u ON
@@ -172,6 +183,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         NOT COALESCE(t."deleted", FALSE) AND
         NOT COALESCE(u."deleted", FALSE) AND
         NOT COALESCE(l."deleted", FALSE) AND
+        NOT COALESCE(s."isDeleted", FALSE) AND
         NOT COALESCE(nma."deleted", FALSE)
       ORDER BY "createdAt" DESC
       LIMIT $(limit)

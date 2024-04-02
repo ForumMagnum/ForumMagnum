@@ -27,7 +27,8 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
+import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName } from '../../../lib/vulcan-lib';
+import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
@@ -153,6 +154,33 @@ const getGraphQLType = <N extends CollectionNameString>(
   }
 };
 
+/**
+ * Get the data needed to apply an access filter based on a graphql resolver
+ * return type.
+ */
+const getSqlResolverPermissionsData = (type: string|GraphQLScalarType) => {
+  // We only have access filters for return types that correspond to a collection.
+  if (typeof type !== "string") {
+    return null;
+  }
+
+  // We need to use a multi access filter for arrays, or a single access filter
+  // otherwise. We only apply the automatic filter for single dimensional arrays.
+  const isArray = type.indexOf("[") === 0 && type.lastIndexOf("[") === 0;
+
+  // Remove all "!"s (denoting nullability) and any array brackets to leave behind
+  // a type name string.
+  const nullableScalarType = type.replace(/[![\]]+/g, "");
+
+  try {
+    // Get the collection corresponding to the type name string.
+    const collection = getCollectionByTypeName(nullableScalarType);
+    return collection ? {collection, isArray} : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
 export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
   description?: string
@@ -222,6 +250,8 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
           type: fieldGraphQLType,
         });
 
+        const permissionData = getSqlResolverPermissionsData(field.resolveAs!.type);
+
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
@@ -239,12 +269,24 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
               // will be `null` and the latter will be `undefined`.
               if (field.resolveAs!.sqlResolver) {
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
-                const existingValue = document[typedName];
+                let existingValue = document[typedName];
                 if (existingValue !== undefined) {
                   const {sqlPostProcess} = field.resolveAs!;
-                  return sqlPostProcess
-                    ? sqlPostProcess(existingValue, document, context)
-                    : existingValue;
+                  if (sqlPostProcess) {
+                    existingValue = sqlPostProcess(existingValue, document, context);
+                  }
+                  if (permissionData) {
+                    const filter = permissionData.isArray
+                      ? accessFilterMultiple
+                      : accessFilterSingle;
+                    return filter(
+                      context.currentUser,
+                      permissionData.collection,
+                      existingValue,
+                      context,
+                    );
+                  }
+                  return existingValue;
                 }
               }
 

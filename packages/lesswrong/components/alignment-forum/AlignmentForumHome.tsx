@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences } = Components
+  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences, EAPopularCommentsSection, QuickTakesSection } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
@@ -47,6 +47,7 @@ const AlignmentForumHome = ({classes}: {
         </SectionTitle>
         <PostsList2 terms={recentPostsTerms} />
       </SingleColumnSection>
+      <EAPopularCommentsSection />
       <SingleColumnSection>
         <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}

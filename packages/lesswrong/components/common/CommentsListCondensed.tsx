@@ -55,7 +55,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
       {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
         <SectionButton>
           <AddBoxIcon />
-          {isEAForum ? "New quick take" : "New shortform"}
+          {"New quick take"}
         </SectionButton>
       </div>}
     </SectionTitle>

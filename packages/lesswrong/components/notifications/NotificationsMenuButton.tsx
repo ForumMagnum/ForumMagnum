@@ -75,11 +75,6 @@ export const styles = (theme: ThemeType) => ({
   buttonActive: {
     backgroundColor: theme.palette.greyAlpha(0.1),
   },
-  tooltip: {
-    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
-    padding: "5px 13px",
-    transform: "translateY(5px)",
-  },
   karmaStar: {
     color: theme.palette.icon.headerKarma,
     transform: "rotate(-15deg)",
@@ -174,12 +169,11 @@ const FriendlyNotificationsMenuButton = ({
     void refetch();
   }, [refetch, currentUser?.karmaChangeLastOpened]);
 
-  const {LWTooltip, ForumIcon} = Components;
+  const {NotificationsTooltip, ForumIcon} = Components;
   return (
-    <LWTooltip
-      title="Notifications"
-      placement="bottom"
-      popperClassName={classes.tooltip}
+    <NotificationsTooltip
+      unreadNotifications={unreadNotifications}
+      karmaChanges={karmaChanges?.karmaChanges}
     >
       <Badge
         classes={{
@@ -214,7 +208,7 @@ const FriendlyNotificationsMenuButton = ({
           <ForumIcon icon="BellBorder" />
         </IconButton>
       </Badge>
-    </LWTooltip>
+    </NotificationsTooltip>
   );
 }
 

@@ -211,4 +211,14 @@ export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<bo
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
 
+/** Karma threshold upon which we automatically create a market for whether this post will be a winner in the review for its year */
+export const reviewMarketCreationMinimumKarmaSetting = new PublicInstanceSetting<number>('annualReviewMarket.marketCreationMinimumKarma', 100, "optional");
+/** Minimum market odds required to highlight this post (e.g. make its karma gold) as a potential review winner */
+export const highlightReviewWinnerThresholdSetting = new PublicInstanceSetting<number>('annualReviewMarket.highlightReviewWinnerThreshold', 0.25, "optional");
+
+export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
 export const maxAllowedApiSkip = new PublicInstanceSetting<number | null>("maxAllowedApiSkip", 2000, "optional")
+
+export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null>('recombee.databaseId', null, "optional");
+export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
+export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");

@@ -37,12 +37,14 @@ import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
+import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from './curationEmails/cron';
+import { useCurationEmailsCron } from '../lib/betas';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
+export const postPublishedCallback = new CallbackHook<[DbPost, ResolverContext]>("post.published");
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
@@ -52,26 +54,6 @@ const removeNotification = async (notificationId: string) => {
     validate: false
   })
 }
-
-const sendPostByEmail = async ({users, postId, reason, subject}: {
-  users: Array<DbUser>,
-  postId: string,
-  reason: string,
-  
-  // Subject line to use in the email. If omitted, uses the post title.
-  subject?: string,
-}) => {
-  let post = await Posts.findOne(postId);
-  if (!post) throw Error(`Can't find post to send by email: ${postId}`)
-  for(let user of users) {
-    await wrapAndSendEmail({
-      user,
-      subject: subject ?? post.title,
-      body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
-    });
-  }
-}
-
 
 // Add notification callback when a post is approved
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
@@ -355,29 +337,6 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
   }
 });
 
-async function findUsersToEmail(filter: MongoSelector<DbUser>) {
-  let usersMatchingFilter = await Users.find(filter).fetch();
-  if (isEAForum) {
-    return usersMatchingFilter
-  }
-
-  let usersToEmail = usersMatchingFilter.filter(u => {
-    if (u.email && u.emails && u.emails.length) {
-      let primaryAddress = u.email;
-
-      for(let i=0; i<u.emails.length; i++)
-      {
-        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
-          return true;
-      }
-      return false;
-    } else {
-      return false;
-    }
-  });
-  return usersToEmail
-}
-
 const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
   defaultTiming: {
@@ -397,7 +356,7 @@ const curationEmailDelay = new EventDebouncer({
 
       //eslint-disable-next-line no-console
       console.log(`Found ${usersToEmail.length} users to email`);
-      await sendPostByEmail({
+      await sendCurationEmail({
         users: usersToEmail,
         postId,
         reason: "you have the \"Email me new posts in Curated\" option enabled"
@@ -416,17 +375,21 @@ getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification
     // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
 
-    await sendPostByEmail({
+    await sendCurationEmail({
       users: adminsToEmail,
       postId: post._id,
       reason: "you have the \"Email me new posts in Curated\" option enabled",
       subject: `[Admin preview] ${post.title}`,
     });
     
-    await curationEmailDelay.recordEvent({
-      key: post._id,
-      af: false
-    });
+    if (!useCurationEmailsCron) {
+      await curationEmailDelay.recordEvent({
+        key: post._id,
+        af: false
+      });  
+    } else {
+      await hydrateCurationEmailsQueue(post._id);
+    }
   }
 });
 

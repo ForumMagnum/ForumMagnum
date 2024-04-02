@@ -3,7 +3,7 @@ import { JsonType } from "../../lib/sql/Type";
 import SideCommentCaches from "../../lib/collections/sideCommentCaches/collection";
 import Posts from "../../lib/collections/posts/collection";
 
-export const acceptsSchemaHash = "5cb229f5d6b5603881b0eb0873896dd8";
+export const acceptsSchemaHash = "ca5281426ba6c737b2621d88156ea1c6";
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, SideCommentCaches);

@@ -1,7 +1,7 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
@@ -22,7 +22,7 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isAF, isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: 'block'
     }
-  } : {}
+  } : {},
 })
 
 const UsersMenu = ({classes}: {
@@ -94,7 +94,7 @@ const UsersMenu = ({classes}: {
       </Button>
     </div>
   }
-
+  
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
@@ -177,15 +177,15 @@ const UsersMenu = ({classes}: {
       )
     : null,
     /*
-      * This is currently disabled for unreviewed users on the EA forum
+      * This is currently disabled for unreviewed users
       * as there's issues with the new quick takes entry for such users.
       * Long-term, we should fix these issues and reenable this option.
       */
     newShortform: () =>
-      showNewButtons && (!isFriendlyUI || userCanComment(currentUser))
+      showNewButtons && userCanComment(currentUser)
         ? (
           <DropdownItem
-            title={isFriendlyUI ? "New quick take" : "New Shortform"}
+            title={preferredHeadingCase("New Quick Take")}
             onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
@@ -311,7 +311,8 @@ const UsersMenu = ({classes}: {
               />
               {currentUser.shortformFeedId &&
                 <DropdownItem
-                  title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
+                  // TODO: get Habryka's take on what the title here should be
+                  title={preferredHeadingCase("Your Quick Takes")}
                   to={postGetPageUrl({
                     _id: currentUser.shortformFeedId,
                     slug: "shortform",
