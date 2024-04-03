@@ -307,6 +307,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&&&': {
       ...theme.typography.commentStyle,
     }
+  },
+  iconsAndMusicButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  musicIcon: {
+    width: 20,
+    height: 20,
+    filter: "invert(1)",
+    marginRight: 8
+  },
+  spotifyIcon: {
+    opacity: 0.5
   }
 });
 
@@ -1251,7 +1265,19 @@ const Layout = ({currentUser, children, classes}: {
                       <div className={classNames(classes.lessOnlineBannerText, {[classes.lessOnlineBannerTextLimitedSpace]: !hideNavigationSidebar})}>
                         <h2><Link to="/posts/YMo5PuXnZDwRjhHhE/i-have-been-a-good-bing">The Fooming Shoggoths</Link></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
-                        <button onClick={() => setShowMusicPlayer(!showMusicPlayer)}>{showMusicPlayer ? "Stop Listening" : "Listen Now"}</button>
+                        <div className={classes.iconsAndMusicButton}>
+                          <a href="https://distrokid.com/hyperfollow/thefoomingshoggoths/i-have-been-a-good-bing">
+                            <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1712107840/Spotify-Icon-Black-Logo.wine_jx83j8.svg" className={classes.musicIcon}/>
+                          </a>
+                          <a href="https://music.youtube.com/channel/UCeW0zyvEq77YiVqoTj6PnWw">
+                            <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1712107323/app_icon_music_mono_black_24_nndfco.svg" className={classes.musicIcon}/>
+                          </a>
+                          <a href="https://music.apple.com/us/artist/the-fooming-shoggoths/1738967374">
+                            <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1712107414/Apple_Music_Icon_blk_sm_073120_b0wunk.svg" className={classes.musicIcon}/>
+                          </a>
+                          <button onClick={() => setShowMusicPlayer(!showMusicPlayer)}>{showMusicPlayer ? "Stop Listening" : "Listen Now"}</button>
+                        </div>
+                        
                       </div>
                     </div> 
                     : 
