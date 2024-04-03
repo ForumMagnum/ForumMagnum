@@ -130,7 +130,7 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
               if (!fetchMoreResult) return prev;
 
               return {
-                RecombeeLatestPosts: {
+                [resolverName]: {
                   __typename: fetchMoreResult[resolverName].__typename,
                   results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results]
                 }
