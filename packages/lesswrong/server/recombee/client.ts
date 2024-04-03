@@ -236,7 +236,7 @@ const recombeeApi = {
     } = await recombeeRequestHelpers.getOnsitePostInfo(lwAlgoSettings, context);
 
     const modifiedCount = count + 0; // might want later?
-    const split = 0.7;
+    const split = 0.6;
     const firstCount = Math.floor(modifiedCount * split);
     const secondCount = modifiedCount - firstCount;
 

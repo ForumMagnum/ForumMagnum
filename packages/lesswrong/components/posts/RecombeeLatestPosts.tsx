@@ -238,14 +238,14 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       }} />
   </div>);
 
-  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get()
-    .filter(feed => !feed.disabled)
-    .map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+  let availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
 
   if (userIsAdmin(currentUser)) {
-    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
     availableAlgorithms.push(...testingFeeds);
   }
+
+  availableAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -294,7 +294,9 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />}
+              {selectedScenario.includes('recombee') && <AnalyticsContext feedType={selectedScenario}>
+              <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />
+              </AnalyticsContext>}
               {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
                   resolverName="PostsWithActiveDiscussion"
