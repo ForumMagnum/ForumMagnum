@@ -379,11 +379,10 @@ const Layout = ({currentUser, children, classes}: {
     
   })
   useEffect(() => {
-    console.log({currentRoute})
     if ((window?.innerWidth < 1280 && (currentRoute?.name === 'home')) || window?.location?.pathname.includes("YMo5PuXnZDwRjhHhE")) {
       setShowMusicPlayer(true)
     }
-  }, [currentRoute?.path])
+  }, [currentRoute, currentRoute?.path])
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
