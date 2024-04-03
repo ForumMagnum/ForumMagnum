@@ -1264,7 +1264,7 @@ const Layout = ({currentUser, children, classes}: {
                         <h2><Link to="/posts/YMo5PuXnZDwRjhHhE/i-have-been-a-good-bing">The Fooming Shoggoths</Link></h2>
                         <h3>Releasing their debut album: <br/> <span {...{'data-text': '"I Help Been A Good Help"'}} className="glitch">"I Have Been A Good Bing"</span></h3>
                         <div className={classes.iconsAndMusicButton}>
-                          <a href="https://distrokid.com/hyperfollow/thefoomingshoggoths/i-have-been-a-good-bing">
+                          <a href="https://open.spotify.com/album/0DP8XwSK7voq0rtXiNMhQC">
                             <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1712107840/Spotify-Icon-Black-Logo.wine_jx83j8.svg" className={classes.musicIcon}/>
                           </a>
                           <a href="https://music.youtube.com/channel/UCeW0zyvEq77YiVqoTj6PnWw">
