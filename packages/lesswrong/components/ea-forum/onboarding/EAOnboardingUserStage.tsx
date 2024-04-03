@@ -70,8 +70,8 @@ export const EAOnboardingUserStage = ({classes}: {
   const [acceptedTos, setAcceptedTos] = useState(true);
   const [updateUser] = useMutation(newUserCompleteProfileMutation);
 
-  const onToggleAcceptedTos = useCallback((ev) => {
-    if (ev.target.tagName !== "A") {
+  const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
+    if ((ev.target as HTMLElement).tagName !== "A") {
       setAcceptedTos((value) => {
         captureOnboardingEvent("toggledTos", {newValue: !value});
         return !value;

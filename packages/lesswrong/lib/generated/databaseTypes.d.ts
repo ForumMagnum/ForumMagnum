@@ -18,6 +18,18 @@ interface DbAdvisorRequest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ArbitalCachesCollection = CollectionBase<"ArbitalCaches">;
+
+interface DbArbitalCaches extends DbObject {
+  __collectionName?: "ArbitalCaches"
+  pageAlias: string
+  title: string
+  fetchedAt: Date
+  sanitizedHtml: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
@@ -1794,6 +1806,7 @@ interface DbVote extends DbObject {
 
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
+  ArbitalCaches: ArbitalCachesCollection
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
@@ -1868,6 +1881,7 @@ interface CollectionsByName {
 
 interface ObjectsByCollectionName {
   AdvisorRequests: DbAdvisorRequest
+  ArbitalCaches: DbArbitalCaches
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
@@ -1942,6 +1956,7 @@ interface ObjectsByCollectionName {
 
 interface ObjectsByTypeName {
   AdvisorRequest: DbAdvisorRequest
+  ArbitalCaches: DbArbitalCaches
   Ban: DbBan
   Book: DbBook
   Chapter: DbChapter

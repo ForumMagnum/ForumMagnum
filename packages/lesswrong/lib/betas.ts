@@ -19,6 +19,7 @@ import {
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 import { recombeeEnabledSetting } from './publicSettings';
+import { useLocation } from './routeUtil';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -63,8 +64,11 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   // TODO: figure out what went wrong with the AB tests causing caching issues, beyond `affectsLoggedOut` being set to false
   // const recombeeOptInABTest = useABTest(newFrontpagePostFeedsWithRecommendationsOptIn)
   // const optedIntoRecombee = (recombeeOptInABTest === "frontpageWithTabs")
+  const { query } = useLocation();
+  
+  const manualOptIn = currentUser && query.recExperiment === 'true';
 
-  return isLW && isAdmin(currentUser) && recombeeEnabledSetting.get()
+  return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
 }
 
 // Non-user-specific features
