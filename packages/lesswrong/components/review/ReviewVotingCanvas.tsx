@@ -1,7 +1,6 @@
 import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import NoSSR from "react-no-ssr";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CloudinaryPropsType } from "../common/CloudinaryImage2";
@@ -11,6 +10,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
 import { useMessages } from "../common/withMessages";
+import { NoSSR } from "../../lib/utils/componentsWithChildren";
 
 export type GivingSeasonHeart = {
   userId: string,
