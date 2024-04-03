@@ -44,7 +44,7 @@ import { useCurationEmailsCron } from '../lib/betas';
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
+export const postPublishedCallback = new CallbackHook<[DbPost, ResolverContext]>("post.published");
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({

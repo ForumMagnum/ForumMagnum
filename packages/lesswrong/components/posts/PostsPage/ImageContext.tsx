@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
 
 export type ReviewWinnerImageInfo = {
   postId: string,
@@ -20,7 +20,7 @@ export const useImageContext = () => {
   return context;
 };
 
-export const ImageProvider: React.FC = ({ children }) => {
+export const ImageProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   const [selectedImageInfo, setImageInfo] = useState<ReviewWinnerImageInfo | undefined>(undefined);
   
   return (

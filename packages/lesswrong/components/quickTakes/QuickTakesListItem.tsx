@@ -4,7 +4,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
-import NoSSR from "react-no-ssr";
+import { NoSSR } from "../../lib/utils/componentsWithChildren";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {

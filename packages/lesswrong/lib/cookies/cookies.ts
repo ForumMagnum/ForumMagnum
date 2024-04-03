@@ -134,6 +134,12 @@ export const LAST_VISITED_FRONTPAGE_COOKIE = registerCookie({
   description: "Stores the date of the user's last visit to the frontpage",
 });
 
+export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
+  name: "admin_recombee_settings",
+  type: "functional",
+  description: "Stores recombee settings for admins experimenting with latest posts"
+});
+
 
 // Third party cookies
 

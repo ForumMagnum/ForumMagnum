@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -1373,6 +1373,11 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
+  },
+  notificationSubscribedSequencePost: {
+    label: "Posts added to sequences I'm subscribed to",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
