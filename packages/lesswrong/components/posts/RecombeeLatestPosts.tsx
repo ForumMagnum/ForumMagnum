@@ -294,7 +294,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
+              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />}
               {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
                   resolverName="PostsWithActiveDiscussion"

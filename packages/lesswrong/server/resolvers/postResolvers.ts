@@ -605,10 +605,17 @@ addGraphQLSchema(`
 
 interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
-  recommId?: string,
-  curated?: boolean,
-  stickied?: boolean,
+  recommId: string,
+  curated?: never,
+  stickied?: never,
 }
+
+type RecommendedPost = RecombeeRecommendedPost | {
+  post: Partial<DbPost>,
+  recommId?: never,
+  curated: boolean,
+  stickied: boolean,
+};
 
 createPaginatedResolver({
   name: "RecombeeLatestPosts",
@@ -637,17 +644,14 @@ createPaginatedResolver({
     context: ResolverContext,
     limit: number,
     args: { settings: HybridRecombeeConfiguration }
-  ): Promise<RecombeeRecommendedPost[]> => {
+  ): Promise<RecommendedPost[]> => {
     const { currentUser } = context;
 
     if (!currentUser) {
       throw new Error(`You must be logged in to use Recombee recommendations right now`);
     }
 
-    const recs = await recombeeApi.getHybridRecommendationsForUser(currentUser._id, limit, args.settings, context);
-
-    console.log({ recs });
-    return recs;
+    return await recombeeApi.getHybridRecommendationsForUser(currentUser._id, limit, args.settings, context);
   }
 });
 
