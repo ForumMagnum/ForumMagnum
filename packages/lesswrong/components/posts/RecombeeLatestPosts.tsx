@@ -238,14 +238,14 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       }} />
   </div>);
 
-  let availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
+  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
 
   if (userIsAdmin(currentUser)) {
     const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
     availableAlgorithms.push(...testingFeeds);
   }
 
-  availableAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
+  const enabledAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -256,7 +256,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   }
 
   const algorithmPicker = <TabPicker 
-    sortedTabs={availableAlgorithms} 
+    sortedTabs={enabledAlgorithms} 
     defaultTab={selectedScenario} 
     onTabSelectionUpdate={handleSwitchTab}
     showDescriptionOnHover
