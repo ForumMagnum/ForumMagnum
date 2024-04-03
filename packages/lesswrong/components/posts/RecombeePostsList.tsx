@@ -1,9 +1,10 @@
 import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
-import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
+import uniq from 'lodash/uniq';
 
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
@@ -16,11 +17,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RESOLVER_NAME = 'RecombeeLatestPosts';
+const DEFAULT_RESOLVER_NAME = 'RecombeeLatestPosts';
+const HYBRID_RESOLVER_NAME = 'RecombeeHybridPosts';
 
-const getRecombeeLatestPostsQuery = gql`
-  query get${RESOLVER_NAME}($limit: Int, $settings: JSON) {
-    ${RESOLVER_NAME}(limit: $limit, settings: $settings) {
+type RecombeeResolver = typeof DEFAULT_RESOLVER_NAME | typeof HYBRID_RESOLVER_NAME;
+
+const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
+  query get${resolverName}($limit: Int, $settings: JSON) {
+    ${resolverName}(limit: $limit, settings: $settings) {
       results {
         post {
           ...PostsListWithVotes
@@ -31,6 +35,21 @@ const getRecombeeLatestPostsQuery = gql`
   }
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
+
+type SingleOrHybridLoadMore<T extends RecombeeResolver> = 
+  T extends typeof DEFAULT_RESOLVER_NAME
+    ? RecombeeConfiguration['loadMore']
+    : HybridRecombeeConfiguration['loadMore'];
+
+const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecombeeRecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
+  switch (resolverName) {
+    case DEFAULT_RESOLVER_NAME:
+      return { prevRecommId: results.slice(-1)[0]?.recommId };
+    case HYBRID_RESOLVER_NAME:
+      const [firstRecommId, secondRecommId] = uniq(results.map(({ recommId }) => recommId));
+      return { prevRecommIds: [firstRecommId, secondRecommId] };
+  }
+}
 
 const stickiedPostTerms: PostsViewTerms = {
   view: 'stickied',
@@ -56,7 +75,12 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(getRecombeeLatestPostsQuery, {
+  const resolverName = algorithm === 'recombee-hybrid'
+    ? HYBRID_RESOLVER_NAME
+    : DEFAULT_RESOLVER_NAME;
+
+  const query = getRecombeePostsQuery(resolverName);
+  const { data, loading, fetchMore, networkStatus } = useQuery(query, {
     ssr: true,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
@@ -66,10 +90,10 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
     },
   });
 
-  const results: RecombeeRecommendedPost[] | undefined = data?.[RESOLVER_NAME]?.results;
-  const postIds = results?.map(({post}) => post._id) || []
-  const stickiedPostIds = stickiedPosts?.map(post => post._id) ?? []
-  postIds.push(...stickiedPostIds);
+  const results: RecombeeRecommendedPost[] | undefined = data?.[resolverName]?.results;
+  const recombeePostIds = results?.map(({post}) => post._id) ?? [];
+  const stickiedPostIds = stickiedPosts?.map(post => post._id) ?? [];
+  const postIds = [...recombeePostIds, ...stickiedPostIds];
 
   useOnMountTracking({
     eventType: "postList",
@@ -86,8 +110,6 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
     return null;
   }
 
-  const recommId = results.slice(-1)[0]?.recommId;
-
   return <div>
     <div className={classes.root}>
       <CuratedPostsList />
@@ -98,9 +120,10 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
+          const loadMoreSettings = getLoadMoreSettings(resolverName, results);
           void fetchMore({
             variables: {
-              settings: { ...recombeeSettings, loadMore: { prevRecommId: recommId } },
+              settings: { ...recombeeSettings, loadMore: loadMoreSettings },
             },
             // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
             updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
@@ -108,8 +131,8 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
 
               return {
                 RecombeeLatestPosts: {
-                  __typename: fetchMoreResult[RESOLVER_NAME].__typename,
-                  results: [...prev[RESOLVER_NAME].results, ...fetchMoreResult[RESOLVER_NAME].results]
+                  __typename: fetchMoreResult[resolverName].__typename,
+                  results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results]
                 }
               };
             }

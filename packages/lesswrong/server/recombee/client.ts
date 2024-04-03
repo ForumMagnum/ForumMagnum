@@ -179,17 +179,22 @@ const recombeeApi = {
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
     const batchRequest = recombeeRequestHelpers.getBatchRequest([firstRequest, secondRequest]);
 
-    // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
-    const batchResponse = await client.send(batchRequest)  
+    const batchResponse = await client.send(batchRequest);
+    // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
 
-    const recommendations = recombeeResponses.flatMap(response => response.recomms.map(rec => ({ id: rec.id, recommId: response.recommId })));
-    const postIds = recommendations.map(rec => rec.id);
-    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds))
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
+    console.log({ firstRequest, secondRequest });
 
+    const recommendationMappings = Object.fromEntries(recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId])));
+    const postIds = Object.keys(recommendationMappings);
+    console.log({ postIds });
+    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
+    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
 
-    return filteredPosts.map(post => ({ post, recommId: recommendations.find(rec => rec.id === post._id)?.recommId}));
+    // _id isn't going to be filtered out by `accessFilterMultiple`
+    const mappedPosts = filteredPosts.map(post => ({ post, recommId: recommendationMappings[post._id!] }));
+    console.log({ mappedPosts: mappedPosts.map(({ post, recommId }) => ({ postId: post._id, title: post.title, recommId }))});
+    return mappedPosts;
   },
 
 

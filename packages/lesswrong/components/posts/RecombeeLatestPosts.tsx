@@ -245,7 +245,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     .map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
 
   if (userIsAdmin(currentUser)) {
-    const testingFeeds =  postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
     availableAlgorithms.push(...testingFeeds);
   }
 
@@ -263,7 +263,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     onTabSelectionUpdate={handleSwitchTab}
     showDescriptionOnHover
   />
-
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
@@ -298,7 +297,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
+              {/* {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />} */}
+              {<RecombeePostsList algorithm={'recombee-hybrid'} settings={scenarioConfig} showSticky limit={13} />}
               {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
                   resolverName="PostsWithActiveDiscussion"
