@@ -113,7 +113,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: 
 
   return <div>
     <div className={classes.root}>
-      {results.map(({post, recommId, curated, stickied }) => <PostsItem 
+      {results.map(({ post, recommId, curated, stickied }) => <PostsItem 
         key={post._id} 
         post={post} 
         recombeeRecommId={recommId} 
