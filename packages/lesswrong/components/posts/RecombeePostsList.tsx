@@ -48,7 +48,7 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
-const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecombeeRecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
+const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
   switch (resolverName) {
     case DEFAULT_RESOLVER_NAME:
       const prevRecommId = results.find(result => result.recommId)?.recommId;
@@ -93,7 +93,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: 
     },
   });
 
-  const results: RecombeeRecommendedPost[] | undefined = data?.[resolverName]?.results;
+  const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
   const postIds = results?.map(({post}) => post._id) ?? [];
 
   useOnMountTracking({
