@@ -163,6 +163,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationSubscribedSequencePost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly notificationPrivateMessage: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -542,6 +548,11 @@ interface ConversationsDefaultFragment { // fragment on Conversations
   readonly archivedByIds: Array<string>,
 }
 
+interface CurationEmailsDefaultFragment { // fragment on CurationEmails
+  readonly userId: string,
+  readonly postId: string,
+}
+
 interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
   readonly userId: string,
   readonly targetUserId: string,
@@ -839,6 +850,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly rejectedReason: string | null,
   readonly rejectedByUserId: string,
   readonly dialogueMessageContents: string|null,
+  readonly firstVideoAttribsForPreview: any,
   readonly subforumTagId: string,
   readonly af: boolean,
   readonly afDate: Date,
@@ -1563,6 +1575,7 @@ interface PostsEditCriticismTips { // fragment on Posts
 interface PostsBestOfList extends PostsListWithVotes { // fragment on Posts
   readonly podcastEpisode: PostsBestOfList_podcastEpisode|null,
   readonly socialPreviewData: any,
+  readonly firstVideoAttribsForPreview: any,
 }
 
 interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
@@ -1598,6 +1611,7 @@ interface CommentsList { // fragment on Comments
   readonly userId: string,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
+  readonly deletedByUserId: string,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
   readonly authorIsUnreviewed: boolean,
@@ -2694,7 +2708,7 @@ interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
+  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
 }
 
 interface SubscriptionState { // fragment on Subscriptions
@@ -2705,7 +2719,7 @@ interface SubscriptionState { // fragment on Subscriptions
   readonly documentId: string,
   readonly collectionName: string,
   readonly deleted: boolean,
-  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
+  readonly type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages",
 }
 
 interface PodcastsDefaultFragment { // fragment on Podcasts
@@ -3203,6 +3217,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly notificationSubscribedTagPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
+  readonly notificationSubscribedSequencePost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -3807,6 +3827,7 @@ interface FragmentTypes {
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
   TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
+  CurationEmailsDefaultFragment: CurationEmailsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
@@ -4056,6 +4077,7 @@ interface FragmentTypesByCollection {
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
   Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"
+  CurationEmails: "CurationEmailsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
   ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
@@ -4118,6 +4140,7 @@ interface CollectionNamesByFragmentName {
   UserTagRelsDefaultFragment: "UserTagRels"
   TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
+  CurationEmailsDefaultFragment: "CurationEmails"
   DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
@@ -4359,9 +4382,9 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

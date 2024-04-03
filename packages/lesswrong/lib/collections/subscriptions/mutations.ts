@@ -8,7 +8,8 @@ export const defaultSubscriptionTypeTable = {
   "Posts": subscriptionTypes.newComments,
   "Users": subscriptionTypes.newPosts,
   "Localgroups": subscriptionTypes.newEvents,
-  "Tags": subscriptionTypes.newTagPosts
+  "Tags": subscriptionTypes.newTagPosts,
+  "Sequences": subscriptionTypes.newSequencePosts,
   // TODO: other subscription types?
 }
 

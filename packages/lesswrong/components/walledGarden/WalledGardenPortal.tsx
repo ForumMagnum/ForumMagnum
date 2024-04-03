@@ -107,7 +107,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   const validateGardenCode = (gardenCode: GardenCodeFragment | null) => {
     return !gardenCode?.deleted && moment().isBetween(gardenCode?.startTime, gardenCode?.endTime)
   }
-  const moreThanFourHoursAfterCodeExpiry = useCallback((gardenCode) =>
+  const moreThanFourHoursAfterCodeExpiry = useCallback((gardenCode: GardenCodeFragment | null) =>
     moment(gardenCode?.endTime).add(4, 'hours').isBefore(new Date())
     , [])
 

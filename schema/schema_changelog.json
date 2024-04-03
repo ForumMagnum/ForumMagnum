@@ -555,6 +555,11 @@
     "timestamp": "2024-02-13T22:27:00.000Z"
   },
   {
+    "acceptsSchemaHash": "1cca53989f92d593c9cb80c2e9e8b5a3",
+    "acceptedByMigration": "20240215T231300.addArbitalLinkPreviewCache.ts",
+    "timestamp": "2024-02-15T23:13:00.000Z"
+  },
+  {
     "acceptsSchemaHash": "c88a556fe6f1bc2d5ce4f08149eb3388",
     "acceptedByMigration": "20240222T212933.add_UserEAGDetails_collection.ts",
     "timestamp": "2024-02-22T21:29:33.000Z"
@@ -583,5 +588,20 @@
     "acceptsSchemaHash": "01bf8045d376a34b6a5c7d0d8bfddcaa",
     "acceptedByMigration": "20240312T185736.add_inactiveSurveyEmailSentAt_to_Users.ts",
     "timestamp": "2024-03-12T18:57:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5fb909476a7c6ef9567f7efb1abd005f",
+    "acceptedByMigration": "20240316T002500.add_CurationEmails_table.ts",
+    "timestamp": "2024-03-16T00:25:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "15e67a7cabc41723b3215bcb7dc9488e",
+    "acceptedByMigration": "20240329T221118.add_notificationSubscribedSequencePost_to_Users.ts",
+    "timestamp": "2024-03-29T22:11:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "86723d78e7eb5d43201e0be72ee6f5f0",
+    "acceptedByMigration": "20240402T183930.arbitalPreviewCache.ts",
+    "timestamp": "2024-04-02T18:39:30.000Z"
   }
 ]

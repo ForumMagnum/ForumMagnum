@@ -4,6 +4,7 @@ import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { isEAForum } from "../../lib/instanceSettings";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -584,12 +585,12 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
   
   /**
-   * Returns a list of users who haven't read a post in over 6 months
+   * Returns a list of users who haven't read a post in over 4 months
    * and who we want to email a feedback survey to.
    *
    * This excludes admins, deleted/deactivated users,
    * flagged or purged or removed from queue users,
-   * users who were banned any time over the past 6 month period,
+   * users who were banned any time over the past 4 month period,
    * and users who have already been sent this email.
    */
   async getInactiveUsersToEmail(limit: number): Promise<DbUser[]> {
@@ -613,7 +614,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND u."sunshineFlagged" IS NOT TRUE
         AND (
           u.banned IS NULL
-          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '6 months'
+          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '4 months'
         )
         AND (
           u."reviewedByUserId" IS NOT NULL
@@ -623,16 +624,32 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND (
           (
             rs.max_last_updated IS NULL
-            AND u."createdAt" < CURRENT_TIMESTAMP - INTERVAL '6 months'
+            AND u."createdAt" < CURRENT_TIMESTAMP - INTERVAL '4 months'
           )
           OR (
             rs.max_last_updated IS NOT NULL
-            AND rs.max_last_updated < CURRENT_TIMESTAMP - INTERVAL '6 months'
+            AND rs.max_last_updated < CURRENT_TIMESTAMP - INTERVAL '4 months'
           )
         )
       ORDER BY u."createdAt" desc
       LIMIT $1;
     `, [limit])
+  }
+
+  async getCurationSubscribedUserIds(): Promise<string[]> {
+    const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
+
+    const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
+      SELECT _id
+      FROM "Users"
+      WHERE "emailSubscribedToCurated" IS TRUE
+        AND "deleted" IS NOT TRUE
+        AND "email" IS NOT NULL
+        AND "unsubscribeFromAll" IS NOT TRUE
+        ${verifiedEmailFilter}
+    `);
+
+    return userIdRecords.map(({ _id }) => _id);
   }
 }
 

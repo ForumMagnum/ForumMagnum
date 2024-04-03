@@ -19,6 +19,7 @@ export type NotifyMeDocument =
   UsersMinimumInfo |
   UserOnboardingAuthor |
   UserOnboardingTag |
+  SequencesPageTitleFragment |
   CommentsList |
   PostsBase |
   PostsMinimumInfo |

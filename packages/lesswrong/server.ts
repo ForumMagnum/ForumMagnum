@@ -19,6 +19,7 @@ import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/pageCache/cron';
 import './server/users/cron'
+import './server/curationEmails/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
@@ -78,6 +79,7 @@ import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";
 import "./server/scripts/generativeModels/coverImage";
 import "./server/scripts/addManualReviewArt";
+import "./server/scripts/backfillRecombee";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 // import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";

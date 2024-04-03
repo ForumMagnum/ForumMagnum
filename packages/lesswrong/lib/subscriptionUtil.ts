@@ -29,6 +29,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       return user.auto_subscribe_to_my_comments && document.userId===user._id;
     case subscriptionTypes.newTagPosts:
       return false
+    case subscriptionTypes.newSequencePosts:
+      return false
     case subscriptionTypes.newShortform:
       return false;
     case subscriptionTypes.newDebateComments:

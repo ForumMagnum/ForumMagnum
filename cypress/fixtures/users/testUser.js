@@ -64,6 +64,12 @@ module.exports = {
         timeOfDayGMT: 12,
         dayOfWeekGMT: "Monday",
     },
+    notificationSubscribedSequencePost: {
+        channel: "onsite",
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+    },
     notificationPrivateMessage: {
         channel: "both",
         batchingFrequency: "realtime",

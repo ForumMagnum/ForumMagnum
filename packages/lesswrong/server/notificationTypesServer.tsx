@@ -18,7 +18,8 @@ import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
 import './emailComponents/NewDialogueMatchEmail';
-import {getDocumentSummary, taggedPostMessage, NotificationDocument} from '../lib/notificationTypes'
+import './emailComponents/SequenceNewPostsEmail';
+import {getDocumentSummary, taggedPostMessage, NotificationDocument, getDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -29,6 +30,7 @@ import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
 import DialogueChecks from '../lib/collections/dialogueChecks/collection';
+import Sequences from '../lib/collections/sequences/collection';
 
 interface ServerNotificationType {
   name: string,
@@ -156,6 +158,32 @@ export const NewTagPostsNotification = serverRegisterNotificationType({
     if (tagRel) {
       return <Components.NewPostEmail documentId={ tagRel.postId}/>
     }
+  }
+})
+
+export const NewSequencePostsNotification = serverRegisterNotificationType({
+  name: "newSequencePosts",
+  canCombineEmails: false,
+  emailSubject: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    const sequence = await getDocument(notifications[0].documentType as NotificationDocument, notifications[0].documentId) as DbSequence;
+    if (!sequence) throw Error(`Can't find sequence for notification: ${notifications[0]}`)
+    return `Posts added to ${sequence.title}`
+  },
+  emailBody: async ({user, notifications}: {user: DbUser, notifications: DbNotification[]}) => {
+    const {documentId, extraData} = notifications[0]
+    
+    const sequence = await Sequences.findOne({_id: documentId})
+    if (!sequence) throw Error(`Can't find sequence for notification: ${notifications[0]}`)
+
+    const posts = await Posts.find({
+      _id: {$in: extraData.postIds},
+      draft: {$ne: true},
+      deletedDraft: {$ne: true},
+    }).fetch()
+    
+    if (!posts.length) throw Error(`No valid new posts for notification: ${notifications[0]}`)
+    
+    return <Components.SequenceNewPostsEmail sequence={sequence} posts={posts} />;
   }
 })
 

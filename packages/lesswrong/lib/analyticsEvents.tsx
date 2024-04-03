@@ -135,6 +135,7 @@ export type AnalyticsProps = {
   limit?: number,
   capturePostItemOnMount?: boolean,
   singleLineComment?: boolean,
+  feedType?: string,
   onsite?: boolean,
   terms?: PostsViewTerms,
   /** @deprecated Use `pageSectionContext` instead */

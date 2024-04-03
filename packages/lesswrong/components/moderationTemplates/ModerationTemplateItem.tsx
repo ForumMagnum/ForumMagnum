@@ -3,7 +3,7 @@ import { ModerationTemplates } from '../../lib/collections/moderationTemplates';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

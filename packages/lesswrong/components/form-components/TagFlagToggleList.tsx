@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   

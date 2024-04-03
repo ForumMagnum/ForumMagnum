@@ -1,4 +1,5 @@
 type AdvisorRequestsViewName = "requestsByUser";
+type ArbitalCachesViewName = never
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
@@ -9,6 +10,7 @@ type CommentModeratorActionsViewName = "activeCommentModeratorActions";
 type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDeleted"|"checkedByModGPT"|"postCommentsTop"|"postCommentsRecentReplies"|"postCommentsMagic"|"afPostCommentsTop"|"postCommentsOld"|"postCommentsNew"|"postCommentsBest"|"postLWComments"|"profileRecentComments"|"allRecentComments"|"recentComments"|"afSubmissions"|"rejected"|"recentDiscussionThread"|"afRecentDiscussionThread"|"postsItemComments"|"sunshineNewCommentsList"|"questionAnswers"|"legacyIdComment"|"sunshineNewUsersComments"|"defaultModeratorResponses"|"repliesToAnswer"|"answersAndReplies"|"topShortform"|"shortform"|"shortformFrontpage"|"repliesToCommentThread"|"shortformLatestChildren"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"reviews"|"tagDiscussionComments"|"tagSubforumComments"|"latestSubforumDiscussion"|"moderatorComments"|"debateResponses"|"recentDebateResponses"|"alignmentSuggestedComments"|"rss";
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
 type CronHistoriesViewName = never
+type CurationEmailsViewName = never
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type DialogueChecksViewName = "userDialogueChecks"|"userTargetDialogueChecks";
@@ -71,6 +73,7 @@ type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
 
 interface ViewTermsByCollectionName {
   AdvisorRequests: AdvisorRequestsViewTerms
+  ArbitalCaches: ViewTermsBase
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
@@ -81,6 +84,7 @@ interface ViewTermsByCollectionName {
   Comments: CommentsViewTerms
   Conversations: ConversationsViewTerms
   CronHistories: ViewTermsBase
+  CurationEmails: ViewTermsBase
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
   DialogueChecks: DialogueChecksViewTerms
