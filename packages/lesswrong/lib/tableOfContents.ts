@@ -1,8 +1,8 @@
-import type { DOMWindow } from "jsdom";
 import { commentsTableOfContentsEnabled } from "./betas";
 import * as _ from 'underscore';
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
+import type { WindowType } from "./domParser";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -61,11 +61,6 @@ const headingIfWholeParagraph = {
 };
 
 const headingSelector = _.keys(headingTags).join(",");
-
-/**
- * A window type that works with jsdom or the browser window
- */
-type WindowType = DOMWindow | Window & typeof globalThis
 
 /**
  * Given an HTML document, extract a list of sections for a table of contents
