@@ -112,6 +112,7 @@ export interface RecombeeConfiguration {
   rotationRate: number,
   rotationTime: number,
   booster?: string,
+  filter?: string,
   refreshKey?: string,
   loadMore?: {
     prevRecommId: string,

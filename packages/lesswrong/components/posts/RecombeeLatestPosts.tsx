@@ -197,8 +197,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     limit:limit
   };
 
-  const showCurated = isFriendlyUI || (isLW && reviewIsActive());
-
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
     if (isLWorAF) {
@@ -293,12 +291,10 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         {settings}
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
-          {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {/* {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />} */}
-              {<RecombeePostsList algorithm={'recombee-hybrid'} settings={scenarioConfig} showSticky />}
+              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
               {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
                   resolverName="PostsWithActiveDiscussion"

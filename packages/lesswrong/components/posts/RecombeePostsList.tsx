@@ -6,9 +6,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 
+// Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
-  recommId: string,
+  recommId?: string,
+  curated?: boolean,
+  stickied?: boolean,
 }
 
 const styles = (theme: ThemeType) => ({
@@ -30,6 +33,8 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
           ...PostsListWithVotes
         }
         recommId
+        curated
+        stickied
       }
     }
   }
@@ -51,7 +56,7 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecombeeRe
   }
 }
 
-const stickiedPostTerms: PostsViewTerms = {
+export const stickiedPostTerms: PostsViewTerms = {
   view: 'stickied',
   limit: 4, // seriously, shouldn't have more than 4 stickied posts
   forum: true
@@ -66,12 +71,12 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
 }) => {
   const { Loading, LoadMore, PostsItem, SectionFooter, CuratedPostsList } = Components;
 
-  const { results: stickiedPosts } = useMulti({
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
-    terms: stickiedPostTerms,
-    skip: !showSticky,
-  });
+  // const { results: stickiedPosts } = useMulti({
+  //   collectionName: "Posts",
+  //   fragmentName: 'PostsListWithVotes',
+  //   terms: stickiedPostTerms,
+  //   skip: !showSticky,
+  // });
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -91,9 +96,9 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
   });
 
   const results: RecombeeRecommendedPost[] | undefined = data?.[resolverName]?.results;
-  const recombeePostIds = results?.map(({post}) => post._id) ?? [];
-  const stickiedPostIds = stickiedPosts?.map(post => post._id) ?? [];
-  const postIds = [...recombeePostIds, ...stickiedPostIds];
+  // const stickiedPostIds = stickiedPosts?.map(post => post._id) ?? [];
+  const postIds = results?.map(({post}) => post._id) ?? [];
+  // const postIds = [...stickiedPostIds, ...recombeePostIds];
 
   useOnMountTracking({
     eventType: "postList",
@@ -110,11 +115,19 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
     return null;
   }
 
+  console.log({postResults: results.map(result => {result.post._id, result.post.title, result.recommId, result.curated, result.stickied})})
+
   return <div>
     <div className={classes.root}>
-      <CuratedPostsList />
-      {stickiedPosts?.map(post => <PostsItem key={post._id} post={post} terms={stickiedPostTerms}/>)}
-      {results.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
+      {/* <CuratedPostsList />
+      {stickiedPosts?.map(post => <PostsItem key={post._id} post={post} terms={stickiedPostTerms}/>)} */}
+      {results.map(({post, recommId, curated, stickied }) => <PostsItem 
+        key={post._id} 
+        post={post} 
+        recombeeRecommId={recommId} 
+        curatedIconLeft={curated} 
+        terms={stickied ? stickiedPostTerms : undefined}
+      />)}
     </div>
     <SectionFooter>
       <LoadMore

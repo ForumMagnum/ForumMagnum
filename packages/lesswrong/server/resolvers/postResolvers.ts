@@ -597,13 +597,17 @@ createPaginatedResolver({
 addGraphQLSchema(`
   type RecombeeRecommendedPost {
     post: Post!
-    recommId: String!
+    recommId: String
+    curated: Boolean
+    stickied: Boolean
   }
 `);
 
 interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
-  recommId: string
+  recommId?: string,
+  curated?: boolean,
+  stickied?: boolean,
 }
 
 createPaginatedResolver({

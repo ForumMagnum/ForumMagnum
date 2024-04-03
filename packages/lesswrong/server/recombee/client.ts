@@ -9,6 +9,8 @@ import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
+import { viewTermsToQuery } from '../../lib/utils/viewUtils';
+import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -121,6 +123,13 @@ const recombeeRequestHelpers = {
   }
 };
 
+
+const curatedPostTerms: PostsViewTerms = {
+  view: 'curated',
+  limit: 3,
+};
+
+
 const recombeeApi = {
   async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
@@ -165,35 +174,56 @@ const recombeeApi = {
 
 
   async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
+
+    const stickiedPostsQuery = viewTermsToQuery("Posts", stickiedPostTerms, undefined, context);
+    const curatedPostsQuery = viewTermsToQuery("Posts", curatedPostTerms, undefined, context);
+    const [curatedPosts, stickiedPosts]  = await Promise.all([
+      context.Posts.find(curatedPostsQuery.selector, curatedPostsQuery.options, { _id: 1 }).fetch(),
+      context.Posts.find(stickiedPostsQuery.selector, stickiedPostsQuery.options, { _id: 1 }).fetch(),
+    ])
+
+    const curatedPostIds = curatedPosts.map(post => post._id);
+    const stickiedPostsIds = stickiedPosts.map(post => post._id);
+    const excludedPostIds = [...curatedPostIds, ...stickiedPostsIds];
+    const excludedPostFilter = `'itemId' not in {${excludedPostIds.map(id => `"${id}"`).join(', ')}}`
+    console.log(excludedPostFilter)
+
     const client = getRecombeeClientOrThrow();
 
-    const split = 0.5;
-    const firstCount = Math.floor(count * split);
-    const secondCount = count - firstCount;
+    const modifiedCount = count + 0; // might want later?
+    const split = 0.7;
+    const firstCount = Math.floor(modifiedCount * split);
+    const secondCount = modifiedCount - firstCount;
 
     const { loadMore, ...rest } = lwAlgoSettings;
-    const firstRequestSettings = { ...rest, scenario: 'recombee-hybrid-1-nearterm', ...(loadMore ? { loadMore: { prevRecommId: loadMore.prevRecommIds[0] } } : {}) };
-    const secondRequestSettings = { ...rest, scenario: 'recombee-hybrid-2-global', ...(loadMore ? { loadMore: { prevRecommId: loadMore.prevRecommIds[1] } } : {}) };
+    const firstRequestSettings = { ...rest, filter: excludedPostFilter, scenario: 'recombee-hybrid-1-nearterm', ...(loadMore ? { loadMore: { prevRecommId: loadMore.prevRecommIds[0] } } : {}) };
+    const secondRequestSettings = { ...rest, filter: excludedPostFilter, scenario: 'recombee-hybrid-2-global', ...(loadMore ? { loadMore: { prevRecommId: loadMore.prevRecommIds[1] } } : {}) };
 
     const firstRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, firstCount, firstRequestSettings);
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
     const batchRequest = recombeeRequestHelpers.getBatchRequest([firstRequest, secondRequest]);
 
-    const batchResponse = await client.send(batchRequest);
+    const [batchResponse, curatedPostReadStatuses] = await Promise.all([
+      client.send(batchRequest),
+      context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch()
+    ]);
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
 
     console.log({ firstRequest, secondRequest });
 
     const recommendationMappings = Object.fromEntries(recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId])));
-    const postIds = Object.keys(recommendationMappings);
+    const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const postIds = [...includedCuratedPostIds, ...stickiedPostsIds, ...Object.keys(recommendationMappings)];
     console.log({ postIds });
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
+    const orderedPosts = filterNonnull(postIds.map(id => posts.find(post => post._id === id)));
+    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, orderedPosts, context);
 
     // _id isn't going to be filtered out by `accessFilterMultiple`
-    const mappedPosts = filteredPosts.map(post => ({ post, recommId: recommendationMappings[post._id!] }));
-    console.log({ mappedPosts: mappedPosts.map(({ post, recommId }) => ({ postId: post._id, title: post.title, recommId }))});
+    const mappedPosts = filteredPosts.map(post => ({ post, recommId: recommendationMappings[post._id!], curated: curatedPostIds.includes(post._id!), stickied: stickiedPostsIds.includes(post._id!)}));
+    console.log({ mappedPosts: mappedPosts.map(({ post, recommId, curated, stickied }) => ({ postId: post._id, title: post.title, recommId, curated, stickied }))});
+
     return mappedPosts;
   },
 
