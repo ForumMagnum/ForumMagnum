@@ -3,7 +3,6 @@ import { commentsTableOfContentsEnabled } from "./betas";
 import * as _ from 'underscore';
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
-import { postGetCommentCountStr } from "./collections/posts/helpers";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -184,11 +183,6 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   }
 }
 
-// TODO decide what to do with this
-async function getTocComments({ post, comments }: { post: DbPost | PostsListWithVotes; comments: CommentType[] }) {
-  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, comments.length) }];
-}
-
 /**
  * `<b>` and `<strong>` tags are considered headings if and only if they are the only element within their paragraph.
  */
@@ -249,34 +243,6 @@ function tagIsHeadingIfWholeParagraph(tagName: string): boolean
 }
 
 const reservedAnchorNames = ["top", "comments"];
-
-// // Given the text in a heading block and a dict of anchors that have been used
-// // in the post so far, generate an anchor, and return it. An anchor is a
-// // URL-safe string that can be used for within-document links, and which is
-// // not one of a few reserved anchor names.
-// function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): string
-// {
-//   let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
-//   let sb: Array<string> = [];
-
-//   for(let i=0; i<title.length; i++) {
-//     let ch = title.charAt(i);
-//     if(charsToUse.indexOf(ch) >= 0) {
-//       sb.push(ch);
-//     } else {
-//       sb.push('_');
-//     }
-//   }
-
-//   let anchor = sb.join('');
-//   if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
-//     return anchor;
-
-//   let anchorSuffix = 1;
-//   while(usedAnchors[anchor + anchorSuffix])
-//     anchorSuffix++;
-//   return anchor+anchorSuffix;
-// }
 
 /**
  * Given the text in a heading block and a dict of anchors that have been used
