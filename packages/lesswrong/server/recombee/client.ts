@@ -142,7 +142,7 @@ const recombeeRequestHelpers = {
       };
     }
 
-    const postPromises =  [stickiedPostTerms, curatedPostTerms]
+    const postPromises =  [curatedPostTerms, stickiedPostTerms]
       .map(terms => viewTermsToQuery("Posts", terms, undefined, context))
       .map(postsQuery => context.Posts.find(postsQuery.selector, postsQuery.options, { _id: 1 }).fetch());
 
