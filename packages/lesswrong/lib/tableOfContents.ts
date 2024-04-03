@@ -234,7 +234,11 @@ function tagIsWholeParagraph({ element, window }: { element: HTMLElement; window
 
   // Check if the element is the only significant content within the paragraph
   const selfAndSiblings = Array.from(parent.childNodes);
-  // TODO simplify
+  // TODO only count as an alien if there is text content in a sibling that is not under a <strong> tag
+  // E.g. in <p><strong>Visit our </strong><a href="..."><strong>website</strong></a> the whole thing
+  // should count as a heading because it's a continuous block of bold text making up a full paragraph.
+  // Supporting this naturally would require refactoring for this function to be paragraph level, rather than
+  // tag-level (as the two <strongs> in the above example would currently trigger separate invokations).
   const alienFound = selfAndSiblings.some((sibling) => {
     if (sibling.nodeType === window.Node.ELEMENT_NODE && sibling !== element) {
       const siblingElement = sibling as HTMLElement;
