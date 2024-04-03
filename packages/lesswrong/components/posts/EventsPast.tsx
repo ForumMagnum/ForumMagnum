@@ -32,6 +32,7 @@ const EventsPast = ({ classes }: {
             timezone: timezone
           })}
           before={getBeforeDefault({timeBlock: 'day', timezone: timezone})}
+          numTimeBlocks={numberOfDays}
           postListParameters={terms}
           shortform="none"
           includeTags={false}

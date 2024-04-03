@@ -1,7 +1,19 @@
 import moment from '../../lib/moment-timezone';
 import * as _ from 'underscore';
+import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 
-export type TimeframeType = "daily"|"weekly"|"monthly"|"yearly";
+export const timeframes = ["daily", "weekly", "monthly", "yearly"] as const;
+export const timeframeSettings = ["allTime", ...timeframes] as const;
+export type TimeframeType = typeof timeframes[number];
+export type TimeframeSettingType = typeof timeframeSettings[number];
+
+export const timeframeLabels: Record<TimeframeSettingType,SettingsOption> = {
+  allTime:     { label: 'All time' },
+  daily:       { label: 'Daily' },
+  weekly:      { label: 'Weekly' },
+  monthly:     { label: 'Monthly' },
+  yearly:      { label: 'Yearly' },
+}
 
 export const timeframeToTimeBlock: Record<TimeframeType,moment.unitOfTime.DurationAs> = {
   daily: 'day',

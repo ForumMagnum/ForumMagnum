@@ -34,12 +34,12 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   after: Date|string,
   before: Date|string,
   timeframe: TimeframeType,
-  numTimeBlocks?: number,
+  numTimeBlocks: number,
   postListParameters: PostsViewTerms,
   dimWhenLoading?: boolean,
   reverse?: boolean,
-  shortform?: PostsTimeBlockShortformOption,
-  includeTags?: boolean,
+  shortform: PostsTimeBlockShortformOption,
+  includeTags: boolean,
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone();
