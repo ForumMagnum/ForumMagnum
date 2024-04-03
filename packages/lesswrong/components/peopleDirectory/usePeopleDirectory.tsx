@@ -19,6 +19,7 @@ type PeopleDirectoryContext = {
   setSorting: (sorting: PeopleDirectorySorting | null) => void,
   results: SearchUser[],
   resultsLoading: boolean,
+  loadMore: () => void,
   roles: SearchableMultiSelectResult,
   organizations: SearchableMultiSelectResult,
   locations: SearchableMultiSelectResult,
@@ -34,6 +35,8 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
   const [results, setResults] = useState<SearchUser[]>([]);
   const [resultsLoading, setResultsLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [numPages, setNumPages] = useState(0);
 
   const roles = useSearchableMultiSelect({
     title: "Role",
@@ -73,6 +76,26 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     }));
   }, [columns, toggleColumn]);
 
+  const loadMore = useCallback(() => {
+    const newPage = page + 1;
+    if (!resultsLoading && newPage < numPages) {
+      setPage(newPage);
+    }
+  }, [resultsLoading, page, numPages]);
+
+  useEffect(() => {
+    setResults([]);
+    setPage(0);
+    setNumPages(0);
+  }, [
+    query,
+    sorting,
+    roles.selectedValues,
+    organizations.selectedValues,
+    locations.selectedValues,
+    careerStages.selectedValues,
+  ]);
+
   useEffect(() => {
     setResultsLoading(true);
     const searchClient = getSearchClient();
@@ -87,18 +110,21 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           locations.selectedValues.map((location) => `location:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
         ];
-        const results = await searchClient.search([
+        const response = await searchClient.search([
           {
             indexName: "test_users" + sortString,
             query,
             params: {
               query,
               facetFilters,
+              page,
             },
           },
         ]);
-        const hits = results?.results?.[0]?.hits ?? [];
-        setResults(hits);
+        const results = response?.results?.[0];
+        const hits = results?.hits ?? [];
+        setResults((results) => results.concat(hits));
+        setNumPages(results?.nbPages ?? 0);
         captureSearch("peopleDirectorySearch", {
           query,
           sorting,
@@ -118,6 +144,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     })();
   }, [
     captureSearch,
+    page,
     query,
     sorting,
     roles.selectedValues,
@@ -134,6 +161,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       setSorting,
       results,
       resultsLoading,
+      loadMore,
       roles,
       organizations,
       locations,

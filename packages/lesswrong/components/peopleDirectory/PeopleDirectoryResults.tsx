@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
+import { useObserver } from "../hooks/useObserver";
 
 const HORIZ_PADDING = 24;
 
@@ -44,12 +45,16 @@ const styles = (theme: ThemeType) => ({
     gridColumn: "1/-1",
     margin: 12,
   },
+  loadMore: {
+    gridColumn: "1/-1",
+  },
 });
 
 export const PeopleDirectoryResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results, resultsLoading, columns} = usePeopleDirectory();
+  const {results, resultsLoading, columns, loadMore} = usePeopleDirectory();
+  const loadMoreRef = useObserver<HTMLDivElement>({onEnter: loadMore});
 
   let gridTemplateColumns = "";
   for (const column of columns) {
@@ -77,6 +82,9 @@ export const PeopleDirectoryResults = ({classes}: {
             <div className={classes.loading}>
               <Loading />
             </div>
+          }
+          {results.length > 0 &&
+            <div className={classes.loadMore} ref={loadMoreRef} />
           }
         </div>
       </div>
