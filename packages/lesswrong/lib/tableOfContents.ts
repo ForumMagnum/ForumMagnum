@@ -189,36 +189,6 @@ async function getTocComments({ post, comments }: { post: DbPost | PostsListWith
   return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, comments.length) }];
 }
 
-// // `<b>` and `<strong>` tags are headings iff they are the only thing in their
-// // paragraph. Return whether or not the given cheerio tag satisfies these heuristics.
-// // See tagIsHeadingIfWholeParagraph
-// const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
-//   if (!tag) {
-//     return false;
-//   }
-
-//   // Ensure the tag's parent is valid
-//   const parents = cheerio(tag).parent();
-//   if (!parents || !parents.length || parents[0].type !== 'tag') {
-//     return false;
-//   }
-
-//   // Ensure that all of the tag's siblings are of the same type as the tag
-//   const selfAndSiblings = cheerio(parents[0]).contents();
-//   if (selfAndSiblings.toArray().find((elem) => tagIsAlien(tag, elem))) {
-//     return false;
-//   }
-
-//   // Ensure that the tag is inside a 'p' element and that all the text in that 'p' is in tags of
-//   // the same type as our base tag
-//   const para = cheerio(tag).closest('p');
-//   if (para.length < 1 || para.text().trim() !== para.find(tag.name).text().trim()) {
-//     return false;
-//   }
-
-//   return true;
-// }
-
 /**
  * `<b>` and `<strong>` tags are considered headings if and only if they are the only element within their paragraph.
  */
