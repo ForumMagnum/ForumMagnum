@@ -5,6 +5,7 @@ import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/co
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { isServer } from '../../lib/executionEnvironment';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -84,7 +85,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: 
 
   const query = getRecombeePostsQuery(resolverName);
   const { data, loading, fetchMore, networkStatus } = useQuery(query, {
-    ssr: true,
+    ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
@@ -110,6 +111,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: 
   if (!results) {
     return null;
   }
+
 
   return <div>
     <div className={classes.root}>

@@ -290,7 +290,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
-        <HideRepeatedPostsProvider>
+        {/* TODO: reenable, disabled for testing to see how often duplication happens */}
+        {/* <HideRepeatedPostsProvider> */}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
@@ -321,7 +322,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
               </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-        </HideRepeatedPostsProvider>
+        {/* </HideRepeatedPostsProvider> */}
       </SingleColumnSection>
     </AnalyticsContext>
   )

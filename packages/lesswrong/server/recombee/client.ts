@@ -40,8 +40,8 @@ const voteTypeRatingsMap: Partial<Record<string, number>> = {
 };
 
 const HYBRID_SCENARIO_MAP = {
-  nearterm: 'recombee-hybrid-1-nearterm',
-  global: 'recombee-hybrid-2-global'
+  configurable: 'recombee-hybrid-1-nearterm',
+  fixed: 'recombee-hybrid-2-global'
 };
 
 interface OnsitePostRecommendationsInfo {
@@ -52,13 +52,14 @@ interface OnsitePostRecommendationsInfo {
 
 const recombeeRequestHelpers = {
   createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
-    const { userId: overrideUserId, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
+    const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
 
     if (loadMore) {
       return new requests.RecommendNextItems(loadMore.prevRecommId, count);
     }
 
     const servedUserId = overrideUserId ?? userId;
+    const rotationTimeSeconds = typeof rotationTime === 'number' ? rotationTime * 3600 : undefined;
 
     // TODO: pass in scenario, exclude unread, etc, in options?
     const lwRationalityFilter = lwRationalityOnly ? ` and ("Rationality" in 'core_tags' or "World Modeling" in 'core_tags')` : '';
@@ -67,7 +68,7 @@ const recombeeRequestHelpers = {
       ...settings,
       // Explicitly coalesce empty strings to undefined, since empty strings aren't valid booster expressions
       booster: settings.booster || undefined,
-      rotationTime: settings.rotationTime * 3600,
+      rotationTime: rotationTimeSeconds
     });
   },
 
@@ -160,17 +161,20 @@ const recombeeRequestHelpers = {
     };
   },
 
-  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: 'nearterm' | 'global', filter?: string) {
-    const { loadMore, ...rest } = hybridArgs;
+  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof typeof HYBRID_SCENARIO_MAP, filter?: string) {
+    const { loadMore, userId, ...rest } = hybridArgs;
 
     const scenario = HYBRID_SCENARIO_MAP[hybridArm];
-    const prevRecommIdIndex = hybridArm === 'nearterm' ? 0 : 1;
+    const isConfigurable = hybridArm === 'configurable';
+    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {};
+    const prevRecommIdIndex = isConfigurable ? 0 : 1;
     const loadMoreConfig = loadMore
       ? { loadMore: { prevRecommId: loadMore.prevRecommIds[prevRecommIdIndex] } }
       : {};
 
     return {
-      ...rest,
+      userId,
+      ...clientConfig,
       filter,
       scenario,
       ...loadMoreConfig
@@ -240,8 +244,8 @@ const recombeeApi = {
     const firstCount = Math.floor(modifiedCount * split);
     const secondCount = modifiedCount - firstCount;
 
-    const firstRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'nearterm', excludedPostFilter);
-    const secondRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'global', excludedPostFilter);
+    const firstRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
+    const secondRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'fixed', excludedPostFilter);
 
     const firstRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, firstCount, firstRequestSettings);
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
@@ -258,9 +262,11 @@ const recombeeApi = {
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
 
-    const recommendationMappings = Object.fromEntries(recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId])));
+    // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
+    const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId]))
+    const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...Object.keys(recommendationMappings)];
+    const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
     const orderedPosts = filterNonnull(postIds.map(id => posts.find(post => post._id === id)));
@@ -269,7 +275,7 @@ const recombeeApi = {
     const mappedPosts = filteredPosts.map(post => {
       // _id isn't going to be filtered out by `accessFilterMultiple`
       const postId = post._id!;
-      const recommId = recommendationMappings[postId];
+      const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
       if (recommId) {
         return { post, recommId };
       } else {
