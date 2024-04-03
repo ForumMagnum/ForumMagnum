@@ -166,7 +166,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   lessOnlineBannerTextLimitedSpace: {
     [theme.breakpoints.down(1400)]: {
-      width: 210,
+      width: '210px !important',
     },
   },
   lessOnlineBannerText: {
