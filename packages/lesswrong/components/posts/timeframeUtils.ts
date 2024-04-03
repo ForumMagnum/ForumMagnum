@@ -94,3 +94,14 @@ export function getBeforeDefault ({timeBlock, timezone, after}: {
   const startNextTimeBlock = moment(after).tz(timezone).startOf(timeBlock).add(after ? 3 : 1, timeBlock)
   return startNextTimeBlock.format('YYYY-MM-DD')
 }
+
+export function timeframeToRange({startDate, timeBlock, timezone}: {
+  startDate: moment.Moment,
+  timeBlock: moment.unitOfTime.DurationAs,
+  timezone: string,
+}) {
+  return {
+    after: moment.tz(startDate, timezone).startOf(timeBlock),
+    before: moment.tz(startDate, timezone).endOf(timeBlock),
+  }
+}

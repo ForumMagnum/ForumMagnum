@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import moment from '../../lib/moment-timezone';
-import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
+import { timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
@@ -142,9 +142,15 @@ const PostsTimeBlock = ({
   const [tagFilter, setTagFilter] = useState<string|null>(null)
   const {query} = useLocation()
   const displayPostsTagsList = query.limit
+  const timeBlock = timeframeToTimeBlock[timeframe];
+  const { before, after } = timeframeToRange({startDate, timeBlock, timezone});
 
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
-    terms,
+    terms: {
+      ...terms,
+      before: before.toDate(),
+      after: after.toDate(),
+    },
     collectionName: "Posts",
     fragmentName: 'PostsListWithVotes',
     enableTotal: true,
@@ -181,7 +187,6 @@ const PostsTimeBlock = ({
     PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
     Divider, Typography, PostsTagsList,
   } = Components;
-  const timeBlock = timeframeToTimeBlock[timeframe];
 
   const noPosts = !loading && (!filteredPosts || (filteredPosts.length === 0));
   // The most recent timeBlock is hidden if there are no posts or shortforms
@@ -195,12 +200,12 @@ const PostsTimeBlock = ({
     ...type,
     filteredPosts: filteredPosts?.filter(type.postIsType) || []
   }));
-
+  
   return (
     <div className={classes.root}>
       <QueryLink merge rel="nofollow" query={{
-        after: moment.tz(startDate, timezone).startOf(timeBlock).format("YYYY-MM-DD"), 
-        before: moment.tz(startDate, timezone).endOf(timeBlock).add(1, 'd').format("YYYY-MM-DD"),
+        after: after.format("YYYY-MM-DD"), 
+        before: moment(before).add(1, 'd').format("YYYY-MM-DD"),
         limit: 100
       }}>
         <Typography variant="headline" className={classes.timeBlockTitle}>
@@ -221,11 +226,11 @@ const PostsTimeBlock = ({
       <div className={classes.dayContent}>
         { noPosts && <div className={classes.noPosts}>
           No posts for {
-          timeframe === 'daily' ?
-            startDate.format('MMMM Do YYYY') :
-            // Should be pretty rare. Basically people running off the end of
-            // the Forum history on yearly
-            `this ${timeBlock}`
+          timeframe === 'daily'
+            ? startDate.format('MMMM Do YYYY')
+              // Should be pretty rare. Basically people running off the end of
+              // the Forum history on yearly
+            : `this ${timeBlock}`
           }
         </div> }
         {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
@@ -252,19 +257,17 @@ const PostsTimeBlock = ({
 
         {shortform !== "none" && <ShortformTimeBlock
           reportEmpty={reportEmptyShortform}
+          before={before.toString()}
+          after={after.toString()}
           terms={{
             view: "topShortform",
-            // NB: The comments before differs from posts in that before is not
-            // inclusive
-            before: moment.tz(startDate, timezone).endOf(timeBlock).toString(),
-            after: moment.tz(startDate, timezone).startOf(timeBlock).toString(),
             shortformFrontpage: shortform === "frontpage" ? true : undefined,
           }}
         />}
 
         {timeframe==="daily" && includeTags && <TagEditsTimeBlock
-          before={moment.tz(startDate, timezone).endOf(timeBlock).toString()}
-          after={moment.tz(startDate, timezone).startOf(timeBlock).toString()}
+          before={before.toString()}
+          after={after.toString()}
           reportEmpty={reportEmptyTags}
         />}
       </div>
