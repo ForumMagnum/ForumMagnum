@@ -7,8 +7,8 @@ import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/cl
 import { Globals, createAdminContext } from "../vulcan-lib";
 import chunk from "lodash/chunk";
 
-function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[]) {
-  const nextOffsetDate = batch.slice(-1)[0].createdAt;
+function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[], offsetDateField: keyof T = 'createdAt') {
+  const nextOffsetDate = batch.slice(-1)[0][offsetDateField] as Date;
   if (currentOffsetDate.getTime() === nextOffsetDate.getTime()) {
     // eslint-disable-next-line no-console
     console.log(`Next batch offset date is the same as previous offset date: ${currentOffsetDate.toISOString()}.  If this seems like an early return, investigate!`);
@@ -199,7 +199,7 @@ async function backfillOldReadStatusesAsViewPortions(maxDate: Date, offsetDate?:
       const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
       await recombeeClient.send(batchRequest);
   
-      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
+      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch, 'lastUpdated');
       if (!nextOffsetDate) {
         return;
       }
