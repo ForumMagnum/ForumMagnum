@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
+import cloneDeep from 'lodash/cloneDeep';
 
 type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
@@ -84,7 +85,187 @@ type EmailRenderContextType = {
   isEmailRender: boolean
 }
 
+interface QueryInfo {
+  type: 'query';
+  name: string;
+}
+
+interface MutationInfo {
+  type: 'mutation';
+  name: string;
+}
+
+type ComponentContextNode = {
+  name: string;
+  queriesAndMutations: (QueryInfo | MutationInfo)[]
+};
+
+interface TreeNode {
+  name: string;
+  children: { [key: string]: TreeNode };
+  queriesAndMutations: (QueryInfo | MutationInfo)[];
+}
+
+export type TreeContextType = {
+  ancestors: ComponentContextNode[];
+};
+
+// export function extractAndSortBranches(root: TreeNode): string[] {
+//   const branches: { path: string; weight: number }[] = [];
+
+//   function traverse(node: TreeNode, path: string[], weight: number) {
+//     // Increment weight if the node has queries or mutations
+//     const currentWeight = node.queriesAndMutations.length > 0 ? weight + 1 : weight;
+
+//     // If the node is a leaf or has queries/mutations, consider it an endpoint for a branch
+//     if (Object.keys(node.children).length === 0 || node.queriesAndMutations.length > 0) {
+//       branches.push({ path: path.join(' -> '), weight: currentWeight });
+//     }
+
+//     // Traverse children
+//     Object.values(node.children).forEach((child) => {
+//       traverse(child, [...path, child.name + (child.queriesAndMutations.length > 0 ? ` (${child.queriesAndMutations.length} Q/M)` : '')], currentWeight);
+//     });
+//   }
+
+//   // Start traversal from root
+//   traverse(root, [root.name], 0);
+
+//   // Sort branches by weight in descending order
+//   branches.sort((a, b) => b.weight - a.weight);
+
+//   // Return sorted branches as strings for visualization
+//   return branches.map((branch) => `${branch.path} - Weight: ${branch.weight}`);
+// }
+
+function constructShortPath(path: string[]) {
+  const stringBuilder: string[] = [];
+  path.forEach((pathPart, idx) => {
+    stringBuilder.push(pathPart);
+    const next = path[idx + 1];
+    if (next) {
+      if (pathPart.endsWith(')') || next.endsWith(')')) {
+        stringBuilder.push(' -> ');
+      } else {
+        stringBuilder.push('/');
+      }
+    }
+  });
+
+  return stringBuilder.join('');
+}
+
+export function extractAndSortBranchesWithTruncation(root: TreeNode): string[] {
+  // const branches = new Map<string, number>();
+
+  // function traverse(node: TreeNode, path: string[], weight: number) {
+  //   const newPath = [...path];
+  //   if (node.queriesAndMutations.length > 0) {
+  //     // Update the path to include this node as the new potential truncation point
+  //     newPath.push(node.name + ` (${node.queriesAndMutations.length} Q/M)`);
+  //   }
+
+  //   // If the node is a leaf, update the branches map
+  //   if (Object.keys(node.children).length === 0) {
+  //     const pathStr = newPath.join(' -> ');
+  //     // Store or update the weight in the map
+  //     if (!branches.has(pathStr) || branches.get(pathStr)! < weight) {
+  //       branches.set(pathStr, weight);
+  //     }
+  //   } else {
+  //     // Only increment weight if this node has queries or mutations
+  //     const currentWeight = node.queriesAndMutations.length > 0 ? weight + 1 : weight;
+
+  //     // Traverse children
+  //     Object.values(node.children).forEach((child) => {
+  //       traverse(child, newPath, currentWeight);
+  //     });
+  //   }
+  // }
+
+  // // Start traversal from root
+  // traverse(root, [], 0);
+
+  // // Convert the map to an array of strings for visualization, sorted by weight
+  // const sortedBranches = Array.from(branches)
+  //   .sort((a, b) => b[1] - a[1]) // Sort by weight in descending order
+  //   .map(([path, weight]) => `${path} - Weight: ${weight}`);
+
+  // return sortedBranches;
+
+  const branches = new Map<string, number>();
+
+  function traverse(node: TreeNode, path: string[], lastQMIndex: number, weight: number) {
+    // Extend the path with the current node, indicating queries/mutations if present
+    const newPath = [...path, node.name + (node.queriesAndMutations.length > 0 ? ` (${node.queriesAndMutations.length})` : '')];
+    // Update the last index where a Q/M was found
+    const newLastQMIndex = node.queriesAndMutations.length > 0 ? newPath.length - 1 : lastQMIndex;
+    // Update weight if this node has queries or mutations
+    const newWeight = node.queriesAndMutations.length > 0 ? weight + 1 : weight;
+
+    if (Object.keys(node.children).length === 0) {
+      // If this is a leaf node, finalize the branch up to the last Q/M node
+      // const truncatedPath = newPath.slice(0, newLastQMIndex + 1).join(' -> ');
+      const truncatedPath = constructShortPath(newPath.slice(0, newLastQMIndex + 1));
+      branches.set(truncatedPath, newWeight);
+    } else {
+      // Continue traversal for non-leaf nodes
+      Object.values(node.children).forEach((child) => {
+        traverse(child, newPath, newLastQMIndex, newWeight);
+      });
+    }
+  }
+
+  // Start traversal from the root, with an initial weight of 0 and no Q/M nodes found yet
+  traverse(root, [], -1, 0);
+
+  // Convert the map to an array of strings for visualization, sorted by weight
+  const sortedBranches = Array.from(branches)
+    .sort((a, b) => b[1] - a[1]) // Sort by total weight in descending order
+    .map(([path, weight]) => `${path} - Total Q/M: ${weight}`);
+
+  return sortedBranches;
+}
+
+export function constructComponentTreeDistinct(paths: TreeContextType[]): TreeNode {
+  const root: TreeNode = { name: generateNodeIdentifier(paths[0].ancestors[0]), children: {}, queriesAndMutations: paths[0].ancestors[0].queriesAndMutations };
+
+  paths.forEach((path) => {
+    path.ancestors.shift();
+    let currentNode = root;
+
+    path.ancestors.forEach((ancestor, index) => {
+      // Generate a unique identifier for the ancestor
+      const identifier = generateNodeIdentifier(ancestor);
+
+      // Check if a child with the unique identifier already exists
+      if (!currentNode.children[identifier]) {
+        currentNode.children[identifier] = {
+          name: ancestor.name,
+          children: {},
+          queriesAndMutations: [...ancestor.queriesAndMutations],
+        };
+      }
+
+      // Even if the node already exists, we don't merge queries/mutations because we want to treat each instance as distinct
+      currentNode = currentNode.children[identifier];
+    });
+  });
+
+  return root;
+}
+
+function generateNodeIdentifier(node: ComponentContextNode): string {
+  // Create a string that uniquely identifies a node by its name and the details of its queries and mutations
+  const queriesAndMutationsString = node.queriesAndMutations
+    .map((qm) => `${qm.type}:${qm.name}`)
+    .sort()
+    .join('|');
+  return `${node.name}-${queriesAndMutationsString}`;
+}
+
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
+export const TreeContext = React.createContext<TreeContextType|null>(null);
 
 const classNameProxy = (componentName: string) => {
   return new Proxy({}, {
@@ -180,11 +361,42 @@ export function importAllComponents() {
   }
 }
 
+export function hocAllComponents(onChildRender: (treeContext: TreeContextType) => void) {
+  for (let componentName of Object.keys(ComponentsTable)) {
+    const hoc = createTreeContextHoC(componentName);
+    if (ComponentsTable[componentName].hocs[0]?.name !== 'treeContextHoc') {
+      ComponentsTable[componentName].hocs.push(hoc);
+    }
+  }
+
+  function createTreeContextHoC(componentName: string) {
+    return function treeContextHoc(WrappedComponent: any) {
+      return forwardRef((props, ref) => {
+        const componentNode: ComponentContextNode = {
+          name: componentName,
+          queriesAndMutations: []
+        };
+
+        const previousContext = React.useContext(TreeContext);
+        const nextContext = cloneDeep(previousContext ?? { ancestors: [] });
+        nextContext.ancestors.push(componentNode);
+
+        onChildRender(nextContext);
+
+        return <TreeContext.Provider value={nextContext}>
+          <WrappedComponent ref={ref} {...props} />
+        </TreeContext.Provider>;
+      });
+    }
+  }
+}
+
 function prepareComponent(componentName: string): any
 {
-  if (componentName in PreparedComponents) {
-    return PreparedComponents[componentName];
-  } else if (componentName in ComponentsTable) {
+  // if (componentName in PreparedComponents) {
+  //   return PreparedComponents[componentName];
+  // } else
+  if (componentName in ComponentsTable) {
     PreparedComponents[componentName] = getComponent(componentName);
     return PreparedComponents[componentName];
   } else if (componentName in DeferredComponentsTable) {

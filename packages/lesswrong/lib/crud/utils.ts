@@ -12,7 +12,7 @@ export const getDeleteMutationName = (typeName: string) => `delete${typeName}`;
  * Given a parsed graphql query found inside Apollo's internals, get the name
  * of the first top-level resolver in that query.
  */
-function getQueryName(query: any) {
+export function getQueryName(query: any) {
   if (query.kind !== "Document") {
     return null;
   }
