@@ -11,6 +11,7 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
+import type { RecombeeViewPortionProps } from '../../lib/recombee/client';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -128,6 +129,15 @@ const recombeeRequestHelpers = {
   createUpsertUserDetailsRequest(user: DbUser) {
     const { displayName, karma, createdAt } = user;
     return new requests.SetUserValues(user._id, { displayName, karma, createdAt }, { cascadeCreate: true });
+  },
+
+  createViewPortionRequest(viewPortionProps: RecombeeViewPortionProps) {
+    const { userId, postId, portion, timestamp, recommId } = viewPortionProps;
+    return new requests.SetViewPortion(userId, postId, portion, {
+      timestamp: timestamp.toISOString(), 
+      cascadeCreate: false,
+      recommId: recommId
+    });
   },
 
   getBatchRequest(requestBatch: requests.Request[]) {
@@ -286,6 +296,8 @@ const recombeeApi = {
         };
       }
     });
+
+    console.log({ firstRequest, secondRequest });
 
     return mappedPosts;
   },

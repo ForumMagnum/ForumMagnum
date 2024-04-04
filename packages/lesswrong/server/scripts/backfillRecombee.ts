@@ -161,5 +161,57 @@ async function backfillPosts(offsetDate?: Date) {
   }
 }
 
+function getReadStatusBatch(maxDate: Date, offsetDate: Date) {
+  const selector = { postId: { $exists: true }, isRead: true, lastUpdated: { $gte: offsetDate, $lt: maxDate } };
+  const options = { sort: { lastUpdated: 1 }, limit: 10000 };
+  const projection = { _id: 1, userId: 1, postId: 1, lastUpdated: 1 };
+
+  return ReadStatuses.find(selector, options, projection).fetch();
+}
+
+async function backfillOldReadStatusesAsViewPortions(maxDate: Date, offsetDate?: Date) {
+  const db = getSqlClientOrThrow();
+  const recombeeClient = getRecombeeClientOrThrow();
+
+  if (!maxDate) {
+    throw new Error('Please provide the date of the last analytics event capturing a view portion, up to which we will be substituting old read statuses');
+  }
+
+  if (!offsetDate) {
+    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("lastUpdated") AS "offsetDate" FROM "ReadStatuses"'));
+  }
+
+  let batch = await getReadStatusBatch(maxDate, offsetDate);
+
+  try {
+    while (batch.length) {
+      // eslint-disable-next-line no-console
+      console.log(`Read status batch size: ${batch.length}.`);
+
+      const requestBatch = await Promise.all(batch.map(({ userId, postId, lastUpdated }) => recombeeRequestHelpers.createViewPortionRequest({
+        userId,
+        // This is guaranteed by the query run in `getReadStatusBatch`
+        postId: postId!,
+        timestamp: lastUpdated,
+        portion: 1
+      })));
+
+      const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
+      await recombeeClient.send(batchRequest);
+  
+      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
+      if (!nextOffsetDate) {
+        return;
+      }
+      offsetDate = nextOffsetDate;
+      batch = await getReadStatusBatch(maxDate, offsetDate);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(`Error when backfilling recombee with view portions from old read statuses.  Last offset date: ${offsetDate.toISOString()}`, { err });
+  }
+}
+
 Globals.backfillRecombeePosts = backfillPosts;
 Globals.backfillRecombeeUsers = backfillUsers;
+Globals.backfillRecombeeViewPortions = backfillOldReadStatusesAsViewPortions;
