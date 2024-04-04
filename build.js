@@ -149,6 +149,9 @@ build({
     ...bundleDefinitions,
     ...clientBundleDefinitions,
   },
+  external: [
+    "cheerio",
+  ],
 });
 
 let serverCli = ["node", "-r", "source-map-support/register", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
@@ -193,6 +196,7 @@ build({
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
+    "cheerio",
   ],
 })
 

@@ -12,6 +12,7 @@ import {
 } from "../../../lib/notificationTypes";
 import type { ForumIconName } from "../../common/ForumIcon";
 import type { IconVariant } from "./NotificationsPageItem";
+import { sequenceGetPageUrl } from "../../../lib/collections/sequences/helpers";
 
 const styles = (theme: ThemeType) => ({
   primaryText: {
@@ -58,7 +59,7 @@ export const NotificationsPageNotification = ({
 }) => {
   const {Display, Icon, iconVariant} = getDisplayConfig(notification);
   const {
-    createdAt, comment, post, user, tag, localgroup, link, tagRelId,
+    createdAt, comment, post, user, tag, sequence, localgroup, link, tagRelId,
   } = notification;
   const displayUser = (
     user ??
@@ -135,6 +136,17 @@ export const NotificationsPageNotification = ({
       </Link>
     )
     : null, [link, tag, classes]);
+  const Sequence: FC = useCallback(() => sequence
+    ? (
+      <Link
+        to={link ?? sequenceGetPageUrl(sequence)}
+        className={classes.primaryText}
+        eventProps={{intent: "expandSequence"}}
+      >
+        {sequence.title}
+      </Link>
+    )
+    : null, [link, sequence, classes]);
   const Localgroup: FC = useCallback(() => displayLocalgroup
     ? (
       <Link
@@ -170,6 +182,7 @@ export const NotificationsPageNotification = ({
         Post={Post}
         Comment={Comment}
         Tag={Tag}
+        Sequence={Sequence}
         Localgroup={Localgroup}
       /> <Components.FormatDate date={new Date(createdAt)} includeAgo />
     </NotificationsPageItem>

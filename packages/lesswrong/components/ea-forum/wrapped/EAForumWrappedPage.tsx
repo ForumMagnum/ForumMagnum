@@ -29,9 +29,9 @@ import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
-import NoSSR from "react-no-ssr";
 import { useLocation } from "../../../lib/routeUtil";
 import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
+import { NoSSR } from "../../../lib/utils/componentsWithChildren";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",

@@ -21,13 +21,11 @@ const styles = (theme: ThemeType) => ({
 export const EAOnboardingSelect = ({
   value,
   setValue,
-  placeholder,
   options,
   classes,
 }: {
   value?: string,
   setValue: (value: string) => void,
-  placeholder?: string,
   options: {value: string, label: string}[],
   classes: ClassesType<typeof styles>,
 }) => {
@@ -40,7 +38,6 @@ export const EAOnboardingSelect = ({
       <select
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
         className={classes.select}
       >
         <option></option>

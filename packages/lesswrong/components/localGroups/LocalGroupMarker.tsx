@@ -1,9 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { GroupIconSVG } from './Icons'
-import { Marker } from 'react-map-gl';
+import { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
+
+const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {

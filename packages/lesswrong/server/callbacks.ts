@@ -362,7 +362,7 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     // index's keys.
     //
     // EDIT 2022-09-16: This is still the case in postgres ^
-    await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);    
+    const readStatus = await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);
   }
   return event;
 });
