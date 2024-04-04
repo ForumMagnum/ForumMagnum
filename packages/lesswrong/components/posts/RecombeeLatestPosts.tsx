@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
@@ -165,7 +165,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker
+    TabPicker, ResolverPostsList
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -178,17 +178,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const defaultDesktopFilterSettingsVisibility = getDefaultDesktopFilterSettingsVisibility(currentUser, selectedScenario);
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(defaultDesktopFilterSettingsVisibility);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  const { captureEvent } = useOnMountTracking({
-    eventType: "frontpageFilterSettings",
-    eventProps: {
-      filterSettings,
-      filterSettingsVisible: filterSettingsVisibleDesktop,
-      pageSectionContext: "latestPosts",
-      recombee: true
-    },
-    captureOnMount: true,
-  });
-
+  const { captureEvent } = useTracking({eventProps: {recombee: true}}) 
+  
   const location = useLocation();
   const { query } = location;
 
@@ -206,8 +197,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     limit:limit
   };
 
-  const showCurated = isFriendlyUI || (isLW && reviewIsActive());
-
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
     if (isLWorAF) {
@@ -215,8 +204,9 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     }
     
     captureEvent("filterSettingsClicked", {
-      settingsVisible: !filterSettingsVisibleDesktop,
       settings: filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts",
     })
   };
 
@@ -242,34 +232,35 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         captureEvent("filterSettingsClicked", {
           settingsVisible: !filterSettingsVisibleMobile,
           settings: filterSettings,
-          pageSectionContext: "latestPosts"
+          pageSectionContext: "latestPosts",
+          mobile: true
         })
       }} />
   </div>);
 
-  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
 
   if (userIsAdmin(currentUser)) {
-    const testingFeeds =  postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
     availableAlgorithms.push(...testingFeeds);
   }
 
+  const enabledAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
+
+  const handleSwitchTab = (tabName: string) => {
+    captureEvent("postFeedSwitched", {
+      previousTab: selectedScenario,
+      newTab: tabName,
+    });
+    updateSelectedScenario(tabName);
+  }
+
   const algorithmPicker = <TabPicker 
-    sortedTabs={availableAlgorithms} 
+    sortedTabs={enabledAlgorithms} 
     defaultTab={selectedScenario} 
-    onTabSelectionUpdate={updateSelectedScenario}
+    onTabSelectionUpdate={handleSwitchTab}
     showDescriptionOnHover
   />
-
-  const postsList = usingClassicLWAlgorithm(selectedScenario)
-    ? (<PostsList2
-        terms={recentPostsTerms}
-        alwaysShowLoadMore
-        hideHiddenFrontPagePosts
-      >
-        <Link to={"/allPosts"}>{advancedSortingText}</Link>
-      </PostsList2>)
-    : <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />;
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
@@ -290,7 +281,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       </div>
 
   return (
-    <AnalyticsContext pageSectionContext="latestPosts" >
+    // TODO: do we need capturePostItemOnMount here?
+    <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {algorithmPicker}
@@ -298,15 +290,39 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
-        <HideRepeatedPostsProvider>
-          {showCurated && <CuratedPostsList />}
+        {/* TODO: reenable, disabled for testing to see how often duplication happens */}
+        {/* <HideRepeatedPostsProvider> */}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {postsList}
+              {selectedScenario.includes('recombee') && <AnalyticsContext feedType={selectedScenario}>
+              <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />
+              </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
+                <ResolverPostsList
+                  resolverName="PostsWithActiveDiscussion"
+                  limit={13}
+                />
+               </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-subscribee-activity') && <AnalyticsContext feedType={selectedScenario}>
+                <ResolverPostsList
+                  resolverName="PostsWithSubscribeeActivity"
+                  limit={13}
+                  fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+                />
+               </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
+                <PostsList2 
+                  terms={recentPostsTerms} 
+                  alwaysShowLoadMore 
+                  hideHiddenFrontPagePosts
+                >
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </PostsList2> 
+              </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-        </HideRepeatedPostsProvider>
+        {/* </HideRepeatedPostsProvider> */}
       </SingleColumnSection>
     </AnalyticsContext>
   )

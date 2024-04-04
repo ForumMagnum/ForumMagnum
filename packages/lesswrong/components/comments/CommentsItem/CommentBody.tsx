@@ -8,7 +8,6 @@ import type { ContentStyleType } from '../../common/ContentStyles';
 import { VotingProps } from '../../votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../common/ContentItemBody';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import { userHasFontPreference } from '../../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentStyling: {
@@ -25,9 +24,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundImage: "none"
     },
     marginBottom: ".5em"
-  },
-  fontPreference: {
-    fontFamily: theme.typography.fontPreference,
   },
   root: {
     position: "relative",
@@ -67,8 +63,7 @@ const CommentBody = ({
   const bodyClasses = classNames(className,
     { [classes.commentStyling]: !comment.answer,
       [classes.answerStyling]: comment.answer,
-      [classes.retracted]: comment.retracted,
-      [classes.fontPreference]: userHasFontPreference(comment.user) }
+      [classes.retracted]: comment.retracted }
   );
 
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }
@@ -118,3 +113,4 @@ declare global {
     CommentBody: typeof CommentBodyComponent,
   }
 }
+

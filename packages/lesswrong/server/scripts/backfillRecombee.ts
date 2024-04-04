@@ -7,13 +7,26 @@ import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/cl
 import { Globals, createAdminContext } from "../vulcan-lib";
 import chunk from "lodash/chunk";
 
+function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[]) {
+  const nextOffsetDate = batch.slice(-1)[0].createdAt;
+  if (currentOffsetDate.getTime() === nextOffsetDate.getTime()) {
+    // eslint-disable-next-line no-console
+    console.log(`Next batch offset date is the same as previous offset date: ${currentOffsetDate.toISOString()}.  If this seems like an early return, investigate!`);
+    return;
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`Next batch offset date: ${nextOffsetDate.toISOString()}`);
+
+  return nextOffsetDate;
+}
+
 function getUserBatch(offsetDate: Date) {
   const offsetSelector = offsetDate ? { createdAt: { $gte: offsetDate } } : {};
   return Users.find(offsetSelector, { sort: { createdAt: 1 }, limit: 1000 }).fetch();
 }
 
 async function backfillUsers(offsetDate?: Date) {
-  const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
   const recombeeClient = getRecombeeClientOrThrow();
 
@@ -27,7 +40,7 @@ async function backfillUsers(offsetDate?: Date) {
     while (batch.length) {
       const userIds = batch.map(user => user._id);
       const [readStatuses, votes] = await Promise.all([
-        ReadStatuses.find({ userId: { $in: userIds }, isRead: true }).fetch(),
+        ReadStatuses.find({ userId: { $in: userIds }, postId: { $exists: true }, isRead: true }, undefined, { _id: 1, userId: 1, postId: 1, lastUpdated: 1 }).fetch(),
         Votes.find({
           userId: { $in: userIds },
           cancelled: { $ne: true },
@@ -38,6 +51,9 @@ async function backfillUsers(offsetDate?: Date) {
 
       const nonSelfVotes = votes.filter(vote => !vote.authorIds?.includes(vote.userId));
 
+      // eslint-disable-next-line no-console
+      console.log(`Found ${readStatuses.length} read statuses and ${nonSelfVotes.length} non-self votes (${votes.length} including self-votes) for ${userIds.length} users`);
+
       const userRequestBatch = batch.map(recombeeRequestHelpers.createUpsertUserDetailsRequest);
       const readStatusRequestBatch = filterNonnull(readStatuses.map(recombeeRequestHelpers.createReadStatusRequest));
       const voteRequestBatch = filterNonnull(nonSelfVotes.map(recombeeRequestHelpers.createVoteRequest));
@@ -45,10 +61,16 @@ async function backfillUsers(offsetDate?: Date) {
       const allRequests = [...userRequestBatch, ...readStatusRequestBatch, ...voteRequestBatch];
       for (const requestBatch of chunk(allRequests, 10000)) {
         const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
-        await recombeeClient.send(batchRequest);  
+        // eslint-disable-next-line no-console
+        console.log(`Sending request batch of size ${requestBatch.length} to recombee`);
+        await recombeeClient.send(batchRequest);
       }
   
-      offsetDate = batch.slice(-1)[0].createdAt;
+      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
+      if (!nextOffsetDate) {
+        return;
+      }
+      offsetDate = nextOffsetDate;
       batch = await getUserBatch(offsetDate);
     }  
   } catch (err) {
@@ -115,7 +137,7 @@ async function backfillPosts(offsetDate?: Date) {
   try {
     while (batch.length) {
       // eslint-disable-next-line no-console
-      console.log(`Post batch size: ${batch.length}.  From offset date: ${offsetDate.toISOString()}`);
+      console.log(`Post batch size: ${batch.length}.`);
 
       const postsWithTags = batch.map(({ tags, ...post }) => ({
         post,
@@ -126,15 +148,11 @@ async function backfillPosts(offsetDate?: Date) {
       const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
       await recombeeClient.send(batchRequest);
   
-      const nextOffsetDate = batch.slice(-1)[0].createdAt;
-      if (offsetDate.getTime() === nextOffsetDate.getTime()) {
-        // eslint-disable-next-line no-console
-        console.log(`Next post batch offset date is the same as previous offset date: ${offsetDate.toISOString()}.  Returning early, investigate!`);
+      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
+      if (!nextOffsetDate) {
         return;
       }
       offsetDate = nextOffsetDate;
-      // eslint-disable-next-line no-console
-      console.log(`Next post batch offset date: ${offsetDate.toISOString()}`);
       batch = await getPostBatch(offsetDate);
     }  
   } catch (err) {
@@ -144,3 +162,4 @@ async function backfillPosts(offsetDate?: Date) {
 }
 
 Globals.backfillRecombeePosts = backfillPosts;
+Globals.backfillRecombeeUsers = backfillUsers;

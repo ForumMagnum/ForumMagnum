@@ -16,10 +16,10 @@ import {
   hasPostInlineReactionsSetting,
   isLW,
 } from './instanceSettings'
-import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
+import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { allOf } from './utils/functionUtils';
 import { recombeeEnabledSetting } from './publicSettings';
+import { useLocation } from './routeUtil';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -58,7 +58,18 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
-export const userHasRecombeeFrontpage = isLW ? allOf(adminOnly, () => recombeeEnabledSetting.get()) : disabled;
+
+//defining as Hook so as to combine with ABTest
+export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
+  // TODO: figure out what went wrong with the AB tests causing caching issues, beyond `affectsLoggedOut` being set to false
+  // const recombeeOptInABTest = useABTest(newFrontpagePostFeedsWithRecommendationsOptIn)
+  // const optedIntoRecombee = (recombeeOptInABTest === "frontpageWithTabs")
+  const { query } = useLocation();
+  
+  const manualOptIn = currentUser && query.recExperiment === 'true';
+
+  return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
+}
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();

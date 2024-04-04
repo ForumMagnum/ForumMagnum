@@ -1,4 +1,4 @@
-import React, { FC, useState, useCallback } from "react";
+import React, { FC, useState, useCallback, PropsWithChildren } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
@@ -6,10 +6,10 @@ import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@material-ui/core/Checkbox';
 
-export const TosLink: FC = ({children}) =>
+export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
 
-export const LicenseLink: FC = ({children}) =>
+export const LicenseLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noreferrer">
     {children ?? "CC-BY"}
   </a>
