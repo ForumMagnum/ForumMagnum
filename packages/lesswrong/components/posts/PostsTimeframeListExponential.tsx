@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import moment, { Moment } from 'moment';
+import moment from 'moment';
+import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { loadMoreTimeframeMessages } from './timeframeUtils';
