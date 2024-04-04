@@ -157,6 +157,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 16,
     top: 70,
     textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
+    color: theme.palette.text.alwaysBlack,
     textAlign: 'right',
     width: '240px',
     '& h2': {
