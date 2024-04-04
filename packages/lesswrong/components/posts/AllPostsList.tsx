@@ -83,17 +83,8 @@ const AllPostsList = ({
         />
       </AnalyticsContext>
     );
-  } else if (currentTimeframe === 'exponential') {
-    return (
-      <AnalyticsContext
-        listContext={"allPostsPage"}
-        terms={{view: "allTime" as PostsViewName, ...baseTerms}}
-      >
-        <PostsTimeframeListExponential />
-      </AnalyticsContext>
-    );
   }
-
+  
   const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType];
   const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType];
 
@@ -104,6 +95,19 @@ const AllPostsList = ({
 
   if (parseInt(query.limit)) {
     postListParameters.limit = parseInt(query.limit);
+  }
+
+  if (currentTimeframe === 'exponential') {
+    return (
+      <AnalyticsContext
+        listContext={"allPostsPage"}
+        terms={postListParameters}
+      >
+        <PostsTimeframeListExponential
+          postListParameters={postListParameters}
+        />
+      </AnalyticsContext>
+    );
   }
 
   const after = query.after || getAfterDefault({

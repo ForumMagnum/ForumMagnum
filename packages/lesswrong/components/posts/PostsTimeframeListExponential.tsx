@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import moment, { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { loadMoreTimeframeMessages } from './timeframeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
 })
@@ -13,52 +15,64 @@ interface TimeBlockRange {
   getTitle: (size: 'xsDown' | 'smUp' | null) => string
 }
 
-const PostsTimeframeListExponential = ({classes}: {
+const PostsTimeframeListExponential = ({postListParameters, classes}: {
+  postListParameters: PostsViewTerms,
   classes: ClassesType,
 }) => {
-  const { PostsTimeBlock } = Components;
+  const { PostsTimeBlock, Typography } = Components;
   const now = useCurrentTime();
+  const [moreMonthsCount,setMoreMonthsCount] = useState(0);
+  
+  const loadMoreMonths = () => {
+    setMoreMonthsCount(moreMonthsCount + 12);
+  }
 
   const timeframes: TimeBlockRange[] = [
-    // Today
-    {
-      after: moment(now).startOf('day'),
-      before: moment(now).endOf('day'),
-      getTitle: (size) => "Today",
-    },
-    // Yesterday
+    // Today and Yesterday
     {
       after: moment(now).add(-1,'d').startOf('day'),
-      before: moment(now).add(-1,'d').endOf('day'),
-      getTitle: (size) => getTimeBlockTitle(moment(now).add(-1,'d'), 'daily', size),
+      before: moment(now).endOf('day'),
+      getTitle: (size) => "Today and Yesterday",
     },
-    // Day Before Yesterday
+    // Past week
     {
-      after: moment(now).add(-2,'d').startOf('day'),
-      before: moment(now).add(-2,'d').endOf('day'),
-      getTitle: (size) => getTimeBlockTitle(moment(now).add(-2,'d'), 'daily', size),
+      after: moment(now).add(-7,'d').startOf('day'),
+      before: moment(now).add(-1,'d').startOf('day'),
+      getTitle: (size) => "Past week",
     },
-    // Three days before that
+    // Past two weeks
     {
-      after: moment(now).add(-5,'d').startOf('day'),
-      before: moment(now).add(-3,'d').endOf('day'),
-      getTitle: (size) => getMultiDayTitle(moment(now).add(-5,'d'), moment(now).add(-2,'d'), size),
+      after: moment(now).add(-14,'d').startOf('day'),
+      before: moment(now).add(-7,'d').startOf('day'),
+      getTitle: (size) => "Past 14 days",
     },
-    // Preceding week
+    // Past month
     {
-      after: moment(now).add(-12,'d').startOf('day'),
-      before: moment(now).add(-5,'d').endOf('day'),
-      getTitle: (size) => getTimeBlockTitle(moment(now).add(-12,'d'), 'weekly', size),
-    },
-    // Preceding week
-    {
-      after: moment(now).add(-19,'d').startOf('day'),
-      before: moment(now).add(-12,'d').endOf('day'),
-      getTitle: (size) => getTimeBlockTitle(moment(now).add(-19,'d'), 'weekly', size),
-    },
-    // Preceding month
-    // Preceding month
+      after: moment(now).add(-31,'d').startOf('day'),
+      before: moment(now).add(-14,'d').startOf('day'),
+      getTitle: (size) => "Past 31 days",
+    }
   ];
+  
+  // Past two months, round to earlier month boundary
+  const roundedMonthStart = moment(now).add(-31,'d').startOf('month').add(-1,'M');
+  timeframes.push({
+    after: roundedMonthStart,
+    before: moment(now).add(-31,'d').startOf('day'),
+    getTitle: (size) => `Since ${roundedMonthStart.format("MMMM Do")}`,
+  });
+
+  // Month-blocks created by clicking Load More
+  for (let i=0; i<moreMonthsCount; i++) {
+    const monthStart = moment(roundedMonthStart).add(-(i+1),'M');
+    const monthEnd = moment(roundedMonthStart).add(-i,'M');
+    timeframes.push({
+      after: monthStart,
+      before: monthEnd,
+      getTitle: (size) => getTimeBlockTitle(monthStart, 'monthly', size),
+    });
+  }
+
   return <div>
     {timeframes.map((timeframe,i) => <div key={i}>
       <PostsTimeBlock
@@ -68,6 +82,7 @@ const PostsTimeframeListExponential = ({classes}: {
         after={timeframe.after}
         timeframe="weekly"
         terms={{
+          ...postListParameters,
           limit: 16
         }}
         timeBlockLoadComplete={()=>{}}
@@ -76,6 +91,13 @@ const PostsTimeframeListExponential = ({classes}: {
         includeTags={true}
       />
     </div>)}
+    <Typography
+      variant="body1"
+      className={classes.loadMore}
+      onClick={loadMoreMonths}
+    >
+      <a>{preferredHeadingCase(loadMoreTimeframeMessages["monthly"])}</a>
+    </Typography>
   </div>
 }
 

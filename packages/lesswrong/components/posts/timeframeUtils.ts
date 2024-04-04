@@ -23,6 +23,13 @@ export const timeframeToTimeBlock: Record<TimeframeType,moment.unitOfTime.Durati
   yearly: 'year',
 }
 
+export const loadMoreTimeframeMessages = {
+  'daily': 'Load More Days',
+  'weekly': 'Load More Weeks',
+  'monthly': 'Load More Months',
+  'yearly': 'Load More Years',
+}
+
 // Locally valid. Moment supports seconds, but that's not how these functions
 // work.
 type TimeBlockString = moment.unitOfTime.DurationAs

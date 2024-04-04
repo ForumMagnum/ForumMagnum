@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { getDateRange, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
+import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
 import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
@@ -22,13 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       : {}),
   }
 })
-
-const loadMoreTimeframeMessages = {
-  'daily': 'Load More Days',
-  'weekly': 'Load More Weeks',
-  'monthly': 'Load More Months',
-  'yearly': 'Load More Years',
-}
 
 const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
   after: Date|string,

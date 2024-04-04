@@ -215,7 +215,14 @@ const PostsTimeBlock = ({
             </div>
             <div className={classes.posts}>
               {filteredPosts.map((post, i) =>
-                <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
+                <PostsItem
+                  key={post._id}
+                  post={post}
+                  index={i}
+                  useCuratedDate={false}
+                  dense
+                  showBottomBorder={i < filteredPosts!.length -1}
+                />
               )}
             </div>
           </div>

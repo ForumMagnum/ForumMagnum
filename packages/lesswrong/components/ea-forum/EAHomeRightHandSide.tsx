@@ -349,7 +349,7 @@ export const EAHomeRightHandSide = ({classes}: {
               </PostsItemTooltipWrapper>
             </div>
             <div className={classes.postMetadata}>
-              Posted <PostsItemDate post={post} includeAgo />
+              Posted <PostsItemDate post={post} includeAgo useCuratedDate={false} />
             </div>
           </div>)}
         </div>
