@@ -197,8 +197,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     limit:limit
   };
 
-  const showCurated = isFriendlyUI || (isLW && reviewIsActive());
-
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
     if (isLWorAF) {
@@ -240,14 +238,14 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
       }} />
   </div>);
 
-  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get()
-    .filter(feed => !feed.disabled)
-    .map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
 
   if (userIsAdmin(currentUser)) {
-    const testingFeeds =  postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description }));
+    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
     availableAlgorithms.push(...testingFeeds);
   }
+
+  const enabledAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -258,12 +256,11 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   }
 
   const algorithmPicker = <TabPicker 
-    sortedTabs={availableAlgorithms} 
+    sortedTabs={enabledAlgorithms} 
     defaultTab={selectedScenario} 
     onTabSelectionUpdate={handleSwitchTab}
     showDescriptionOnHover
   />
-
 
   const settings = usingClassicLWAlgorithm(selectedScenario)
     ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
@@ -293,12 +290,14 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
-        <HideRepeatedPostsProvider>
-          {showCurated && <CuratedPostsList />}
+        {/* TODO: reenable, disabled for testing to see how often duplication happens */}
+        {/* <HideRepeatedPostsProvider> */}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {selectedScenario.includes('recombee') && <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} showSticky />}
+              {selectedScenario.includes('recombee') && <AnalyticsContext feedType={selectedScenario}>
+              <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />
+              </AnalyticsContext>}
               {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
                   resolverName="PostsWithActiveDiscussion"
@@ -323,7 +322,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
               </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-        </HideRepeatedPostsProvider>
+        {/* </HideRepeatedPostsProvider> */}
       </SingleColumnSection>
     </AnalyticsContext>
   )
