@@ -212,6 +212,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
+  postBody: {
+    width: 'max-content',
+  },
   postContent: { //Used by a Cypress test
     marginBottom: isFriendlyUI ? 40 : undefined
   },
@@ -677,7 +680,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classes.centralColumn}>
+    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
