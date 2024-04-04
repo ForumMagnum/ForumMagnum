@@ -20,7 +20,7 @@ export const useItemsRead = (): ItemsReadContextType => {
 }
 export const withItemsRead = hookToHoc(useItemsRead);
 
-type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title">;
+type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title" | "draft">;
 
 interface RecombeeOptions {
   recommId?: string;
@@ -78,7 +78,7 @@ export const useRecordPostView = (post: ViewablePost) => {
         };
         
         recordEvent('post-view', true, eventProperties);
-        if (recombeeEnabledSetting.get() && !recombeeOptions?.skipRecombee) {
+        if (recombeeEnabledSetting.get() && !recombeeOptions?.skipRecombee && !post.draft) {
           void recombeeApi.createDetailView(post._id, currentUser._id, recombeeOptions?.recommId);
         }
       }

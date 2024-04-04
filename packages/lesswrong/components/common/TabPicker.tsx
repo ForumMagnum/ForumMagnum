@@ -49,6 +49,7 @@ export interface TabRecord {
   name: string,
   label: string,
   description?: string,
+  disabled?: boolean,
 }
 
 /**
