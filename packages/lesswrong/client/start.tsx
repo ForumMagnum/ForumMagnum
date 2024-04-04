@@ -8,10 +8,6 @@ import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
-import ReactJkMusicPlayer from 'react-jinke-music-player'
-import 'react-jinke-music-player/assets/index.css'
-import NoSSR from 'react-no-ssr';
-import Helmet from 'react-helmet';
 
 onStartup(() => {
   populateComponentsAppDebug();
