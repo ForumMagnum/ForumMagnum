@@ -9,7 +9,6 @@ import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import Card from '@material-ui/core/Card';
 import { Link } from '../../lib/reactRouterWrapper';
-import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
@@ -105,11 +104,40 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export function sortTags<T>(list: Array<T>, toTag: (item: T) => TagBasicInfo|null|undefined): Array<T> {
-  return sortBy(
-    list,
-    isFriendlyUI ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
-  );
+// TODO move to lib so the `tags` resolver uses the same logic
+export function sortTags<T>(
+  list: Array<T>,
+  toTag: (item: T) => TagBasicInfo | null | undefined,
+  toTagRel?: (item: T) => TagRelMinimumFragment | null | undefined
+): Array<T> {
+  return [...list].sort((a, b) => {
+    const tagA = toTag(a);
+    const tagB = toTag(b);
+    const tagRelA = toTagRel ? toTagRel(a) : undefined;
+    const tagRelB = toTagRel ? toTagRel(b) : undefined;
+
+    if (isFriendlyUI) {
+      if (tagA?.core !== tagB?.core) {
+        return (tagA?.core ? -1 : 1);
+      }
+    } else {
+      if (tagA?.core !== tagB?.core) {
+        return (tagA?.core ? 1 : -1);
+      }
+    }
+
+    if (tagRelA && tagRelB) {
+      if (tagRelA?.baseScore !== tagRelB?.baseScore) {
+        return (tagRelB?.baseScore || 0) - (tagRelA?.baseScore || 0);
+      }
+
+      // Only sort by name if we have the scores and they are equal, to
+      // avoid reordering tags that have the same score (where we don't have it here)
+      return (tagA?.name || '').localeCompare(tagB?.name || '');
+    }
+
+    return 0;
+  });
 }
 
 const FooterTagList = ({
@@ -300,51 +328,59 @@ const FooterTagList = ({
       )
     )
 
-  const sortedTagRels = results ? sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag) : []
+  const sortedTagRels = results ? sortTags(results, t=>t.tag, t=>t).filter(tagRel => !!tagRel?.tag) : []
 
   const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
 
   const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
-  const innerContent =
-    (loadingInitial || !results) ? (
-      <>
-        {sortTags(post.tags, (t) => t).map((tag) => (
-          <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText} />
-        ))}
-        {!hidePostTypeTag && postType}
-        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
-      </>
-    ) : (
-      <>
-        {showCoreTags && (
-          <div>
-            <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
-          </div>
-        )}
-        {sortedTagRels.map(
-          (tagRel) =>
-            tagRel.tag && (
-              <FooterTag
-                key={tagRel._id}
-                tagRel={tagRel}
-                tag={tagRel.tag}
-                hideScore={hideScore}
-                smallText={smallText}
-                highlightAsAutoApplied={highlightAutoApplied && tagRel.autoApplied}
-                link={link}
-              />
-            )
-        )}
-        {!hidePostTypeTag && postType}
-        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
-        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-            {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
-          </AddTagButton>
-        }
-        {isAwaiting && <Loading />}
-      </>
-    );
+  const innerContent = (
+    <>
+      {loadingInitial || !results ? (
+        <>
+          {sortTags(post.tags, (t) => t).map((tag) => (
+            <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText} />
+          ))}
+          {!hidePostTypeTag && postType}
+          {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
+            <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
+          )}
+        </>
+      ) : (
+        <>
+          {showCoreTags && (
+            <div>
+              <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
+            </div>
+          )}
+          {sortedTagRels.map(
+            (tagRel) =>
+              tagRel.tag && (
+                <FooterTag
+                  key={tagRel._id}
+                  tagRel={tagRel}
+                  tag={tagRel.tag}
+                  hideScore={hideScore}
+                  smallText={smallText}
+                  highlightAsAutoApplied={highlightAutoApplied && tagRel.autoApplied}
+                  link={link}
+                />
+              )
+          )}
+          {!hidePostTypeTag && postType}
+          {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
+            <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
+          )}
+        </>
+      )}
+      {currentUser && !hideAddTag && (
+        <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+          {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
+        </AddTagButton>
+      )}
+      {isAwaiting && <Loading />}
+    </>
+  );
 
   return <>
     <span

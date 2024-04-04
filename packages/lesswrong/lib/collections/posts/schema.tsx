@@ -975,10 +975,20 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
-      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {}
-      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await loadByIds(context, "Tags", tagIds);
-      return await accessFilterMultiple(currentUser, context.Tags, tags, context)
+      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {};
+      const tagIds = Object.keys(tagRelevanceRecord).filter(id => tagRelevanceRecord[id] > 0);
+      const tags = (await loadByIds(context, "Tags", tagIds)).filter(tag => !!tag) as DbTag[];
+
+      // Sort tags by score, then by name
+      const sortedTags = tags.sort((a, b) => {
+        const scoreDifference = tagRelevanceRecord[b._id] - tagRelevanceRecord[a._id];
+        if (scoreDifference === 0) {
+          return a.name.localeCompare(b.name);
+        }
+        return scoreDifference;
+      });
+
+      return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
     }
   }),
   
