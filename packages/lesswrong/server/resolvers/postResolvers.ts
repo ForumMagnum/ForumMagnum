@@ -29,7 +29,7 @@ import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/uti
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { userIsAdmin } from '../../lib/vulcan-users';
-import { recombeeApi } from '../recombee/client';
+import { RecombeeRecommendedPost, RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 
 /**
@@ -603,20 +603,6 @@ addGraphQLSchema(`
   }
 `);
 
-interface RecombeeRecommendedPost {
-  post: Partial<DbPost>,
-  recommId: string,
-  curated?: never,
-  stickied?: never,
-}
-
-type RecommendedPost = RecombeeRecommendedPost | {
-  post: Partial<DbPost>,
-  recommId?: never,
-  curated: boolean,
-  stickied: boolean,
-};
-
 createPaginatedResolver({
   name: "RecombeeLatestPosts",
   graphQLType: "RecombeeRecommendedPost",
@@ -625,7 +611,7 @@ createPaginatedResolver({
     context: ResolverContext,
     limit: number,
     args: { settings: RecombeeRecommendationArgs }
-  ): Promise<RecombeeRecommendedPost[]> => {
+  ): Promise<RecommendedPost[]> => {
     const { currentUser } = context;
 
     if (!currentUser) {
