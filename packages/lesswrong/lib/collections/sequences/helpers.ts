@@ -15,7 +15,7 @@ interface SequencePostId {
 
 // TODO: Make these functions able to use loaders for caching.
 
-export const sequenceGetPageUrl = function(sequence: SequencesPageTitleFragment, isAbsolute = false){
+export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/s/${sequence._id}`;

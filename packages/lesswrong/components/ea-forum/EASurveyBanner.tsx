@@ -4,7 +4,7 @@ import { TypeformPopupEmbed } from "../common/TypeformEmbeds";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
-import NoSSR from "react-no-ssr";
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import moment from "moment";
 
 const styles = (theme: ThemeType) => ({

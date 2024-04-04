@@ -183,13 +183,13 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'dialogueMatchmaking',
-      title: 'Dialogue Matchmaking',
-      link: '/dialogueMatching',
-      subItem: true
-    }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
+    }, {
+      id: 'lwAlbum',
+      title: 'LW the Album',
+      link: '/posts/YMo5PuXnZDwRjhHhE/the-story-of-i-have-been-a-good-bing',
+      subItem: true
     }, {
       id: 'about',
       title: 'About',

@@ -4,9 +4,9 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
 import { getUserFromResults } from '../users/UsersProfile';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const UserPageTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,

@@ -27,21 +27,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   blackLabel: {
     color: theme.palette.text.primary,
+  },
+  whiteLabel: {
+    [theme.breakpoints.up('lg')]: {
+      color: theme.palette.text.alwaysWhite
+    }
+  },
+  textShadow: {
+    color: theme.palette.text.primary,
+    textShadow: `0 0 2px ${theme.palette.text.invertedBackgroundText}`
   }
 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label="", color = "white"}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label="", textShadow = false}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
   label?: string,
   showIcon?: boolean,
-  color?: "black" | "white"
+  textShadow?: boolean
 }) => {
   if (label) {
     return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
       {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel)}/>}
-      <span className={classNames(classes.label, {[classes.blackLabel]: color === 'black'})}>{ label }</span>
+      <span className={classNames(classes.label, {[classes.textShadow]: textShadow})}>{ label }</span>
     </span>
   }
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>

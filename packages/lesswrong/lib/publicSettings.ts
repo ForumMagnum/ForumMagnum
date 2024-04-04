@@ -175,3 +175,18 @@ export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number
 export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
 
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
+
+// TODO: Delete after fully migrated to new settings
+export const latestPostsAlgorithmsSetting = new DatabasePublicSetting<string[]>('latestPosts.algorithms', []);
+
+export type PostFeedDetails = {
+  name: string,
+  label: string,
+  description?: string,
+  disabled?: boolean,
+  slug?: string
+}
+
+export const postFeedsProductionSetting = new DatabasePublicSetting<PostFeedDetails[]>('latestPosts.productionFeeds', []);
+export const postFeedsTestingSetting = new DatabasePublicSetting<PostFeedDetails[]>('latestPosts.testingFeeds', []);
+export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
