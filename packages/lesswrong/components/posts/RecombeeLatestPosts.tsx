@@ -163,7 +163,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const {
-    SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
+    SingleColumnSection, PostsList2, TagFilterSettings,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
     TabPicker, ResolverPostsList
   } = Components;
@@ -245,7 +245,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     availableAlgorithms.push(...testingFeeds);
   }
 
-  const enabledAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
+  const enabledAlgorithms = availableAlgorithms //.filter(feed => !feed.disabled);
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -291,7 +291,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         {settings}
         {isFriendlyUI && <StickiedPosts />}
         {/* TODO: reenable, disabled for testing to see how often duplication happens */}
-        {/* <HideRepeatedPostsProvider> */}
+        <HideRepeatedPostsProvider>
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
@@ -304,11 +304,12 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   limit={13}
                 />
                </AnalyticsContext>}
-              {(selectedScenario === 'lesswrong-subscribee-activity') && <AnalyticsContext feedType={selectedScenario}>
+              {(selectedScenario === 'lesswrong-subscribed-authors') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
-                  resolverName="PostsWithSubscribeeActivity"
+                  resolverName="PostsBySubscribedAuthors"
                   limit={13}
                   fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+                  showLoadMore
                 />
                </AnalyticsContext>}
               {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
@@ -320,9 +321,18 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 
               </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedScenario}>
+                <PostsList2 
+                  terms={{...recentPostsTerms, view: "new"}} 
+                  alwaysShowLoadMore 
+                  hideHiddenFrontPagePosts
+                >
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </PostsList2> 
+              </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-        {/* </HideRepeatedPostsProvider> */}
+        </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>
   )

@@ -669,7 +669,7 @@ createPaginatedResolver({
 });
 
 createPaginatedResolver({
-  name: "PostsWithSubscribeeActivity",
+  name: "PostsBySubscribedAuthors",
   graphQLType: "Post",
   callback: async (context, limit): Promise<DbPost[]> => {
     const { currentUser, repos } = context;
@@ -677,6 +677,6 @@ createPaginatedResolver({
       throw new Error('You must be logged in to see posts with activity from your subscrptions.');
     }
 
-    return await repos.posts.getPostsWithActivityBySubscribees(currentUser._id, limit);
+    return await repos.posts.getPostsFromPostSubscriptions(currentUser._id, limit);
   }
 });
