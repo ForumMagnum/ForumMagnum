@@ -149,7 +149,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: '27px',
     objectFit: 'cover',
     transform: 'scaleX(-1)',
-    '-webkit-mask-image': 'radial-gradient(ellipse at top left, #000 53%, transparent 70%)'
+    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
   },
   bannerText: {
     ...theme.typography.postStyle,
