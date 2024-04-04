@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 
 export const timeframes = ["daily", "weekly", "monthly", "yearly"] as const;
-export const timeframeSettings = ["allTime", ...timeframes] as const;
+export const timeframeSettings = ["allTime", ...timeframes, "exponential"] as const;
 export type TimeframeType = typeof timeframes[number];
 export type TimeframeSettingType = typeof timeframeSettings[number];
 
@@ -13,6 +13,7 @@ export const timeframeLabels: Record<TimeframeSettingType,SettingsOption> = {
   weekly:      { label: 'Weekly' },
   monthly:     { label: 'Monthly' },
   yearly:      { label: 'Yearly' },
+  exponential: { label: "Exponential" },
 }
 
 export const timeframeToTimeBlock: Record<TimeframeType,moment.unitOfTime.DurationAs> = {

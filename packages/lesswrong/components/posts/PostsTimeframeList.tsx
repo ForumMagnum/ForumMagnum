@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { getDateRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
+import { getDateRange, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 
 import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
@@ -79,45 +79,80 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
     }
   }
 
-  const render = () => {
-    const { PostsTimeBlock, Typography } = Components
+  const { PostsTimeBlock, Typography } = Components
 
-    const timeBlock = timeframeToTimeBlock[timeframe]
-    const dates = getDateRange(afterState, beforeState, timeBlock)
-    const orderedDates = reverse ? dates.reverse() : dates
+  const timeBlock = timeframeToTimeBlock[timeframe]
+  const dates = getDateRange(afterState, beforeState, timeBlock)
+  const orderedDates = reverse ? dates.reverse() : dates
 
-    const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
-    return (
-      <div className={classNames({[classes.loading]: dim})}>
-        {orderedDates.slice(0, displayedNumTimeBlocks).map((date, index) =>
-          <PostsTimeBlock
-            key={date.toString()+postListParameters?.limit}
-            startDate={moment.tz(date, timezone)}
-            timeframe={timeframe}
-            terms={{
-              limit: 16,
-              ...postListParameters,
-            }}
-            timeBlockLoadComplete={timeBlockLoadComplete}
-            hideIfEmpty={index===0}
-            shortform={shortform}
-            includeTags={includeTags}
-          />
-        )}
-        {renderLoadMoreTimeBlocks &&
-          <Typography
-            variant="body1"
-            className={classes.loadMore}
-            onClick={loadMoreTimeBlocks}
-          >
-            <a>{preferredHeadingCase(loadMoreTimeframeMessages[timeframe])}</a>
-          </Typography>
-        }
-      </div>
-    )
-  }
-  return render();
+  const renderLoadMoreTimeBlocks = dates.length && dates.length > 1
+  
+  return (
+    <div className={classNames({[classes.loading]: dim})}>
+      {orderedDates.slice(0, displayedNumTimeBlocks).map((date, index) => {
+        const startDate = moment.tz(date, timezone);
+        const { before, after } = timeframeToRange({startDate, timeBlock, timezone});
+        return <PostsTimeBlock
+          key={date.toString()+postListParameters?.limit}
+          dateForTitle={startDate}
+          getTitle={(size) => getTimeBlockTitle(startDate, timeframe, size)}
+          before={before} after={after}
+          timeframe={timeframe}
+          terms={{
+            limit: 16,
+            ...postListParameters,
+          }}
+          timeBlockLoadComplete={timeBlockLoadComplete}
+          hideIfEmpty={index===0}
+          shortform={shortform}
+          includeTags={includeTags}
+        />
+      })}
+      {renderLoadMoreTimeBlocks &&
+        <Typography
+          variant="body1"
+          className={classes.loadMore}
+          onClick={loadMoreTimeBlocks}
+        >
+          <a>{preferredHeadingCase(loadMoreTimeframeMessages[timeframe])}</a>
+        </Typography>
+      }
+    </div>
+  )
 };
+
+const isToday = (date: moment.Moment) => date.isSameOrAfter(moment(0, "HH"));
+
+export const getTimeBlockTitle = (
+  startDate: moment.Moment,
+  timeframe: TimeframeType,
+  size: 'xsDown' | 'smUp' | null,
+) => {
+  if (timeframe === 'yearly') {
+    return startDate.format('YYYY');
+  }
+  if (timeframe === 'monthly') {
+    return startDate.format('MMMM YYYY');
+  }
+
+  if (isFriendlyUI) {
+    const result = size === 'smUp'
+      ? startDate.format('ddd, D MMM YYYY')
+      : startDate.format('dddd, D MMMM YYYY');
+    if (timeframe === 'weekly') {
+      return `Week of ${result}`;
+    }
+    return isToday(startDate) ? result.replace(/.*,/, "Today,") : result;
+  }
+
+  const result = size === 'smUp'
+    ? startDate.format('ddd, MMM Do YYYY')
+    : startDate.format('dddd, MMMM Do YYYY');
+  if (timeframe === 'weekly') {
+    return `Week Of ${result}`;
+  }
+  return result;
+}
 
 const PostsTimeframeListComponent = registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
 

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import moment from '../../lib/moment-timezone';
+import moment, { Moment } from '../../lib/moment-timezone';
 import { timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
 import { QueryLink } from '../../lib/reactRouterWrapper';
@@ -81,45 +81,15 @@ const postTypes: PostTypeOptions[] = [
   {name: 'personal', postIsType: (post: PostsBase) => !post.frontpageDate, label: 'Personal Blogposts'}
 ]
 
-const isToday = (date: moment.Moment) => date.isSameOrAfter(moment(0, "HH"));
-
-const getTitle = (
-  startDate: moment.Moment,
-  timeframe: TimeframeType,
-  size: 'xsDown' | 'smUp' | null,
-) => {
-  if (timeframe === 'yearly') {
-    return startDate.format('YYYY');
-  }
-  if (timeframe === 'monthly') {
-    return startDate.format('MMMM YYYY');
-  }
-
-  if (isFriendlyUI) {
-    const result = size === 'smUp'
-      ? startDate.format('ddd, D MMM YYYY')
-      : startDate.format('dddd, D MMMM YYYY');
-    if (timeframe === 'weekly') {
-      return `Week of ${result}`;
-    }
-    return isToday(startDate) ? result.replace(/.*,/, "Today,") : result;
-  }
-
-  const result = size === 'smUp'
-    ? startDate.format('ddd, MMM Do YYYY')
-    : startDate.format('dddd, MMMM Do YYYY');
-  if (timeframe === 'weekly') {
-    return `Week Of ${result}`;
-  }
-  return result;
-}
-
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
 const PostsTimeBlock = ({
   terms,
   timeBlockLoadComplete,
-  startDate,
+  dateForTitle,
+  getTitle,
+  before,
+  after,
   hideIfEmpty,
   timeframe,
   shortform = "all",
@@ -128,7 +98,10 @@ const PostsTimeBlock = ({
 }: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: () => void,
-  startDate: moment.Moment,
+  dateForTitle: moment.Moment,
+  getTitle: (size: 'xsDown'|'smUp'|null) => string,
+  before: Moment,
+  after: Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
@@ -143,7 +116,6 @@ const PostsTimeBlock = ({
   const {query} = useLocation()
   const displayPostsTagsList = query.limit
   const timeBlock = timeframeToTimeBlock[timeframe];
-  const { before, after } = timeframeToRange({startDate, timeBlock, timezone});
 
   const { results: posts, totalCount, loading, loadMoreProps } = useMulti({
     terms: {
@@ -210,14 +182,14 @@ const PostsTimeBlock = ({
       }}>
         <Typography variant="headline" className={classes.timeBlockTitle}>
           {['yearly', 'monthly'].includes(timeframe) && <div>
-            {getTitle(startDate, timeframe, null)}
+            {getTitle(null)}
           </div>}
           {['weekly', 'daily'].includes(timeframe) && <div>
             <div className={classes.smallScreenTitle}>
-              {getTitle(startDate, timeframe, 'xsDown')}
+              {getTitle('xsDown')}
             </div>
             <div className={classes.largeScreenTitle}>
-              {getTitle(startDate, timeframe, 'smUp')}
+              {getTitle('smUp')}
             </div>
           </div>}
         </Typography>
@@ -227,7 +199,7 @@ const PostsTimeBlock = ({
         { noPosts && <div className={classes.noPosts}>
           No posts for {
           timeframe === 'daily'
-            ? startDate.format('MMMM Do YYYY')
+            ? dateForTitle.format('MMMM Do YYYY')
               // Should be pretty rare. Basically people running off the end of
               // the Forum history on yearly
             : `this ${timeBlock}`

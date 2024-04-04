@@ -66,7 +66,7 @@ const AllPostsList = ({
     before: query.before,
   };
 
-  const {PostsTimeframeList, PostsList2} = Components;
+  const {PostsTimeframeList, PostsTimeframeListExponential, PostsList2} = Components;
 
   if (currentTimeframe === "allTime") {
     return (
@@ -81,6 +81,15 @@ const AllPostsList = ({
           }}
           dimWhenLoading={showSettings}
         />
+      </AnalyticsContext>
+    );
+  } else if (currentTimeframe === 'exponential') {
+    return (
+      <AnalyticsContext
+        listContext={"allPostsPage"}
+        terms={{view: "allTime" as PostsViewName, ...baseTerms}}
+      >
+        <PostsTimeframeListExponential />
       </AnalyticsContext>
     );
   }
