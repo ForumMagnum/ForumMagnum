@@ -52,7 +52,7 @@ const IntercomWrapper = ({classes}: {
     </div>
   } else if (!currentUser) {
     return <div className={classes.intercomFrame} id="intercom-outer-frame">
-      <Intercom appID={intercomAppIdSetting.get()}/>
+      <Intercom appID={intercomAppIdSetting.get()} />
     </div>
   } else {
     return null
