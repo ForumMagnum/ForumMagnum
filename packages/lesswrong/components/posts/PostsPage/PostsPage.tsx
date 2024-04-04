@@ -37,9 +37,9 @@ import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
-import { NoSSR } from '../../../lib/utils/componentsWithChildren';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
+import ForumNoSSR from '../../common/ForumNoSSR';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -823,7 +823,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd /></NoSSR>}
+    {isEAForum && showDigestAd && <ForumNoSSR><StickyDigestAd /></ForumNoSSR>}
     {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
