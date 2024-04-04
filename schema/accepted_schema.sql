@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: 64f8f3a5ab2b5cb1b149231ca630feed
 
--- Accepted on 2024-04-03T12:45:24.000Z by 20240403T124524.add_hideFromPeopleDirectory_to_users.ts
+-- Accepted on 2024-04-04T14:25:20.000Z by 20240404T142520.add_hideFromPeopleDirectory_to_users.ts
 
 -- Extension "btree_gin", hash: 8833dd03dc128e186d2c560d248354fb
 CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE;

@@ -555,11 +555,6 @@
     "timestamp": "2024-02-13T22:27:00.000Z"
   },
   {
-    "acceptsSchemaHash": "1cca53989f92d593c9cb80c2e9e8b5a3",
-    "acceptedByMigration": "20240215T231300.addArbitalLinkPreviewCache.ts",
-    "timestamp": "2024-02-15T23:13:00.000Z"
-  },
-  {
     "acceptsSchemaHash": "c88a556fe6f1bc2d5ce4f08149eb3388",
     "acceptedByMigration": "20240222T212933.add_UserEAGDetails_collection.ts",
     "timestamp": "2024-02-22T21:29:33.000Z"
@@ -601,12 +596,12 @@
   },
   {
     "acceptsSchemaHash": "86723d78e7eb5d43201e0be72ee6f5f0",
-    "acceptedByMigration": "20240402T183930.arbitalPreviewCache.ts",
-    "timestamp": "2024-04-02T18:39:30.000Z"
+    "acceptedByMigration": "20240404T011423.add_ArbitalCaches.ts",
+    "timestamp": "2024-04-04T01:14:23.000Z"
   },
   {
     "acceptsSchemaHash": "64f8f3a5ab2b5cb1b149231ca630feed",
-    "acceptedByMigration": "20240403T124524.add_hideFromPeopleDirectory_to_users.ts",
-    "timestamp": "2024-04-03T12:45:24.000Z"
+    "acceptedByMigration": "20240404T142520.add_hideFromPeopleDirectory_to_users.ts",
+    "timestamp": "2024-04-04T14:25:20.000Z"
   }
 ]
