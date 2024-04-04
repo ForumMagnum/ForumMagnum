@@ -55,8 +55,6 @@ export const userHasEagProfileImport = disabled;
 
 export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
-export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
-
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 //defining as Hook so as to combine with ABTest
