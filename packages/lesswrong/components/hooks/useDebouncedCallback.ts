@@ -66,9 +66,11 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
   useEffect(() => {
     const state = _state.current;
     state.isMounted = true;
+    //console.log("Mount");
 
     return () => {
       if (state.isMounted) {
+        //console.log("Unmount");
         state.isMounted = false;
         if (state.callIsPending) {
           switch(onUnmount) {
@@ -99,15 +101,19 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
   
   return useCallback((args: T) => {
     if (!options.allowExplicitCallAfterUnmount && !_state.current.isMounted) {
+      //console.log("Call after unmount attempted");
       return;
     }
     if (_state.current.callIsPending) {
+      //console.log("Call folded into pending");
       _state.current.pendingArgs = args;
     } else {
       if (_state.current.nextCallAtTime || !callOnLeadingEdge) {
+        //console.log("Call scheduled");
+        const now = new Date();
         const delay = _state.current.nextCallAtTime
-          ? _state.current.nextCallAtTime - new Date().getTime()
-          : new Date().getTime() + rateLimitMs;
+          ? _state.current.nextCallAtTime - now.getTime()
+          : rateLimitMs;
         _state.current.callIsPending = true;
         _state.current.pendingArgs = args;
         setTimeout(() => {
@@ -121,6 +127,7 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
           refStabilizedFn(argsToCall);
         }, delay);
       } else {
+        //console.log("Calling immediately");
         _state.current.nextCallAtTime = new Date().getTime() + rateLimitMs;
         refStabilizedFn(args);
       }
