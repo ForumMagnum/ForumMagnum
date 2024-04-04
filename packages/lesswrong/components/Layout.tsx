@@ -30,6 +30,7 @@ import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 
+
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -142,23 +143,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   votingImage: {
-    width: '1000px',
-    maxWidth: '1000px',
-    right: '-240px',
-    marginTop: -41,
-    transform: 'scaleX(-1)',
-    height: '1170px',
+    width: '777px',
+    right: '-150px',
+    height: '960px',
+    marginTop: '27px',
     objectFit: 'cover',
-    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 55%,transparent 70%)`,
+    transform: 'scaleX(-1)',
+    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
   },
-  lessOnlineBannerText: {
+  bannerText: {
     ...theme.typography.postStyle,
-    
     position: 'absolute',
     right: 16,
     top: 70,
-    color: theme.palette.text.alwaysBlack,
     textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
+    color: theme.palette.text.alwaysBlack,
     textAlign: 'right',
     width: '240px',
     '& h2': {
@@ -179,7 +178,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.alwaysBlack,
       borderRadius: '3px',
       textAlign: 'center',
-      padding: 8
+      padding: 8,
+      fontSize: '14px',
     }
   },
   lessOnlineBannerDateAndLocation: {
@@ -291,7 +291,7 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [disableNoKibitz, setDisableNoKibitz] = useState(false);
+  const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
@@ -513,7 +513,7 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
                       <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
-                      <div className={classes.lessOnlineBannerText}>
+                      <div className={classes.bannerText}>
                         <h2><a href="http://less.online">LessOnline</a></h2>
                         <h3>A Festival of Writers Who are Wrong on the Internet</h3>
                         <h3 className={classes.lessOnlineBannerDateAndLocation}>May 31 - Jun 2, Berkeley, CA</h3>

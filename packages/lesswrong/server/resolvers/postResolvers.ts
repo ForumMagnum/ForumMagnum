@@ -30,7 +30,7 @@ import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/goog
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { recombeeApi } from '../recombee/client';
-import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -597,14 +597,25 @@ createPaginatedResolver({
 addGraphQLSchema(`
   type RecombeeRecommendedPost {
     post: Post!
-    recommId: String!
+    recommId: String
+    curated: Boolean
+    stickied: Boolean
   }
 `);
 
 interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
-  recommId: string
+  recommId: string,
+  curated?: never,
+  stickied?: never,
 }
+
+type RecommendedPost = RecombeeRecommendedPost | {
+  post: Partial<DbPost>,
+  recommId?: never,
+  curated: boolean,
+  stickied: boolean,
+};
 
 createPaginatedResolver({
   name: "RecombeeLatestPosts",
@@ -615,13 +626,32 @@ createPaginatedResolver({
     limit: number,
     args: { settings: RecombeeRecommendationArgs }
   ): Promise<RecombeeRecommendedPost[]> => {
-    const { repos, currentUser } = context;
+    const { currentUser } = context;
 
     if (!currentUser) {
       throw new Error(`You must be logged in to use Recombee recommendations right now`);
     }
 
     return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);
+  }
+});
+
+createPaginatedResolver({
+  name: "RecombeeHybridPosts",
+  graphQLType: "RecombeeRecommendedPost",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args: { settings: HybridRecombeeConfiguration }
+  ): Promise<RecommendedPost[]> => {
+    const { currentUser } = context;
+
+    if (!currentUser) {
+      throw new Error(`You must be logged in to use Recombee recommendations right now`);
+    }
+
+    return await recombeeApi.getHybridRecommendationsForUser(currentUser._id, limit, args.settings, context);
   }
 });
 
