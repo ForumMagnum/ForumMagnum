@@ -30,7 +30,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   {
     label: "Name",
     sortField: "displayName.sort",
-    columnWidth: "200px",
+    columnWidth: "220px",
     componentName: "PeopleDirectoryUserCell",
     props: {},
     hideable: false,
@@ -57,6 +57,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Bio",
+    columnWidth: "1.5fr",
     componentName: "PeopleDirectoryTextCell",
     props: {
       fieldName: "bio",
@@ -66,6 +67,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Social media",
+    columnWidth: "100px",
     componentName: "PeopleDirectorySocialMediaCell",
     props: {},
     hideable: true,
@@ -73,6 +75,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Career stage",
+    columnWidth: "auto",
     componentName: "PeopleDirectoryCareerStageCell",
     props: {},
     hideable: true,
