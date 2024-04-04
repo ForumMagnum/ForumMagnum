@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-interface DebouncedCallbackOptions {
+export interface DebouncedCallbackOptions {
   /**
    * The minimum time between calls to this function, in milliseconds.
    */
