@@ -48,7 +48,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       background: shadePalette.inverseGreyAlpha(.65)
     },
     background: {
-      default: 'linear-gradient(180deg, #f8d558 0%, #fff6d8 721px)'
+      default: '#f8f4ee'
     }
   }),
   make: (palette: ThemePalette) => ({

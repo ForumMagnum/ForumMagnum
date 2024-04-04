@@ -48,12 +48,11 @@ const IntercomWrapper = ({classes}: {
         user_id={currentUser._id}
         email={getUserEmail(currentUser)}
         name={currentUser.displayName}
-        {...{'vertical_padding': 94, 'horizontal_padding': 28}}
       />
     </div>
   } else if (!currentUser) {
     return <div className={classes.intercomFrame} id="intercom-outer-frame">
-      <Intercom appID={intercomAppIdSetting.get()} {...{'vertical_padding': 94, 'horizontal_padding': 28}}/>
+      <Intercom appID={intercomAppIdSetting.get()} />
     </div>
   } else {
     return null
