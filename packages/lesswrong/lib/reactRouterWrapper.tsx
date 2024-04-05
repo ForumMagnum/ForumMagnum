@@ -1,8 +1,8 @@
 import React, { CSSProperties, FC } from 'react';
 import { useTracking } from '../lib/analyticsEvents';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import * as reactRouter from 'react-router';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { classifyHost, getUrlClass } from './routeUtil';

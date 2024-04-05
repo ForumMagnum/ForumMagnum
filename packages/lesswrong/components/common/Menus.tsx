@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../lib/reactRouterWrapper';
 

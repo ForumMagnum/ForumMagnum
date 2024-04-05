@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import ReactMapGL, { Marker, Popup } from 'react-map-gl';
 
 export type WrappedReactMapGL = {

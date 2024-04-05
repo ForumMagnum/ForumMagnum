@@ -1,5 +1,5 @@
 import * as _ from 'underscore';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {matchPath} from 'react-router'
 
 export type PingbackDocument = {

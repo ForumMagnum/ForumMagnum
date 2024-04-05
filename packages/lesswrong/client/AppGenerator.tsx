@@ -7,7 +7,7 @@ import { wrapWithMuiTheme } from './themeProvider';
 import { ForeignApolloClientProvider } from '../components/hooks/useForeignApolloClient';
 import { PrefersDarkModeProvider } from '../components/themes/usePrefersDarkMode';
 import { CookiesProvider } from 'react-cookie';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abTestImpl';
 import type { AbstractThemeOptions } from '../themes/themeNames';

@@ -3,7 +3,7 @@ import moment from 'moment';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { useLocation, withRouter } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
 import {
