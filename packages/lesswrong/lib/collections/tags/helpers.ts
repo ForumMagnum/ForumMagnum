@@ -118,8 +118,6 @@ export function stableSortTags<
         return (tagRelB.baseScore || 0) - (tagRelA.baseScore || 0);
       }
 
-      // Only sort by name if we have the scores and they are equal, to
-      // avoid reordering tags that have the same score (where we don't have it here)
       return tagA.name.localeCompare(tagB.name);
     }
 
