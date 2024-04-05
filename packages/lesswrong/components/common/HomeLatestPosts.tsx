@@ -19,6 +19,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { useRecombeeFrontpage } from '../../lib/betas';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
-const filterSettingsToggleLabels = forumSelect({
+export const filterSettingsToggleLabels = forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -66,10 +67,10 @@ const filterSettingsToggleLabels = forumSelect({
     mobileHidden: "Customize feed",
   },
   default: {
-    desktopVisible: "Customize Feed (Hide)",
-    desktopHidden: "Customize Feed",
-    mobileVisible: "Customize Feed (Hide)",
-    mobileHidden: "Customize Feed (Show)",
+    desktopVisible: "Customize (Hide)",
+    desktopHidden: "Customize",
+    mobileVisible: "Customize (Hide)",
+    mobileHidden: "Customize",
   }
 })
 
@@ -102,17 +103,26 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
+  const recombeeFrontpagePrototypeEnabled = useRecombeeFrontpage(currentUser);
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({
+    eventType:"frontpageFilterSettings",
+    eventProps: {
+      filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts"
+    },
+    captureOnMount: true,
+  })
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts
+    CuratedPostsList, SectionTitle, StickiedPosts, RecombeeLatestPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -142,6 +152,10 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
+  if (currentUser && recombeeFrontpagePrototypeEnabled) {
+    return <RecombeeLatestPosts currentUser={currentUser} />
+  }
+
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
@@ -157,6 +171,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
+              textShadow={isLWorAF}
             />
             <SettingsButton
               className={classes.hideOnDesktop}

@@ -12,7 +12,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
@@ -30,6 +30,7 @@ import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
+import { recombeeApi } from '../recombee/client';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -284,9 +285,13 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
  * When a user explicitly unsubscribes from all emails, we also want to unsubscribe them from digest emails.
  * They can then explicitly re-subscribe to the digest while keeping "unsubscribeFromAll" checked while still being
  * unsubscribed from all other emails, if they want.
+ *
+ * Also unsubscribe them from the digest if they deactivate their account.
  */
-getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromAll(data: DbUser, {oldDocument}) {
-  if (data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll && hasDigests) {
+getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromDigest(data: DbUser, {oldDocument}) {
+  const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
+  const deactivatedAccount = data.deleted && !oldDocument.deleted
+  if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
   return data;
@@ -487,4 +492,12 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
   }
   return data;
+});
+
+getCollectionHooks("Users").createAsync.add(({ document }) => {
+  if (!recombeeEnabledSetting.get()) return;
+
+  void recombeeApi.createUser(document)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending created user to recombee', { e }));
 });

@@ -64,11 +64,13 @@ import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 import DialogueCommentBox from './ckeditor5-dialogue-comments/dialogue-comment-box';
+import InternalBlockLinks from './internal-block-links';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import {CloudinaryAdapterPlugin} from "./cloudinary"
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -116,12 +118,14 @@ const sharedPlugins = [
 	UploadAdapter,
 	Mathematics,
 	SanitizeTags,
+	InternalBlockLinks,
 	Spoilers,
 	AutoLink,
 	Footnote,
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
+	CloudinaryAdapterPlugin,
 ];
 
 const postEditorPlugins = [
@@ -147,6 +151,7 @@ const collaborativeEditorPlugins = [
 const siteSpecificPlugins = {
   EAForum: [CTAButton],
 };
+
 export function getPostEditor(forumType) {
   class PostEditor extends BalloonBlockEditorBase {}
   PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
@@ -162,6 +167,10 @@ export function getPostEditorCollaboration(forumType) {
   PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
   return PostEditorCollaboration;
 }
-CommentEditor.builtinPlugins = [ ...sharedPlugins ];
-CommentEditor.defaultConfig = { ...commentEditorConfig };
 
+export function getCommentEditor(forumType) {
+  class CommentEditor extends BalloonBlockEditorBase {}
+  CommentEditor.builtinPlugins = [ ...sharedPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  CommentEditor.defaultConfig = { ...commentEditorConfig };
+  return CommentEditor;
+}

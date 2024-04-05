@@ -66,6 +66,7 @@ import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIco
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
+import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -96,6 +97,8 @@ import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
+import MuiCommentIcon from '@material-ui/icons/ModeComment';
+
 
 
 /**
@@ -121,6 +124,7 @@ import { QIcon } from "../icons/qIcon";
 import { FilterAlt } from "../icons/filteralt";
 import { VotedIcon } from "../icons/votedIcon";
 import { LightbulbChatIcon } from "../icons/lightbulbChatIcon";
+import { AddReactionIcon } from "../icons/AddReactionIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -213,7 +217,9 @@ export type ForumIconName =
   "InfoCircle" |
   "BarsArrowDown" |
   "LightbulbChat" |
-  "VoteBallot"
+  "VoteBallot" |
+  "Import" |
+  "AddReaction"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -247,7 +253,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
-    Comment: CommentIcon,
+    Comment: MuiCommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     ChatBubbleLeftRightFilled: MuiForumIcon,
@@ -303,6 +309,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
+    Import: ArrowDownOnSquareIcon,
+    AddReaction: AddReactionIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -390,6 +398,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
+    Import: ArrowDownOnSquareIcon,
+    AddReaction: AddReactionIcon,
   },
 };
 

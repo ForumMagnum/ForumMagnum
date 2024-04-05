@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
-import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { useReactMapGL } from '../../splits/useReactMapGl';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {

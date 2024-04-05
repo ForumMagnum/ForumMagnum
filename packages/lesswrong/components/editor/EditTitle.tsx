@@ -26,8 +26,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const placeholders: Record<PostCategory, string> = {
+const placeholders: Record<PostCategory|"event", string> = {
   "post": "Post title",
+  "event": "Event name",
   "question": "Question title",
   "linkpost": "Linkpost title"
 }
@@ -46,12 +47,12 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
   });
-  const { question, postCategory } = document;
+  const { isEvent, question, postCategory } = document;
 
-  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+  const effectiveCategory = isEvent ? "event" : question ? "question" as const : postCategory as PostCategory;
   const displayPlaceholder = placeholders[effectiveCategory];
 
-  const handleChangeTitle = useCallback((event) => {
+  const handleChangeTitle = useCallback((event: React.FocusEvent<AnyBecauseTodo>) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
       setLastSavedTitle(event.target.value)
       void updatePost({

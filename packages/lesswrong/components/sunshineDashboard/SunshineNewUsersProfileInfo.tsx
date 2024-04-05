@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
-import NoSSR from 'react-no-ssr';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,9 +38,9 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
   }
   
   return <div className={classes.root}>
-    <NoSSR>
+    <ForumNoSSR>
       <SunshineNewUsersInfo user={user} currentUser={currentUser} refetch={refetch}/>
-    </NoSSR>
+    </ForumNoSSR>
   </div>
 }
 

@@ -18,10 +18,10 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   },
   body: {
     margin: 0,
-    backgroundColor: theme.palette.background.default,
+    background: theme.palette.background.default,
     
     "@media print": {
-      backgroundColor: theme.palette.panelBackground.default,
+      background: theme.palette.panelBackground.default,
     },
   },
   
@@ -32,6 +32,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     color: theme.palette.text.maxIntensity,
   },
   

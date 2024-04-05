@@ -4,14 +4,16 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { useReactMapGL } from '../../splits/useReactMapGl';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -76,7 +78,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   groupTerms: LocalgroupsViewTerms,
   eventTerms?: PostsViewTerms,
   keywordSearch?: string,
-  initialOpenWindows: Array<any>,
+  initialOpenWindows: Array<string>,
   center?: {lat: number, lng: number},
   zoom: number,
   classes: ClassesType,
@@ -93,11 +95,11 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
 
   const [ openWindows, setOpenWindows ] = useState(initialOpenWindows)
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
   const handleClose = useCallback(
-    (id) => { setOpenWindows(_.without(openWindows, id))}
+    (id: string) => { setOpenWindows(_.without(openWindows, id))}
     , [openWindows]
   )
 
@@ -215,11 +217,21 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   const { Marker } = reactMapGL;
   
   const { StyledMapPopup } = Components
+  
+  const mapLocations = filterNonnull(users.map(user => {
+    const location = user.mapLocation
+    if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
+    const { geometry: {location: {lat, lng}}} = location
+    return {
+      lat, lng,
+      data: user,
+    }
+  }));
+  
+  const spreadMapLocations = spreadMapMarkers(mapLocations, u=>u.displayName);
+  
   return <React.Fragment>
-    {users.map(user => {
-      const location = user.mapLocation
-      if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-      const { geometry: {location: {lat, lng}}} = location
+    {spreadMapLocations.map(({lat, lng, data: user}) => {
       const htmlBody = {__html: user.htmlMapMarkerText};
       return <React.Fragment key={user._id}>
         <Marker

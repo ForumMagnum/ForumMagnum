@@ -30,7 +30,7 @@ export const EmailPreview = ({email, sentDate, classes}: {
 }) => {
 
   return <div className={classes.emailPreview}>
-    <p>{sentDate}</p>
+    <p>{""+sentDate}</p>
     <div className={classes.emailHeader}>
       <span className={classes.headerName}>Subject: </span>
       <span className={classes.headerContent}>{email.subject}</span>

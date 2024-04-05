@@ -51,7 +51,7 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
   // from rendering the post if we have it locally
   if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
-  } else if (loading) {
+  } else if (loading && !post.fmCrosspost.hostedHere) {
     return <div><Loading/></div>
   } else if (!post.fmCrosspost.hostedHere && !foreignPost && !post.draft) {
     return <Error404/>
@@ -66,7 +66,12 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
 
   return (
     <crosspostContext.Provider value={contextValue}>
-      <PostsPage post={contextValue.combinedPost ?? post} eagerPostComments={eagerPostComments} refetch={refetch} />
+      <PostsPage
+        fullPost={contextValue.combinedPost ?? post}
+        postPreload={undefined}
+        eagerPostComments={eagerPostComments}
+        refetch={refetch}
+      />
     </crosspostContext.Provider>
   );
 }

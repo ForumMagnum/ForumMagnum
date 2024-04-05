@@ -32,7 +32,7 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
   newValidate: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>
   createBefore: CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>
   newBefore: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
-  newSync: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  newSync: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null,ResolverContext]>
   createAfter: CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>
   newAfter: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
   createAsync: CallbackHook<[CreateCallbackProperties<N>]>
@@ -67,7 +67,7 @@ export class CollectionMutationCallbacks<N extends CollectionNameString> {
     this.newValidate = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
     this.createBefore = new CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.before`);
     this.newBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.new.before`);
-    this.newSync = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.new.sync`);
+    this.newSync = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null,ResolverContext]>(`${collectionName.toLowerCase()}.new.sync`);
     this.createAfter = new CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.after`);
     this.newAfter = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.new.after`);
     this.createAsync = new CallbackHook<[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.async`);

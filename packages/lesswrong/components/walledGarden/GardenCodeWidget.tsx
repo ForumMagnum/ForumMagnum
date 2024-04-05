@@ -130,7 +130,7 @@ export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: s
             queryFragment={getFragment("GardenCodeFragment")}
             formComponents={{
               FormSubmit: SubmitComponent,
-              FormGroupLayout: Components.DefaultStyleFormGroup
+              FormGroupLayout: Components.FormGroupNoStyling
             }}
             successCallback={(code: GardenCodeFragment) => setCurrentCode(code)}/>
       </div>

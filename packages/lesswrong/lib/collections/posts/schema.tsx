@@ -19,6 +19,7 @@ import {
   isEAForum,
   isLWorAF,
   requireReviewToFrontpagePostsSetting,
+  reviewUserBotSetting,
 } from '../../instanceSettings'
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
@@ -32,6 +33,8 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -47,7 +50,7 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-function getDefaultVotingSystem() {
+export function getDefaultVotingSystem() {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
@@ -775,22 +778,25 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    hidden: !isLWorAF
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
   },
 
   annualReviewMarketCommentId: {
     ...foreignKeyField({
       idFieldName: 'annualReviewMarketCommentId',
-      resolverName: 'comment',
+      resolverName: 'annualReviewMarketComment',
       collectionName: 'Comments',
       type: 'Comment',
       nullable: true
     }),
     optional: true,
+    nullable: true,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    hidden: !isLWorAF
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
@@ -1123,6 +1129,9 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "ReviewVote",
     canRead: ['members'],
     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
+      if (!isLWorAF) {
+        return null;
+      }
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1146,7 +1155,29 @@ const schema: SchemaType<"Posts"> = {
       resolver: (reviewVotesField) => reviewVotesField("*"),
     }),
   }),
-  
+
+  reviewWinner: resolverOnlyField({
+    type: "ReviewWinner",
+    graphQLtype: "ReviewWinner",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!isLWorAF) {
+        return null;
+      }
+      const { currentUser, ReviewWinners } = context;
+      const winner = await getPostReviewWinnerInfo(post._id, context);
+      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "ReviewWinners",
+      type: "left",
+      on: {
+        postId: field("_id"),
+      },
+      resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,
@@ -2368,7 +2399,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2630,6 +2661,7 @@ const schema: SchemaType<"Posts"> = {
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
         ...(af ? {af:true} : {}),
+        ...(isLWorAF ? {userId: {$ne: reviewUserBotSetting.get()}} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
         return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
@@ -2811,6 +2843,14 @@ const schema: SchemaType<"Posts"> = {
 
   dialogueMessageContents: {
     type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
+  
+  firstVideoAttribsForPreview: {
+    type: GraphQLJSON,
     canRead: ['guests'],
     hidden: true,
     optional: true

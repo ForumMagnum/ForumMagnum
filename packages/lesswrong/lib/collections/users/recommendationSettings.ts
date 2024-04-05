@@ -107,6 +107,37 @@ export const recommendationsAlgorithmHasStrategy = (
 ): algorithm is RecommendationsAlgorithmWithStrategy =>
   "strategy" in algorithm;
 
+export interface RecombeeConfiguration {
+  userId?: string,
+  rotationRate?: number,
+  rotationTime?: number,
+  booster?: string,
+  filter?: string,
+  refreshKey?: string,
+  loadMore?: {
+    prevRecommId: string,
+  },
+}
+
+export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
+  // Note: these filters will not obviously be functional, check current implementation to see if used successfully
+  onlyUnread?: boolean,
+  lwRationalityOnly?: boolean,
+  scenario: string,
+}
+
+export interface HybridRecombeeConfiguration {
+  userId?: string,
+  rotationRate?: number,
+  rotationTime?: number,
+  booster?: string,
+  refreshKey?: string,
+  loadMore?: {
+    prevRecommIds: [string, string],
+  },
+}
+
+
 export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   method: "top",
   count: 10,

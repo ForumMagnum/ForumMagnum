@@ -2,7 +2,6 @@ import React, { useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import cheerio from "cheerio";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,45 +41,20 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const videoHosts = [
-  "https://www.youtube.com",
-  "https://youtube.com",
-  "https://youtu.be",
-];
-
-const getEmbedAttribsFromHtml = (html: string): Record<string, unknown> | null => {
-  // @ts-ignore cheerio type definitions are broken
-  const $ = cheerio.load(html, null, false);
-  const iframes = $("iframe").toArray();
-  for (const iframe of iframes) {
-    if ("attribs" in iframe) {
-      const src = iframe.attribs.src ?? "";
-      for (const host of videoHosts) {
-        if (src.indexOf(host) === 0) {
-          return iframe.attribs;
-        }
-      }
-    }
-  }
-  return null;
-}
-
 const PostsVideoCard = ({post, classes}: {
   post: PostsBestOfList,
   classes: ClassesType,
 }) => {
   const authorExpandContainer = useRef(null);
   const {eventHandlers} = useHover({
-    pageElementContext: "videoCard",
-    documentId: post._id,
-    documentSlug: post.slug,
+    eventProps: {
+      pageElementContext: "videoCard",
+      documentId: post._id,
+      documentSlug: post.slug,
+    },
   });
 
-  const htmlHighlight = post.contents?.htmlHighlight ?? "";
-  const embedAttribs = useMemo(
-    () => getEmbedAttribsFromHtml(htmlHighlight),
-    [htmlHighlight],
-  );
+  const embedAttribs  = post.firstVideoAttribsForPreview;
   if (!embedAttribs) {
     return null;
   }

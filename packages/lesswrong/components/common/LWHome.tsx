@@ -1,17 +1,36 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
+import moment from 'moment';
+import { useRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { useCurrentUser } from './withUser';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, 
+    FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
+  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
+
+  useEffect(() => {
+    if (visitorGetsDynamicFrontpage(null)) {
+      setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
+    }
+  }, [setCookie])
+
+  const currentUser = useCurrentUser()
+  const recombeeFrontpagePrototypeEnabled = useRecombeeFrontpage(currentUser)
   
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
+          {recombeeFrontpagePrototypeEnabled && <SingleColumnSection>
+            <DismissibleSpotlightItem current/>
+          </SingleColumnSection>}
+          {!recombeeFrontpagePrototypeEnabled && !reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
@@ -27,6 +46,10 @@ const LWHome = () => {
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
+          <QuickTakesSection />
+
+          <EAPopularCommentsSection />
 
           <RecentDiscussionFeed
             af={false}

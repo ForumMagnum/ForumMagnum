@@ -11,19 +11,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   row: {
     marginBottom: 20
   },
-  description: {
-    maxWidth: 666,
-    fontSize: 16,
-    lineHeight: "22px",
-    color: theme.palette.grey[700],
-    margin: "10px 0",
-    "& ul": {
-      margin: 0,
-    },
-    "& li": {
-      marginTop: 1,
-    },
-  },
   link: {
     color: theme.palette.primary.main,
   },
@@ -41,21 +28,12 @@ const EmailJobAdReminder = ({
 }) => {
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
-  const role = jobData.role;
-  const insertThe = jobData.insertThe;
-  const org = jobData.org;
-  const description = jobData.getDescription(classes);
 
   return (
     <div className={classes.root}>
       <div className={classes.row}>
-        The application deadline for this job is coming up soon! You can apply <a href={link}>here</a>.
+        The application deadline for this job is coming up soon! Apply <a href={link}>here</a> before {jobData.deadline?.format("dddd, MMMM D")}.
       </div>
-      <hr className={classes.hr}/>
-      <h2>
-        {role} at{insertThe ? ' the ' : ' '}{org}
-      </h2>
-      <div>{description}</div>
       <hr className={classes.hr}/>
     </div>
   );

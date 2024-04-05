@@ -32,6 +32,12 @@ export type React = {
   reactionType?: string, // should this be a specific reaction type?
 }
 
+export type LongtermScoreResult = {
+  longtermSeniorDownvoterCount: number,
+  longtermScore: number,
+  commentCount: number
+};
+
 class VotesRepo extends AbstractRepo<"Votes"> {
   constructor() {
     super(Votes);
@@ -612,6 +618,49 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         AND v."documentId" != $3
         AND v."collectionName" = 'Comments'
     `, [userId, postId, excludedDocumentId]);
+  }
+
+  getLongtermDownvoteScore(userId: string): Promise<LongtermScoreResult> {
+    return this.getRawDb().one(`
+      SELECT
+        COUNT(DISTINCT senior_downvoter) AS "longtermSeniorDownvoterCount",
+        COUNT(c."userId") as "commentCount",
+        (SUM(
+            CASE WHEN c.total_vote_power < 0
+              THEN
+                GREATEST((c.total_vote_power * 20)::INT, -100)
+              ELSE
+                c.total_vote_power
+            END
+        ) / COUNT(c."userId")) AS "longtermScore"
+      FROM (
+        SELECT
+          full_c.*,
+          SUM(v.power) AS total_vote_power,
+          ARRAY_AGG(DISTINCT v."userId") FILTER (
+            WHERE v.power < 0 AND u.karma > 2000
+          ) AS senior_downvoters
+        FROM "Comments" as full_c
+        LEFT JOIN
+          "Votes" AS v
+          ON full_c._id = v."documentId"
+        LEFT JOIN
+          "Users" AS u ON v."userId" = u._id
+        WHERE
+          v.cancelled IS NOT TRUE
+          AND full_c."userId" = $1
+          AND v."userId" != $1
+          AND full_c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '1 year'
+        GROUP BY full_c._id
+      ) AS c
+      LEFT JOIN LATERAL (
+        SELECT senior_downvoter
+        FROM unnest(c.senior_downvoters) AS senior_downvoter
+        WHERE c.total_vote_power < 0
+      ) AS sd ON true
+      GROUP BY c."userId"
+      ORDER BY "longtermScore" DESC
+    `, [userId]);
   }
 }
 

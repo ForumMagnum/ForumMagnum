@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 
 /**
  * UsersNameWrapper: You probably should be using UsersName instead.
@@ -14,6 +15,7 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className, 
   nofollow?: boolean,
   simple?: boolean,
   className?: string,
+  tooltipPlacement?: PopperPlacementType,
 }) => {
   const { document, loading } = useSingle({
     documentId,

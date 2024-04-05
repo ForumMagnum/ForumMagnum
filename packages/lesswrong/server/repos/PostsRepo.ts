@@ -97,7 +97,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."shortform" is not true AND
         p."isFuture" is not true AND
         p."authorIsUnreviewed" is not true AND
-        p."draft" is not true
+        p."draft" is not true AND
+        p."deletedDraft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end], "getEligiblePostsForDigest");
@@ -552,6 +553,41 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       percentile: result?.percentile ?? 0,
     };
   }
+  
+  /**
+   * Checks the posts that the user had read in the past 6 months,
+   * and returns the number of posts per core tag that they have read.
+   */
+  async getUserReadsPerCoreTag(userId: string): Promise<{tagId: string; userReadCount: number;}[]> {
+    return await this.getRawDb().any(
+      `
+      -- PostsRepo.getUserReadsPerCoreTag
+      WITH core_tags AS (
+        SELECT _id
+        FROM "Tags"
+        WHERE core IS TRUE AND deleted is not true
+      )
+      
+      SELECT
+        tr."tagId",
+        count(*) AS "userReadCount"
+      FROM
+        "ReadStatuses" rs
+      INNER JOIN "TagRels" tr ON rs."postId" = tr."postId"
+      WHERE
+        rs."lastUpdated" >= NOW() - interval '6 months'
+        AND rs."userId" = $1
+        AND rs."isRead" IS TRUE
+        AND (
+          tr."tagId" = 'u3Xg8MjDe2e6BvKtv' -- special case to include "AI governance"
+          OR tr."tagId" IN (SELECT _id FROM core_tags)
+        )
+        AND tr."deleted" IS FALSE
+      GROUP BY tr."tagId"
+      `,
+      [userId]
+    )
+  }
 
   /**
    * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
@@ -572,8 +608,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getReadCoreTagStats
       WITH core_tags AS (
           SELECT _id
-          FROM tags
-          WHERE core IS TRUE
+          FROM "Tags"
+          WHERE core IS TRUE AND deleted is not true
       ),
       read_posts AS (
           SELECT
@@ -649,6 +685,53 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       userReadCount: read_count,
       readLikelihoodRatio: ratio
     }));
+  }
+
+  async getActivelyDiscussedPosts(limit: number) {
+    return await this.any(`
+      WITH post_ids AS (
+        SELECT "postId" AS _id,
+        COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0) AS total_karma_from_high_karma_comments
+        FROM "Comments" c
+              LEFT JOIN "Posts" p ON p._id = c."postId"
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '14 days'
+        AND p.shortform IS NOT TRUE
+        GROUP BY c."postId"
+        HAVING COUNT(*) FILTER (WHERE c."baseScore" > 10) > 0
+        ORDER BY COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0)
+      )
+      SELECT
+          p.*
+      FROM "Posts" p
+      JOIN post_ids pid USING (_id)
+      ORDER BY pid.total_karma_from_high_karma_comments DESC
+      LIMIT $1
+    `,
+    [limit]);
+  }
+
+  async getPostsFromPostSubscriptions(userId: string, limit: number) {
+    return await this.any(`
+      WITH user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" = 'newPosts'
+          AND "userId" = $1
+        )
+      SELECT *
+      FROM "Posts" p
+      JOIN user_subscriptions us USING ("userId")
+      WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL '90 days'
+        AND type = 'newPosts'
+        AND shortform IS NOT TRUE 
+        AND draft IS NOT TRUE
+      ORDER BY p."postedAt" DESC
+      LIMIT $2
+    `, 
+    [userId, limit]);
   }
 }
 

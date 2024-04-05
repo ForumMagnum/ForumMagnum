@@ -130,6 +130,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
+      id: 'leastwrong',
+      title: 'Best of LessWrong',
+      link: '/leastwrong',
+      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
+      subItem: true,
+    }, {
       id: 'highlights',
       title: 'Sequence Highlights',
       link: '/highlights',
@@ -161,12 +167,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
       subItem: true,
     }, {
-      id: 'bestoflesswrong',
-      title: 'Best Of',
-      link: '/bestoflesswrong',
-      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
-      subItem: true,
-    }, {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
@@ -183,13 +183,13 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'dialogueMatchmaking',
-      title: 'Dialogue Matchmaking',
-      link: '/dialogueMatching',
-      subItem: true
-    }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
+    }, {
+      id: 'lwAlbum',
+      title: 'LW the Album',
+      link: '/posts/YMo5PuXnZDwRjhHhE/the-story-of-i-have-been-a-good-bing',
+      subItem: true
     }, {
       id: 'about',
       title: 'About',

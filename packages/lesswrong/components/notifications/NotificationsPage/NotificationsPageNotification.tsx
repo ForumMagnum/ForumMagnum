@@ -12,6 +12,7 @@ import {
 } from "../../../lib/notificationTypes";
 import type { ForumIconName } from "../../common/ForumIcon";
 import type { IconVariant } from "./NotificationsPageItem";
+import { sequenceGetPageUrl } from "../../../lib/collections/sequences/helpers";
 
 const styles = (theme: ThemeType) => ({
   primaryText: {
@@ -47,13 +48,18 @@ const getDisplayConfig = ({type, comment}: NotificationDisplay): DisplayConfig =
   };
 }
 
-export const NotificationsPageNotification = ({notification, classes}: {
+export const NotificationsPageNotification = ({
+  notification,
+  hideCommentPreviews,
+  classes,
+}: {
   notification: NotificationDisplay,
+  hideCommentPreviews?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {Display, Icon, iconVariant} = getDisplayConfig(notification);
   const {
-    createdAt, comment, post, user, tag, localgroup, link, tagRelId,
+    createdAt, comment, post, user, tag, sequence, localgroup, link, tagRelId,
   } = notification;
   const displayUser = (
     user ??
@@ -100,7 +106,7 @@ export const NotificationsPageNotification = ({notification, classes}: {
   const Comment: FC = useCallback(() => comment
     ? (
       <Components.PostsTooltip
-        postId={displayPost?._id}
+        postId={comment.post?._id ?? displayPost?._id}
         commentId={comment._id}
         tagRelId={tagRelId}
       >
@@ -130,6 +136,17 @@ export const NotificationsPageNotification = ({notification, classes}: {
       </Link>
     )
     : null, [link, tag, classes]);
+  const Sequence: FC = useCallback(() => sequence
+    ? (
+      <Link
+        to={link ?? sequenceGetPageUrl(sequence)}
+        className={classes.primaryText}
+        eventProps={{intent: "expandSequence"}}
+      >
+        {sequence.title}
+      </Link>
+    )
+    : null, [link, sequence, classes]);
   const Localgroup: FC = useCallback(() => displayLocalgroup
     ? (
       <Link
@@ -146,13 +163,17 @@ export const NotificationsPageNotification = ({notification, classes}: {
     return null;
   }
 
+  const previewCommentId = hideCommentPreviews
+    ? undefined
+    : notification.comment?._id;
+
   const {NotificationsPageItem} = Components;
   return (
     <NotificationsPageItem
       Icon={Icon}
       iconVariant={iconVariant}
       post={post as PostsMinimumInfo | undefined}
-      previewCommentId={notification.comment?._id}
+      previewCommentId={previewCommentId}
     >
       <Display
         notification={notification}
@@ -161,6 +182,7 @@ export const NotificationsPageNotification = ({notification, classes}: {
         Post={Post}
         Comment={Comment}
         Tag={Tag}
+        Sequence={Sequence}
         Localgroup={Localgroup}
       /> <Components.FormatDate date={new Date(createdAt)} includeAgo />
     </NotificationsPageItem>

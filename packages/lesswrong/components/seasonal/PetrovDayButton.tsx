@@ -5,7 +5,6 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { Helmet } from 'react-helmet';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
@@ -15,6 +14,7 @@ import {
   usersAboveKarmaThresholdHardcoded20220922
 } from "../../lib/petrovHelpers";
 import { useReactMapGL } from '../../splits/useReactMapGl';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')

@@ -32,6 +32,7 @@ import { checkNotificationMessageContent } from './abTests';
 import DialogueMatchPreferences from './collections/dialogueMatchPreferences/collection';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
+import Sequences from './collections/sequences/collection';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -81,18 +82,21 @@ type NotificationDisplayComment = Pick<DbComment, "_id"> & {
 
 type NotificationDisplayTag = Pick<DbTag, "_id" | "name" | "slug">;
 
+type NotificationDisplaySequence = Pick<DbSequence, "_id" | "title">;
+
 /** Main type for the notifications page */
 export type NotificationDisplay =
   Pick<DbNotification, "_id" | "type" | "link" | "createdAt"> & {
     post?: NotificationDisplayPost,
     comment?: NotificationDisplayComment,
     tag?: NotificationDisplayTag,
+    sequence?: NotificationDisplaySequence,
     user?: NotificationDisplayUser,
     localgroup?: NotificationDisplayLocalgroup,
     tagRelId?: string,
   };
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -121,6 +125,7 @@ export interface NotificationType {
     Post: FC,
     Comment: FC,
     Tag: FC,
+    Sequence: FC,
     Localgroup: FC,
   }>,
   onsiteHoverView?: (props: {notification: NotificationsList}) => React.ReactNode
@@ -168,6 +173,7 @@ type DocumentSummary =
   | { type: 'message'; associatedUserName: string; displayName: string | undefined; document: DbMessage }
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
+  | { type: 'sequence'; document: DbSequence; associatedUserName: null; displayName: null }
   | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
   | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
 
@@ -227,6 +233,14 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         displayName: null,
         associatedUserName: null,
       }
+    case 'sequence':
+      const sequence = await Sequences.findOne(documentId)
+      return sequence && {
+        type: documentType,
+        document: sequence,
+        displayName: null,
+        associatedUserName: null,
+      }
     case 'dialogueCheck':
       const dialogueCheck = await DialogueChecks.findOne({ _id: documentId })
       const targetUser = await Users.findOne(dialogueCheck?.targetUserId)
@@ -277,6 +291,19 @@ export const NewPostNotification = registerNotificationType({
     return <PostsIcon style={iconStyles}/>
   },
   Display: ({User, Post}) => <><User /> created a new post <Post /></>,
+});
+
+export const NewUserCommentNotification = registerNotificationType({
+  name: "newUserComment",
+  userSettingField: "notificationSubscribedUserComment",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document: DbComment = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new comment on the post ' + await getCommentParentTitle(document);
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  Display: ({User, Comment}) => <><User /> left a new <Comment /></>,
 });
 
 // Vulcan notification that we don't really use
@@ -598,6 +625,19 @@ export const NewTagPostsNotification = registerNotificationType({
     return <PostsIcon style={iconStyles}/>
   },
   Display: ({Tag, Post}) => <>New post tagged <Tag />: <Post /></>,
+});
+
+export const NewSequencePostsNotification = registerNotificationType({
+  name: "newSequencePosts",
+  userSettingField: "notificationSubscribedSequencePost",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const sequence = await getDocument(documentType, documentId) as DbSequence;
+    return `Posts added to ${sequence.title}`
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles}/>
+  },
+  Display: ({Sequence}) => <>Posts added to <Sequence /></>,
 });
 
 export async function getCommentParentTitle(comment: DbComment) {

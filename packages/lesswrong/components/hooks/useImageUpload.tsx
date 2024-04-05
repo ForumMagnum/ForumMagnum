@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
-import Helmet from "react-helmet";
 import { requireCssVar } from "../../themes/cssVars";
 import {
   cloudinaryCloudNameSetting,
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
 import { useTheme } from "../themes/useTheme";
+import { Helmet } from "../../lib/utils/componentsWithChildren";
 
 const cloudinaryUploadPresetGridImageSetting = new DatabasePublicSetting<string>(
   "cloudinary.uploadPresetGridImage",
@@ -256,6 +256,7 @@ export const useImageUpload = ({
           },
         },
       },
+      maxFileSize: 5_000_000, // 5 MB
       ...cloudinaryArgs,
       uploadPreset,
       croppingAspectRatio,

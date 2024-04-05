@@ -1,11 +1,11 @@
-import React, { useCallback, Fragment } from "react";
+import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { TypeformPopupEmbed } from "../common/TypeformEmbeds";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
-import NoSSR from "react-no-ssr";
 import moment from "moment";
+import ForumNoSSR from "../common/ForumNoSSR";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -98,11 +98,9 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
     return null;
   }
 
-  const Wrapper = currentUser ? Fragment : NoSSR;
-
   const {ForumIcon} = Components;
   return (
-    <Wrapper>
+    <ForumNoSSR if={!currentUser}>
       <div className={classes.root}>
         Take the 4 minute EA Forum Survey to help inform our strategy and funding decisions
         <TypeformPopupEmbed
@@ -119,7 +117,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
           className={classes.close}
         />
       </div>
-    </Wrapper>
+    </ForumNoSSR>
   );
 }
 

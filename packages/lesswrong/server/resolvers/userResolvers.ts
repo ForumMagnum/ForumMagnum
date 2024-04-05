@@ -146,6 +146,12 @@ type NewUserUpdates = {
 }
 
 addGraphQLSchema(`
+  type UserCoreTagReads {
+    tagId: String,
+    userReadCount: Int
+  }
+`)
+addGraphQLSchema(`
   type MostReadTopic {
     slug: String,
     name: String,
@@ -263,21 +269,6 @@ addGraphQLResolvers({
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     },
-    // TODO: Deprecated
-    async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
-      if (!currentUser) {
-        throw new Error('Cannot accept terms of use while not logged in');
-      }
-      const updatedUser = (await updateMutator({
-        collection: Users,
-        documentId: currentUser._id,
-        set: {
-          acceptedTos: true,
-        },
-        validate: false,
-      })).data;
-      return updatedUser.acceptedTos;
-    },
     async UserExpandFrontpageSection(
       _root: void,
       {section, expanded}: {section: string, expanded: boolean},
@@ -315,6 +306,17 @@ addGraphQLResolvers({
   },
 
   Query: {
+    async UserReadsPerCoreTag(root: void, {userId}: {userId: string}, context: ResolverContext) {
+      const { currentUser } = context
+      const user = await Users.findOne({_id: userId})
+
+      // Must be logged in and have permission to view this user's data
+      if (!userId || !currentUser || !user || !userCanEditUser(currentUser, user)) {
+        throw new Error('Not authorized')
+      }
+      
+      return context.repos.posts.getUserReadsPerCoreTag(userId)
+    },
     // UserWrappedDataByYear includes:
     // - You’re a top X% reader of the EA Forum
     // - You read X posts this year
@@ -689,16 +691,13 @@ async function getEngagement(userId: string, year: number): Promise<{
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
-// TODO: Derecated
-addGraphQLMutation(
-  'UserAcceptTos: Boolean'
-)
 addGraphQLMutation(
   'UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean'
 )
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
+addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
 addGraphQLQuery('UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 
@@ -759,3 +758,21 @@ defineQuery({
     return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
   }
 }); 
+
+defineQuery({
+  name: "IsDisplayNameTaken",
+  argTypes: "(displayName: String!)",
+  resultType: "Boolean!",
+  fn: async (
+    _root: void,
+    {displayName}: {displayName: string},
+    context: ResolverContext,
+  ) => {
+    const {currentUser} = context;
+    if (!currentUser) {
+      throw new Error("You must be logged in to do this");
+    }
+    const isTaken = await context.repos.users.isDisplayNameTaken(displayName);
+    return isTaken;
+  }
+});

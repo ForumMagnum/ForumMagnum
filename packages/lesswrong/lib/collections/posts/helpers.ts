@@ -160,27 +160,30 @@ export const getPostCollaborateUrl = function (postId: string, isAbsolute=false,
   }
 }
 
-export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSharingKey?: string): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  if (linkSharingKey) {
-    return `${prefix}/editPost?postId=${postId}&key=${linkSharingKey}`;
-  } else {
-    return `${prefix}/editPost?postId=${postId}`;
-  }
+export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKey?: string, version?: string): string => {
+  const prefix = isAbsolute ? getSiteUrl().slice(0, -1) : '';
+  let url = `${prefix}/editPost?postId=${postId}`;
+  if (linkSharingKey) url += `&key=${linkSharingKey}`;
+  if (version) url += `&version=${version}`;
+  return url;
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
+export type PostWithCommentCounts = { commentCount: number; afCommentCount: number }
+/**
+ * Get the total (cached) number of comments, including replies and answers
+ */
+export const postGetCommentCount = (post: PostWithCommentCounts): number => {
   if (isAF) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
   }
-}
+};
 
 /**
  * Can pass in a manual comment count, or retrieve the post's cached comment count
  */
-export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
     return "No comments";
@@ -200,6 +203,21 @@ export const postGetAnswerCountStr = (count: number): string => {
     return count + " answers";
   }
 }
+
+export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCounts; answers: CommentsList[] }) => {
+  // answers may include some which are deleted:true, deletedPublic:true (in which
+  // case various fields are unpopulated and a deleted-item placeholder is shown
+  // in the UI). These deleted answers are *not* included in post.commentCount.
+  const nonDeletedAnswers = answers.filter((answer) => !answer.deleted);
+
+  const answerAndDescendentsCount =
+    answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0) + answers.length;
+
+  return {
+    answerCount: nonDeletedAnswers.length,
+    commentCount: postGetCommentCount(post) - answerAndDescendentsCount,
+  };
+};
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (isAF) {
@@ -425,3 +443,21 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     return false
   }
 }
+
+/**
+ * Given a url like https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit#heading=h.82kaw9idgbpe
+ * return just the id part (1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA in this case)
+ */
+export const extractGoogleDocId = (urlOrId: string): string | null => {
+  const docIdMatch = urlOrId.match(/.*docs\.google\.com.*\/d\/(.+?)(\/|$)/);
+  return docIdMatch ? docIdMatch[1] : null;
+};
+
+/**
+ * Given a Google doc id like 1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA, return
+ * the full url (as if you were able to edit it). In this case it would be
+ * https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit
+ */
+export const googleDocIdToUrl = (docId: string): string => {
+  return `https://docs.google.com/document/d/${docId}/edit`;
+};

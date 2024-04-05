@@ -25,6 +25,32 @@ registerFragment(`
   }
 `);
 
+// ...PostsAuthors
+
+registerFragment(`
+  fragment PostsTopItemInfo on Post {
+    ...PostsMinimumInfo
+    ...PostsAuthors
+    isRead
+    contents {
+      _id
+      htmlHighlight
+      wordCount
+      version
+    }
+    customHighlight {
+      _id
+      html
+    }
+    tags {
+      ...TagPreviewFragment
+    }
+    reviewWinner {
+      ...ReviewWinnerTopPostsPage
+    }
+  }
+`);
+
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
@@ -41,10 +67,13 @@ registerFragment(`
     meta
     deletedDraft
     postCategory
+    tagRelevance
 
     shareWithUsers
     sharingSettings
+    linkSharingKey
 
+    contents_latest
     commentCount
     voteCount
     baseScore
@@ -122,6 +151,9 @@ registerFragment(`
     positiveReviewVoteCount
     manifoldReviewMarketId
     annualReviewMarketCommentId
+    annualReviewMarketComment {
+      ...CommentsListWithParentMetadata
+    }
 
     annualReviewMarketProbability
     annualReviewMarketIsResolved
@@ -244,7 +276,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
-    tagRelevance
     deletedDraft
     contents {
       _id
@@ -431,6 +462,9 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -440,6 +474,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -486,7 +523,6 @@ registerFragment(`
       ...RevisionDisplay
     }
     myEditorAccess
-    linkSharingKey
   }
 `)
 
@@ -494,7 +530,6 @@ registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
     myEditorAccess
-    linkSharingKey
     version
     coauthorStatuses
     readTimeMinutesOverride
@@ -558,7 +593,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
-    ...PostsList
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
@@ -567,7 +602,7 @@ registerFragment(`
 
 registerFragment(`
   fragment ShortformRecentDiscussion on Post {
-    ...PostsList
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsListWithTopLevelComment
     }
@@ -701,5 +736,6 @@ registerFragment(`
       text
       imageUrl
     }
+    firstVideoAttribsForPreview
   }
 `);

@@ -8,6 +8,8 @@ import Element from '@ckeditor/ckeditor5-engine/src/view/element';
 import Document from '@ckeditor/ckeditor5-engine/src/view/document';
 
 /**
+ * IMPORTANT: Any changes here must be mirrored in `googleDocConvertFootnotes` in conversionUtils.ts
+ *
  * This class is used for converting footnotes pasted in from Google Docs' Publish to Web view.
  * Using Publish to Web is necessary because the default view doesn't let you select a document
  * and its footnotes at the same time.

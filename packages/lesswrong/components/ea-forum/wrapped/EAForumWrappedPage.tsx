@@ -28,10 +28,10 @@ import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
-import NoSSR from "react-no-ssr";
 import { useLocation } from "../../../lib/routeUtil";
 import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
 import { useReCharts } from "../../../splits/useRecharts";
+import ForumNoSSR from "../../common/ForumNoSSR";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -1560,7 +1560,7 @@ const RecommendationsSection = ({classes}: {
       <h1 className={classes.heading3}>
         Posts you missed that we think you’ll enjoy
       </h1>
-      <NoSSR>
+      <ForumNoSSR>
         <Components.RecommendationsList
           algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
           ListItem={
@@ -1573,7 +1573,7 @@ const RecommendationsSection = ({classes}: {
           }
           className={classes.recommendedPosts}
         />
-      </NoSSR>
+      </ForumNoSSR>
     </section>
   </AnalyticsContext>
 }
@@ -1603,12 +1603,12 @@ const MostValuablePostsSection = ({year, classes}: {
           <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
         </div>
       </div>
-      <NoSSR>
+      <ForumNoSSR>
         <div className={classNames(classes.mvpList, classes.mt10)}>
           <PostsByVoteWrapper voteType="bigUpvote" year={year} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
           <PostsByVoteWrapper voteType="smallUpvote" year={year} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
         </div>
-      </NoSSR>
+      </ForumNoSSR>
     </section>
   </AnalyticsContext>
 }

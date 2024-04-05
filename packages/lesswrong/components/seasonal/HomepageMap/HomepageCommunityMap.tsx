@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
-import { Helmet } from 'react-helmet'
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
@@ -12,6 +11,7 @@ import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
 import { useReactMapGL } from '../../../splits/useReactMapGl';
+import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 
 const styles = (theme: JssStyles) => ({
   root: {
@@ -104,10 +104,10 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
-    (id) => { setOpenWindows([id]) }
+    (id: string) => { setOpenWindows([id]) }
     , []
   )
-  const handleClose = useCallback(id => { 
+  const handleClose = useCallback((id: string) => { 
       setOpenWindows(openWindows.filter(windowId => windowId !== id))
     }, [openWindows]
   )

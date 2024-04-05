@@ -13,6 +13,7 @@ process.on("SIGQUIT", () => process.exit(0));
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
+  ["cypress", "Run in end-to-end testing mode"],
   ["settings", "A JSON config file for the server", "<file>"],
   ["db", "A path to a database connection config file", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -43,6 +44,7 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 //  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
+const isCypress = !!opts.cypress;
 const settingsFile = opts.settings || "settings.json"
 
 const databaseConfig = getDatabaseConfig(opts);
@@ -72,6 +74,7 @@ const bundleDefinitions = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
+  "bundleIsCypress": isCypress,
   "bundleIsMigrations": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
@@ -146,6 +149,9 @@ build({
     ...bundleDefinitions,
     ...clientBundleDefinitions,
   },
+  external: [
+    "cheerio",
+  ],
 });
 
 for (let splitComponent of [
@@ -210,6 +216,7 @@ build({
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
+    "cheerio",
   ],
 })
 
