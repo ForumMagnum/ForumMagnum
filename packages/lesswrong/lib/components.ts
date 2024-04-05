@@ -1028,6 +1028,7 @@ importComponent("SpotlightEditorStyles", () => require('../components/spotlights
 importComponent("SpotlightStartOrContinueReading", () => require('../components/spotlights/SpotlightStartOrContinueReading'));
 importComponent("SpotlightsPage", () => require('../components/spotlights/SpotlightsPage'));
 importComponent("DismissibleSpotlightItem", () => require('../components/spotlights/DismissibleSpotlightItem'));
+importComponent("FullPageSpotlight", () => require('../components/spotlights/FullPageSpotlight'));
 
 // Review Components
 // importComponent("FrontpageNominationPhase", () => require('../components/review/FrontpageNominationPhase'));

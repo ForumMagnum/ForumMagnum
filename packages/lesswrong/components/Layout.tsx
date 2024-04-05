@@ -508,7 +508,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                { isLW && <>
+                {/* { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
@@ -526,7 +526,7 @@ const Layout = ({currentUser, children, classes}: {
                       </div>)
                   }
                   </>
-                }
+                } */}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&
