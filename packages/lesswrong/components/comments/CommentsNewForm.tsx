@@ -23,8 +23,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type FormDisplayMode = "default" | "minimalist"
 
-const getBorderRadius = (theme: ThemeType) => isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small;
+export const getQuickTakesEntryBorderRadius = (theme: ThemeType) =>
+  isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small;
 
+export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: isFriendlyUI ? {
@@ -46,16 +48,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   rootQuickTakes: {
     '& .form-component-EditorFormComponent': {
       background: theme.palette.grey[100],
-      padding: isFriendlyUI ? 12 : 10,
-      borderTopLeftRadius: getBorderRadius(theme),
-      borderTopRightRadius: getBorderRadius(theme),
+      padding: COMMENTS_NEW_FORM_PADDING,
+      borderTopLeftRadius: getQuickTakesEntryBorderRadius(theme),
+      borderTopRightRadius: getQuickTakesEntryBorderRadius(theme),
     }
   },
   loadingRoot: {
     opacity: 0.5
   },
   form: {
-    padding: isFriendlyUI ? 12 : 10,
+    padding: COMMENTS_NEW_FORM_PADDING,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
@@ -77,9 +79,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   submitQuickTakes: {
     background: theme.palette.grey[100],
-    padding: isFriendlyUI ? 12 : 10,
-    borderBottomLeftRadius: getBorderRadius(theme),
-    borderBottomRightRadius: getBorderRadius(theme),
+    padding: COMMENTS_NEW_FORM_PADDING,
+    borderBottomLeftRadius: getQuickTakesEntryBorderRadius(theme),
+    borderBottomRightRadius: getQuickTakesEntryBorderRadius(theme),
   },
   formButton: isFriendlyUI ? {
     fontSize: 14,
@@ -232,8 +234,7 @@ const CommentsNewForm = ({
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, NewCommentModerationWarning, RateLimitWarning } = Components
-  
+
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -315,8 +316,11 @@ const CommentsNewForm = ({
     if (formDisabledDueToRateLimit) {
       submitBtnProps.disabled = true
     }
-    
-    return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist, [classes.submitQuickTakes]: isQuickTake})}>
+
+    return <div className={classNames(classes.submit, {
+      [classes.submitMinimalist]: isMinimalist,
+      [classes.submitQuickTakes]: isQuickTake},
+    )}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}
@@ -370,8 +374,12 @@ const CommentsNewForm = ({
   ) {
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
-  
 
+  const {
+    ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning,
+    NewCommentModerationWarning, RateLimitWarning, FormGroupQuickTakes,
+    FormGroupNoStyling,
+  } = Components;
   return (
     <div className={classNames(
       className,
@@ -402,7 +410,7 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: isQuickTake ? Components.FormGroupQuickTakes : Components.FormGroupNoStyling
+                FormGroupLayout: isQuickTake ? FormGroupQuickTakes : FormGroupNoStyling,
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}

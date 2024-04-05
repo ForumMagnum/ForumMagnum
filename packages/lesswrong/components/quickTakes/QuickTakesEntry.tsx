@@ -1,27 +1,21 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { EditorChangeEvent, styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
-import { styles as buttonStyles } from "../form-components/FormSubmit";
-import { styles as submitButtonStyles } from "../posts/PostSubmit";
 import { useQuickTakesTags } from "./useQuickTakesTags";
-import { useCreate } from "../../lib/crud/withCreate";
-import type { Editor as EditorType }  from "../editor/Editor";
-import type {
+import {
+  COMMENTS_NEW_FORM_PADDING,
   CommentCancelCallback,
   CommentSuccessCallback,
+  getQuickTakesEntryBorderRadius,
 } from "../comments/CommentsNewForm";
-import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
-const getBorderRadius = (theme: ThemeType) => isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small;
+const COLLAPSED_HEIGHT = 40;
 
 const styles = (theme: ThemeType) => ({
-  ...editorStyles(theme),
-  ...buttonStyles(theme),
   root: {
     background: theme.palette.panelBackground.default,
-    borderRadius: getBorderRadius(theme),
+    borderRadius: getQuickTakesEntryBorderRadius(theme),
     fontFamily: theme.palette.fonts.sansSerifStack,
     border: `1px solid ${theme.palette.grey[200]}`,
   },
@@ -33,14 +27,10 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 500,
     },
   },
-  commentEditorBottomButtom: {
-    borderRadius: theme.borderRadius.default,
-  },
   collapsed: {
-    height: isFriendlyUI ? 64 : 60,
+    height: COLLAPSED_HEIGHT + (2 * COMMENTS_NEW_FORM_PADDING),
     overflow: "hidden",
   },
-  ...submitButtonStyles(theme),
   commentForm: {
     '& .form-input': {
       margin: 0,
@@ -55,9 +45,9 @@ const styles = (theme: ThemeType) => ({
   },
   commentFormCollapsed: {
     '& .form-input': {
-      height: 40,
+      height: COLLAPSED_HEIGHT,
       overflow: 'hidden',
-      borderRadius: getBorderRadius(theme),
+      borderRadius: getQuickTakesEntryBorderRadius(theme),
     },
     '& .EditorFormComponent-commentEditorHeight': {
       minHeight: 'unset'
@@ -86,9 +76,6 @@ const QuickTakesEntry = ({
   defaultFocus = false,
   submitButtonAtBottom = false,
   className,
-  editorClassName,
-  tagsClassName,
-  buttonClassName,
   successCallback,
   cancelCallback,
   classes,
@@ -98,13 +85,11 @@ const QuickTakesEntry = ({
   defaultFocus?: boolean,
   submitButtonAtBottom?: boolean,
   className?: string,
-  editorClassName?: string,
-  tagsClassName?: string,
-  buttonClassName?: string,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   classes: ClassesType<typeof styles>,
 }) => {
+  const ref = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(defaultExpanded);
   const {
     frontpage,
@@ -117,8 +102,18 @@ const QuickTakesEntry = ({
     void cancelCallback?.();
   }, [cancelCallback]);
 
-
   const onFocus = useCallback(() => setExpanded(true), []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (defaultFocus && ref.current) {
+        const editor = ref.current.querySelector("[contenteditable=\"true\"]");
+        (editor as HTMLDivElement | null)?.focus?.();
+      }
+    }, 0);
+    // This should only ever run on the first render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // TODO: The editor is currently pretty messed up if the user has enabled
   // the markdown editor in their user settings, unless we're positioning the
@@ -130,13 +125,11 @@ const QuickTakesEntry = ({
   }
 
   const {CommentsNewForm} = Components;
-
-  const innerClassName = classNames(classes.commentEditor, {
-    [classes.collapsed]: !expanded,
-  });
-
-  return <div className={classNames(classes.root, className)}>
-    <div className={innerClassName} onFocus={onFocus}>
+  return <div className={classNames(classes.root, className)} ref={ref}>
+    <div
+      className={classNames(classes.commentEditor, {[classes.collapsed]: !expanded})}
+      onFocus={onFocus}
+    >
       <CommentsNewForm
         type='reply'
         prefilledProps={{
@@ -145,7 +138,9 @@ const QuickTakesEntry = ({
           relevantTagIds: selectedTagIds,
         }}
         enableGuidelines={false}
-        className={classNames(classes.commentForm, { [classes.commentFormCollapsed]: !expanded })}
+        className={classNames(classes.commentForm, {
+          [classes.commentFormCollapsed]: !expanded,
+        })}
         cancelCallback={onCancel}
         successCallback={successCallback}
         overrideHintText={placeholder}

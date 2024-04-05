@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ForumOptions } from '../../lib/forumTypeUtils';
 import { useCurrentUser } from '../common/withUser';
 import type {
   CommentCancelCallback,
@@ -8,7 +7,7 @@ import type {
 } from '../comments/CommentsNewForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -36,25 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 0,
     border: "none",
   },
-  quickTakesEditor: {
-    background: "transparent",
-    padding: "10px 20px",
-  },
-  quickTakesTags: {
-    padding: "0 20px",
-  },
-  quickTakesButton: {
-    marginTop: 20,
-    padding: 20,
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
-  },
 });
 
 const ShortformSubmitForm = ({
   successCallback,
   cancelCallback,
-  prefilledProps,
-  noDefaultStyles,
   className,
   defaultExpanded,
   submitButtonAtBottom,
@@ -67,7 +52,7 @@ const ShortformSubmitForm = ({
   className?: string,
   defaultExpanded?: boolean,
   submitButtonAtBottom?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {QuickTakesEntry, ForumIcon} = Components;
@@ -81,9 +66,6 @@ const ShortformSubmitForm = ({
       <QuickTakesEntry
         currentUser={currentUser}
         className={classes.quickTakesRoot}
-        editorClassName={classes.quickTakesEditor}
-        tagsClassName={classes.quickTakesTags}
-        buttonClassName={classes.quickTakesButton}
         successCallback={successCallback}
         cancelCallback={cancelCallback}
         defaultExpanded={isFriendlyUI || defaultExpanded}

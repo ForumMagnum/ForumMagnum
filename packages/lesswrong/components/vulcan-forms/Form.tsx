@@ -1006,7 +1006,11 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
     return (
       <form
-        className={classNames('vulcan-form', `document-${this.getFormType()}`, this.props.formProps.formClassName)}
+        className={classNames(
+          'vulcan-form',
+          `document-${this.getFormType()}`,
+          this.props?.formProps?.formClassName,
+        )}
         id={this.props.id}
         onSubmit={this.submitForm}
         ref={this.formRef}
