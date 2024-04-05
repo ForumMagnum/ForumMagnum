@@ -1,5 +1,5 @@
 import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
-import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
@@ -11,6 +11,7 @@ import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
+import groupBy from 'lodash/groupBy';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -40,8 +41,8 @@ const voteTypeRatingsMap: Partial<Record<string, number>> = {
 };
 
 const HYBRID_SCENARIO_MAP = {
-  configurable: 'recombee-hybrid-1-nearterm',
-  fixed: 'recombee-hybrid-2-global'
+  configurable: 'recombee-personal-latest',
+  fixed: 'recombee-personal'
 };
 
 interface OnsitePostRecommendationsInfo {
@@ -49,6 +50,20 @@ interface OnsitePostRecommendationsInfo {
   stickiedPostIds: string[],
   excludedPostFilter?: string,
 }
+
+export interface RecombeeRecommendedPost {
+  post: Partial<DbPost>,
+  recommId: string,
+  curated?: never,
+  stickied?: never,
+}
+
+export type RecommendedPost = RecombeeRecommendedPost | {
+  post: Partial<DbPost>,
+  recommId?: never,
+  curated: boolean,
+  stickied: boolean,
+};
 
 const recombeeRequestHelpers = {
   createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
@@ -134,7 +149,7 @@ const recombeeRequestHelpers = {
     return new requests.Batch(requestBatch);
   },
 
-  async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext): Promise<OnsitePostRecommendationsInfo> {
+  async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext): Promise<OnsitePostRecommendationsInfo> {
     if (lwAlgoSettings.loadMore) {
       return {
         curatedPostIds: [],
@@ -179,6 +194,49 @@ const recombeeRequestHelpers = {
       scenario,
       ...loadMoreConfig
     };
+  },
+
+  interleaveHybridRecommendedPosts(recommendedPosts: RecombeeRecommendedPost[]) {
+    const recommendationGroupedPosts = groupBy(recommendedPosts, (result) => result.recommId);
+    let weights = Object.entries(recommendationGroupedPosts).map(([recommId, posts]) => [recommId, posts.length / recommendedPosts.length] as const);
+
+    const interleavedPosts: RecombeeRecommendedPost[] = [];
+
+    while (interleavedPosts.length < recommendedPosts.length) {
+      // Calculate current total weight (since it changes when we remove a recommId group for running out of posts)
+      const totalWeight = weights.reduce((sum, [_, weight]) => sum + weight, 0);
+
+      // Weighted random selection of next recommId to pick a post from
+      let randomWeight = Math.random() * totalWeight;
+      let selectedRecommId: string | undefined;
+      for (const [recommId, recommIdWeight] of weights) {
+        randomWeight -= recommIdWeight;
+        if (randomWeight <= 0) {
+          selectedRecommId = recommId;
+          break;
+        }
+      }
+
+      // Safety check, though selectedGroup should always be defined here
+      if (!selectedRecommId) continue;
+
+      // Add next post from the selected group to the interleaved array
+      const postsWithRecommId = recommendationGroupedPosts[selectedRecommId];
+      const nextPost = postsWithRecommId.shift();
+      if (!nextPost) {
+        // We shouldn't ever get here, but just in case
+        continue;
+      } else {
+        interleavedPosts.push(nextPost);
+
+        // Update the group's state: remove it if it's out of posts
+        if (postsWithRecommId.length === 0) {
+          weights = weights.filter(([recommId]) => recommId !== selectedRecommId);
+        }  
+      }
+    }
+
+    return interleavedPosts;
   }
 };
 
@@ -191,42 +249,52 @@ const recombeeApi = {
   async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
+    const {
+      curatedPostIds,
+      stickiedPostIds,
+      excludedPostFilter
+    } = await recombeeRequestHelpers.getOnsitePostInfo(lwAlgoSettings, context);
+
     // TODO: Now having Recombee filter out read posts, maybe clean up?
     const modifiedCount = count * 1;
-    const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, lwAlgoSettings);
+    const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
+
+    const curatedPostReadStatusesPromise = lwAlgoSettings.loadMore
+      ? Promise.resolve([])
+      : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
 
     // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
-    const recombeeResponse = await client.send(request) as RecommendationResponse;
+    const [recombeeResponse, curatedPostReadStatuses] = await Promise.all([
+      client.send(request) as Promise<RecommendationResponse>,
+      curatedPostReadStatusesPromise
+    ]);
 
-    // remove posts read more than a week ago
-    const twoWeeksAgo = moment(new Date()).subtract(2, 'week').toDate();
-    const postIds = recombeeResponse.recomms.map(rec => rec.id);
-    const [
-      posts,
-      readStatuses
-    ] = await Promise.all([ 
-      filterNonnull(await loadByIds(context, 'Posts', postIds)),
-      ReadStatuses.find({ 
-        postId: { $in: postIds }, 
-        userId, 
-        isRead: true, 
-        lastUpdated: { $lt: twoWeeksAgo } 
-      }).fetch()
-    ])
+    const { recomms, recommId } = recombeeResponse;
 
-    //should basically never take any out
+    const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const recommendationIdPairs = recomms.map(rec => [rec.id, recommId] as const);
+    const recommendedPostIds = recomms.map(({ id }) => id);
+    const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
+
+    const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context)
 
-    // TO-DO: clean up. Recombee should now be handling this for us but maybe we'll need it again for some reason
+    const mappedPosts = filteredPosts.map(post => {
+      // _id isn't going to be filtered out by `accessFilterMultiple`
+      const postId = post._id!;
+      const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
+      if (recommId) {
+        return { post, recommId };
+      } else {
+        return {
+          post,
+          curated: curatedPostIds.includes(postId),
+          stickied: stickiedPostIds.includes(postId)  
+        };
+      }
+    });
 
-    // //sort the posts by read/unread but ensure otherwise preserving Recombee's returned order
-    // const unreadOrRecentlyReadPosts = filteredPosts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
-    // const remainingPosts = filteredPosts.filter(post => readStatuses.find(readStatus => (readStatus.postId === post._id)));
-
-    // //concatenate unread and read posts and return requested number
-    // return unreadOrRecentlyReadPosts.concat(remainingPosts).slice(0, count).map(post => ({post, recommId: recombeeResponse.recommId}));
-
-    return filteredPosts.map(post => ({ post, recommId: recombeeResponse.recommId }));
+    return mappedPosts;
   },
 
 
@@ -263,7 +331,7 @@ const recombeeApi = {
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId]))
+    const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId] as const));
     const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
@@ -287,7 +355,12 @@ const recombeeApi = {
       }
     });
 
-    return mappedPosts;
+    const curatedOrStickiedPosts = mappedPosts.filter((result): result is Exclude<RecommendedPost, RecombeeRecommendedPost> => !result.recommId);
+    const recommendedPosts = mappedPosts.filter((result): result is RecombeeRecommendedPost => !!result.recommId);
+
+    const interleavedRecommendedPosts = recombeeRequestHelpers.interleaveHybridRecommendedPosts(recommendedPosts);
+
+    return [...curatedOrStickiedPosts, ...interleavedRecommendedPosts];
   },
 
 
