@@ -3017,7 +3017,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
-  readonly wrapped2023Viewed: boolean,
   readonly hideSunshineSidebar: boolean,
 }
 
