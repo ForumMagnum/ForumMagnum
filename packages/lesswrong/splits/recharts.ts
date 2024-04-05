@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-restricted-imports
 import { BarChart, Bar, CartesianGrid, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line, Tooltip } from 'recharts';
 
 export type WrappedReCharts = {

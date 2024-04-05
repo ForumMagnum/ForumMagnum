@@ -4,8 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { isEAForum } from '../../lib/instanceSettings';
 import { useReactMapGL } from '../../splits/useReactMapGl';
-import { Popup as BadlyTypedPopup } from 'react-map-gl';
-import { componentWithChildren } from '../../lib/utils/componentsWithChildren';
 
 // Shared with LocalEventMarker
 export const styles = createStyles((theme: ThemeType): JssStyles => ({
