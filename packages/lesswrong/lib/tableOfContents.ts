@@ -125,8 +125,8 @@ export function extractTableOfContents({
 
   let headingLevelsUsed = Object.keys(headingLevelsUsedDict).map(Number).sort();
   let headingLevelMap: Record<number, number> = {};
-  for (let i = 0; i < headingLevelsUsed.length; i++) {
-    headingLevelMap[headingLevelsUsed[i]] = i + 1;
+  for (const [i, level] of headingLevelsUsed.entries()) {
+    headingLevelMap[level] = i + 1;
   }
 
   for (const heading of headings) {
