@@ -1,27 +1,17 @@
 import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
-import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
-import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
 import { isAF } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { extractTableOfContents, ToCData, ToCSection } from '../lib/tableOfContents';
+import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
-import { htmlToTextDefault } from '../lib/htmlToText';
-import { commentsTableOfContentsEnabled } from '../lib/betas';
 import { parseDocumentFromString } from '../lib/domParser';
 
-// Number of headings below which a table of contents won't be generated.
-// If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
-// it's empty) to keep the horizontal position of things on the page from
-// being imbalanced.
-const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
 
-
-async function getTocAnswers (document: DbPost) {
+async function getTocAnswersServer (document: DbPost) {
   if (!document.question) return []
 
   let answersTerms: MongoSelector<DbComment> = {
@@ -33,37 +23,10 @@ async function getTocAnswers (document: DbPost) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
-  const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
-    const { html = "" } = answer.contents || {}
-    const highlight = truncate(html, 900)
-    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
-    
-    return {
-      title: `${answer.baseScore} ${answer.author}`,
-      answer: {
-        baseScore: answer.baseScore,
-        voteCount: answer.voteCount,
-        postedAt: answer.postedAt,
-        author: answer.author,
-        highlight, shortHighlight,
-      },
-      anchor: answer._id,
-      level: 2
-    };
-  })
-
-  if (answerSections.length) {
-    return [
-      {anchor: "answers", level:1, title:'Answers'}, 
-      ...answerSections,
-      {divider:true, level: 0, anchor: "postAnswersDivider"}
-    ]
-  } else {
-    return []
-  }
+  return getTocAnswers({post: document, answers})
 }
 
-async function getTocComments (document: DbPost) {
+async function getTocCommentsServer (document: DbPost) {
   const commentSelector: any = {
     ...getDefaultViewSelector("Comments"),
     answer: false,
@@ -74,7 +37,7 @@ async function getTocComments (document: DbPost) {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
-  return [{anchor:"comments", level:0, title: postGetCommentCountStr(document, commentCount)}]
+  return getTocComments({post: document, commentCount})
 }
 
 export const getToCforPost = async ({document, version, context}: {
@@ -96,9 +59,9 @@ export const getToCforPost = async ({document, version, context}: {
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
   
-  if (tocSections.length >= MIN_HEADINGS_FOR_TOC || document.question) {
-    const tocAnswers = await getTocAnswers(document)
-    const tocComments = await getTocComments(document)
+  if (shouldShowTableOfContents({ sections: tocSections, post: document })) {
+    const tocAnswers = await getTocAnswersServer(document)
+    const tocComments = await getTocCommentsServer(document)
     tocSections.push(...tocAnswers)
     tocSections.push(...tocComments)
   
