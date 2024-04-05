@@ -23,9 +23,6 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type FormDisplayMode = "default" | "minimalist"
 
-export const getQuickTakesEntryBorderRadius = (theme: ThemeType) =>
-  isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small;
-
 export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -49,8 +46,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .form-component-EditorFormComponent': {
       background: theme.palette.grey[100],
       padding: COMMENTS_NEW_FORM_PADDING,
-      borderTopLeftRadius: getQuickTakesEntryBorderRadius(theme),
-      borderTopRightRadius: getQuickTakesEntryBorderRadius(theme),
+      borderTopLeftRadius: theme.borderRadius.quickTakesEntry,
+      borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     }
   },
   loadingRoot: {
@@ -80,8 +77,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitQuickTakes: {
     background: theme.palette.grey[100],
     padding: COMMENTS_NEW_FORM_PADDING,
-    borderBottomLeftRadius: getQuickTakesEntryBorderRadius(theme),
-    borderBottomRightRadius: getQuickTakesEntryBorderRadius(theme),
+    borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
+    borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
   },
   formButton: isFriendlyUI ? {
     fontSize: 14,

@@ -5,7 +5,6 @@ import {
   COMMENTS_NEW_FORM_PADDING,
   CommentCancelCallback,
   CommentSuccessCallback,
-  getQuickTakesEntryBorderRadius,
 } from "../comments/CommentsNewForm";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
@@ -15,7 +14,7 @@ const COLLAPSED_HEIGHT = 40;
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
-    borderRadius: getQuickTakesEntryBorderRadius(theme),
+    borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
     border: `1px solid ${theme.palette.grey[200]}`,
   },
@@ -47,7 +46,7 @@ const styles = (theme: ThemeType) => ({
     '& .form-input': {
       height: COLLAPSED_HEIGHT,
       overflow: 'hidden',
-      borderRadius: getQuickTakesEntryBorderRadius(theme),
+      borderRadius: theme.borderRadius.quickTakesEntry,
     },
     '& .EditorFormComponent-commentEditorHeight': {
       minHeight: 'unset'
