@@ -210,7 +210,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     })
   };
 
-  const showSettingsButton = userIsAdmin(currentUser) || usingClassicLWAlgorithm(selectedScenario);
+  const showSettingsButton = (userIsAdmin(currentUser) && selectedScenario.includes('recombee')) || usingClassicLWAlgorithm(selectedScenario);
+  console.log({showSettingsButton})
 
   const settingsButton = (<div>
     <SettingsButton
@@ -245,7 +246,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     availableAlgorithms.push(...testingFeeds);
   }
 
-  const enabledAlgorithms = availableAlgorithms //.filter(feed => !feed.disabled);
+  const enabledAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -262,23 +263,28 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     showDescriptionOnHover
   />
 
-  const settings = usingClassicLWAlgorithm(selectedScenario)
-    ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
-        <div className={classNames({
-          [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-          [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-        })}>
-          <TagFilterSettings
-            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
-          />
-        </div>
-      </AnalyticsContext>)
-    : <div className={classNames({
+
+  let settings = null;
+
+  if (usingClassicLWAlgorithm(selectedScenario)) { 
+    settings = <AnalyticsContext pageSectionContext="tagFilterSettings">
+      <div className={classNames({
         [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
-        {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
+        <TagFilterSettings
+          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
+        />
       </div>
+    </AnalyticsContext>
+  } else if (selectedScenario.includes('recombee')) {
+    settings = <div className={classNames({
+      [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+      [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+    })}>
+      {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
+    </div>
+  }
 
   return (
     // TODO: do we need capturePostItemOnMount here?

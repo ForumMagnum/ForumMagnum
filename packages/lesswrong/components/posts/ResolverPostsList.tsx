@@ -17,7 +17,7 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
   fallbackText?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, PostsItem, LoadMore } = Components;
+  const { Loading, PostsItem, LoadMore, SectionFooter } = Components;
 
   const { results, loading, loadMoreProps } = usePaginatedResolver({
     resolverName, 
@@ -35,7 +35,7 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
     skip: !postIds.length || loading,
   });
 
-  if (loading) {
+  if (loading && !results) {
     return <Loading/>
   }
 
@@ -45,7 +45,12 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=fa
 
   return <div>
     {results.map((post) => <PostsItem key={post._id} post={post} />)}
-    {showLoadMore && <LoadMore {...loadMoreProps}/>}
+    {showLoadMore && <SectionFooter>
+      <LoadMore
+        {...loadMoreProps}
+        sectionFooterStyles
+      />
+    </SectionFooter>}
   </div>
 
 }
