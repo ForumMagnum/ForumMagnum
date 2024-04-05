@@ -24,15 +24,8 @@ export const useDynamicTableOfContents = ({
       return precalcuatedToc;
     }
 
-    if (!html) {
-      return {
-        html,
-        sections: []
-      }
-    }
-
     const { sections = [], html: tocHtml = null } =
-      extractTableOfContents(parseDocumentFromString(html)) ?? {};
+      extractTableOfContents(parseDocumentFromString(html ?? '')) ?? {};
 
     // Always show the ToC for questions, to avoid layout shift when the answers load
     if (sections.length > MIN_HEADINGS_FOR_TOC || post?.question) {

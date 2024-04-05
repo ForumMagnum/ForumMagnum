@@ -28,7 +28,6 @@ import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
-import { userIsAdmin } from '../../lib/vulcan-users';
 import { recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 
