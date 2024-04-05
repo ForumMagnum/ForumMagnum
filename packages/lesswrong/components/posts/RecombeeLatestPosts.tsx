@@ -211,7 +211,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   };
 
   const showSettingsButton = (userIsAdmin(currentUser) && selectedScenario.includes('recombee')) || usingClassicLWAlgorithm(selectedScenario);
-  console.log({showSettingsButton})
 
   const settingsButton = (<div>
     <SettingsButton
