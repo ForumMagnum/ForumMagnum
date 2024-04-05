@@ -35,6 +35,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
+import { stableSortTags } from '../tags/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -979,14 +980,13 @@ const schema: SchemaType<"Posts"> = {
       const tagIds = Object.keys(tagRelevanceRecord).filter(id => tagRelevanceRecord[id] > 0);
       const tags = (await loadByIds(context, "Tags", tagIds)).filter(tag => !!tag) as DbTag[];
 
-      // Sort tags by score, then by name
-      const sortedTags = tags.sort((a, b) => {
-        const scoreDifference = tagRelevanceRecord[b._id] - tagRelevanceRecord[a._id];
-        if (scoreDifference === 0) {
-          return a.name.localeCompare(b.name);
-        }
-        return scoreDifference;
-      });
+      const tagInfo = tags.map(tag => ({
+        tag: tag,
+        tagRel: { baseScore: tagRelevanceRecord[tag._id] } as TagRelMinimumFragment
+      }));
+      const sortedTagInfo = stableSortTags(tagInfo);
+
+      const sortedTags = sortedTagInfo.map(({ tag }) => tag);
 
       return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
     }

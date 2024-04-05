@@ -4,6 +4,7 @@ import { siteUrlSetting, taggingNameIsSet, taggingNamePluralSetting } from "../.
 import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -92,4 +93,36 @@ export const userCanModerateSubforum = (user: UsersCurrent | DbUser | null, tag:
 export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: DbTag): boolean => {
   if (!user || !tag) return false;
   return tag.subforumModeratorIds?.includes(user._id);
+}
+
+/**
+ * Sort tags in order of: core-ness, score, name (alphabetical). If we don't have the scores, sort only by core-ness.
+ */
+export function stableSortTags<
+  T extends {name: string; core: boolean},
+  TR extends {baseScore: number} | null | undefined
+>(tagInfo: Array<{ tag: T; tagRel: TR }>): Array<{ tag: T; tagRel: TR }> {
+  return [...tagInfo].sort((a, b) => {
+    const tagA = a.tag;
+    const tagB = b.tag;
+    const tagRelA = a.tagRel;
+    const tagRelB = b.tagRel;
+
+    if (tagA.core !== tagB.core) {
+      // Core tags come first with isFriendlyUI, last otherwise
+      return (tagA.core ? -1 : 1) * (isFriendlyUI ? 1 : -1);
+    }
+
+    if (tagRelA && tagRelB) {
+      if (tagRelA.baseScore !== tagRelB.baseScore) {
+        return (tagRelB.baseScore || 0) - (tagRelA.baseScore || 0);
+      }
+
+      // Only sort by name if we have the scores and they are equal, to
+      // avoid reordering tags that have the same score (where we don't have it here)
+      return tagA.name.localeCompare(tagB.name);
+    }
+
+    return 0;
+  });
 }

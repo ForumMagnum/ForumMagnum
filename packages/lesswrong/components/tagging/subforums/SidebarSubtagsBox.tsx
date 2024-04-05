@@ -6,8 +6,8 @@ import { useUpdate } from "../../../lib/crud/withUpdate";
 import { taggingNameSetting } from "../../../lib/instanceSettings";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
-import { sortTags } from "../FooterTagList";
 import type { TagsTooltipPreviewWrapper } from "../TagsTooltip";
+import { stableSortTags } from "../../../lib/collections/tags/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -113,7 +113,10 @@ const SidebarSubtagsBox = ({ tag, className, classes }: {
     return null;
   }
 
-  const sortedSubtags = sortTags(subTags, (t) => t)
+  const sortedSubtags = stableSortTags(subTags.map((subTag) => ({
+    tag: subTag,
+    tagRel: null,
+  }))).map(({ tag }) => tag);
   const visibleSubtags = showAllSubtags ? sortedSubtags : take(sortedSubtags, 7)
 
   return (
