@@ -94,13 +94,13 @@ export function extractTableOfContents({
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
   let headingElements = document.querySelectorAll(headingSelector);
-  headingElements.forEach((element) => {
+  for (const element of Array.from(headingElements)) {
     if (!(element instanceof window.HTMLElement)) {
-      return;
+      continue;
     }
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
-      return;
+      continue;
     }
 
     let title = element.textContent;
@@ -114,24 +114,24 @@ export function extractTableOfContents({
         level: tagToHeadingLevel(tagName),
       });
     }
-  });
+  }
 
   // Filter out unused heading levels, mapping the heading levels to consecutive
   // numbers starting from 1.
   let headingLevelsUsedDict: Partial<Record<number, boolean>> = {};
-  headings.forEach((heading) => {
+  for (const heading of headings) {
     headingLevelsUsedDict[heading.level] = true;
-  });
+  }
 
   let headingLevelsUsed = Object.keys(headingLevelsUsedDict).map(Number).sort();
   let headingLevelMap: Record<number, number> = {};
-  headingLevelsUsed.forEach((level, index) => {
-    headingLevelMap[level] = index + 1;
-  });
+  for (let i = 0; i < headingLevelsUsed.length; i++) {
+    headingLevelMap[headingLevelsUsed[i]] = i + 1;
+  }
 
-  headings.forEach((heading) => {
+  for (const heading of headings) {
     heading.level = headingLevelMap[heading.level];
-  });
+  }
 
   if (headings.length) {
     headings.push({ divider: true, level: 0, anchor: "postHeadingsDivider" });
