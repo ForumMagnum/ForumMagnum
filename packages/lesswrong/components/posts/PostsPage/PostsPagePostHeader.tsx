@@ -1,6 +1,6 @@
 import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
@@ -198,26 +198,6 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const countAnswersAndDescendents = (answers: CommentsList[]) => {
-  const sum = answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0);
-  return sum + answers.length;
-}
-
-const getResponseCounts = (
-  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
-  answers: CommentsList[],
-) => {
-  // answers may include some which are deleted:true, deletedPublic:true (in which
-  // case various fields are unpopulated and a deleted-item placeholder is shown
-  // in the UI). These deleted answers are *not* included in post.commentCount.
-  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
-
-  return {
-    answerCount: nonDeletedAnswers.length,
-    commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
-  };
-};
-
 const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
@@ -306,7 +286,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {
     answerCount,
     commentCount,
-  } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
 
