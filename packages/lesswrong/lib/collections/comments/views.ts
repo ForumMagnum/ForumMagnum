@@ -375,8 +375,8 @@ Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
     selector: {
       postId: terms.postId,
       deleted: false,
-      score: {$gt: 0},
-      postedAt: terms.after ? {$gt: new Date(terms.after)} : null
+      postedAt: terms.after ? {$gt: new Date(terms.after)} : null,
+      ...(!isEAForum && {score: {$gt: 0}}),
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
