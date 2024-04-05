@@ -1,3 +1,10 @@
 import ReactMapGL, { Marker, Popup } from 'react-map-gl';
 
-(window as any).reactMapGL = { ReactMapGL, Marker, Popup };
+export type WrappedReactMapGL = {
+  ReactMapGL: typeof ReactMapGL
+  Marker:     typeof Marker
+  Popup:      typeof Popup
+};
+
+const wrappedReactMapGL: WrappedReactMapGL = { ReactMapGL, Marker, Popup };
+(window as any).reactMapGL = wrappedReactMapGL

@@ -1,2 +1,19 @@
-import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line } from 'recharts';
-(window as any).recharts = { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line };
+import { BarChart, Bar, CartesianGrid, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line, Tooltip } from 'recharts';
+
+export type WrappedReCharts = {
+  BarChart:            typeof BarChart,
+  Bar:                 typeof Bar,
+  CartesianGrid:       typeof CartesianGrid,
+  ResponsiveContainer: typeof ResponsiveContainer,
+  YAxis:               typeof YAxis,
+  XAxis:               typeof XAxis,
+  AreaChart:           typeof AreaChart,
+  Area:                typeof Area,
+  LineChart:           typeof LineChart,
+  Line:                typeof Line,
+  Tooltip:             typeof Tooltip,
+};
+
+const wrappedRecharts: WrappedReCharts = { BarChart, Bar, CartesianGrid, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line, Tooltip };
+
+(window as any).recharts = wrappedRecharts;

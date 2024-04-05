@@ -1,14 +1,20 @@
+import { WrappedReactMapGL } from './react-map-gl';
 import { useLoadedLibrary } from './useLoadedLibrary';
 
-type WrappedReactMapGL = any;
-
 export function useReactMapGL(): {
-  ready: boolean,
+  ready: true,
   reactMapGL: WrappedReactMapGL,
+} | {
+  ready: false,
+  reactMapGL: null,
 } {
   const result = useLoadedLibrary<WrappedReactMapGL>({
     path: "/js/react-map-gl.js",
     windowField: "reactMapGL",
   });
-  return { ready: result.ready, reactMapGL: result.ready ? result.library : null };
+  if (result.ready) {
+    return { ready: true, reactMapGL: result.library };
+  } else {
+    return { ready: false, reactMapGL: null };
+  }
 }

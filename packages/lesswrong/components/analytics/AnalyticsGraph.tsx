@@ -232,7 +232,7 @@ export const AnalyticsGraph = ({
   smallerTitle?: boolean;
   classes: ClassesType;
 }) => {
-  const { ready, recharts: { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } } = useReCharts();
+  const { ready: rechartsReady, recharts } = useReCharts();
   const { Typography, ForumDropdown, Loading } = Components;
 
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
@@ -327,7 +327,11 @@ export const AnalyticsGraph = ({
   const yAxisWidth = 26 + Math.ceil(maxValue.toLocaleString().length * 6);
   const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 2;
 
-  if (!ready) return <Loading/>
+  if (!rechartsReady) {
+    return <Loading/>
+  }
+  const { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } = recharts;
+  
   return (
     <div className={classes.root}>
       <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle, [classes.graphHeaderNoTitle]: !title})}>

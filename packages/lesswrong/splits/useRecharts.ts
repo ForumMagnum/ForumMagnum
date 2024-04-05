@@ -1,14 +1,20 @@
 import { useLoadedLibrary } from './useLoadedLibrary';
-
-type ReCharts = any;
+import type { WrappedReCharts } from './recharts';
 
 export function useReCharts(): {
-  ready: boolean,
-  recharts: ReCharts,
-} {
-  const result = useLoadedLibrary<ReCharts>({
+  ready: true,
+  recharts: WrappedReCharts,
+} | {
+  ready: false,
+  recharts: null,
+}{
+  const result = useLoadedLibrary<WrappedReCharts>({
     path: "/js/recharts.js",
     windowField: "recharts",
   });
-  return { ready: result.ready, recharts: result.ready ? result.library : null };
+  if (result.ready) {
+    return { ready: true, recharts: result.library };
+  } else {
+    return { ready: false, recharts: null };
+  }
 }

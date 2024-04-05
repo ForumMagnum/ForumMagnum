@@ -904,8 +904,9 @@ const EngagementPercentileSection = ({data, year, classes}: {
   year: WrappedYear,
   classes: ClassesType
 }) => {
-  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
-  if (!ready) return null;
+  const { ready: rechartsReady, recharts } = useReCharts();
+  if (!rechartsReady) return null;
+  const {ResponsiveContainer, YAxis, XAxis, LineChart, Line} = recharts;
 
   // This is the x-axis position for the "you" arrow mark on the engagement chart.
   // The highest value on the x-axis is ~530 hours.
@@ -1019,8 +1020,9 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
   mostReadTopics: WrappedMostReadTopic[],
   classes: ClassesType
 }) => {
-  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
-  if (!ready) return null;
+  const { ready: rechartsReady, recharts } = useReCharts();
+  if (!rechartsReady) return <Components.Loading/>;
+  const { BarChart, Bar, ResponsiveContainer, YAxis, XAxis } = recharts;
 
   if (!mostReadTopics.length) return null;
   
@@ -1065,8 +1067,9 @@ const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
   relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[],
   classes: ClassesType
 }) => {
-  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
-  if (!ready) return <Components.Loading/>;
+  const { ready: rechartsReady, recharts } = useReCharts();
+  if (!rechartsReady) return <Components.Loading/>;
+  const { BarChart, Bar, ResponsiveContainer, YAxis, XAxis } = recharts;
 
   const relativeMostReadTopics = relativeMostReadCoreTopics.map(topic => {
     return {
@@ -1327,8 +1330,9 @@ const KarmaChangeSection = ({data, classes}: {
   data: WrappedDataByYear,
   classes: ClassesType
 }) => {
-  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
-  if (!ready) return <Components.Loading/>;
+  const { ready: rechartsReady, recharts } = useReCharts();
+  if (!rechartsReady) return <Components.Loading/>;
+  const { ResponsiveContainer, YAxis, XAxis, AreaChart, Area } = recharts;
 
   // If the user hasn't written anything and their karma change is 0, hide the karma change section
   const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
