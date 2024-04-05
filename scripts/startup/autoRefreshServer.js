@@ -7,12 +7,17 @@ const childProcess = require('child_process');
 const { promisify } = require('util');
 
 const openWebsocketConnections = [];
-let clientRebuildInProgress = false;
+let clientRebuildInProgressComponentCount = 0;
 let serverRebuildInProgress = false;
 
-function setClientRebuildInProgress(inProgress) {
-  clientRebuildInProgress = inProgress;
+function clientComponentStartedRebuilding() {
+  clientRebuildInProgressComponentCount++;
 }
+
+function clientComponentFinishedRebuilding() {
+  clientRebuildInProgressComponentCount--;
+}
+
 function setServerRebuildInProgress(inProgress) {
   serverRebuildInProgress = inProgress;
 }
@@ -66,7 +71,7 @@ function generateBuildId() {
 
 let refreshIsPending = false;
 async function initiateRefresh({serverPort}) {
-  if (refreshIsPending || clientRebuildInProgress || serverRebuildInProgress) {
+  if (refreshIsPending || clientRebuildInProgressComponentCount>0 || serverRebuildInProgress) {
     return;
   }
   
@@ -131,4 +136,4 @@ async function startLint() {
   }
 }
 
-module.exports = { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint };
+module.exports = { clientComponentStartedRebuilding, clientComponentFinishedRebuilding, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint };

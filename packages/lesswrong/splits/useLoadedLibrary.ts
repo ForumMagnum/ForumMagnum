@@ -20,7 +20,8 @@ export function useLoadedLibrary<T>({path, windowField}: {
     void (async () => {
       if (!(path in libraryLoadStatus)) {
         libraryLoadStatus[path] = "loading";
-        await loadScript(path);
+        const hash = window.splitFileHashes[path];
+        await loadScript(`${path}?hash=${hash}`);
         libraryLoadStatus[path] = "ready";
         rerender();
       }

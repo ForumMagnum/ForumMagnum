@@ -11,6 +11,7 @@ declare global {
     ssrRenderedAt: string,
     publicSettings: any,
     publicInstanceSettings: any,
+    splitFileHashes: Record<string,string>
     __APOLLO_STATE__: any,
     __APOLLO_FOREIGN_STATE__: any,
     missingMainStylesheet?: boolean,

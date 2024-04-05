@@ -47,7 +47,7 @@ import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
-import { getClientBundle } from './utils/bundleUtils';
+import { addJavascriptEndpoints, getMainClientBundle, getSplitFileHashes } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
@@ -187,49 +187,7 @@ export function startWebserver() {
   app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
-  addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
-    let headers: Record<string,string> = {}
-    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
-
-    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
-      // If the query specifies a hash, but it's wrong, this probably means there's a
-      // version upgrade in progress, and the SSR and the bundle were handled by servers
-      // on different versions. Serve whatever bundle we have (there's really not much
-      // else to do), but set the Cache-Control header differently so that it will be
-      // fixed on the next refresh.
-      //
-      // If the client accepts brotli compression but we don't have a valid brotli compressed bundle,
-      // that either means we are running locally (in which case chache control isn't important), or that
-      // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
-      // from serving the uncompressed bundle for too long).
-      headers = {
-        "Cache-Control": "public, max-age=60",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    } else {
-      headers = {
-        "Cache-Control": "public, max-age=604800, immutable",
-        "Content-Type": "text/javascript; charset=utf-8"
-      }
-    }
-
-    if (bundleBrotliBuffer !== null && acceptBrotli) {
-      headers["Content-Encoding"] = "br";
-      res.writeHead(200, headers);
-      res.end(bundleBrotliBuffer);
-    } else {
-      res.writeHead(200, headers);
-      res.end(bundleBuffer);
-    }
-  });
-  addStaticRoute("/js/react-map-gl.js", ({query}, req, res, context) => {
-    // TODO: Pass around a hash, cache a copy, do the same invalidation stuff
-    // we do with the main bundle
-    const buffer = fs.readFileSync("build/shared/js/react-map-gl.js");
-    res.writeHead(200);
-    res.end(buffer);
-  });
+  addJavascriptEndpoints(app);
 
   // Setup CKEditor Token
   app.use("/ckeditor-token", ckEditorTokenHandler)
@@ -301,7 +259,7 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
-    const {bundleHash} = getClientBundle();
+    const {bundleHash} = getMainClientBundle();
     const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
@@ -392,6 +350,7 @@ export function startWebserver() {
           + ssrBody + '\n'
         + '</body>\n'
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + embedAsGlobalVar("splitFileHashes", getSplitFileHashes())
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
         + '</html>\n')
