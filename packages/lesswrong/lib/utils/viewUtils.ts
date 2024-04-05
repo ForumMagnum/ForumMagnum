@@ -106,12 +106,6 @@ function getParameters<N extends CollectionNameString>(
     parameters.options.sort = { createdAt: -1 } as any;
   }
 
-  // extend sort to sort posts by _id to break ties, unless there's already an id sort
-  // NOTE: always do this last to avoid overriding another sort
-  if (!(parameters.options.sort && typeof parameters.options.sort._id !== undefined)) {
-    parameters = merge(parameters, { options: { sort: { _id: -1 } } });
-  }
-
   // remove any null fields (setting a field to null means it should be deleted)
   parameters.selector = replaceSpecialFieldSelectors(parameters.selector);
   if (parameters.options.sort) {
