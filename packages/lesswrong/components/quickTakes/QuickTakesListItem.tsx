@@ -4,7 +4,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
 import classNames from "classnames";
-import { NoSSR } from "../../lib/utils/componentsWithChildren";
+import ForumNoSSR from "../common/ForumNoSSR";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
@@ -42,7 +42,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
   // This is to eliminate a loading spinner (for the child comments) when someone expands a quick take,
   // while avoiding the impact to the home page SSR speed for the large % of users who won't interact with quick takes at all
   const expandedComment = (
-    <NoSSR>
+    <ForumNoSSR>
       <div className={classNames(classes.expandedRoot, { [classes.hidden]: !expanded })}>
         <CommentsNode
           treeOptions={{
@@ -56,7 +56,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
           forceUnCollapsed
         />
       </div>
-    </NoSSR>
+    </ForumNoSSR>
   );
 
   const collapsedComment = (

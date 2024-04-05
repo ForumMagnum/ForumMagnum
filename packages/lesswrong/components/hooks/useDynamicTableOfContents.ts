@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { MIN_HEADINGS_FOR_TOC, ToCData, extractTableOfContents, getTocAnswers } from "../../lib/tableOfContents";
-import { PostWithCommentCounts, getResponseCounts, postGetCommentCountStr } from "../../lib/collections/posts/helpers";
+import { ToCData, extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents } from "../../lib/tableOfContents";
+import { PostWithCommentCounts, getResponseCounts } from "../../lib/collections/posts/helpers";
 import { parseDocumentFromString } from "../../lib/domParser";
 
 type PostMinForToc = PostWithCommentCounts & {
@@ -24,18 +24,10 @@ export const useDynamicTableOfContents = ({
       return precalcuatedToc;
     }
 
-    if (!html) {
-      return {
-        html,
-        sections: []
-      }
-    }
-
     const { sections = [], html: tocHtml = null } =
-      extractTableOfContents(parseDocumentFromString(html)) ?? {};
+      extractTableOfContents(parseDocumentFromString(html ?? '')) ?? {};
 
-    // Always show the ToC for questions, to avoid layout shift when the answers load
-    if (sections.length > MIN_HEADINGS_FOR_TOC || post?.question) {
+    if (shouldShowTableOfContents({ sections, post })) {
       if (!post) {
         return {
           html: tocHtml ?? null,
@@ -47,7 +39,7 @@ export const useDynamicTableOfContents = ({
       sections.push(...answerSections);
 
       const { commentCount } = getResponseCounts({ post, answers });
-      const commentsSection = [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
+      const commentsSection = getTocComments({ post, commentCount });
       sections.push(...commentsSection);
 
       return {

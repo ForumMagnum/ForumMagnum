@@ -9,17 +9,17 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ResolverPostsList = ({resolverName, skip, limit=13, fallbackText, classes}: {
+export const ResolverPostsList = ({resolverName, skip, limit=13, showLoadMore=false, fallbackText, classes}: {
   resolverName: string,
   skip?: boolean,
   limit?: number,
+  showLoadMore?: boolean,
   fallbackText?: string
   classes: ClassesType<typeof styles>,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const { Loading, PostsItem } = Components;
+  const { Loading, PostsItem, LoadMore, SectionFooter } = Components;
 
-  const { results, loading } = usePaginatedResolver({
+  const { results, loading, loadMoreProps } = usePaginatedResolver({
     resolverName, 
     fragmentName: "PostsListWithVotes",
     limit,
@@ -35,7 +35,7 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, fallbackText, c
     skip: !postIds.length || loading,
   });
 
-  if (loading) {
+  if (loading && !results) {
     return <Loading/>
   }
 
@@ -45,6 +45,12 @@ export const ResolverPostsList = ({resolverName, skip, limit=13, fallbackText, c
 
   return <div>
     {results.map((post) => <PostsItem key={post._id} post={post} />)}
+    {showLoadMore && <SectionFooter>
+      <LoadMore
+        {...loadMoreProps}
+        sectionFooterStyles
+      />
+    </SectionFooter>}
   </div>
 
 }

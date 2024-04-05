@@ -3,6 +3,7 @@ import * as _ from 'underscore';
 import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
+import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -40,7 +41,7 @@ export interface ToCData {
 // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
 // it's empty) to keep the horizontal position of things on the page from
 // being imbalanced.
-export const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
+const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
 
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
@@ -93,13 +94,13 @@ export function extractTableOfContents({
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
   let headingElements = document.querySelectorAll(headingSelector);
-  headingElements.forEach((element) => {
+  for (const element of Array.from(headingElements)) {
     if (!(element instanceof window.HTMLElement)) {
-      return;
+      continue;
     }
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
-      return;
+      continue;
     }
 
     let title = element.textContent;
@@ -113,24 +114,24 @@ export function extractTableOfContents({
         level: tagToHeadingLevel(tagName),
       });
     }
-  });
+  }
 
   // Filter out unused heading levels, mapping the heading levels to consecutive
   // numbers starting from 1.
   let headingLevelsUsedDict: Partial<Record<number, boolean>> = {};
-  headings.forEach((heading) => {
+  for (const heading of headings) {
     headingLevelsUsedDict[heading.level] = true;
-  });
+  }
 
   let headingLevelsUsed = Object.keys(headingLevelsUsedDict).map(Number).sort();
   let headingLevelMap: Record<number, number> = {};
-  headingLevelsUsed.forEach((level, index) => {
-    headingLevelMap[level] = index + 1;
-  });
+  for (let i = 0; i < headingLevelsUsed.length; i++) {
+    headingLevelMap[headingLevelsUsed[i]] = i + 1;
+  }
 
-  headings.forEach((heading) => {
+  for (const heading of headings) {
     heading.level = headingLevelMap[heading.level];
-  });
+  }
 
   if (headings.length) {
     headings.push({ divider: true, level: 0, anchor: "postHeadingsDivider" });
@@ -176,6 +177,24 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   } else {
     return [];
   }
+}
+
+export function getTocComments({
+  post,
+  commentCount,
+}: { post?: PostWithCommentCounts | null; commentCount?: number | undefined } = {}) {
+  return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
+}
+
+export function shouldShowTableOfContents({
+  sections,
+  post,
+}: {
+  sections: ToCSection[];
+  post?: { question: boolean } | null;
+}): boolean {
+  // Always show the ToC for questions, to avoid layout shift when the answers load
+  return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
 }
 
 /**
