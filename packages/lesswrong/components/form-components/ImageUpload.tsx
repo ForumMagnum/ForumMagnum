@@ -103,6 +103,10 @@ const formPreviewSizeByImageType: Record<
     width: 345,
     height: 234
   },
+  spotlightSplashImageId: {
+    width: 1000,
+    height: 1000
+  }
 }
 
 const FormProfileImage: FC<{

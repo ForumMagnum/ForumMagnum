@@ -362,6 +362,7 @@ export const SpotlightItem = ({
         }
       </>}
     </div>
+    {spotlight.spotlightSplashImageId && <img src={spotlight.spotlightSplashImageId} className={classes.backgroundImage} />}
   </AnalyticsTracker>
 }
 

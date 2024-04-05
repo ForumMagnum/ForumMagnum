@@ -29,7 +29,9 @@ registerFragment(`
   fragment ReviewWinnerSpotlight on ReviewWinner {
     ...ReviewWinnerAll
     post {
+      _id
       title
+      slug
       user {
         ...UsersMinimumInfo
       }
@@ -38,6 +40,10 @@ registerFragment(`
       }
       customHighlight {
         ...RevisionDisplay
+      }
+      contents {
+        htmlHighlight
+        plaintextDescription
       }
     }
   }

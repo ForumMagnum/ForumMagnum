@@ -3452,6 +3452,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly imageFade: boolean,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageId: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -3460,6 +3461,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageId: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
@@ -3759,10 +3761,18 @@ interface ReviewWinnerSpotlight extends ReviewWinnerAll { // fragment on ReviewW
 }
 
 interface ReviewWinnerSpotlight_post { // fragment on Posts
+  readonly _id: string,
   readonly title: string,
+  readonly slug: string,
   readonly user: UsersMinimumInfo|null,
   readonly coauthors: Array<UsersMinimumInfo>,
   readonly customHighlight: RevisionDisplay|null,
+  readonly contents: ReviewWinnerSpotlight_post_contents|null,
+}
+
+interface ReviewWinnerSpotlight_post_contents { // fragment on Revisions
+  readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
 }
 
 interface ReviewWinnerAll { // fragment on ReviewWinners

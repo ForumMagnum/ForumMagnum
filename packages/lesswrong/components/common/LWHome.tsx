@@ -8,6 +8,7 @@ import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { useRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { useCurrentUser } from './withUser';
+import { SpotlightItem } from '../spotlights/SpotlightItem';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FullPageSpotlight,
@@ -27,7 +28,9 @@ const LWHome = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          {recombeeFrontpagePrototypeEnabled && <FullPageSpotlight/>}
+          {recombeeFrontpagePrototypeEnabled && <AnalyticsContext pageSubSectionContext="spotlightItem">
+            <DismissibleSpotlightItem current />
+          </AnalyticsContext>}
           
           {!recombeeFrontpagePrototypeEnabled && !reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
