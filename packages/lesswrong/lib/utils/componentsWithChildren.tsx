@@ -1,6 +1,5 @@
 import React, { PropsWithChildren } from 'react';
 
-import { default as BadlyTypedNoSSR } from 'react-no-ssr';
 import { default as BadlyTypedHelmet } from 'react-helmet';
 import {
   InstantSearch as BadlyTypedInstantSearch,
@@ -17,7 +16,6 @@ export function componentWithChildren<T>(component: React.ComponentType<T>): Rea
   return component as React.ComponentType<PropsWithChildren<T>>;
 }
 
-export const NoSSR = componentWithChildren(BadlyTypedNoSSR);
 export const Helmet = componentWithChildren(BadlyTypedHelmet);
 export const InstantSearch = componentWithChildren(BadlyTypedInstantSearch);
 export const Index = componentWithChildren(BadlyTypedIndex);
