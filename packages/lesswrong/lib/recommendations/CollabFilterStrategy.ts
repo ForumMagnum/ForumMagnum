@@ -1,8 +1,9 @@
-import FeatureStrategy from "./FeatureStrategy";
+import FeatureStrategy, { ContextualFeatureStrategy } from "./FeatureStrategy";
 import type {
+  ContextualStrategySpecification,
   StrategySpecification,
   WeightedFeature,
-} from "../../lib/collections/users/recommendationSettings";
+} from "../collections/users/recommendationSettings";
 import { RecommendationResult } from "./RecommendationStrategy";
 
 /**
@@ -12,13 +13,13 @@ import { RecommendationResult } from "./RecommendationStrategy";
  * Jaccard index between the source post and each recommendable target post,
  * returning the posts with the highest indices.
  */
-class CollabFilterStrategy extends FeatureStrategy {
+class CollabFilterStrategy extends ContextualFeatureStrategy {
   protected weightByTagSimilarity = false;
 
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    strategy: StrategySpecification,
+    strategy: ContextualStrategySpecification,
   ): Promise<RecommendationResult> {
     const features: WeightedFeature[] = [
       {feature: "karma", weight: 0.8},

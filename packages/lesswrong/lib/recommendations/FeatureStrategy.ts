@@ -1,6 +1,6 @@
-import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
-import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import RecommendationStrategy, { ContextualRecommendationStrategy, ContextualStrategy, RecommendationResult } from "./RecommendationStrategy";
+import type { ContextualStrategySpecification, StrategySpecification } from "../collections/users/recommendationSettings";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { featureRegistry } from "./Feature";
 
 /**
@@ -14,7 +14,7 @@ class FeatureStrategy extends RecommendationStrategy {
     currentUser: DbUser|null,
     count: number,
     {postId, features}: StrategySpecification,
-  ): Promise<RecommendationResult> {
+  ): Promise<RecommendationResult<boolean>> {
     if (!features) {
       throw new Error("No features supplied to FeatureStrategy");
     }
@@ -25,6 +25,7 @@ class FeatureStrategy extends RecommendationStrategy {
     const recommendedFilter = this.getAlreadyRecommendedFilter(currentUser);
     const postFilter = this.getDefaultPostFilter();
     const tagFilter = this.getTagFilter();
+    const currentPostFilter = this.getExcludeCurrentPostFilter(postId);
 
     let joins = "";
     let filters = "";
@@ -52,7 +53,7 @@ class FeatureStrategy extends RecommendationStrategy {
         ${postFilter.join}
         ${joins}
         WHERE
-          p."_id" <> $(postId) AND
+          ${currentPostFilter.filter}
           ${filters}
           ${readFilter.filter}
           ${postFilter.filter}
@@ -64,12 +65,12 @@ class FeatureStrategy extends RecommendationStrategy {
       WHERE ${recommendedFilter.filter} 1=1
       LIMIT $(count)
     `, {
+      ...currentPostFilter.args,
       ...readFilter.args,
       ...recommendedFilter.args,
       ...postFilter.args,
       ...tagFilter.args,
       ...args,
-      postId,
       count,
     });
 
@@ -77,4 +78,16 @@ class FeatureStrategy extends RecommendationStrategy {
   }
 }
 
+class ContextualFeatureStrategy extends FeatureStrategy implements ContextualStrategy {
+  readonly contextual = true;
+  async recommend(
+    currentUser: DbUser|null,
+    count: number,
+    strategySpecification: ContextualStrategySpecification,
+  ) {
+    return super.recommend(currentUser, count, strategySpecification);
+  }
+}
+
+export { ContextualFeatureStrategy };
 export default FeatureStrategy;

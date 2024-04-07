@@ -5,7 +5,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import type { RecommendationsAlgorithm, RecommendationsAlgorithmWithStrategy } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
@@ -125,6 +125,14 @@ const LWRecommendations = ({
       ...getFrontPageOverwrites(!!currentUser)
     }
 
+    const strategySettings: RecommendationsAlgorithmWithStrategy = {
+      strategy: {
+        name: 'bestOf',
+        // postId: 'adafsf',
+        // features: [{ feature: 'collabFilter', weight: 6 }]
+      }
+    }
+
     // Disabled during 2018 Review [and coronavirus]
     const recommendationsTooltip = <div>
       <div>
@@ -194,7 +202,7 @@ const LWRecommendations = ({
                 pageSubSectionContext="frontpageFromTheArchives"
                 capturePostItemOnMount
               >
-                <RecommendationsList algorithm={frontpageRecommendationSettings} />
+                <RecommendationsList algorithm={strategySettings} />
               </AnalyticsContext>
             )}
             {hasCuratedPostsSetting.get() && <div className={classes.curated}>
