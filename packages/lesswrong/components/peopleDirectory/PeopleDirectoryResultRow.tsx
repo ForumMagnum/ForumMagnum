@@ -4,6 +4,8 @@ import { usePeopleDirectory } from "./usePeopleDirectory";
 import { useClickableCell } from "../common/useClickableCell";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 
+export const COLUMN_HORIZONTAL_PADDING = 10;
+
 const styles = (theme: ThemeType) => ({
   root: {
     display: "contents",
@@ -19,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     height: 64,
-    padding: "12px 6px",
+    padding: `12px ${COLUMN_HORIZONTAL_PADDING}px`,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
 });

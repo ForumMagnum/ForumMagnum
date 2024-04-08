@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { COLUMN_HORIZONTAL_PADDING } from "./PeopleDirectoryResultRow";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -9,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     fontSize: 14,
     fontWeight: 600,
-    padding: "8px 6px",
+    padding: `8px ${COLUMN_HORIZONTAL_PADDING}px`,
     whiteSpace: "nowrap",
     color: theme.palette.grey[600],
   },
