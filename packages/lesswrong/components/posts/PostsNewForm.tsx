@@ -6,7 +6,6 @@ import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation } from '../../lib/routeUtil';
-import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
@@ -17,6 +16,7 @@ import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -310,7 +310,7 @@ const PostsNewForm = ({classes}: {
           <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <NoSSR>
+          <ForumNoSSR>
               <WrappedSmartForm
                 collectionName="Posts"
                 mutationFragment={getFragment('PostsPage')}
@@ -342,7 +342,7 @@ const PostsNewForm = ({classes}: {
                   FormSubmit: NewPostsSubmit
                 }}
               />
-          </NoSSR>
+          </ForumNoSSR>
         </RecaptchaWarning>
       </div>
     </DynamicTableOfContents>

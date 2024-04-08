@@ -16,7 +16,7 @@ import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import { Helmet, NoSSR } from '../lib/utils/componentsWithChildren';
+import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
@@ -29,6 +29,7 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
+import ForumNoSSR from './common/ForumNoSSR';
 
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -446,9 +447,9 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
               {/* Only show intercom after they have accepted cookies */}
-              <NoSSR>
+              <ForumNoSSR>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              </NoSSR>
+              </ForumNoSSR>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -540,9 +541,9 @@ const Layout = ({currentUser, children, classes}: {
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <NoSSR>
+                  <ForumNoSSR>
                     <SunshineSidebar/>
-                  </NoSSR>
+                  </ForumNoSSR>
                 </div>}
               </div>
             </CommentBoxManager>
