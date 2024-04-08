@@ -19,6 +19,9 @@ const styles = (theme: ThemeType) => ({
       borderColor: theme.palette.grey[310],
       background: theme.palette.grey[25],
     },
+    "&$active:hover": {
+      background: theme.palette.primary.dark,
+    },
   },
   button: {
     color: theme.palette.grey[600],
@@ -30,6 +33,9 @@ const styles = (theme: ThemeType) => ({
   active: {
     color: theme.palette.text.alwaysWhite,
     background: theme.palette.primary.main,
+    "& $chevron": {
+      color: theme.palette.text.alwaysWhite,
+    },
   },
   title: {
     userSelect: "none",
