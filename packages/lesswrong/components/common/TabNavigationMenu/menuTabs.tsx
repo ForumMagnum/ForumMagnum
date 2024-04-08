@@ -90,7 +90,8 @@ export type MenuTabRegular = {
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
   subItem?: boolean,
-  loggedOutOnly?: boolean
+  loggedOutOnly?: boolean,
+  flag?: string,
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -305,6 +306,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'People directory',
       showOnMobileStandalone: true,
       showOnCompressed: true,
+      flag: "beta",
     }, {
       id: 'takeAction',
       title: 'Take action',

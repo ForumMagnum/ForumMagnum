@@ -14,7 +14,7 @@ const iconTransform = forumSelect({
   default: undefined,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   menuItem: {
-    width: 190,
+    width: isFriendlyUI ? 210 : 190,
   },
   navButton: {
     '&:hover': {
@@ -91,13 +91,25 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     maxWidth: isFriendlyUI ? 190 : undefined,
   },
-})
+  flag: {
+    padding: "2px 4px",
+    marginLeft: 10,
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: "110%",
+    letterSpacing: "0.33px",
+    textTransform: "uppercase",
+    background: theme.palette.primary.main,
+    borderRadius: theme.borderRadius.small,
+    color: theme.palette.text.alwaysWhite,
+  },
+});
 
 export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
@@ -156,6 +168,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
           {tab.title}
         </span>
       }
+      {tab.flag && <span className={classes.flag}>{tab.flag}</span>}
     </MenuItemLink>
   </LWTooltip>
 }
