@@ -15,9 +15,17 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     border: `1px solid ${theme.palette.grey[300]}`,
     background: theme.palette.grey[0],
+    "&:hover": {
+      borderColor: theme.palette.grey[310],
+      background: theme.palette.grey[25],
+    },
   },
   button: {
     color: theme.palette.grey[600],
+    "&:hover": {
+      color: theme.palette.grey[800],
+      background: theme.palette.grey[120],
+    },
   },
   active: {
     color: theme.palette.text.alwaysWhite,
