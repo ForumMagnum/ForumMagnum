@@ -303,7 +303,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/people-directory',
       iconComponent: PeopleDirectoryIcon,
       selectedIconComponent: PeopleDirectorySelectedIcon,
-      tooltip: 'People directory',
+      tooltip: 'Search and filter through all Forum users',
       showOnMobileStandalone: true,
       showOnCompressed: true,
       flag: "beta",
