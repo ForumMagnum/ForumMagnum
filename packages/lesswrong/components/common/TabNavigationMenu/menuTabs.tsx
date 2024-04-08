@@ -31,8 +31,12 @@ import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
 import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
 import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
-import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
-import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
+import GroupsIcon from "@heroicons/react/24/outline/UserGroupIcon";
+import GroupsSelectedIcon from "@heroicons/react/24/solid/UserGroupIcon";
+import {
+  PeopleDirectoryIcon,
+  PeopleDirectorySelectedIcon,
+} from '../../icons/peopleDirectoryIcon';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -293,6 +297,15 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'peopleDirectory',
+      title: 'People directory',
+      link: '/people-directory',
+      iconComponent: PeopleDirectoryIcon,
+      selectedIconComponent: PeopleDirectorySelectedIcon,
+      tooltip: 'People directory',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'takeAction',
       title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/opportunities-to-take-action`,
@@ -311,7 +324,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true
     }, {
       id: 'community',
-      title: 'Groups & people',
+      title: 'Groups',
       link: communityPath,
       iconComponent: GroupsIcon,
       selectedIconComponent: GroupsSelectedIcon,
