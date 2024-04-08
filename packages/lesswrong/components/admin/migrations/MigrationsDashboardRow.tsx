@@ -43,7 +43,7 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
   }
   
   const toggleExpanded = React.useCallback(
-    ev => setExpanded(!expanded),
+    (_ev: React.MouseEvent) => setExpanded(!expanded),
     [expanded, setExpanded]
   );
   

@@ -1,7 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
-import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';

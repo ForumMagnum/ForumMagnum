@@ -266,7 +266,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/centre-for-effective-altruism-1',
     salary: '$97k - $170k',
     location: 'Remote',
-    deadline: moment('2024-03-22'),
+    deadline: moment('2024-03-29'),
   },
   'fem-head-of-ops': {
     careerStages: ['midCareer', 'lateCareer'],
@@ -284,7 +284,6 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/family-empowerment-media',
     salary: '$50k - $65k',
     location: 'Remote',
-    deadline: moment('2024-03-31'),
   },
   'cais-research-engineer': {
     careerStages: ['earlyCareer'],

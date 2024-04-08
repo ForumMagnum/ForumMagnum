@@ -279,7 +279,7 @@ const styles = (theme: ThemeType) => ({
       display: 'block',
     }
   },
-  author: {
+  authors: {
     fontSize: '1.6rem',
     fontWeight: '700',
     color: theme.palette.text.reviewWinner.author,
@@ -541,8 +541,17 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       <h1 className={classNames(classes.title, { [classes.titleSmaller]: post.title.length > 80 })}>
         {post.title}
       </h1>
-      <div className={classes.author}>
-        <UsersName user={post.user} />
+      <div className={classes.authors}>
+        <span>
+          <UsersName user={post.user} />
+          {!!post.coauthors?.length ? ', ' : ''}
+        </span>
+        {post.coauthors?.map((coauthor, i) =>
+          <span key={`coauthor${coauthor._id}`}>
+            <UsersName user={coauthor} />
+            {i < post.coauthors.length - 1 ? ', ' : ''}
+          </span>
+        )}
       </div>
     </div>
   );

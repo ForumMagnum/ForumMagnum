@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
-import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {isFriendlyUI} from '../../themes/forumTheme'
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {

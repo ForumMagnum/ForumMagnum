@@ -105,11 +105,11 @@ const featuredCollectionsSequenceIds = [
   "gBjPorwZHRArNSQ5w", // Most important century implications
 ];
 const bestOfYearPostIds = [
-  "vwK3v3Mekf6Jjpeep", // Lets think about slowing down AI
-  "uH9akQzJkzpBD5Duw", // What you can do to help stop violence against women and girls
-  "zy6jGPeFKHaoxKEfT", // Capability approach to human welfare
-  "pbMfYGjBqrhmmmDSo", // Nuclear winter
   "EEMpNRJK5qqCw6zqH", // Historical farmed animal welfare ballot initiatives
+  "hFPbe2ZwmB9athsXT", // Clean Water - the incredible 30% mortality reducer we can’t explain
+  "SZJBE3fuk2majqwJQ", // Principles for AI Welfare Research
+  "z8ZWwm4xeHBAiLZ6d", // Thoughts on far-UVC after working in the field for 8 months
+  "jCwuozHHjeoLPLemB", // How Long Do Policy Changes Matter? New Paper
 ];
 const introToCauseAreasSequenceIds = [
   "vtmN9g6C57XbqPrZS", // AI risk
@@ -180,12 +180,12 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
     return <Components.Loading />;
   }
 
-  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]);
-  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]);
-  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]);
-  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]);
-  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]);
-  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]);
+  const bestOfYearPosts = bestOfYearPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredVideoPosts = featuredVideoPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredAudioPosts = featuredAudioPostIds.map((id) => postsById[id]).filter(p => !!p);
+  const featuredCollectionCollections = featuredCollectionsCollectionIds.map((id) => collectionsById[id]).filter(c => !!c);
+  const featuredCollectionSequences = featuredCollectionsSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
+  const introToCauseAreasSequences = introToCauseAreasSequenceIds.map((id) => sequencesById[id]).filter(s => !!s);
 
   const {
     HeadTags, EASequenceCard, EACollectionCard, EAPostsItem, PostsAudioCard,

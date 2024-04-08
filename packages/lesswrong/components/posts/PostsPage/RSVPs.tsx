@@ -123,7 +123,7 @@ const RSVPs = ({post, classes}: {
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
-  const openRSVPForm = useCallback((initialResponse) => {
+  const openRSVPForm = useCallback((initialResponse: string) => {
     openDialog({
       componentName: "RSVPForm",
       componentProps: { post, initialResponse }

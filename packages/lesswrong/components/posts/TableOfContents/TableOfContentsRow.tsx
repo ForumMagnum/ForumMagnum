@@ -157,7 +157,8 @@ const TableOfContentsRow = ({
   const offsetStyling = offset !== undefined ? { flex: offset } : undefined;
 
   useEffect(() => {
-    if (rowRef.current) {
+    const target = rowRef.current;
+    if (target) {
       // To prevent the comment ToC title from being hidden when scrolling up
       // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
       const observer = new IntersectionObserver(([e]) => {
@@ -165,7 +166,8 @@ const TableOfContentsRow = ({
         setIsPinned(newIsPinned);
       }, { threshold: [1] });
   
-      observer.observe(rowRef.current);  
+      observer.observe(target);
+      return () => observer.unobserve(target);
     }
   }, []);
 

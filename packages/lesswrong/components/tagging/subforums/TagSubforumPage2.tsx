@@ -134,7 +134,7 @@ const TagSubforumPage2 = ({classes}: {
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
   
-  const handleChangeTab = useCallback((_, value: SubforumTab) => {
+  const handleChangeTab = useCallback((_: AnyBecauseTodo, value: SubforumTab) => {
     const newQuery = {...query, tab: value}
     navigate({...location, search: `?${qs.stringify(newQuery)}`})
   }, [navigate, query])

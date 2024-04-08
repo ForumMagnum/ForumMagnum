@@ -48,7 +48,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     fragmentName: 'PostsList',
   });
   
-  const toggleDelete = useCallback((post) => {
+  const toggleDelete = useCallback((post: PostsList) => {
     void updatePost({
       selector: {_id: post._id},
       data: {deletedDraft:!post.deletedDraft, draft: true} //undeleting goes to draft

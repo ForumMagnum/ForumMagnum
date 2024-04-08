@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
@@ -1368,6 +1368,11 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(),
+    onCreate: () => {
+      if (!isLWorAF) {
+        return {...defaultNotificationTypeSettings, channel: 'both'}
+      }
+    }
   },
   notificationSubscribedUserComment: {
     label: "Comments by users I'm subscribed to",
@@ -1382,6 +1387,11 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
+  },
+  notificationSubscribedSequencePost: {
+    label: "Posts added to sequences I'm subscribed to",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
