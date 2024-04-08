@@ -18,10 +18,11 @@ const styles = (theme: ThemeType) => ({
     marginTop: 0,
   },
   feedback: {
-    marginTop: -20,
-    marginBottom: 12,
+    marginTop: -24,
+    marginBottom: 8,
     color: theme.palette.grey[600],
     fontWeight: 500,
+    fontStyle: "italic",
     fontSize: 14,
     "& a": {
       color: theme.palette.primary.main,
