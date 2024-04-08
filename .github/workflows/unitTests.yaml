@@ -75,6 +75,13 @@ jobs:
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
+    - name: Save coverage report
+      uses: coverallsapp/github-action@v2
+      with:
+        file: integration-coverage/lcov.info
+        format: lcov
+        flag-name: Integration
+        parallel: true
 
   runPostgresBootstrap:
     runs-on: ubuntu-latest
