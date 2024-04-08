@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import { userHasPopularCommentsSection } from '../../lib/betas'
+import ForumNoSSR from '../common/ForumNoSSR'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -14,6 +14,10 @@ const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbo
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
 const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
+
+// TODO remove these once we have measured the effect (or after 2024-04-14)
+const noSSRPopularCommentsSetting = new DatabasePublicSetting<boolean>('noSSRPopularComments', true)
+const noSSRRecentDiscussionSetting = new DatabasePublicSetting<boolean>('noSSRRecentDiscussion', true)
 
 /**
  * Build structured data to help with SEO.
@@ -86,13 +90,17 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
-          {userHasPopularCommentsSection(currentUser) && <EAPopularCommentsSection />}
-          <RecentDiscussionFeed
-            title="Recent discussion"
-            af={false}
-            commentsLimit={recentDiscussionCommentsPerPost}
-            maxAgeHours={18}
-          />
+          <ForumNoSSR if={!!currentUser && noSSRPopularCommentsSetting.get()}>
+            <EAPopularCommentsSection />
+          </ForumNoSSR>
+          <ForumNoSSR if={!!currentUser && noSSRRecentDiscussionSetting.get()}>
+            <RecentDiscussionFeed
+              title="Recent discussion"
+              af={false}
+              commentsLimit={recentDiscussionCommentsPerPost}
+              maxAgeHours={18}
+            />
+          </ForumNoSSR>
         </>
       } />
     </AnalyticsContext>
