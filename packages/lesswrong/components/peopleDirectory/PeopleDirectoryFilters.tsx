@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
+import { formatStat } from "../users/EAUserTooltipContent";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,6 +23,13 @@ const styles = (theme: ThemeType) => ({
     gap: "12px",
     padding: 16,
   },
+  totalResults: {
+    display: "flex",
+    alignItems: "center",
+    marginLeft: 14,
+    fontWeight: 600,
+    color: theme.palette.grey[600],
+  },
 });
 
 export const PeopleDirectoryFilters = ({classes}: {
@@ -33,6 +41,7 @@ export const PeopleDirectoryFilters = ({classes}: {
     locations,
     careerStages,
     columns,
+    totalResults,
   } = usePeopleDirectory();
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
@@ -45,6 +54,11 @@ export const PeopleDirectoryFilters = ({classes}: {
         <PeopleDirectorySearchableFilter filter={organizations} />
         <PeopleDirectoryStaticFilter filter={careerStages} />
         <PeopleDirectorySearchableFilter filter={locations} />
+        {totalResults > 0 &&
+          <div className={classes.totalResults}>
+            {formatStat(totalResults)} {totalResults === 1 ? "result" : "results"}
+          </div>
+        }
       </div>
       <div className={classes.options}>
         <PeopleDirectoryFilterDropdown

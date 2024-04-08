@@ -19,6 +19,7 @@ type PeopleDirectoryContext = {
   setSorting: (sorting: PeopleDirectorySorting | null) => void,
   results: SearchUser[],
   resultsLoading: boolean,
+  totalResults: number,
   loadMore: () => void,
   roles: SearchableMultiSelectResult,
   organizations: SearchableMultiSelectResult,
@@ -35,6 +36,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
   const [results, setResults] = useState<SearchUser[]>([]);
   const [resultsLoading, setResultsLoading] = useState(true);
+  const [totalResults, setTotalResults] = useState(0);
   const [page, setPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
 
@@ -85,6 +87,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
 
   useEffect(() => {
     setResults([]);
+    setTotalResults(0);
     setPage(0);
     setNumPages(0);
   }, [
@@ -124,6 +127,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         const results = response?.results?.[0];
         const hits = results?.hits ?? [];
         setResults((results) => results.concat(hits));
+        setTotalResults(results?.nbHits ?? 0);
         setNumPages(results?.nbPages ?? 0);
         captureSearch("peopleDirectorySearch", {
           query,
@@ -161,6 +165,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       setSorting,
       results,
       resultsLoading,
+      totalResults,
       loadMore,
       roles,
       organizations,
