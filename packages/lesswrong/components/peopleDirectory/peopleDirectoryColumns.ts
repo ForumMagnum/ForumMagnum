@@ -20,6 +20,7 @@ type PeopleDirectoryColumnState = {
 
 export type PeopleDirectoryColumn<T extends CellComponentName = CellComponentName> = {
   label: string,
+  shortLabel?: string,
   sortField?: string,
   columnWidth?: string,
   componentName: T,
@@ -101,7 +102,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     hidden: true,
   },
   {
-    label: "Profile updated",
+    label: "Profile last updated",
+    shortLabel: "Profile updated",
     columnWidth: "120px",
     componentName: "PeopleDirectoryDateCell",
     props: {

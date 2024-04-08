@@ -49,7 +49,7 @@ export const PeopleDirectoryHeading = ({column, classes}: {
   const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
-      {column.label}
+      {column.shortLabel ?? column.label}
       {column.sortField &&
         <ForumIcon
           icon="ChevronUpDown"
