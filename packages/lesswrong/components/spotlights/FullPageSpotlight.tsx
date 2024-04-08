@@ -3,7 +3,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
-import { Typography } from '@material-ui/core';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const styles = (theme: ThemeType) => ({
@@ -60,7 +59,6 @@ export const FullPageSpotlight = ({classes}: {
   if (!reviewWinner || !reviewWinner.reviewWinnerArt || !reviewWinner.post) return null
   const { splashArtImageUrl, splashArtImagePrompt } = reviewWinner.reviewWinnerArt
 
-  console.log({reviewWinner})
   return <div className={classes.root}>
     <div className={classes.postInfo}>
       <h1 className={classes.title}>{reviewWinner.post.title}</h1>
