@@ -29,15 +29,19 @@ export const PeopleDirectoryUserCell = ({user, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {UsersProfileImage, NewConversationButton, ForumIcon} = Components;
+  const {
+    UsersProfileImage, NewConversationButton, ForumIcon, LWTooltip,
+  } = Components;
   return (
     <div className={classes.root}>
       <UsersProfileImage user={user} size={32} />
       <div className={classes.name}>{user.displayName}</div>
-      <InteractionWrapper href="#">
-        <NewConversationButton currentUser={currentUser} user={user}>
-          <ForumIcon icon="Envelope" className={classes.message} />
-        </NewConversationButton>
+      <InteractionWrapper>
+        <LWTooltip title="Send message" placement="bottom">
+          <NewConversationButton currentUser={currentUser} user={user}>
+            <ForumIcon icon="Envelope" className={classes.message} />
+          </NewConversationButton>
+        </LWTooltip>
       </InteractionWrapper>
     </div>
   );
