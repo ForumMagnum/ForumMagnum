@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { PeopleDirectoryProvider } from "./usePeopleDirectory";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,7 +16,17 @@ const styles = (theme: ThemeType) => ({
     fontSize: 32,
     fontWeight: 700,
     marginTop: 0,
+  },
+  feedback: {
+    marginTop: -20,
     marginBottom: 12,
+    color: theme.palette.grey[600],
+    fontWeight: 500,
+    fontSize: 14,
+    "& a": {
+      color: theme.palette.primary.main,
+      fontWeight: 600,
+    },
   },
 });
 
@@ -27,14 +38,20 @@ export const PeopleDirectoryPage = ({classes}: {
   } = Components;
   return (
     <AnalyticsContext pageContext="peopleDirectory">
-      <PeopleDirectoryProvider>
-        <div className={classes.root}>
-          <h1 className={classes.pageTitle}>People directory</h1>
+      <div className={classes.root}>
+        <h1 className={classes.pageTitle}>
+          People directory
+        </h1>
+        <div className={classes.feedback}>
+          This is a beta feature, help us out by{" "}
+          <Link to="#">sharing you thoughts</Link>{/*TODO: Add correct link*/}
+        </div>
+        <PeopleDirectoryProvider>
           <PeopleDirectoryMainSearch />
           <PeopleDirectoryFilters />
           <PeopleDirectoryResults />
-        </div>
-      </PeopleDirectoryProvider>
+        </PeopleDirectoryProvider>
+      </div>
     </AnalyticsContext>
   );
 }
