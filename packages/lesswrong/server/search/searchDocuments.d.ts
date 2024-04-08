@@ -2,7 +2,6 @@ interface SearchBase {
   objectID: string,
   _id: string,
   publicDateMs: number,
-  exportedAt: string,
 }
 
 interface SearchComment extends SearchBase {
@@ -68,6 +67,7 @@ interface SearchUser extends SearchBase {
   },
   mapLocationAddress?: string,
   tags: Array<string>,
+  profileUpdatedAt: Date,
 }
 
 interface SearchPost extends SearchBase {

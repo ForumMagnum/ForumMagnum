@@ -107,7 +107,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     columnWidth: "120px",
     componentName: "PeopleDirectoryDateCell",
     props: {
-      fieldName: "exportedAt",
+      fieldName: "profileUpdatedAt",
       format: "MMM YYYY",
     },
     hideable: true,

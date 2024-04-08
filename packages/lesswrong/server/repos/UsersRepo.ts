@@ -207,6 +207,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
               u."mapLocation"->'geometry'->'location'->'lat'
           )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
+        u."profileUpdatedAt",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;
