@@ -381,6 +381,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly usernameUnset: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
+  readonly profileUpdatedAt: Date,
   readonly profileImageId: string,
   readonly jobTitle: string,
   readonly organization: string,

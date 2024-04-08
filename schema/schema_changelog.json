@@ -600,8 +600,8 @@
     "timestamp": "2024-04-04T01:14:23.000Z"
   },
   {
-    "acceptsSchemaHash": "64f8f3a5ab2b5cb1b149231ca630feed",
-    "acceptedByMigration": "20240404T142520.add_hideFromPeopleDirectory_to_users.ts",
-    "timestamp": "2024-04-04T14:25:20.000Z"
+    "acceptsSchemaHash": "667918b4902ffa771fab9bbc2aef860e",
+    "acceptedByMigration": "20240408T155640.add_people_directory.ts",
+    "timestamp": "2024-04-08T15:56:40.000Z"
   }
 ]

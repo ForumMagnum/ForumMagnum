@@ -704,6 +704,15 @@ class UsersRepo extends AbstractRepo<"Users"> {
 
     return userIdRecords.map(({ _id }) => _id);
   }
+
+  async updateUserProfileUpdatedAt(userId: string): Promise<void> {
+    await this.none(`
+      -- UserRepo.updateUserProfileUpdatedAt
+      UPDATE "Users"
+      SET "profileUpdatedAt" = fm_get_user_profile_updated_at("_id")
+      WHERE "_id" = $1
+    `, [userId]);
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });

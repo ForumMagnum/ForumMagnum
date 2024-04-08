@@ -2463,7 +2463,18 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
-  
+
+  profileUpdatedAt: {
+    type: Date,
+    optional: false,
+    nullable: false,
+    canCreate: ["members"],
+    canRead: ["guests"],
+    canUpdate: [userOwns, "admins"],
+    hidden: true,
+    ...schemaDefaultValue(new Date(0)),
+  },
+
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     hidden: true,
