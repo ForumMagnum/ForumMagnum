@@ -7,7 +7,7 @@ registerFragment(`
     documentType
     spotlightImageId
     spotlightDarkImageId
-    spotlightSplashImageId
+    spotlightSplashImageUrl
     draft
     position
     lastPromotedAt

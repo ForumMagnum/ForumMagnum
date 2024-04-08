@@ -16,12 +16,11 @@ const styles = (theme: ThemeType) => ({
     maxWidth: SECTION_WIDTH,
   },
   postInfo: {
-    position: "relative",
+    position: "absolute",
+    right: 100,
+    top: 400,
     zIndex: 1,
-    background: "rgba(255,255,255,0.95)",
-    padding: 1,
-    borderRadius: 3,
-    paddingLeft: 16,
+    width: 400,
     boxShadow: theme.palette.boxShadow,
     marginBottom: 16
   },
@@ -37,13 +36,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1.2,
     fontVariant: 'small-caps'
   },
-  backgroundImage: {
-    position: "absolute",
-    top: 0,
-    right: "-10%",
-    width: '70%',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 35%, transparent 70%)`,
-  },
   contents: {
     ...postBodyStyles(theme),
     margin: "1rem 0",
@@ -57,51 +49,73 @@ const styles = (theme: ThemeType) => ({
   },
   bullet: {
     margin: "0 1rem",
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    right: "-10%",
+    width: '70%',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 35%, transparent 70%)`,
+    zIndex: -1
+  },
+  backgroundFade: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    // backgroundImage: `linear-gradient(to right, #f8f4ee 50%, transparent 75%)`,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, #f8f4ee 8%)`,
+    zIndex: 0
   }
 });
 
 export const FullPageSpotlight = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  // const { UsersNameDisplay, ContentStyles, ContentItemBody } = Components
-  // const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  // const {results} = useMulti({
-  //     collectionName: "Spotlights",
-  //     terms: {
-  //         limit: 10,
-  //     },
-  //     fragmentName: "SpotlightMinimumInfo",
-  // });
-  // const reviewWinner = !!results?.length && results[1]
-  // if (!reviewWinner || !reviewWinner.reviewWinnerArt || !reviewWinner.post) return null
-  // const { post } = reviewWinner
-  // const { splashArtImageUrl, splashArtImagePrompt } = reviewWinner.reviewWinnerArt
+  const { UsersNameDisplay, ContentStyles, ContentItemBody } = Components
+  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const {results} = useMulti({
+      collectionName: "ReviewWinners",
+      terms: {
+          limit: 300,
+      },
+      fragmentName: "ReviewWinnerSpotlight",
+  });
+  console.log(results)
+  const reviewWinner = !!results?.length && results[202]
+  if (!reviewWinner || !reviewWinner.reviewWinnerArt || !reviewWinner.post) return null
+  const { post } = reviewWinner
+  const { splashArtImageUrl, splashArtImagePrompt } = reviewWinner.reviewWinnerArt
 
-  // return <div className={classes.root}>
-  //   <div className={classes.postInfo}>
-  //     <h1 className={classes.title}><Link to={postGetPageUrl(reviewWinner.post)}>{reviewWinner.post.title}</Link></h1>
-  //     <div className={classes.body}>{reviewWinner.post.customHighlight}</div>
-  //     <ContentStyles contentType="comment">
-  //       <ContentItemBody
-  //         dangerouslySetInnerHTML={{__html: post?.contents?.htmlHighlight || ""}}
-  //         description={`tag ${post?.title}`}
-  //       />
-  //     </ContentStyles>
-  //     <div className={classes.metadata}>
-  //       <span>
-  //         by <UsersNameDisplay user={reviewWinner.post.user}/>
-  //       </span>
-  //       <span className={classes.bullet}>
-  //         •
-  //       </span>
-  //       <span>
-  //         <Link to="/leastwrong">Best of LessWrong {reviewWinner.reviewYear}</Link>
-  //       </span>
-  //     </div>
-  //   </div>
-  //   <img src={splashArtImageUrl} className={classes.backgroundImage} alt={splashArtImagePrompt} />
-  // </div>;
-  return null
+  console.log(post.customHighlight?.html)
+
+  return <div className={classes.root}>
+    <div className={classes.postInfo}>
+      <h1 className={classes.title}><Link to={postGetPageUrl(reviewWinner.post)}>{reviewWinner.post.title}</Link></h1>
+      <div className={classes.metadata}>
+        <span>
+          by <UsersNameDisplay user={reviewWinner.post.user}/>
+        </span>
+        <span className={classes.bullet}>
+          •
+        </span>
+        <span>
+          <Link to="/leastwrong">Best of LessWrong {reviewWinner.reviewYear}</Link>
+        </span>
+      </div>      <ContentStyles contentType="comment">
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: post?.customHighlight?.html || ""}}
+          description={`tag ${post?.title}`}
+        />
+      </ContentStyles>
+      <div className={classes.metadata}>
+        <Link to={postGetPageUrl(reviewWinner.post)}>Read more ()</Link>
+      </div>
+    </div>
+    <img src={splashArtImageUrl} className={classes.backgroundImage} alt={splashArtImagePrompt} />
+    <div className={classes.backgroundFade}/>
+  </div>;
 }
 
 const FullPageSpotlightComponent = registerComponent('FullPageSpotlight', FullPageSpotlight, {styles});

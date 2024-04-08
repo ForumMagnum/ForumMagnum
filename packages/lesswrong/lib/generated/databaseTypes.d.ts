@@ -1156,7 +1156,7 @@ interface DbSpotlight extends DbObject {
   imageFade: boolean
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
-  spotlightSplashImageId: string | null
+  spotlightSplashImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents

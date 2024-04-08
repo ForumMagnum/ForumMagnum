@@ -8,10 +8,9 @@ import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { useRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { useCurrentUser } from './withUser';
-import { SpotlightItem } from '../spotlights/SpotlightItem';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FullPageSpotlight,
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, 
     FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 

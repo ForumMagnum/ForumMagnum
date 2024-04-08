@@ -241,12 +241,11 @@ const schema: SchemaType<"Spotlights"> = {
     nullable: true,
     order: 100,
   },
-  spotlightSplashImageId: {
+  spotlightSplashImageUrl: {
     type: String,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
-    control: "ImageUpload",
     optional: true,
     nullable: true,
     order: 110,

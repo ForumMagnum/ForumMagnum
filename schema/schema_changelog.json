@@ -598,5 +598,10 @@
     "acceptsSchemaHash": "86723d78e7eb5d43201e0be72ee6f5f0",
     "acceptedByMigration": "20240404T011423.add_ArbitalCaches.ts",
     "timestamp": "2024-04-04T01:14:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b1b00099dd26835e59150c483f5c71a8",
+    "acceptedByMigration": "20240406T002618.addSpotlightSplashImages.ts",
+    "timestamp": "2024-04-06T00:26:18.000Z"
   }
 ]
