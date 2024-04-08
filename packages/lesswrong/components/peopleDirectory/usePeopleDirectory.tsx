@@ -48,7 +48,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   });
   const locations = useSearchableMultiSelect({
     title: "Location",
-    facetField: "location",
+    facetField: "mapLocationAddress",
   });
   const careerStages = useMultiSelect({
     title: "Career stage",
@@ -107,7 +107,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         const facetFilters = [
           roles.selectedValues.map((role) => `jobTitle:${role}`),
           organizations.selectedValues.map((org) => `organization:${org}`),
-          locations.selectedValues.map((location) => `location:${location}`),
+          locations.selectedValues.map((location) => `mapLocationAddress:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
         ];
         const response = await searchClient.search([

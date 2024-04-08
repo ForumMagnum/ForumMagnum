@@ -42,7 +42,7 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
-const allowedFacetFields = ["jobTitle", "organization", "location"];
+const allowedFacetFields = ["jobTitle", "organization", "mapLocationAddress"];
 
 class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
@@ -651,26 +651,30 @@ class UsersRepo extends AbstractRepo<"Users"> {
       throw new Error(`Invalid facet field: ${facetField}`);
     }
 
-    const normalizedFacetField = facetField === "location"
-      ? `TRIM("${facetField}")`
-      : `INITCAP(TRIM("${facetField}"))`;
+    const field = facetField === "mapLocationAddress"
+      ? `"mapLocation"->>'formatted_address'`
+      : `"${facetField}"`;
+
+    const normalizedFacetField = facetField === "mapLocationAddress"
+      ? `TRIM(${field})`
+      : `INITCAP(TRIM(${field}))`;
 
     const results = await this.getRawDb().any(`
       -- UsersRepo.searchFacets
       SELECT
         DISTINCT ${normalizedFacetField} AS "result",
         TS_RANK_CD(
-          TO_TSVECTOR('english', "${facetField}"),
+          TO_TSVECTOR('english', ${field}),
           WEBSEARCH_TO_TSQUERY($1),
           1
-        ) * 5 + COALESCE(SIMILARITY("${facetField}", $1), 0) AS "rank"
+        ) * 5 + COALESCE(SIMILARITY(${field}, $1), 0) AS "rank"
       FROM "Users"
       WHERE
-        "${facetField}" IS NOT NULL AND
+        ${field} IS NOT NULL AND
         (
-          TO_TSVECTOR('english', "${facetField}") @@ WEBSEARCH_TO_TSQUERY($1) OR
-          COALESCE(SIMILARITY("${facetField}", $1), 0) > 0.22 OR
-          "${facetField}" ILIKE ($1 || '%')
+          TO_TSVECTOR('english', ${field}) @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY(${field}, $1), 0) > 0.22 OR
+          ${field} ILIKE ($1 || '%')
         ) AND
         "noindex" IS NOT TRUE AND
         "deleted" IS NOT TRUE AND
