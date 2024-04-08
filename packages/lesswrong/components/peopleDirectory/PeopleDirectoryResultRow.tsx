@@ -1,8 +1,9 @@
-import React from "react";
+import React, { FC } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { useClickableCell } from "../common/useClickableCell";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
+import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 
 export const COLUMN_HORIZONTAL_PADDING = 10;
 
@@ -26,29 +27,51 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const Column: FC<{
+  result?: SearchUser,
+  column: PeopleDirectoryColumn,
+  classes: ClassesType<typeof styles>,
+}> = ({result, column, classes}) => {
+  if (column.hideable && column.hidden) {
+    return null;
+  }
+  const {
+    componentName,
+    props = {},
+    skeletonComponentName = "PeopleDirectorySkeletonTextCell",
+    skeletonProps = {},
+  } = column;
+  const Skeleton: AnyBecauseHard = Components[skeletonComponentName];
+  const Component: AnyBecauseHard = Components[componentName];
+  return (
+    <div className={classes.cell}>
+      {result
+        ? <Component user={result} {...props} />
+        : <Skeleton {...skeletonProps} />
+      }
+    </div>
+  );
+}
+
 export const PeopleDirectoryResultRow = ({result, classes}: {
-  result: SearchUser,
+  result?: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({
-    href: userGetProfileUrl(result),
+    href: result ? userGetProfileUrl(result) : "#",
     ignoreLinks: true,
   });
   const {columns} = usePeopleDirectory();
   return (
     <div className={classes.root} onClick={onClick}>
-      {columns.map((column) => {
-        if (column.hideable && column.hidden) {
-          return null;
-        }
-        const {componentName, label, props} = column;
-        const Component = Components[componentName] as AnyBecauseTodo;
-        return (
-          <div key={label} className={classes.cell}>
-            <Component user={result} {...props} />
-          </div>
-        );
-      })}
+      {columns.map((column) => (
+        <Column
+          key={column.label}
+          result={result}
+          column={column}
+          classes={classes}
+        />
+      ))}
     </div>
   );
 }

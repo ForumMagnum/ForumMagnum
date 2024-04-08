@@ -7,6 +7,8 @@ const cellComponents = [
   "PeopleDirectoryNumberCell",
   "PeopleDirectorySocialMediaCell",
   "PeopleDirectoryCareerStageCell",
+  "PeopleDirectorySkeletonUserCell",
+  "PeopleDirectorySkeletonTextCell",
 ] as const;
 
 type CellComponentName = typeof cellComponents[number];
@@ -18,13 +20,18 @@ type PeopleDirectoryColumnState = {
   hidden: boolean,
 }
 
-export type PeopleDirectoryColumn<T extends CellComponentName = CellComponentName> = {
+export type PeopleDirectoryColumn<
+  T extends CellComponentName = CellComponentName,
+  S extends CellComponentName = CellComponentName
+> = {
   label: string,
   shortLabel?: string,
   sortField?: string,
   columnWidth?: string,
   componentName: T,
-  props: Omit<ComponentProps<ComponentTypes[T]>, "user">,
+  props?: Omit<ComponentProps<ComponentTypes[T]>, "user">,
+  skeletonComponentName?: S,
+  skeletonProps?: Omit<ComponentProps<ComponentTypes[S]>, "user">,
 } & PeopleDirectoryColumnState;
 
 export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] = [
@@ -33,7 +40,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     sortField: "displayName.sort",
     columnWidth: "220px",
     componentName: "PeopleDirectoryUserCell",
-    props: {},
+    skeletonComponentName: "PeopleDirectorySkeletonUserCell",
     hideable: false,
   },
   {
@@ -63,6 +70,10 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "bio",
     },
+    skeletonComponentName: "PeopleDirectorySkeletonTextCell",
+    skeletonProps: {
+      lines: 2,
+    },
     hideable: true,
     hidden: false,
   },
@@ -70,7 +81,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     label: "Social media",
     columnWidth: "100px",
     componentName: "PeopleDirectorySocialMediaCell",
-    props: {},
     hideable: true,
     hidden: false,
   },
@@ -78,7 +88,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     label: "Career stage",
     columnWidth: "auto",
     componentName: "PeopleDirectoryCareerStageCell",
-    props: {},
     hideable: true,
     hidden: false,
   },

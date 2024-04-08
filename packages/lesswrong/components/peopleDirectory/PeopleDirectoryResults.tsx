@@ -64,7 +64,7 @@ export const PeopleDirectoryResults = ({classes}: {
   }
 
   const {
-    HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow, Loading,
+    HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow,
     PeopleDirectoryNoResults,
   } = Components;
   if (results.length < 1 && !resultsLoading) {
@@ -82,11 +82,9 @@ export const PeopleDirectoryResults = ({classes}: {
           {results.map((result) => (
             <PeopleDirectoryResultRow key={result._id} result={result} />
           ))}
-          {resultsLoading &&
-            <div className={classes.loading}>
-              <Loading />
-            </div>
-          }
+          {resultsLoading && Array.from(Array(10).keys()).map((i) => (
+            <PeopleDirectoryResultRow key={i} />
+          ))}
           {results.length > 0 &&
             <div className={classes.loadMore} ref={loadMoreRef} />
           }
