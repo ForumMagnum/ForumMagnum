@@ -65,7 +65,11 @@ export const PeopleDirectoryResults = ({classes}: {
 
   const {
     HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow, Loading,
+    PeopleDirectoryNoResults,
   } = Components;
+  if (results.length < 1 && !resultsLoading) {
+    return <PeopleDirectoryNoResults />
+  }
   return (
     <HorizScrollBlock className={classes.root} contentsClassName={classes.contents}>
       <div className={classes.gridWrapper}>
