@@ -1,7 +1,7 @@
 import { Globals } from "./vulcan-lib";
 import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
 
-export const userProfileFields: (keyof DbUser)[] = [
+export const simpleUserProfileFields: (keyof DbUser)[] = [
   "username",
   "displayName",
   "organizerOfGroupIds",
@@ -14,14 +14,22 @@ export const userProfileFields: (keyof DbUser)[] = [
   "organization",
   "careerStage",
   "website",
-  "biography",
-  "howOthersCanHelpMe",
-  "howICanHelpOthers",
   "linkedinProfileURL",
   "facebookProfileURL",
   "twitterProfileURL",
   "githubProfileURL",
   "profileTagIds",
+];
+
+export const editableUserProfileFields: (keyof DbUser)[] = [
+  "biography",
+  "howOthersCanHelpMe",
+  "howICanHelpOthers",
+];
+
+export const allUserProfileFields = [
+  ...simpleUserProfileFields,
+  ...editableUserProfileFields,
 ];
 
 const backfillUserProfileUpdatedAt = async () => {

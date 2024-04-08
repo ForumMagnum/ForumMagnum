@@ -600,7 +600,7 @@
     "timestamp": "2024-04-04T01:14:23.000Z"
   },
   {
-    "acceptsSchemaHash": "667918b4902ffa771fab9bbc2aef860e",
+    "acceptsSchemaHash": "2e72142778afe2442e81e05a1d285fb5",
     "acceptedByMigration": "20240408T155640.add_people_directory.ts",
     "timestamp": "2024-04-08T15:56:40.000Z"
   }

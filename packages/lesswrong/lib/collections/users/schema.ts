@@ -2472,6 +2472,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ["guests"],
     canUpdate: [userOwns, "admins"],
     hidden: true,
+    onInsert: (user) => user.createdAt,
     ...schemaDefaultValue(new Date(0)),
   },
 

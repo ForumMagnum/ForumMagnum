@@ -1,4 +1,4 @@
-import { userProfileFields } from "./userProfileUpdates";
+import { allUserProfileFields } from "./userProfileUpdates";
 
 /**
  * List of the Postgres functions required to run ForumMagnum. After editing
@@ -215,7 +215,7 @@ export const postgresFunctions = [
           FROM "LWEvents"
           WHERE "documentId" = userid AND "name" = 'fieldChanges'
         ) q
-        WHERE "key" IN (${userProfileFields.map((f) => `'${f}'`).join(", ")})
+        WHERE "key" IN (${allUserProfileFields.map((f) => `'${f}'`).join(", ")})
         ORDER BY "createdAt" DESC
         LIMIT 1),
         (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
