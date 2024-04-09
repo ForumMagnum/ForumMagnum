@@ -45,7 +45,13 @@ export const PeopleDirectoryPage = ({classes}: {
         </h1>
         <div className={classes.feedback}>
           This is a beta feature, help us out by{" "}
-          <Link to="#">sharing you thoughts</Link>{/*TODO: Add correct link*/}
+          <Link
+            to="https://forms.gle/3RpvUhiwyKFzMSju9"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            sharing you thoughts
+          </Link>
         </div>
         <PeopleDirectoryProvider>
           <PeopleDirectoryMainSearch />
