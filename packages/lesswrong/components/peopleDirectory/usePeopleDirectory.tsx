@@ -15,6 +15,7 @@ type PeopleDirectorySorting = {
 type PeopleDirectoryContext = {
   query: string,
   setQuery: (query: string) => void,
+  isEmptySearch: boolean,
   sorting: PeopleDirectorySorting | null,
   setSorting: (sorting: PeopleDirectorySorting | null) => void,
   results: SearchUser[],
@@ -56,6 +57,12 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     title: "Career stage",
     options: CAREER_STAGES,
   });
+
+  const isEmptySearch = query === "" &&
+    roles.selectedValues.length === 0 &&
+    organizations.selectedValues.length === 0 &&
+    locations.selectedValues.length === 0 &&
+    careerStages.selectedValues.length === 0;
 
   const [columns, setColumns] = useState(peopleDirectoryColumns);
   const toggleColumn = useCallback((columnLabel: string) => {
@@ -161,6 +168,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     <peopleDirectoryContext.Provider value={{
       query,
       setQuery,
+      isEmptySearch,
       sorting,
       setSorting,
       results,

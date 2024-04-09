@@ -42,6 +42,7 @@ export const PeopleDirectoryFilters = ({classes}: {
     careerStages,
     columns,
     totalResults,
+    isEmptySearch,
   } = usePeopleDirectory();
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
@@ -54,7 +55,7 @@ export const PeopleDirectoryFilters = ({classes}: {
         <PeopleDirectorySearchableFilter filter={organizations} />
         <PeopleDirectoryStaticFilter filter={careerStages} />
         <PeopleDirectorySearchableFilter filter={locations} />
-        {totalResults > 0 &&
+        {totalResults > 0 && !isEmptySearch &&
           <div className={classes.totalResults}>
             {formatStat(totalResults)} {totalResults === 1 ? "result" : "results"}
           </div>
