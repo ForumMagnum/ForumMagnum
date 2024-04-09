@@ -9,6 +9,7 @@ import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import { lwExplicitlyAllowedType3AudioPostIds } from '../../../client/type3ExplicitlyAllowedPostsLW';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -426,6 +427,7 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
       (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
         post.baseScore > type3KarmaCutoffSetting.get() ||
+        lwExplicitlyAllowedType3AudioPostIds.includes(post._id) ||
         post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
