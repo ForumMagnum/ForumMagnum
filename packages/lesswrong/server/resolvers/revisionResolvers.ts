@@ -6,7 +6,6 @@ import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
-import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
@@ -18,6 +17,8 @@ import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { parseDocumentFromString } from '../../lib/domParser';
+import { extractTableOfContents } from '../../lib/tableOfContents';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({
@@ -77,10 +78,12 @@ augmentFieldsDict(Revisions, {
       resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
         const {hash} = args;
         const rawHtml = revision?.html;
+
+        if (!rawHtml) return '';
         
         // Process the HTML through the table of contents generator (which has
         // the byproduct of marking section headers with anchors)
-        const toc = extractTableOfContents(rawHtml);
+        const toc = extractTableOfContents(parseDocumentFromString(rawHtml));
         const html = toc?.html || rawHtml;
         
         if (!html) return '';

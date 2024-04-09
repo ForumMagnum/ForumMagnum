@@ -30,7 +30,7 @@ import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
-import { recombeeApi } from '../recombee/client';
+import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 
 /**
@@ -642,20 +642,6 @@ addGraphQLSchema(`
   }
 `);
 
-interface RecombeeRecommendedPost {
-  post: Partial<DbPost>,
-  recommId: string,
-  curated?: never,
-  stickied?: never,
-}
-
-type RecommendedPost = RecombeeRecommendedPost | {
-  post: Partial<DbPost>,
-  recommId?: never,
-  curated: boolean,
-  stickied: boolean,
-};
-
 createPaginatedResolver({
   name: "RecombeeLatestPosts",
   graphQLType: "RecombeeRecommendedPost",
@@ -664,7 +650,7 @@ createPaginatedResolver({
     context: ResolverContext,
     limit: number,
     args: { settings: RecombeeRecommendationArgs }
-  ): Promise<RecombeeRecommendedPost[]> => {
+  ): Promise<RecommendedPost[]> => {
     const { currentUser } = context;
 
     if (!currentUser) {
@@ -708,7 +694,7 @@ createPaginatedResolver({
 });
 
 createPaginatedResolver({
-  name: "PostsWithSubscribeeActivity",
+  name: "PostsBySubscribedAuthors",
   graphQLType: "Post",
   callback: async (context, limit): Promise<DbPost[]> => {
     const { currentUser, repos } = context;
@@ -716,6 +702,6 @@ createPaginatedResolver({
       throw new Error('You must be logged in to see posts with activity from your subscrptions.');
     }
 
-    return await repos.posts.getPostsWithActivityBySubscribees(currentUser._id, limit);
+    return await repos.posts.getPostsFromPostSubscriptions(currentUser._id, limit);
   }
 });
