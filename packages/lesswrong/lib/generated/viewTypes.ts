@@ -55,6 +55,7 @@ type ReviewWinnersViewName = never
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
 type SessionsViewName = never
+type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
 type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightForSequence";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
@@ -129,6 +130,7 @@ interface ViewTermsByCollectionName {
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
   Sessions: ViewTermsBase
+  SideCommentCaches: ViewTermsBase
   SplashArtCoordinates: ViewTermsBase
   Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms

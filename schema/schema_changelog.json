@@ -600,7 +600,12 @@
     "timestamp": "2024-04-04T01:14:23.000Z"
   },
   {
-    "acceptsSchemaHash": "2e72142778afe2442e81e05a1d285fb5",
+    "acceptsSchemaHash": "ca5281426ba6c737b2621d88156ea1c6",
+    "acceptedByMigration": "20240404T190359.create_SideCommentCaches_table.ts",
+    "timestamp": "2024-04-04T19:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2e57ce654aad9dd034e884a1a0b3bce8",
     "acceptedByMigration": "20240408T155640.add_people_directory.ts",
     "timestamp": "2024-04-08T15:56:40.000Z"
   }

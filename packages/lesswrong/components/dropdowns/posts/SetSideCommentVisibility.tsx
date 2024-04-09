@@ -7,7 +7,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Check from '@material-ui/icons/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
-import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
