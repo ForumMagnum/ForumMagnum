@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, PropsWithChildren } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -251,7 +251,7 @@ const EAPostsItem = ({
   // normally requiring the user to press back twice to get to where they
   // started so we need to wrap that whole thing in an `InteractionWrapper`
   // too.
-  const TitleWrapper: FC = ({children}) => (
+  const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
     <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
       <InteractionWrapper className={classes.titleWrapper}>
         <Link to={postLink}>{children}</Link>

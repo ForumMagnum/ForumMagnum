@@ -24,7 +24,7 @@ export const FormComponentColorPicker = ({
   disabled,
   classes,
 }: FormComponentColorPickerProps) => {
-  const onChange = useCallback(async (ev) => {
+  const onChange = useCallback(async (ev: React.ChangeEvent<HTMLInputElement>) => {
     await updateCurrentValues({
       [path]: ev.target.value,
     });

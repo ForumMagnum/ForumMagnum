@@ -17,8 +17,8 @@ const sendInactiveUserSurveyEmails = async () => {
   
   const logger = loggerConstructor(`cron-sendInactiveUserSurveyEmails`)
   
-  // Get up to 30 inactive users to email
-  const users = await new UsersRepo().getInactiveUsersToEmail(30)
+  // Get up to 40 inactive users to email
+  const users = await new UsersRepo().getInactiveUsersToEmail(40)
   if (!users.length) {
     logger(`No inactive users found`)
     return

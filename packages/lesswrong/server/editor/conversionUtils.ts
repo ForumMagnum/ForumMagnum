@@ -21,7 +21,8 @@ import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
-import { extractTableOfContents } from '../tableOfContents';
+import { parseDocumentFromString } from '../../lib/domParser';
+import { extractTableOfContents } from '../../lib/tableOfContents';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -275,30 +276,50 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
-export async function markdownToHtml(markdown: string): Promise<string> {
+export async function markdownToHtml(markdown: string, options?: {
+  skipMathjax?: boolean
+}): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, trimLatexAndAddCSS)
+  if (options?.skipMathjax) {
+    return html;
+  } else {
+    return await mjPagePromise(html, trimLatexAndAddCSS)
+  }
 }
 
-export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
+async function ckEditorMarkupToHtml(markup: string, skipMathjax?: boolean): Promise<string> {
   // Sanitized CKEditor markup is just html
   const html = sanitize(markup)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
   const hydratedHtml = await handleDialogueHtml(trimmedHtml)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(hydratedHtml, trimLatexAndAddCSS)
+  if (skipMathjax) {
+    return hydratedHtml;
+  } else {
+    return await mjPagePromise(hydratedHtml, trimLatexAndAddCSS)
+  }
 }
 
-export async function dataToHTML(data: AnyBecauseTodo, type: string, sanitizeData = false) {
+interface DataToHTMLOptions {
+  sanitize?: boolean,
+  skipMathjax?: boolean,
+}
+
+export async function dataToHTML(data: AnyBecauseTodo, type: string, options?: DataToHTMLOptions) {
   switch (type) {
     case "html":
-      return await mjPagePromise(sanitizeData ? sanitize(data) : data, trimLatexAndAddCSS)
+      const maybeSanitized = options?.sanitize ? sanitize(data) : data;
+      if (options?.skipMathjax) {
+        return maybeSanitized;
+      } else {
+        return await mjPagePromise(maybeSanitized, trimLatexAndAddCSS)
+      }
     case "ckEditorMarkup":
-      return await ckEditorMarkupToHtml(data)
+      return await ckEditorMarkupToHtml(data, !!options?.skipMathjax)
     case "draftJS":
-      return await draftJSToHtmlWithLatex(data)
+      return await draftJSToHtmlWithLatex(data);
     case "markdown":
-      return await markdownToHtml(data)
+      return await markdownToHtml(data, { skipMathjax: options?.skipMathjax })
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
@@ -402,7 +423,7 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
     bestWordCount = wordCountWithoutFootnotes;
 
     // Convert to HTML and try removing appendixes
-    const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown") ?? "";
+    const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown", { skipMathjax: true }) ?? "";
     const htmlWithoutFootnotesAndAppendices = htmlWithoutFootnotes
       .split(/<h[1-6]>.*(appendix).*<\/h[1-6]>/i)[0];
     const markdownWithoutFootnotesAndAppendices = dataToMarkdown(htmlWithoutFootnotesAndAppendices, "html");
@@ -628,7 +649,7 @@ async function googleDocInternalLinks(html: string): Promise<string> {
     }
   });
 
-  const tocHtml = (await extractTableOfContents($.html()))?.html;
+  const tocHtml = (await extractTableOfContents(parseDocumentFromString($.html())))?.html;
   if (tocHtml) {
     const idMap: Record<string, string> = {};
     const $toc = cheerio.load(tocHtml);

@@ -1,14 +1,14 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState, } from 'react';
+import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
-import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -97,7 +97,7 @@ const PostCollaborationEditor = ({ classes }: {
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
     <ContentStyles className={classes.editor} contentType="post">
-      <NoSSR>
+      <ForumNoSSR>
         <Components.CKPostEditor
           documentId={postId}
           collectionName="Posts"
@@ -112,7 +112,7 @@ const PostCollaborationEditor = ({ classes }: {
           post={post}
           postId={postId}
         />
-      </NoSSR>
+      </ForumNoSSR>
     </ContentStyles>
   </SingleColumnSection>
 };

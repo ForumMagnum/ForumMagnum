@@ -585,12 +585,12 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
   
   /**
-   * Returns a list of users who haven't read a post in over 6 months
+   * Returns a list of users who haven't read a post in over 4 months
    * and who we want to email a feedback survey to.
    *
    * This excludes admins, deleted/deactivated users,
    * flagged or purged or removed from queue users,
-   * users who were banned any time over the past 6 month period,
+   * users who were banned any time over the past 4 month period,
    * and users who have already been sent this email.
    */
   async getInactiveUsersToEmail(limit: number): Promise<DbUser[]> {
@@ -614,7 +614,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND u."sunshineFlagged" IS NOT TRUE
         AND (
           u.banned IS NULL
-          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '6 months'
+          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '4 months'
         )
         AND (
           u."reviewedByUserId" IS NOT NULL
@@ -624,11 +624,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND (
           (
             rs.max_last_updated IS NULL
-            AND u."createdAt" < CURRENT_TIMESTAMP - INTERVAL '6 months'
+            AND u."createdAt" < CURRENT_TIMESTAMP - INTERVAL '4 months'
           )
           OR (
             rs.max_last_updated IS NOT NULL
-            AND rs.max_last_updated < CURRENT_TIMESTAMP - INTERVAL '6 months'
+            AND rs.max_last_updated < CURRENT_TIMESTAMP - INTERVAL '4 months'
           )
         )
       ORDER BY u."createdAt" desc

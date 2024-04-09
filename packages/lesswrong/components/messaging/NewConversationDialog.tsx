@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-dom";
+import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { Hit } from "react-instantsearch-core";
 import Chip from "@material-ui/core/Chip";
+import { InstantSearch } from "../../lib/utils/componentsWithChildren";
 
 const styles = (theme: ThemeType) => ({
   paper: {

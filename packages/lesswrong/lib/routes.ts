@@ -277,14 +277,12 @@ addRoute(
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
     componentName: 'SequencesEditForm',
-    background: "white"
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     componentName: 'SequencesNewForm',
     title: "New Sequence",
-    background: "white"
   },
   {
     name: 'sequencesPost',
@@ -813,7 +811,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true
+      sunshineSidebar: true,
     },
     {
       name: 'dialogues',

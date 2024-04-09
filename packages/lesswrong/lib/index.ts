@@ -242,6 +242,10 @@ import './collections/userRateLimits/index';
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
 
+// SideCommentCaches
+import './collections/sideCommentCaches/collection';
+import './collections/sideCommentCaches/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -299,6 +303,9 @@ import './collections/dialogueMatchPreferences/views';
 // dialogue match preferences
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
+
+// Arbital link cache
+import './collections/arbitalCache/collection';
 
 // Review winners
 import './collections/reviewWinners/collection';
