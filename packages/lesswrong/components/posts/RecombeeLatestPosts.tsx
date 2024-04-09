@@ -110,7 +110,7 @@ const getDefaultScenario = () => {
 
 const defaultScenarioConfig: RecombeeConfiguration = {
   rotationRate: 0.1,
-  rotationTime: 24 * 60,
+  rotationTime: 12,
 };
 
 function useRecombeeSettings() {
@@ -163,7 +163,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   classes: ClassesType<typeof styles>
 }) => {
   const {
-    SingleColumnSection, PostsList2, TagFilterSettings, CuratedPostsList,
+    SingleColumnSection, PostsList2, TagFilterSettings,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
     TabPicker, ResolverPostsList
   } = Components;
@@ -210,7 +210,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     })
   };
 
-  const showSettingsButton = userIsAdmin(currentUser) || usingClassicLWAlgorithm(selectedScenario);
+  const showSettingsButton = (userIsAdmin(currentUser) && selectedScenario.includes('recombee')) || usingClassicLWAlgorithm(selectedScenario);
 
   const settingsButton = (<div>
     <SettingsButton
@@ -262,23 +262,28 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     showDescriptionOnHover
   />
 
-  const settings = usingClassicLWAlgorithm(selectedScenario)
-    ? (<AnalyticsContext pageSectionContext="tagFilterSettings">
-        <div className={classNames({
-          [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-          [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-        })}>
-          <TagFilterSettings
-            filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
-          />
-        </div>
-      </AnalyticsContext>)
-    : <div className={classNames({
+
+  let settings = null;
+
+  if (usingClassicLWAlgorithm(selectedScenario)) { 
+    settings = <AnalyticsContext pageSectionContext="tagFilterSettings">
+      <div className={classNames({
         [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
-        {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
+        <TagFilterSettings
+          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
+        />
       </div>
+    </AnalyticsContext>
+  } else if (selectedScenario.includes('recombee')) {
+    settings = <div className={classNames({
+      [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+      [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+    })}>
+      {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
+    </div>
+  }
 
   return (
     // TODO: do we need capturePostItemOnMount here?
@@ -291,7 +296,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         {settings}
         {isFriendlyUI && <StickiedPosts />}
         {/* TODO: reenable, disabled for testing to see how often duplication happens */}
-        {/* <HideRepeatedPostsProvider> */}
+        <HideRepeatedPostsProvider>
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
@@ -304,11 +309,12 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   limit={13}
                 />
                </AnalyticsContext>}
-              {(selectedScenario === 'lesswrong-subscribee-activity') && <AnalyticsContext feedType={selectedScenario}>
+              {(selectedScenario === 'lesswrong-subscribed-authors') && <AnalyticsContext feedType={selectedScenario}>
                 <ResolverPostsList
-                  resolverName="PostsWithSubscribeeActivity"
+                  resolverName="PostsBySubscribedAuthors"
                   limit={13}
                   fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+                  showLoadMore
                 />
                </AnalyticsContext>}
               {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
@@ -320,9 +326,18 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 
               </AnalyticsContext>}
+              {(selectedScenario === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedScenario}>
+                <PostsList2 
+                  terms={{...recentPostsTerms, view: "new"}} 
+                  alwaysShowLoadMore 
+                  hideHiddenFrontPagePosts
+                >
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </PostsList2> 
+              </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-        {/* </HideRepeatedPostsProvider> */}
+        </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>
   )

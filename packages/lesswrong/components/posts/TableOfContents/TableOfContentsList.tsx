@@ -118,7 +118,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
           });
         }
       }}
-      highlighted={currentSection === "above"}
+      highlighted={currentSection === "above" || currentSection === null}
       title
     >
       {title?.trim()}
