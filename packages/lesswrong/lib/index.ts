@@ -242,6 +242,10 @@ import './collections/userRateLimits/index';
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
 
+// SideCommentCaches
+import './collections/sideCommentCaches/collection';
+import './collections/sideCommentCaches/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
