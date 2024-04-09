@@ -36,7 +36,10 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
   const [query, setQuery] = useState("");
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
-  const [results, setResults] = useState<SearchUser[]>([]);
+  // We store the results in an 2D-array, where the index in the first array
+  // corresponds to the "page" of the contained results. This prevents a class
+  // of bugs where updates cause results to be out-of-order or duplicated.
+  const [results, setResults] = useState<SearchUser[][]>([]);
   const [resultsLoading, setResultsLoading] = useState(true);
   const [totalResults, setTotalResults] = useState(0);
   const [page, setPage] = useState(0);
@@ -142,7 +145,10 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         ]);
         const results = response?.results?.[0];
         const hits = results?.hits ?? [];
-        setResults((results) => results.concat(hits));
+        setResults((previousResults) => {
+          previousResults[results?.page ?? 0] = hits;
+          return previousResults;
+        });
         setTotalResults(results?.nbHits ?? 0);
         setNumPages(results?.nbPages ?? 0);
         captureSearch("peopleDirectorySearch", {
@@ -181,7 +187,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       isEmptySearch,
       sorting,
       setSorting,
-      results,
+      results: results.flatMap((r) => r),
       resultsLoading,
       totalResults,
       loadMore,
