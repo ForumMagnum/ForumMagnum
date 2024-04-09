@@ -19,11 +19,14 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
-    "& .ck-placeholder::before": {
-      color: isFriendlyUI ? theme.palette.grey[600] : undefined,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      fontWeight: 500,
+    "& .ck-placeholder": {
+      marginTop: "-3px !important",
+      "&::before": {
+        color: isFriendlyUI ? theme.palette.grey[600] : undefined,
+        fontFamily: theme.palette.fonts.sansSerifStack,
+        fontSize: 14,
+        fontWeight: 500,
+      },
     },
   },
   collapsed: {
