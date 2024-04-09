@@ -678,12 +678,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
           ${field} ILIKE ($1 || '%')
         ) AND
         "noindex" IS NOT TRUE AND
+        "hideFromPeopleDirectory" IS NOT TRUE AND
         "deleted" IS NOT TRUE AND
         "voteBanned" IS NOT TRUE AND
         "deleteContent" IS NOT TRUE AND
         "nullifyVotes" IS NOT TRUE AND
         "banned" IS NULL
-      ORDER BY "rank" DESC
+      ORDER BY "rank" DESC, ${normalizedFacetField} DESC
       LIMIT 8
     `, [query]);
 
