@@ -10,8 +10,8 @@ jest.useFakeTimers();
 
 describe('useDebouncedCallback', () => {
   const ComponentWithDebouncedCallbackHook = ({fn, debouncedFnRef, options}: {
-    fn: (args: any)=>void
-    debouncedFnRef: {debouncedFn: ((args: any)=>void)|null}
+    fn: (args: any) => void
+    debouncedFnRef: {debouncedFn: ((args: any) => void)|null}
     options: DebouncedCallbackOptions
   }) => {
     const debouncedFn = useDebouncedCallback(fn, options);
@@ -22,8 +22,8 @@ describe('useDebouncedCallback', () => {
   it('replaces arguments with latest if called while waiting', () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
-    const fn: (args: any)=>void = jest.fn();
-    const debouncedFnRef: {debouncedFn: ((args: any)=>void)|null} = {debouncedFn: null};
+    const fn: (args: any) => void = jest.fn();
+    const debouncedFnRef: {debouncedFn: ((args: any) => void)|null} = {debouncedFn: null};
 
     act(() => {
       render(<ComponentWithDebouncedCallbackHook
@@ -58,8 +58,8 @@ describe('useDebouncedCallback', () => {
   it('calls the callback on unmount if pending', () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
-    const fn: (args: any)=>void = jest.fn();
-    const debouncedFnRef: {debouncedFn: ((args: any)=>void)|null} = {debouncedFn: null};
+    const fn: (args: any) => void = jest.fn();
+    const debouncedFnRef: {debouncedFn: ((args: any) => void)|null} = {debouncedFn: null};
 
     act(() => {
       render(<ComponentWithDebouncedCallbackHook

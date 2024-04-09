@@ -60,9 +60,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   commentStyles: boolean,
   classes: ClassesType,
 }, context: any) => {
-  const renderCount = useRef(0);
-  console.log(`EditorFormComponent.render(${++renderCount.current})`);
-  
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
   const { updateCurrentValues, submitForm } = context;
@@ -248,7 +245,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
    * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
    */
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledSetContentsValue = useDebouncedCallback(async () => {
+  const throttledSetContentsValue = useDebouncedCallback(async (_: {}) => {
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
@@ -298,7 +295,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
-    void throttledSetContentsValue()
+    void throttledSetContentsValue({})
     
     if (autosave) {
       throttledSaveBackup(newContents);
