@@ -5,6 +5,7 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
+import { ensureCustomPgIndex } from "../../lib/collectionIndexUtils";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -42,7 +43,33 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
-const allowedFacetFields = ["jobTitle", "organization", "mapLocationAddress"];
+type FacetField = {
+  name: string,
+  pgField: string,
+}
+
+const allowedFacetFields: FacetField[] = [
+  {name: "jobTitle", pgField: `"jobTitle"`},
+  {name: "organization", pgField: `"organization"`},
+  {name: "mapLocationAddress", pgField: `"mapLocation"->>'formatted_address'`},
+];
+
+for (const {name, pgField} of allowedFacetFields) {
+  // The structure of this index should match the SQL query in `searchFacets`
+  void ensureCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_tsvector_${name}"
+    ON "Users" (TO_TSVECTOR('english', ${pgField}))
+    WHERE
+      ${pgField} IS NOT NULL AND
+      "noindex" IS NOT TRUE AND
+      "hideFromPeopleDirectory" IS NOT TRUE AND
+      "deleted" IS NOT TRUE AND
+      "voteBanned" IS NOT TRUE AND
+      "deleteContent" IS NOT TRUE AND
+      "nullifyVotes" IS NOT TRUE AND
+      "banned" IS NULL
+  `);
+}
 
 class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
@@ -647,35 +674,35 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [limit])
   }
 
-  async searchFacets(facetField: string, query: string): Promise<string[]> {
-    if (!allowedFacetFields.includes(facetField)) {
-      throw new Error(`Invalid facet field: ${facetField}`);
+  async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
+    const facetField = allowedFacetFields.find(({name}) => name === facetFieldName);
+    if (!facetField) {
+      throw new Error(`Invalid facet field: ${facetFieldName}`);
     }
 
-    const field = facetField === "mapLocationAddress"
-      ? `"mapLocation"->>'formatted_address'`
-      : `"${facetField}"`;
+    const {name, pgField} = facetField;
+    const normalizedFacetField = name === "mapLocationAddress"
+      ? `TRIM(${pgField})`
+      : `INITCAP(TRIM(${pgField}))`;
 
-    const normalizedFacetField = facetField === "mapLocationAddress"
-      ? `TRIM(${field})`
-      : `INITCAP(TRIM(${field}))`;
-
+    // If you change this query you may also need to update the indexes
+    // created for `allowedFacetFields` at the top of this file
     const results = await this.getRawDb().any(`
       -- UsersRepo.searchFacets
       SELECT
         DISTINCT ${normalizedFacetField} AS "result",
         TS_RANK_CD(
-          TO_TSVECTOR('english', ${field}),
+          TO_TSVECTOR('english', ${pgField}),
           WEBSEARCH_TO_TSQUERY($1),
           1
-        ) * 5 + COALESCE(SIMILARITY(${field}, $1), 0) AS "rank"
+        ) * 5 + COALESCE(SIMILARITY(${pgField}, $1), 0) AS "rank"
       FROM "Users"
       WHERE
-        ${field} IS NOT NULL AND
+        ${pgField} IS NOT NULL AND
         (
-          TO_TSVECTOR('english', ${field}) @@ WEBSEARCH_TO_TSQUERY($1) OR
-          COALESCE(SIMILARITY(${field}, $1), 0) > 0.22 OR
-          ${field} ILIKE ($1 || '%')
+          TO_TSVECTOR('english', ${pgField}) @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY(${pgField}, $1), 0) > 0.22 OR
+          ${pgField} ILIKE ($1 || '%')
         ) AND
         "noindex" IS NOT TRUE AND
         "hideFromPeopleDirectory" IS NOT TRUE AND
