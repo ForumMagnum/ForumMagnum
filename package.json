@@ -207,7 +207,7 @@
     "enzyme-adapter-react-16": "1.0.1",
     "escape-string-regexp": "^1.0.5",
     "estrella": "1.4.1",
-    "express": "5.0.0-alpha.8",
+    "express": "5.0.0-beta.3",
     "express-session": "^1.17.1",
     "feedparser-promised": "^1.2.2",
     "fp-ts": "^2.13.1",
