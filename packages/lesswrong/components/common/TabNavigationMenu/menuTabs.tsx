@@ -304,7 +304,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: '/people-directory',
       iconComponent: PeopleDirectoryIcon,
       selectedIconComponent: PeopleDirectorySelectedIcon,
-      tooltip: 'Search and filter through all Forum users',
+      tooltip: 'Search and filter Forum users',
       showOnMobileStandalone: true,
       showOnCompressed: true,
       flag: "beta",
