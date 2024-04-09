@@ -62,6 +62,10 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     options: CAREER_STAGES,
   });
 
+  const flattenedResults = useMemo(() => {
+    return results.flatMap((resultsPage) => resultsPage);
+  }, [results]);
+
   const clearSearch = useCallback(() => {
     setQuery("");
     roles.clear();
@@ -146,8 +150,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         const results = response?.results?.[0];
         const hits = results?.hits ?? [];
         setResults((previousResults) => {
-          previousResults[results?.page ?? 0] = hits;
-          return previousResults;
+          const newResults = [...previousResults];
+          newResults[results?.page ?? 0] = hits;
+          return newResults;
         });
         setTotalResults(results?.nbHits ?? 0);
         setNumPages(results?.nbPages ?? 0);
@@ -187,7 +192,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       isEmptySearch,
       sorting,
       setSorting,
-      results: results.flatMap((r) => r),
+      results: flattenedResults,
       resultsLoading,
       totalResults,
       loadMore,
