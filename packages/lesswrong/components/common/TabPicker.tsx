@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     columnGap: 8,
   },
   tab: {
-    width: '150px',
+    width: '100px',
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.grey[500],
     fontFamily: theme.typography.fontFamily,
@@ -49,6 +49,7 @@ export interface TabRecord {
   name: string,
   label: string,
   description?: string,
+  disabled?: boolean,
 }
 
 /**

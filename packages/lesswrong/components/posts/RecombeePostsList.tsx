@@ -1,14 +1,26 @@
 import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
-import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { useMulti } from '../../lib/crud/withMulti';
+import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
+import uniq from 'lodash/uniq';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { isServer } from '../../lib/executionEnvironment';
 
+// Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
   recommId: string,
+  curated?: never,
+  stickied?: never,
 }
+
+type RecommendedPost = RecombeeRecommendedPost | {
+  post: PostsListWithVotes,
+  recommId?: never,
+  curated: boolean,
+  stickied: boolean,
+};
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,48 +28,64 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const RESOLVER_NAME = 'RecombeeLatestPosts';
+const DEFAULT_RESOLVER_NAME = 'RecombeeLatestPosts';
+const HYBRID_RESOLVER_NAME = 'RecombeeHybridPosts';
 
-const getRecombeeLatestPostsQuery = gql`
-  query get${RESOLVER_NAME}($limit: Int, $settings: JSON) {
-    ${RESOLVER_NAME}(limit: $limit, settings: $settings) {
+type RecombeeResolver = typeof DEFAULT_RESOLVER_NAME | typeof HYBRID_RESOLVER_NAME;
+
+const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
+  query get${resolverName}($limit: Int, $settings: JSON) {
+    ${resolverName}(limit: $limit, settings: $settings) {
       results {
         post {
           ...PostsListWithVotes
         }
         recommId
+        curated
+        stickied
       }
     }
   }
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
-const stickiedPostTerms: PostsViewTerms = {
+const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
+  switch (resolverName) {
+    case DEFAULT_RESOLVER_NAME:
+      const prevRecommId = results.find(result => result.recommId)?.recommId;
+      if (!prevRecommId) {
+        return undefined;
+      }
+      return { prevRecommId };  
+    case HYBRID_RESOLVER_NAME:
+      const [firstRecommId, secondRecommId] = filterNonnull(uniq(results.map(({ recommId }) => recommId)));
+      return { prevRecommIds: [firstRecommId, secondRecommId] };
+  }
+}
+
+export const stickiedPostTerms: PostsViewTerms = {
   view: 'stickied',
   limit: 4, // seriously, shouldn't have more than 4 stickied posts
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, showSticky = false, limit = 10, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
-  showSticky?: boolean,
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, LoadMore, PostsItem, SectionFooter, CuratedPostsList } = Components;
-
-  const { results: stickiedPosts } = useMulti({
-    collectionName: "Posts",
-    fragmentName: 'PostsListWithVotes',
-    terms: stickiedPostTerms,
-    skip: !showSticky,
-  });
+  const { Loading, LoadMore, PostsItem, SectionFooter } = Components;
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
-  const { data, loading, fetchMore, networkStatus } = useQuery(getRecombeeLatestPostsQuery, {
-    ssr: true,
+  const resolverName = algorithm === 'recombee-hybrid'
+    ? HYBRID_RESOLVER_NAME
+    : DEFAULT_RESOLVER_NAME;
+
+  const query = getRecombeePostsQuery(resolverName);
+  const { data, loading, fetchMore, networkStatus } = useQuery(query, {
+    ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
@@ -66,10 +94,8 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
     },
   });
 
-  const results: RecombeeRecommendedPost[] | undefined = data?.[RESOLVER_NAME]?.results;
-  const postIds = results?.map(({post}) => post._id) || []
-  const stickiedPostIds = stickiedPosts?.map(post => post._id) ?? []
-  postIds.push(...stickiedPostIds);
+  const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
+  const postIds = results?.map(({post}) => post._id) ?? [];
 
   useOnMountTracking({
     eventType: "postList",
@@ -86,30 +112,34 @@ export const RecombeePostsList = ({ algorithm, settings, showSticky = false, lim
     return null;
   }
 
-  const recommId = results.slice(-1)[0]?.recommId;
 
   return <div>
     <div className={classes.root}>
-      <CuratedPostsList />
-      {stickiedPosts?.map(post => <PostsItem key={post._id} post={post} terms={stickiedPostTerms}/>)}
-      {results.map(({post, recommId}) => <PostsItem key={post._id} post={post} recombeeRecommId={recommId}/>)}
+      {results.map(({ post, recommId, curated, stickied }) => <PostsItem 
+        key={post._id} 
+        post={post} 
+        recombeeRecommId={recommId} 
+        curatedIconLeft={curated} 
+        terms={stickied ? stickiedPostTerms : undefined}
+      />)}
     </div>
     <SectionFooter>
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
+          const loadMoreSettings = getLoadMoreSettings(resolverName, results);
           void fetchMore({
             variables: {
-              settings: { ...recombeeSettings, loadMore: { prevRecommId: recommId } },
+              settings: { ...recombeeSettings, loadMore: loadMoreSettings },
             },
             // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
             updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
               if (!fetchMoreResult) return prev;
 
               return {
-                RecombeeLatestPosts: {
-                  __typename: fetchMoreResult[RESOLVER_NAME].__typename,
-                  results: [...prev[RESOLVER_NAME].results, ...fetchMoreResult[RESOLVER_NAME].results]
+                [resolverName]: {
+                  __typename: fetchMoreResult[resolverName].__typename,
+                  results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results]
                 }
               };
             }

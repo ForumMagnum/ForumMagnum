@@ -1368,6 +1368,11 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(),
+    onCreate: () => {
+      if (!isLWorAF) {
+        return {...defaultNotificationTypeSettings, channel: 'both'}
+      }
+    }
   },
   notificationSubscribedUserComment: {
     label: "Comments by users I'm subscribed to",

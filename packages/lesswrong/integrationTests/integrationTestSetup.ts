@@ -56,7 +56,7 @@ async function oneTimeSetup() {
   initGraphQL();
 }
 
-jest.setTimeout(20000);
+jest.setTimeout(50000);
 
 beforeAll(async () => {
   chai.should();

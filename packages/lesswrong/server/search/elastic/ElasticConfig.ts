@@ -4,6 +4,7 @@ import type {
 } from "@elastic/elasticsearch/lib/api/types";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 export type Ranking = {
   field: string,
@@ -204,7 +205,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
-      {range: {baseScore: {gte: 0}}},
+      ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
     mappings: {
       title: fullTextMapping,

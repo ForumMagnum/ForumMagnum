@@ -21,6 +21,7 @@ import ReadStatusesRepo from "./ReadStatusesRepo";
 import ReviewWinnersRepo from "./ReviewWinnersRepo";
 import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import SequencesRepo from "./SequencesRepo";
+import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import TagsRepo from "./TagsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
@@ -55,6 +56,7 @@ const getAllRepos = () => ({
   reviewWinners: new ReviewWinnersRepo(),
   reviewWinnerArts: new ReviewWinnerArtsRepo(),
   sequences: new SequencesRepo(),
+  sideComments: new SideCommentCachesRepo(),
   splashArtCoordinates: new SplashArtCoordinatesRepo(),
   tags: new TagsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
@@ -82,6 +84,7 @@ export {
   PostsRepo,
   ReadStatusesRepo,
   SequencesRepo,
+  SideCommentCachesRepo,
   SplashArtCoordinatesRepo,
   TagsRepo,
   TypingIndicatorsRepo,
