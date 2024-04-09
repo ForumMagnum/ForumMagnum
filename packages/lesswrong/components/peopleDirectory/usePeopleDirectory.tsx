@@ -15,6 +15,7 @@ type PeopleDirectorySorting = {
 type PeopleDirectoryContext = {
   query: string,
   setQuery: (query: string) => void,
+  clearSearch: () => void,
   isEmptySearch: boolean,
   sorting: PeopleDirectorySorting | null,
   setSorting: (sorting: PeopleDirectorySorting | null) => void,
@@ -57,6 +58,15 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     title: "Career stage",
     options: CAREER_STAGES,
   });
+
+  const clearSearch = useCallback(() => {
+    setQuery("");
+    roles.clear();
+    organizations.clear();
+    locations.clear();
+    careerStages.clear();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roles.clear, organizations.clear, locations.clear, careerStages.clear]);
 
   const isEmptySearch = query === "" &&
     roles.selectedValues.length === 0 &&
@@ -108,7 +118,6 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
 
   useEffect(() => {
     setResultsLoading(true);
-    const searchClient = getSearchClient();
     void (async () => {
       try {
         const sortString = sorting
@@ -120,7 +129,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           locations.selectedValues.map((location) => `mapLocationAddress:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
         ];
-        const response = await searchClient.search([
+        const response = await getSearchClient().search([
           {
             indexName: "test_users" + sortString,
             query,
@@ -168,6 +177,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     <peopleDirectoryContext.Provider value={{
       query,
       setQuery,
+      clearSearch,
       isEmptySearch,
       sorting,
       setSorting,

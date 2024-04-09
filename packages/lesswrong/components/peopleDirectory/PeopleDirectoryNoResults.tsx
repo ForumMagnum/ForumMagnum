@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
@@ -25,12 +25,7 @@ const styles = (theme: ThemeType) => ({
 export const PeopleDirectoryNoResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {setQuery} = usePeopleDirectory();
-
-  const clearSearch = useCallback(() => {
-    setQuery("");
-  }, [setQuery]);
-
+  const {clearSearch} = usePeopleDirectory();
   const {EAButton} = Components;
   return (
     <div className={classes.root}>
