@@ -33,7 +33,7 @@ import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
-import GraphQLDate from 'graphql-date';
+import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
@@ -269,8 +269,12 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
               // will be `null` and the latter will be `undefined`.
               if (field.resolveAs!.sqlResolver) {
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
-                const existingValue = document[typedName];
+                let existingValue = document[typedName];
                 if (existingValue !== undefined) {
+                  const {sqlPostProcess} = field.resolveAs!;
+                  if (sqlPostProcess) {
+                    existingValue = sqlPostProcess(existingValue, document, context);
+                  }
                   if (permissionData) {
                     const filter = permissionData.isArray
                       ? accessFilterMultiple
