@@ -41,10 +41,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     width: "100%",
   },
-  loading: {
-    gridColumn: "1/-1",
-    margin: 12,
-  },
   loadMore: {
     gridColumn: "1/-1",
   },
