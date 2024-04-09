@@ -3343,13 +3343,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/graphql-date@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@types/graphql-date/-/graphql-date-1.0.5.tgz#ded126f5244e0ba3192134b9da0074526be839be"
-  integrity sha512-iZiy6OYbZ9WHgW8YdKQ7W+PmGWFZPvpYuCKCxpkLiwZRE/Z1M9ggojbPa4rliw1fKs3LOClKbwyg29IrK4vdGQ==
-  dependencies:
-    graphql "^14.5.3"
-
 "@types/graphql-type-json@^0.3.2":
   version "0.3.2"
   resolved "https://registry.yarnpkg.com/@types/graphql-type-json/-/graphql-type-json-0.3.2.tgz#1a7105e6546fc1630a5db4834bfbc0eb554986e4"
@@ -5025,14 +5018,6 @@ asn1@~0.2.3:
   integrity sha512-jxwzQpLQjSmWXgwaCZE9Nz+glAG01yF1QnWgbhGwHI5A6FRIEY6IVqtHhIepHqI7/kyEyQEagBC5mBEFlIYvdg==
   dependencies:
     safer-buffer "~2.1.0"
-
-assert-err@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/assert-err/-/assert-err-1.1.0.tgz"
-  integrity sha1-wFBieZodl9P16qJY4yQqq0mfyO8=
-  dependencies:
-    escape-string-regexp "^1.0.5"
-    object-assign "^4.1.0"
 
 assert-options@0.8.1:
   version "0.8.1"
@@ -9290,13 +9275,6 @@ graphql-config@^3.2.0:
     minimatch "3.0.4"
     string-env-interpolation "1.0.1"
     tslib "^2.0.0"
-
-graphql-date@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/graphql-date/-/graphql-date-1.0.3.tgz"
-  integrity sha1-Mc4FrkDtjIzrBANkBgEJdx5xLpE=
-  dependencies:
-    assert-err "^1.0.0"
 
 graphql-extensions@^0.16.0:
   version "0.16.0"
