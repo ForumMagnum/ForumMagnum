@@ -27,6 +27,11 @@ const styles = (theme: ThemeType) => ({
   menuItem: {
     width: isFriendlyUI ? 210 : 190,
   },
+  desktopOnly: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none !important",
+    },
+  },
   navButton: {
     '&:hover': {
       opacity: isFriendlyUI ? 1 : 0.6,
@@ -150,6 +155,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
+        [classes.desktopOnly]: tab.desktopOnly,
       })}
       disableTouchRipple
     >

@@ -92,6 +92,7 @@ export type MenuTabRegular = {
   subItem?: boolean,
   loggedOutOnly?: boolean,
   flag?: string,
+  desktopOnly?: boolean,
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -307,6 +308,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
       flag: "beta",
+      desktopOnly: true,
     }, {
       id: 'takeAction',
       title: 'Take action',
