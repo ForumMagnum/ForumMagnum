@@ -1,6 +1,5 @@
 import { createCollection } from "../../vulcan-lib";
-import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils"
-import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { addUniversalFields } from "../../collectionUtils"
 import { ensureIndex } from "../../collectionIndexUtils";
 import schema from "./schema";
 
@@ -8,8 +7,8 @@ export const SideCommentCaches: SideCommentCachesCollection = createCollection({
   collectionName: "SideCommentCaches",
   typeName: "SideCommentCache",
   schema,
-  resolvers: getDefaultResolvers("SideCommentCaches"),
-  mutations: getDefaultMutations("SideCommentCaches"),
+  resolvers: {},
+  mutations: {},
   logChanges: false,
 });
 
