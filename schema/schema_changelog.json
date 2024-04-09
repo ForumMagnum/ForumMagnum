@@ -598,5 +598,15 @@
     "acceptsSchemaHash": "86723d78e7eb5d43201e0be72ee6f5f0",
     "acceptedByMigration": "20240404T011423.add_ArbitalCaches.ts",
     "timestamp": "2024-04-04T01:14:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ca5281426ba6c737b2621d88156ea1c6",
+    "acceptedByMigration": "20240404T190359.create_SideCommentCaches_table.ts",
+    "timestamp": "2024-04-04T19:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "972b9de45fa85223bdb3e607bd8d9936",
+    "acceptedByMigration": "20240409T163258.noop_reorder_sequence_fields.ts",
+    "timestamp": "2024-04-09T16:32:58.000Z"
   }
 ]

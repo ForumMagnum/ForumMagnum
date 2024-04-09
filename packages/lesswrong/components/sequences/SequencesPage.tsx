@@ -12,6 +12,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
 import ForumNoSSR from '../common/ForumNoSSR';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -27,6 +28,15 @@ export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|n
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
+  },
+  deletedText: {
+    paddingTop: 20,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 30
+    },
+  },
+  link: {
+    color: theme.palette.primary.main
   },
   topSection: {
     display: 'flex',
@@ -137,7 +147,13 @@ const SequencesPage = ({ documentId, classes }: {
     ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
   } = Components
   
-  if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
+  if (document?.isDeleted) {
+    return <SingleColumnSection>
+      <Typography variant="body2" className={classes.deletedText}>
+        This sequence has been deleted. <Link to="/library" className={classes.link}>Click here to view all sequences.</Link>
+      </Typography>
+    </SingleColumnSection>
+  }
   if (loading) return <Loading />
   
   if (!document) {
