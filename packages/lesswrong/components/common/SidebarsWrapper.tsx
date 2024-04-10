@@ -13,27 +13,37 @@ import type { ToCData } from '../../lib/tableOfContents';
 type ToCWithTitle = {title: string, sectionData: ToCData};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
-  setToC: (toc: ToCWithTitle|null)=>void,
+  tocVisible: boolean,
+  setToC: (toc: ToCWithTitle|null) => void,
+  setToCVisible: (visible: boolean) => void,
   sideCommentsActive: boolean,
-  setSideCommentsActive: (active: boolean)=>void,
+  setSideCommentsActive: (active: boolean) => void,
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
 
 const SidebarsWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const [tocVisible, setTocVisibleState] = useState(true);
   const [toc,setToCState] = useState<ToCWithTitle|null>(null);
   const [sideCommentsActive,setSideCommentsActive] = useState(false);
   
   const setToC = useCallback((toc: ToCWithTitle|null) => {
     setToCState(toc);
   }, []);
-  
+
+  const setToCVisible = useCallback((visible: boolean) => {
+    setTocVisibleState(visible);
+  }, []);
+
   const sidebarsContext = useMemo((): SidebarsContextType => ({
-    toc, setToC,
+    toc,
+    tocVisible,
+    setToC,
+    setToCVisible,
     sideCommentsActive,
     setSideCommentsActive,
-  }), [toc, setToC, sideCommentsActive, setSideCommentsActive]);
+  }), [toc, tocVisible, setToC, setToCVisible, sideCommentsActive, setSideCommentsActive]);
 
   return <SidebarsContext.Provider value={sidebarsContext}>
     {children}

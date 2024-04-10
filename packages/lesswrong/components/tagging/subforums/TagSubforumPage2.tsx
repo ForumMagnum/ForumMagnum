@@ -3,8 +3,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
+import { useLocation } from '../../../lib/routeUtil';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
@@ -129,15 +129,15 @@ const TagSubforumPage2 = ({classes}: {
 
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const isTab = (tab: string): tab is SubforumTab => (subforumTabs as readonly string[]).includes(tab)
   const tab = isTab(query.tab) ? query.tab : defaultTab
   
-  const handleChangeTab = useCallback((_, value: SubforumTab) => {
+  const handleChangeTab = useCallback((_: AnyBecauseTodo, value: SubforumTab) => {
     const newQuery = {...query, tab: value}
-    history.push({...location, search: `?${qs.stringify(newQuery)}`})
-  }, [history, query])
+    navigate({...location, search: `?${qs.stringify(newQuery)}`})
+  }, [navigate, query])
 
   // "subforum" tab is now called "posts", so redirect to the new tab name
   useEffect(() => {

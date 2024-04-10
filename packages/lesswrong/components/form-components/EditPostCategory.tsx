@@ -7,7 +7,6 @@ import { isPostCategory } from "../../lib/collections/posts/helpers";
 const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
     width: "100%",
-    borderBottom: theme.palette.border.normal,
     "& .MuiTab-root": {
       fontSize: 14,
       fontWeight: 600,
@@ -40,7 +39,7 @@ const EditPostCategory = ({
   const lastUrlRef = useRef(url);
 
   const handleChangeTab = useCallback(
-    (_, value) => {
+    (_: React.ChangeEvent, value: string) => {
       if (!isPostCategory(value)) return; // Overkill but just to be safe
 
       const categoryQuestion = value === "question";

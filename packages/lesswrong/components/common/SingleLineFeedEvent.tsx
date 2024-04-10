@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SingleLineFeedEvent = ({expands=false, setExpanded, children, classes}: {
   expands?: boolean,
-  setExpanded?: (expanded: boolean)=>void,
+  setExpanded?: (expanded: boolean) => void,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {

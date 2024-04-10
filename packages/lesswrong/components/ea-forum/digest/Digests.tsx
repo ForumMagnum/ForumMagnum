@@ -1,25 +1,32 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
-import { getDigestName } from '../../../lib/collections/digests/helpers';
+import { getDigestInfo } from '../../../lib/collections/digests/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 1200,
     margin: '10px auto'
   },
+  digests: {
+    display: 'grid',
+    gridTemplateColumns: '200px 50px 14px 50px',
+    alignItems: 'center',
+    gap: '10px 1px',
+    fontFamily: theme.typography.fontFamily,
+  },
   link: {
     color: theme.palette.primary.main,
-    fontFamily: theme.typography.fontFamily,
     fontSize: 16,
-    lineHeight: '22px'
+    lineHeight: '22px',
+    fontWeight: 600,
   }
 })
 
-const Digests = ({classes}:{classes: ClassesType}) => {
+const Digests = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   const { results } = useMulti({
     terms: {
@@ -27,6 +34,7 @@ const Digests = ({classes}:{classes: ClassesType}) => {
     },
     collectionName: "Digests",
     fragmentName: 'DigestsMinimumInfo',
+    limit: 100,
     skip: !userIsAdmin(currentUser)
   })
   
@@ -44,14 +52,22 @@ const Digests = ({classes}:{classes: ClassesType}) => {
         title="Digests"
         noTopMargin
       />
-        
-      {results.map(digest => {
-        return <div key={digest._id}>
-          <Link to={`/admin/digests/${digest.num}`} className={classes.link}>
-            {getDigestName({digest})}
-          </Link>
-        </div>
-      })}
+      
+      <div className={classes.digests}>
+        {results.map(digest => {
+          const data = getDigestInfo(digest)
+          return <Fragment key={digest._id}>
+            <div>
+              <Link to={`/admin/digests/${digest.num}`} className={classes.link}>
+                {data.name}
+              </Link>
+            </div>
+            <div>{data.start}</div>
+            <div>-</div>
+            <div>{data.end}</div>
+          </Fragment>
+        })}
+      </div>
     </div>
   )
 }

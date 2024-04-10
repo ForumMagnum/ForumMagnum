@@ -98,7 +98,7 @@ export async function runMigration(name: string)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>)
+export async function runThenSleep(loadFactor: number, func: () => Promise<void>)
 {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
@@ -121,8 +121,8 @@ export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>)
 // Given a collection which has a field that has a default value (specified
 // with ...schemaDefaultValue), fill in the default value for any rows where it
 // is missing.
-export async function fillDefaultValues<T extends DbObject>({ collection, fieldName, batchSize, loadFactor=DEFAULT_LOAD_FACTOR }: {
-  collection: CollectionBase<T>,
+export async function fillDefaultValues<N extends CollectionNameString>({ collection, fieldName, batchSize, loadFactor=DEFAULT_LOAD_FACTOR }: {
+  collection: CollectionBase<N>,
   fieldName: string,
   batchSize?: number,
   loadFactor?: number
@@ -181,16 +181,23 @@ export async function fillDefaultValues<T extends DbObject>({ collection, fieldN
 // if things other than this migration script are happening on the same
 // database. This function makes sense for filling in new denormalized fields,
 // where figuring out the new field's value requires an additional query.
-export async function migrateDocuments<T extends DbObject>({ description, collection, batchSize, unmigratedDocumentQuery, migrate, loadFactor=DEFAULT_LOAD_FACTOR, projection }: {
+export async function migrateDocuments<N extends CollectionNameString>({
+  description,
+  collection,
+  batchSize,
+  unmigratedDocumentQuery,
+  migrate,
+  loadFactor=DEFAULT_LOAD_FACTOR,
+  projection,
+}: {
   description?: string,
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   batchSize?: number,
   unmigratedDocumentQuery?: any,
-  migrate: (documents: Array<T>) => Promise<void>,
+  migrate: (documents: Array<ObjectsByCollectionName[N]>) => Promise<void>,
   loadFactor?: number,
-  projection?: MongoProjection<T>
-})
-{
+  projection?: MongoProjection<ObjectsByCollectionName[N]>
+}) {
   // Validate arguments
   if (!collection) throw new Error("Missing required argument: collection");
   // if (!unmigratedDocumentQuery) throw new Error("Missing required argument: unmigratedDocumentQuery");
@@ -292,17 +299,17 @@ export async function dropUnusedField(collection: AnyBecauseTodo, fieldName: str
 
 const getBatchSort = <T extends DbObject>(field = '_id') => ({ [field]: 1 }) as Record<keyof T, 1>;
 
-const getFirstBatchById = async <T extends DbObject>({
+const getFirstBatchById = async <N extends CollectionNameString>({
   collection,
   batchSize,
   filter,
   projection
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
-  projection?: MongoProjection<T>,
-}): Promise<T[]> => {
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+}): Promise<ObjectsByCollectionName[N][]> => {
   // As described in the docstring, we need to be able to query on the _id.
   // Without this check, someone trying to use _id in the filter would overwrite
   // this function's query and find themselves with an infinite loop.
@@ -319,19 +326,19 @@ const getFirstBatchById = async <T extends DbObject>({
   ).fetch();
 }
 
-const getNextBatchById = <T extends DbObject>({
+const getNextBatchById = <N extends CollectionNameString>({
   collection,
   batchSize,
   filter,
   projection,
   lastRows,
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
-  projection?: MongoProjection<T>,
-  lastRows: T[],
-}): Promise<T[]> => {
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  lastRows: ObjectsByCollectionName[N][],
+}): Promise<ObjectsByCollectionName[N][]> => {
   return collection.find(
     {
       _id: {$gt: lastRows[lastRows.length - 1]._id},
@@ -345,19 +352,19 @@ const getNextBatchById = <T extends DbObject>({
   ).fetch();
 }
 
-const getFirstBatchByCreatedAt = async <T extends DbObject>({
+const getFirstBatchByCreatedAt = async <N extends CollectionNameString>({
   collection,
   batchSize,
   filter,
   projection,
   overrideCreatedAt
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
-  projection?: MongoProjection<T>,
-  overrideCreatedAt?: keyof T & string
-}): Promise<T[]> => {
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  overrideCreatedAt?: keyof ObjectsByCollectionName[N] & string
+}): Promise<ObjectsByCollectionName[N][]> => {
   const sortField = overrideCreatedAt ?? 'createdAt';
 
   return collection.find(
@@ -374,7 +381,7 @@ const isValidDateCursor = (cursor: unknown): cursor is Date => {
   return cursor instanceof Date;
 }
 
-const getNextBatchByCreatedAt = <T extends DbObject>({
+const getNextBatchByCreatedAt = <N extends CollectionNameString>({
   collection,
   batchSize,
   filter,
@@ -382,15 +389,15 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
   lastRows,
   overrideCreatedAt
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   batchSize: number,
   filter: MongoSelector<DbObject> | null,
-  projection?: MongoProjection<T>,
-  lastRows: T[],
-  overrideCreatedAt?: keyof T & string
-}): Promise<T[]> => {
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  lastRows: ObjectsByCollectionName[N][],
+  overrideCreatedAt?: keyof ObjectsByCollectionName[N] & string
+}): Promise<ObjectsByCollectionName[N][]> => {
   const sortField = overrideCreatedAt ?? 'createdAt';
-  const lastRow = lastRows[lastRows.length - 1] as unknown as T & HasCreatedAtType;
+  const lastRow = lastRows[lastRows.length - 1] as unknown as ObjectsByCollectionName[N] & HasCreatedAtType;
   let greaterThan: unknown = lastRow[sortField] ?? new Date(0);
   if (!isValidDateCursor(greaterThan)) {
     throw new Error(`Invalid greaterThan cursor; expected a date, got ${greaterThan} for field ${sortField}`);
@@ -407,11 +414,6 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
     }
   }
 
-  // Contrary to schema, these seem to have been stored as doubles, and the $gt comparison will fail since we pass it back in as a date
-  if (!collection.isPostgres() && collection.collectionName === 'DebouncerEvents' && sortField === 'delayTime' && greaterThan instanceof Date) {
-    greaterThan = greaterThan.getTime();
-  }
-
   const selector = {
     ...filter,
     [sortField]: {
@@ -421,7 +423,7 @@ const getNextBatchByCreatedAt = <T extends DbObject>({
   };
 
   const opts = {
-    sort: getBatchSort<T>(sortField),
+    sort: getBatchSort<ObjectsByCollectionName[N]>(sortField),
     limit: batchSize,
     ...(projection ? { projection } : {})
   };
@@ -451,7 +453,7 @@ const getBatchProviders = (useCreatedAt: boolean) =>
 // way in Javascript as in Mongo; which translates into the assumption that IDs
 // are homogenously string typed. Ie, this function will break if some rows
 // have _id of type ObjectID instead of string.
-export async function forEachDocumentBatchInCollection<T extends DbObject>({
+export async function forEachDocumentBatchInCollection<N extends CollectionNameString>({
   collection,
   batchSize=1000,
   filter=null,
@@ -461,14 +463,14 @@ export async function forEachDocumentBatchInCollection<T extends DbObject>({
   useCreatedAt=false,
   overrideCreatedAt,
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   batchSize?: number,
-  filter?: MongoSelector<T> | null,
-  projection?: MongoProjection<T>,
-  callback: (batch: T[]) => void | Promise<void>,
+  filter?: MongoSelector<ObjectsByCollectionName[N]> | null,
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  callback: (batch: ObjectsByCollectionName[N][]) => void | Promise<void>,
   loadFactor?: number,
   useCreatedAt?: boolean,
-  overrideCreatedAt?: keyof T & string
+  overrideCreatedAt?: keyof ObjectsByCollectionName[N] & string
 }): Promise<void> {
   const {getFirst, getNext} = getBatchProviders(useCreatedAt);
   let rows = await getFirst({collection, batchSize, filter, projection, overrideCreatedAt});
@@ -512,11 +514,11 @@ export async function forEachDocumentInCollection({collection, batchSize=1000, f
 // fn: (bucketSelector=>null) Callback function run for each bucket. Takes a
 //     selector, which includes both an _id range (either one- or two-sided)
 //     and also the selector from `filter`.
-export async function forEachBucketRangeInCollection<T extends DbObject>({collection, filter, bucketSize=1000, fn}: {
-  collection: CollectionBase<T>
-  filter?: MongoSelector<T>
+export async function forEachBucketRangeInCollection<N extends CollectionNameString>({collection, filter, bucketSize=1000, fn}: {
+  collection: CollectionBase<N>
+  filter?: MongoSelector<ObjectsByCollectionName[N]>
   bucketSize?: number
-  fn: (selector: MongoSelector<T>)=>Promise<void>
+  fn: (selector: MongoSelector<ObjectsByCollectionName[N]>) => Promise<void>
 })
 {
   // Get filtered collection size and use it to calculate a number of buckets
@@ -567,7 +569,7 @@ Vulcan.dropUnusedField = dropUnusedField
 
   // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
   // This wraapper runs the function and ignores if it's not defined yet
-export async function safeRun(db : SqlClient | null, fn : string) : Promise<void> {
+export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
   if(!db) return;
 
   await db.any(`DO $$

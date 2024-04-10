@@ -34,16 +34,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   title: {
     marginBottom: 24,
+    fontSize: 32,
+    fontWeight: "700",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
     [theme.breakpoints.down("sm")]: {
       marginTop: 8,
     },
   },
   subheading: {
     fontSize: 20,
-    margin: '8px 0px'
+    margin: '8px 0px',
+    color: theme.palette.grey[1000],
   },
   table: {
-    marginBottom: 24,
+    marginBottom: 32,
   },
 });
 
@@ -69,7 +74,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const {
     SingleColumnSection,
-    WrappedLoginForm,
+    LoginForm,
     HeadTags,
     Typography,
     AnalyticsGraph,
@@ -86,7 +91,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     return (
       <SingleColumnSection>
         <p>You don't have permission to view this page. Would you like to log in?</p>
-        <WrappedLoginForm />
+        <LoginForm />
       </SingleColumnSection>
     );
   }

@@ -1,4 +1,5 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { requireCssVar } from "./cssVars";
+import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -76,6 +77,21 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.calendly-preview": {
+    "& iframe": {
+      "width": "calc(100% - 10px)",
+      "height": 750,
+      border: "2px solid",
+      borderRadius: 10,
+      borderColor: theme.palette.grey[200],
+      padding: 0,
+      marginRight: 5,
+      marginLeft: 5
+    },
+  },
+});
+
 const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.strawpoll-embed": {
     "& iframe": {
@@ -117,6 +133,17 @@ const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.viewpoints-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 300,
+      border: 'none'
+    }
+  }
+})
+
 const youtubePreviewStyles = (theme: ThemeType): JssStyles => ({
   '& figure.media div[data-oembed-url*="youtube.com"], & figure.media div[data-oembed-url*="youtu.be"]': {
     position: 'relative',
@@ -140,16 +167,35 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
   margin: "auto",
   height: "100%",
   textAlign: "left",
-  width: '100%'
+  width: '100%',
+  ...(isFriendlyUI && {
+    "& *": {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 14,
+      lineHeight: "1.4em",
+    },
+    "& sup *": {
+      fontSize: 10,
+    },
+    "& ul, & ol": {
+      paddingLeft: "1.5em",
+    },
+  }),
 });
 
 const tableCellStyles = (theme: ThemeType): JssStyles => ({
   minWidth: "2em",
   padding: ".4em",
   border: theme.palette.border.tableCell,
+  wordBreak: "normal",
   '& p': {
     marginTop: '0.5em',
-    marginBottom: '0.5em'
+    marginBottom: '0.5em',
+    ...(isFriendlyUI && {
+      marginLeft: 2,
+      marginRight: 2,
+      lineHeight: "1.4em",
+    }),
   },
   '& p:first-of-type': {
     marginTop: 0
@@ -198,6 +244,56 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+// Calling requireCssVar results in the variable being defined in the stylesheet
+// (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
+// are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
+requireCssVar("palette", "fonts", "sansSerifStack")
+requireCssVar("palette", "panelBackground", "default")
+requireCssVar("palette", "error", "main")
+requireCssVar("palette", "grey", 200)
+requireCssVar("palette", "grey", 300)
+requireCssVar("palette", "grey", 600)
+requireCssVar("palette", "grey", 1000)
+
+const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
+  '& .ck-cta-button': {
+    display: 'block',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    minWidth: 30,
+    width: 'fit-content',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: '20px',
+    textTransform: 'none',
+    padding: '12px 16px',
+    borderRadius: theme.borderRadius.default,
+    boxShadow: 'none',
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    transition: 'background-color 0.3s ease',
+    '&:hover': {
+      opacity: 1,
+      backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:visited': {
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:visited:hover': {
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
+    }
+  },
+  '& .ck-cta-button-centered': {
+    margin: 'auto'
+  }
+});
+
 const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -221,6 +317,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h1': {
     ...theme.typography.display2,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   // If a post starts with a header, it should still be flush with the top of
   // the container
@@ -232,6 +329,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h2': {
     ...theme.typography.display1,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h2:first-child': {
     marginTop: 0,
@@ -240,6 +338,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h3': {
     ...theme.typography.display0,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h3:first-child': {
     marginTop: 0,
@@ -249,6 +348,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     fontWeight:600,
+    color: theme.palette.text.contentHeader,
+  },
+  '& h5': {
+    color: theme.palette.text.contentHeader,
+  },
+  '& h6': {
+    color: theme.palette.text.contentHeader,
   },
   '& img': {
     maxWidth: "100%",
@@ -273,16 +379,19 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
+  '& a:visited': isFriendlyUI ? {
     color: theme.palette.link.visited,
+  } : {},
+  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+    color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
     ...tableStyles(theme)
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    width: 'fit-content !important',
-    height: 'fit-content !important',
+    width: 'fit-content',
+    height: 'fit-content',
   },
   // Many column tables should overflow instead of squishing
   //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
@@ -314,6 +423,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
   },
+  "& u": {
+    textDecoration: "none",
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
@@ -322,18 +434,21 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...estimakerPreviewStyles(theme),
+    ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
+    ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -382,6 +497,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
+    '& .footnotes': isFriendlyUI ? {} : {
+      marginTop: 0,
+      paddingTop: 8,
+      paddingLeft: 16,
+      marginBottom: 0
+    },
+
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,
@@ -423,7 +545,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: "1.28rem",
+    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
     lineHeight: "1.75rem",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -436,7 +558,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: "1.28rem",
+      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
       lineHeight: "1.8rem",
     }
   };

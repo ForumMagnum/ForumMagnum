@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
@@ -12,28 +12,44 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { isEAForum, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
+const styles = (theme: ThemeType) => ({
+  root: isFriendlyUI ? {
     marginTop: 8,
     marginBottom: 8,
+  } : {
+    display: 'flex',
+    gap: '4px',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  alignRight: {
+    justifyContent: 'flex-end',
   },
   allowTruncate: {
-    display: "block",
+    display: isFriendlyUI ? "block" : "inline-flex",
     // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 104,
     overflow: "hidden",
   },
+  overrideMargins: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
   postTypeLink: {
-    "&:hover": isEAForum ? {opacity: 1} : {},
+    "&:hover": isFriendlyUI ? {opacity: 1} : {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         marginBottom: 0,
         "&:hover": {
@@ -45,16 +61,23 @@ const styles = (theme: ThemeType): JssStyles => ({
         },
       }
       : {
-        paddingTop: 4,
-        paddingBottom: 4,
+        paddingTop: 4.5,
+        paddingBottom: 4.5,
       }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
   card: {
-    width: 450,
     padding: 16,
-    paddingTop: 8
+    ...(isFriendlyUI
+      ? {
+        paddingTop: 12,
+        width: FRIENDLY_HOVER_OVER_WIDTH,
+      }
+      : {
+        width: 450,
+        paddingTop: 8,
+      }),
   },
   smallText: {
     ...smallTagTextStyle(theme),
@@ -65,15 +88,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     color: theme.palette.grey[500],
     cursor: "pointer",
-    marginTop: -6,
     width: 'fit-content',
-  }
+  },
+  altAddTagButton: {
+    backgroundColor: theme.palette.panelBackground.default,
+    display: "inline-block",
+    paddingLeft: 8,
+    paddingTop: 4.5,
+    paddingBottom: 4.5,
+    paddingRight: 8,
+    borderRadius: 3,
+    fontWeight: 700,
+    gap: 4,
+    cursor: "pointer",
+    border: theme.palette.tag.border
+  },
 });
 
-export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
+export function sortTags<T>(list: Array<T>, toTag: (item: T) => TagBasicInfo|null|undefined): Array<T> {
   return sortBy(
     list,
-    isEAForum ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
+    isFriendlyUI ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
   );
 }
 
@@ -81,24 +116,35 @@ const FooterTagList = ({
   post,
   hideScore,
   hideAddTag,
+  //used for PostsPageSplashHeader
+  useAltAddTagButton,
   smallText=false,
   showCoreTags,
   hidePostTypeTag,
   link=true,
   highlightAutoApplied=false,
   allowTruncate=false,
-  classes
+  overrideMargins=false,
+  appendElement,
+  annualReviewMarketInfo,
+  classes,
+  align = "left"
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
   hideAddTag?: boolean,
+  useAltAddTagButton?: boolean,
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
   link?: boolean
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
-  classes: ClassesType
+  overrideMargins?: boolean,
+  appendElement?: ReactNode,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  align?: "left" | "right",
+  classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -108,7 +154,6 @@ const FooterTagList = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
-  const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // We already have the tags as a resolver on the post, this additional query
   // serves two purposes:
@@ -197,8 +242,6 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  const { Loading, FooterTag, ContentStyles } = Components
-  
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
@@ -210,23 +253,33 @@ const FooterTagList = ({
       return <>{children}</>;
     }
   }
-  
+
   const contentTypeInfo = forumSelect(contentTypes);
-  
-  const PostTypeTag = ({tooltipBody, label}: {
-    tooltipBody: React.ReactNode;
-    label: string;
-  }) =>
-    <LWTooltip
-      title={<Card className={classes.card}>
-        <ContentStyles contentType="comment">
-          {tooltipBody}
-        </ContentStyles>
-      </Card>}
-      tooltip={false}
-    >
-      <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>{label}</div>
-    </LWTooltip>
+
+  const PostTypeTag = useCallback(({tooltipBody, label}: {
+    tooltipBody: ReactNode,
+    label: string,
+  }) => {
+    const {HoverOver, ContentStyles} = Components;
+    return (
+      <HoverOver
+        title={
+          <Card className={classes.card}>
+            <ContentStyles contentType="comment">
+              {tooltipBody}
+            </ContentStyles>
+          </Card>
+        }
+        tooltip={false}
+      >
+        <div className={classNames(classes.frontpageOrPersonal, {
+          [classes.smallText]: smallText,
+        })}>
+          {label}
+        </div>
+      </HoverOver>
+    );
+  }, [classes, smallText]);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
@@ -249,6 +302,10 @@ const FooterTagList = ({
 
   const sortedTagRels = results ? sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag) : []
 
+  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
+
+  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
+
   const innerContent =
     (loadingInitial || !results) ? (
       <>
@@ -256,6 +313,7 @@ const FooterTagList = ({
           <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText} />
         ))}
         {!hidePostTypeTag && postType}
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </>
     ) : (
       <>
@@ -279,17 +337,22 @@ const FooterTagList = ({
             )
         )}
         {!hidePostTypeTag && postType}
-        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext />}
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
+        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+            {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
+          </AddTagButton>
+        }
         {isAwaiting && <Loading />}
       </>
     );
- 
+
   return <>
     <span
       ref={rootRef}
-      className={classNames(classes.root, {[classes.allowTruncate]: !showAll})}
+      className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins, [classes.alignRight]: align === "right"})}
     >
       {innerContent}
+      {appendElement}
     </span>
     {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
   </>

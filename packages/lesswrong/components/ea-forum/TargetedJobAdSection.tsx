@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
@@ -7,159 +7,258 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_JOB_AD_COOKIE } from '../../lib/cookies/cookies';
+import { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
+import { gql, useQuery } from '@apollo/client';
+import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
+import difference from 'lodash/difference';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
+import intersection from 'lodash/intersection';
+import union from 'lodash/fp/union';
+import { CAREER_STAGES } from '../../lib/collections/users/schema';
 
+type UserCoreTagReads = {
+  tagId: string,
+  userReadCount: number,
+}
+
+const query = gql`
+  query getUserReadsPerCoreTag($userId: String!) {
+    UserReadsPerCoreTag(userId: $userId) {
+      tagId
+      userReadCount
+    }
+  }
+  `
+
+/**
+ * Section of a page that might display a job ad to the current user.
+ */
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   // we track when the user has seen the ad
   const { setNode, entry } = useIsInView()
   const { flash } = useMessages()
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_JOB_AD_COOKIE])
-  
-  // the AdvisorRequests collection is set to be deleted anyway, so reuse it for this job ad test,
-  // as a way to track which users have seen and/or registered interest in the job ads
-  const { create: createJobAdView } = useCreate({
-    collectionName: 'AdvisorRequests',
-    fragmentName: 'AdvisorRequestsMinimumInfo',
+  const recordCreated = useRef<boolean>(false)
+
+  const { create: createUserJobAd } = useCreate({
+    collectionName: 'UserJobAds',
+    fragmentName: 'UserJobAdsMinimumInfo',
   })
-  const { mutate: updateJobAds } = useUpdate({
-    collectionName: 'AdvisorRequests',
-    fragmentName: 'AdvisorRequestsMinimumInfo',
+  const { mutate: updateUserJobAd } = useUpdate({
+    collectionName: 'UserJobAds',
+    fragmentName: 'UserJobAdsMinimumInfo',
   })
-  const { results } = useMulti({
-    terms: {view: 'requestsByUser', userId: currentUser?._id, limit: 1},
-    collectionName: 'AdvisorRequests',
-    fragmentName: 'AdvisorRequestsMinimumInfo',
+  const { results: userJobAds, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useMulti({
+    terms: {view: 'adsByUser', userId: currentUser?._id},
+    collectionName: 'UserJobAds',
+    fragmentName: 'UserJobAdsMinimumInfo',
     skip: !currentUser
   })
   
-  // we only advertise one job per page view
-  const [activeJob, setActiveJob] = useState<string>('malaria-researcher-givewell')
+  const { results: userEAGDetails, loading: userEAGDetailsLoading } = useMulti({
+    terms: {view: 'dataByUser', userId: currentUser?._id},
+    collectionName: 'UserEAGDetails',
+    fragmentName: 'UserEAGDetailsMinimumInfo',
+    skip: !currentUser
+  })
+  
+  // check the amount that the user has read core tags to help target ads
+  const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
+    query,
+    {
+      variables: {
+        userId: currentUser?._id,
+      },
+      ssr: true,
+      skip: !currentUser,
+    }
+  )
+  const coreTagReads: UserCoreTagReads[]|undefined = coreTagReadsData?.UserReadsPerCoreTag
+  
+  // we only advertise up to one job per page view
+  const [activeJob, setActiveJob] = useState<string>()
   
   // select a job ad to show to the current user
-  // useEffect(() => {
-  //   if (!currentUser || !results || activeJob) return
+  useMemo(() => {
+    if (!currentUser || userJobAdsLoading || userEAGDetailsLoading || coreTagReadsLoading || activeJob) return
+  
+    const ads = userJobAds ?? []
     
-  //   // user's relevant interests from EAG, such as "software engineering"
-  //   const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
-  //   // the topics that the user has displayed on their profile
-  //   const userTags = currentUser.profileTagIds ?? []
-  //   const userJobAds = results[0]?.jobAds ?? {}
-    
-  //   for (let jobName in JOB_AD_DATA) {
-  //     // skip any jobs where the deadline to apply has passed
-  //     const deadline = JOB_AD_DATA[jobName].deadline
-  //     if (deadline && moment().isAfter(deadline, 'day')) {
-  //       continue
-  //     }
-      
-  //     const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
-  //     const interestedIn = JOB_AD_DATA[jobName].interestedIn
-  //     const occupationTag = JOB_AD_DATA[jobName].tagId
-  //     const jobAdState = userJobAds[jobName]?.state
-  //     // check if the ad fits the user's interests
-  //     const userIsMatch = intersection(userEAGInterests, eagOccupations).length ||
-  //       intersection(currentUser.interestedIn, interestedIn).length ||
-  //       (occupationTag && userTags.includes(occupationTag))
-  //     // make sure the user hasn't already clicked "interested" or "uninterested" for this ad
-  //     const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)
+    for (let jobName in JOB_AD_DATA) {
+      const jobAd = JOB_AD_DATA[jobName]
+      // skip any jobs where the deadline to apply has passed
+      const deadline = jobAd.deadline
+      if (deadline && moment().isAfter(deadline, 'day')) {
+        continue
+      }
 
-  //     if (userIsMatch && shouldShowAd) {
-  //       setActiveJob(jobName)
-  //       return
-  //     }
-  //   }
+      const userJobAdState = ads.find(ad => ad.jobName === jobName)?.adState
+      const userEAGData = userEAGDetails?.[0]
+      
+      /** Check if the job fits the user's interests */
+
+      // Are they subscribed to all the topics relevant to the job ad?
+      const subscribedTagIds = jobAd.subscribedTagIds
+      const userTagSubs = currentUser.frontpageFilterSettings?.tags?.filter(
+        (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
+      )?.map((setting: FilterTag) => setting.tagId)
+      let userIsMatch = subscribedTagIds && !difference(subscribedTagIds, userTagSubs).length
+      // Or have they have read at least 30 posts in all the relevant topics in the past 6 months?
+      const readCoreTagIds = jobAd.readCoreTagIds
+      const readsThreshold = jobAd.coreTagReadsThreshold ?? 30
+      userIsMatch = userIsMatch || (
+        readCoreTagIds &&
+        !!coreTagReads?.length &&
+        readCoreTagIds.every(
+          tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= readsThreshold)
+        )
+      )
+      // Or do they have the relevant EAG interests?
+      const interestedIn = jobAd.interestedIn
+      const userEAGInterests = union(userEAGData?.interestedIn, userEAGData?.experiencedIn)
+      userIsMatch = userIsMatch || (
+        !!interestedIn &&
+        !!userEAGInterests &&
+        !difference(interestedIn, userEAGInterests).length
+      )
+      // In the rare case when we don't want to filter by interests, start by matching on all users
+      if (!subscribedTagIds && !readCoreTagIds && !interestedIn) {
+        userIsMatch = true
+      }
+      
+      /** Check if the user should be excluded from the job ad audience */
+
+      // Are they in the right country?
+      const countryCode = jobAd.countryCode
+      const countryName = jobAd.countryName
+      if (userIsMatch && (countryCode || countryName)) {
+        userIsMatch = getCountryCode(currentUser.googleLocation) === countryCode ||
+          userEAGData?.countryOrRegion === countryName
+      }
+      // Are they in the right city/area or willing to move there?
+      const city = jobAd.city
+      const willingToRelocateTo = jobAd.willingToRelocateTo
+      const relevantWillingnessesToRelocate: EAGWillingToRelocateOption[] = [
+        'I’d be excited to move here or already live here',
+        'I’d be willing to move here for a good opportunity'
+      ]
+      if (userIsMatch && (city || willingToRelocateTo)) {
+        userIsMatch = (city && isInPoliticalEntity(currentUser.googleLocation, city)) ||
+          (city && userEAGData?.nearestCity?.toLowerCase().includes(city.toLowerCase())) ||
+          (willingToRelocateTo && relevantWillingnessesToRelocate.includes(userEAGData?.willingnessToRelocate?.[willingToRelocateTo]))
+      }
+      // And are they in the right career stage?
+      const careerStages = jobAd.careerStages
+      if (userIsMatch && careerStages) {
+        // Check their user profile and their EAG data
+        const userProfileCareerStages = currentUser.careerStage ?? []
+        const userEAGCareerStages = userEAGData?.careerStage?.map(cs => CAREER_STAGES.find(stage => stage.EAGLabel === cs)?.value ?? '') ?? []
+        const userCareerStages = userProfileCareerStages.concat(userEAGCareerStages)
+        userIsMatch = intersection(careerStages, userCareerStages).length > 0
+      }
+      // And do they have the right experience?
+      const experiencedIn = jobAd.experiencedIn
+      if (userIsMatch && experiencedIn) {
+        // TODO: my guess is that we want the user to have *all* the listed skills,
+        // rather than just one, but for the current test I want to cast a wider net.
+        // userIsMatch = !!userEAGData?.experiencedIn && !difference(experiencedIn, userEAGData.experiencedIn).length
+        userIsMatch = intersection(experiencedIn, userEAGData?.experiencedIn).length > 0
+      }
+
+      // Make sure the user hasn't already clicked "apply" or "remind me" for this ad
+      const shouldShowAd = !userJobAdState || ['seen', 'expanded'].includes(userJobAdState)
+
+      if (userIsMatch && shouldShowAd) {
+        setActiveJob(jobName)
+        return
+      }
+    }
     
-  // }, [currentUser, results, activeJob])
+  }, [
+    currentUser,
+    userJobAds,
+    userJobAdsLoading,
+    userEAGDetails,
+    userEAGDetailsLoading,
+    coreTagReads,
+    coreTagReadsLoading,
+    activeJob
+  ])
 
   // record when this user has seen the selected ad
   useEffect(() => {
-    if (!currentUser || !results || !activeJob || !entry?.isIntersecting) return
-    // if we're not tracking this user at all, start tracking them
-    if (!results.length) {
-      void createJobAdView({
+    // skip when no data to record
+    if (!currentUser || userJobAdsLoading || !activeJob || !entry?.isIntersecting) return
+    // skip if we have already recorded this data
+    if (recordCreated.current || userJobAds?.some(ad => ad.jobName === activeJob)) return
+    // make sure to only create up to one record per view
+    recordCreated.current = true
+    void createUserJobAd({
+      data: {
+        userId: currentUser._id,
+        jobName: activeJob,
+        adState: 'seen'
+      }
+    }).finally(refetchUserJobAds)
+  }, [currentUser, userJobAds, userJobAdsLoading, refetchUserJobAds, activeJob, entry, createUserJobAd])
+  
+  const dismissJobAd = useCallback(() => {
+    captureEvent('hideJobAd')
+    void updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
+  }, [captureEvent, updateCurrentUser])
+  
+  const handleApply = useCallback(() => {
+    if (!currentUser || !userJobAds?.length || !activeJob) return
+    // record when a user has clicked the "Apply" button
+    const ad = userJobAds.find(ad => ad.jobName === activeJob)
+    if (ad) {
+      void updateUserJobAd({
+        selector: {_id: ad._id},
         data: {
-          userId: currentUser._id,
-          jobAds: {[activeJob]: {state: 'seen', lastUpdated: new Date()}}
+          adState: 'applied'
         }
       })
-      return
     }
-    // if this user hadn't seen this job ad before, mark them as having seen it
-    const jobAdState = results[0]?.jobAds?.[activeJob]?.state
-    if (!jobAdState) {
-      void updateJobAds({
-        selector: {_id: results[0]._id},
-        data: {jobAds: {
-          ...results[0].jobAds,
-          [activeJob]: {state: 'seen', lastUpdated: new Date()}
-        }}
+  }, [currentUser, userJobAds, activeJob, updateUserJobAd])
+  
+  const handleRemindMe = useCallback(() => {
+    if (!currentUser || !userJobAds?.length || !activeJob) return
+    // record when a user has clicked the "Remind me" button
+    const ad = userJobAds.find(ad => ad.jobName === activeJob)
+    if (ad) {
+      // email is sent via cron
+      void updateUserJobAd({
+        selector: {_id: ad._id},
+        data: {
+          adState: 'reminderSet',
+          reminderSetAt: new Date()
+        }
       })
     }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, results, activeJob, entry])
-  
-  const dismissJobAd = () => {
-    captureEvent('hideJobAd')
-    setCookie(
-      HIDE_JOB_AD_COOKIE,
-      "true", {
-      expires: moment().add(30, 'days').toDate(),
-    })
-  }
-  
-  const handleExpand = () => {
-    if (!currentUser || !results?.length || !activeJob) return
-    // track which users have expanded the ad
-    void updateJobAds({
-      selector: {_id: results[0]._id},
-      data: {jobAds: {
-        ...results[0].jobAds,
-        [activeJob]: {state: 'expanded', lastUpdated: new Date()}
-      }}
-    })
-  }
-  
-  const handleInterested = async (showSuccessMsg=true) => {
-    if (!currentUser || !results?.length || !activeJob) return
-    // track which users have registered interest
-    await updateJobAds({
-      selector: {_id: results[0]._id},
-      data: {jobAds: {
-        ...results[0].jobAds,
-        [activeJob]: {state: 'interested', lastUpdated: new Date()}
-      }}
-    })
-    showSuccessMsg && flash({messageString: "Thanks for registering interest!", type: "success"})
-  }
-  
-  const handleUninterested = (uninterestedReason?: string) => {
-    if (!currentUser || !results?.length || !activeJob) return
-    // track which users have said they are uninterested
-    void updateJobAds({
-      selector: {_id: results[0]._id},
-      data: {jobAds: {
-        ...results[0].jobAds,
-        [activeJob]: {state: 'uninterested', uninterestedReason, lastUpdated: new Date()}
-      }}
-    })
-  }
+    flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
+  }, [currentUser, userJobAds, activeJob, updateUserJobAd, flash])
   
   const { TargetedJobAd } = Components
   
-  if (cookies[HIDE_JOB_AD_COOKIE] || !activeJob) {
+  // Only show this section if we have a matching job for this user
+  if (
+    !currentUser ||
+    (currentUser.hideJobAdUntil && moment(currentUser.hideJobAdUntil).isAfter(moment())) ||
+    !activeJob
+  ) {
     return null
   }
   
   return <div ref={setNode}>
     <TargetedJobAd
-      ad={activeJob}
+      jobName={activeJob}
+      userJobAd={userJobAds?.find(ad => ad.jobName === activeJob)}
       onDismiss={dismissJobAd}
-      onExpand={handleExpand}
-      onInterested={handleInterested}
-      onUninterested={handleUninterested}
+      onApply={handleApply}
+      onRemindMe={handleRemindMe}
     />
   </div>
 }

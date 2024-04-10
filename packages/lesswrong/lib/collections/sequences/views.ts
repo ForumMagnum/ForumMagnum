@@ -1,19 +1,21 @@
 import { ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isAF, isLWorAF } from '../../instanceSettings';
 import Sequences from './collection';
 
 declare global {
   interface SequencesViewTerms extends ViewTermsBase {
     view?: SequencesViewName
     userId?: string
+    sequenceIds?: string[]
   }
 }
 
 Sequences.addDefaultView((terms: SequencesViewTerms) => {
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,
+      ...(terms.sequenceIds && {_id: {$in: terms.sequenceIds}}),
       ...alignmentForum
     }
   }
@@ -101,17 +103,19 @@ Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
 ensureIndex(Sequences, augmentForDefaultView({ curatedOrder:-1 }));
 
 Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
+  const gridImageFilter = isLWorAF ? {gridImageId: {$ne: null}} : undefined
+
   return {
     selector: {
       userId: terms.userId,
       curatedOrder: {$exists: false},
-      gridImageId: {$ne: null },
       isDeleted: false,
       draft: false,
       $or: [
         {canonicalCollectionSlug: ""},
         {canonicalCollectionSlug: {$exists: false}},
       ],
+      ...gridImageFilter,
     },
     options: {
       sort: {

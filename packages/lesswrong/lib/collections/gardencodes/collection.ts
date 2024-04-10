@@ -1,13 +1,12 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
 import moment from 'moment'
 import { makeEditable } from '../../editor/make_editable';
-import { forumTypeSetting } from '../../instanceSettings';
 
 function generateCode(length: number) {
   let result = '';
@@ -30,11 +29,12 @@ export const eventTypes = [
   }
 ]
 
-const schema: SchemaType<DbGardenCode> = {
+const schema: SchemaType<"GardenCodes"> = {
   code: {
     type: String,
     optional: true,
     canRead: ['guests'],
+    nullable: false,
     onInsert: (gardenCode) => {
       return generateCode(4)
     },
@@ -45,7 +45,7 @@ const schema: SchemaType<DbGardenCode> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
-    defaultValue: "Guest Day Pass",
+    ...schemaDefaultValue("Guest Day Pass"),
     order: 10
   },
   userId: {
@@ -58,7 +58,8 @@ const schema: SchemaType<DbGardenCode> = {
     }),
     onCreate: ({currentUser}) => currentUser!._id,
     canRead: ['guests'],
-    optional: true
+    optional: true,
+    nullable: false,
   },
   // gatherTownUsername: {
   //   optional: true,
@@ -72,6 +73,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    nullable: false,
     onInsert: async (gardenCode) => {
       return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
@@ -95,6 +97,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "End Time",
     optional: true,
+    nullable: false,
     order: 25,
     onInsert: (gardenCode) => {
       return moment(gardenCode.startTime).add(12, 'hours').toDate()
@@ -186,7 +189,6 @@ const schema: SchemaType<DbGardenCode> = {
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),

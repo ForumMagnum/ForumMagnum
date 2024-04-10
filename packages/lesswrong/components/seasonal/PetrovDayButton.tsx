@@ -6,8 +6,6 @@ import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
-import { Helmet } from 'react-helmet';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
@@ -16,6 +14,7 @@ import {
   userCanLaunchPetrovMissile,
   usersAboveKarmaThresholdHardcoded20220922
 } from "../../lib/petrovHelpers";
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -221,7 +220,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
             <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
               <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
               <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
-              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma ?? 0}`}</div>}
+              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma}`}</div>}
             </Link>
           </Typography>
           {currentUser ? 

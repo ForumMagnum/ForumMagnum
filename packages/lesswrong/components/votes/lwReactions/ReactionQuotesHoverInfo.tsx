@@ -1,12 +1,12 @@
 import React from 'react';
-import { NamesAttachedReactionsList, NamesAttachedReactionsScore } from '../../../lib/voting/namesAttachedReactions';
-import { useCurrentUser } from '../../common/withUser';
+import { EmojiReactName, getNormalizedReactionsListFromVoteProps, NamesAttachedReactionsList, QuoteLocator, UserReactInfo, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { clearHighlights, markHighlights, useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
+import { useNamesAttachedReactionsVoting } from './NamesAttachedReactionsVoteOnComment';
 import filter from 'lodash/filter';
 import uniq from 'lodash/uniq';
-import { dimHighlightClassName, highlightSelectorClassName } from '../../comments/CommentsItem/CommentsItem';
+import sumBy from 'lodash/sumBy';
 import type { VotingProps } from '../votingProps';
+import { ContentItemBody } from '../../common/ContentItemBody';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -61,66 +61,56 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ReactionQuotesHoverInfo = ({react, voteProps, commentItemRef, classes}:{
-  react: string, 
+const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}: {
+  react: EmojiReactName,
+  quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody>|null,
   classes: ClassesType
 }) => {
-  const { LWTooltip } = Components;
-  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  const { ReactOrAntireactVote, UsersWhoReacted } = Components;
+  const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps);
 
-  const currentUser = useCurrentUser();
+  const reactionsOfType: UserReactInfo[] = normalizedReactions?.reacts?.[react] ?? [];
+  const reactionsToQuote = reactionsOfType.filter(r => r.quotes?.[0] === quote);
 
-  const alreadyUsedReactions: NamesAttachedReactionsList = extendedScore?.reacts ?? {};
-  const usersWhoReacted = alreadyUsedReactions[react]
-
-  const allQuotesOrUndefined = uniq(usersWhoReacted?.flatMap(r => r.quotes))
-  const allQuotes = filter(allQuotesOrUndefined, q => q !== undefined) as string[]
-  
-  const quotesWithUsers = allQuotes.map(quote => {
-    const usersWhoReactedToQuote = usersWhoReacted?.filter(r => quote && r.quotes?.includes(quote))
-    return { quote, users: usersWhoReactedToQuote  }
-  })
-
-  const { toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
+  const { getCurrentUserReactionVote, setCurrentUserReaction } = useNamesAttachedReactionsVoting(voteProps);
 
   function handleHoverQuote (quote: string) {
-    clearHighlights(commentItemRef)
-    markHighlights(allQuotes, dimHighlightClassName, commentItemRef)
-    markHighlights([quote], highlightSelectorClassName, commentItemRef)
+    // TODO
   }
 
   function handleLeaveQuote () {
-    clearHighlights(commentItemRef)
-    markHighlights(allQuotes, highlightSelectorClassName, commentItemRef)
+    // TODO
   }
 
-  if (!allQuotes.length) return null
+  if (!reactionsToQuote.length) return null
+
+  const netQuoteReactionCount = sumBy(reactionsToQuote, (reaction) => reaction.reactType==="disagreed"?-1:1)
+  const setCurrentUserQuoteReaction = (reactionName: EmojiReactName, reaction: VoteOnReactionType) => setCurrentUserReaction(reactionName, reaction, quote);
 
   return <div className={classes.root}>
-    {quotesWithUsers.map(({quote, users}) => {
-      const currentUserReactedToQuote = users?.find(r => r.userId === currentUser?._id)
-      return <div key={quote} className={classes.quote}>
-          <div className={classes.tinyQuoteRow} onMouseEnter={() => handleHoverQuote(quote)} onMouseLeave={() => handleLeaveQuote()}>
-            <div className={classes.tinyQuoteWrapper}>
-              <div className={classes.tinyQuote}>
-                {quote.trim()}
-              </div>
-              <div className={classes.usersWhoQuoted}>
-                {users?.map(user => user.displayName)?.join(", ")}
-              </div>
-            </div>
-            <LWTooltip title={currentUserReactedToQuote ? "Remove your react to this snippet" : "Endorse this react for this snippet"} placement="right">
-              <div className={classes.tinyQuoteReactToggle} onClick={() => toggleReaction(react, quote)}>
-                {currentUserReactedToQuote ? "x" : "+1"}
-              </div>
-            </LWTooltip>
+    <div key={quote} className={classes.quote}>
+      <div className={classes.tinyQuoteRow} onMouseEnter={() => handleHoverQuote(quote)} onMouseLeave={() => handleLeaveQuote()}>
+        <div className={classes.tinyQuoteWrapper}>
+          <div className={classes.tinyQuote}>
+            {quote.trim()}
+          </div>
+          <div className={classes.usersWhoQuoted}>
+            <UsersWhoReacted reactions={reactionsToQuote} />
           </div>
         </div>
-      })}
+        <ReactOrAntireactVote
+          reactionName={react}
+          currentUserReaction={getCurrentUserReactionVote(react, quote)}
+          netReactionCount={netQuoteReactionCount}
+          quote={quote}
+          setCurrentUserReaction={setCurrentUserQuoteReaction}
+        />
+      </div>
+    </div>
   </div>
-} 
+}
 
 
 const ReactionQuotesHoverInfoComponent = registerComponent('ReactionQuotesHoverInfo', ReactionQuotesHoverInfo, {styles});

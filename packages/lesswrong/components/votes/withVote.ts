@@ -4,12 +4,12 @@ import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 
-const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
+const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) => {
   const typeName = collection.options.typeName;
   const mutationName = `performVote${typeName}`;
   
@@ -46,8 +46,8 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   }, [openDialog]);
   
   const [mutate] = useMutation(query, {
-    onCompleted: useCallback((mutationResult) => {
-      if (++mutationCounts.current.completedMutationIndex == mutationCounts.current.optimisticMutationIndex) {
+    onCompleted: useCallback((mutationResult: AnyBecauseHard) => {
+      if (++mutationCounts.current.completedMutationIndex === mutationCounts.current.optimisticMutationIndex) {
         setOptimisticResponseDocument(null)
       }
       
@@ -92,13 +92,12 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       setOptimisticResponseDocument(null);
     }
   }, [messages, mutate, collection, votingSystemOrDefault]);
-  
-  const af = forumTypeSetting.get() === 'AlignmentForum'
+
   const result = optimisticResponseDocument || document;
   return {
     vote, collectionName,
     document: result,
-    baseScore: (af ? result.afBaseScore : result.baseScore) || 0,
+    baseScore: (isAF ? result.afBaseScore : result.baseScore) || 0,
     voteCount: (result.voteCount) || 0,
   };
 }

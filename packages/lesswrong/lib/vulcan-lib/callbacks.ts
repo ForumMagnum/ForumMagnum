@@ -2,17 +2,16 @@ import { isServer } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
-import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 
-export interface CallbackPropertiesBase<T extends DbObject> {
+export interface CallbackPropertiesBase<N extends CollectionNameString> {
   // TODO: Many of these are empirically optional, but setting them to optional
   // causes a bajillion type errors, so we will not be fixing today
   currentUser: DbUser|null
-  collection: CollectionBase<T>
+  collection: CollectionBase<N>
   context: ResolverContext
-  schema: SchemaType<T>
+  schema: SchemaType<N>
 }
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
@@ -28,7 +27,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     addCallback(this.name, fn);
   }
   
-  remove = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined|void) => {
+  remove = (fn: (doc: IteratorType, ...args: ArgumentsType) => IteratorType|Promise<IteratorType>|undefined|void) => {
     removeCallback(this.name, fn);
   }
   
@@ -59,7 +58,7 @@ export class CallbackHook<ArgumentsType extends any[]> {
     this.name = name;
   }
   
-  add = (fn: (...args: ArgumentsType)=>void|Promise<void>) => {
+  add = (fn: (...args: ArgumentsType) => void|Promise<void>) => {
     addCallback(this.name, fn);
   }
   
@@ -140,11 +139,11 @@ const removeCallback = function (hookName: string, callback: AnyBecauseTodo) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks = function <T extends DbObject> (this: any, options: {
+export const runCallbacks = function <N extends CollectionNameString> (this: any, options: {
   name: string,
   iterator?: any,
   // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
-  properties: [CallbackPropertiesBase<T>]|any[],
+  properties: [CallbackPropertiesBase<N>]|any[],
   ignoreExceptions?: boolean,
 }) {
   const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
@@ -308,10 +307,10 @@ export const runCallbacksList = function (this: any, options: {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
-export const runCallbacksAsync = function <T extends DbObject> (options: {
+export const runCallbacksAsync = function <N extends CollectionNameString> (options: {
   name: string,
   // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
-  properties: [CallbackPropertiesBase<T>]|any[]
+  properties: [CallbackPropertiesBase<N>]|any[]
 }) {
   const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = formatHookName(options.name);
@@ -382,7 +381,7 @@ export const runCallbacksAsync = function <T extends DbObject> (options: {
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending() || isAnyMongoQueryPending() || isAnyPostgresQueryPending()) {
+      if (callbacksArePending() || isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();
@@ -457,7 +456,7 @@ function callbacksArePending(): boolean
 export function printInProgressCallbacks() {
   const callbacksInProgress = Object.keys(pendingCallbackDescriptions);
   // eslint-disable-next-line no-console
-  console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!=1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
+  console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!==1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
 }
 
 export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");

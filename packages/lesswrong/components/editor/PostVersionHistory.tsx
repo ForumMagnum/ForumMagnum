@@ -1,27 +1,31 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
-import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import {CENTRAL_COLUMN_WIDTH} from "../posts/PostsPage/PostsPage";
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
-import {useMessages} from "../common/withMessages";
 import { useMutation, gql } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/posts/helpers';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
+import { isCollaborative } from './EditorFormComponent';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
+    maxWidth: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64,
     display: "flex",
     padding: 24,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    gap: "32px"
   },
   leftColumn: {
     ...commentBodyStyles(theme),
@@ -29,9 +33,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   revisionRow: {
     padding: 12,
     cursor: "pointer",
+    whiteSpace: "nowrap"
   },
   selectedRevision: {
     background: theme.palette.grey[200],
+  },
+  liveRevision: {
+    fontWeight: 700,
   },
   versionNumber: {
     color: theme.palette.grey[900],
@@ -45,14 +53,47 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: CENTRAL_COLUMN_WIDTH,
     ...postBodyStyles(theme)
   },
-  restoreButton: {
-    textAlign: "center",
-    marginBottom: 32,
-    marginTop: 16,
-    paddingRight: 100
+  header: {
+    borderBottom: `1px solid ${theme.palette.grey[200]}`,
+    marginBottom: 12
+  },
+  titleRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "16px",
+    alignItems: "center",
+    padding: "12px 0",
+    flexWrap: "wrap"
+  },
+  commitMessage: {
+    fontStyle: "italic",
+    fontSize: 12,
+    lineHeight: "16px",
+    marginBottom: 6
+  },
+  versionHistoryButton: {
+    color: theme.palette.grey[680],
+    padding: '8px 12px',
+    border: "none",
+    '&:hover': {
+      backgroundColor: theme.palette.panelBackground.darken08,
+      border: "none",
+    }
+  },
+  button: {
+    whiteSpace: "nowrap"
   },
   loadMore: {
     paddingLeft: 12
+  },
+  versionTitle: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    marginRight: "auto",
+    fontWeight: 600,
+    fontSize: 20,
+  },
+  tooltip: {
+    marginBottom: 4
   }
 });
 
@@ -64,7 +105,9 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
 
-  return <Button
+  const { EAButton } = Components;
+
+  return <EAButton
     onClick={() => {
       captureEvent("versionHistoryButtonClicked", {postId})
       openDialog({
@@ -72,21 +115,38 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
         componentProps: {post, postId},
       })
     }}
+    variant={"outlined"}
+    className={classes.versionHistoryButton}
   >
-    Version History
-  </Button>
+    {preferredHeadingCase("Version History")}
+  </EAButton>
 }
+
+const LIVE_REVISION_TOOLTIP = "This version is currently live"
+const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
+const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
 const PostVersionHistory = ({post, postId, onClose, classes}: {
   post: PostsBase,
   postId: string,
-  onClose: ()=>void,
-  classes: ClassesType
+  onClose: () => void,
+  classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
+  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay, EAButton, LWTooltip } = Components;
+
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isCollabEditor = isCollaborative(post, "contents")
+
+  const { query } = location;
+  const loadedVersion = query.version;
+
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
+
   const [revertMutation] = useMutation(gql`
     mutation revertToRevision($postId: String!, $revisionId: String!) {
       revertPostToRevision(postId: $postId, revisionId: $revisionId) {
@@ -95,11 +155,8 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     }
     ${fragmentTextForQuery("PostsEdit")}
   `);
-  const [revertLoading, setRevertLoading] = useState(false);
   const canRevert = canUserEditPostMetadata(currentUser, post);
-  
-  const {flash} = useMessages();
-  
+
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     terms: {
       view: "revisionsOnDocument",
@@ -110,12 +167,49 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
   });
-  
+
   useEffect(() => {
-    revisions && revisions.length > 0 && setSelectedRevisionId(revisions[0]._id)
-  }, [revisions])
-  
-  const { document: revision, loading: loadingRevision } = useSingle({
+    if (!(revisions && revisions.length > 0)) return
+
+    // If the the loaded version in behind a "Load more" this will fall back to the first revision
+    const defaultRev = (loadedVersion && revisions.find((r) => r.version === loadedVersion)?._id) ?? revisions[0]._id;
+    setSelectedRevisionId(defaultRev)
+  }, [loadedVersion, revisions])
+
+  const restoreVersion = useCallback(async () => {
+    captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
+    setRevertInProgress(true);
+    await revertMutation({
+      variables: {
+        postId: postId,
+        revisionId: selectedRevisionId,
+      },
+    });
+    // Hard-refresh the page to get things back in sync
+    window.location.reload();
+  }, [captureEvent, postId, revertMutation, selectedRevisionId])
+
+  const loadVersion = useCallback(async (version: string) => {
+    captureEvent("loadVersionClicked", {postId, revisionId: selectedRevisionId})
+
+    if (location.pathname.startsWith('/editPost')) {
+      const queryParams = new URLSearchParams(query);
+      queryParams.set('version', version);
+      const newSearchString = queryParams.toString();
+
+      navigate({ ...location.location, search: `?${newSearchString}`});
+    } else {
+      void navigate(postGetEditUrl(postId, false, post.linkSharingKey ?? undefined, version));
+    }
+
+    onClose();
+  }, [captureEvent, location.location, location.pathname, navigate, onClose, post.linkSharingKey, postId, query, selectedRevisionId])
+
+  useOnNavigate(() => {
+    onClose();
+  })
+
+  const { document: revision, loading: revisionLoading } = useSingle({
     skip: !selectedRevisionId,
     documentId: selectedRevisionId||"",
     collectionName: "Revisions",
@@ -123,65 +217,87 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     fragmentName: "RevisionDisplay",
   });
 
-  const { captureEvent } = useTracking()
-  
-  return <LWDialog open={true} maxWidth={false} onClose={onClose}>
-    <div className={classes.root}>
-      <div className={classes.leftColumn}>
-        {loadingRevisions && <Loading/>}
-        {revisions && revisions.map(rev =>
-          <div key={rev._id}
-            className={classNames(classes.revisionRow, {
-              [classes.selectedRevision]: rev._id===selectedRevisionId,
-            })}
-            onClick={() => setSelectedRevisionId(rev._id)}
-          >
-            <span className={classes.versionNumber}>{rev.version}</span>
-            <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
-            <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>
+  const isLive = (r: {_id: string}) => r._id === post.contents_latest
+
+  return (
+    <LWDialog open={true} maxWidth={false} onClose={onClose}>
+      <div className={classes.root}>
+        <div className={classes.leftColumn}>
+          {revisions &&
+            revisions.map((rev) => (
+              <div
+                key={rev._id}
+                className={classNames(classes.revisionRow, {
+                  [classes.selectedRevision]: rev._id === selectedRevisionId,
+                })}
+                onClick={() => setSelectedRevisionId(rev._id)}
+              >
+                <LWTooltip title={isLive(rev) ? LIVE_REVISION_TOOLTIP : undefined} placement="top" popperClassName={classes.tooltip}>
+                  <span
+                    className={classNames(classes.versionNumber, {
+                      [classes.liveRevision]: isLive(rev),
+                    })}
+                  >
+                    {rev.version}
+                  </span>
+                </LWTooltip>
+                <ChangeMetricsDisplay changeMetrics={rev.changeMetrics} />
+                <span className={classes.editedAt}>
+                  <FormatDate date={rev.editedAt} />
+                </span>
+              </div>
+            ))}
+          <div className={classes.loadMore}>
+            <LoadMore {...loadMoreProps} />
           </div>
-        )}
-        <div className={classes.loadMore}>
-          <LoadMore {...loadMoreProps}/>
+        </div>
+        <div className={classes.selectedRevisionDisplay}>
+          {revisionLoading && <Loading />}
+          {revision && (
+            <>
+              {canRevert && (
+                <div className={classes.header}>
+                  <div className={classes.titleRow}>
+                    <div className={classes.versionTitle}>
+                      v{revision.version}
+                      {isLive(revision) ? " (Live version)" : ""}
+                    </div>
+                    {!isCollabEditor && <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
+                      <EAButton
+                        variant="outlined"
+                        className={classes.button}
+                        onClick={() => loadVersion(revision.version)}
+                      >
+                        Load into editor
+                      </EAButton>
+                    </LWTooltip>}
+                    <LWTooltip title={RESTORE_VERSION_TOOLTIP} placement="top" popperClassName={classes.tooltip}>
+                      <EAButton variant="contained" className={classes.button} onClick={restoreVersion}>
+                        {revertInProgress ? <Loading /> : "Restore"}
+                      </EAButton>
+                    </LWTooltip>
+                  </div>
+                  <div className={classes.commitMessage}>{revision.commitMessage}</div>
+                </div>
+              )}
+              <ContentItemBody
+                dangerouslySetInnerHTML={{ __html: revision.html }}
+                description="PostVersionHistory revision"
+              />
+            </>
+          )}
         </div>
       </div>
-      <div className={classes.selectedRevisionDisplay}>
-        {revision && canRevert && <div className={classes.restoreButton}>
-          {revertLoading
-            ? <Loading/>
-            : <Button variant="contained" color="primary" onClick={async () => {
-                captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
-                setRevertInProgress(true);
-                await revertMutation({
-                  variables: {
-                    postId: postId,
-                    revisionId: selectedRevisionId,
-                  },
-                });
-                // Hard-refresh the page to get things back in sync
-                location.reload();
-              }}
-            >
-              RESTORE THIS VERSION{" "}
-              {revertInProgress && <Loading/>}
-            </Button>
-          }
-        </div>}
-        {revision && <ContentItemBody
-          dangerouslySetInnerHTML={{__html: revision.html}}
-          description="PostVersionHistory revision"
-        />}
-      </div>
-    </div>
-  </LWDialog>
+    </LWDialog>
+  );
 }
 
-const PostVersionHistoryButtonComponent = registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
+const PostVersionHistoryEAButton = registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
 const PostVersionHistoryComponent = registerComponent("PostVersionHistory", PostVersionHistory, {styles});
 
 declare global {
   interface ComponentTypes {
-    PostVersionHistoryButton: typeof PostVersionHistoryButtonComponent
+    PostVersionHistoryButton: typeof PostVersionHistoryEAButton
     PostVersionHistory: typeof PostVersionHistoryComponent
   }
 }

@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start" }: {
   classes: ClassesType,
   label: string|React.ReactNode,
-  onClick: (ev: React.MouseEvent)=>void,
+  onClick: (ev: React.MouseEvent) => void,
   value: boolean,
   disabled?: boolean,
   tooltip?: any,

@@ -7,6 +7,8 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
+import { getCurrentSectionMark, getLandmarkY } from '../hooks/useScrollHighlight';
+import { commentIdToLandmark } from './CommentsTableOfContents';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -40,7 +42,7 @@ export interface CommentsNodeProps {
   truncated?: boolean,
   shortform?: any,
   nestingLevel?: number,
-  expandAllThreads?:boolean,
+  expandAllThreads?: boolean,
   /**
    * Determines whether this specific comment is expanded, without passing that
    * expanded state to child comments
@@ -112,7 +114,7 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
+  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
 
@@ -150,15 +152,23 @@ const CommentsNode = ({
     return (top >= 0) && (top <= window.innerHeight);
   }
 
-  const scrollIntoView = useCallback((behavior:"auto"|"smooth"="smooth") => {
+  const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
     if (!isInViewport()) {
-      scrollTargetRef.current?.scrollIntoView({behavior: behavior, block: "center", inline: "nearest"});
+      const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
+      if (commentTop) {
+        // Add window.scrollY because window.scrollTo takes a relative scroll distance
+        // rather than an absolute scroll position, and a +1 because of rounding issues
+        // that otherwise cause us to wind up just above the comment such that the ToC
+        // highlights the wrong one.
+        const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
+        window.scrollTo({ top: y, behavior });
+      }
     }
     setHighlighted(true);
     setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered
       setHighlighted(false);
     }, HIGHLIGHT_DURATION*1000);
-  }, []);
+  }, [comment._id]);
 
   const handleExpand = async (event?: React.MouseEvent) => {
     event?.stopPropagation()
@@ -217,7 +227,24 @@ const CommentsNode = ({
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
   
-  return <div className={comment.gapIndicator && classes.gapIndicator}>
+  const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
+    <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
+    {showExtraChildrenButton}
+    {childComments.map(child => <Components.CommentsNode
+      isChild={true}
+      treeOptions={treeOptions}
+      comment={child.item}
+      parentCommentId={comment._id}
+      parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
+      nestingLevel={updatedNestingLevel + 1}
+      truncated={isTruncated}
+      childComments={child.children}
+      key={child.item._id}
+      expandNewComments={expandNewComments}
+      enableGuidelines={enableGuidelines} />)}
+  </div>;
+
+  return <div className={comment.gapIndicator ? classes.gapIndicator : undefined}>
     <CommentFrame
       comment={comment}
       treeOptions={treeOptions}
@@ -266,24 +293,7 @@ const CommentsNode = ({
         }
       </div>}
 
-      {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
-        { showExtraChildrenButton }
-        {childComments.map(child =>
-          <Components.CommentsNode
-            isChild={true}
-            treeOptions={treeOptions}
-            comment={child.item}
-            parentCommentId={comment._id}
-            parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
-            nestingLevel={updatedNestingLevel+1}
-            truncated={isTruncated}
-            childComments={child.children}
-            key={child.item._id}
-            expandNewComments={expandNewComments}
-            enableGuidelines={enableGuidelines}
-          />)}
-      </div>}
+      {childrenSection}
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">

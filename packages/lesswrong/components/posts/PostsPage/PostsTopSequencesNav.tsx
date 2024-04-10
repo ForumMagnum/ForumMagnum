@@ -1,7 +1,6 @@
 import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { useNavigation } from '../../../lib/routeUtil';
+import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
@@ -29,11 +28,11 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
-  const { LWTooltip, SequencesHoverOver, SequencesNavigationLink } = Components 
-  const { history } = useNavigation();
+  const {SequencesTooltip, SequencesNavigationLink} = Components;
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
-  const handleKey = useCallback((ev) => {
+  const handleKey = useCallback((ev: KeyboardEvent) => {
     // Only if Shift and no other modifiers
     if (ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       // Check the targe of the event; we don't want to navigate if you're
@@ -42,22 +41,22 @@ const PostsTopSequencesNav = ({post, classes}: {
       // selected) or is an <a> tag (a spurious selection because you opened
       // a link in a new tab, usually).
       if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
-        if (ev.keyCode == 37) { // Left
+        if (ev.keyCode === 37) { // Left
           if (post.prevPost)
-            history.push(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
-        } else if (ev.keyCode == 39) { // Right
+            navigate(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
+        } else if (ev.keyCode === 39) { // Right
           if (post.nextPost)
-            history.push(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
+            navigate(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
         }
       }
     }
-  }, [post, history]);
+  }, [navigate, post]);
   useGlobalKeydown(handleKey);
 
   if (!post?.sequence)
     return null;
 
-  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+  if (post.sequence.draft && (!currentUser || currentUser._id!==post.sequence.userId) && !currentUser?.isAdmin) {
     return null;
   }
   
@@ -67,12 +66,12 @@ const PostsTopSequencesNav = ({post, classes}: {
         post={post.prevPost}
         direction="left" />
 
-      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
+      <SequencesTooltip sequence={post.sequence}>
         <div className={classes.title}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>
-      </LWTooltip>
+      </SequencesTooltip>
 
       <SequencesNavigationLink
         post={post.nextPost}

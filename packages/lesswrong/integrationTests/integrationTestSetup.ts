@@ -2,7 +2,6 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
@@ -57,7 +56,7 @@ async function oneTimeSetup() {
   initGraphQL();
 }
 
-jest.setTimeout(20000);
+jest.setTimeout(50000);
 
 beforeAll(async () => {
   chai.should();
@@ -71,11 +70,15 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await waitUntilCallbacksFinished();
-  await Promise.all([
-    closeDatabaseConnection(),
-    closeSqlClient(getSqlClientOrThrow()),
-  ]);
+  // Enforce a wait of at least a 1 second before closing the database connection. To mitigate these potential issues:
+  // - There may be some dead time between callbacks where waitUntilCallbacksFinished resolves, but actually another callback is about to run
+  // - Some async functions may not be caught by waitUntilCallbacksFinished at all
+  for (let i = 0; i < 10; i++) {
+    await waitUntilCallbacksFinished();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
+  await closeSqlClient(getSqlClientOrThrow());
 
   // Our approach to database cleanup is to just delete all the runs older than 1 day.
   // This allows us to inspect the databases created during the last run if necessary

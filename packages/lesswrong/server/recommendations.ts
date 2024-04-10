@@ -18,6 +18,7 @@ import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
 import RecommendationService from './recommendations/RecommendationService';
+import PgCollection from '../lib/sql/PgCollection';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -166,7 +167,15 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
   if (algorithm.excludeDefaultRecommendations) {
     return recommendationFilter
   } else {
-    return {$or: [recommendationFilter, { defaultRecommendation: true}]}
+    return {
+      $or: [
+        recommendationFilter,
+        {
+          ...getDefaultViewSelector("Posts"), // Ensure drafts are still excluded
+          defaultRecommendation: true,
+        },
+      ],
+    };
   }
 }
 
@@ -180,38 +189,26 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
-  if (Posts.isPostgres()) {
-    const joinHook = algorithm.onlyUnread && currentUser
-      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
-      : undefined;
-    const query = new SelectQuery(
-      new SelectQuery(
-        new SelectQuery(
-          Posts.getTable(),
-          {},
-          {},
-          {joinHook},
-        ),
-        recommendablePostFilter(algorithm),
-      ),
-      {},
-      {projection: scoreRelevantFields},
-    );
-    return Posts.executeReadQuery(query) as Promise<DbPost[]>;
-  } else {
-    return await Posts.aggregate([
-      // Filter to recommendable posts
-      { $match: {
-        ...recommendablePostFilter(algorithm),
-      } },
-
-      // If onlyUnread, filter to just unread posts
-      ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
-
-      // Project out fields other than _id and scoreRelevantFields
-      { $project: scoreRelevantFields },
-    ]).toArray();
+  if (!(Posts instanceof PgCollection)) {
+    throw new Error("Posts is not a Postgres collection");
   }
+  const joinHook = algorithm.onlyUnread && currentUser
+    ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
+    : undefined;
+  const query = new SelectQuery(
+    new SelectQuery(
+      new SelectQuery(
+        Posts.getTable(),
+        {},
+        {},
+        {joinHook},
+      ),
+      recommendablePostFilter(algorithm),
+    ),
+    {},
+    {projection: scoreRelevantFields},
+  );
+  return Posts.executeReadQuery(query) as Promise<DbPost[]>;
 }
 
 // Returns the top-rated posts (rated by scoreFn) to recommend to a user.
@@ -227,7 +224,7 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
-  scoreFn: (post: DbPost)=>number,
+  scoreFn: (post: DbPost) => number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
@@ -261,7 +258,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
-  sampleWeightFn: (post: DbPost)=>number,
+  sampleWeightFn: (post: DbPost) => number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
@@ -408,9 +405,9 @@ addGraphQLResolvers({
       const { currentUser } = context;
       if (!currentUser) return false;
 
-      if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
+      if (currentUser.partiallyReadSequences?.some((s)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
-          (s:any)=>s.nextPostId !== postId);
+          (s)=>s.nextPostId !== postId);
         await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }

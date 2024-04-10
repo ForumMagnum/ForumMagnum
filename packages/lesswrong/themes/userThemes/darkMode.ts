@@ -1,5 +1,5 @@
 import type { PartialDeep } from 'type-fest'
-import { invertHexColor, invertColor, colorToString } from '../colorUtil';
+import { invertHexColor, invertColor, colorToString, zeroTo255 } from '../colorUtil';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import deepmerge from 'deepmerge';
 
@@ -46,7 +46,11 @@ export const invertedGreyscale = {
 };
 
 const greyAlpha = (alpha: number) => `rgba(255,255,255,${alpha})`;
-const inverseGreyAlpha = (alpha: number) => `rgba(0,0,0,${alpha})`;
+
+const inverseGreyAlpha = (alpha: number) => {
+  const [r, g, b] = invertColor([1, 1, 1, 1]);
+  return `rgba(${zeroTo255(r)},${zeroTo255(g)},${zeroTo255(b)},${alpha})`;
+}
 
 // CkEditor allows users to provide colors for table cell backgrounds and
 // borders, which get embedded into the HTML looking like this:
@@ -136,12 +140,24 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       link: {
         visited: '#9b71be',
+        visitedHover: '#8a59b3',
       },
       panelBackground: {
         default: shadePalette.grey[20],
+        modalBackground: "#292929",
+        loginInput: "#3d3d3d",
+        loginInputHovered: "#3f3f3f",
+        onboardingSection: "#424242",
+        onboardingPodcast: "#525252",
       },
       background: {
-        primaryTranslucent: "rgba(12,134,155,0.4)"
+        primaryTranslucent: "rgba(12,134,155,0.4)",
+        loginBackdrop: "rgba(0,0,0,0.5)",
+      }
+    },
+    LessWrong: {
+      header: {
+        background: 'rgba(50,50,50,.75)',
       }
     },
     default: {},
@@ -190,6 +206,10 @@ export const darkModeTheme: UserThemeSpecification = {
         yellow: "#ffba7d",
         green: "#7ee486",
       },
+      reviewWinner: {
+        title: greyAlpha(0.75),
+        author: greyAlpha(0.65)
+      }
     },
     link: {
       primaryDim: '#3a7883',
@@ -206,13 +226,17 @@ export const darkModeTheme: UserThemeSpecification = {
       cookieBanner: shadePalette.grey[900],
     },
     background: {
+      default: shadePalette.grey[100],
+      contrastInDarkMode: shadePalette.grey[100],
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primarySlightlyDim: "#00494e",
       primaryTranslucent: "rgba(99,141,103,0.3)",
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
-      transparent: 'transparent'
+      transparent: 'transparent',
+      digestAdBannerInput: shadePalette.grey[300],
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -223,12 +247,17 @@ export const darkModeTheme: UserThemeSpecification = {
       secondaryHighlight: '#3e503a',
       secondaryHighlight2: '#3e503a',
       mentionsBaloon: shadePalette.grey[100],
+      eaButtonGreyOutline: "#5F5F5F",
     },
     buttons: {
       mentions: {
         hover: shadePalette.grey[100],
         selected: "#0c70c7",
         selectedHover: "#0b62ae",
+      },
+      digestAdBannerNoThanks: {
+        background: shadePalette.grey[600],
+        hoverBackground: shadePalette.grey[700],
       },
     },
     intercom: {
@@ -247,6 +276,19 @@ export const darkModeTheme: UserThemeSpecification = {
       sideCommentEditorBackground: shadePalette.grey[100],
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
+    },
+    wrapped: {
+      background: '#072C47',
+      highlightText: '#FFC443',
+      secondaryText: '#008DAC',
+      tertiaryText: "rgba(255, 255, 255, 0.50)",
+      black: '#212121',
+      darkGrey: '#424242',
+      grey: '#757575',
+      darkDot: "rgba(255, 255, 255, 0.40)",
+      panelBackground: "rgba(255, 255, 255, 0.10)",
+      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+      postScoreArrow: '#BCBCBC',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

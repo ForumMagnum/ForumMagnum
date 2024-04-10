@@ -62,7 +62,6 @@ const LWPopper = ({
   clickable?: boolean,
   hideOnTouchScreens?: boolean,
 }) => {
-  const [everOpened, setEverOpened] = useState(open);
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
   const flipModifier = !flip && allowOverflow ? [
@@ -96,10 +95,16 @@ const LWPopper = ({
   if (!open)
     return null;
   
-  return (
-    // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
-    // context, by placing the Popper element directly into the document root
-    // Rest of usage from https://popper.js.org/react-popper/v2/
+  // In some cases, interacting with something inside a popper will cause a rerender that detaches the anchorEl
+  // This happened in hovers on in-line reacts, and the button to create a new react ended up on the top-left corner of the page
+  if (anchorEl && !anchorEl.isConnected) {
+    return null;
+  }
+  
+  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+  // context, by placing the Popper element directly into the document root
+  // Rest of usage from https://popper.js.org/react-popper/v2/
+  return <>{
     createPortal(
       <div
         ref={setPopperElement}
@@ -117,7 +122,7 @@ const LWPopper = ({
       </div>,
       document.body
     )
-  )
+  }</>
 };
 
 const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});

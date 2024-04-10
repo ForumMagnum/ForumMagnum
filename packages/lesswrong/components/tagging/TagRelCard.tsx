@@ -1,13 +1,14 @@
 import React from 'react';
-import { userCanVote } from '../../lib/collections/users/helpers';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relevance: {
-    marginTop: 2,
+    marginTop: isFriendlyUI ? undefined : 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },
@@ -18,14 +19,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteButton: {
     display: "inline-block",
     fontSize: 25,
+    transform: isFriendlyUI ? "translateY(2px)" : undefined,
   },
   score: {
     marginLeft: 4,
     marginRight: 4,
+    color: theme.palette.grey[1000],
   },
   removeButton: {
     float: "right",
-    marginTop: 12
+    ...(isFriendlyUI
+      ? {
+        marginTop: 10,
+        marginLeft: 10,
+      }
+      : {
+        marginTop: 12,
+      }),
   },
   removed: {
     float: "right",
@@ -35,17 +45,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagRelCard = ({tagRel, classes, relevance=true}: {
+const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,
   classes: ClassesType,
-  relevance?: boolean
 }) => {
   const currentUser = useCurrentUser();
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
   // We check both whether the current user can vote at all, and whether they can specifically vote on this tagrel
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = tagRel.currentUserCanVote && !fail;
   
   const TooltipIfDisabled = (canVote
@@ -98,7 +107,7 @@ const TagRelCard = ({tagRel, classes, relevance=true}: {
           placement="top"
         >
           <TagRelevanceButton
-            label={`Remove ${taggingNameCapitalSetting.get()}`}
+            label={preferredHeadingCase(`Remove ${taggingNameCapitalSetting.get()}`)}
             {...voteProps}
             voteType="smallUpvote"
             cancelVote

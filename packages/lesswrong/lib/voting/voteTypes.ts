@@ -1,15 +1,15 @@
 
 interface VoteTypeOptions {
-  power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
+  power: number|((user: DbUser|UsersCurrent, document: VoteableType) => number),
 }
 
 
 export const calculateVotePower = (karma: number, voteType: string): number => {
-  if (voteType == "smallUpvote") { return userSmallVotePower(karma, 1)}
-  if (voteType == "smallDownvote") { return userSmallVotePower(karma, -1)}
-  if (voteType == "bigUpvote") { return userBigVotePower(karma, 1)}
-  if (voteType == "bigDownvote") { return userBigVotePower(karma, -1)}
-  if (voteType == "neutral") return 0;
+  if (voteType === "smallUpvote") { return userSmallVotePower(karma, 1)}
+  if (voteType === "smallDownvote") { return userSmallVotePower(karma, -1)}
+  if (voteType === "bigUpvote") { return userBigVotePower(karma, 1)}
+  if (voteType === "bigDownvote") { return userBigVotePower(karma, -1)}
+  if (voteType === "neutral") return 0;
   else throw new Error(`Invalid vote type in calculateVotePower: ${voteType}`);
 }
 

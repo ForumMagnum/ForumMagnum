@@ -8,7 +8,7 @@ import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents'
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import {forumTypeSetting, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
+import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
@@ -17,11 +17,11 @@ import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { useRecombeeFrontpage } from '../../lib/betas';
 
-const isEAForum = forumTypeSetting.get() === 'EAForum';
-
-const titleWrapper = forumTypeSetting.get() === 'LessWrong' ? {
+const titleWrapper = isLWorAF ? {
   marginBottom: 8
 } : {
   display: "flex",
@@ -57,9 +57,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'New & upvoted' : 'Latest Posts'
+const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
-const filterSettingsToggleLabels = forumSelect({
+export const filterSettingsToggleLabels = forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -67,18 +67,18 @@ const filterSettingsToggleLabels = forumSelect({
     mobileHidden: "Customize feed",
   },
   default: {
-    desktopVisible: "Customize Feed (Hide)",
-    desktopHidden: "Customize Feed",
-    mobileVisible: "Customize Feed (Hide)",
-    mobileHidden: "Customize Feed (Show)",
+    desktopVisible: "Customize (Hide)",
+    desktopHidden: "Customize",
+    mobileVisible: "Customize (Hide)",
+    mobileHidden: "Customize",
   }
 })
 
-const advancedSortingText = isEAForum
+const advancedSortingText = isFriendlyUI
   ? "Advanced sorting & filtering"
   : "Advanced Sorting/Filtering";
 
-const defaultLimit = isEAForum ? 11 : 13;
+const defaultLimit = isFriendlyUI ? 11 : 13;
 
 const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
   if (!isEAForum) {
@@ -98,22 +98,31 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
   };
 }
 
-const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
+const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
+  const recombeeFrontpagePrototypeEnabled = useRecombeeFrontpage(currentUser);
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  // (except that on the EA Forum it always starts out hidden)
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isEAForum ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
+  // (except that on the EA Forum/FriendlyUI it always starts out hidden)
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({
+    eventType:"frontpageFilterSettings",
+    eventProps: {
+      filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts"
+    },
+    captureOnMount: true,
+  })
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts
+    CuratedPostsList, SectionTitle, StickiedPosts, RecombeeLatestPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -131,7 +140,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
   
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    if (!isEAForum) {
+    if (isLWorAF) {
       void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
     }
     
@@ -141,12 +150,16 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
     })
   }
 
-  const showCurated = isEAForum || (forumTypeSetting.get() === "LessWrong" && reviewIsActive())
+  const showCurated = isFriendlyUI || (isLW && reviewIsActive())
+
+  if (currentUser && recombeeFrontpagePrototypeEnabled) {
+    return <RecombeeLatestPosts currentUser={currentUser} />
+  }
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <SectionTitle title={latestPostsName} noTopMargin={isEAForum} noBottomPadding>
+        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
           <LWTooltip
             title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
             hideOnTouchScreens
@@ -158,6 +171,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
                 filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
+              textShadow={isLWorAF}
             />
             <SettingsButton
               className={classes.hideOnDesktop}
@@ -186,7 +200,7 @@ const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
             />
           </div>
         </AnalyticsContext>
-        {isEAForum && <StickiedPosts />}
+        {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
           <AnalyticsContext listContext={"latestPosts"}>

@@ -37,7 +37,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 
 const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const { LWTooltip } = Components
-  const tag = hit as AlgoliaTag;
+  const tag = hit as SearchTag;
 
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 

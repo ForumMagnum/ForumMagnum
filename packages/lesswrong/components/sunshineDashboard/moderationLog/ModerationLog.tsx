@@ -239,7 +239,6 @@ const ModerationLog = ({classes}: {
         level: 1
       },
     ],
-    headingsCount: 0
   }
 
   return (
@@ -252,76 +251,52 @@ const ModerationLog = ({classes}: {
         <div className={classes.section}>
           <h3 id="deleted-comments">Deleted Comments</h3>
           <Components.Datatable
-            collection={Comments}
+            collectionName="Comments"
             columns={deletedCommentColumns}
-            options={{
-              fragmentName: 'DeletedCommentsModerationLog',
-              terms: {view: "allCommentsDeleted"},
-              limit: 10,
-              enableTotal: true
-            }}
-            showEdit={false}
+            fragmentName={'DeletedCommentsModerationLog'}
+            terms={{view: "allCommentsDeleted"}}
+            limit={10}
           />
         </div>
         {shouldShowEndUserModeration && <>
           <div className={classNames(classes.section, classes.floatLeft)}>
             <h3 id="users-banned-from-posts">Users Banned From Posts</h3>
             <Components.Datatable
-              collection={Posts}
+              collectionName="Posts"
               columns={usersBannedFromPostsColumns}
-              options={{
-                fragmentName: 'UsersBannedFromPostsModerationLog',
-                terms: {view: "postsWithBannedUsers"},
-                limit: 10,
-                enableTotal: true
-              }}
-              showEdit={false}
-              showNew={false}
+              fragmentName={'UsersBannedFromPostsModerationLog'}
+              terms={{view: "postsWithBannedUsers"}}
+              limit={10}
             />
           </div>
           <div className={classNames(classes.section, classes.floatLeft)}>
             <h3 id="users-banned-from-users">Users Banned From Users</h3>
             <Components.Datatable
-              collection={Users}
+              collectionName="Users"
               columns={usersBannedFromUsersColumns}
-              options={{
-                fragmentName: 'UsersBannedFromUsersModerationLog',
-                terms: {view: "usersWithBannedUsers"},
-                limit: 10,
-                enableTotal: true
-              }}
-              showEdit={false}
-              showNew={false}
+              fragmentName={'UsersBannedFromUsersModerationLog'}
+              terms={{view: "usersWithBannedUsers"}}
+              limit={10}
             />
           </div>
           <div className={classes.section}>
             <h3 id="moderated-users">Moderated Users</h3>
             <Components.Datatable
-              collection={ModeratorActions}
+              collectionName="ModeratorActions"
               columns={moderatorActionColumns}
-              options={{
-                terms: {view: "restrictionModerationActions"},
-                fragmentName: 'ModeratorActionDisplay',
-                limit: 10,
-                enableTotal: true
-              }}
-              showEdit={false}
-              showNew={false}
+              terms={{view: "restrictionModerationActions"}}
+              fragmentName={'ModeratorActionDisplay'}
+              limit={10}
             />
           </div>
           <div className={classes.section}>
             <h3 id="rate-limited-users">Rate Limited Users</h3>
             <Components.Datatable
-              collection={UserRateLimits}
+              collectionName="UserRateLimits"
               columns={userRateLimitColumns}
-              options={{
-                terms: {view: "activeUserRateLimits"},
-                fragmentName: 'UserRateLimitDisplay',
-                limit: 10,
-                enableTotal: true
-              }}
-              showEdit={false}
-              showNew={false}
+              terms={{view: "activeUserRateLimits"}}
+              fragmentName={'UserRateLimitDisplay'}
+              limit={10}
             />
           </div>
         </>}

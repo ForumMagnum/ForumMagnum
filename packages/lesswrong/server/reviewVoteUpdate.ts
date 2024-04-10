@@ -5,15 +5,16 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
+import { Globals } from "./vulcan-lib";
 
 export interface Dictionary<T> {
   [index: string]: T;
 }
 
-const getCost = (vote: reviewVoteFragment): number => {
+const getCost = (vote: DbReviewVote): number => {
   return getCostData({})[vote.qualitativeScore].cost
 } 
-const getValue = (vote: reviewVoteFragment, total: number): number|null => {
+const getValue = (vote: DbReviewVote, total: number): number|null => {
   return getCostData({costTotal:total})[vote.qualitativeScore].value
 }
 
@@ -146,6 +147,8 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
     await updateVoteTotals(usersByUserId, votesByUserId, votePhase, postIds)
   }
 }
+
+Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `

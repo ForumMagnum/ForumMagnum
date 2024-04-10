@@ -13,6 +13,8 @@ import mapValues from 'lodash/mapValues';
 import sumBy from 'lodash/sumBy'
 import sortBy from 'lodash/sortBy';
 import { isLW } from '../instanceSettings';
+import { ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import type { VotingProps } from '../../components/votes/votingProps';
 
 export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
 export const addNameToExistingReactKarmaThreshold = new DatabasePublicSetting("reacts.addNameToExistingReactKarmaThreshold", 20);
@@ -68,7 +70,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
       const extendedVote: NamesAttachedReactionsVote|null = vote.extendedVoteType;
       const userInfo = {
         userId: vote.userId,
-        displayName: usersById[vote.userId].displayName,
+        displayName: usersById[vote.userId].displayName ?? "",
         karma: usersById[vote.userId].karma,
       };
       if (extendedVote?.reacts) {
@@ -101,25 +103,26 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
         }
       }
       
+      const userKarma = user.karma;
 
       // If the user is disagreeing with a react, they need at least
       // downvoteExistingReactKarmaThreshold karma
-      if (user.karma < downvoteExistingReactKarmaThreshold.get()
+      if (userKarma < downvoteExistingReactKarmaThreshold.get()
         && some(extendedVote.reacts, r=>r.vote==="disagreed"))
       {
-        return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to antireact`};
+        return {allowed: false, reason: `You need at least ${downvoteExistingReactKarmaThreshold.get()} karma to antireact`};
       }
 
       // If the user is using any react at all, they need at least
       // existingReactKarmaThreshold karma for it to be a valid vote.
-      if (user.karma<addNameToExistingReactKarmaThreshold.get()) {
+      if (userKarma<addNameToExistingReactKarmaThreshold.get()) {
         return {allowed: false, reason: `You need at least ${addNameToExistingReactKarmaThreshold.get()} karma to use reacts`};
       }
       
       // If the user is using a react which no one else has used on this comment
       // before, they need at least newReactKarmaThreshold karma for it to be a
       // valid vote.
-      if (user.karma<addNewReactKarmaThreshold.get()) {
+      if (userKarma<addNewReactKarmaThreshold.get()) {
         for (let reaction of extendedVote.reacts) {
           if (!(reaction.react in oldExtendedScore.reacts)) {
             return {allowed: false, reason: `You need at least ${addNewReactKarmaThreshold.get()} karma to be the first to use a new react on a given comment`};
@@ -127,11 +130,13 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
         }
       }
       
-      // There should be no duplicate entries in the list of reactions
-      const reactionTypesUsed: EmojiReactName[] = extendedVote.reacts.map(r=>r.react);
+      // There should be no duplicate entries in the list of reactions. Entries
+      // are duplicates if their reaction-type and quote both match.
+      // TODO: version below is wrong (checks only reaction type, not quote)
+      /*const reactionTypesUsed: EmojiReactName[] = extendedVote.reacts.map(r=>r.react);
       if (uniq(reactionTypesUsed).length !== reactionTypesUsed.length) {
         return {allowed: false, reason: "Duplicate reaction detected"};
-      }
+      }*/
 
       // All reactions used should be reactions that exist
       for (let reaction of extendedVote.reacts) {
@@ -148,30 +153,98 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
     return (vote?.extendedVoteType?.agreement && vote.extendedVoteType.agreement !== "neutral")
       || (vote?.extendedVoteType?.reacts && vote.extendedVoteType.reacts.length>0);
   },
+  
+  getCommentHighlights: ({comment, voteProps}: {
+    comment: CommentsList
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    return getDocumentHighlights(voteProps);
+  },
+  
+  getPostHighlights: ({post, voteProps}: {
+    post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => {
+    return getDocumentHighlights(voteProps);
+  }
 });
+
+function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Record<string, ContentReplacedSubstringComponent> {
+  const normalizedReactionsScore = getNormalizedReactionsListFromVoteProps(voteProps);
+  if (!normalizedReactionsScore?.reacts) {
+    return {};
+  }
+  const reactionsByQuote: Record<string,NamesAttachedReactionsList> = {};
+  
+  for (let reactionType of Object.keys(normalizedReactionsScore.reacts)) {
+    const userReactions = normalizedReactionsScore.reacts[reactionType]
+    if (!userReactions) {
+      continue;
+    }
+    for (let userReaction of userReactions) {
+      if (userReaction.quotes) {
+        for (let quote of userReaction.quotes) {
+          if (!reactionsByQuote[quote]) {
+            reactionsByQuote[quote] = {};
+          }
+          if (!reactionsByQuote[quote][reactionType]) {
+            reactionsByQuote[quote][reactionType] = [];
+          }
+          reactionsByQuote[quote][reactionType]!.push(userReaction);
+        }
+      }
+    }
+  }
+  
+  const result: Record<string, ContentReplacedSubstringComponent> = {};
+  const { InlineReactHoverableHighlight } = Components;
+  for (let quote of Object.keys(reactionsByQuote)) {
+    result[quote] = ({children}: {
+      children: React.ReactNode
+    }) => <InlineReactHoverableHighlight
+      quote={quote}
+      reactions={reactionsByQuote[quote]}
+      voteProps={voteProps}
+    >
+      {children}
+    </InlineReactHoverableHighlight>
+  }
+  return result;
+}
 
 export type EmojiReactName = string;
 export type VoteOnReactionType = "created"|"seconded"|"disagreed";
+export type QuoteLocator = string;
 
 export type UserVoteOnSingleReaction = {
   react: EmojiReactName
   vote: VoteOnReactionType
-  quotes?: string[]
+
+  //HACK: This isn't really an array. When writing to the DB, this array can
+  //have at most one element. When reading from the DB, results must pass
+  //through a normalization function that ensures this isn't a multi-element array.
+  quotes?: QuoteLocator[]
 };
 export type NamesAttachedReactionsVote = {
   agreement?: string,
   reacts?: UserVoteOnSingleReaction[]
 }
+
 export type UserReactInfo = {
   userId: string
   reactType: VoteOnReactionType
   displayName: string
   karma: number
-  quotes?: string[]
+
+  //HACK: This isn't really an array. When writing to the DB, this array can
+  //have at most one element. When reading from the DB, results must pass
+  //through a normalization function that ensures this isn't a multi-element array.
+  quotes?: QuoteLocator[]
 }
 export type NamesAttachedReactionsList = {
   [reactionType: EmojiReactName]: UserReactInfo[]|undefined
 };
+
 export type NamesAttachedReactionsScore = {
   approvalVoteCount: number,
   agreement: number,
@@ -229,4 +302,55 @@ export function reactionsListToDisplayedNumbers(reactions: NamesAttachedReaction
   }
   
   return sortBy(result, r => -r.numberShown);
+}
+
+
+export function getNormalizedReactionsListFromVoteProps(voteProps: VotingProps<VoteableTypeClient>): NamesAttachedReactionsScore|undefined {
+  const extendedScore = voteProps.document?.extendedScore as NamesAttachedReactionsScore|undefined;
+  if (!extendedScore) return undefined;
+
+  function normalizeReactsList(reacts: UserReactInfo[]|undefined): UserReactInfo[] {
+    if (!reacts) return [];
+    let normalizedReacts: UserReactInfo[] = [];
+    for (let react of reacts) {
+      if (!react.quotes || react.quotes.length<=1) {
+        normalizedReacts.push(react);
+      } else {
+        for (let quote of react.quotes) {
+          normalizedReacts.push({ ...react, quotes: [quote] });
+        }
+      }
+    }
+    return normalizedReacts;
+  }
+  let normalizedReacts: NamesAttachedReactionsList = mapValues(extendedScore.reacts,
+    reactsList => normalizeReactsList(reactsList)
+  );
+  return {
+    ...extendedScore,
+    reacts: normalizedReacts,
+  };
+}
+
+export function getNormalizedUserVoteFromVoteProps(voteProps: VotingProps<VoteableTypeClient>): NamesAttachedReactionsVote|undefined {
+  const extendedVote = (voteProps.document?.currentUserExtendedVote) as NamesAttachedReactionsVote|undefined;
+  if (!extendedVote) return undefined;
+  
+  let normalizedReacts: UserVoteOnSingleReaction[] = [];
+  if (extendedVote.reacts) {
+    for (let react of extendedVote.reacts) {
+      if (!react.quotes || react.quotes.length<=1) {
+        normalizedReacts.push(react);
+      } else {
+        for (let quote of react.quotes) {
+          normalizedReacts.push({ ...react, quotes: [quote] });
+        }
+      }
+    }
+  }
+  
+  return {
+    ...extendedVote,
+    reacts: normalizedReacts,
+  };
 }

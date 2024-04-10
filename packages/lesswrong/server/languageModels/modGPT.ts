@@ -12,7 +12,7 @@ import { dataToHTML } from '../editor/conversionUtils';
 import { isEAForum } from '../../lib/instanceSettings';
 import Users from '../../lib/collections/users/collection';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
-import type { OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
@@ -57,8 +57,8 @@ export const modGPTPrompt = `
   Misgendering deliberately and/or deadnaming gratuitously
   `
 
-const getModGPTAnalysis = async (api: OpenAIApi, text: string) => {
-  return await api.createChatCompletion({
+const getModGPTAnalysis = async (api: OpenAI, text: string) => {
+  return await api.chat.completions.create({
     model: 'gpt-4',
     messages: [
       {role: 'system', content: modGPTPrompt},
@@ -103,48 +103,31 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     return
   }
   
-  const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, true)
+  if (!comment.contents?.originalContents?.data) {
+    if (!isAnyTest) {
+      //eslint-disable-next-line no-console
+      console.log("Skipping ModGPT (no contents on this comment!)")
+    }
+    return
+  }
+
+  const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, { sanitize: true })
   const html = sanitizeHtml(data, {
     allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
     nonTextTags: ['img', 'style']
   })
   const text = htmlToText(html)
-
-  let response = await getModGPTAnalysis(api, text)
-  // If the API is too busy the first time, we try one more time.
-  // See https://platform.openai.com/docs/guides/error-codes/api-errors
+  
   const analyticsData = {
     userId: comment.userId,
     commentId: comment._id
   }
-  if (response.status === 429) {
-    captureEvent("modGPTError", {
-      ...analyticsData,
-      status: response.status
-    })
-    response = await getModGPTAnalysis(api, text)
-  }
-  
-  // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
-  if (response.status !== 200) {
-    captureEvent("modGPTError", {
-      ...analyticsData,
-      status: response.status
-    })
-    await updateMutator({
-      collection: Comments,
-      documentId: comment._id,
-      unset: {
-        modGPTAnalysis: 1,
-        modGPTRecommendation: 1
-      },
-      validate: false,
-    })
-    return
-  }
-  
-  const topResult = response.data.choices[0].message?.content
-  if (topResult) {
+
+  try {
+    let response = await getModGPTAnalysis(api, text)
+    const topResult = response.choices[0].message?.content
+    if (!topResult) return
+    
     const matches = topResult.match(/^Recommendation: (.+)/)
     const rec = (matches?.length && matches.length > 1) ? matches[1] : undefined
     await updateMutator({
@@ -164,63 +147,101 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     })
     
     // if ModGPT recommends intervening, we collapse the comment and PM the comment author
-    if (rec === 'Intervene') {
-      const user = await Users.findOne(comment.userId)
-      if (!user) throw new Error(`Could not find ${comment.userId}`)
+    // 2024-01-18: We've temporarily disabled the user-facing components of ModGPT
+    // while we attempt reduce its false positive rate
+    // if (rec === 'Intervene') {
+    //   const user = await Users.findOne(comment.userId)
+    //   if (!user) throw new Error(`Could not find ${comment.userId}`)
 
-      const commentLink = commentGetPageUrlFromIds({
-        postId: comment.postId,
-        commentId: comment._id,
-        permalink: true,
-        isAbsolute: true
-      })
-      const flagMatches = topResult.match(/^Flag: (.+)/m)
-      const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
+    //   const commentLink = commentGetPageUrlFromIds({
+    //     postId: comment.postId,
+    //     commentId: comment._id,
+    //     permalink: true,
+    //     isAbsolute: true
+    //   })
+    //   const flagMatches = topResult.match(/^Flag: (.+)/m)
+    //   const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
       
-      // create a new conversation between the commenter and the admin team account
-      const adminsAccount = await getAdminTeamAccount()
-      const conversationData = {
-        participantIds: [user._id, adminsAccount._id],
-        title: 'Your comment was auto-flagged'
-      }
-      const conversation = await createMutator({
-        collection: Conversations,
-        document: conversationData,
-        currentUser: adminsAccount,
-        validate: false
-      })
+    //   // create a new conversation between the commenter and the admin team account
+    //   const adminsAccount = await getAdminTeamAccount()
+    //   if (!adminsAccount) throw new Error("Could not find admin account")
+    //   const conversationData = {
+    //     participantIds: [user._id, adminsAccount._id],
+    //     title: 'Your comment was auto-flagged'
+    //   }
+    //   const conversation = await createMutator({
+    //     collection: Conversations,
+    //     document: conversationData,
+    //     currentUser: adminsAccount,
+    //     validate: false
+    //   })
       
-      const messageDocument = {
-        userId: adminsAccount._id,
-        contents: {
-          originalContents: {
-            type: "html",
-            data: getMessageToCommenter(user, commentLink, flag)
-          }
+    //   const messageDocument = {
+    //     userId: adminsAccount._id,
+    //     contents: {
+    //       originalContents: {
+    //         type: "html",
+    //         data: getMessageToCommenter(user, commentLink, flag)
+    //       }
+    //     },
+    //     conversationId: conversation.data._id,
+    //   }
+    //   await createMutator({
+    //     collection: Messages,
+    //     document: messageDocument,
+    //     currentUser: adminsAccount,
+    //     validate: false
+    //   })
+      
+    //   // also add a note for mods
+    //   const context = createAdminContext();
+    //   await appendToSunshineNotes({
+    //     moderatedUserId: comment.userId,
+    //     adminName: "ModGPT",
+    //     text: `Intervened on comment ID=${comment._id}`,
+    //     context,
+    //   });
+    // }
+    
+  } catch (error) {
+    if (error instanceof OpenAI.APIError) {
+      captureEvent("modGPTError", {
+        ...analyticsData,
+        status: error.status,
+        error: error.message
+      })
+      // If we can't reach ModGPT, then make sure to clear out any previous ModGPT-related data on the comment.
+      await updateMutator({
+        collection: Comments,
+        documentId: comment._id,
+        unset: {
+          modGPTAnalysis: 1,
+          modGPTRecommendation: 1
         },
-        conversationId: conversation.data._id,
-      }
-      await createMutator({
-        collection: Messages,
-        document: messageDocument,
-        currentUser: adminsAccount,
-        validate: false
+        validate: false,
       })
-      
-      // also add a note for mods
-      const context = createAdminContext();
-      await appendToSunshineNotes({
-        moderatedUserId: comment.userId,
-        adminName: "ModGPT",
-        text: `Intervened on comment ID=${comment._id}`,
-        context,
-      });
+    } else {
+      //eslint-disable-next-line no-console
+      console.error(error)
     }
+    return
   }
 }
 
 getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
-  if (!isEAForum || !newDocument.postId || newDocument.deleted) return
+  // on the EA Forum, ModGPT checks earnest comments on posts for norm violations
+  if (
+    !isEAForum ||
+    !newDocument.postId ||
+    newDocument.deleted ||
+    newDocument.spam ||
+    newDocument.retracted ||
+    newDocument.shortform ||
+    !oldDocument.contents.originalContents?.data ||
+    !newDocument.contents.originalContents?.data
+  ) {
+    return
+  }
   
   const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
   if (noChange) return
@@ -232,7 +253,17 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
 })
 
 getCollectionHooks("Comments").createAsync.add(async ({document}) => {
-  if (!isEAForum || !document.postId || document.deleted) return
+  // on the EA Forum, ModGPT checks earnest comments on posts for norm violations
+  if (
+    !isEAForum ||
+    !document.postId ||
+    document.deleted ||
+    document.spam ||
+    document.retracted ||
+    document.shortform
+  ) {
+    return
+  }
   // only have ModGPT check comments on posts tagged with "Community"
   const postTags = (await Posts.findOne({_id: document.postId}))?.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return

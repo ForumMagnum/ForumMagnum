@@ -1,11 +1,13 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
+import SqlFragment from '../sql/SqlFragment';
 
 interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
   fragmentObject?: DocumentNode
+  sqlFragment: SqlFragment,
 }
 
 const Fragments: Record<FragmentName,FragmentDefinition> = {} as any;
@@ -32,7 +34,11 @@ export const registerFragment = (fragmentTextSource: string): void => {
   
   // register fragment
   Fragments[fragmentName] = {
-    fragmentText
+    fragmentText,
+    sqlFragment: new SqlFragment(
+      fragmentText,
+      (name: FragmentName) => Fragments[name].sqlFragment ?? null,
+    ),
   };
 
   // also add subfragments if there are any
@@ -60,7 +66,11 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
 };
 
 // Create default "dumb" gql fragment object for a given collection
-export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, schema: SchemaType<T>, options={onlyViewable: true}): string|null => {
+export const getDefaultFragmentText = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  schema: SchemaType<N>,
+  options={onlyViewable: true},
+): string|null => {
   const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
     /*
 
@@ -70,7 +80,7 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     3. it's not viewable (if onlyViewable option is true)
 
     */
-    const field: CollectionFieldSpecification<T> = schema[fieldName];
+    const field: CollectionFieldSpecification<N> = schema[fieldName];
     // OpenCRUD backwards compatibility
 
     const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
@@ -90,15 +100,17 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
   } else {
     return null;
   }
-
 };
 
 // Get fragment name from fragment object
 export const getFragmentName = (fragment: AnyBecauseTodo) => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
 
+export const isValidFragmentName = (name: string): name is FragmentName =>
+  !!Fragments[name as FragmentName];
+
 // Get actual gql fragment
 export const getFragment = (fragmentName: FragmentName): DocumentNode => {
-  if (!Fragments[fragmentName]) {
+  if (!isValidFragmentName(fragmentName)) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
   const fragmentObject = Fragments[fragmentName].fragmentObject;
@@ -108,6 +120,14 @@ export const getFragment = (fragmentName: FragmentName): DocumentNode => {
   }
   return fragmentObject;
 };
+
+export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
+  // TODO: Should we also check that nested fragment names are also defined?
+  if (!isValidFragmentName(fragmentName)) {
+    throw new Error(`Fragment "${fragmentName}" not registered.`);
+  }
+  return Fragments[fragmentName].sqlFragment;
+}
 
 // Get gql fragment text
 export const getFragmentText = (fragmentName: FragmentName): string => {
@@ -136,7 +156,7 @@ const addFragmentDependencies = (fragments: Array<FragmentName>): Array<Fragment
     const dependencies = Fragments[result[i]].subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
-        if (!_.find(result, (s: FragmentName)=>s==subfragment))
+        if (!_.find(result, (s: FragmentName)=>s===subfragment))
           result.push(subfragment);
       });
     }

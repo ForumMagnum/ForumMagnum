@@ -1,12 +1,25 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useTracking } from "../../lib/analyticsEvents";
+import { isFriendlyUI } from "../../themes/forumTheme";
+import { isLWorAF } from "../../lib/instanceSettings";
+import classNames from "classnames";
+import ForumNoSSR from "../common/ForumNoSSR";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
     "& .comments-node-root": {
       marginBottom: 8,
+      ...(isLWorAF ? {
+        paddingTop: 0,
+        // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
+        position: 'relative',
+      } : {}),
+
     },
+  },
+  hidden: {
+    display: 'none',
   },
 });
 
@@ -21,27 +34,41 @@ const QuickTakesListItem = ({quickTake, classes}: {
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
   }, [captureEvent, setExpanded]);
 
-  const {CommentsNode, QuickTakesCollapsedListItem} = Components;
-  return expanded
-    ? (
-      <div className={classes.expandedRoot}>
+  const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
+
+  const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
+
+  // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take
+  // This is to eliminate a loading spinner (for the child comments) when someone expands a quick take,
+  // while avoiding the impact to the home page SSR speed for the large % of users who won't interact with quick takes at all
+  const expandedComment = (
+    <ForumNoSSR>
+      <div className={classNames(classes.expandedRoot, { [classes.hidden]: !expanded })}>
         <CommentsNode
           treeOptions={{
             post: quickTake.post ?? undefined,
-            showCollapseButtons: true,
+            showCollapseButtons: isFriendlyUI,
             onToggleCollapsed: () => wrappedSetExpanded(!expanded),
           }}
           comment={quickTake}
           loadChildrenSeparately
+          forceUnTruncated
+          forceUnCollapsed
         />
       </div>
-    )
-    : (
-      <QuickTakesCollapsedListItem
-        quickTake={quickTake}
-        setExpanded={wrappedSetExpanded}
-      />
-    );
+    </ForumNoSSR>
+  );
+
+  const collapsedComment = (
+    <div className={classNames({ [classes.hidden]: expanded })}>
+      <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} />
+    </div>
+  );
+
+  return <>
+    {expandedComment}
+    {collapsedComment}
+  </>;
 }
 
 const QuickTakesListItemComponent = registerComponent(

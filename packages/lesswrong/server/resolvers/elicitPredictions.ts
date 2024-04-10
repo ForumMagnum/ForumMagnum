@@ -4,6 +4,9 @@ import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
 import { encode } from 'querystring'
 import { onStartup } from '../../lib/executionEnvironment';
+import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
+import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
+import { useElicitApi } from '../../lib/betas';
 
 const ElicitUserType = `type ElicitUser {
   isQuestionCreator: Boolean
@@ -44,16 +47,23 @@ const elicitAPIUrl = "https://forecast.elicit.org/api/v1"
 const elicitAPIKey = new DatabaseServerSetting('elicitAPIKey', null)
 // const elicitSourceName = new DatabaseServerSetting('elicitSourceName', 'LessWrong')
 
-async function getPredictionsFromElicit(questionId: string): Promise<null|Array<{
+export interface ElicitPredictionData {
   id: string,
   prediction: number,
   createdAt: string,
-  notes: string,
+  notes: string | null,
   creator: any,
   sourceUrl: string,
   sourceId: string,
   binaryQuestionId: string
-}>> {
+}
+
+export type ConvertedElicitPredictionData = Omit<ElicitPredictionData, 'id' | 'createdAt'> & {
+  _id: string,
+  createdAt: Date
+};
+
+export async function getPredictionsFromElicit(questionId: string): Promise<null|Array<ElicitPredictionData>> {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}/binary-predictions?${encode({
     user_most_recent: "true",
     expand: "creator",
@@ -71,7 +81,7 @@ async function getPredictionsFromElicit(questionId: string): Promise<null|Array<
   return JSON.parse(responseText)
 }
 
-async function getPredictionDataFromElicit(questionId:string) {
+export async function getPredictionDataFromElicit(questionId: string) {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?${encode({
     "binaryQuestion.fields":"notes,resolvesBy,resolution,title"
   })}`, {
@@ -81,7 +91,7 @@ async function getPredictionDataFromElicit(questionId:string) {
       'Authorization': `API_KEY ${elicitAPIKey.get()}`
     }
   })
-  if (response.status !== 200) throw new Error(`Cannot get elicit prediction, got: ${response.status}: ${response.statusText}`)
+  if (response.status !== 200) throw new Error(`Cannot get elicit prediction for questionId ${questionId}, got: ${response.status}: ${response.statusText}`)
   const responseText = await response.text()
   if (!responseText) return null
   return JSON.parse(responseText)
@@ -115,6 +125,15 @@ async function cancelElicitPrediction(questionId: string, user: DbUser) {
     }
   })
   if (response.status !== 200) throw new Error(`Cannot cancel elicit prediction, got: ${response.status}: ${response.statusText}`)
+}
+
+interface ElicitQuestionWithPredictions {
+  _id: string,
+  title: string,
+  notes: string | null,
+  resolution: boolean,
+  resolvesBy: Date,
+  predictions: DbElicitQuestionPrediction[]
 }
 
 async function getElicitQuestionWithPredictions(questionId: string) {
@@ -155,6 +174,21 @@ async function getElicitQuestionWithPredictions(questionId: string) {
   }
 }
 
+async function getLocalElicitQuestionWithPredictions(questionId: string): Promise<ElicitQuestionWithPredictions | Record<any, never>> {
+  const [questionData, predictionData] = await Promise.all([
+    ElicitQuestions.findOne(questionId),
+    ElicitQuestionPredictions.find({ binaryQuestionId: questionId }).fetch()
+  ]);
+  
+  if (!questionData) return {};
+
+  return {
+    ...questionData,
+    resolution: questionData.resolution === 'YES',
+    predictions: predictionData
+  };
+}
+
 onStartup(() => {
   if (elicitAPIKey.get()) {
     const elicitPredictionResolver = {
@@ -167,20 +201,28 @@ onStartup(() => {
       },
       Query: {
         async ElicitBlockData(root: void, {questionId}: {questionId: string}, context: ResolverContext) {
-          return await getElicitQuestionWithPredictions(questionId)
+          if (useElicitApi) return await getElicitQuestionWithPredictions(questionId);
+          
+          return await getLocalElicitQuestionWithPredictions(questionId);
         }
       },
       Mutation: {
-        async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {
+        async MakeElicitPrediction(root: void, {questionId, prediction}: {questionId: string, prediction: number}, { currentUser }: ResolverContext) {                  
           if (!currentUser) throw Error("Can only make elicit prediction when logged in")
-          if (prediction) {
-            const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
-            if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
-          } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
-            await cancelElicitPrediction(questionId, currentUser)
+          // Elicit API is (to be) shut down. We don't support predictions (yet?)
+          if (useElicitApi) {
+            if (prediction) {
+              const responseData: any = await sendElicitPrediction(questionId, prediction, currentUser)
+              if (!responseData?.binaryQuestionId) throw Error("Error in sending prediction to Elicit")
+            } else { // If we provide a falsy prediction (including 0, since 0 isn't a valid prediction, we cancel our current prediction)
+              await cancelElicitPrediction(questionId, currentUser)
+            }
+
+            return await getElicitQuestionWithPredictions(questionId);
           }
-          const newData = await getElicitQuestionWithPredictions(questionId)
-          return newData
+
+          // When not using their API, use the imported data
+          return await getLocalElicitQuestionWithPredictions(questionId)
         }
       }
     };

@@ -5,6 +5,7 @@ import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -55,7 +56,12 @@ export type PostsListConfig = {
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
+  loadMoreMessage?: string,
 }
+
+const defaultTooltipPlacement = isFriendlyUI
+  ? "bottom-start"
+  : "bottom-end";
 
 export const usePostsList = ({
   children,
@@ -80,12 +86,13 @@ export const usePostsList = ({
   hideTag = false,
   hideTrailingButtons = false,
   hideTagRelevance = false,
-  tooltipPlacement="bottom-end",
+  tooltipPlacement=defaultTooltipPlacement,
   boxShadow = true,
   curatedIconLeft = false,
   showFinalBottomBorder = false,
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
+  loadMoreMessage,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -169,17 +176,21 @@ export const usePostsList = ({
   let orderedResults = results;
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
-      return !post.lastVisitedAt ||
-        (post.lastVisitedAt >=  postGetLastCommentedAt(post));
+      const postLastCommentedAt = postGetLastCommentedAt(post)
+      return !post.lastVisitedAt || !postLastCommentedAt || (post.lastVisitedAt >= postLastCommentedAt);
     })
   }
 
   const postIds = (orderedResults || []).map((post) => post._id);
 
+  const postIdsWithScores = (orderedResults || []).map((post) => {
+      return {postId: post._id, score: post.score, baseScore: post.baseScore}
+    });
+
   // Analytics Tracking
   useOnMountTracking({
     eventType: "postList",
-    eventProps: {postIds, postVisibility: hiddenPosts},
+    eventProps: {postIds, postVisibility: hiddenPosts, postMountData: postIdsWithScores},
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
@@ -215,6 +226,7 @@ export const usePostsList = ({
   return {
     children,
     showNoResults,
+    hideLastUnread,
     showLoadMore,
     showLoading,
     dimWhenLoading,
@@ -223,7 +235,10 @@ export const usePostsList = ({
     loading,
     error,
     loadMore: onLoadMore,
-    loadMoreProps,
+    loadMoreProps: {
+      ...loadMoreProps,
+      message: loadMoreMessage,
+    },
     maybeMorePosts,
     orderedResults,
     itemProps,

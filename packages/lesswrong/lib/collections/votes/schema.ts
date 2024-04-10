@@ -1,7 +1,9 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import { schemaDefaultValue, resolverOnlyField, accessFilterSingle } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
+import { Comments } from '../comments';
+import TagRels from '../tagRels/collection';
+import { Posts } from '../posts';
 
 //
 // Votes. From the user's perspective, they have a vote-state for each voteable
@@ -21,10 +23,11 @@ const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) =>
   return document?.collectionName === "TagRels"
 }
 
-const schema: SchemaType<DbVote> = {
+const schema: SchemaType<"Votes"> = {
   // The id of the document that was voted on
   documentId: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     // No explicit foreign-key relation because which collection this is depends on collectionName
   },
@@ -32,6 +35,7 @@ const schema: SchemaType<DbVote> = {
   // The name of the collection the document belongs to
   collectionName: {
     type: String,
+    nullable: false,
     typescriptType: "CollectionNameString",
     canRead: ['guests'],
   },
@@ -39,6 +43,7 @@ const schema: SchemaType<DbVote> = {
   // The id of the user that voted
   userId: {
     type: String,
+    nullable: false,
     canRead: [userOwns, docIsTagRel, 'admins'],
     foreignKey: 'Users',
   },
@@ -59,7 +64,7 @@ const schema: SchemaType<DbVote> = {
     type: String,
     graphQLtype: 'String',
     canRead: ['guests'],
-    resolver: (vote: DbVote): string => vote.authorIds[0],
+    resolver: (vote: DbVote) => vote.authorIds?.[0],
   }),
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then
@@ -70,6 +75,7 @@ const schema: SchemaType<DbVote> = {
   // neutral if it doesn't.
   voteType: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
   },
   
@@ -93,6 +99,7 @@ const schema: SchemaType<DbVote> = {
   power: {
     type: Number,
     optional: true,
+    nullable: false,    
     canRead: [userOwns, docIsTagRel, 'admins'],
     
     // Can be inferred from userId+voteType+votedAt (votedAt necessary because
@@ -131,6 +138,7 @@ const schema: SchemaType<DbVote> = {
   votedAt: {
     type: Date,
     optional: true,
+    nullable: false,
     canRead: [userOwns, docIsTagRel, 'admins'],
   },
 
@@ -138,9 +146,10 @@ const schema: SchemaType<DbVote> = {
     type: "TagRel",
     graphQLtype: 'TagRel',
     canRead: [docIsTagRel, 'admins'],
-    resolver: async (vote: DbVote, args: void, { TagRels }: ResolverContext): Promise<DbTagRel|null> => {
+    resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "TagRels") {
-        return await TagRels.findOne({_id: vote.documentId});
+        const tagRel = await context.loaders.TagRels.load(vote.documentId);
+        return accessFilterSingle(context.currentUser, TagRels, tagRel, context);
       } else {
         return null;
       }
@@ -151,9 +160,10 @@ const schema: SchemaType<DbVote> = {
     type: "Comment",
     graphQLtype: 'Comment',
     canRead: ['guests'],
-    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbComment|null> => {
+    resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Comments") {
-        return await context.loaders.Comments.load(vote.documentId);
+        const comment = await context.loaders.Comments.load(vote.documentId);
+        return accessFilterSingle(context.currentUser, Comments, comment, context);
       } else {
         return null;
       }
@@ -164,9 +174,10 @@ const schema: SchemaType<DbVote> = {
     type: "Post",
     graphQLtype: 'Post',
     canRead: ['guests'],
-    resolver: async (vote: DbVote, args: void, context: ResolverContext): Promise<DbPost|null> => {
+    resolver: async (vote: DbVote, args: void, context: ResolverContext) => {
       if (vote.collectionName === "Posts") {
-        return await context.loaders.Posts.load(vote.documentId);
+        const post = await context.loaders.Posts.load(vote.documentId);
+        return accessFilterSingle(context.currentUser, Posts, post, context);
       } else {
         return null;
       }
@@ -178,6 +189,16 @@ const schema: SchemaType<DbVote> = {
   documentIsAf: {
     type: Boolean,
     canRead: ['guests'],
+    ...schemaDefaultValue(false)
+  },
+
+  // Whether to silence notifications of the karma changes from this vote. This is set to true for votes that are
+  // nullified by mod actions
+  silenceNotification: {
+    type: Boolean,
+    canRead: ['guests'],
+    optional: true,
+    nullable: false,
     ...schemaDefaultValue(false)
   }
 };

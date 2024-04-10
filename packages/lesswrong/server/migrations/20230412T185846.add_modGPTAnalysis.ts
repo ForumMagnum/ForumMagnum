@@ -34,15 +34,11 @@ import Comments from "../../lib/collections/comments/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Comments.isPostgres()) return
-  
   await addField(db, Comments, "modGPTAnalysis")
   await addField(db, Comments, "modGPTRecommendation")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Comments.isPostgres()) return
-  
   await dropField(db, Comments, "modGPTAnalysis")
   await dropField(db, Comments, "modGPTRecommendation")
 }

@@ -2,23 +2,37 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import { userCanDo } from '../../lib/vulcan-users';
 import { Link } from '../../lib/reactRouterWrapper';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const ModeratorInboxWrapper = () => {
-  const { ErrorAccessDenied } = Components
   const currentUser = useCurrentUser();
-  const { query } = useLocation();
-  
+  const { query, params } = useLocation();
+
+  const { InboxNavigation, FriendlyInbox } = Components
+
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
   }
-  if (!userCanDo(currentUser, 'conversations.view.all')) {
-    return <ErrorAccessDenied/>
-  }
+
+  const conversationId = params._id;
+
   const showArchive = query.showArchive === "true"
-  const terms: ConversationsViewTerms = {view: 'moderatorConversations', showArchive, userId: query.userId};
-  return <Components.InboxNavigation terms={terms} currentUser={currentUser} title={<Link to="/moderatorInbox">Moderator Conversations</Link>}/>
+  const terms: ConversationsViewTerms = { view: "moderatorConversations", showArchive, userId: query.userId };
+
+  if (conversationId) {
+    return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} isModInbox />;
+  }
+
+  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
+  return (
+    <InboxComponent
+      terms={terms}
+      currentUser={currentUser}
+      title={<Link to="/moderatorInbox">Moderator Conversations</Link>}
+      isModInbox
+    />
+  );
 }
 
 const ModeratorInboxWrapperComponent = registerComponent('ModeratorInboxWrapper', ModeratorInboxWrapper);

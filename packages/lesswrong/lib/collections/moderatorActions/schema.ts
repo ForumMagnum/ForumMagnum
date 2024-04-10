@@ -21,6 +21,8 @@ export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
 export const REJECTED_POST = 'rejectedPost';
 export const REJECTED_COMMENT = 'rejectedComment';
 export const POTENTIAL_TARGETED_DOWNVOTING = 'potentialTargetedDownvoting';
+export const EXEMPT_FROM_RATE_LIMITS = 'exemptFromRateLimits';
+export const RECEIVED_SENIOR_DOWNVOTES_ALERT = 'receivedSeniorDownvotesAlert';
 
 export const postRateLimits = [] as const
 
@@ -63,7 +65,9 @@ export const MODERATOR_ACTION_TYPES = {
   [AUTO_BLOCKED_FROM_SENDING_DMS]: 'Auto-blocked from sending DMs for trying to send suspiciously many DMs',
   [REJECTED_POST]: 'Rejected Post',
   [REJECTED_COMMENT]: 'Rejected Comment',
-  [POTENTIAL_TARGETED_DOWNVOTING]: 'Suspected targeted downvoting of a specific user'
+  [POTENTIAL_TARGETED_DOWNVOTING]: 'Suspected targeted downvoting of a specific user',
+  [EXEMPT_FROM_RATE_LIMITS]: 'Exempt from rate limits',
+  [RECEIVED_SENIOR_DOWNVOTES_ALERT]: 'Received too many downvotes on net-negative comments from senior users; if justified, default to 1 comment per 2 day rate limit for a month',
 };
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */
@@ -78,7 +82,7 @@ export const isActionActive = (moderatorAction: DbModeratorAction) => {
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 }
 
-const schema: SchemaType<DbModeratorAction> = {
+const schema: SchemaType<"ModeratorActions"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -90,11 +94,13 @@ const schema: SchemaType<DbModeratorAction> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     control: 'SearchSingleUser'
     // hidden: true,
   },
   type: {
     type: String,
+    nullable: false,
     control: 'select',
     allowedValues: Object.keys(MODERATOR_ACTION_TYPES),
     options: () => Object.entries(MODERATOR_ACTION_TYPES).map(([value, label]) => ({ value, label })),
@@ -112,7 +118,8 @@ const schema: SchemaType<DbModeratorAction> = {
     control: 'datetime',
   },
   active: resolverOnlyField({
-    type: Boolean,
+    type: 'Boolean',
+    graphQLtype: 'Boolean!',
     canRead: ['guests'],
     resolver: (doc) => isActionActive(doc)
   })

@@ -5,10 +5,22 @@ import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
 
-const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
+const forceNonResolverFields = [
+  "contents",
+  "moderationGuidelines",
+  "customHighlight",
+  "originalContents",
+  "description",
+  "subforumWelcomeText",
+  "howOthersCanHelpMe",
+  "howICanHelpOthers",
+  "biography",
+  "frontpageDescription",
+  "postPageDescription",
+];
 
 export const isResolverOnly =
-  <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
+  <N extends CollectionNameString>(fieldName: string, schema: CollectionFieldSpecification<N>) =>
     schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 
 /**
@@ -47,10 +59,10 @@ export abstract class Type {
     return null;
   }
 
-  static fromSchema<T extends DbObject>(
+  static fromSchema<N extends CollectionNameString>(
     fieldName: string,
-    schema: CollectionFieldSpecification<T>,
-    indexSchema: CollectionFieldSpecification<T> | undefined,
+    schema: CollectionFieldSpecification<N>,
+    indexSchema: CollectionFieldSpecification<N> | undefined,
     forumType: ForumTypeString,
   ): Type {
     if (isResolverOnly(fieldName, schema)) {
@@ -271,6 +283,10 @@ export class DefaultValueType extends Type {
     return `${this.type.toString()} DEFAULT ${this.getDefaultValueString()}`;
   }
 
+  getDefaultValue(): AnyBecauseHard {
+    return this.value
+  }
+
   getDefaultValueString(): string | null {
     return valueToString(this.value, this.type.isArray() ? this.type.subtype : undefined);
   }
@@ -281,6 +297,10 @@ export class DefaultValueType extends Type {
 
   isArray(): this is ArrayType {
     return this.type.isArray();
+  }
+
+  isNotNull(): boolean {
+    return this.type instanceof NotNullType;
   }
 }
 

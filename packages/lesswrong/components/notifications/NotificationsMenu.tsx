@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import Badge from '@material-ui/core/Badge';
 import Tab from '@material-ui/core/Tab';
@@ -12,7 +13,7 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import * as _ from 'underscore';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: isEAForum ? 450 : 500,
+    fontWeight: isFriendlyUI ? 450 : 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",
@@ -64,21 +65,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const NotificationsMenu = ({ unreadPrivateMessages, open, setIsOpen, hasOpened, classes }: {
-  unreadPrivateMessages: number,
+const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   open: boolean,
   setIsOpen: (isOpen: boolean) => void,
   hasOpened: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const {unreadPrivateMessages} = useUnreadNotifications();
   const [tab,setTab] = useState(0);
 
   const [lastNotificationsCheck] = useState(currentUser?.lastNotificationsCheck ?? "");
   if (!currentUser) {
     return null;
   }
-  const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
+  const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
       icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),

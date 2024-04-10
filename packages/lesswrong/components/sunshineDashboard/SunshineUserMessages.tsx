@@ -5,6 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
+import isEqual from 'lodash/isEqual';
 
 const styles = (theme: JssStyles) => ({
   row: {
@@ -25,21 +26,24 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   classes: ClassesType,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineSendMessageWithDefaults, NewMessageForm, UsersName, LWTooltip, MetaInfo } = Components
+  const { SunshineSendMessageWithDefaults, MessagesNewForm, UsersName, LWTooltip, MetaInfo } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
 
   const { captureEvent } = useTracking()
 
-  const embedConversation = (conversationId: string, templateQueries: TemplateQueryStrings) => {
-    setEmbeddedConversationId(conversationId)
-    setTemplateQueries(templateQueries)
+  const embedConversation = (conversationId: string, newTemplateQueries: TemplateQueryStrings) => {
+    setEmbeddedConversationId(conversationId);
+    // Downstream components rely on referential equality of the templateQueries object in a useEffect; we get an infinite loop here if we don't check for value equality
+    if (!isEqual(newTemplateQueries, templateQueries)) {
+      setTemplateQueries(newTemplateQueries);
+    }
   }
 
   const { results } = useMulti({
     terms: {view: "moderatorConversations", userId: user._id},
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
     fetchPolicy: 'cache-and-network',
     enableTotal: true
   });
@@ -65,7 +69,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
         embedConversation={embedConversation}
       />
     {embeddedConversationId && <div>
-      <NewMessageForm 
+      <MessagesNewForm 
         conversationId={embeddedConversationId} 
         templateQueries={templateQueries}
         successEvent={() => {

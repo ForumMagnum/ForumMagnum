@@ -4,7 +4,7 @@ const fs = require('fs');
 const process = require('process');
 const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
-const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
+const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
 /**
  * This is used for clean exiting in Github workflows by the dev
  * only route /api/quit
@@ -13,12 +13,14 @@ process.on("SIGQUIT", () => process.exit(0));
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
+  ["cypress", "Run in end-to-end testing mode"],
   ["settings", "A JSON config file for the server", "<file>"],
   ["db", "A path to a database connection config file", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
   ["postgresUrlFile", "The name of a text file which contains a postgresql URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
   ["command", "Run the given server shell command, then exit", "<string>"],
+  ["lint", "Run the linter on site refresh"],
 );
 
 const defaultServerPort = 3000;
@@ -42,6 +44,7 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 //  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
+const isCypress = !!opts.cypress;
 const settingsFile = opts.settings || "settings.json"
 
 const databaseConfig = getDatabaseConfig(opts);
@@ -71,6 +74,7 @@ const bundleDefinitions = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
+  "bundleIsCypress": isCypress,
   "bundleIsMigrations": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
@@ -94,6 +98,7 @@ build({
   bundle: true,
   target: "es6",
   sourcemap: true,
+  metafile: true,
   sourcesContent: true,
   outfile: clientOutfilePath,
   minify: isProduction,
@@ -106,6 +111,9 @@ build({
     setClientRebuildInProgress(true);
     inProgressBuildId = generateBuildId();
     config.define.buildId = `"${inProgressBuildId}"`;
+    if (opts.lint) {
+      startLint();
+    }
   },
   onEnd: (config, buildResult, ctx) => {
     setClientRebuildInProgress(false);
@@ -126,6 +134,14 @@ build({
       if (cliopts.watch) {
         initiateRefresh({serverPort});
       }
+
+      if (buildResult.metafile) {
+        fs.writeFile(
+          "client_meta.json",
+          JSON.stringify(buildResult.metafile, null, 2),
+          () => {},
+        );
+      }
     }
     inProgressBuildId = null;
   },
@@ -133,6 +149,9 @@ build({
     ...bundleDefinitions,
     ...clientBundleDefinitions,
   },
+  external: [
+    "cheerio",
+  ],
 });
 
 let serverCli = ["node", "-r", "source-map-support/register", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
@@ -156,6 +175,9 @@ build({
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
     setServerRebuildInProgress(true);
+    if (opts.lint) {
+      startLint();
+    }
   },
   onEnd: () => {
     setServerRebuildInProgress(false);
@@ -174,6 +196,7 @@ build({
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
+    "cheerio",
   ],
 })
 

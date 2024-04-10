@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
+import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
@@ -8,7 +8,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
-  showEdit: ()=>void,
+  showEdit: () => void,
 }) => {
   const {
     EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
@@ -16,7 +16,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     MoveToAlignmentCommentDropdownItem, SuggestAlignmentCommentDropdownItem,
     BanUserFromAllPersonalPostsDropdownItem, MoveToAnswersDropdownItem,
     ToggleIsModeratorCommentDropdownItem, PinToProfileDropdownItem,
-    DropdownMenu, NotifyMeDropdownItem, ShortformFrontpageDropdownItem,
+    DropdownMenu, ShortformFrontpageDropdownItem, CommentSubscriptionsDropdownItem,
     BanUserFromPostDropdownItem, LockThreadDropdownItem,
   } = Components;
 
@@ -27,19 +27,6 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     fetchPolicy: "cache-first",
     fragmentName: "PostsDetails",
   });
-
-  const enableSubscribeToPost = Boolean(
-    post &&
-    comment.shortform &&
-    !comment.topLevelCommentId &&
-    (comment.user?._id && (comment.user._id !== currentUser._id))
-  );
-
-  const enableSubscribeToCommentUser = Boolean(
-    comment.user?._id &&
-    (comment.user._id !== currentUser._id) &&
-    !comment.deleted
-  );
 
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,
@@ -55,23 +42,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
     <DropdownMenu>
       <EditCommentDropdownItem comment={comment} showEdit={showEdit} />
       <PinToProfileDropdownItem comment={comment} post={post} />
-      <NotifyMeDropdownItem
-        document={post}
-        enabled={enableSubscribeToPost}
-        subscribeMessage={`Subscribe to ${post?.title}`}
-        unsubscribeMessage={`Unsubscribe from ${post?.title}`}
-      />
-      <NotifyMeDropdownItem
-        document={comment}
-        subscribeMessage="Subscribe to comment replies"
-        unsubscribeMessage="Unsubscribe from comment replies"
-      />
-      <NotifyMeDropdownItem
-        document={comment.user}
-        enabled={enableSubscribeToCommentUser}
-        subscribeMessage={"Subscribe to posts by " + userGetDisplayName(comment.user)}
-        unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
-      />
+      <CommentSubscriptionsDropdownItem comment={comment} post={post} />
       <ReportCommentDropdownItem comment={comment} post={post} />
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />

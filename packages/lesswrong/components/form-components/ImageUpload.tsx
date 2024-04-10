@@ -8,8 +8,9 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { CloudinaryPropsType } from '../common/CloudinaryImage2';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 500,
     textTransform: "none",
     background: theme.palette.primary.main,
-    color: "#fff", // Dark mode independent
+    color: theme.palette.text.alwaysWhite, // Dark mode independent
     "&:hover": {
       background: theme.palette.primary.light,
     },
@@ -67,15 +68,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const formPreviewSizeByImageType: Record<
   ImageType,
-  {width: number | "auto", height: number}
+  {width: number | "auto", height: number, imgProps?: CloudinaryPropsType}
 > = {
   gridImageId: {
-    width: 203,
-    height: 80
+    width: 250,
+    height: 100
   },
   bannerImageId: {
-    width: "auto",
-    height: 280
+    width: 1600,
+    height: 380,
+    imgProps: {g: 'custom', dpr: '2.0'}
   },
   squareImageId: {
     width: 90,
@@ -131,7 +133,7 @@ const TriggerButton: FC<{
 }> = ({imageType, imageId, uploadImage, label, classes}) => {
   let mainClass = classes.button;
   let showIcon = true;
-  if (isEAForum && imageType === "profileImageId") {
+  if (isFriendlyUI && imageType === "profileImageId") {
     label = "profile image";
     mainClass = classes.profileImageButton;
     showIcon = false;
@@ -156,14 +158,14 @@ const RemoveButton: FC<{
   if (!imageId) {
     return null;
   }
-  const mainClass = isEAForum && imageType === "profileImageId"
+  const mainClass = isFriendlyUI && imageType === "profileImageId"
     ? classes.removeProfileImageButton
     : classes.removeButton;
   return (
     <Button
       title="Remove"
       onClick={removeImage}
-      className={mainClass}
+      className={classNames("image-remove-button", mainClass)}
     >
       Remove
     </Button>
@@ -211,7 +213,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
-  const showUserProfileImage = isEAForum && name === "profileImageId";
+  const showUserProfileImage = isFriendlyUI && name === "profileImageId";
 
   return (
     <div className={classes.root}>

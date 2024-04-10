@@ -8,6 +8,7 @@ registerFragment(`
     editedAt
     userId
     html
+    commitMessage
     wordCount
     htmlHighlight
     plaintextDescription
@@ -80,6 +81,15 @@ registerFragment(`
     ...RevisionHistoryEntry
     tag {
       ...TagBasicInfo
+    }
+  }
+`);
+
+registerFragment(`
+  fragment RecentDiscussionRevisionTagFragment on Revision {
+    ...RevisionHistoryEntry
+    tag {
+      ...TagRecentDiscussion
     }
   }
 `);

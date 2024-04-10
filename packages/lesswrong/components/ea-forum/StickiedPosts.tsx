@@ -1,9 +1,10 @@
 import React from 'react';
-import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: isEAForum
+  root: isFriendlyUI
     ? {
       margin: "8px 0",
     }
@@ -21,7 +22,7 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2, TargetedJobAd } = Components
+  const { SingleColumnSection, PostsList2, TargetedJobAdSection } = Components
 
   return <SingleColumnSection className={classes.root}>
     <PostsList2
@@ -32,6 +33,7 @@ const StickiedPosts = ({
       boxShadow={false}
       curatedIconLeft={false}
     />
+    {isEAForum && <TargetedJobAdSection />}
   </SingleColumnSection>
 }
 

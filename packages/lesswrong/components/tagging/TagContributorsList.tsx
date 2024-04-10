@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
-  onHoverUser?: (userId: string|null)=>void,
+  onHoverUser?: (userId: string|null) => void,
   classes: ClassesType,
 }) => {
   const { UsersNameDisplay, Loading, LWTooltip } = Components;
@@ -110,5 +111,3 @@ declare global {
     TagContributorsList: typeof TagContributorsListComponent
   }
 }
-
-

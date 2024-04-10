@@ -10,11 +10,11 @@ import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
+import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit,
     marginLeft: theme.spacing.unit / 2,
     ...theme.typography.italic,
 });
@@ -33,11 +33,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: isEAForum ? 40 : 20,
+    marginRight: isFriendlyUI ? 40 : 20,
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: isEAForum ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -48,14 +48,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: isEAForum ? 6 : 5,
+    marginRight: isFriendlyUI ? 6 : 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: 4,
-    display: "inline-block",
+    paddingBottom: isFriendlyUI ? 4 : 2,
+    display: isFriendlyUI ? "inline-block" : "flex",
     verticalAlign: "middle",
-    transform: isEAForum ? "translateY(3px)" : undefined,
+    transform: isFriendlyUI ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
@@ -68,8 +68,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   collapseChevronOpen: {
     transform: "rotate(90deg)",
   },
+  collapseCharacter: {
+    transform: 'translateY(0.75px)',
+  },
   username: {
-    marginRight: isEAForum ? 0 : 6,
+    marginRight: isFriendlyUI ? 0 : 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -106,7 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   rightSection: {
     position: "absolute",
-    right: isEAForum ? -46 : -26,
+    right: isFriendlyUI ? -46 : -26,
     top: 12,
     display: "flex",
   },
@@ -118,7 +121,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 1,
   },
-  menu: isEAForum
+  menu: isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
     }
@@ -141,6 +144,7 @@ export const CommentsItemMeta = ({
   collapsed,
   toggleCollapse,
   setShowEdit,
+  rightSectionElements,
   classes,
 }: {
   treeOptions: CommentTreeOptions,
@@ -156,13 +160,14 @@ export const CommentsItemMeta = ({
   collapsed?: boolean,
   toggleCollapse?: () => void,
   setShowEdit: () => void,
-  classes: ClassesType,
+  rightSectionElements?: React.ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
-    hideActionsMenu, hideParentCommentToggle,
+    hideActionsMenu, hideParentCommentToggle, hideParentCommentToggleForTopLevel,
   } = treeOptions;
 
   const authorIsPostAuthor = post &&
@@ -214,6 +219,8 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
+
+
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
@@ -230,7 +237,13 @@ export const CommentsItemMeta = ({
       {post && <CommentShortformIcon comment={comment} post={post} />}
       {!showCommentTitle && <CommentDiscussionIcon comment={comment} small />}
       {!hideParentCommentToggle &&
+          !(hideParentCommentToggleForTopLevel &&
+            comment.parentCommentId === comment.topLevelCommentId
+          ) &&
+          /* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */
+          /* eslint-disable-next-line eqeqeq */
           parentCommentId != comment.parentCommentId &&
+          /* eslint-disable-next-line eqeqeq */
           parentAnswerId != comment.parentCommentId &&
         <ShowParentComment
           comment={comment}
@@ -240,12 +253,12 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          {isEAForum
+          {isFriendlyUI
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
                 classes.collapseChevron,
                 {[classes.collapseChevronOpen]: !collapsed},
               )} />
-            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+            : <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
           }
         </a>
       }
@@ -301,7 +314,7 @@ export const CommentsItemMeta = ({
             tag={tag}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={!isEAForum}
+            neverCoreStyling={isBookUI}
             smallText
           />
         )}
@@ -313,7 +326,8 @@ export const CommentsItemMeta = ({
       </span>}
 
       <span className={classes.rightSection}>
-        {isEAForum &&
+        {rightSectionElements}
+        {isFriendlyUI &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classes.linkIcon} />
           </CommentLinkWrapper>

@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, {ComponentProps, useState, useEffect, useRef} from 'react';
+import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -17,13 +17,14 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-export type CommentFormDisplayMode = "default" | "minimalist"
+export type FormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: isEAForum ? {
+  root: isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
     }
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.5
   },
   form: {
-    padding: isEAForum ? 12 : 10,
+    padding: isFriendlyUI ? 12 : 10,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     textAlign: 'right',
   },
-  formButton: isEAForum ? {
+  formButton: isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',
@@ -67,7 +68,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: 'none',
     marginLeft: 8,
   } : {
-    paddingBottom: "2px",
     fontSize: "16px",
     color: theme.palette.lwTertiary.main,
     marginLeft: "5px",
@@ -77,9 +77,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   cancelButton: {
-    color: isEAForum ? undefined : theme.palette.grey[400],
+    color: isFriendlyUI ? undefined : theme.palette.grey[400],
   },
-  submitButton: isEAForum ? {
+  submitButton: isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
     '&:disabled': {
@@ -136,7 +136,7 @@ export type CommentsNewFormProps = {
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
-  parentComment?: any,
+  parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,
@@ -144,10 +144,11 @@ export type CommentsNewFormProps = {
   fragment?: FragmentName,
   formProps?: any,
   enableGuidelines?: boolean,
-  padding?: boolean
-  replyFormStyle?: CommentFormDisplayMode
-  classes: ClassesType
-  className?: string
+  padding?: boolean,
+  formStyle?: FormDisplayMode,
+  overrideHintText?: string,
+  classes: ClassesType,
+  className?: string,
 }
 
 const CommentsNewForm = ({
@@ -164,7 +165,8 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  replyFormStyle="default",
+  formStyle="default",
+  overrideHintText,
   classes,
   className,
 }: CommentsNewFormProps) => {
@@ -199,11 +201,11 @@ const CommentsNewForm = ({
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = replyFormStyle === "minimalist"
+  const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning, RateLimitWarning } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, NewCommentModerationWarning, RateLimitWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -216,21 +218,23 @@ const CommentsNewForm = ({
   // doesn't work (the focus event fires before the click event, the state change
   // causes DOM nodes to get replaced, and replacing the DOM nodes prevents the
   // rest of the click event handlers from firing.)
-  const onFocusCommentForm = () => setTimeout(() => {
-    // TODO: user field for showing new user guidelines
-    // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
-    const dialogProps = { user: currentUser, post };
-    if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
-      openDialog({
-        componentName: 'NewUserGuidelinesDialog',
-        componentProps: dialogProps,
-        noClickawayCancel: true
-      });
-    }
-    if (!isEAForum) {
-      setShowGuidelines(true);
-    }
-  }, 0);
+  const onFocusCommentForm: React.FocusEventHandler = () => {
+    setTimeout(() => {
+      // TODO: user field for showing new user guidelines
+      // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
+      const dialogProps = { user: currentUser, post };
+      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+        openDialog({
+          componentName: 'NewUserGuidelinesDialog',
+          componentProps: dialogProps,
+          noClickawayCancel: true
+        });
+      }
+      if (isLWorAF) {
+        setShowGuidelines(true);
+      }
+    }, 0);
+  };
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
@@ -275,11 +279,12 @@ const CommentsNewForm = ({
     };
   }
 
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
+  const SubmitComponent = useCallback(({submitLabel = "Submit"}) => {
+    const { Loading } = Components;
     const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
     // by default, the EA Forum uses MUI contained buttons here
-    const cancelBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained'} : {}
-    const submitBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
+    const cancelBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained'} : {}
+    const submitBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
     if (formDisabledDueToRateLimit) {
       submitBtnProps.disabled = true
     }
@@ -310,12 +315,15 @@ const CommentsNewForm = ({
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
-  };
+  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, loading, openDialog, type]);
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
     currentUser && !currentUser.isReviewed 
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const extraFormProps = {
+    ...(isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}),
+    ...(overrideHintText ? {editorHintText: overrideHintText} : {})
+  }
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -366,7 +374,7 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: Components.DefaultStyleFormGroup
+                FormGroupLayout: Components.FormGroupNoStyling
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}
@@ -375,7 +383,7 @@ const CommentsNewForm = ({
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum && !prefilledProps.shortform ? 'Comment' : 'Submit'}
+              submitLabel={isFriendlyUI && !prefilledProps.shortform ? 'Comment' : 'Submit'}
             />
           </div>
         </div>

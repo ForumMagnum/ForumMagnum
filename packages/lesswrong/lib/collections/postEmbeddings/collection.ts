@@ -7,7 +7,6 @@ import { ensureIndex } from "../../collectionIndexUtils";
 export const PostEmbeddings: PostEmbeddingsCollection = createCollection({
   collectionName: "PostEmbeddings",
   typeName: "PostEmbedding",
-  collectionType: "pg",
   schema,
   resolvers: getDefaultResolvers("PostEmbeddings"),
   mutations: getDefaultMutations("PostEmbeddings"),

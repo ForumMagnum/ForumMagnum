@@ -1,15 +1,12 @@
-import { registerFragment } from '../../vulcan-lib/fragments';
+import { registerFragment } from "../../vulcan-lib/fragments";
 
 registerFragment(`
-  fragment conversationsListFragment on Conversation {
+  fragment ConversationsMinimumInfo on Conversation {
     _id
-    title
     createdAt
     latestActivity
+    title
     participantIds
-    participants {
-      ...UsersMinimumInfo
-    }
     archivedByIds
     messageCount
     moderator
@@ -17,15 +14,13 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment newConversationFragment on Conversation {
-    _id
-    title
-    participantIds
-  }
-`);
-
-registerFragment(`
-  fragment conversationIdFragment on Conversation {
-    _id
+  fragment ConversationsList on Conversation {
+    ...ConversationsMinimumInfo
+    participants {
+      ...UsersMinimumInfo
+    }
+    latestMessage {
+      ...messageListFragment
+    }
   }
 `);

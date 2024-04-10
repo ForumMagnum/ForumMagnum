@@ -6,6 +6,7 @@ registerFragment(`
     title
     canonicalCollectionSlug
     canonicalCollection {
+      _id
       title
     }
   }
@@ -33,6 +34,8 @@ registerFragment(`
     curatedOrder
     userProfileOrder
     af
+    postsCount
+    readPostsCount
   }
 `);
 

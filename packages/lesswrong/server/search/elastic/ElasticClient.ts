@@ -8,7 +8,7 @@ import {
   isElasticEnabled,
 } from "./elasticSettings";
 
-export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
+export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
 export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
 
@@ -33,8 +33,6 @@ class ElasticClient {
     }
 
     if (!globalClient) {
-      // eslint-disable-next-line no-console
-      console.log("Connecting to Elasticsearch...");
       globalClient = new Client({
         requestTimeout: 600000,
         cloud: {id: cloudId},

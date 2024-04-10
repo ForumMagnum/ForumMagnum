@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import DateTimePicker from 'react-datetime';
@@ -12,7 +12,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   input: {
     borderBottom: `solid 1px ${theme.palette.grey[550]}`,
     padding: '6px 0 7px 0',
-    background: 'transparent',
+    background: 'transparent'
+  },
+  error: {
+    borderBottom: `solid 1px ${theme.palette.error.main}`,
   },
   label: {
     position:"relative",
@@ -243,18 +246,42 @@ const styles = (theme: ThemeType): JssStyles => ({
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
+const DatePicker = ({label, name, value, below, onChange, classes}: {
   label?: string,
   name?: string,
   value?: Date,
   below?: boolean,
-  onChange: (newValue: Date)=>void,
-  onClose?: (newValue: Date)=>void,
+  onChange: (newValue: Date) => void,
+  onClose?: (newValue: Date) => void,
   classes: ClassesType
 }) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
   // we try to use the selected date to determine the tz (and default to now)
   const tzDate = value ? moment(value) : moment();
+  const [error, setError] = useState(false)
+  const valueIsNullRef = useRef(!value)
+
+  const handleDateChange = useCallback((newDate: Moment | string) => {
+    let parsedDate: Date | null = null;
+    if (moment.isMoment(newDate)) {
+      parsedDate = newDate.toDate();
+    } else if (typeof newDate === "string") {
+      const momentParsed = moment(newDate, "MM/DD/YYYY hh:mm A", true);
+      if (momentParsed.isValid()) {
+        parsedDate = momentParsed.toDate();
+      }
+    }
+
+    if (parsedDate) {
+      onChange(parsedDate);
+      setError(false)
+    } else {
+      setError(true)
+    }
+  }, [onChange]);
+
+  const valueJustCleared = !value && valueIsNullRef.current
+  valueIsNullRef.current = !value
 
   return <FormControl>
     <InputLabel className={classes.label}>
@@ -269,27 +296,28 @@ const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
         inputProps={{
           name:name,
           autoComplete:"off",
-          className:classes.input
+          className: classNames(classes.input, {[classes.error]: error}),
+          ...(valueJustCleared && {value: undefined}),
         }}
-        onChange={(newDate: Moment) => {
-          // newDate argument is a Moment object given by react-datetime.
-          onChange(newDate.toDate())
-        }}
-        onBlur={(newDate: Moment) => {
-          // newDate argument is a Moment object given by react-datetime.
-          onClose?.(newDate.toDate())
-        }}
+        onChange={handleDateChange}
+        onBlur={handleDateChange}
       />
     </div>
   </FormControl>
 }
 
+type FormComponentDateTimeProps = FormComponentProps<string|Date> & {
+  below?: boolean,
+}
 
 /**
  * Date-picker UI element, wrapped for use in vulcan-forms.
  * TODO: This may not work right in nested contexts.
  */
-const FormComponentDateTime = ({ path, value, name, label }: FormComponentProps<string|Date>, context: FormComponentContext<string|Date>) => {
+const FormComponentDateTime = (
+  {path, value, name, label, below}: FormComponentDateTimeProps,
+  context: FormComponentContext<string|Date>,
+) => {
   const updateDate = (date: Date | undefined) => {
     if (date) {
       void context.updateCurrentValues({[path]: date})
@@ -303,6 +331,7 @@ const FormComponentDateTime = ({ path, value, name, label }: FormComponentProps<
     name={name}
     value={date}
     onChange={updateDate}
+    below={below}
   />
 }
 

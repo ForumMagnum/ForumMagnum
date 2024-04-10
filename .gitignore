@@ -23,6 +23,7 @@ dump/*
 
 settings*.json
 *conn.txt
+*settings.js
 
 .idea
 .tern-project
@@ -95,3 +96,6 @@ schema/schema_to_accept.sql
 .branchdbcache
 
 ml
+
+client_meta.json
+client_stats.html

@@ -25,21 +25,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const EmailCommentBatch = ({comments, classes}:{comments: DbComment[], classes: ClassesType}) => {
+const EmailCommentBatch = ({comments, classes}: {
+  comments: Partial<DbComment>[],
+  classes: ClassesType,
+}) => {
   const { EmailComment } = Components;
   const commentsOnPosts = filter(comments, comment => !!comment.postId)
-  const commentsByPostId = groupBy(commentsOnPosts, (comment:DbComment)=>comment.postId);
+  const commentsByPostId = groupBy(commentsOnPosts, (comment: DbComment)=>comment.postId);
   const commentsOnTags = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "DISCUSSION")
-  const commentsByTagId = groupBy(commentsOnTags, (comment:DbComment)=>comment.tagId);
+  const commentsByTagId = groupBy(commentsOnTags, (comment: DbComment)=>comment.tagId);
   const commentsOnSubforums = filter(comments, comment => !!comment.tagId && comment.tagCommentType === "SUBFORUM")
-  const commentsBySubforumTagId = groupBy(commentsOnSubforums, (comment:DbComment)=>comment.tagId);
+  const commentsBySubforumTagId = groupBy(commentsOnSubforums, (comment: DbComment)=>comment.tagId);
   
-  const commentsListComponent = (comments: DbComment[]) => {
+  const commentsListComponent = (comments: Partial<DbComment>[]) => {
     return (
       <>
         {comments?.map((comment, idx) => (
           <div key={comment._id}>
-            <EmailComment commentId={comment._id} />
+            <EmailComment commentId={comment._id ?? ""} />
             {idx !== comments.length - 1 && <hr className={classes.commentHr} />}
           </div>
         ))}

@@ -3,91 +3,99 @@ import { getCollection } from '../lib/vulcan-lib/getCollection';
 
 type CallbackValidationErrors = Array<any>;
 
-export interface CreateCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
-  document: T
-  newDocument: T
+export interface CreateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
+  document: ObjectsByCollectionName[N],
+  /**
+   * BE CAREFUL USING THIS - IT'S NOT THE INSERTED RECORD, BUT THE DATA PASSED IN TO `createMutator`
+   * Correspondingly, it won't have fields like `_id`
+   */
+  newDocument: ObjectsByCollectionName[N],
 }
 
-export interface UpdateCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
-  data: Partial<T>
-  oldDocument: T
-  /** DEPRECATED: Is a "preview" of the new document. Use newDocument instead */
-  document: T
+export interface UpdateCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
+  data: Partial<ObjectsByCollectionName[N]>
+  oldDocument: ObjectsByCollectionName[N]
+  /**
+   * @deprecated Is a "preview" of the new document. Use newDocument instead
+   */
+  document: ObjectsByCollectionName[N]
   /** Is a "preview" of the new document */
-  newDocument: T
+  newDocument: ObjectsByCollectionName[N]
 }
 
-export interface DeleteCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
-  document: T
+export interface DeleteCallbackProperties<N extends CollectionNameString> extends CallbackPropertiesBase<N> {
+  document: ObjectsByCollectionName[N]
 }
 
-export class CollectionMutationCallbacks<T extends DbObject> {
-  createValidate: CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<T>]>
-  newValidate: CallbackChainHook<DbInsertion<T>,[DbUser|null,CallbackValidationErrors]>
-  createBefore: CallbackChainHook<T,[CreateCallbackProperties<T>]>
-  newBefore: CallbackChainHook<T,[DbUser|null]>
-  newSync: CallbackChainHook<T,[DbUser|null]>
-  createAfter: CallbackChainHook<T,[CreateCallbackProperties<T>]>
-  newAfter: CallbackChainHook<T,[DbUser|null]>
-  createAsync: CallbackHook<[CreateCallbackProperties<T>]>
-  newAsync: CallbackHook<[T,DbUser|null,any]>
-  
-  updateValidate: CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<T>]>
-  editValidate: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,CallbackValidationErrors]>
-  updateBefore: CallbackChainHook<Partial<T>,[UpdateCallbackProperties<T>]>
-  /** DEPRECATED: use updateBefore */
-  editBefore: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>
-  editSync: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>
-  updateAfter: CallbackChainHook<T,[UpdateCallbackProperties<T>]>
-  editAfter: CallbackChainHook<T,[T,DbUser|null]>
-  updateAsync: CallbackHook<[UpdateCallbackProperties<T>]>
-  editAsync: CallbackHook<[T,T,DbUser|null,CollectionBase<T>]>
-  
-  deleteValidate: CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<T>]>
-  removeValidate: CallbackChainHook<T,[DbUser|null]>
-  deleteBefore: CallbackChainHook<T,[DeleteCallbackProperties<T>]>
-  removeBefore: CallbackChainHook<T,[DbUser|null]>
-  removeSync: CallbackChainHook<T,[DbUser|null]>
-  deleteAsync: CallbackHook<[DeleteCallbackProperties<T>]>
-  removeAsync: CallbackHook<[T,DbUser|null,CollectionBase<T>]>
-  
-  constructor(collectionName: CollectionNameString) {
+export class CollectionMutationCallbacks<N extends CollectionNameString> {
+  createValidate: CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>
+  newValidate: CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>
+  createBefore: CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>
+  newBefore: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  newSync: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null,ResolverContext]>
+  createAfter: CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>
+  newAfter: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  createAsync: CallbackHook<[CreateCallbackProperties<N>]>
+  newAsync: CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>
+
+  updateValidate: CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>
+  editValidate: CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,CallbackValidationErrors]>
+  updateBefore: CallbackChainHook<Partial<ObjectsByCollectionName[N]>,[UpdateCallbackProperties<N>]>
+  /**
+   * @deprecated use updateBefore
+   */
+  editBefore: CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>
+  editSync: CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>
+  updateAfter: CallbackChainHook<ObjectsByCollectionName[N],[UpdateCallbackProperties<N>]>
+  editAfter: CallbackChainHook<ObjectsByCollectionName[N],[ObjectsByCollectionName[N],DbUser|null]>
+  updateAsync: CallbackHook<[UpdateCallbackProperties<N>]>
+  editAsync: CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>
+
+  deleteValidate: CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<N>]>
+  removeValidate: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  deleteBefore: CallbackChainHook<ObjectsByCollectionName[N],[DeleteCallbackProperties<N>]>
+  removeBefore: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  removeSync: CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>
+  deleteAsync: CallbackHook<[DeleteCallbackProperties<N>]>
+  removeAsync: CallbackHook<[ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>
+
+  constructor(collectionName: N) {
     const collection = getCollection(collectionName);
     const typeName = collection.options.typeName;
-    
-    this.createValidate = new CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<T>]>(`${typeName.toLowerCase()}.create.validate`);
-    this.newValidate = new CallbackChainHook<DbInsertion<T>,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
-    this.createBefore = new CallbackChainHook<T,[CreateCallbackProperties<T>]>(`${typeName.toLowerCase()}.create.before`);
-    this.newBefore = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.new.before`);
-    this.newSync = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.new.sync`);
-    this.createAfter = new CallbackChainHook<T,[CreateCallbackProperties<T>]>(`${typeName.toLowerCase()}.create.after`);
-    this.newAfter = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.new.after`);
-    this.createAsync = new CallbackHook<[CreateCallbackProperties<T>]>(`${typeName.toLowerCase()}.create.async`);
-    this.newAsync = new CallbackHook<[T,DbUser|null,any]>(`${collectionName.toLowerCase()}.new.async`);
-    
-    this.updateValidate = new CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<T>]>(`${typeName.toLowerCase()}.update.validate`);
-    this.editValidate = new CallbackChainHook<MongoModifier<T>,[T,DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.edit.validate`)
-    this.updateBefore = new CallbackChainHook<Partial<T>,[UpdateCallbackProperties<T>]>(`${typeName.toLowerCase()}.update.before`);
-    this.editBefore = new CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>(`${collectionName.toLowerCase()}.edit.before`);
-    this.editSync = new CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>(`${collectionName.toLowerCase()}.edit.sync`);
-    this.updateAfter = new CallbackChainHook<T,[UpdateCallbackProperties<T>]>(`${typeName.toLowerCase()}.update.after`);
-    this.editAfter = new CallbackChainHook<T,[T,DbUser|null]>(`${collectionName.toLowerCase()}.edit.after`)
-    this.updateAsync = new CallbackHook<[UpdateCallbackProperties<T>]>(`${typeName.toLowerCase()}.update.async`);
-    this.editAsync = new CallbackHook<[T,T,DbUser|null,CollectionBase<T>]>(`${collectionName.toLowerCase()}.edit.async`)
-  
-    this.deleteValidate = new CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<T>]>(`${typeName.toLowerCase()}.delete.validate`);
-    this.removeValidate = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.remove.validate`);
-    this.deleteBefore = new CallbackChainHook<T,[DeleteCallbackProperties<T>]>(`${typeName.toLowerCase()}.delete.before`);
-    this.removeBefore = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.remove.before`);
-    this.removeSync = new CallbackChainHook<T,[DbUser|null]>(`${collectionName.toLowerCase()}.remove.sync`);
-    this.deleteAsync = new CallbackHook<[DeleteCallbackProperties<T>]>(`${typeName.toLowerCase()}.delete.async`);
-    this.removeAsync = new CallbackHook<[T,DbUser|null,CollectionBase<T>]>(`${collectionName.toLowerCase()}.remove.async`);
+
+    this.createValidate = new CallbackChainHook<CallbackValidationErrors,[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.validate`);
+    this.newValidate = new CallbackChainHook<DbInsertion<ObjectsByCollectionName[N]>,[DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.new.validate`);
+    this.createBefore = new CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.before`);
+    this.newBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.new.before`);
+    this.newSync = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null,ResolverContext]>(`${collectionName.toLowerCase()}.new.sync`);
+    this.createAfter = new CallbackChainHook<ObjectsByCollectionName[N],[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.after`);
+    this.newAfter = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.new.after`);
+    this.createAsync = new CallbackHook<[CreateCallbackProperties<N>]>(`${typeName.toLowerCase()}.create.async`);
+    this.newAsync = new CallbackHook<[ObjectsByCollectionName[N],DbUser|null,any]>(`${collectionName.toLowerCase()}.new.async`);
+
+    this.updateValidate = new CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<N>]>(`${typeName.toLowerCase()}.update.validate`);
+    this.editValidate = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,CallbackValidationErrors]>(`${collectionName.toLowerCase()}.edit.validate`)
+    this.updateBefore = new CallbackChainHook<Partial<ObjectsByCollectionName[N]>,[UpdateCallbackProperties<N>]>(`${typeName.toLowerCase()}.update.before`);
+    this.editBefore = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>(`${collectionName.toLowerCase()}.edit.before`);
+    this.editSync = new CallbackChainHook<MongoModifier<ObjectsByCollectionName[N]>,[ObjectsByCollectionName[N],DbUser|null,ObjectsByCollectionName[N]]>(`${collectionName.toLowerCase()}.edit.sync`);
+    this.updateAfter = new CallbackChainHook<ObjectsByCollectionName[N],[UpdateCallbackProperties<N>]>(`${typeName.toLowerCase()}.update.after`);
+    this.editAfter = new CallbackChainHook<ObjectsByCollectionName[N],[ObjectsByCollectionName[N],DbUser|null]>(`${collectionName.toLowerCase()}.edit.after`)
+    this.updateAsync = new CallbackHook<[UpdateCallbackProperties<N>]>(`${typeName.toLowerCase()}.update.async`);
+    this.editAsync = new CallbackHook<[ObjectsByCollectionName[N],ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>(`${collectionName.toLowerCase()}.edit.async`)
+
+    this.deleteValidate = new CallbackChainHook<CallbackValidationErrors,[DeleteCallbackProperties<N>]>(`${typeName.toLowerCase()}.delete.validate`);
+    this.removeValidate = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.remove.validate`);
+    this.deleteBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DeleteCallbackProperties<N>]>(`${typeName.toLowerCase()}.delete.before`);
+    this.removeBefore = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.remove.before`);
+    this.removeSync = new CallbackChainHook<ObjectsByCollectionName[N],[DbUser|null]>(`${collectionName.toLowerCase()}.remove.sync`);
+    this.deleteAsync = new CallbackHook<[DeleteCallbackProperties<N>]>(`${typeName.toLowerCase()}.delete.async`);
+    this.removeAsync = new CallbackHook<[ObjectsByCollectionName[N],DbUser|null,CollectionBase<N>]>(`${collectionName.toLowerCase()}.remove.async`);
   }
 }
 
 const collectionHooks: any = {};
 
-export const getCollectionHooks = <N extends CollectionNameString>(collectionName: N): CollectionMutationCallbacks<ObjectsByCollectionName[N]> =>  {
+export const getCollectionHooks = <N extends CollectionNameString>(collectionName: N): CollectionMutationCallbacks<N> =>  {
   if (!(collectionName in collectionHooks)) {
     collectionHooks[collectionName] = new CollectionMutationCallbacks(collectionName);
   }

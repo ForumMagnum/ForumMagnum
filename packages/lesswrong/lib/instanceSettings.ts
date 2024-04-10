@@ -126,14 +126,6 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
 /**
- * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
- * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
- * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
- * easier.
- */
-export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
-
-/**
  * Name of the tagging feature on your site. The EA Forum is going to try
  * calling them topics. You should set this setting with the lowercase singular
  * form of the name. We assume this is a single word currently. Spaces will
@@ -180,3 +172,53 @@ export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("dis
 export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
+
+/** Whether posts and other content is visible to non-logged-in users (TODO: actually implement this) */
+export const publicAccess = new PublicInstanceSetting<boolean>("publicAccess", true, "optional");
+
+/** Header-related settings */
+export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
+export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
+export const faviconWithBadgeSetting = new PublicInstanceSetting<string|null>('faviconWithBadge', null, "optional")
+export const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
+export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
+
+export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
+/** Whether this forum verifies user emails */
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+
+export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
+
+export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLogging.enabled', false, "optional");
+export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLogging.batchSize', 100, "optional");
+export const performanceMetricLoggingSqlSampleRate = new PublicInstanceSetting<number>('performanceMetricLogging.sqlSampleRate', 0.05, "optional");
+
+export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", isLWorAF, "optional");
+export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
+export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
+export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");
+
+const disableElastic = new PublicInstanceSetting<boolean>(
+  "disableElastic",
+  false,
+  "optional",
+);
+
+export const isElasticEnabled = !isAnyTest && !disableElastic.get();
+
+export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
+export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
+
+/** Karma threshold upon which we automatically create a market for whether this post will be a winner in the review for its year */
+export const reviewMarketCreationMinimumKarmaSetting = new PublicInstanceSetting<number>('annualReviewMarket.marketCreationMinimumKarma', 100, "optional");
+/** Minimum market odds required to highlight this post (e.g. make its karma gold) as a potential review winner */
+export const highlightReviewWinnerThresholdSetting = new PublicInstanceSetting<number>('annualReviewMarket.highlightReviewWinnerThreshold', 0.25, "optional");
+
+export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
+export const maxAllowedApiSkip = new PublicInstanceSetting<number | null>("maxAllowedApiSkip", 2000, "optional")
+
+export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null>('recombee.databaseId', null, "optional");
+export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
+export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");

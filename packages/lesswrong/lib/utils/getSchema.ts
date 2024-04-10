@@ -4,13 +4,17 @@ import SimpleSchema from 'simpl-schema';
 // collection schema files. Note that this is *not* a SimpleSchema class; if
 // you want one of those (for validation), use Collection.simpleSchema()
 // instead.
-export function getSchema<T extends DbObject>(collection: CollectionBase<T>): SchemaType<T> {
+export function getSchema<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+): SchemaType<N> {
   //return collection._schemaFields;
   return getSimpleSchema(collection)._schema;
 }
 
-export function getSimpleSchema<T extends DbObject>(collection: CollectionBase<T>): SimpleSchemaType<T> {
+export function getSimpleSchema<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+): SimpleSchemaType<N> {
   if (!collection._simpleSchema)
-    collection._simpleSchema = new SimpleSchema(collection._schemaFields as any);
+    collection._simpleSchema = new SimpleSchema(collection._schemaFields as AnyBecauseHard);
   return collection._simpleSchema;
 }

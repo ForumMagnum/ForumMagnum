@@ -52,8 +52,7 @@ export const CollectionTableOfContents = ({classes, collection}: {
 
   const sectionData = {
     html: "",
-    sections: sections,
-    headingsCount: sections.length
+    sections,
   }
 
   return <TableOfContents

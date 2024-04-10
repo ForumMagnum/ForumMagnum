@@ -1,4 +1,4 @@
-import { forumTypeSetting, taggingNameSetting } from '../../instanceSettings';
+import { isAF, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
@@ -12,7 +12,7 @@ import { forumSelect } from '../../forumTypeUtils';
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment): Promise<string> {
   var user = await mongoFindOne("Users", comment.userId);
-  return user ? userGetDisplayName(user) : comment.author;
+  return user ? userGetDisplayName(user) : comment.author ?? "[unknown author]";
 };
 
 // Get URL of a comment page.
@@ -43,7 +43,7 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 
 // TODO there are several functions which do this, some of them should be combined
 export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
-  postId?: string,
+  postId?: string | null,
   postSlug?: string,
   tagSlug?: string,
   tagCommentType?: TagCommentType,
@@ -73,7 +73,7 @@ export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false)
 };
 
 export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
-  if (forumTypeSetting.get() === 'AlignmentForum') { return true }
+  if (isAF) { return true }
   if (comment) {
     return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
@@ -81,21 +81,24 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
   }
 }
 
-export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
+export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
   const fallback = forumSelect({
     AlignmentForum: "afPostCommentsTop",
     EAForum: "postCommentsMagic",
     default: "postCommentsTop",
   });
-  return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
+  const postSortOrder = (post && 'commentSortOrder' in post) ? post.commentSortOrder : null;
+  return (postSortOrder as CommentsViewName)
+    || (currentUser?.commentSorting as CommentsViewName)
+    || fallback;
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  const baseScore = isAF ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }
 
-export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
+export const commentAllowTitle = (comment: {tagCommentType: TagCommentType, parentCommentId?: string | null}): boolean => comment?.tagCommentType === 'SUBFORUM' && !comment?.parentCommentId
 
 /**
  * If the site is currently hiding comments by unreviewed authors, check if we need to hide this comment.

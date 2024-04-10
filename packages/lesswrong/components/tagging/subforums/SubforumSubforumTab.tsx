@@ -76,14 +76,14 @@ const SubforumSubforumTab = ({
     PostsList2,
     CommentsListCondensed,
     ShortformSubmitForm,
-    WrappedLoginForm,
+    LoginForm,
     PostsListSortDropdown,
     PostsLayoutDropdown,
   } = Components;
 
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetchRef = useRef<null|(() => void)>(null);
   const refetch = useCallback(() => {
     if (refetchRef.current)
       refetchRef.current();
@@ -270,7 +270,7 @@ const SubforumSubforumTab = ({
             }}
             noDefaultStyles
           /> : <div className={classes.centerChild}>
-            <WrappedLoginForm />
+            <LoginForm />
           </div>}
         </div>
       )}

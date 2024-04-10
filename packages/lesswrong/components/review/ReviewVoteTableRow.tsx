@@ -135,7 +135,6 @@ const styles = (theme: ThemeType) => ({
     cursor: "default"
   },
   commentsCount: {
-    paddingBottom: 8,
     marginRight: 8
   },
   cantVote: {
@@ -154,26 +153,36 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
+const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null) => {
+  if (!lastCommentedAt) return false
+  if (!visitedDate) return true
+  return visitedDate < lastCommentedAt
+}
+
 const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes:ClassesType,
+  classes: ClassesType,
   expandedPostId?: string|null,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
-  const { PostsTitle, LWTooltip, PostsPreviewTooltip, MetaInfo, ReviewVotingButtons, PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote, ReviewPostComments, KarmaVoteStripe } = Components
+  const {
+    PostsTitle, LWTooltip, PostsTooltip, MetaInfo, ReviewVotingButtons,
+    PostsItemComments, PostsItem2MetaInfo, PostsItemReviewVote,
+    ReviewPostComments, KarmaVoteStripe,
+  } = Components
 
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
   const { recordPostView } = useRecordPostView(post);
   const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    void recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 
   }
 
@@ -213,15 +222,18 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
+  const visitedDate = markedVisitedAt ?? post.lastVisitedAt
+  const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
+
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
       {showKarmaVotes && <KarmaVoteStripe post={post}/>}
       <div className={classNames(classes.postVote, {[classes.postVoteVotingPhase]: reviewPhase === "VOTING"})}>
         <div className={classNames(classes.post, {[classes.postVotingPhase]: reviewPhase === "VOTING"})}>
-          <LWTooltip title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+          <PostsTooltip post={post} flip={false}>
             <PostsTitle post={post} showIcons={false} wrap curatedIconLeft={false} />
-          </LWTooltip>
+          </PostsTooltip>
         </div>
         {reviewPhase === "VOTING" && <div className={classes.reviews}>
           <ReviewPostComments
@@ -241,7 +253,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}
-            unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
+            unreadComments={unreadComments}
             newPromotedComments={false}
           />
         </div>

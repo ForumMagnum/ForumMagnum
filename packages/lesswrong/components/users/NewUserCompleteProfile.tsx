@@ -9,6 +9,16 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
+import { Link } from "../../lib/reactRouterWrapper";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
+
+/**
+ * 2023-11-17 SC: This component is not used by LW/AF, though we left some forum-gating
+ * in here for elements that are probably still EAF-specific, such as the ToS.
+ */
+
+// link to the page that lists past digests
+const eaForumDigestLink = 'https://us8.campaign-archive.com/home/?u=52b028e7f799cca137ef74763&id=7457c7ff3e'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,6 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
+    fontSize: 30,
     marginTop: 0,
     [theme.breakpoints.down('md')]: {
       fontSize: 28,
@@ -26,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   section: {
     maxWidth: 600,
-    marginTop: theme.spacing.unit * 6,
+    marginTop: 30,
     "& .MuiTypography-body1": {
       color: theme.palette.text.normal,
     },
@@ -38,6 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sectionHeadingText: {
     fontWeight: 600,
     fontSize: 24,
+    textWrap: 'pretty',
     [theme.breakpoints.down('md')]: {
       fontSize: 20,
     }
@@ -50,12 +62,27 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.primary.main,
     },
   },
+  usernameInput: {
+    marginBottom: 10
+  },
   tosText: {
     marginBottom: 16,
   },
   submitButtonSection: {
-    marginTop: theme.spacing.unit * 3
+    marginTop: 30
   },
+  callout: {
+    background: theme.palette.background.default,
+    padding: '16px 20px',
+    borderRadius: theme.borderRadius.default
+  },
+  calloutHeadingText: {
+    fontWeight: 600,
+    fontSize: 16,
+    lineHeight: '24px',
+    fontFamily: theme.typography.fontFamily,
+    margin: '0 0 6px',
+  }
 });
 
 type NewUserCompleteProfileProps = {
@@ -70,20 +97,34 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
   return maybeUsername
 }
 
+export const newUserCompleteProfileMutation = gql`
+  mutation NewUserCompleteProfile(
+    $username: String!,
+    $subscribeToDigest: Boolean!,
+    $email: String,
+    $acceptedTos: Boolean
+  ) {
+    NewUserCompleteProfile(
+      username: $username,
+      subscribeToDigest: $subscribeToDigest,
+      email: $email,
+      acceptedTos: $acceptedTos
+    ) {
+      username
+      slug
+      displayName
+    }
+  }
+`;
+
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ currentUser, classes }) => {
   const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
-  const [subscribeToDigest, setSubscribeToDigest] = useState(false)
+  const [subscribeToDigest, setSubscribeToDigest] = useState(true)
   const [validationError, setValidationError] = useState('')
-  const [updateUser] = useMutation(gql`
-    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
-      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email, acceptedTos: $acceptedTos) {
-        username
-        slug
-        displayName
-      }
-    }
-  `, {refetchQueries: ['getCurrentUser']})
+  const [updateUser] = useMutation(newUserCompleteProfileMutation, {
+    refetchQueries: ['getCurrentUser'],
+  })
   const {flash} = useMessages();
   const {SingleColumnSection, Typography, EAButton} = Components
 
@@ -127,87 +168,104 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       flash(`${err}`)
     }
   }
-  
-  return <SingleColumnSection>
-    <div className={classes.root}>
-      <Typography variant="display2" gutterBottom className={classes.title}>
-        Thanks for registering for {siteNameWithArticleSetting.get()}
-      </Typography>
-      <Typography variant='body2'>
-        Take a moment to complete your profile
-      </Typography>
-      <div className={classes.section}>
-        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Please choose a username
-        </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          We encourage you to use your real name, as it will help other people
-          in the community to identify you, but you can choose a pseudonym. If
-          you do, try to choose{' '}
-          <a href="https://jimpix.co.uk/words/random-username-generator.asp" target="_blank" rel="noopener noreferrer">
-            something recognizable like "WobblyPanda",
-          </a>{' '}
-          instead of a variation of anon7.
-        </Typography>
-        <TextField
-          label='Username'
-          error={!!validationError}
-          helperText={validationError || 'Spaces and special characters allowed'}
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          onBlur={(_event) => validateUsername(username)}
-        />
-      </div>
-      
-      {/* Facebook user with no email fix (very small % of users) */}
-      {!currentUser?.email && <div className={classes.section}>
-        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Please enter your email
-        </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          {/* I'd rather be honest than concise here. */}
-          To get here without an email you must have logged in with Facebook
-          and not given Facebook your email. We need your email to notify you of
-          direct messages, and having a tiny percentage of users without an
-          email makes the site harder to maintain.
-        </Typography>
-        <TextField
-          label='Email'
-          inputRef={emailInput}
-        />
-      </div>}
 
-      {isEAForum && <div className={classes.section}>
-        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Would you like to get digest emails?
+  return <AnalyticsContext pageContext="newUserRegistration">
+    <SingleColumnSection>
+      <div className={classes.root}>
+        <Typography variant="display2" gutterBottom className={classes.title}>
+          Welcome to {siteNameWithArticleSetting.get()}!
         </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
-        </Typography>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={subscribeToDigest}
-              onChange={event => setSubscribeToDigest(event.target.checked)}
-            />
-          }
-          label='Yes, subscribe me to EA Forum digest emails'
-        />
-      </div>}
-      {/* TODO: Something about bio? */}
-      <div className={classes.submitButtonSection}>
-        {isEAForum &&
-          <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
-            I agree to the <TosLink />, including my content being available
-            under a <LicenseLink /> license.
+        <div className={classes.section}>
+          <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+            Choose a username
           </Typography>
-        }
-        <EAButton onClick={handleSave} disabled={!!validationError}>
-          Submit
-        </EAButton>
+          <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+            We encourage you to use your real name, as it will help other people
+            in the community to identify you, but you can choose a pseudonym. If
+            you do, try to choose{' '}
+            <a href="https://jimpix.co.uk/words/random-username-generator.asp" target="_blank" rel="noopener noreferrer">
+              something recognizable like "WobblyPanda",
+            </a>{' '}
+            instead of a variation of anon7.
+          </Typography>
+          <TextField
+            label='Username'
+            error={!!validationError}
+            helperText={validationError || 'Spaces and special characters allowed'}
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            onBlur={(_event) => validateUsername(username)}
+            className={classes.usernameInput}
+          />
+        </div>
+        
+        {/* Facebook user with no email fix (very small % of users) */}
+        {!currentUser?.email && <div className={classes.section}>
+          <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+            Please enter your email
+          </Typography>
+          <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+            {/* I'd rather be honest than concise here. */}
+            To get here without an email you must have logged in with Facebook
+            and not given Facebook your email. We need your email to notify you of
+            direct messages, and having a tiny percentage of users without an
+            email makes the site harder to maintain.
+          </Typography>
+          <TextField
+            label='Email'
+            inputRef={emailInput}
+          />
+        </div>}
+
+        {isEAForum && <div className={classes.section}>
+          <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+            Get weekly emails with selected posts
+          </Typography>
+          <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+            The EA Forum Digest is curated by the Forum team, and features highlights from
+            every week, announcements, and more.{" "}
+            <Link to={eaForumDigestLink} target="_blank" rel="noreferrer">
+              See recent issues here
+            </Link>.
+          </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={subscribeToDigest}
+                onChange={event => setSubscribeToDigest(event.target.checked)}
+              />
+            }
+            label='Yes, subscribe me to EA Forum digest emails'
+          />
+        </div>}
+        {isEAForum && <div className={classes.section}>
+          <div className={classes.callout}>
+            <h2 className={classes.calloutHeadingText}>
+              Chat with an EA Forum Team member
+            </h2>
+            <Typography variant='body1' className={classes.sectionHelperText}>
+              Help us improve the site! Sign up for a user interview with a member of the EA Forum Team
+              and we'll answer any questions you have about EA or the Forum.{" "}
+              <Link to="https://savvycal.com/cea/forum-team" target="_blank" rel="noreferrer">
+                Book a call here
+              </Link>.
+            </Typography>
+          </div>
+        </div>}
+        <div className={classes.submitButtonSection}>
+          {isEAForum &&
+            <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
+              I agree to the <TosLink />, including my content being available
+              under a <LicenseLink /> license.
+            </Typography>
+          }
+          <EAButton onClick={handleSave} disabled={!!validationError}>
+            Submit
+          </EAButton>
+        </div>
       </div>
-    </div>
-  </SingleColumnSection>
+    </SingleColumnSection>
+  </AnalyticsContext>
 };
 
 const NewUserCompleteProfileComponent = registerComponent(

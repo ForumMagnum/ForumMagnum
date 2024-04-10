@@ -2,8 +2,7 @@
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import chunk from 'lodash/fp/chunk';
 import max from 'lodash/fp/max';
-import UserActivities from '../../lib/collections/useractivities/collection';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
@@ -297,13 +296,7 @@ async function concatNewActivity({dataDb, newActivityData, prevStartDate, update
  *  - Rows from inactive users will be deleted
  */
 export async function updateUserActivities(props?: {updateStartDate?: Date, updateEndDate?: Date, randomWait?: boolean}) {
-  const dataDb = await getSqlClientOrThrow();
-  if (!dataDb) {
-    throw new Error("updateUserActivities: couldn't get database connection");
-  };
-  if (!UserActivities.isPostgres()) {
-    console.log("updateUserActivities: only supported on Postgres");
-  }
+  const dataDb = getSqlClientOrThrow();
 
   if (props?.randomWait) {
     // sleep for random amount of time up to 10 seconds
@@ -338,10 +331,7 @@ export async function updateUserActivities(props?: {updateStartDate?: Date, upda
  * This takes about 10 minutes on prod (EA Forum)
  */
 export async function backfillUserActivities() {
-  const dataDb = await getSqlClientOrThrow();
-  if (!dataDb) {
-    throw new Error("updateUserActivities: couldn't get database connection");
-  };
+  const dataDb = getSqlClientOrThrow();
 
   // Clear the current data in the UserActivities collection
   await dataDb.none(`DELETE FROM "UserActivities";`);
@@ -371,14 +361,14 @@ export async function backfillUserActivities() {
 }
 
 
-if (isEAForum) {
+if (isEAForum || isLW ) {
   addCronJob({
     name: 'updateUserActivitiesCron',
     interval: 'every 3 hours',
     async job() {
       await updateUserActivities({randomWait: true});
     }
-  });  
+  });
 }
 
 Vulcan.updateUserActivities = updateUserActivities;

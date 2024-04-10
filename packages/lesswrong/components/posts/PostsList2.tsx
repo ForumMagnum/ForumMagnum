@@ -1,9 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
+import FormattedMessage from '../../lib/vulcan-i18n/message';
+import moment from 'moment';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -25,6 +27,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   const {
     children,
     showNoResults,
+    hideLastUnread,
     showLoadMore,
     showLoading,
     dimWhenLoading,
@@ -48,6 +51,18 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   if (!orderedResults?.length && !showNoResults) {
     return null
   }
+  
+  // If this is the EA Forum frontpage pinned curated posts list,
+  // and we haven't curated a post in the last 5 days,
+  // then hide this entire section.
+  if (
+    isEAForum &&
+    hideLastUnread &&
+    !!orderedResults?.[0].curatedDate &&
+    moment(orderedResults[0].curatedDate).isBefore(moment().subtract(5, 'days'))
+  ) {
+    return null
+  }
 
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
@@ -55,7 +70,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
       {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
-      <div className={boxShadow ? classes.posts : null}>
+      <div className={boxShadow ? classes.posts : undefined}>
         {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
       </div>
       {showLoadMore && <SectionFooter>

@@ -5,7 +5,7 @@ import { useCurrentUser } from '../../common/withUser';
 
 const EditCommentDropdownItem = ({comment, showEdit}: {
   comment: CommentsList,
-  showEdit: ()=>void,
+  showEdit: () => void,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -21,6 +21,8 @@ const EditCommentDropdownItem = ({comment, showEdit}: {
     <DropdownItem
       title="Edit"
       onClick={showEdit}
+      disabled={!!comment.originalDialogueId}
+      tooltip={comment.originalDialogueId ? "Cannot edit dialogue crossposts to shortform" : undefined}
       icon="Edit"
     />
   );

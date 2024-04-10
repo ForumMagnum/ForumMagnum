@@ -27,7 +27,11 @@ export const modifierToData = <T extends DbObject>(modifier: MongoModifier<T>): 
   2. Run SimpleSchema validation step
 
 */
-export const validateDocument = <T extends DbObject>(document: Partial<DbInsertion<T>>, collection: CollectionBase<T>, context: ResolverContext) => {
+export const validateDocument = <N extends CollectionNameString>(
+  document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  collection: CollectionBase<N>,
+  context: ResolverContext,
+) => {
   const { currentUser } = context;
   const schema = getSchema(collection);
 
@@ -83,8 +87,12 @@ export const validateDocument = <T extends DbObject>(document: Partial<DbInserti
   2. Run SimpleSchema validation step
   
 */
-export const validateModifier = <T extends DbObject>(modifier: MongoModifier<DbInsertion<T>>, document: any, collection: CollectionBase<T>, context: ResolverContext) => {
-  
+export const validateModifier = <N extends CollectionNameString>(
+  modifier: MongoModifier<DbInsertion<ObjectsByCollectionName[N]>>,
+  document: any,
+  collection: CollectionBase<N>,
+  context: ResolverContext,
+) => {
   const { currentUser } = context;
   const schema = getSchema(collection);
   const set = modifier.$set;
@@ -132,6 +140,11 @@ export const validateModifier = <T extends DbObject>(modifier: MongoModifier<DbI
   return validationErrors;
 };
 
-export const validateData = <T extends DbObject>(data: Partial<DbInsertion<T>>, document: T, collection: CollectionBase<T>, context: ResolverContext) => {
+export const validateData = <N extends CollectionNameString>(
+  data: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
+  document: ObjectsByCollectionName[N],
+  collection: CollectionBase<N>,
+  context: ResolverContext,
+) => {
   return validateModifier(dataToModifier(data), document, collection, context);
 };

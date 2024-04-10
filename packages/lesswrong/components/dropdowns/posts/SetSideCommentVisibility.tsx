@@ -6,8 +6,7 @@ import ChatBubbleOutline from '@material-ui/icons/ChatBubbleOutline';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Check from '@material-ui/icons/Check';
 import classNames from 'classnames';
-import { userHasSideComments } from '../../../lib/betas';
-import { useCurrentUser } from '../../common/withUser';
+import { hasSideComments } from '../../../lib/betas';
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
@@ -48,7 +47,7 @@ const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: s
 ];
 export type SideCommentVisibilityContextType = {
   sideCommentMode: SideCommentMode,
-  setSideCommentMode: (mode: SideCommentMode)=>void,
+  setSideCommentMode: (mode: SideCommentMode) => void,
 }
 
 export const SideCommentVisibilityContext = createContext<SideCommentVisibilityContextType|null>(null);
@@ -56,14 +55,13 @@ export const SideCommentVisibilityContext = createContext<SideCommentVisibilityC
 const SetSideCommentVisibility = ({classes}: {
   classes: ClassesType
 }) => {
-  const currentUser = useCurrentUser()
   const sideCommentVisibility = useContext(SideCommentVisibilityContext);
   const { LWTooltip, MenuItem } = Components;
   
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
   // hide it.
-  if (!sideCommentVisibility || !userHasSideComments(currentUser))
+  if (!sideCommentVisibility || !hasSideComments)
     return null;
   
   const {sideCommentMode, setSideCommentMode} = sideCommentVisibility;

@@ -25,10 +25,13 @@ export type QueryFilter = {
 } & ({
   type: "facet",
   value: boolean | string,
+  negated: boolean,
 } | {
   type: "numeric",
   value: number,
   op: QueryFilterOperator,
+} | {
+  type: "exists"
 });
 
 export type QueryData = {
@@ -40,6 +43,8 @@ export type QueryData = {
   preTag?: string,
   postTag?: string,
   filters: QueryFilter[],
+  // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
+  coordinates?: number[],
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -66,7 +71,8 @@ class ElasticQuery {
     let expr: string;
     switch (scoring.type) {
     case "numeric":
-      expr = `saturation(Math.max(1, doc['${field}'].value), ${scoring.pivot}L)`;
+      const min = scoring.min ?? 1;
+      expr = `saturation(Math.max(${min}, doc['${field}'].value), ${scoring.pivot}L)`;
       break;
     case "date":
       const start = SEARCH_ORIGIN_DATE;
@@ -98,11 +104,21 @@ class ElasticQuery {
     for (const filter of this.queryData.filters) {
       switch (filter.type) {
       case "facet":
-        terms.push({
+        const term: QueryDslQueryContainer = {
           term: {
             [filter.field]: filter.value,
           },
-        });
+        };
+        terms.push(
+          filter.negated
+            ? {
+              bool: {
+                should: [],
+                must_not: [term],
+              },
+            }
+            : term,
+        );
         break;
       case "numeric":
         terms.push({
@@ -111,6 +127,18 @@ class ElasticQuery {
               [filter.op]: filter.value,
             },
           },
+        });
+        break;
+      case "exists":
+        terms.push({
+          bool: {
+            should: [],
+            must: [{
+              exists: {
+                field: filter.field
+              }
+            }]
+          }
         });
         break;
       }
@@ -129,7 +157,7 @@ class ElasticQuery {
         fuzziness: this.fuzziness,
         max_expansions: 10,
         prefix_length: 3,
-        minimum_should_match: "50%",
+        minimum_should_match: "75%",
         operator: "or",
       },
     };
@@ -157,14 +185,14 @@ class ElasticQuery {
                 fields,
                 type: "phrase",
                 slop: 2,
-                boost: 2,
+                boost: 100,
               },
             },
             {
               match_phrase_prefix: {
                 [mainField]: {
                   query: search,
-                  boost: 20,
+                  boost: 1000,
                 },
               },
             },
@@ -293,7 +321,24 @@ class ElasticQuery {
       : this.compileSimpleQuery();
   }
 
-  private compileSort(sorting?: string): Sort {
+  private compileSort(sorting?: string, coordinates?: number[]): Sort {
+    // Special case:
+    // When providing coordinates in the format [lng, lat], we sort by distance
+    // and ignore the relevance score. See also parseLatLng()
+    if (coordinates) {
+      if (!this.config.locationField) {
+        throw new Error("Index cannot be sorted by location");
+      }
+      return [
+        {
+          _geo_distance : {
+            [this.config.locationField]: coordinates,
+            order : "asc",
+          },
+        },
+        {[this.config.tiebreaker]: {order: "desc"}},
+      ];
+    }
     const sort: Sort = [
       {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
@@ -327,8 +372,14 @@ class ElasticQuery {
       sorting,
       offset = 0,
       limit = 10,
+      coordinates,
     } = this.queryData;
     const {privateFields} = this.config;
+
+    // When sorting by nearest-geographically we disable custom highlighting as
+    // this isn't supported by elastic and causes an exception
+    const hasCustomHighlight = !coordinates;
+
     const {
       searchQuery,
       snippetName,
@@ -340,6 +391,13 @@ class ElasticQuery {
       type: "plain",
       pre_tags: [preTag ?? "<em>"],
       post_tags: [postTag ?? "</em>"],
+
+      // This is the default value for index.highlight.max_analyzed_offset
+      // which we haven't customized. If this wasn't set here or was set
+      // larger than the corresponding setting on the index, then search
+      // would fail entirely when results contain a poss where the
+      // plain-text version of the body is larger than this.
+      max_analyzed_offset: 1000000,
     };
     return {
       index,
@@ -348,23 +406,25 @@ class ElasticQuery {
       body: {
         track_scores: true,
         track_total_hits: true,
-        highlight: {
-          fields: {
-            [snippetName]: {
-              ...highlightConfig,
-              highlight_query: snippetQuery,
-            },
-            ...(highlightName && {
-              [highlightName]: {
+        ...(hasCustomHighlight && {
+          highlight: {
+            fields: {
+              [snippetName]: {
                 ...highlightConfig,
-                highlight_query: highlightQuery,
+                highlight_query: snippetQuery,
               },
-            }),
+              ...(highlightName && {
+                [highlightName]: {
+                  ...highlightConfig,
+                  highlight_query: highlightQuery,
+                },
+              }),
+            },
+            number_of_fragments: 1,
+            fragment_size: 140,
+            no_match_size: 140,
           },
-          number_of_fragments: 1,
-          fragment_size: 140,
-          no_match_size: 140,
-        },
+        }),
         query: {
           script_score: {
             query: {
@@ -379,9 +439,9 @@ class ElasticQuery {
             },
           },
         },
-        sort: this.compileSort(sorting),
+        sort: this.compileSort(sorting, coordinates),
         _source: {
-          exclude: ["exportedAt", ...privateFields],
+          excludes: ["exportedAt", ...privateFields],
         },
       },
     };

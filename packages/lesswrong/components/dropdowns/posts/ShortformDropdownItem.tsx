@@ -1,10 +1,10 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
-import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users";
-import { isEAForum } from "../../../lib/instanceSettings";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 
 const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -26,7 +26,7 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
     });
   }
 
-  const contentType = isEAForum ? "Quick takes" : "Shortform";
+  const contentType = preferredHeadingCase("Quick Takes");
 
   const {DropdownItem} = Components;
   return (

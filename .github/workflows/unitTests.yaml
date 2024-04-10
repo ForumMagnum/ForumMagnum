@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run eslint
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
@@ -39,6 +39,13 @@ jobs:
       with:
         name: Upload schema to accept
         path: schema/schema_to_accept.sql
+    - name: Save coverage report
+      uses: coverallsapp/github-action@v2
+      with:
+        file: unit-coverage/lcov.info
+        format: lcov
+        flag-name: Unit
+        parallel: true
 
   runIntegrationTests:
     runs-on: ubuntu-latest
@@ -61,10 +68,56 @@ jobs:
       NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Setup database schema
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
+    - name: Save coverage report
+      uses: coverallsapp/github-action@v2
+      with:
+        file: integration-coverage/lcov.info
+        format: lcov
+        flag-name: Integration
+        parallel: true
+
+  runPostgresBootstrap:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector
+        env:
+          POSTGRES_DB: bootstrap_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PG_URL: postgres://postgres:postgres@localhost:5432/bootstrap_db
+      SETTINGS_FILE: ./settings-test.json
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Execute Accepted Schema
+      run: psql $PG_URL -f ./schema/accepted_schema.sql
+    - name: Run Database Bootstrap
+      run: yarn migrate up
+
+  uploadCoverageReports:
+    needs: [runUnitTests, runIntegrationTests]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        parallel-finished: true

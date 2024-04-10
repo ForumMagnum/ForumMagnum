@@ -1,18 +1,18 @@
 import { Utils } from '../../lib/vulcan-lib/utils';
 import { loggerConstructor } from '../../lib/utils/logging';
 
-//
-// Connectors: A set of wrappers around mongodb collection operators.
-// DEPRECATED. These originate in Vulcan, and they have a major pitfall.
-// At some point, Vulcan decided that `documentId` should be usable as a
-// synonym for `_id`, in utility functions and in the graphql API. But we were
-// already using `documentId` extensively as an actual field name (for foreign-
-// key fields), so this doesn't work at all, and it created a big mess.
-//
-// Usages of `Connectors` should be replaced with either `collection.someMongoFunction`
-// after verifying that they are not relying on the `documentId` translation
-// behavior.
-//
+/**
+ * Connectors: A set of wrappers around mongodb collection operators.
+ * @deprecated These originate in Vulcan, and they have a major pitfall.
+ * At some point, Vulcan decided that `documentId` should be usable as a
+ * synonym for `_id`, in utility functions and in the graphql API. But we were
+ * already using `documentId` extensively as an actual field name (for foreign-
+ * key fields), so this doesn't work at all, and it created a big mess.
+ *
+ * Usages of `Connectors` should be replaced with either `collection.someMongoFunction`
+ * after verifying that they are not relying on the `documentId` translation
+ * behavior.
+ */
 
 // convert GraphQL selector into Mongo-compatible selector
 // TODO: add support for more than just documentId/_id and slug, potentially making conversion unnecessary
@@ -29,12 +29,12 @@ const convertUniqueSelector = (selector: any) => {
 };
 
 export const Connectors = {
-  get: async <T extends DbObject>(
-    collection: CollectionBase<T>,
-    selector: MongoSelector<T>|string = {},
-    options: MongoFindOneOptions<T> = {},
-    skipConversion?: boolean
-  ): Promise<T|null> => {
+  get: async <N extends CollectionNameString>(
+    collection: CollectionBase<N>,
+    selector: MongoSelector<ObjectsByCollectionName[N]>|string = {},
+    options: MongoFindOneOptions<ObjectsByCollectionName[N]> = {},
+    skipConversion?: boolean,
+  ): Promise<ObjectsByCollectionName[N]|null> => {
     const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-get`)
     logger('---------->')
     logger('selector', selector)
@@ -46,11 +46,11 @@ export const Connectors = {
     return result
   },
   
-  find: async <T extends DbObject>(
-    collection: CollectionBase<T>,
-    selector: MongoSelector<T> = {},
-    options: MongoFindOptions<T> = {}
-  ): Promise<Array<T>> => {
+  find: async <N extends CollectionNameString>(
+    collection: CollectionBase<N>,
+    selector: MongoSelector<ObjectsByCollectionName[N]> = {},
+    options: MongoFindOptions<ObjectsByCollectionName[N]> = {},
+  ): Promise<ObjectsByCollectionName[N][]> => {
     const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-find`)
     logger('---------->')
     logger('selector', selector)
@@ -62,10 +62,10 @@ export const Connectors = {
     return result
   },
   
-  count: async <T extends DbObject>(
-    collection: CollectionBase<T>,
-    selector: MongoSelector<T> = {},
-    options: MongoFindOptions<T> = {}
+  count: async <N extends CollectionNameString>(
+    collection: CollectionBase<N>,
+    selector: MongoSelector<ObjectsByCollectionName[N]> = {},
+    options: MongoFindOptions<ObjectsByCollectionName[N]> = {},
   ): Promise<number> => {
     const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-count`)
     logger('---------->')
@@ -77,10 +77,10 @@ export const Connectors = {
     return result
   },
   
-  create: async <T extends DbObject>(
-    collection: CollectionBase<T>,
-    document: T,
-    options: MongoInsertOptions<T> = {}
+  create: async <N extends CollectionNameString>(
+    collection: CollectionBase<N>,
+    document: ObjectsByCollectionName[N],
+    options: MongoInsertOptions<ObjectsByCollectionName[N]> = {},
   ) => {
     const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-create`)
     logger('---------->')
@@ -92,12 +92,12 @@ export const Connectors = {
     return result
   },
   
-  updateOne: async <T extends DbObject>(
-    collection: CollectionBase<T>,
-    selector: MongoSelector<T>,
-    modifier: MongoModifier<T>,
-    options: MongoUpdateOptions<T> = {},
-    skipConversion?: boolean
+  updateOne: async <N extends CollectionNameString>(
+    collection: CollectionBase<N>,
+    selector: MongoSelector<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    options: MongoUpdateOptions<ObjectsByCollectionName[N]> = {},
+    skipConversion?: boolean,
   ) => {
     const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-update`)
     logger('---------->')
@@ -111,11 +111,11 @@ export const Connectors = {
     return result
   },
   
-  delete: async <T extends DbObject>(
-    collection: CollectionBase<T>,
-    selector: MongoSelector<T>,
-    options: MongoRemoveOptions<T> = {},
-    skipConversion?: boolean
+  delete: async <N extends CollectionNameString>(
+    collection: CollectionBase<N>,
+    selector: MongoSelector<ObjectsByCollectionName[N]>,
+    options: MongoRemoveOptions<ObjectsByCollectionName[N]> = {},
+    skipConversion?: boolean,
   ) => {
     const logger = loggerConstructor(`db-${collection.collectionName.toLowerCase()}-delete`)
     logger('---------->')

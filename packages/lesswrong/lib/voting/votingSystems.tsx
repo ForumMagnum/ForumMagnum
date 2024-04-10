@@ -10,6 +10,7 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
+import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -18,7 +19,7 @@ export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPr
   hideKarma?: boolean,
   collection: any,
   votingSystem: VotingSystem,
-  commentItemRef?: React.RefObject<HTMLDivElement>|null,
+  commentBodyRef?: React.RefObject<ContentItemBody>|null,
   voteProps?: VotingProps<VoteableTypeClient>,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision,
 }
@@ -26,32 +27,49 @@ export interface NamesAttachedReactionsCommentBottomProps extends CommentVotingC
   voteProps: VotingProps<VoteableTypeClient>,
 }
 
+export type PostVotingComponentProps = {
+  document: PostsWithVotes,
+  votingSystem: VotingSystem,
+  isFooter?: boolean,
+}
+
 export type CommentVotingComponent = React.ComponentType<CommentVotingComponentProps>;
 export type CommentVotingBottomComponent = React.ComponentType<NamesAttachedReactionsCommentBottomProps>;
+export type PostVotingComponent = React.ComponentType<PostVotingComponentProps>;
 
 export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
-  getCommentVotingComponent: ()=>CommentVotingComponent,
-  getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
+  getCommentVotingComponent?: () => CommentVotingComponent,
+  getCommentBottomComponent?: () => CommentVotingBottomComponent,
+  getPostBottomVotingComponent?: () => PostVotingComponent,
+  getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
     oldExtendedScore: ExtendedScoreType,
     extendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>ExtendedScoreType,
+  }) => ExtendedScoreType,
   cancelVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
     oldExtendedScore: ExtendedScoreType,
     cancelledExtendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>ExtendedScoreType
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
+  }) => ExtendedScoreType
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>
   isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
+  getCommentHighlights?: (props: {
+    comment: CommentsList
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => Record<string, ContentReplacedSubstringComponent>
+  getPostHighlights?: (props: {
+    post: PostsBase
+    voteProps: VotingProps<VoteableTypeClient>
+  }) => Record<string, ContentReplacedSubstringComponent>
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
@@ -266,6 +284,8 @@ registerVotingSystem({
   name: "eaEmojis",
   description: "Approval voting, plus EA Forum emoji reactions",
   getCommentVotingComponent: () => Components.EAEmojisVoteOnComment,
+  getPostBottomVotingComponent: () => Components.EAEmojisVoteOnPost,
+  getPostBottomSecondaryVotingComponent: () => Components.EAEmojisVoteOnPostSecondary,
   addVoteClient: ({oldExtendedScore, extendedVote, document, voteType}: {
     oldExtendedScore?: Record<string, number>,
     extendedVote?: Record<string, boolean>,
@@ -323,7 +343,7 @@ function filterZeroes(obj: any) {
 }
 
 export function getVotingSystemByName(name: string): VotingSystem {
-  if (votingSystems[name])
+  if (name && votingSystems[name])
     return votingSystems[name]!;
   else
     return getDefaultVotingSystem();
@@ -342,16 +362,14 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     return "twoAxis";
   }
   if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId);
+    const post = await context.loaders.Posts.load((document as DbComment).postId!);
     if (post?.votingSystem) {
       return post.votingSystem;
     }
   }
-  return "default";
+  return (document as DbPost)?.votingSystem ?? "default";
 }
 
 export async function getVotingSystemForDocument(document: VoteableType, context: ResolverContext) {
   return getVotingSystemByName(await getVotingSystemNameForDocument(document, context));
 }
-
-

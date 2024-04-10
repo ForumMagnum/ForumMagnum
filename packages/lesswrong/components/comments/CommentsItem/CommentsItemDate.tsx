@@ -1,12 +1,12 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
-import { isEAForum } from '../../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       marginLeft: 2,
       marginRight: 7,
     }),
@@ -47,15 +47,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type CommentsItemDateProps = UseCommentLinkProps & {classes: ClassesType};
+type CommentsItemDateProps = UseCommentLinkProps & {
+  comment: CommentsList,
+  preventDateFormatting?: boolean,
+  classes: ClassesType
+};
 
-const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, ForumIcon } = Components
   
   const LinkWrapper = useCommentLink({comment, ...rest});
   
   let dateFormat: string | undefined;
-  if (comment.answer) {
+  if (preventDateFormatting) {
+    dateFormat = undefined;
+  } else if (comment.answer) {
     dateFormat = "MMM DD, YYYY";
   } else if (comment.debateResponse) {
     dateFormat = "h:mm a";
@@ -73,7 +79,7 @@ const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) =>
           date={comment.postedAt}
           format={dateFormat}
         />
-        {!isEAForum && <ForumIcon icon="Link" className={classes.icon} />}
+        {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
       </LinkWrapper>
     </span>
   );

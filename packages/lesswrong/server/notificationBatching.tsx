@@ -29,16 +29,32 @@ export const notificationDebouncers = toDictionary(getNotificationTypes(),
   }
 );
 
-// Precondition: All notifications in a batch share a notification type
+/**
+ * Given a list of notifications (by ID) which had their sending delayed by
+ * batching, send them. This could involve sending emails, or adding a
+ * notification to the bell icon on-site, or both. In order to make the bell
+ * icon notification count trigger, we reset `createdAt` on the notification,
+ * so that it counts as newly created and is newer than the last notification
+ * check.
+ *
+ * Precondition: All notifications in a batch share a notification type
+ */
 const sendNotificationBatch = async ({userId, notificationIds}: {userId: string, notificationIds: Array<string>}) => {
   if (!notificationIds || !notificationIds.length)
     throw new Error("Missing or invalid argument: notificationIds (must be a nonempty array)");
   
   const user = await getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
+  const now = new Date();
+
   await Notifications.rawUpdateMany(
     { _id: {$in: notificationIds} },
-    { $set: { waitingForBatch: false } },
+    {
+      $set: {
+        waitingForBatch: false,
+        createdAt: now,
+      }
+    },
     { multi: true }
   );
   const notificationsToEmail = await Notifications.find(
@@ -93,7 +109,7 @@ addGraphQLResolvers({
         throw new Error("Please only specify notificationIds or postId in the query")
       }
       
-      let emails:any[] = []
+      let emails: any[] = []
       if (notificationIds?.length) {
         const notifications = await Notifications.find(
           { _id: {$in: notificationIds} }

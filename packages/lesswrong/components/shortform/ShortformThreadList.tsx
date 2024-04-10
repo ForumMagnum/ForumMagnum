@@ -2,12 +2,12 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
 import { userCanComment } from '../../lib/vulcan-users/permissions';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
-    marginTop: theme.spacing.unit * (isEAForum ? 2 : 4),
+    marginTop: theme.spacing.unit * (isFriendlyUI ? 2 : 4),
   }
 })
 
@@ -27,16 +27,13 @@ const ShortformThreadList = ({ classes }: {
     pollInterval: 0,
   });
 
-  const {
-    LoadMore, CommentOnPostWithReplies, ShortformSubmitForm,
-    QuickTakesEntry,
-  } = Components;
+  const { LoadMore, CommentOnPostWithReplies, QuickTakesEntry } = Components;
+  
   return (
     <div>
-      {isEAForum && userCanComment(currentUser) &&
+      {userCanComment(currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
-      {!isEAForum && <ShortformSubmitForm successCallback={refetch} />}
 
       {results && results.map((comment) => {
         if (!comment.post) {

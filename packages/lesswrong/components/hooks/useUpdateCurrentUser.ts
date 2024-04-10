@@ -3,7 +3,11 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { hookToHoc } from '../../lib/hocUtils';
 
-export function useUpdateCurrentUser(): (data: Partial<MakeFieldsNullable<DbUser>>)=>Promise<any> {
+export type UpdateCurrentUserFunction = (
+  data: Partial<MakeFieldsNullable<DbUser>>,
+) => Promise<AnyBecauseTodo>;
+
+export function useUpdateCurrentUser(): UpdateCurrentUserFunction {
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
   const {mutate: updateUser} = useUpdate({
@@ -11,7 +15,7 @@ export function useUpdateCurrentUser(): (data: Partial<MakeFieldsNullable<DbUser
     fragmentName: 'UsersCurrent',
   });
   
-  return useCallback(async (data: Partial<MakeFieldsNullable<DbUser>>): Promise<any> => {
+  return useCallback(async (data: Partial<MakeFieldsNullable<DbUser>>): Promise<AnyBecauseTodo> => {
     if (currentUserId) {
       return await updateUser({
         selector: {_id: currentUserId},
@@ -22,7 +26,7 @@ export function useUpdateCurrentUser(): (data: Partial<MakeFieldsNullable<DbUser
 }
 
 export interface WithUpdateCurrentUserProps {
-  updateCurrentUser: (data: Partial<MakeFieldsNullable<DbUser>>)=>Promise<void>
+  updateCurrentUser: UpdateCurrentUserFunction
 }
 
 export const withUpdateCurrentUser = hookToHoc(() => ({updateCurrentUser: useUpdateCurrentUser()}));

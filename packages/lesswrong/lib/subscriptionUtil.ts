@@ -1,12 +1,13 @@
-import { subscriptionTypes } from './collections/subscriptions/schema';
+import { SubscriptionType, subscriptionTypes } from './collections/subscriptions/schema';
 import * as _ from 'underscore';
+import { getConfirmedCoauthorIds } from './collections/posts/helpers';
 
 export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document}: {
   user: DbUser|UsersCurrent|null,
-  subscriptionType: any,
+  subscriptionType: SubscriptionType,
   collectionName: CollectionNameString,
   document: any,
-})
+}): boolean
 {
   if (!user) return false;
   
@@ -16,6 +17,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       return user.auto_subscribe_to_my_posts && document.userId===user._id;
     case subscriptionTypes.newPosts:
       return false;
+    case subscriptionTypes.newUserComments:
+      return false; 
     case subscriptionTypes.newRelatedQuestions:
       // TODO
       return false;
@@ -26,6 +29,17 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       return user.auto_subscribe_to_my_comments && document.userId===user._id;
     case subscriptionTypes.newTagPosts:
       return false
+    case subscriptionTypes.newSequencePosts:
+      return false
+    case subscriptionTypes.newShortform:
+      return false;
+    case subscriptionTypes.newDebateComments:
+      return false;
+    case subscriptionTypes.newPublishedDialogueMessages:
+      return false;
+    case subscriptionTypes.newDialogueMessages:
+      const authorIds = [document.userId, ...getConfirmedCoauthorIds(document)];
+      return authorIds.includes(user._id);
     default:
       //eslint-disable-next-line no-console
       console.error("Unrecognized subscription type: "+subscriptionType);

@@ -8,7 +8,6 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 
 const GRAPH_HEIGHT = 300;
@@ -20,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   graphContainer: {
     marginTop: 12,
     "& .recharts-cartesian-axis-tick-value": {
-      fontWeight: 600,
+      fontWeight: 500,
     },
   },
   graphHeader: {
@@ -30,7 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
-      // Make it the same height with or without "checking latest data..." to avoid layout shift on mobile
       minHeight: 56,
       marginBottom: 0,
     }
@@ -48,8 +46,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   graphHeading: {
     fontSize: 32,
     fontWeight: "600",
-    fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       lineHeight: '1.2em',
     }
@@ -99,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   controlFields: {
     display: "flex",
     flexDirection: "row",
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[900],
     fontSize: 14,
     fontWeight: 500,
     [theme.breakpoints.down('xs')]: {
@@ -114,27 +112,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   checkbox: {
-    padding: '8px 12px',
+    padding: '8px 6px 8px 16px',
   },
   checkboxIcon: {
-    width: 20,
-    height: 20,
-    border: `2px solid ${theme.palette.grey[600]}`,
-    borderRadius: 2,
+    width: 17,
+    height: 17,
+    border: `1px solid ${theme.palette.grey[900]}`,
+    borderRadius: 3,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
   checkedInnerIcon: {
-    width: 14,
-    height: 14,
+    width: 11,
+    height: 11,
     borderRadius: 2,
     display: "inline-block",
     opacity: 0.8,
   },
   dateDropdown: {
     alignSelf: "flex-start",
-    margin: '4px 0',
+    margin: '4px 20px 0 0',
   }
 });
 
@@ -245,7 +243,7 @@ export const AnalyticsGraph = ({
 
   const { openDialog } = useDialog();
 
-  const { analyticsSeries: dataSeries, maybeStale } = useAnalyticsSeries({
+  const { analyticsSeries: dataSeries } = useAnalyticsSeries({
     userId,
     postIds,
     startDate: displayStartDate,
@@ -326,7 +324,7 @@ export const AnalyticsGraph = ({
   
   // Unfortunately this is the best workaround, see here: https://github.com/recharts/recharts/issues/2027
   const yAxisWidth = 26 + Math.ceil(maxValue.toLocaleString().length * 6);
-  const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 3;
+  const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 2;
 
   return (
     <div className={classes.root}>
@@ -334,9 +332,6 @@ export const AnalyticsGraph = ({
         <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
           {title}
         </Typography>
-        {maybeStale && <span className={classes.fetchingLatest}>
-          checking latest data...
-        </span>}
       </div>
       <div className={classes.controls}>
         <div className={classes.controlFields}>

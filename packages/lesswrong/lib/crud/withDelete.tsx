@@ -1,12 +1,8 @@
-import React, { useCallback } from 'react';
-import { getCollection, getFragment, extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
-import { compose, withHandlers } from 'recompose';
+import { useCallback } from 'react';
+import { getCollection, extractFragmentInfo } from '../vulcan-lib';
 import { updateCacheAfterDelete } from './cacheUpdates';
-import { getExtraVariables } from './utils'
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
-import { Mutation } from '@apollo/client/react/components';
-import type { MutationResult } from '@apollo/client/react';
 
 // Delete mutation query used on the client. Eg:
 //
@@ -34,58 +30,16 @@ const deleteClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
 }`;
 
 /**
- * Higher-order-component wrapper that adds a prop deleteFoo to the wrapped
- * component, which can be called to delete an entry in the chosen collection.
- * This should mostly never be used; firstly, because we strongly prefer to do
- * soft deletes (ie, setting a 'deleted' flag on the object to true), and also
- * because this is an HoC and we now strongly prefer hooks.
- *
- * (Unlike the other CRUD operations, this one doesn't have a hookified version
- * written yet, because it shouldn't be used).
+ * Hook that returns a function for a delete operation. This should mostly never
+ * be used, because we strongly prefer to do soft deletes (ie, setting a
+ * 'deleted' flag on the object to true).
  */
-export const withDelete = (options: any) => {
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
-
-  const typeName = collection.options.typeName;
-  const query = gql`
-    ${deleteClientTemplate({ typeName, fragmentName })}
-    ${fragment}
-  `;
-
-  const mutationWrapper = (Component: any) => (props: any) => (
-    <Mutation mutation={query}>
-      {(mutate: any, mutationResult: MutationResult<any>) => (
-        <Component
-          {...props}
-          mutate={mutate}
-          ownProps={props}
-        />
-      )}
-    </Mutation>
-  )
-
-  // wrap component with graphql HoC
-  return compose(
-    mutationWrapper,
-    withHandlers({
-      [`delete${typeName}`]: ({ mutate, ownProps }) => ({selector}: {selector: any}) => {
-        const extraVariables = getExtraVariables(ownProps, options.extraVariables)
-        return mutate({
-          variables: { selector, ...extraVariables },
-          update: updateCacheAfterDelete(typeName)
-        });
-      },
-    })
-  )
-};
-
 export const useDelete = <CollectionName extends CollectionNameString>(options: {
   collectionName: CollectionName,
   fragmentName?: FragmentName,
   fragment?: any,
 }): {
-  deleteDocument: (props: {selector: any})=>Promise<any>,
+  deleteDocument: (props: {selector: any}) => Promise<any>,
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,

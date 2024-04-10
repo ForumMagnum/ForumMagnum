@@ -6,6 +6,8 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments } from '../../lib/betas';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
@@ -22,7 +24,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
   fragmentName: keyof FragmentTypes,
   subscriptionType: string,
   noSubscriptionsMessage: string,
-  renderDocument: (document: any)=>ReactNode,
+  renderDocument: (document: any) => ReactNode,
   title: React.ReactNode,
   classes: ClassesType,
 }) => {
@@ -78,7 +80,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   collectionName: CollectionNameString,
   fragmentName: keyof FragmentTypes,
   subscription: SubscriptionState,
-  renderDocument: (document: any)=>ReactNode,
+  renderDocument: (document: any) => ReactNode,
   classes: ClassesType,
 }) => {
   const { Loading, NotifyMeButton } = Components;
@@ -133,6 +135,14 @@ const ViewSubscriptionsPage = ({classes}: {
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
       noSubscriptionsMessage="You are not subscribed to any users' posts."
     />
+    {allowSubscribeToUserComments && <SubscriptionsList
+      title="Subscribed to All Comments By Users"
+      collectionName="Users"
+      subscriptionType="newUserComments"
+      fragmentName="UsersMinimumInfo"
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+      noSubscriptionsMessage="You are not subscribed to any users' comments."
+    />}
     
     <SubscriptionsList
       title="Subscribed to Comments on Posts"
@@ -146,7 +156,7 @@ const ViewSubscriptionsPage = ({classes}: {
     <SubscriptionsList
       title="Subscribed to Dialogues (as a reader)"
       collectionName="Posts"
-      subscriptionType="newDebateComments"
+      subscriptionType="newPublishedDialogueMessages"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
       noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
@@ -154,6 +164,24 @@ const ViewSubscriptionsPage = ({classes}: {
 
     <SubscriptionsList
       title="Subscribed to Dialogues (as a participant)"
+      collectionName="Posts"
+      subscriptionType="newDialogueMessages"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
+    />
+  
+    <SubscriptionsList
+      title="Subscribed to Old-Style Dialogues (as a reader)"
+      collectionName="Posts"
+      subscriptionType="newDebateComments"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
+    />
+  
+    <SubscriptionsList
+      title="Subscribed to Old-Style dialogues (as a participant)"
       collectionName="Posts"
       subscriptionType="newDebateReplies"
       fragmentName="PostsList"
@@ -190,6 +218,14 @@ const ViewSubscriptionsPage = ({classes}: {
       noSubscriptionsMessage="You are not subscribed to any tags."
     />
     
+    {allowSubscribeToSequencePosts && <SubscriptionsList
+      title="Subscribed to Sequences"
+      collectionName="Sequences"
+      subscriptionType="newSequencePosts"
+      fragmentName="SequencesPageTitleFragment"
+      renderDocument={(sequence: SequencesPageTitleFragment) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
+      noSubscriptionsMessage="You are not subscribed to any sequences."
+    />}
     
   </SingleColumnSection>;
 }

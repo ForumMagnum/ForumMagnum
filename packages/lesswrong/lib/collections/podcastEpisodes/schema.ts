@@ -1,6 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils';
 
-const schema: SchemaType<DbPodcastEpisode> = {
+const schema: SchemaType<"PodcastEpisodes"> = {
   podcastId: {
     ...foreignKeyField({
       idFieldName: 'podcastId',
@@ -10,6 +10,7 @@ const schema: SchemaType<DbPodcastEpisode> = {
       nullable: false
     }),
     optional: true, // ???
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['podcasters', 'admins']
   },

@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import getContext from 'recompose/getContext';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { FormattedMessage } from '../../lib/vulcan-i18n';
+import FormattedMessage from '../../lib/vulcan-i18n/message';
 
 const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
   error: any,
   errorContext: any,
-  getLabel?: (name: string, local: string)=>string,
+  getLabel?: (name: string, local: string) => string,
 }) => {
   if (error.message) { // A normal string error
     return error.message;

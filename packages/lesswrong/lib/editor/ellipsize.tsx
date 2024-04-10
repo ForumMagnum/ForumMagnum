@@ -6,19 +6,26 @@ export const SMALL_TRUNCATION_CHAR_COUNT = 750;
 export const LARGE_TRUNCATION_CHAR_COUNT = 1600;
 export const TRUNCATION_KARMA_THRESHOLD = 10
 
-export const highlightFromHTML = (html: string): string => {
+export const highlightFromHTML = (html: string | null): string => {
   if (!html) return ""
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
-  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+  const styles: string[]|null = html.match(/<style[\s\S]*?<\/style>/g);
+  const htmlWithoutStyles = styles ? html.replace(/<style[\s\S]*?<\/style>/g, '') : html;
+  const suffix = styles ? `... ${styles}` : '... ';
 
-  return truncatise(htmlRemovedStyles, {
+  return truncatise(htmlWithoutStyles, {
     TruncateLength: highlightMaxChars,
     TruncateBy: "characters",
-    Suffix: `... ${styles}`,
+    Suffix: suffix,
   });
 };
 
-export const truncate = (html: string|null|undefined, truncateLength: number, truncateBy?: string, suffix?: string) => {
+export const truncate = (
+  html: string|null|undefined,
+  truncateLength: number,
+  truncateBy?: "words" | "characters" | "paragraphs",
+  suffix?: string,
+  allowTruncationMidWord = true,
+) => {
   const newTruncateBy = truncateBy || "characters"
   const newSuffix = (suffix !== undefined) ? suffix : "..."
 
@@ -30,6 +37,7 @@ export const truncate = (html: string|null|undefined, truncateLength: number, tr
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
+    Strict: allowTruncationMidWord,
   });
   return styles + truncatedHtml;
 }
@@ -62,7 +70,7 @@ export const answerTocExcerptFromHTML = (html: string): string => {
 
   const firstParagraph = truncatise(htmlRemovedStyles, {
     TruncateLength: 1,
-    TruncateBy: "paragraph",
+    TruncateBy: "paragraphs",
     Suffix: '',
   });
 

@@ -1,14 +1,14 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState, } from 'react';
+import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { getPostCollaborateUrl, canUserEditPostMetadata, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
-import NoSSR from 'react-no-ssr';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -34,19 +34,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm } = Components
+  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();
-  const [editorLoaded, setEditorLoaded] = useState(false)
 
   const { query: { postId, key } } = useLocation();
 
   const { data, loading, error } = useQuery(gql`
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
-        ...PostsPage
+        ...PostsEdit
       }
     }
-    ${fragmentTextForQuery("PostsPage")}
+    ${fragmentTextForQuery("PostsEdit")}
   `, {
     variables: {
       postId,
@@ -89,7 +88,7 @@ const PostCollaborationEditor = ({ classes }: {
   if (isNotHostedHere(post)) {
     return <ForeignCrosspostEditForm post={post} />;
   }
-  
+
   return <SingleColumnSection>
     <div className={classes.title}>{post.title}</div>
     <Components.PostsAuthors post={post}/>
@@ -98,7 +97,7 @@ const PostCollaborationEditor = ({ classes }: {
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
     <ContentStyles className={classes.editor} contentType="post">
-      <NoSSR>
+      <ForumNoSSR>
         <Components.CKPostEditor
           documentId={postId}
           collectionName="Posts"
@@ -107,12 +106,13 @@ const PostCollaborationEditor = ({ classes }: {
           userId={currentUser?._id}
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+          document={post}
         />
-        <Components.PostVersionHistoryButton
+        <PostVersionHistoryButton
           post={post}
           postId={postId}
         />
-      </NoSSR>
+      </ForumNoSSR>
     </ContentStyles>
   </SingleColumnSection>
 };

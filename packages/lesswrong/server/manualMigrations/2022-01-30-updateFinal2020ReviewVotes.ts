@@ -6,10 +6,8 @@ import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import fs from 'fs';
-
-const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value
@@ -78,16 +76,16 @@ registerMigration({
     console.log("Updating high karma...")
     for (let postId in postsHighKarmaUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a:number,b:number) => b - a),
-        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x:number, y:number) => x + y, 0),
+        finalReviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a: number,b: number) => b - a),
+        finalReviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x: number, y: number) => x + y, 0),
       }})
     }
     // eslint-disable-next-line no-console
     console.log("Updating AF...")
     for (let postId in postsAFUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        finalReviewVotesAF: postsAFUsers[postId].sort((a:number,b:number) => b - a),
-        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x:number, y:number) => x + y, 0),
+        finalReviewVotesAF: postsAFUsers[postId].sort((a: number,b: number) => b - a),
+        finalReviewVoteScoreAF: postsAFUsers[postId].reduce((x: number, y: number) => x + y, 0),
        }})
     }
 
