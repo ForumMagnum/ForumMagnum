@@ -4,7 +4,7 @@ import path from 'path'
 
 const loadClientBundle = () => {
   // This path join is relative to "build/server/serverBundle.js", NOT to this file
-  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
+  const bundlePath = path.resolve("build/client/js/bundle.js");
   const bundleBrotliPath = `${bundlePath}.br`;
 
   const lastModified = fs.statSync(bundlePath).mtimeMs;
@@ -48,7 +48,7 @@ export const getClientBundle = () => {
 let serverBundleHash: string|null = null;
 export const getServerBundleHash = (): string => {
   if (!serverBundleHash) {
-    const serverBundlePath = path.join(__dirname, "../../server/js/serverBundle.js");
+    const serverBundlePath = path.resolve("build/server/js/serverBundle.js");
     const serverBundleText = fs.readFileSync(serverBundlePath, 'utf8');
     const serverBundleBuffer = Buffer.from(serverBundleText, 'utf8');
     serverBundleHash = crypto.createHash('sha256').update(serverBundleBuffer).digest('hex');
