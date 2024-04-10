@@ -1084,17 +1084,18 @@ type SequencesCollection = CollectionBase<"Sequences">;
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
+  lastUpdated: Date
   userId: string
   title: string | null
-  gridImageId: string | null
   bannerImageId: string | null
-  curatedOrder: number | null
-  userProfileOrder: number | null
+  gridImageId: string | null
+  hideFromAuthorPage: boolean
   draft: boolean
   isDeleted: boolean
+  curatedOrder: number | null
+  userProfileOrder: number | null
   canonicalCollectionSlug: string | null
   hidden: boolean
-  hideFromAuthorPage: boolean
   noindex: boolean
   af: boolean
   contents: EditableFieldContents
