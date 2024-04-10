@@ -406,6 +406,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     reviewGold: 'lch(68 34.48 85.39 / 76%)',
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
+    placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E5E5E5 50%, #EEE 66%)',
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,

@@ -149,6 +149,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         loginInputHovered: "#3f3f3f",
         onboardingSection: "#424242",
         onboardingPodcast: "#525252",
+        placeholderGradient: 'linear-gradient(90deg, #3f3f3f 33%, #525252 50%, #3f3f3f 66%)',
       },
       background: {
         primaryTranslucent: "rgba(12,134,155,0.4)",

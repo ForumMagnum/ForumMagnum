@@ -98,7 +98,7 @@ const LoadMore = ({
    * a non-zero count that graphql cached during SSR.
    */
   const isFirstRender = useIsFirstRender();
-  loading = loading && !(isFirstRender && (count ?? 0) > 0);
+  loading = loading && !isFirstRender;
 
   const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
