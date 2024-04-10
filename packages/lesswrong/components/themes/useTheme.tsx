@@ -7,6 +7,7 @@ import moment from 'moment';
 import { isEAForum } from '../../lib/instanceSettings';
 import { THEME_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import stringify from 'json-stringify-deterministic';
 
 type ThemeContextObj = {
   theme: ThemeType,
@@ -97,12 +98,12 @@ export const ThemeContextProvider = ({options, children}: {
   const concreteTheme = abstractThemeToConcrete(themeOptions, prefersDarkMode);
 
   useEffect(() => {
-    if (JSON.stringify(themeOptions) !== JSON.stringify(window.themeOptions)) {
+    if (stringify(themeOptions) !== stringify(window.themeOptions)) {
       window.themeOptions = themeOptions;
       if (isEAForum) {
         removeCookie(THEME_COOKIE, {path: "/"});
       } else {
-        setCookie(THEME_COOKIE, JSON.stringify(themeOptions), {
+        setCookie(THEME_COOKIE, stringify(themeOptions), {
           path: "/",
           expires: moment().add(2, 'years').toDate(),
         });
