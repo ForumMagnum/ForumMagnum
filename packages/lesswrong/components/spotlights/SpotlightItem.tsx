@@ -384,7 +384,7 @@ export const SpotlightItem = ({
           }
         </>}
       </div>
-      {spotlight.spotlightSplashImageUrl && useLocation().pathname === '/' && <>
+      {spotlight.spotlightSplashImageUrl && pathname === '/' && <>
         <img src={spotlight.spotlightSplashImageUrl} className={classes.backgroundImage} />
         <div className={classes.backgroundFade} />
       </>}
