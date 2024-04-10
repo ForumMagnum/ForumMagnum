@@ -165,7 +165,7 @@ const RemoveButton: FC<{
     <Button
       title="Remove"
       onClick={removeImage}
-      className={mainClass}
+      className={classNames("image-remove-button", mainClass)}
     >
       Remove
     </Button>
