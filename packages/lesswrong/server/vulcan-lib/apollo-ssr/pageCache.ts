@@ -10,6 +10,7 @@ import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
+import { isDatadogEnabled } from '../../../lib/instanceSettings';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -280,7 +281,9 @@ export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: st
   const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
 
   const expandedCacheEvent = {...cacheEvent, userType};
-  dogstatsd.increment("cache_event", expandedCacheEvent)
+  if (isDatadogEnabled && dogstatsd) {
+    dogstatsd.increment("cache_event", expandedCacheEvent)
+  }
 }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
