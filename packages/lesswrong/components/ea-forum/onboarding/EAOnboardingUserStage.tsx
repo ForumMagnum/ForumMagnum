@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
@@ -85,7 +85,7 @@ export const EAOnboardingUserStage = ({classes}: {
       await goToNextStage()
       return
     }
-    
+
     await goToNextStageAfter(
       updateUser({
         variables: {
@@ -96,6 +96,11 @@ export const EAOnboardingUserStage = ({classes}: {
       }),
     );
   }, [name, acceptedTos, updateUser, goToNextStage, goToNextStageAfter, viewAsAdmin]);
+
+  const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
+    ev.preventDefault();
+    await onContinue();
+  }, [onContinue]);
 
   const {data, loading} = useQuery(displayNameTakenQuery, {
     ssr: false,
@@ -144,11 +149,13 @@ export const EAOnboardingUserStage = ({classes}: {
       thin
     >
       <div>Many Forum users use their real name.</div>
-      <EAOnboardingInput
-        value={name}
-        setValue={setName}
-        placeholder="Spaces and special characters allowed"
-      />
+      <form onSubmit={onSubmit}>
+        <EAOnboardingInput
+          value={name}
+          setValue={setName}
+          placeholder="Spaces and special characters allowed"
+        />
+      </form>
       {nameTaken &&
         <div className={classes.nameTaken}>"{name}" is already taken</div>
       }
