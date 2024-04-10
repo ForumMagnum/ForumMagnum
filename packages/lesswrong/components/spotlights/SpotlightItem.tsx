@@ -13,6 +13,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
+import { useLocation } from '../../lib/routeUtil';
 
 
 export const descriptionStyles = (theme: ThemeType) => ({
@@ -239,6 +240,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
     paddingTop: 6,
     paddingBottom: 12
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    right: "-10%",
+    width: '70%',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 35%, transparent 70%)`,
+    zIndex: -1
+  },
+  backgroundFade: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    // backgroundImage: `linear-gradient(to right, #f8f4ee 50%, transparent 75%)`,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, #f8f4ee 8%)`,
+    zIndex: 0
   }
 });
 
@@ -276,93 +295,100 @@ export const SpotlightItem = ({
     setEdit(false);
     refetchAllSpotlights?.();
   };
+
+  const { pathname } = useLocation()
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classNames(classes.root, className)} id={spotlight._id}>
-      <div className={classes.spotlightItem}>
-        <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
-          <div className={classes.title}>
-            <Link to={url}>
-              {spotlight.customTitle ?? spotlight.document.title}
-            </Link>
-            <span className={classes.editDescriptionButton}>
-              {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
-              </LWTooltip>}
-            </span>
-          </div>
-          {spotlight.customSubtitle && <div className={classes.subtitle}>
-            {spotlight.customSubtitle}
-          </div>}
-          {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
-            {editDescription ? 
-              <div className={classes.editDescription}>
-                <WrappedSmartForm
-                  collectionName="Spotlights"
-                  fields={['description']}
-                  documentId={spotlight._id}
-                  mutationFragment={getFragment('SpotlightEditQueryFragment')}
-                  queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => setEditDescription(false)}
+    <>
+      <div className={classNames(classes.root, className)} id={spotlight._id}>
+        <div className={classes.spotlightItem}>
+          <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
+            <div className={classes.title}>
+              <Link to={url}>
+                {spotlight.customTitle ?? spotlight.document.title}
+              </Link>
+              <span className={classes.editDescriptionButton}>
+                {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                  <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                </LWTooltip>}
+              </span>
+            </div>
+            {spotlight.customSubtitle && <div className={classes.subtitle}>
+              {spotlight.customSubtitle}
+            </div>}
+            {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {editDescription ? 
+                <div className={classes.editDescription}>
+                  <WrappedSmartForm
+                    collectionName="Spotlights"
+                    fields={['description']}
+                    documentId={spotlight._id}
+                    mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                    queryFragment={getFragment('SpotlightEditQueryFragment')}
+                    successCallback={() => setEditDescription(false)}
+                  />
+                </div>
+                :
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                  description={`${spotlight.documentType} ${spotlight.document._id}`}
                 />
-              </div>
-              :
-              <ContentItemBody
-                dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
-                description={`${spotlight.documentType} ${spotlight.document._id}`}
-              />
-            }
-          </div>}
-          {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-            by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
-          </Typography>}
-          <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
-        </div>
-        {spotlight.spotlightImageId && <CloudinaryImage2
-          publicId={spotlight.spotlightImageId}
-          darkPublicId={spotlight.spotlightDarkImageId}
-          className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade,
-          })}
-        />}
-        {hideBanner && <div className={classes.closeButtonWrapper}>
-          <LWTooltip title="Hide this spotlight" placement="right">
-            <Button className={classes.closeButton} onClick={hideBanner}>
-              <CloseIcon className={classes.closeIcon} />
-            </Button>
-          </LWTooltip>
-        </div>}
-        <div className={classes.editAllButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
-          </LWTooltip>}
-        </div>
-      </div>
-      {showAdminInfo && <>
-        {edit ? <div className={classes.form}>
-            <SpotlightEditorStyles>
-            <WrappedSmartForm
-              collectionName="Spotlights"
-              documentId={spotlight._id}
-              mutationFragment={getFragment('SpotlightEditQueryFragment')}
-              queryFragment={getFragment('SpotlightEditQueryFragment')}
-              successCallback={onUpdate}
-            />
-            </SpotlightEditorStyles>
+              }
+            </div>}
+            {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
+              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+            </Typography>}
+            <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
-           :
-          <div className={classes.metaData}>
-            {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
-            <MetaInfo>{spotlight.position}</MetaInfo>
-            <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
-            <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
-              <MetaInfo>{duration} days</MetaInfo>
+          {spotlight.spotlightImageId && <CloudinaryImage2
+            publicId={spotlight.spotlightImageId}
+            darkPublicId={spotlight.spotlightDarkImageId}
+            className={classNames(classes.image, {
+              [classes.imageFade]: spotlight.imageFade,
+            })}
+          />}
+          {hideBanner && <div className={classes.closeButtonWrapper}>
+            <LWTooltip title="Hide this spotlight" placement="right">
+              <Button className={classes.closeButton} onClick={hideBanner}>
+                <CloseIcon className={classes.closeIcon} />
+              </Button>
             </LWTooltip>
+          </div>}
+          <div className={classes.editAllButton}>
+            {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+              <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
+            </LWTooltip>}
           </div>
-        }
+        </div>
+        {showAdminInfo && <>
+          {edit ? <div className={classes.form}>
+              <SpotlightEditorStyles>
+              <WrappedSmartForm
+                collectionName="Spotlights"
+                documentId={spotlight._id}
+                mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                queryFragment={getFragment('SpotlightEditQueryFragment')}
+                successCallback={onUpdate}
+              />
+              </SpotlightEditorStyles>
+            </div>
+            :
+            <div className={classes.metaData}>
+              {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
+              <MetaInfo>{spotlight.position}</MetaInfo>
+              <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+              <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+                <MetaInfo>{duration} days</MetaInfo>
+              </LWTooltip>
+            </div>
+          }
+        </>}
+      </div>
+      {spotlight.spotlightSplashImageUrl && useLocation().pathname === '/' && <>
+        <img src={spotlight.spotlightSplashImageUrl} className={classes.backgroundImage} />
+        <div className={classes.backgroundFade} />
       </>}
-    </div>
-    {spotlight.spotlightSplashImageUrl && <img src={spotlight.spotlightSplashImageUrl} className={classes.backgroundImage} />}
+    </>
   </AnalyticsTracker>
 }
 

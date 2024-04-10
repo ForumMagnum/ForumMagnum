@@ -28,7 +28,7 @@ const LWHome = () => {
         <React.Fragment>
 
           {recombeeFrontpagePrototypeEnabled && <AnalyticsContext pageSubSectionContext="spotlightItem">
-            <DismissibleSpotlightItem current />
+            <DismissibleSpotlightItem current fullpage />
           </AnalyticsContext>}
           
           {!recombeeFrontpagePrototypeEnabled && !reviewIsActive() && <LWRecommendations configName="frontpage" />}

@@ -5,17 +5,20 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
+import { FullPageSpotlight } from './FullPageSpotlight';
 
 export const DismissibleSpotlightItem = ({
   current,
   spotlight,
   className,
+  fullpage,
 }: {
   current?: boolean,
   spotlight?: SpotlightDisplay,
+  fullpage?: boolean,
   className?: string,
 }) => {
-  const { SpotlightItem } = Components
+  const { SpotlightItem, FullPageSpotlight } = Components
   const { captureEvent } = useTracking()
 
   const currentSpotlight = useCurrentFrontpageSpotlight({
@@ -41,12 +44,22 @@ export const DismissibleSpotlightItem = ({
 
   if (displaySpotlight && !isHidden) {
     return <AnalyticsContext pageElementContext="spotlightItem">
-      <SpotlightItem
-        key={displaySpotlight._id}
-        spotlight={displaySpotlight}
-        hideBanner={hideBanner}
-        className={className}
-      />
+      {fullpage ?
+        <FullPageSpotlight
+          key={displaySpotlight._id}
+          spotlight={displaySpotlight}
+          hideBanner={hideBanner}
+          className={className}
+          showAdminInfo
+        />
+        
+      : <SpotlightItem
+          key={displaySpotlight._id}
+          spotlight={displaySpotlight}
+          hideBanner={hideBanner}
+          className={className}
+        />
+      }
     </AnalyticsContext>
   }
   return null

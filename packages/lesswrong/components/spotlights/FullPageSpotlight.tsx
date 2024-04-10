@@ -1,121 +1,392 @@
-// TODO: Import component in components.ts
-import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
-import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import Button from '@material-ui/core/Button';
+import CloseIcon from '@material-ui/icons/Close';
+import EditIcon from '@material-ui/icons/Edit';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import classNames from 'classnames';
+import React, { useState } from 'react';
+import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
+import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
-import { ContentBlock } from 'draft-js';
+import { useCurrentUser } from '../common/withUser';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
+import { useLocation } from '../../lib/routeUtil';
 
-const styles = (theme: ThemeType) => ({
+
+export const descriptionStyles = (theme: ThemeType) => ({
+  ...postBodyStyles(theme),
+  // ...(isBookUI ? theme.typography.body2 : {}),
+  lineHeight: '1.65rem',
+  '& p': {
+    marginTop: ".5em",
+    marginBottom: ".5em",
+    '&:first-child': {
+      marginTop: 0,
+    },
+    'style~&': {
+      marginTop: 0,
+    },
+    '&:last-child': {
+      marginBottom: 0,
+    }
+  },
+})
+
+const pageTransitionWidth = 1500
+
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
-    maxWidth: SECTION_WIDTH,
+    [`@media(min-width: ${pageTransitionWidth}px)`]: {
+      position: "absolute", // or 'absolute' depending on your layout needs
+      top: "calc(50vh + 85px)",
+      transform: "translateY(-50%)",
+      right: `calc((100vw - ${SECTION_WIDTH + 800}px) / 2)`, // Adjusts right margin based on viewport width
+      width: '25vw',
+      maxWidth: '400px', // Example max-width, adjust as needed
+    },
+    
+    marginBottom: 24,
   },
-  postInfo: {
-    position: "absolute",
-    right: 100,
-    top: 400,
-    zIndex: 1,
-    width: 400,
-    boxShadow: theme.palette.boxShadow,
-    marginBottom: 16
+  spotlightItem: {
+    position: "relative",
+    borderRadius: theme.borderRadius.default,
+    // background: theme.palette.panelBackground.default,
+    '&:hover $editButtonIcon': {
+      opacity: .2
+    },
+    '&:hover $closeButton': {
+      color: theme.palette.grey[100],
+    }
   },
-  body: {
-    ...theme.typography.body2,
-    lineHeight: 1.5,
-    margin: "1rem 0 2rem",
+  closeButtonWrapper: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  closeButton: {
+    padding: '.5em',
+    minHeight: '.75em',
+    minWidth: '.75em',
+    color: theme.palette.grey[300],
+    zIndex: theme.zIndexes.spotlightItemCloseButton,
+  },
+  content: {
+    // padding: 16,
+    paddingRight: 35,
+    display: "flex",
+    // overflow: "hidden",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    position: "relative",
+    zIndex: theme.zIndexes.spotlightItem,
+    // Drop shadow that helps the text stand out from the background image
+    textShadow: `
+      0px 0px 10px ${theme.palette.background.default},
+      0px 0px 20px ${theme.palette.background.default}
+    `,
+    [theme.breakpoints.up('sm')]: {
+      minHeight: 100
+    },
+    '& br': {
+      [theme.breakpoints.down('sm')]: {
+        display: "none"
+      }
+    }
+  },
+  postPadding: {
+    paddingBottom: 12
+  },
+  description: {
+    marginTop: 7,
+    marginBottom: 10,
+    ...descriptionStyles(theme),
+    position: "relative",
+    [theme.breakpoints.down('xs')]: {
+      display: "none"
+    },
+    ...(isFriendlyUI ? {
+      fontSize: 13,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.grey[700],
+      marginTop: 8,
+    } : {}),
   },
   title: {
+    ...theme.typography.headerStyle,
+    fontSize: 24,
+    marginBottom: 6,
+    ...(isFriendlyUI ?
+      {fontWeight: 600} :
+      {fontVariant: "small-caps"}
+    ),
+    lineHeight: "1.2em",
+    display: "flex",
+    alignItems: "center"
+  },
+  subtitle: {
     ...theme.typography.postStyle,
-    fontSize: '1.8rem',
-    textShadow: "0px 0px 30px rgba(255,255,255,1), 0px 0px 30px rgba(255,255,255,1), 0px 0px 30px rgba(255,255,255,1)",
-    lineHeight: 1.2,
-    fontVariant: 'small-caps'
+    color: theme.palette.grey[700],
+    ...theme.typography.italic,
+    ...(isFriendlyUI ? {
+      fontSize: 13,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      marginTop: 8,
+    } : {
+      fontSize: 15,
+      marginTop: -1,
+    }),
   },
-  contents: {
-    ...postBodyStyles(theme),
-    margin: "1rem 0",
+  startOrContinue: {
+    marginTop: isFriendlyUI ? 16 : 4,
   },
-  metadata: {
-    ...theme.typography.commentStyle,
-    fontSize: "1.2rem",
+  image: {
+    height: "100%",
+    position: "absolute",
+    top: 0,
+    right: 0,
+    borderTopRightRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
+    // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
+    ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
+  },
+  imageFade: {
+    mask: `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
+    "-webkit-mask-image": `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
+  },
+  author: {
     color: theme.palette.grey[600],
-    lineHeight: 1.5,
-    margin: "1rem 0",
+    marginBottom: 12,
   },
-  bullet: {
-    margin: "0 1rem",
+  authorName: {
+    color: theme.palette.primary.main,
+  },
+  editAllButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      top: 6,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      top: 4,
+      right: 8
+    },
+  },
+  editAllButtonIcon: {
+    width: 20
+  },
+  editButtonIcon: {
+    width: 18,
+    opacity: 0,
+    cursor: "pointer",
+    zIndex: theme.zIndexes.spotlightItemCloseButton,
+    [theme.breakpoints.down('sm')]: {
+      color: theme.palette.background.pageActiveAreaBackground,
+      width: 16,
+      opacity:.2
+    },
+    '&:hover': {
+      opacity: .5
+    }
+  },
+  editDescriptionButton: {
+    marginLeft: 8
+  },
+  editDescription: {
+    '& .form-input': {
+      margin: 0
+    },
+    '& .EditorFormComponent-commentEditorHeight': {
+      minHeight: "unset"
+    },
+    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
+      minHeight: "unset"
+    },
+    '& .ck.ck-content.ck-editor__editable': {
+      ...descriptionStyles(theme) 
+    },
+    '& .EditorFormComponent-ckEditorStyles .ck.ck-content': {
+      marginLeft: 0,
+    },
+    '& .ck.ck-editor__editable_inline': {
+      padding: 0,
+      border: "none !important",
+    },
+    '& .form-submit button': {
+      position: "absolute",
+      bottom: -38,
+      right: 0,
+      marginLeft: 12
+    }
+  },
+  form: {
+    borderTop: theme.palette.border.faint,
+    background: theme.palette.background.translucentBackground,
+    paddingLeft: 16,
+    paddingRight: 16,
+    paddingTop: 8,
+    paddingBottom: 8
+  },
+  metaData: {
+    textAlign: "right",
+    paddingTop: 6,
+    paddingBottom: 12
   },
   backgroundImage: {
     position: "absolute",
-    top: 0,
-    right: "-10%",
+    top: "-5vh",
+    right: -200,
+    [`@media(min-width: ${pageTransitionWidth}px)`]: {
+      left: 800,
+    },
+    maxHeight: "100vh",
     width: '70%',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 35%, transparent 70%)`,
-    zIndex: -1
+    zIndex: -1,
+    objectFit: "cover"
   },
   backgroundFade: {
     position: "absolute",
     top: 0,
     left: 0,
     width: "100%",
-    height: "100%",
-    // backgroundImage: `linear-gradient(to right, #f8f4ee 50%, transparent 75%)`,
-    backgroundImage: `linear-gradient(to bottom, transparent 0%, #f8f4ee 8%)`,
-    zIndex: 0
+    height: "100vh",
+    backgroundImage: `linear-gradient(to right, #f8f4ee 55%, transparent 90%)`,
+    zIndex: theme.zIndexes.spotlightItemBackground,
+    [`@media(min-width: ${pageTransitionWidth}px)`]: {
+      backgroundImage: `linear-gradient(to bottom, transparent 20%, #f8f4ee 65%)`,
+    }
   }
 });
 
-export const FullPageSpotlight = ({classes}: {
-  classes: ClassesType<typeof styles>,
+export const FullPageSpotlight = ({
+  spotlight,
+  showAdminInfo,
+  hideBanner,
+  refetchAllSpotlights,
+  className,
+  classes,
+}: {
+  spotlight: SpotlightDisplay,
+  showAdminInfo?: boolean,
+  hideBanner?: () => void,
+  // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
+  refetchAllSpotlights?: () => void,
+  className?: string,
+  classes: ClassesType,
 }) => {
-  const { UsersNameDisplay, ContentStyles, ContentItemBody } = Components
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-  const {results} = useMulti({
-      collectionName: "ReviewWinners",
-      terms: {
-          limit: 300,
-      },
-      fragmentName: "ReviewWinnerSpotlight",
-  });
-  console.log(results)
-  const reviewWinner = !!results?.length && results[202]
-  if (!reviewWinner || !reviewWinner.reviewWinnerArt || !reviewWinner.post) return null
-  const { post } = reviewWinner
-  const { splashArtImageUrl, splashArtImagePrompt } = reviewWinner.reviewWinnerArt
+  const {
+    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
+    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading, Typography
+  } = Components
+  
+  const currentUser = useCurrentUser()
+  const { pathname } = useLocation()
 
-  console.log(post.customHighlight?.html)
+  const [edit, setEdit] = useState<boolean>(false)
+  const [editDescription, setEditDescription] = useState<boolean>(false)
 
-  return <div className={classes.root}>
-    <div className={classes.postInfo}>
-      <h1 className={classes.title}><Link to={postGetPageUrl(reviewWinner.post)}>{reviewWinner.post.title}</Link></h1>
-      <div className={classes.metadata}>
-        <span>
-          by <UsersNameDisplay user={reviewWinner.post.user}/>
-        </span>
-        <span className={classes.bullet}>
-          •
-        </span>
-        <span>
-          <Link to="/leastwrong">Best of LessWrong {reviewWinner.reviewYear}</Link>
-        </span>
-      </div>      <ContentStyles contentType="comment">
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: post?.customHighlight?.html || ""}}
-          description={`tag ${post?.title}`}
-        />
-      </ContentStyles>
-      <div className={classes.metadata}>
-        <Link to={postGetPageUrl(reviewWinner.post)}>Read more ()</Link>
+  const url = getSpotlightUrl(spotlight);
+
+  const duration = spotlight.duration
+
+  const onUpdate = () => {
+    setEdit(false);
+    refetchAllSpotlights?.();
+  };
+  
+  return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
+    <>
+      <div className={classNames(classes.root, className)} id={spotlight._id}>
+        <div className={classes.spotlightItem}>
+          <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
+            <div className={classes.title}>
+              <Link to={url}>
+                <span dangerouslySetInnerHTML={{__html:spotlight.customTitle ?? spotlight.document.title}}/>
+              </Link>
+              <span className={classes.editDescriptionButton}>
+                {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+                  <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                </LWTooltip>}
+              </span>
+            </div>
+            {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
+              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+            </Typography>}
+            {spotlight.customSubtitle && <div className={classes.subtitle}>
+              {spotlight.customSubtitle}
+            </div>}
+            {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
+              {editDescription ? 
+                <div className={classes.editDescription}>
+                  <WrappedSmartForm
+                    collectionName="Spotlights"
+                    fields={['description']}
+                    documentId={spotlight._id}
+                    mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                    queryFragment={getFragment('SpotlightEditQueryFragment')}
+                    successCallback={() => setEditDescription(false)}
+                  />
+                </div>
+                :
+                <ContentItemBody
+                  dangerouslySetInnerHTML={{__html: spotlight.description?.html ?? ''}}
+                  description={`${spotlight.documentType} ${spotlight.document._id}`}
+                />
+              }
+            </div>}
+            <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
+          </div>
+          {hideBanner && <div className={classes.closeButtonWrapper}>
+            <LWTooltip title="Hide this spotlight" placement="right">
+              <Button className={classes.closeButton} onClick={hideBanner}>
+                <CloseIcon className={classes.closeIcon} />
+              </Button>
+            </LWTooltip>
+          </div>}
+          <div className={classes.editAllButton}>
+            {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+              <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
+            </LWTooltip>}
+          </div>
+        </div>
+        {showAdminInfo && <>
+          {edit ? <div className={classes.form}>
+              <SpotlightEditorStyles>
+              <WrappedSmartForm
+                collectionName="Spotlights"
+                documentId={spotlight._id}
+                mutationFragment={getFragment('SpotlightEditQueryFragment')}
+                queryFragment={getFragment('SpotlightEditQueryFragment')}
+                successCallback={onUpdate}
+              />
+              </SpotlightEditorStyles>
+            </div>
+            :
+            null
+            // <div className={classes.metaData}>
+            //   {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
+            //   <MetaInfo>{spotlight.position}</MetaInfo>
+            //   <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+            //   <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+            //     <MetaInfo>{duration} days</MetaInfo>
+            //   </LWTooltip>
+            // </div>
+          }
+        </>}
       </div>
-    </div>
-    <img src={splashArtImageUrl} className={classes.backgroundImage} alt={splashArtImagePrompt} />
-    <div className={classes.backgroundFade}/>
-  </div>;
+      {spotlight.spotlightSplashImageUrl && pathname === '/' && <>
+        <img src={spotlight.spotlightSplashImageUrl} className={classes.backgroundImage} />
+        <div className={classes.backgroundFade} />
+      </>}
+    </>
+  </AnalyticsTracker>
 }
 
 const FullPageSpotlightComponent = registerComponent('FullPageSpotlight', FullPageSpotlight, {styles});

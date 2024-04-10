@@ -19,14 +19,13 @@ const styles = (theme: ThemeType) => ({
     columnGap: 8,
   },
   tab: {
-    width: '100px',
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.grey[500],
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: '23px',
     fontWeight: '500',
-    padding: '4px 8px',
+    padding: '4px 16px',
     borderRadius: 3,
     cursor: 'pointer',
     '&:hover': {

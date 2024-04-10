@@ -1,8 +1,10 @@
+import { Posts } from '../../lib/collections/posts';
 import ReviewWinnerArts from '../../lib/collections/reviewWinnerArts/collection';
 import ReviewWinners from '../../lib/collections/reviewWinners/collection';
 import Spotlights from '../../lib/collections/spotlights/collection';
+import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
 import { updateReviewVoteTotals } from '../reviewVoteUpdate';
-import { createMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import { registerMigration } from './migrationUtils';
 
 
@@ -14,30 +16,38 @@ registerMigration({
     const reviewWinners = await ReviewWinners.find({}).fetch()
     const spotlights = await Spotlights.find({}).fetch()
     const winnerArts = await ReviewWinnerArts.find({}).fetch()
-    console.log(reviewWinners)
-    console.log(reviewWinners.length)
-    console.log(spotlights.length)
-    reviewWinners.forEach(winner => {
-      const spotlight = spotlights.find(s => s.documentId === winner.postId)
-      const arts = winnerArts.find(a => a.postId === winner.postId)
-      console.log(arts)
-      // if (!spotlight) {
-      //   if (!art) {
-      //     console.log("couldn't find art for ", winner.postId)
-      //     return
-      //   }
-      //   createMutator({
-      //     collection: Spotlights,
-      //     document: {
-      //       documentId: winner.postId,
-      //       documentType: "Post",
-      //       spotlightSplashImageId: art.splashArtImageUrl,
-      //       spotlightSplashImageUrl: art.splashArtImageUrl
-      //     },
-      //     validate: false,
-      //     currentUser: null
-      //   })
-      // }
-    })
+
+    const user = await getAdminTeamAccount()
+
+    for (const winner of reviewWinners) {
+      const post = await Posts.findOne({_id: winner.postId});
+      const spotlightWithNoArt = spotlights.find(s => s.documentId === winner.postId);
+      const art = winnerArts.find(a => a.postId === winner.postId);
+    
+      if (!spotlightWithNoArt && art) {
+        await createMutator({
+          collection: Spotlights,
+          document: {
+            documentId: winner.postId,
+            documentType: "Post",
+            spotlightSplashImageUrl: art.splashArtImageUrl,
+            draft: true
+          },
+          validate: false,
+          currentUser: null
+        });
+      } else if (spotlightWithNoArt && art) {
+        await updateMutator({
+          collection: Spotlights,
+          documentId: spotlightWithNoArt._id,
+          set: {
+            // customSubtitle: `<a href='https://www.lesswrong.com/bestoflesswrong'>Best of LessWrong ${winner.reviewYear}</a>`,
+            spotlightSplashImageUrl: art.splashArtImageUrl
+          },
+          context: createAdminContext()
+        });
+        console.log("Updating spotlight for", post?.title);
+      }
+    }
   }
 })
