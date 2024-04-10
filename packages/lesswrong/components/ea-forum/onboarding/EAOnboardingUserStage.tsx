@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
@@ -69,6 +69,7 @@ export const EAOnboardingUserStage = ({classes}: {
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
   const [updateUser] = useMutation(newUserCompleteProfileMutation);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
     if ((ev.target as HTMLElement).tagName !== "A") {
@@ -116,6 +117,12 @@ export const EAOnboardingUserStage = ({classes}: {
     setNameTaken(!loading && !!data?.IsDisplayNameTaken);
   }, [data, loading]);
 
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus?.();
+    }, 0);
+  }, []);
+
   const canContinue = !!name && !nameTaken && acceptedTos;
 
   const {EAOnboardingStage, EAOnboardingInput, ForumIcon} = Components;
@@ -154,6 +161,7 @@ export const EAOnboardingUserStage = ({classes}: {
           value={name}
           setValue={setName}
           placeholder="Spaces and special characters allowed"
+          inputRef={inputRef}
         />
       </form>
       {nameTaken &&
