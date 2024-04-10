@@ -298,7 +298,7 @@ const recombeeApi = {
   },
 
 
-  async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
+  async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext): Promise<RecommendedPost[]> {
     const client = getRecombeeClientOrThrow();
 
     const {

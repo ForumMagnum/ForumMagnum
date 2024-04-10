@@ -165,7 +165,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker, ResolverPostsList
+    TabPicker, ResolverPostsList, RecombeeFeed
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -326,7 +326,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 
               </AnalyticsContext>}
-              {(selectedScenario === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedScenario}>
+              {/* {(selectedScenario === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedScenario}>
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
                   alwaysShowLoadMore 
@@ -334,6 +334,9 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                 >
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 
+              </AnalyticsContext>} */}
+              {(selectedScenario === 'recombee-mixed-feed-style') && <AnalyticsContext feedType={selectedScenario}>
+                <RecombeeFeed settings={{...scenarioConfig, loadMore: undefined}}/>
               </AnalyticsContext>}
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>

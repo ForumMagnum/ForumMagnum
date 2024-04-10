@@ -51,11 +51,11 @@ const LWHome = () => {
 
           <EAPopularCommentsSection />
 
-          <RecentDiscussionFeed
+          {/* <RecentDiscussionFeed
             af={false}
             commentsLimit={4}
             maxAgeHours={18}
-          />
+          /> */}
         </React.Fragment>
       </AnalyticsContext>
   )

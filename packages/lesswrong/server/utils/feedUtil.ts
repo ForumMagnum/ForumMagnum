@@ -2,6 +2,8 @@ import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
+import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { recombeeApi } from '../recombee/client';
 
 type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
@@ -44,6 +46,37 @@ export function viewBasedSubquery<
     }
   };
 }
+
+// Import the function, assuming it's exported from a module
+
+// Define a subquery function that directly invokes `getHybridRecommendationsForUser`
+export function directRecommendationsSubquery(
+  props: {
+    userId: string,
+    settings: HybridRecombeeConfiguration,
+    context: ResolverContext
+  }
+): FeedSubquery<DbPost, any> { // Adjust the sort key type as necessary
+  const { userId, settings, context } = props;
+
+  return {
+    type: 'recommendation',
+    // Provide a function to extract the sort key. Adjust according to your actual result items' structure.
+    // TODO: sort key is actually RecommId that is a string and needs to be piped through
+    getSortKey: (post: DbPost) => '',
+    doQuery: async (limit: number, cutoff: string ): Promise<Partial<DbPost>[]> => {
+      // Adjust the count based on the limit parameter if necessary
+
+      // Call your direct function
+      const recommendations = await recombeeApi.getHybridRecommendationsForUser(userId, limit, settings, context);
+      console.log({recommendations});
+      const posts = recommendations.map((r) => r.post);
+
+      return posts;
+    }
+  };
+}
+
 
 export function fixedResultSubquery<ResultType extends DbObject, SortKeyType>({type, result, sortKey}: {
   type: string,
@@ -254,3 +287,4 @@ async function queryWithCutoff<N extends CollectionNameString>({
 
   return await accessFilterMultiple(currentUser, collection, resultsRaw, context);
 }
+
