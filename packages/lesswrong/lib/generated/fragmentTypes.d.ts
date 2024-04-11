@@ -644,17 +644,18 @@ interface BooksDefaultFragment { // fragment on Books
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
+  readonly lastUpdated: Date,
   readonly userId: string,
   readonly title: string,
-  readonly gridImageId: string,
   readonly bannerImageId: string,
-  readonly curatedOrder: number,
-  readonly userProfileOrder: number,
+  readonly gridImageId: string,
+  readonly hideFromAuthorPage: boolean,
   readonly draft: boolean,
   readonly isDeleted: boolean,
+  readonly curatedOrder: number,
+  readonly userProfileOrder: number,
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
-  readonly hideFromAuthorPage: boolean,
   readonly noindex: boolean,
   readonly af: boolean,
 }
@@ -3023,7 +3024,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
-  readonly wrapped2023Viewed: boolean,
   readonly hideSunshineSidebar: boolean,
 }
 
