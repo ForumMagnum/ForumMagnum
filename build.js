@@ -44,8 +44,7 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 //  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
-//const minifyAsIfProduction = isProduction;
-const minifyAsIfProduction = true;
+const minifyAsIfProduction = isProduction;
 const isCypress = !!opts.cypress;
 const settingsFile = opts.settings || "settings.json"
 
@@ -102,7 +101,7 @@ const clientBuildOptions = {
   sourcemap: true,
   metafile: true,
   sourcesContent: true,
-  minify: minifyAsIfProduction,
+  minify: isProduction,
   banner: {
     js: clientBundleBanner,
   },
@@ -114,7 +113,7 @@ function brotliCompressFile(path) {
   if (fs.existsSync(brotliOutfilePath)) {
     fs.unlinkSync(brotliOutfilePath);
   }
-  if (minifyAsIfProduction) {
+  if (isProduction) {
     const uncompressed = fs.readFileSync(path, 'utf8');
     fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(uncompressed));
   }
