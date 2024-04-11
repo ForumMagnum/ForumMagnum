@@ -11,39 +11,28 @@ const styles = (theme: ThemeType) => ({
     minWidth: "100%",
     maxWidth: "100%",
     background: theme.palette.grey[0],
-    padding: 15,
+    padding: '15px 17px',
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down("xs")]: {
-      paddingBottom: 14,
+      padding: '14px 17px 12px',
     },
   },
   placeholder: {
     height: 10,
     background: theme.palette.panelBackground.placeholderGradient,
     backgroundSize: "300% 100%",
-    animation: "profile-image-loader 1s infinite",
+    animation: "profile-image-loader 1.8s infinite",
     borderRadius: 3,
   },
-  karmaCol: {
-    flex: 'none',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '5px',
-    paddingLeft: 2,
-  },
-  arrow: {
-    width: 10
-  },
   karma: {
+    flex: 'none',
     width: 16,
   },
   titleCol: {
     flexGrow: 1,
   },
   title: {
-    height: 12,
     width: '100%',
     maxWidth: 434,
     marginBottom: 10,
@@ -58,18 +47,15 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
   },
   author: {
-    height: 8,
     width: '100%',
     maxWidth: 183,
   },
   commentIcon: {
     flex: 'none',
-    height: 12,
     width: 33,
     marginRight: 4,
   },
   commentIconMobile: {
-    height: 8,
     [theme.breakpoints.up("sm")]: {
       display: "none",
     },
@@ -78,10 +64,8 @@ const styles = (theme: ThemeType) => ({
     flex: 'none',
     height: 15,
     width: 10,
-    marginRight: 2,
   },
   threeDotsIconMobile: {
-    height: 10,
     [theme.breakpoints.up("sm")]: {
       display: "none",
     },
@@ -97,10 +81,7 @@ const FriendlyPlaceholderPostsItem = ({classes}: {
   classes: ClassesType,
 }) => {
   return <div className={classes.root}>
-    <div className={classes.karmaCol}>
-      <div className={classNames(classes.placeholder, classes.arrow)}></div>
-      <div className={classNames(classes.placeholder, classes.karma)}></div>
-    </div>
+    <div className={classNames(classes.placeholder, classes.karma)}></div>
     <div className={classes.titleCol}>
       <div className={classNames(classes.placeholder, classes.title)}></div>
       <div className={classes.metaRow}>
