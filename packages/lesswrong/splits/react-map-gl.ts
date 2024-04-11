@@ -7,5 +7,13 @@ export type WrappedReactMapGL = {
   Popup:      typeof Popup
 };
 
+declare global {
+  interface Window {
+    reactMapGL: WrappedReactMapGL|null;
+  }
+}
+
 const wrappedReactMapGL: WrappedReactMapGL = { ReactMapGL, Marker, Popup };
-(window as any).reactMapGL = wrappedReactMapGL
+if (!bundleIsServer) {
+  window.reactMapGL = wrappedReactMapGL
+}

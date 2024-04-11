@@ -10,6 +10,7 @@ export function useReactMapGL(): {
 } {
   const result = useLoadedLibrary<WrappedReactMapGL>({
     path: "/js/react-map-gl.js",
+    serverVersion: () => bundleIsServer ? require('./react-map-gl') : null,
     windowField: "reactMapGL",
   });
   if (result.ready) {

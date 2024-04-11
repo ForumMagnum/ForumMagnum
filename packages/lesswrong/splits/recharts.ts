@@ -15,6 +15,12 @@ export type WrappedReCharts = {
   Tooltip:             typeof Tooltip,
 };
 
+declare global {
+  interface Window {
+    recharts: WrappedReCharts|null;
+  }
+}
+
 const wrappedRecharts: WrappedReCharts = { BarChart, Bar, CartesianGrid, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line, Tooltip };
 
 (window as any).recharts = wrappedRecharts;

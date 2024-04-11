@@ -10,6 +10,7 @@ export function useReCharts(): {
 }{
   const result = useLoadedLibrary<WrappedReCharts>({
     path: "/js/recharts.js",
+    serverVersion: () => bundleIsServer ? require('./recharts') : null,
     windowField: "recharts",
   });
   if (result.ready) {
