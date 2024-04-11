@@ -204,15 +204,25 @@ async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> 
   return account;
 }
 
-let tagBotUserIdCache: Promise<{id: string|null}>|null = null;
+let tagBotUserIdPromise: Promise<void>|null = null;
+// If undefined, hasn't been fetched yet; if null, the account doesn't exist.
+let tagBotUserId: string|null|undefined = undefined;
+
 export async function getTagBotUserId(context: ResolverContext): Promise<string|null> {
-  if (!tagBotUserIdCache) {
-    tagBotUserIdCache = (async () => {
-      const tagBotAccount = await getTagBotAccount(context);
-      return {id: tagBotAccount?._id ?? null};
-    })();
+  if (tagBotUserId === undefined) {
+    if (!tagBotUserIdPromise) {
+      tagBotUserIdPromise = new Promise((resolve) => {
+        void (async () => {
+          const tagBotAccount = await getTagBotAccount(context);
+          tagBotUserId = tagBotAccount?._id ?? null;
+          tagBotUserIdPromise = null;
+          resolve();
+        })();
+      });
+    }
+    await tagBotUserIdPromise
   }
-  return (await tagBotUserIdCache).id;
+  return tagBotUserId ?? null;
 }
 
 export async function getAutoAppliedTags(): Promise<DbTag[]> {
