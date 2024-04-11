@@ -56,7 +56,7 @@ const postBatchQuery = `
 
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
-  const limit = 1000;
+  const limit = 5000;
   return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][] }>(postBatchQuery, [offsetDate, limit]);
 }
 
