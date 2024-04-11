@@ -49,7 +49,7 @@ export const useSetTheme = () => {
 }
 
 const makeStylesheetUrl = (themeOptions: AbstractThemeOptions) =>
-  `/allStyles?theme=${encodeURIComponent(JSON.stringify(themeOptions))}`;
+  `/allStyles?theme=${encodeURIComponent(stringify(themeOptions))}`;
 
 type OnFinish = (error?: string | Event) => void;
 
