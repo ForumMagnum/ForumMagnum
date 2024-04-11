@@ -1,4 +1,5 @@
 import { writeFile } from "fs/promises";
+import { writeFileSync } from "fs";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
@@ -65,8 +66,8 @@ async function createBigQueryPostRecord(post: DbPost, context: ResolverContext, 
 
   const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId)
   tags ??= filterNonnull(await findByIds(Tags, tagIds))
-  const tagNames = tags.map(tag => tag.name)
-  const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
+  const tagNames = filterNonnull(tags.map(tag => tag.name))
+  const coreTagNames = filterNonnull(tags.filter(tag => tag.core).map(tag => tag.name))
 
   const postText = htmlToTextDefault(post.contents?.html)
 
@@ -106,12 +107,12 @@ async function backfillPosts(offsetDate?: Date) {
 
       const postsWithTags = batch.map(({ tags, ...post }) => ({
         post,
-        tags: tags.map(([_, name, core]) => ({ name, core }))
+        tags: filterNonnull(tags.map(([_, name, core]) => ({ name, core })))
       }));
 
       const bigQueryRecordBatch = await Promise.all(postsWithTags.map(({ post, tags }) => createBigQueryPostRecord(post, adminContext, tags)));
 
-      await writeFile(`bigquery_posts_${offsetDate.toISOString()}.json`, JSON.stringify(bigQueryRecordBatch));
+      await writeFile(`delimited_bigquery_posts_${offsetDate.toISOString()}.json`, bigQueryRecordBatch.map(record => JSON.stringify(record)).join('\n'));
   
       const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
       if (!nextOffsetDate) {
