@@ -10,6 +10,7 @@ import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
+import stringify from 'json-stringify-deterministic';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -64,7 +65,7 @@ let keysToCheckForExpiredEntries: Array<string> = [];
 export const cacheKeyFromReq = (req: Request): string => {
   const timezoneCookie = getCookieFromReq(req, "timezone");
   const themeCookie = getCookieFromReq(req, "theme");
-  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : JSON.stringify(getDefaultThemeOptions());
+  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : stringify(getDefaultThemeOptions());
   const path = getPathFromReq(req);
   
   if (timezoneCookie)
