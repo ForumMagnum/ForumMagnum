@@ -19,6 +19,18 @@ const formGroups: Partial<Record<string, FormGroupType<"Sequences">>> = {
 };
 
 const schema: SchemaType<"Sequences"> = {
+  lastUpdated: {
+    type: Date,
+    optional: true,
+    nullable: false,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
+    onCreate: () => new Date(),
+    onUpdate: () => new Date(),
+    hidden: true,
+  },
+  
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

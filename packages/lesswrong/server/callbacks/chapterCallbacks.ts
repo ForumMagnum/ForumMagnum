@@ -7,6 +7,7 @@ import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import * as _ from 'underscore';
 import { createNotifications, getSubscribedUsers } from '../notificationCallbacksHelpers';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import xor from 'lodash/xor';
 
 async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
   const context = await createAdminContext();
@@ -52,6 +53,20 @@ async function ChaptersEditCanonizeCallback (chapter: DbChapter) {
 getCollectionHooks("Chapters").newAsync.add(ChaptersEditCanonizeCallback);
 getCollectionHooks("Chapters").editAsync.add(ChaptersEditCanonizeCallback);
 
+
+getCollectionHooks("Chapters").updateAsync.add(async function UpdateSequence({oldDocument, newDocument}) {
+  // If any of the user-facing fields have changed, also update the parent sequence's lastUpdated date
+  if (
+    oldDocument.title !== newDocument.title ||
+    oldDocument.subtitle !== newDocument.subtitle ||
+    xor(oldDocument.postIds, newDocument.postIds).length > 0
+  ) {
+    await Sequences.rawUpdateOne(
+      {_id: newDocument.sequenceId},
+      {$set: {lastUpdated: new Date()}}
+    )
+  }
+});
 
 getCollectionHooks("Chapters").updateAsync.add(async function NewSequencePostNotifications({oldDocument, newDocument, context}) {
   // Check if there were any posts added to this chapter

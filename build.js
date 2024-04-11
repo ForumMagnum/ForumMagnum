@@ -106,7 +106,6 @@ const clientBuildOptions = {
   banner: {
     js: clientBundleBanner,
   },
-  //treeShaking: "ignore-annotations",
 };
 
 function brotliCompressFile(path) {
@@ -125,6 +124,7 @@ build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
   outfile: clientOutfilePath,
   ...clientBuildOptions,
+  run: false,
   onStart: (config, changedFiles, ctx) => {
     clientComponentStartedRebuilding();
     inProgressBuildId = generateBuildId();

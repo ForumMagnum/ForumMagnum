@@ -218,8 +218,6 @@ registerFragment(`
     showRecommendedPartners
     hideActiveDialogueUsers
 
-    wrapped2023Viewed
-
     hideSunshineSidebar
   }
 `);
