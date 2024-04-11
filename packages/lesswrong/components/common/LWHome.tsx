@@ -10,7 +10,7 @@ import { useRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/bet
 import { useCurrentUser } from './withUser';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, 
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FullPageSpotlight,
     FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
@@ -27,9 +27,8 @@ const LWHome = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          {recombeeFrontpagePrototypeEnabled && <SingleColumnSection>
-            <DismissibleSpotlightItem current/>
-          </SingleColumnSection>}
+          {recombeeFrontpagePrototypeEnabled && <FullPageSpotlight/>}
+          
           {!recombeeFrontpagePrototypeEnabled && !reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
