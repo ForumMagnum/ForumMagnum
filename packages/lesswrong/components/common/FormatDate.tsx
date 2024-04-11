@@ -1,6 +1,6 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import moment from '../../lib/moment-timezone';
+import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
@@ -14,8 +14,36 @@ const formatRelative = (
   now: Date,
   includeAgo?: boolean,
 ): string => {
-  const formatted = moment(date).from(now);
+  //const formatted = formatRelativeMoment(new Date(date), now);
+  const formatted = formatRelativeFast(new Date(date), now);
   return includeAgo && formatted !== "now" ? formatted + " ago" : formatted;
+}
+
+const formatRelativeMoment = (date: Date, now: Date): string => {
+  return moment(date).from(now);
+}
+
+const formatRelativeFast = (date: Date, now: Date): string => {
+  const msApart = Math.abs(now.getTime() - date.getTime());
+  const secondsApart = msApart / 1000;
+  if (secondsApart < 44) {
+    return "now";
+  } else if (secondsApart < 45*60) {
+    const minutes = Math.round(secondsApart/60.0);
+    return `${minutes}m`;
+  } else if (secondsApart < 22*60*60) {
+    const hours = Math.round(secondsApart/(60.0*60.0));
+    return `${hours}h`;
+  } else if (secondsApart < 26*24*60*60) {
+    const days = Math.round(secondsApart/(24*60*60.0));
+    return `${days}d`;
+  } else if (secondsApart < 335) {
+    const months = Math.round(secondsApart/(30.4*24*60*60.0));
+    return `${months}mo`;
+  } else {
+    const years = Math.round(secondsApart/(365*24*60*60.0));
+    return `${years}y`;
+  }
 }
 
 /// A relative time/date, like "4d". If tooltip is true (default), hover over
