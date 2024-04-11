@@ -4,7 +4,6 @@ export const formatRelative = (
   now: Date,
   includeAgo?: boolean,
 ): string => {
-  //const formatted = formatRelativeMoment(new Date(date), now);
   const formatted = formatRelativeFast(new Date(date), now);
   return includeAgo && formatted !== "now" ? formatted + " ago" : formatted;
 }
