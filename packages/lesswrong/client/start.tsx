@@ -10,7 +10,8 @@ import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
 
 onStartup(() => {
-  populateComponentsAppDebug();
+  console.log(`start.ts, ${new Date().getTime()}`);
+  // populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
   apolloClient.disableNetworkFetches = true;
@@ -46,5 +47,6 @@ onStartup(() => {
       timeOverride.currentTime = null;
     }
   );
+  console.log(`finishing start.ts, ${new Date().getTime()}`);
 // Order 100 to make this execute last
 }, 100);

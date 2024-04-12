@@ -5,6 +5,7 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { isAF } from "../../lib/instanceSettings";
 
 type MeanPostKarma = {
   _id: number,
@@ -32,6 +33,20 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
+  }
+
+  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
+    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- PostsRepo.postRouteWillDefinitelyReturn200
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Posts"
+        WHERE "_id" = $1 AND ${getViewablePostsSelector()} AND "af" = $2
+      )
+    `, [id, isAF]);
+
+    return res?.exists ?? false;
+    // return false;
   }
 
   async getEarliestPostTime(): Promise<Date> {

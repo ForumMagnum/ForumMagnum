@@ -435,6 +435,7 @@ const Layout = ({currentUser, children, classes}: {
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
+                {/* TODO move this into the prefetch section */}
                 {theme.typography.fontDownloads &&
                   theme.typography.fontDownloads.map(
                     (url: string)=><link rel="stylesheet" key={`font-${url}`} href={url}/>

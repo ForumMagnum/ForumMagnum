@@ -162,7 +162,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // If true, `importComponent` imports immediately (rather than deferring until
 // first use) and checks that the file registered the components named, with a
 // lot of log-spam.
-const debugComponentImports = false;
+const debugComponentImports = true;
 
 export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
   if (Array.isArray(componentName)) {
@@ -203,6 +203,7 @@ function prepareComponent(componentName: string): any
 // Get a component registered with registerComponent, applying HoCs and other
 // wrappings.
 const getComponent = (name: string): any => {
+  console.log(`Getting component ${name}`);
   const componentMeta = ComponentsTable[name];
   if (!componentMeta) {
     throw new Error(`Component ${name} not registered.`);
@@ -308,6 +309,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
  */
 export const populateComponentsAppDebug = (): void => {
   if (debugComponentImports) {
+    console.log("Populating components");
     importAllComponents();
   }
 };

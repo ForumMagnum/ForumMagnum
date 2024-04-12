@@ -93,9 +93,6 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   const url = getPathFromReq(req);
   
   const clientId = getCookieFromReq(req, "clientId");
-
-  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
   
   const ssrEventParams = {
     url: url,
@@ -165,7 +162,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      headers: [...rendered.headers, tabIdHeader],
     };
   } else {
     if (performanceMetricLoggingEnabled.get()) {
@@ -224,7 +221,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      headers: [...rendered.headers, tabIdHeader],
     };
   }
 };
