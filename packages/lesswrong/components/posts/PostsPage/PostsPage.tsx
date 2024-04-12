@@ -212,9 +212,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
-  postBody: {
-    width: 'max-content',
-  },
   postContent: { //Used by a Cypress test
     marginBottom: isFriendlyUI ? 40 : undefined
   },
