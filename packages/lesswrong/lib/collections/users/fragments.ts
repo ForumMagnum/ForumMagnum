@@ -200,8 +200,6 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
-    experiencedIn
-    interestedIn
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad

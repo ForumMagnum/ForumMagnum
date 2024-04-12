@@ -37,6 +37,7 @@ import SideCommentCaches from '../sideCommentCaches/collection';
 import { hasSideComments } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
+import { stableSortTags } from '../tags/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -977,10 +978,19 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
-      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {}
-      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await loadByIds(context, "Tags", tagIds);
-      return await accessFilterMultiple(currentUser, context.Tags, tags, context)
+      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {};
+      const tagIds = Object.keys(tagRelevanceRecord).filter(id => tagRelevanceRecord[id] > 0);
+      const tags = (await loadByIds(context, "Tags", tagIds)).filter(tag => !!tag) as DbTag[];
+
+      const tagInfo = tags.map(tag => ({
+        tag: tag,
+        tagRel: { baseScore: tagRelevanceRecord[tag._id] } as TagRelMinimumFragment
+      }));
+      const sortedTagInfo = stableSortTags(tagInfo);
+
+      const sortedTags = sortedTagInfo.map(({ tag }) => tag);
+
+      return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
     }
   }),
   

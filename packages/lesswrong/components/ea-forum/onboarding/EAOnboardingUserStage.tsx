@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
@@ -69,6 +69,7 @@ export const EAOnboardingUserStage = ({classes}: {
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
   const [updateUser] = useMutation(newUserCompleteProfileMutation);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
     if ((ev.target as HTMLElement).tagName !== "A") {
@@ -85,7 +86,7 @@ export const EAOnboardingUserStage = ({classes}: {
       await goToNextStage()
       return
     }
-    
+
     await goToNextStageAfter(
       updateUser({
         variables: {
@@ -96,6 +97,11 @@ export const EAOnboardingUserStage = ({classes}: {
       }),
     );
   }, [name, acceptedTos, updateUser, goToNextStage, goToNextStageAfter, viewAsAdmin]);
+
+  const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
+    ev.preventDefault();
+    await onContinue();
+  }, [onContinue]);
 
   const {data, loading} = useQuery(displayNameTakenQuery, {
     ssr: false,
@@ -110,6 +116,12 @@ export const EAOnboardingUserStage = ({classes}: {
   useEffect(() => {
     setNameTaken(!loading && !!data?.IsDisplayNameTaken);
   }, [data, loading]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      inputRef.current?.focus?.();
+    }, 0);
+  }, []);
 
   const canContinue = !!name && !nameTaken && acceptedTos;
 
@@ -144,11 +156,14 @@ export const EAOnboardingUserStage = ({classes}: {
       thin
     >
       <div>Many Forum users use their real name.</div>
-      <EAOnboardingInput
-        value={name}
-        setValue={setName}
-        placeholder="Spaces and special characters allowed"
-      />
+      <form onSubmit={onSubmit}>
+        <EAOnboardingInput
+          value={name}
+          setValue={setName}
+          placeholder="Spaces and special characters allowed"
+          inputRef={inputRef}
+        />
+      </form>
       {nameTaken &&
         <div className={classes.nameTaken}>"{name}" is already taken</div>
       }
