@@ -84,6 +84,7 @@
     "@datadog/browser-rum": "^4.26.0",
     "@dqbd/tiktoken": "^1.0.7",
     "@elastic/elasticsearch": "^8.7.0",
+    "@google-cloud/discoveryengine": "^1.4.1",
     "@googleapis/drive": "^8.7.0",
     "@googleapis/oauth2": "^1.0.5",
     "@googlemaps/google-maps-services-js": "^3.1.13",

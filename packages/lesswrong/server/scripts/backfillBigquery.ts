@@ -4,8 +4,23 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { Globals, createAdminContext } from "../vulcan-lib";
 import findByIds from "../vulcan-lib/findbyids";
-import { getConfirmedCoauthorIds } from "../../lib/collections/posts/helpers";
-import { executePromiseQueue } from "../../lib/utils/asyncUtils";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { DocumentServiceClient, protos } from "@google-cloud/discoveryengine";
+
+const GOOGLE_PARENT_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore1_1712780871028/branches/default_branch';
+
+export const getGoogleDocumentServiceClientOrThrow = (() => {
+  let client: DocumentServiceClient;
+
+  return () => {
+    if (!client) {
+      // TODO - pull out client options like region to db settings?
+      client = new DocumentServiceClient();
+    }
+
+    return client;
+  };
+})();
 
 function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[]) {
   const nextOffsetDate = batch.slice(-1)[0].createdAt;
@@ -60,6 +75,7 @@ const postBatchQuery = `
       ELSE ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core))
     END AS tags,
     (SELECT ARRAY_AGG(COALESCE(u."displayName", u."username")) FROM "Users" AS u WHERE u._id IN (SELECT "userId" FROM authorships WHERE authorships._id = p._id)) AS authors,
+    ARRAY_AGG(DISTINCT authorships."userId") AS "authorIds",
     (SELECT COUNT(*) FROM "Votes" AS v WHERE v."documentId" = p._id AND v.cancelled IS NOT TRUE AND v.power > 0 AND v."userId" NOT IN (SELECT "userId" FROM authorships WHERE authorships._id = p._id)) AS "upvoteCount"
   FROM authorships
   INNER JOIN "Posts" AS p
@@ -74,14 +90,15 @@ const postBatchQuery = `
 
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
-  const limit = 5000;
-  return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][], authors: string[], upvoteCount: number }>(postBatchQuery, [offsetDate, limit]);
+  const limit = 100;
+  return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][], authors: string[], authorIds: string[], upvoteCount: number }>(postBatchQuery, [offsetDate, limit]);
 }
 
 interface CreateBigQueryPostRecordArgs {
   post: DbPost;
   context: ResolverContext;
   tags?: {
+    _id: string;
     name: string;
     core: boolean;
   }[];
@@ -117,6 +134,7 @@ interface CreateAEPostRecordArgs {
   post: DbPost;
   context: ResolverContext;
   tags?: {
+    _id: string;
     name: string;
     core: boolean;
   }[];
@@ -145,6 +163,93 @@ async function createAEPostRecord({ post, context, tags, authors, upvoteCount }:
   };
 }
 
+type GoogleMediaPersonOrgRole = 'director' | 'actor' | 'player' | 'team' | 'league' | 'editor' | 'author' | 'character' | 'contributor' | 'creator' | 'editor' | 'funder' | 'producer' | 'provider' | 'publisher' | 'sponsor' | 'translator' | 'music-by' | 'channel' | 'custom-role';
+
+interface GoogleMediaDocumentMetadata {
+  title: string;
+  categories: string[];
+  uri: string;
+  description?: string;
+  /**
+   * For document recommendation, this field is ignored and the text language is detected automatically.
+   * The document can include text in different languages, but duplicating documents to provide text in multiple languages can result in degraded performance.
+   */
+  language_code?: string;
+  images?: Array<{
+    uri?: string;
+    name?: string;
+  }>;
+  duration?: string;
+  /**
+   * The time that the content is available to the end-users. This field identifies the freshness of a content for end-users. The timestamp should conform to RFC 3339 standard.
+   */
+  available_time: string;
+  expire_time?: string;
+  media_type?: 'episode' | 'movie' | 'concert' | 'event' | 'live-event' | 'broadcast' | 'tv-series' | 'video-game' | 'clip' | 'vlog' | 'audio' | 'audio-book' | 'music' | 'album' | 'articles' | 'news' | 'radio' | 'podcast' | 'book' | 'sports-game';
+  in_languages?: string[];
+  country_of_origin?: string;
+  filter_tags?: string[];
+  hash_tags?: string[];
+  content_rating?: string[];
+  persons?: Array<{
+    name: string;
+    role: GoogleMediaPersonOrgRole;
+    custom_role?: string;
+    rank?: number;
+    uri?: string;
+  }>;
+  organizations?: Array<{
+    name: string;
+    role: GoogleMediaPersonOrgRole;
+    custom_role?: string;
+    /**
+     * Is this really a string?  That's what their JSON schema says, but it's an int for `persons`...
+     */
+    rank?: string;
+    uri?: string;
+  }>;
+  aggregate_ratings?: Array<{
+    rating_source: string;
+    rating_score?: number;
+    rating_count?: number;
+  }>
+}
+
+interface CreateGoogleMediaDocumentMetadataArgs {
+  post: DbPost;
+  tags?: {
+    _id: string;
+    name: string;
+    core: boolean;
+  }[];
+  authorIds?: string[];
+}
+
+function createGoogleMediaDocumentJson({ post, tags, authorIds }: CreateGoogleMediaDocumentMetadataArgs): protos.google.cloud.discoveryengine.v1.IDocument {
+  const tagIds = tags?.map(tag => tag._id);
+  const persons = authorIds?.map(authorId => ({ name: authorId, role: 'author' } as const));
+
+  const metadata: GoogleMediaDocumentMetadata = {
+    title: post.title,
+    uri: `https://www.lesswrong.com${postGetPageUrl(post)}`,
+    available_time: post.postedAt.toISOString(),
+    categories: tagIds ?? [],
+    filter_tags: tagIds,
+    persons,
+    media_type: 'articles',
+  };
+
+  return {
+    id: post._id,
+    schemaId: 'default_schema',
+    jsonData: JSON.stringify(metadata),
+    // content: {
+    //   mimeType: 'text/html',
+    //   rawBytes: Buffer.from(post.contents?.html ?? '').toString('base64')
+    // }
+  };
+}
+
 function createDelimitedJsonString<T>(records: T[]) {
   return records.map(record => JSON.stringify(record)).join('\n');
 }
@@ -152,6 +257,7 @@ function createDelimitedJsonString<T>(records: T[]) {
 async function backfillPosts(offsetDate?: Date) {
   const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
+  const client = getGoogleDocumentServiceClientOrThrow();
 
   if (!offsetDate) {
     ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
@@ -167,18 +273,27 @@ async function backfillPosts(offsetDate?: Date) {
       // eslint-disable-next-line no-console
       console.log(`Post batch size: ${batch.length}.`);
 
-      const postsWithTags = batch.map(({ tags, authors, upvoteCount, ...post }) => ({
+      const postsWithTags = batch.map(({ tags, authors, authorIds, upvoteCount, ...post }) => ({
         post,
-        tags: filterNonnull(tags.map(([_, name, core]) => ({ name, core }))),
+        tags: filterNonnull(tags.map(([_id, name, core]) => ({ _id, name, core }))),
         authors,
+        authorIds,
         upvoteCount
       }));
 
+      const googleMediaDocuments = postsWithTags.filter(({ tags }) => tags.length).map(createGoogleMediaDocumentJson);
+      if (googleMediaDocuments.length) {
+        const [operation] = await client.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_PATH });
+        const [response] = await operation.promise();
+        if (response.errorSamples?.length) {
+          console.log({ error: response.errorSamples[0] });
+        }  
+      }
       // const bigQueryRecordBatch = await Promise.all(postsWithTags.map(({ post, tags, authors, upvoteCount }) => createAEPostRecord({ post, context: adminContext, tags, authors, upvoteCount })));
       // await writeFile(`aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(bigQueryRecordBatch));
       
-      const bigQueryRecordBatch = await executePromiseQueue(postsWithTags.map(({ post, tags }) => () => createBigQueryPostRecord({ post, context: adminContext, tags })), 10);
-      await writeFile(`delimited_bigquery_posts_${offsetDate.toISOString()}.json`, createDelimitedJsonString(bigQueryRecordBatch));
+      // const bigQueryRecordBatch = await executePromiseQueue(postsWithTags.map(({ post, tags }) => () => createBigQueryPostRecord({ post, context: adminContext, tags })), 10);
+      // await writeFile(`delimited_bigquery_posts_${offsetDate.toISOString()}.json`, createDelimitedJsonString(bigQueryRecordBatch));
   
       const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
       if (!nextOffsetDate) {
