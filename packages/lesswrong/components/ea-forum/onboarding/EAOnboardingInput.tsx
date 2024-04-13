@@ -1,4 +1,4 @@
-import React, { useCallback, ChangeEvent } from "react";
+import React, { useCallback, ChangeEvent, RefObject } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 
 // These styles are also used by `EAOnboardingSelect`
@@ -24,11 +24,13 @@ export const EAOnboardingInput = ({
   value,
   setValue,
   placeholder,
+  inputRef,
   classes,
 }: {
   value: string,
   setValue: (value: string) => void,
   placeholder: string,
+  inputRef?: RefObject<HTMLInputElement>,
   classes: ClassesType<typeof styles>,
 }) => {
   const onChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +42,7 @@ export const EAOnboardingInput = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
+      ref={inputRef}
       className={classes.root}
     />
   );

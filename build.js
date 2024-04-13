@@ -105,7 +105,6 @@ build({
   banner: {
     js: clientBundleBanner,
   },
-  treeShaking: "ignore-annotations",
   run: false,
   onStart: (config, changedFiles, ctx) => {
     setClientRebuildInProgress(true);

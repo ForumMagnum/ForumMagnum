@@ -1084,6 +1084,7 @@ type SequencesCollection = CollectionBase<"Sequences">;
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
+  lastUpdated: Date
   userId: string
   title: string | null
   bannerImageId: string | null
