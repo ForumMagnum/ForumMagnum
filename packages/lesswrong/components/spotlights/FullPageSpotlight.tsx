@@ -42,27 +42,36 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: SECTION_WIDTH,
     marginLeft: "auto",
     marginRight: "auto",
+  },
+  fullPageDisplay: {
     [`@media(min-width: ${pageTransitionWidth}px)`]: {
       position: "absolute", // or 'absolute' depending on your layout needs
-      top: "calc(50vh + 85px)",
+      top: "50vh",
       transform: "translateY(-50%)",
       right: `calc((100vw - ${SECTION_WIDTH + 800}px) / 2)`, // Adjusts right margin based on viewport width
       width: '25vw',
-      maxWidth: '400px', // Example max-width, adjust as needed
+      maxWidth: '425px', // Example max-width, adjust as needed
     },
-    
-    marginBottom: 24,
+  },
+  listDisplay: {
+
   },
   spotlightItem: {
     position: "relative",
     borderRadius: theme.borderRadius.default,
-    // background: theme.palette.panelBackground.default,
     '&:hover $editButtonIcon': {
       opacity: .2
     },
     '&:hover $closeButton': {
       color: theme.palette.grey[100],
-    }
+    },
+    marginBottom: 24,
+    [theme.breakpoints.down('sm')]: {
+      background: theme.palette.panelBackground.translucent3,
+      padding: 16,
+      marginTop: 8,
+      marginBottom: 12,
+    },
   },
   closeButtonWrapper: {
     position: 'absolute',
@@ -87,12 +96,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
     textShadow: `
-      0px 0px 10px ${theme.palette.background.default},
-      0px 0px 20px ${theme.palette.background.default}
+      0px 0px 30px ${theme.palette.background.default},
+      0px 0px 50px ${theme.palette.background.default}
     `,
-    [theme.breakpoints.up('sm')]: {
-      minHeight: 100
-    },
     '& br': {
       [theme.breakpoints.down('sm')]: {
         display: "none"
@@ -100,14 +106,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   postPadding: {
-    paddingBottom: 12
+    paddingBottom: 12,
+    [theme.breakpoints.down('sm')]: {
+      paddingBottom: 0,
+    }
   },
   description: {
     marginTop: 7,
     marginBottom: 10,
     ...descriptionStyles(theme),
     position: "relative",
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down('sm')]: {
       display: "none"
     },
     ...(isFriendlyUI ? {
@@ -127,12 +136,29 @@ const styles = (theme: ThemeType): JssStyles => ({
     ),
     lineHeight: "1.2em",
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    '& a:hover': {
+      opacity: 'unset'
+    }
+  },
+  featured: {
+    ...theme.typography.postStyle,
+    fontStyle: "italic",
+    color: theme.palette.grey[700],
+    fontSize: 15,
+    marginBottom: 4,
+    [`@media(min-width: ${pageTransitionWidth}px)`]: {
+      display: "none",
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    }
   },
   subtitle: {
     ...theme.typography.postStyle,
+    fontStyle: "italic",
     color: theme.palette.grey[700],
-    ...theme.typography.italic,
+    // ...theme.typography.italic,
     ...(isFriendlyUI ? {
       fontSize: 13,
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -160,8 +186,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     "-webkit-mask-image": `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
   },
   author: {
-    color: theme.palette.grey[600],
-    marginBottom: 12,
+    ...theme.typography.postStyle,
+    fontStyle: "italic",
+    color: theme.palette.grey[700],
+    fontSize: 15,
   },
   authorName: {
     color: theme.palette.primary.main,
@@ -240,16 +268,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   backgroundImage: {
     position: "absolute",
-    top: "-5vh",
+    top: -74,
     right: -200,
     [`@media(min-width: ${pageTransitionWidth}px)`]: {
-      left: 800,
+      right: -200,
     },
     maxHeight: "100vh",
-    width: '70%',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 35%, transparent 70%)`,
+    width: '70vw',
+    '-webkit-mask-image': `radial-gradient(ellipse at center center, ${theme.palette.text.alwaysBlack} 8%, transparent 65%)`,
     zIndex: -1,
-    objectFit: "cover"
+    objectFit: "cover",
+    [theme.breakpoints.down('sm')]: {
+      objectFit: "contain",
+      width: '85vw',
+    }
   },
   backgroundFade: {
     position: "absolute",
@@ -260,9 +292,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundImage: `linear-gradient(to right, #f8f4ee 55%, transparent 90%)`,
     zIndex: theme.zIndexes.spotlightItemBackground,
     [`@media(min-width: ${pageTransitionWidth}px)`]: {
-      backgroundImage: `linear-gradient(to bottom, transparent 20%, #f8f4ee 65%)`,
+      backgroundImage: `linear-gradient(to bottom, transparent 20%, #f8f4ee 45%)`,
+    },
+    [theme.breakpoints.down('sm')]: {
+      backgroundImage: "none",
     }
-  }
+  },
 });
 
 export const FullPageSpotlight = ({
@@ -272,6 +307,7 @@ export const FullPageSpotlight = ({
   refetchAllSpotlights,
   className,
   classes,
+  listDisplay
 }: {
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
@@ -280,6 +316,7 @@ export const FullPageSpotlight = ({
   refetchAllSpotlights?: () => void,
   className?: string,
   classes: ClassesType,
+  listDisplay?: boolean
 }) => {
   const {
     MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
@@ -303,9 +340,16 @@ export const FullPageSpotlight = ({
   
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
     <>
-      <div className={classNames(classes.root, className)} id={spotlight._id}>
+      {spotlight.spotlightSplashImageUrl && <>
+        <img src={spotlight.spotlightSplashImageUrl} className={classes.backgroundImage} />
+        <div className={classes.backgroundFade} />
+      </>}
+      <div className={classNames(classes.root, className, {[classes.listDisplay]: listDisplay, [classes.fullPageDisplay]: !listDisplay})} id={spotlight._id}>
         <div className={classes.spotlightItem}>
           <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
+            {<div className={classes.featured}>
+              Featured {spotlight.documentType}
+            </div>}
             <div className={classes.title}>
               <Link to={url}>
                 <span dangerouslySetInnerHTML={{__html:spotlight.customTitle ?? spotlight.document.title}}/>
@@ -316,9 +360,6 @@ export const FullPageSpotlight = ({
                 </LWTooltip>}
               </span>
             </div>
-            {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-              by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
-            </Typography>}
             {spotlight.customSubtitle && <div className={classes.subtitle}>
               {spotlight.customSubtitle}
             </div>}
@@ -341,6 +382,12 @@ export const FullPageSpotlight = ({
                 />
               }
             </div>}
+            <div>
+              {spotlight.contextInfo && <div dangerouslySetInnerHTML={{__html: spotlight.contextInfo}} />}
+              {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
+                By <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
+              </Typography>}
+            </div>
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
           {hideBanner && <div className={classes.closeButtonWrapper}>
@@ -381,10 +428,6 @@ export const FullPageSpotlight = ({
           }
         </>}
       </div>
-      {spotlight.spotlightSplashImageUrl && pathname === '/' && <>
-        <img src={spotlight.spotlightSplashImageUrl} className={classes.backgroundImage} />
-        <div className={classes.backgroundFade} />
-      </>}
     </>
   </AnalyticsTracker>
 }

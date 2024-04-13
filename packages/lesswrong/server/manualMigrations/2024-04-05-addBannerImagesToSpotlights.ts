@@ -1,5 +1,6 @@
 import { Posts } from '../../lib/collections/posts';
 import ReviewWinnerArts from '../../lib/collections/reviewWinnerArts/collection';
+import { REVIEW_WINNER_CACHE } from '../../lib/collections/reviewWinners/cache';
 import ReviewWinners from '../../lib/collections/reviewWinners/collection';
 import Spotlights from '../../lib/collections/spotlights/collection';
 import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
@@ -13,40 +14,39 @@ registerMigration({
   dateWritten: "2024-04-05",
   idempotent: true,
   action: async () => {
-    const reviewWinners = await ReviewWinners.find({}).fetch()
+    
+    const reviewWinners = REVIEW_WINNER_CACHE.reviewWinners
     const spotlights = await Spotlights.find({}).fetch()
-    const winnerArts = await ReviewWinnerArts.find({}).fetch()
-
-    const user = await getAdminTeamAccount()
 
     for (const winner of reviewWinners) {
-      const post = await Posts.findOne({_id: winner.postId});
-      const spotlightWithNoArt = spotlights.find(s => s.documentId === winner.postId);
-      const art = winnerArts.find(a => a.postId === winner.postId);
-    
-      if (!spotlightWithNoArt && art) {
+      const spotlight = spotlights.find(s => s.documentId === winner._id);
+
+      if (!spotlight) {
         await createMutator({
           collection: Spotlights,
           document: {
-            documentId: winner.postId,
+            documentId: winner._id,
             documentType: "Post",
-            spotlightSplashImageUrl: art.splashArtImageUrl,
+            spotlightSplashImageUrl: winner.reviewWinner.reviewWinnerArt.splashArtImageUrl,
             draft: true
           },
           validate: false,
           currentUser: null
         });
-      } else if (spotlightWithNoArt && art) {
+        // eslint-disable-next-line
+        console.log("Created spotlight for", winner.title)
+      } else {
         await updateMutator({
           collection: Spotlights,
-          documentId: spotlightWithNoArt._id,
+          documentId: spotlight._id,
           set: {
             // customSubtitle: `<a href='https://www.lesswrong.com/bestoflesswrong'>Best of LessWrong ${winner.reviewYear}</a>`,
-            spotlightSplashImageUrl: art.splashArtImageUrl
+            spotlightSplashImageUrl: winner.reviewWinner.reviewWinnerArt.splashArtImageUrl
           },
           context: createAdminContext()
         });
-        console.log("Updating spotlight for", post?.title);
+        // eslint-disable-next-line
+        console.log("Updated spotlight for", winner.title)
       }
     }
   }

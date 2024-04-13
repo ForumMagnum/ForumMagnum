@@ -10,13 +10,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.pageActiveAreaBackground,
     boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     marginBottom: 16
+  },
+  spotlightWrapper: {
+    marginBottom: 1000,
+    marginTop: 1000,
+    width: 425
   }
 });
 
-export const SpotlightsPage = ({classes}: {
+export const FullPageSpotlightsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, FullPageSpotlight, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -25,7 +30,7 @@ export const SpotlightsPage = ({classes}: {
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: "spotlightsPage",
-      limit: 300
+      limit: 100
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only'
@@ -96,20 +101,24 @@ export const SpotlightsPage = ({classes}: {
       <SectionTitle title="Upcoming Spotlights">
         <div>Total: {totalUpcomingDuration} days</div>
       </SectionTitle>
-      {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {upcomingSpotlights.map(spotlight => <div key={spotlight._id} className={classes.spotlightWrapper}>
+        <FullPageSpotlight key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo listDisplay/>
+      </div>)}
       <SectionTitle title="Draft Spotlights">
         <div>Total: {totalDraftDuration} days</div>
       </SectionTitle>
-      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {draftSpotlights.map(spotlight => <div key={spotlight._id} className={classes.spotlightWrapper}>
+        <FullPageSpotlight key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo listDisplay/>
+      </div>)}
     </SingleColumnSection>
   </ToCColumn>
 }
 
-const SpotlightsPageComponent = registerComponent('SpotlightsPage', SpotlightsPage, {styles});
+const FullPageSpotlightsPageComponent = registerComponent('FullPageSpotlightsPage', FullPageSpotlightsPage, {styles});
 
 declare global {
   interface ComponentTypes {
-    SpotlightsPage: typeof SpotlightsPageComponent
+    FullPageSpotlightsPage: typeof FullPageSpotlightsPageComponent
   }
 }
 

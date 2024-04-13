@@ -14,6 +14,7 @@ registerFragment(`
     customTitle
     customSubtitle
     headerTitle
+    contextInfo
     headerTitleLeftColor
     headerTitleRightColor
     duration

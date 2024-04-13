@@ -197,6 +197,15 @@ const schema: SchemaType<"Spotlights"> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  contextInfo: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 81,
+    optional: true,
+    nullable: true,
+  },
   showAuthor: {
     type: Boolean,
     canRead: ['guests'],
