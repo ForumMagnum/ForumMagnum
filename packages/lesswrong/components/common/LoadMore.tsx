@@ -93,10 +93,7 @@ const LoadMore = ({
 }) => {
   const { captureEvent } = useTracking()
 
-  /**
-   * To avoid hydration errors, set loading to false if this is the initial render and we have
-   * a non-zero count that graphql cached during SSR.
-   */
+  // Don't show the loading animation on the initial render
   const isFirstRender = useIsFirstRender();
   loading = loading && !isFirstRender;
 
