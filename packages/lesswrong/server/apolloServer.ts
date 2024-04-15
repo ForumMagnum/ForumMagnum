@@ -60,8 +60,8 @@ import { createAnonymousContext } from './vulcan-lib';
 const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
   if (!response.headersSent) {
     response.status(status);
-  } else {
-    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}`;
+  } else if (response.statusCode !== status) {
+    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
     if (isProduction) {
       // eslint-disable-next-line no-console
       console.error(message);

@@ -484,10 +484,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, RecombeeInViewTracker, Error404
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, RecombeeInViewTracker
   } = Components
-
-  return <Error404 />
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
