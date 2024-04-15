@@ -74,7 +74,7 @@ const trySetResponseStatus = ({ response, status }: { response: express.Response
 }
 
 /**
- * If allowed (because we are sure what headers are needed), write the prefetchPrefix to the response so the client can start downloading resources
+ * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
  */
 const maybePrefetchResources = async ({
   request,
