@@ -17,6 +17,7 @@ import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
+import stringify from 'json-stringify-deterministic';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -89,7 +90,7 @@ export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
     name: theme.name,
     forumTheme: getForumType(theme),
   };
-  const themeKey = JSON.stringify(themeKeyData);
+  const themeKey = stringify(themeKeyData);
   
   if (!mergedStylesheets[themeKey]) {
     mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);
@@ -98,7 +99,7 @@ export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
   
   return {
     css: mergedStylesheet.css,
-    url: `/allStyles?hash=${mergedStylesheet.hash}&theme=${encodeURIComponent(JSON.stringify(theme))}`,
+    url: `/allStyles?hash=${mergedStylesheet.hash}&theme=${encodeURIComponent(stringify(theme))}`,
     hash: mergedStylesheet.hash,
   };
 }

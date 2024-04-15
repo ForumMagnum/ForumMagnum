@@ -2,6 +2,7 @@ import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQ
 import * as _ from 'underscore';
 import { extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
+import { apolloSSRFlag } from '../helpers';
 
 // Template of a GraphQL query for useSingle. A sample query might look
 // like:
@@ -101,7 +102,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
     notifyOnNetworkStatusChange?: boolean,
     allowNull?: boolean,
     skip?: boolean,
-    
+    ssr?: boolean,
     /**
      * Optional Apollo client instance to use for this request. If not provided,
      * uses the default client provided by React context. This should only be
@@ -131,6 +132,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   notifyOnNetworkStatusChange,
   allowNull,
   skip=false,
+  ssr=true,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
   const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
@@ -148,7 +150,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     fetchPolicy,
     nextFetchPolicy,
     notifyOnNetworkStatusChange,
-    ssr: true,
+    ssr: apolloSSRFlag(ssr),
     skip: skip || (!documentId && !slug),
     client: apolloClient,
   })

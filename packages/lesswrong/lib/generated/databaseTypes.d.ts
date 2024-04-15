@@ -916,7 +916,6 @@ interface DbPost extends DbObject {
   linkSharingKeyUsedBy: Array<string> | null
   commentSortOrder: string | null
   hideAuthor: boolean
-  sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string | null
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
@@ -1085,17 +1084,18 @@ type SequencesCollection = CollectionBase<"Sequences">;
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
+  lastUpdated: Date
   userId: string
   title: string | null
-  gridImageId: string | null
   bannerImageId: string | null
-  curatedOrder: number | null
-  userProfileOrder: number | null
+  gridImageId: string | null
+  hideFromAuthorPage: boolean
   draft: boolean
   isDeleted: boolean
+  curatedOrder: number | null
+  userProfileOrder: number | null
   canonicalCollectionSlug: string | null
   hidden: boolean
-  hideFromAuthorPage: boolean
   noindex: boolean
   af: boolean
   contents: EditableFieldContents
@@ -1111,6 +1111,18 @@ interface DbSession extends DbObject {
   session: any /*{"definitions":[{"blackbox":true}]}*/
   expires: Date | null
   lastModified: Date | null
+}
+
+type SideCommentCachesCollection = CollectionBase<"SideCommentCaches">;
+
+interface DbSideCommentCache extends DbObject {
+  __collectionName?: "SideCommentCaches"
+  postId: string
+  annotatedHtml: string
+  commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/
+  version: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
@@ -1862,6 +1874,7 @@ interface CollectionsByName {
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
+  SideCommentCaches: SideCommentCachesCollection
   SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
@@ -1937,6 +1950,7 @@ interface ObjectsByCollectionName {
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
+  SideCommentCaches: DbSideCommentCache
   SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
@@ -2012,6 +2026,7 @@ interface ObjectsByTypeName {
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
+  SideCommentCache: DbSideCommentCache
   SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
