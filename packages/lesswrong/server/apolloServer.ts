@@ -20,7 +20,7 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
@@ -52,6 +52,7 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { createAnonymousContext } from './vulcan-lib';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -305,7 +306,6 @@ export function startWebserver() {
     const parsedRoute = parseRoute({
       location: parsePath(request.url)
     });
-    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
@@ -331,7 +331,13 @@ export function startWebserver() {
         + faviconHeader
         + clientScript
     );
-    
+
+    const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
+    const prefetchResources =
+      typeof enableResourcePrefetch === "function"
+        ? await enableResourcePrefetch(request, response, createAnonymousContext())
+        : enableResourcePrefetch;
+
     if (prefetchResources) {
       response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
       response.status(200);
