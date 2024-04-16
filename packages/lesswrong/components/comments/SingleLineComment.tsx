@@ -176,10 +176,11 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
     <div className={classes.root} {...eventHandlers}>
       <ContentStyles
         contentType={comment.answer ? "post" : "comment"}
-        className={classNames(classes.commentInfo, {
-          [classes.isAnswer]: comment.answer, 
-          [classes.odd]:((effectiveNestingLevel%2) !== 0),
-        })}
+        className={classNames(
+          classes.commentInfo,
+          comment.answer && classes.isAnswer,
+          ((effectiveNestingLevel%2) !== 0) && classes.odd,
+        )}
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
         {actuallyDisplayTagIcon && <div className={classes.tagIcon}>

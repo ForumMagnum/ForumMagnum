@@ -80,10 +80,11 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
   </>);
   
   return (
-    <span className={classNames(classes.root, {
-      [classes.date]: !comment.answer,
-      [classes.answerDate]: comment.answer,
-    })}>
+    <span className={classNames(
+      classes.root,
+      !comment.answer && classes.date,
+      comment.answer && classes.answerDate,
+    )}>
       <ForumNoSSR if={isLWorAF} onSSR={linkContents}>
         <LinkWrapper>
           {linkContents}
