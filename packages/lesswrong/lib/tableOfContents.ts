@@ -103,7 +103,13 @@ export function extractTableOfContents({
       continue;
     }
 
+    // Get title from element text
     let title = elementToToCTitle(element);
+    // Cap the length at 300 chars
+    if (title.length > 300) {
+      title = title.substring(0, 300) + '...';
+    }
+
     if (title && title.trim() !== "") {
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
