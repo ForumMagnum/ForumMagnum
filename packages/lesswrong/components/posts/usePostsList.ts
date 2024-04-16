@@ -243,5 +243,6 @@ export const usePostsList = ({
     orderedResults,
     itemProps,
     limit,
+    showFinalBottomBorder,
   };
 }

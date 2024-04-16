@@ -165,7 +165,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker, ResolverPostsList
+    TabPicker, ResolverPostsList, CuratedPostsList
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -318,6 +318,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                 />
                </AnalyticsContext>}
               {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
+                <CuratedPostsList />
                 <PostsList2 
                   terms={recentPostsTerms} 
                   alwaysShowLoadMore 

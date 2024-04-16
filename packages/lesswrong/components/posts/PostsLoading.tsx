@@ -3,8 +3,9 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const PostsLoading = ({placeholderCount}: {
-  placeholderCount?: number
+const PostsLoading = ({placeholderCount, showFinalBottomBorder}: {
+  placeholderCount?: number,
+  showFinalBottomBorder?: boolean
 }) => {
   if (!placeholderCount) {
     return <Components.Loading />;
@@ -22,7 +23,7 @@ const PostsLoading = ({placeholderCount}: {
       {range(0, placeholderCount)
         .map(i => <Components.LWPlaceholderPostsItem
           key={i}
-          showBottomBorder={i+1<placeholderCount}
+          showBottomBorder={showFinalBottomBorder || i+1<placeholderCount}
         />)}
     </>
   }
