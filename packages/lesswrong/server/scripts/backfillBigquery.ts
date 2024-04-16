@@ -242,14 +242,17 @@ interface CreateGoogleMediaDocumentMetadataArgs {
 }
 
 function createGoogleMediaDocumentJson({ post, tags, authorIds }: CreateGoogleMediaDocumentMetadataArgs): protos.google.cloud.discoveryengine.v1.IDocument {
-  const tagIds = tags?.map(tag => tag._id);
+  const tagIds = tags?.map(tag => tag._id) ?? [];
+  if (tagIds.length === 0) {
+    tagIds.push('none')
+  }
   const persons = authorIds?.map(authorId => ({ name: authorId, role: 'author' } as const));
 
   const metadata: GoogleMediaDocumentMetadata = {
     title: post.title,
     uri: `https://www.lesswrong.com${postGetPageUrl(post)}`,
     available_time: post.postedAt.toISOString(),
-    categories: tagIds ?? [],
+    categories: tagIds,
     filter_tags: tagIds,
     persons,
     media_type: 'articles',
@@ -275,14 +278,6 @@ interface InViewEvent {
 function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStatus: DbReadStatus): protos.google.cloud.discoveryengine.v1.IUserEvent {
   const { userId, postId, lastUpdated: timestamp } = readStatus;
 
-  if (!(!!userId && !!postId && !!timestamp)) {
-    console.log('something missing in createGoogleViewItemEvent', { eventType, userId, postId, timestamp });
-  }
-
-  if (postId!.length >= 128) {
-    console.log('postId too long', { postId });
-  }
-
   return {
     eventType,
     // TODO - this should be clientId if doing real stuff with it
@@ -298,14 +293,6 @@ function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStat
 
 function createGoogleMediaCompleteEvent(inViewEvent: InViewEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
   const { userId, postId, timestamp } = inViewEvent;
-
-  if (!(!!userId && !!postId && !!timestamp)) {
-    console.log('something missing in createGoogleMediaCompleteEvent', { userId, postId, timestamp });
-  }
-  
-  if (postId!.length >= 128) {
-    console.log('postId too long', { postId });
-  }
 
   return {
     eventType: 'media-complete',
@@ -387,7 +374,7 @@ async function backfillPosts(offsetDate?: Date) {
         upvoteCount
       }));
 
-      const googleMediaDocuments = postsWithTags.filter(({ tags }) => tags.length).map(createGoogleMediaDocumentJson);
+      const googleMediaDocuments = postsWithTags.map(createGoogleMediaDocumentJson);
       if (googleMediaDocuments.length) {
         const postIds = postsWithTags.map(({ post }) => post._id);
         const readStatusOperation = () => ReadStatuses.find(
