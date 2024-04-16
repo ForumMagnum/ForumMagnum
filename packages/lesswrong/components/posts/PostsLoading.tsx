@@ -6,7 +6,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 const PostsLoading = ({placeholderCount}: {
   placeholderCount?: number
 }) => {
-  if (placeholderCount && isFriendlyUI) {
+  if (!placeholderCount) {
+    return <Components.Loading />;
+  }
+
+  if (isFriendlyUI) {
     return <>
       {range(0, placeholderCount)
         .map(i => <Components.FriendlyPlaceholderPostsItem
@@ -14,7 +18,13 @@ const PostsLoading = ({placeholderCount}: {
         />)}
     </>
   } else {
-    return <Components.Loading />
+    return <>
+      {range(0, placeholderCount)
+        .map(i => <Components.LWPlaceholderPostsItem
+          key={i}
+          showBottomBorder={i+1<placeholderCount}
+        />)}
+    </>
   }
 };
 
