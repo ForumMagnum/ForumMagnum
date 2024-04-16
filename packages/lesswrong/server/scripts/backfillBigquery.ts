@@ -8,8 +8,10 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { DocumentServiceClient, UserEventServiceClient, protos } from "@google-cloud/discoveryengine";
 import groupBy from "lodash/groupBy";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
+import chunk from "lodash/chunk";
 
-const GOOGLE_PARENT_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore1_1712780871028/branches/default_branch';
+const GOOGLE_PARENT_DOCUMENTS_PATH = 'projects/lw-recommendations-2/locations/global/dataStores/datastore-lwrecommendations2_1713296505582/branches/default_branch';
+const GOOGLE_PARENT_EVENTS_PATH = 'projects/lw-recommendations-2/locations/global/dataStores/datastore-lwrecommendations2_1713296505582';
 
 export const getGoogleDocumentServiceClientOrThrow = (() => {
   let client: DocumentServiceClient;
@@ -273,12 +275,21 @@ interface InViewEvent {
 function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStatus: DbReadStatus): protos.google.cloud.discoveryengine.v1.IUserEvent {
   const { userId, postId, lastUpdated: timestamp } = readStatus;
 
+  if (!(!!userId && !!postId && !!timestamp)) {
+    console.log('something missing in createGoogleViewItemEvent', { eventType, userId, postId, timestamp });
+  }
+
+  if (postId!.length >= 128) {
+    console.log('postId too long', { postId });
+  }
+
   return {
     eventType,
     // TODO - this should be clientId if doing real stuff with it
     userPseudoId: userId, 
     eventTime: {
-      seconds: timestamp.getTime() / 1000
+      seconds: timestamp.getTime() / 1000,
+      nanos: 0
     },
     userInfo: { userId },
     documents: [ { id: postId } ],
@@ -288,12 +299,21 @@ function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStat
 function createGoogleMediaCompleteEvent(inViewEvent: InViewEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
   const { userId, postId, timestamp } = inViewEvent;
 
+  if (!(!!userId && !!postId && !!timestamp)) {
+    console.log('something missing in createGoogleMediaCompleteEvent', { userId, postId, timestamp });
+  }
+  
+  if (postId!.length >= 128) {
+    console.log('postId too long', { postId });
+  }
+
   return {
     eventType: 'media-complete',
     // TODO - this should be clientId if doing real stuff with it
     userPseudoId: userId, 
     eventTime: {
-      seconds: timestamp.getTime() / 1000
+      seconds: timestamp.getTime() / 1000,
+      nanos: 0
     },
     userInfo: { userId },
     documents: [ { id: postId } ],
@@ -342,7 +362,7 @@ async function backfillPosts(offsetDate?: Date) {
   const documentClient = getGoogleDocumentServiceClientOrThrow();
   const userEventClient = getGoogleUserEventServiceClientOrThrow();
 
-  const inViewEvents: InViewEvent[] = JSON.parse((await readFile('/Users/robert/Documents/repos/ForumMagnum/in_view_events_for_google_20240415.json')).toString());
+  const inViewEvents: InViewEvent[] = JSON.parse((await readFile('/Users/rbloom/git/lesswrongSuite/in_view_events_for_google_20240415.json')).toString());
   const indexedInViewEvents = indexInViewEvents(inViewEvents);
 
   if (!offsetDate) {
@@ -376,7 +396,7 @@ async function backfillPosts(offsetDate?: Date) {
           { _id: 1, userId: 1, postId: 1, lastUpdated: 1 }
         ).fetch();
         
-        const [importDocumentsOperation] = await documentClient.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_PATH });
+        const [importDocumentsOperation] = await documentClient.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_DOCUMENTS_PATH });
         const [[importDocumentsResponse], readStatuses] = await Promise.all([
           importDocumentsOperation.promise(),
           readStatusOperation()
@@ -404,11 +424,16 @@ async function backfillPosts(offsetDate?: Date) {
 
         const userEvents = [...viewItemEvents, ...mediaPlayEvents, ...mediaCompleteEvents];
 
-        const [importUserEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents }, parent: GOOGLE_PARENT_PATH });
-        const [importUserEventsResponse] = await importUserEventsOperation.promise();
-        if (importUserEventsResponse.errorSamples?.length) {
-          // eslint-disable-next-line no-console
-          console.log('Error importing user events', { error: importUserEventsResponse.errorSamples[0] });
+        //chunk sending user events with batch size of 90000, using lodash chunk function
+        const chunkSize = 90000;
+        const chunkedUserEvents = chunk(userEvents, chunkSize);
+        for (const chunk of chunkedUserEvents) {
+          const [importUserEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents: chunk }, parent: GOOGLE_PARENT_EVENTS_PATH });
+          const [importUserEventsResponse] = await importUserEventsOperation.promise();
+          if (importUserEventsResponse.errorSamples?.length) {
+            // eslint-disable-next-line no-console
+            console.log('Error importing user events', { error: importUserEventsResponse.errorSamples[0] });
+          }
         }
       }
       // const bigQueryRecordBatch = await Promise.all(postsWithTags.map(({ post, tags, authors, upvoteCount }) => createAEPostRecord({ post, context: adminContext, tags, authors, upvoteCount })));
@@ -426,7 +451,7 @@ async function backfillPosts(offsetDate?: Date) {
     }  
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log(`Error when backfilling recombee with posts.  Last offset date: ${offsetDate.toISOString()}`, { err });
+    console.log(`Error when backfilling BigQuery/Google with posts.  Last offset date: ${offsetDate.toISOString()}`, { err });
   }
 }
 
