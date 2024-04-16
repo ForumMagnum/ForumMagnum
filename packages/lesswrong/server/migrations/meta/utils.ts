@@ -12,7 +12,7 @@ import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
 import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
-import { Type } from "../../../lib/sql/Type";
+import { JsonType, Type } from "../../../lib/sql/Type";
 import LogTableQuery from "../../../lib/sql/LogTableQuery";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
@@ -164,10 +164,56 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
   }
 }
 
-export const normalizeEditableField = async (db: SqlClientOrTx) => {
-  // TODO
+export const normalizeEditableField = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  fieldName: string,
+) => {
+  const {collectionName} = collection;
+  await db.none(`
+    UPDATE "Revisions" AS r
+    SET
+      "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
+      "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
+      "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
+      "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
+      "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
+      "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
+      "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
+      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents")
+    FROM "${collectionName}" AS p
+    WHERE
+      r."collectionName" = '${collectionName}'
+      AND r."fieldName" = '${fieldName}'
+      AND p."${fieldName}_latest" = r."_id"
+      AND p."${fieldName}"->>'html' <> r."html"
+  `);
+  await dropRemovedField(db, collection, fieldName);
 }
 
-export const denormalizeEditableField = async (db: SqlClientOrTx) => {
-  // TODO
+export const denormalizeEditableField = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  fieldName: string,
+) => {
+  const {collectionName} = collection;
+  await addRemovedField(db, collection, fieldName, new JsonType());
+  await db.none(`
+    UPDATE "${collectionName}" AS p
+    SET "${fieldName}" = JSONB_BUILD_OBJECT(
+      'html', r."html",
+      'userId', r."userId",
+      'version', r."version",
+      'editedAt', r."editedAt",
+      'wordCount', r."wordCount",
+      'updateType', r."updateType",
+      'commitMessage', r."commitMessage",
+      'originalContents', r."originalContents"
+    )
+    FROM "Revisions" AS r
+    WHERE
+      r."collectionName" = '${collectionName}'
+      AND r."fieldName" = '${fieldName}'
+      AND p."${fieldName}_latest" = r."_id"
+  `);
 }
