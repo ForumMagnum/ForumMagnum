@@ -1,4 +1,4 @@
-import { writeFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
@@ -307,47 +307,43 @@ function createDelimitedJsonString<T>(records: T[]) {
   return records.map(record => JSON.stringify(record)).join('\n');
 }
 
-const testInViewEvents = [
-  {
-    userId: 'abc123',
-    postId: 'xyz789',
-    timestamp: new Date(),
-  },
-  {
-    userId: 'def456',
-    postId: 'xyz789',
-    timestamp: new Date(),
-  }
-]
+// function getPostUserTimestamps(inViewTimestamps: InViewTimestamps[]): Record<string,Record<string, Date[]>>{
+//   const indexedInViewEvents: Record<string, Record<string, Date[]>> = {}
 
-interface InViewTimestamps {
-  postId: string;
-  userId: string;
-  timestamps: Date[];
-}
+//   return inViewTimestamps.reduce((acc, { postId, userId, timestamps }) => {
+//     acc[postId] ??= {};
+//     acc[postId][userId] = timestamps;
+//     return acc;
+//   }, indexedInViewEvents);
+// }
 
-function getPostUserTimestamps(inViewTimestamps: InViewTimestamps[]): Record<string,Record<string, Date[]>>{
-  const indexedInViewEvents: Record<string, Record<string, Date[]>> = {}
+function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<string, Date>> {
+  const indexedInViewEvents: Record<string, Record<string, Date>> = {};
 
-  return inViewTimestamps.reduce((acc, { postId, userId, timestamps }) => {
+  // eslint-disable-next-line no-console
+  console.log(`Indexing ${inViewEvents.length} inViewEvents`);
+
+  inViewEvents.reduce((acc, { postId, userId, timestamp }) => {
     acc[postId] ??= {};
-    acc[postId][userId] = timestamps;
+    acc[postId][userId] = timestamp;
     return acc;
   }, indexedInViewEvents);
+
+  // eslint-disable-next-line no-console
+  console.log(`Indexed inViewEvents for ${Object.keys(indexedInViewEvents).length} posts`);
+
+  return indexedInViewEvents;
 }
 
-
-const indexedInViewEvents = groupBy(testInViewEvents, 'postId');
-
-function getInViewEventsByPostId(postId: string) {  
-  return indexedInViewEvents[postId] ?? [];
-}
 
 async function backfillPosts(offsetDate?: Date) {
   const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
   const documentClient = getGoogleDocumentServiceClientOrThrow();
   const userEventClient = getGoogleUserEventServiceClientOrThrow();
+
+  const inViewEvents: InViewEvent[] = JSON.parse((await readFile('/Users/robert/Documents/repos/ForumMagnum/in_view_events_for_google_20240415.json')).toString());
+  const indexedInViewEvents = indexInViewEvents(inViewEvents);
 
   if (!offsetDate) {
     ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
@@ -373,40 +369,47 @@ async function backfillPosts(offsetDate?: Date) {
 
       const googleMediaDocuments = postsWithTags.filter(({ tags }) => tags.length).map(createGoogleMediaDocumentJson);
       if (googleMediaDocuments.length) {
-        const [operation] = await documentClient.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_PATH });
-        const [response] = await operation.promise();
-        if (response.errorSamples?.length) {
-          // eslint-disable-next-line no-console
-          console.log({ error: response.errorSamples[0] });
-        }  
-
-        const postIds = postsWithTags.map(({post}) => post._id)
-
-        const readStatuses = await ReadStatuses.find(
+        const postIds = postsWithTags.map(({ post }) => post._id);
+        const readStatusOperation = () => ReadStatuses.find(
           { postId: { $in: postIds }, isRead: true }, 
           undefined, 
           { _id: 1, userId: 1, postId: 1, lastUpdated: 1 }
-        ).fetch()
+        ).fetch();
         
+        const [importDocumentsOperation] = await documentClient.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_PATH });
+        const [[importDocumentsResponse], readStatuses] = await Promise.all([
+          importDocumentsOperation.promise(),
+          readStatusOperation()
+        ]);
 
+        if (importDocumentsResponse.errorSamples?.length) {
+          // eslint-disable-next-line no-console
+          console.log('Error importing documents', { error: importDocumentsResponse.errorSamples[0] });
+        }  
+
+        const postReadStatusMap = groupBy(readStatuses, 'postId');
+        
         const viewItemEvents = readStatuses.map(readStatus => createGoogleViewItemEvent('view-item', readStatus));
         const mediaPlayEvents = readStatuses.map(readStatus => createGoogleViewItemEvent('media-play', readStatus));
 
-        const inViewEvents = postsWithTags.map(({ post }) => getInViewEventsByPostId(post._id)).flat();
+        const inViewEvents = postsWithTags.map(({ post }) => {
+          const postReadStatuses = postReadStatusMap[post._id] ?? [];
+          return postReadStatuses.filter(({ postId, userId }) => !!indexedInViewEvents[postId!]?.[userId]).map(({ postId, userId }) => {
+            const timestamp = indexedInViewEvents[postId!][userId];
+            return { postId, userId, timestamp };
+          })
+        }).flat();
+
         const mediaCompleteEvents = inViewEvents.map(createGoogleMediaCompleteEvent);
 
         const userEvents = [...viewItemEvents, ...mediaPlayEvents, ...mediaCompleteEvents];
 
-        const [userEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents }, parent: GOOGLE_PARENT_PATH });
-        const [userEventsResponse] = await userEventsOperation.promise();
-        if (userEventsResponse.errorSamples?.length) {
+        const [importUserEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents }, parent: GOOGLE_PARENT_PATH });
+        const [importUserEventsResponse] = await importUserEventsOperation.promise();
+        if (importUserEventsResponse.errorSamples?.length) {
           // eslint-disable-next-line no-console
-          console.log({ error: userEventsResponse.errorSamples[0] });
-        }  
-
-
-        
-
+          console.log('Error importing user events', { error: importUserEventsResponse.errorSamples[0] });
+        }
       }
       // const bigQueryRecordBatch = await Promise.all(postsWithTags.map(({ post, tags, authors, upvoteCount }) => createAEPostRecord({ post, context: adminContext, tags, authors, upvoteCount })));
       // await writeFile(`aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(bigQueryRecordBatch));
