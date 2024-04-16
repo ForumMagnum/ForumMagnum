@@ -19,9 +19,9 @@ const styles = (theme: ThemeType) => ({
     columnGap: 8,
   },
   tab: {
-    width: '100px',
+    width: '140px',
     backgroundColor: theme.palette.panelBackground.default,
-    color: theme.palette.grey[500],
+    color: theme.palette.tab.inactive.text,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: '23px',
@@ -30,14 +30,15 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 3,
     cursor: 'pointer',
     '&:hover': {
-      color: theme.palette.grey[700],
+      color: theme.palette.tab.inactive.hover.text
     },
   },
   activeTab: {
-    backgroundColor: theme.palette.grey[300],
-    color: theme.palette.grey[700],
+    backgroundColor: theme.palette.tab.active.background,
+    color: theme.palette.tab.active.text,
     '&:hover': {
-     color: theme.palette.grey[800],
+      color: theme.palette.tab.active.text,
+      backgroundColor: theme.palette.tab.active.hover.background
     },
   },
   tagDescriptionTooltip: {

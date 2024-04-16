@@ -489,6 +489,22 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
     onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
   },
+  tab: {
+    inactive: {
+      text: shades.grey[500],
+      hover: {
+        text: shades.grey[700]
+      }
+    },
+    active: {
+      background: "rgba(127, 175, 131, 1)",
+      text: shades.grey[0],
+      hover: {
+        background: "rgba(127, 175, 131, 0.7)",
+      }
+    },
+  },
+
   geosuggest: {
     dropdownText: "#000",
     dropdownBackground: "#fff",
