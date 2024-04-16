@@ -1,7 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
-import { JsonType, Type } from "./Type";
+import { JsonType } from "./Type";
 
 export type UpdateOptions = Partial<{
   limit: number,
@@ -186,6 +186,9 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
+      if (this.table instanceof Table && this.table.hasResolverOnlyField(field)) {
+        return [];
+      }
       // @ts-ignore
       throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }

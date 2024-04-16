@@ -93,6 +93,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   const {
     fieldName = "contents",
     pingbacks = false,
+    normalized,
   } = options
 
   const collectionName = collection.collectionName;
@@ -155,11 +156,13 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
       return {
         ...doc,
-        [fieldName]: {
-          ...doc[fieldName],
-          html, version, userId, editedAt, wordCount,
-          updateType: 'initial'
-        },
+        ...(!normalized && {
+          [fieldName]: {
+            ...doc[fieldName],
+            html, version, userId, editedAt, wordCount,
+            updateType: 'initial'
+          },
+        }),
         [`${fieldName}_latest`]: firstRevision.data._id,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, null),
@@ -228,10 +231,12 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
       return {
         ...docData,
-        [fieldName]: {
-          ...docData[fieldName],
-          html, version, userId, editedAt, wordCount
-        },
+        ...(!normalized && {
+          [fieldName]: {
+            ...docData[fieldName],
+            html, version, userId, editedAt, wordCount
+          },
+        }),
         [`${fieldName}_latest`]: newRevisionId,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, [{
