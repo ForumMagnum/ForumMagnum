@@ -10,8 +10,8 @@ import groupBy from "lodash/groupBy";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import chunk from "lodash/chunk";
 
-const GOOGLE_PARENT_DOCUMENTS_PATH = 'projects/lw-recommendations-2/locations/global/dataStores/datastore-lwrecommendations2_1713296505582/branches/default_branch';
-const GOOGLE_PARENT_EVENTS_PATH = 'projects/lw-recommendations-2/locations/global/dataStores/datastore-lwrecommendations2_1713296505582';
+const GOOGLE_PARENT_DOCUMENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lwrecommendations2_1713296505582/branches/default_branch';
+const GOOGLE_PARENT_EVENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lwrecommendations2_1713296505582';
 
 export const getGoogleDocumentServiceClientOrThrow = (() => {
   let client: DocumentServiceClient;
