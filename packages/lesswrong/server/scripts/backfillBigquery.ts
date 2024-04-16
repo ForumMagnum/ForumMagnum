@@ -5,7 +5,9 @@ import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { Globals, createAdminContext } from "../vulcan-lib";
 import findByIds from "../vulcan-lib/findbyids";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { DocumentServiceClient, protos } from "@google-cloud/discoveryengine";
+import { DocumentServiceClient, UserEventServiceClient, protos } from "@google-cloud/discoveryengine";
+import groupBy from "lodash/groupBy";
+import ReadStatuses from "../../lib/collections/readStatus/collection";
 
 const GOOGLE_PARENT_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore1_1712780871028/branches/default_branch';
 
@@ -14,8 +16,20 @@ export const getGoogleDocumentServiceClientOrThrow = (() => {
 
   return () => {
     if (!client) {
-      // TODO - pull out client options like region to db settings?
       client = new DocumentServiceClient();
+    }
+
+    return client;
+  };
+})();
+
+
+export const getGoogleUserEventServiceClientOrThrow = (() => {
+  let client: UserEventServiceClient;
+
+  return () => {
+    if (!client) {
+      client = new UserEventServiceClient();
     }
 
     return client;
@@ -250,14 +264,90 @@ function createGoogleMediaDocumentJson({ post, tags, authorIds }: CreateGoogleMe
   };
 }
 
+interface InViewEvent {
+  userId: string;
+  postId: string;
+  timestamp: Date;
+}
+
+function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStatus: DbReadStatus): protos.google.cloud.discoveryengine.v1.IUserEvent {
+  const { userId, postId, lastUpdated: timestamp } = readStatus;
+
+  return {
+    eventType,
+    // TODO - this should be clientId if doing real stuff with it
+    userPseudoId: userId, 
+    eventTime: {
+      seconds: timestamp.getTime() / 1000
+    },
+    userInfo: { userId },
+    documents: [ { id: postId } ],
+  };
+}
+
+function createGoogleMediaCompleteEvent(inViewEvent: InViewEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
+  const { userId, postId, timestamp } = inViewEvent;
+
+  return {
+    eventType: 'media-complete',
+    // TODO - this should be clientId if doing real stuff with it
+    userPseudoId: userId, 
+    eventTime: {
+      seconds: timestamp.getTime() / 1000
+    },
+    userInfo: { userId },
+    documents: [ { id: postId } ],
+    mediaInfo: {
+      mediaProgressPercentage: 1
+    }
+  };
+}
+
 function createDelimitedJsonString<T>(records: T[]) {
   return records.map(record => JSON.stringify(record)).join('\n');
+}
+
+const testInViewEvents = [
+  {
+    userId: 'abc123',
+    postId: 'xyz789',
+    timestamp: new Date(),
+  },
+  {
+    userId: 'def456',
+    postId: 'xyz789',
+    timestamp: new Date(),
+  }
+]
+
+interface InViewTimestamps {
+  postId: string;
+  userId: string;
+  timestamps: Date[];
+}
+
+function getPostUserTimestamps(inViewTimestamps: InViewTimestamps[]): Record<string,Record<string, Date[]>>{
+  const indexedInViewEvents: Record<string, Record<string, Date[]>> = {}
+
+  return inViewTimestamps.reduce((acc, { postId, userId, timestamps }) => {
+    acc[postId] ??= {};
+    acc[postId][userId] = timestamps;
+    return acc;
+  }, indexedInViewEvents);
+}
+
+
+const indexedInViewEvents = groupBy(testInViewEvents, 'postId');
+
+function getInViewEventsByPostId(postId: string) {  
+  return indexedInViewEvents[postId] ?? [];
 }
 
 async function backfillPosts(offsetDate?: Date) {
   const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
-  const client = getGoogleDocumentServiceClientOrThrow();
+  const documentClient = getGoogleDocumentServiceClientOrThrow();
+  const userEventClient = getGoogleUserEventServiceClientOrThrow();
 
   if (!offsetDate) {
     ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
@@ -283,11 +373,40 @@ async function backfillPosts(offsetDate?: Date) {
 
       const googleMediaDocuments = postsWithTags.filter(({ tags }) => tags.length).map(createGoogleMediaDocumentJson);
       if (googleMediaDocuments.length) {
-        const [operation] = await client.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_PATH });
+        const [operation] = await documentClient.importDocuments({ inlineSource: { documents: googleMediaDocuments }, parent: GOOGLE_PARENT_PATH });
         const [response] = await operation.promise();
         if (response.errorSamples?.length) {
+          // eslint-disable-next-line no-console
           console.log({ error: response.errorSamples[0] });
         }  
+
+        const postIds = postsWithTags.map(({post}) => post._id)
+
+        const readStatuses = await ReadStatuses.find(
+          { postId: { $in: postIds }, isRead: true }, 
+          undefined, 
+          { _id: 1, userId: 1, postId: 1, lastUpdated: 1 }
+        ).fetch()
+        
+
+        const viewItemEvents = readStatuses.map(readStatus => createGoogleViewItemEvent('view-item', readStatus));
+        const mediaPlayEvents = readStatuses.map(readStatus => createGoogleViewItemEvent('media-play', readStatus));
+
+        const inViewEvents = postsWithTags.map(({ post }) => getInViewEventsByPostId(post._id)).flat();
+        const mediaCompleteEvents = inViewEvents.map(createGoogleMediaCompleteEvent);
+
+        const userEvents = [...viewItemEvents, ...mediaPlayEvents, ...mediaCompleteEvents];
+
+        const [userEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents }, parent: GOOGLE_PARENT_PATH });
+        const [userEventsResponse] = await userEventsOperation.promise();
+        if (userEventsResponse.errorSamples?.length) {
+          // eslint-disable-next-line no-console
+          console.log({ error: userEventsResponse.errorSamples[0] });
+        }  
+
+
+        
+
       }
       // const bigQueryRecordBatch = await Promise.all(postsWithTags.map(({ post, tags, authors, upvoteCount }) => createAEPostRecord({ post, context: adminContext, tags, authors, upvoteCount })));
       // await writeFile(`aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(bigQueryRecordBatch));
