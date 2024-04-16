@@ -4,7 +4,7 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import { pickerMiddleware } from './vendor/picker';
+import { pickerMiddleware } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
