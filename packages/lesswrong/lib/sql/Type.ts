@@ -7,7 +7,6 @@ import { ForumTypeString } from "../instanceSettings";
 
 const forceNonResolverFields = [
   "contents",
-  "moderationGuidelines",
   "customHighlight",
   "originalContents",
   "description",

@@ -88,7 +88,7 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): 
 
 function addEditableCallbacks<N extends CollectionNameString>({collection, options = {}}: {
   collection: CollectionBase<N>,
-  options: MakeEditableOptions
+  options: MakeEditableOptions<N>,
 }) {
   const {
     fieldName = "contents",
