@@ -163,3 +163,11 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
     await db.none(query);
   }
 }
+
+export const normalizeEditableField = async (db: SqlClientOrTx) => {
+  // TODO
+}
+
+export const denormalizeEditableField = async (db: SqlClientOrTx) => {
+  // TODO
+}

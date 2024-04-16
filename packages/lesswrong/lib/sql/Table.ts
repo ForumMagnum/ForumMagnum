@@ -91,11 +91,14 @@ class Table<T extends DbObject> {
         table.addField("_id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
-        if (isResolverOnly(field, fieldSchema)) {
+        if (isResolverOnly(collection, field, fieldSchema)) {
           table.resolverOnlyFields.add(field);
         } else {
           const indexSchema = schema[`${field}.$`];
-          table.addField(field, Type.fromSchema(field, fieldSchema, indexSchema, forumType));
+          table.addField(
+            field,
+            Type.fromSchema(collection, field, fieldSchema, indexSchema, forumType),
+          );
         }
       }
     }
