@@ -272,7 +272,10 @@ function createGoogleMediaDocumentJson({ post, tags, authorIds }: CreateGoogleMe
 interface InViewEvent {
   userId: string;
   postId: string;
-  timestamp: Date;
+  /**
+   * When generating the table with these events, we forgot to alias the MIN(timestamp) back to `timestamp`.
+   */
+  min: string;
 }
 
 function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStatus: DbReadStatus): protos.google.cloud.discoveryengine.v1.IUserEvent {
@@ -292,14 +295,14 @@ function createGoogleViewItemEvent(eventType: 'view-item'|'media-play', readStat
 }
 
 function createGoogleMediaCompleteEvent(inViewEvent: InViewEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
-  const { userId, postId, timestamp } = inViewEvent;
+  const { userId, postId, min } = inViewEvent;
 
   return {
     eventType: 'media-complete',
     // TODO - this should be clientId if doing real stuff with it
     userPseudoId: userId, 
     eventTime: {
-      seconds: timestamp.getTime() / 1000,
+      seconds: new Date(min).getTime() / 1000,
       nanos: 0
     },
     userInfo: { userId },
@@ -314,25 +317,15 @@ function createDelimitedJsonString<T>(records: T[]) {
   return records.map(record => JSON.stringify(record)).join('\n');
 }
 
-// function getPostUserTimestamps(inViewTimestamps: InViewTimestamps[]): Record<string,Record<string, Date[]>>{
-//   const indexedInViewEvents: Record<string, Record<string, Date[]>> = {}
-
-//   return inViewTimestamps.reduce((acc, { postId, userId, timestamps }) => {
-//     acc[postId] ??= {};
-//     acc[postId][userId] = timestamps;
-//     return acc;
-//   }, indexedInViewEvents);
-// }
-
-function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<string, Date>> {
-  const indexedInViewEvents: Record<string, Record<string, Date>> = {};
+function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<string, string>> {
+  const indexedInViewEvents: Record<string, Record<string, string>> = {};
 
   // eslint-disable-next-line no-console
   console.log(`Indexing ${inViewEvents.length} inViewEvents`);
 
-  inViewEvents.reduce((acc, { postId, userId, timestamp }) => {
+  inViewEvents.reduce((acc, { postId, userId, min }) => {
     acc[postId] ??= {};
-    acc[postId][userId] = timestamp;
+    acc[postId][userId] = min;
     return acc;
   }, indexedInViewEvents);
 
@@ -360,7 +353,7 @@ async function backfillPosts(offsetDate?: Date) {
   const documentClient = getGoogleDocumentServiceClientOrThrow();
   const userEventClient = getGoogleUserEventServiceClientOrThrow();
 
-  const inViewEvents: InViewEvent[] = JSON.parse((await readFile('/Users/rbloom/git/lesswrongSuite/in_view_events_for_google_20240415.json')).toString());
+  const inViewEvents: InViewEvent[] = JSON.parse((await readFile('/Users/robert/Documents/repos/ForumMagnum/in_view_events_for_google_20240415.json')).toString());
   const indexedInViewEvents = indexInViewEvents(inViewEvents);
 
   if (!offsetDate) {
@@ -403,7 +396,7 @@ async function backfillPosts(offsetDate?: Date) {
         if (importDocumentsResponse.errorSamples?.length) {
           // eslint-disable-next-line no-console
           console.log('Error importing documents', { error: importDocumentsResponse.errorSamples[0] });
-        }  
+        }
 
         const postReadStatusMap = groupBy(readStatuses, 'postId');
         
@@ -412,9 +405,10 @@ async function backfillPosts(offsetDate?: Date) {
 
         const inViewEvents = postsWithTags.map(({ post }) => {
           const postReadStatuses = postReadStatusMap[post._id] ?? [];
-          return postReadStatuses.filter(({ postId, userId }) => !!indexedInViewEvents[postId!]?.[userId]).map(({ postId, userId }) => {
-            const timestamp = indexedInViewEvents[postId!][userId];
-            return { postId, userId, timestamp };
+          const correspondingInViewEvents = postReadStatuses.filter(({ postId, userId }) => !!indexedInViewEvents[postId!]?.[userId]);
+          return correspondingInViewEvents.map(({ postId, userId }) => {
+            const min = indexedInViewEvents[postId!][userId];
+            return { postId, userId, min };
           })
         }).flat();
 
@@ -422,9 +416,7 @@ async function backfillPosts(offsetDate?: Date) {
 
         const userEvents = [...viewItemEvents, ...mediaPlayEvents, ...mediaCompleteEvents];
 
-        //chunk sending user events with batch size of 90000, using lodash chunk function
-        const chunkSize = 90000;
-        const chunkedUserEvents = chunk(userEvents, chunkSize);
+        const chunkedUserEvents = chunk(userEvents, 90000);
         for (const chunk of chunkedUserEvents) {
           const [importUserEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents: chunk }, parent: GOOGLE_PARENT_EVENTS_PATH });
           const [importUserEventsResponse] = await importUserEventsOperation.promise();
@@ -465,7 +457,6 @@ async function backfillFrontpageViews(offsetDate?: Date) {
 
   //log first 10 frontpageViewEvents to console
   console.log(frontpageViewEvensts.slice(0, 10));
-
 
   const chunkSize = 90000;
   const chunkedFrontpageViews = chunk(frontpageViewEvensts, chunkSize);
