@@ -5,7 +5,6 @@ import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../l
 import Card from '@material-ui/core/Card';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { sortTags } from '../../tagging/FooterTagList';
 import { useSingle } from '../../../lib/crud/withSingle';
 import { useForeignApolloClient } from '../../hooks/useForeignApolloClient';
 import { POST_PREVIEW_ELEMENT_CONTEXT, POST_PREVIEW_WIDTH } from './helpers';
@@ -192,8 +191,6 @@ const LWPostsPreviewTooltip = ({
   const truncatedHighlight = truncate(highlight, expanded ? 200 : 100, "words", `... <span class="expand">(more)</span>`)
 
   const renderedComment = comment || post.bestAnswer
-
-  const tags = sortTags(post.tags, t=>t)
   
   let eventLocation = post.onlineEvent ? <div>Online event</div> : null
   if (post.isEvent && post.location) {
@@ -213,8 +210,8 @@ const LWPostsPreviewTooltip = ({
                 {post.startTime && <EventTime post={post} />}
                 {eventLocation}
                 {postCategory}
-                {postCategory && (tags?.length > 0) && " – "}
-                {tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
+                {postCategory && (post.tags?.length > 0) && " – "}
+                {post.tags?.map((tag, i) => <span key={tag._id}>{tag.name}{(i !== (post.tags?.length - 1)) ? ",  " : ""}</span>)}
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>

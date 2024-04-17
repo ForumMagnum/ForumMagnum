@@ -50,14 +50,15 @@ export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
+  const {currentForumEvent} = useCurrentForumEvent();
+
   const {document: post} = useSingle({
     collectionName: "Posts",
     fragmentName: "PostsDetails",
     documentId: params._id,
-    skip: !hasForumEvents || !params._id,
+    skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId,
   });
 
-  const {currentForumEvent} = useCurrentForumEvent();
   if (!currentForumEvent || !post) {
     return null;
   }

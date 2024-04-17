@@ -82,9 +82,10 @@ const UsersNameDisplay = ({
   if (simple) {
     return <span
       {...eventHandlers}
-      className={classNames(colorClass, className, {
-        [classes.noKibitz]: noKibitz
-      })}
+      className={classNames(
+        colorClass, className,
+        noKibitz && classes.noKibitz
+      )}
     >
       {displayName}
     </span>
@@ -105,7 +106,7 @@ const UsersNameDisplay = ({
         >
           <Link
             to={profileUrl}
-            className={classNames(colorClass, { [classes.noKibitz]: noKibitz, })}
+            className={classNames(colorClass, noKibitz && classes.noKibitz)}
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}

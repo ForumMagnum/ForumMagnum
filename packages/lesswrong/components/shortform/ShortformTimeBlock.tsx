@@ -5,7 +5,7 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (_: ThemeType): JssStyles => ({
   shortformGroup: {
-    marginTop: isFriendlyUI ? -10 : 12,
+    marginTop: isFriendlyUI ? 20 : 12,
   },
   subtitle: {
     marginTop: 6,
