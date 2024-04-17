@@ -67,7 +67,7 @@ const AllPostsList = ({
     before: query.before,
   };
 
-  const {PostsTimeframeList, PostsList2} = Components;
+  const {PostsTimeframeList, PostsTimeframeListExponential, PostsList2} = Components;
 
   if (currentTimeframe === "allTime") {
     return (
@@ -86,7 +86,7 @@ const AllPostsList = ({
       </AnalyticsContext>
     );
   }
-
+  
   const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType];
   const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType];
 
@@ -97,6 +97,19 @@ const AllPostsList = ({
 
   if (parseInt(query.limit)) {
     postListParameters.limit = parseInt(query.limit);
+  }
+
+  if (currentTimeframe === 'exponential') {
+    return (
+      <AnalyticsContext
+        listContext={"allPostsPage"}
+        terms={postListParameters}
+      >
+        <PostsTimeframeListExponential
+          postListParameters={postListParameters}
+        />
+      </AnalyticsContext>
+    );
   }
 
   const after = query.after || getAfterDefault({
