@@ -345,7 +345,7 @@ export function startWebserver() {
     const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
 
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
