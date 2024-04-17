@@ -5,7 +5,7 @@ import moment from 'moment';
 import type { Moment } from 'moment';
 import { getTimeBlockTitle } from './PostsTimeframeList';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { loadMoreTimeframeMessages } from './timeframeUtils';
+import { loadMoreTimeframeMessages, TimeframeType } from './timeframeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
 })
@@ -13,6 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
 interface TimeBlockRange {
   before: Moment
   after: Moment
+  // Approximate size of the timeframe (used for things like the empty-list message)
+  timeframe: TimeframeType
+  // Title on the block, with variants for different screen sizes
   getTitle: (size: 'xsDown' | 'smUp' | null) => string
 }
 
@@ -33,25 +36,29 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
     {
       after: moment(now).add(-1,'d').startOf('day'),
       before: moment(now).endOf('day'),
-      getTitle: (size) => "Today and Yesterday",
+      timeframe: "daily",
+      getTitle: (size) => preferredHeadingCase("Today and Yesterday"),
     },
     // Past week
     {
       after: moment(now).add(-7,'d').startOf('day'),
       before: moment(now).add(-1,'d').startOf('day'),
-      getTitle: (size) => "Past week",
+      timeframe: "weekly",
+      getTitle: (size) => preferredHeadingCase("Past week"),
     },
     // Past two weeks
     {
       after: moment(now).add(-14,'d').startOf('day'),
       before: moment(now).add(-7,'d').startOf('day'),
-      getTitle: (size) => "Past 14 days",
+      timeframe: "weekly",
+      getTitle: (size) => preferredHeadingCase("Past 14 days"),
     },
     // Past month
     {
       after: moment(now).add(-31,'d').startOf('day'),
       before: moment(now).add(-14,'d').startOf('day'),
-      getTitle: (size) => "Past 31 days",
+      timeframe: "monthly",
+      getTitle: (size) => preferredHeadingCase("Past 31 days"),
     }
   ];
   
@@ -60,6 +67,8 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
   timeframes.push({
     after: roundedMonthStart,
     before: moment(now).add(-31,'d').startOf('day'),
+    timeframe: "monthly",
+    // Not calling preferredHeadingCase because month names are always capitalized
     getTitle: (size) => `Since ${roundedMonthStart.format("MMMM Do")}`,
   });
 
@@ -70,6 +79,7 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
     timeframes.push({
       after: monthStart,
       before: monthEnd,
+      timeframe: "monthly",
       getTitle: (size) => getTimeBlockTitle(monthStart, 'monthly', size),
     });
   }
@@ -81,7 +91,7 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
         getTitle={timeframe.getTitle}
         before={timeframe.before}
         after={timeframe.after}
-        timeframe="weekly"
+        timeframe={timeframe.timeframe}
         terms={{
           ...postListParameters,
           limit: 16

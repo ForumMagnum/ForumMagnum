@@ -7,6 +7,7 @@ import { useTimezone } from '../common/withTimezone';
 
 import { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loading: {
@@ -41,6 +42,13 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   const [beforeState,setBeforeState] = useState(before);
   const [afterState,setAfterState] = useState(after);
 
+  useOnPropsChanged(() => {
+    setBeforeState(before);
+    setAfterState(after);
+    setDim(!!dimWhenLoading);
+    setDisplayedNumTimeBlocks(numTimeBlocks);
+  }, [before, after, timeframe, postListParameters]);
+  
   const loadMoreTimeBlocks = (e: React.MouseEvent) => {
     e.preventDefault();
     const pageSize = numTimeBlocks ?? 10;
