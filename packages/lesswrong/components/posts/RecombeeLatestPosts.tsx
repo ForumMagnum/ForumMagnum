@@ -25,6 +25,8 @@ import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { filterSettingsToggleLabels } from '../common/HomeLatestPosts';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TabRecord } from '../common/TabPicker';
+import { useContinueReading } from '../recommendations/withContinueReading';
+import { useMulti } from '../../lib/crud/withMulti';
 
 // Key is the algorithm/scenario name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -165,7 +167,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker, ResolverPostsList
+    TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -196,6 +198,19 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     forum: true,
     limit:limit
   };
+
+  const {continueReading} = useContinueReading()
+
+  const { count: countBookmarks } = useMulti({
+    collectionName: "Posts",
+    terms: {
+      view: "myBookmarkedPosts",
+    },
+    fragmentName: "PostsListWithVotes",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser?._id,
+  });
+
 
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
@@ -245,7 +260,12 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     availableAlgorithms.push(...testingFeeds);
   }
 
-  const enabledAlgorithms = availableAlgorithms.filter(feed => !feed.disabled);
+  const enabledAlgorithms = availableAlgorithms
+    .filter(feed => !feed.disabled)
+    .filter(feed => !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1))
+    .filter(feed => !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1));
+
+  console.log({selectedScenario, availableAlgorithms, enabledAlgorithms, })
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -300,23 +320,8 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
-              {selectedScenario.includes('recombee') && <AnalyticsContext feedType={selectedScenario}>
-              <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />
-              </AnalyticsContext>}
-              {(selectedScenario === 'lesswrong-good-discussions') && <AnalyticsContext feedType={selectedScenario}>
-                <ResolverPostsList
-                  resolverName="PostsWithActiveDiscussion"
-                  limit={13}
-                />
-               </AnalyticsContext>}
-              {(selectedScenario === 'lesswrong-subscribed-authors') && <AnalyticsContext feedType={selectedScenario}>
-                <ResolverPostsList
-                  resolverName="PostsBySubscribedAuthors"
-                  limit={13}
-                  fallbackText="Visits users' profile pages to subscribe to their posts and comments."
-                  showLoadMore
-                />
-               </AnalyticsContext>}
+
+              {/* LATEST POSTS (Hacker News Algorithm) */}
               {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
                 <PostsList2 
                   terms={recentPostsTerms} 
@@ -326,6 +331,33 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 
               </AnalyticsContext>}
+              
+              {/* RECOMBEE RECOMMENDATIONS */}
+              {selectedScenario.includes('recombee') && <AnalyticsContext feedType={selectedScenario}>
+                <RecombeePostsList algorithm={selectedScenario} settings={scenarioConfig} />
+              </AnalyticsContext>}
+
+              {/* BOOKMARKS */}
+              {(selectedScenario === 'lesswrong-bookmarks') && <AnalyticsContext feedType={selectedScenario}>
+                <BookmarksList showMessageIfEmpty={true} limit={13} />
+              </AnalyticsContext>}
+              
+              {/* CONTINUE READING */}
+              {(selectedScenario === 'lesswrong-continue-reading') && (continueReading?.length > 0) && <AnalyticsContext feedType={selectedScenario}>
+                <ContinueReadingList continueReading={continueReading}/>
+              </AnalyticsContext>}
+
+              {/* SUBSCRIBED */}
+              {(selectedScenario === 'lesswrong-subscribed-authors') && <AnalyticsContext feedType={selectedScenario}>
+                <ResolverPostsList
+                  resolverName="PostsBySubscribedAuthors"
+                  limit={13}
+                  fallbackText="Visits users' profile pages to subscribe to their posts and comments."
+                  showLoadMore
+                />
+               </AnalyticsContext>}
+
+              {/* CHRONOLIGCAL FEED */}
               {(selectedScenario === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedScenario}>
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
@@ -335,6 +367,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                   <Link to={"/allPosts"}>{advancedSortingText}</Link>
                 </PostsList2> 
               </AnalyticsContext>}
+
             </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
         </HideRepeatedPostsProvider>
