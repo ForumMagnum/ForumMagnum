@@ -51,8 +51,7 @@ interface DebouncedCallbackState<T> {
  * `options` does not need to be referentially stable, but the options
  * themselves may not change after  this has rendered for the first time.
  */
-export function useDebouncedCallback<T>(fn: (args: T) => void, options: DebouncedCallbackOptions): (args: T) => void
-{
+export function useDebouncedCallback<T>(fn: (args: T) => void, options: DebouncedCallbackOptions): (args: T) => void {
   const { rateLimitMs, callOnLeadingEdge, onUnmount, allowExplicitCallAfterUnmount } = options;
   const refStabilizedFn = useStabilizedCallback(fn);
   const _state = useRef<DebouncedCallbackState<T>>({
@@ -66,11 +65,9 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
   useEffect(() => {
     const state = _state.current;
     state.isMounted = true;
-    //console.log("Mount");
 
     return () => {
       if (state.isMounted) {
-        //console.log("Unmount");
         state.isMounted = false;
         if (state.callIsPending) {
           switch(onUnmount) {
@@ -101,15 +98,12 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
   
   return useCallback((args: T) => {
     if (!options.allowExplicitCallAfterUnmount && !_state.current.isMounted) {
-      //console.log("Call after unmount attempted");
       return;
     }
     if (_state.current.callIsPending) {
-      //console.log("Call folded into pending");
       _state.current.pendingArgs = args;
     } else {
       if (_state.current.nextCallAtTime || !callOnLeadingEdge) {
-        //console.log("Call scheduled");
         const now = new Date();
         const delay = _state.current.nextCallAtTime
           ? _state.current.nextCallAtTime - now.getTime()
@@ -127,7 +121,6 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
           refStabilizedFn(argsToCall);
         }, delay);
       } else {
-        //console.log("Calling immediately");
         _state.current.nextCallAtTime = new Date().getTime() + rateLimitMs;
         refStabilizedFn(args);
       }
@@ -136,7 +129,7 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
   }, []);
 }
 
-export function useStabilizedCallback<T,R>(fn: (args: T) => void): (args: T) => void {
+export function useStabilizedCallback<T>(fn: (args: T) => void): (args: T) => void {
   const callback = useRef<(args: T) => void>(fn);
   const wrapper = useRef((args: T) => {
     return callback.current(args);
