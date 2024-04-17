@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useCommentLink, UseCommentLinkProps } from './useCommentLink';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import ForumNoSSR from '../../common/ForumNoSSR';
+import { isLWorAF } from '../../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,19 +70,26 @@ const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: Co
   } else {
     dateFormat = undefined;
   }
+
+  const linkContents = (<>
+    <FormatDate
+      date={comment.postedAt}
+      format={dateFormat}
+    />
+    {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
+  </>);
   
   return (
-    <span className={classNames(classes.root, {
-      [classes.date]: !comment.answer,
-      [classes.answerDate]: comment.answer,
-    })}>
-      <LinkWrapper>
-        <FormatDate
-          date={comment.postedAt}
-          format={dateFormat}
-        />
-        {isBookUI && <ForumIcon icon="Link" className={classes.icon} />}
-      </LinkWrapper>
+    <span className={classNames(
+      classes.root,
+      !comment.answer && classes.date,
+      comment.answer && classes.answerDate,
+    )}>
+      <ForumNoSSR if={isLWorAF} onSSR={linkContents}>
+        <LinkWrapper>
+          {linkContents}
+        </LinkWrapper>
+      </ForumNoSSR>
     </span>
   );
 }

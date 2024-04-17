@@ -207,6 +207,7 @@ const CommentsNewForm = ({
     extraVariablesValues: { postId: post?._id },
     fetchPolicy: "cache-and-network",
     skip: !currentUser,
+    ssr: false
   });
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;

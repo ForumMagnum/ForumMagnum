@@ -233,6 +233,7 @@
     "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
     "later": "^1.2.0",
+    "linkedom": "^0.16.11",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",
@@ -359,7 +360,8 @@
   "resolutions": {
     "graphql": "^14.5.8",
     "graphql-tools": "^4.0.7",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "postgres-array": "^3.0.2"
   },
   "engines": {
     "node": "18.x"

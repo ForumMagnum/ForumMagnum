@@ -3,6 +3,12 @@ import { parseDocumentFromString } from "../lib/domParser";
 
 const normalizeHtml = (html: string) => html.replace(/[\s\n]+/g, " ").trim();
 
+/*
+ * Note: these tests use &#160; rather than &nbsp; (these are the same) because
+ * 'linkedom' normalizes them to &#160. Which is a little unfortunate, since
+ * that name is less legible, but oh well.
+ */
+
 describe("extractTableOfContents", () => {
   it("handles a basic case correctly", () => {
     const html = normalizeHtml(`
@@ -49,20 +55,20 @@ describe("extractTableOfContents", () => {
     // cases like this I think it would be good to support though, E.g. I think <p><strong>Visit our </strong><a href="..."><strong>website</strong></a>
     // should be counted as a heading.
     const cases = [
-      normalizeHtml(`<p><strong>Here is some additional content (</strong><a href="https://www.youtube.com/watch?v=S7Cu59G1aSQ&amp;t=76s"><strong>11 min video</strong></a><strong>) to consider about if you are the right fit for founding.</strong></p>`),
+      normalizeHtml(`<p><strong>Here is some additional content (</strong><a href="https://www.youtube.com/watch?v=S7Cu59G1aSQ&t=76s"><strong>11 min video</strong></a><strong>) to consider about if you are the right fit for founding.</strong></p>`),
       normalizeHtml(`<p><a href="https://www.visitdubai.com/en/plan-your-trip/visa-information"><strong>Dubai Visa Information</strong></a><br><br><strong>Why is it such short notice?</strong></p>`),
       normalizeHtml(`
         <blockquote>
-          <p><strong>Also Read: </strong><a href="https://worlegram.com/read-blog/108231_learn-why-8gb-laptops-are-top-picks-in-the-market.html"><strong>Learn Why 8GB Laptops Are Top Picks in the Market</strong></a><br>&nbsp;</p>
+          <p><strong>Also Read: </strong><a href="https://worlegram.com/read-blog/108231_learn-why-8gb-laptops-are-top-picks-in-the-market.html"><strong>Learn Why 8GB Laptops Are Top Picks in the Market</strong></a><br>&#160;</p>
         </blockquote>
       `),
       normalizeHtml(`
-        <p><br>&nbsp;<strong>Please submit your ideas here:&nbsp;</strong><a href="https://docs.google.com/forms/d/e/1FAIpQLSf7yo1Bd4ZK6_u2nziuM_10bYYoJhAMjp-9b_MKG2tMX9PuWA/viewform"><strong><u>Submit your ideas</u></strong></a></p>
+        <p><br>&#160;<strong>Please submit your ideas here:&#160;</strong><a href="https://docs.google.com/forms/d/e/1FAIpQLSf7yo1Bd4ZK6_u2nziuM_10bYYoJhAMjp-9b_MKG2tMX9PuWA/viewform"><strong><u>Submit your ideas</u></strong></a></p>
       `),
-      normalizeHtml('<p><strong>Animal advocacy organisations&nbsp;</strong><a href="https://www.animaladvocacycareers.org/post/animal-advocacy-bottlenecks"><strong><u>listed</u></strong></a><strong> a lack of funding as the single most important thing that limited their organisations impact.</strong></p>'),
-      normalizeHtml('<p><strong>&nbsp;</strong><a href="https://genericaura.com/product/careprost-eye-drops/"><strong>Careprost</strong></a><strong> is an FDA-approved medicine that is used all over the world to reduce ocular blood pressure.&nbsp;</strong></p>'),
-      normalizeHtml('<p><strong>Click Here To Know More Info:&nbsp;</strong><a href="https://www.osiztechnologies.com/ai-development-company"><strong><u>https://www.osiztechnologies.com/ai-development-company</u></strong></a></p>'),
-      normalizeHtml('<p><strong>Read More :-&nbsp;</strong><a href="https://getairlineshelpdesk.com/blog/united-airlines-flight-status"><strong><u>United Airlines Flight Status</u></strong></a></p>')
+      normalizeHtml('<p><strong>Animal advocacy organisations&#160;</strong><a href="https://www.animaladvocacycareers.org/post/animal-advocacy-bottlenecks"><strong><u>listed</u></strong></a><strong> a lack of funding as the single most important thing that limited their organisations impact.</strong></p>'),
+      normalizeHtml('<p><strong>&#160;</strong><a href="https://genericaura.com/product/careprost-eye-drops/"><strong>Careprost</strong></a><strong> is an FDA-approved medicine that is used all over the world to reduce ocular blood pressure.&#160;</strong></p>'),
+      normalizeHtml('<p><strong>Click Here To Know More Info:&#160;</strong><a href="https://www.osiztechnologies.com/ai-development-company"><strong><u>https://www.osiztechnologies.com/ai-development-company</u></strong></a></p>'),
+      normalizeHtml('<p><strong>Read More :-&#160;</strong><a href="https://getairlineshelpdesk.com/blog/united-airlines-flight-status"><strong><u>United Airlines Flight Status</u></strong></a></p>')
     ];
 
     for (const html of cases) {
@@ -110,14 +116,14 @@ describe("extractTableOfContents", () => {
   });
 
   it("Regression: Trailing whitespace counts towards anchor", () => {
-    const html = `<p><strong>DanielFilan ($23,544):&nbsp; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&nbsp; </strong></p>`;
+    const html = `<p><strong>DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`;
 
     const expectedAnchor = "DanielFilan___23_544____Funding_to_produce_12_more_AXRP_episodes__the_AI_X_risk_Podcast___"
 
     const { document, window } = parseDocumentFromString(html);
     const tocData = extractTableOfContents({ document, window });
     expect(tocData).toEqual({
-      html: `<p><strong id="${expectedAnchor}">DanielFilan ($23,544):&nbsp; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&nbsp; </strong></p>`,
+      html: `<p><strong id="${expectedAnchor}">DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`,
       sections: [
         {
           title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",

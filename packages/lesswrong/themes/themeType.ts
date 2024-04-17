@@ -327,6 +327,7 @@ declare global {
       reviewGold: ColorString
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
+      placeholderGradient: ColorString,
     },
     boxShadow: {
       default: string,
