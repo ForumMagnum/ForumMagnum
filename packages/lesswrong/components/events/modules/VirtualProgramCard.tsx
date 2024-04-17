@@ -111,12 +111,12 @@ const VirtualProgramCard = ({program, classes}: {
   // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
   // (though it will sometimes move to the 3rd or 5th Sunday - this is not accounted for in the code).
   // This defaults to the Sunday in the week of the 28th day of this month.
-  // NOTE: I changed it to the 2nd Sunday since that's what they used for Jan 2024, but that might change back later.
+  // NOTE: I changed it to the 1st Sunday since that's what they used for Apr 2024, but that might change back later.
   const now = moment()
-  let deadline = now.date(14).day(0)
+  let deadline = moment(now).date(7).day(0)
   // If that Sunday is in the past, use next month's 4th Sunday.
   if (deadline.isBefore(now)) {
-    deadline = moment(now).add(1, 'months').date(14).day(0)
+    deadline = moment(now).add(1, 'months').date(7).day(0)
   }
   
   // VP starts 22 days after the deadline, on a Monday
@@ -151,11 +151,11 @@ const VirtualProgramCard = ({program, classes}: {
     // (as with the Intro/Advanced VP deadline, it will prob sometimes be off by a week or two).
     // The first confirmed deadline is Nov 19, 2023, so we assume the deadlines will be
     // ~the 3rd Sunday in Feb, May, Aug, and Nov each year. Start by checking Feb of this year.
-    // NOTE: I changed it to the 2nd Sunday since that's what they used for Feb 2024, but that might change back later.
-    let precipiceDeadline = moment(now).month(1).date(14).day(0)
+    // NOTE: I changed it to the 1st Sunday since that's what they used for May 2024, but that might change back later.
+    let precipiceDeadline = moment(now).month(1).date(7).day(0)
     // While that day is in the past, keep adding 3 months.
     while (precipiceDeadline.isBefore(now)) {
-      precipiceDeadline = moment(precipiceDeadline).add(3, 'months').date(14).day(0)
+      precipiceDeadline = moment(precipiceDeadline).add(3, 'months').date(7).day(0)
     }
     
     // VP starts 22 days after the deadline, on a Monday

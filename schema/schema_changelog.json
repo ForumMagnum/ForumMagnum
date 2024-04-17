@@ -590,8 +590,33 @@
     "timestamp": "2024-03-16T00:25:00.000Z"
   },
   {
-    "acceptsSchemaHash": "536f72d73311be48e421692e5c2a8608",
-    "acceptedByMigration": "20240322T131845.add_fm_get_user_by_login_token_function.ts",
-    "timestamp": "2024-03-22T13:18:45.000Z"
+    "acceptsSchemaHash": "15e67a7cabc41723b3215bcb7dc9488e",
+    "acceptedByMigration": "20240329T221118.add_notificationSubscribedSequencePost_to_Users.ts",
+    "timestamp": "2024-03-29T22:11:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "86723d78e7eb5d43201e0be72ee6f5f0",
+    "acceptedByMigration": "20240404T011423.add_ArbitalCaches.ts",
+    "timestamp": "2024-04-04T01:14:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ca5281426ba6c737b2621d88156ea1c6",
+    "acceptedByMigration": "20240404T190359.create_SideCommentCaches_table.ts",
+    "timestamp": "2024-04-04T19:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "972b9de45fa85223bdb3e607bd8d9936",
+    "acceptedByMigration": "20240409T163258.noop_reorder_sequence_fields.ts",
+    "timestamp": "2024-04-09T16:32:58.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b2d46df0cf4693fc419953f2fbe9a0cc",
+    "acceptedByMigration": "20240410T225250.add_lastUpdated_to_Sequences.ts",
+    "timestamp": "2024-04-10T22:52:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "28d910f4e059af7209e392016f25246e",
+    "acceptedByMigration": "20240417T130910.add_fm_get_user_by_login_token_function.ts",
+    "timestamp": "2024-04-17T13:09:10.000Z"
   }
 ]

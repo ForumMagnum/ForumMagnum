@@ -44,22 +44,26 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
+const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
+  ssr?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {
     recommendationsLoading: moreFromAuthorLoading,
     recommendations: moreFromAuthorPosts,
   } = useRecommendations({
-    strategy: {
-      name: "moreFromAuthor",
-      postId: post._id,
-      context: "post-footer",
+    algorithm: {
+      strategy: {
+        name: "moreFromAuthor",
+        postId: post._id,
+        context: "post-footer",
+      },
+      count: 3,
+      disableFallbacks: true,
     },
-    count: 3,
-    disableFallbacks: true,
+    ssr
   });
 
   const {
@@ -69,6 +73,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
     fragmentName: "PostsPage",
     resolverName: "CuratedAndPopularThisWeek",
     limit: 3,
+    ssr
   });
 
   const {
@@ -78,7 +83,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
   } = useRecentOpportunities({
     fragmentName: "PostsListWithVotes",
     post,
-    maxAgeInDays: 60
+    maxAgeInDays: 60,
+    ssr
   });
 
   const profileUrl = userGetProfileUrl(post.user);

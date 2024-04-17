@@ -18,6 +18,18 @@ interface DbAdvisorRequest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ArbitalCachesCollection = CollectionBase<"ArbitalCaches">;
+
+interface DbArbitalCaches extends DbObject {
+  __collectionName?: "ArbitalCaches"
+  pageAlias: string
+  title: string
+  fetchedAt: Date
+  sanitizedHtml: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type BansCollection = CollectionBase<"Bans">;
 
 interface DbBan extends DbObject {
@@ -904,7 +916,6 @@ interface DbPost extends DbObject {
   linkSharingKeyUsedBy: Array<string> | null
   commentSortOrder: string | null
   hideAuthor: boolean
-  sideCommentsCache: any /*{"definitions":[{}]}*/
   sideCommentVisibility: string | null
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
@@ -1073,17 +1084,18 @@ type SequencesCollection = CollectionBase<"Sequences">;
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
+  lastUpdated: Date
   userId: string
   title: string | null
-  gridImageId: string | null
   bannerImageId: string | null
-  curatedOrder: number | null
-  userProfileOrder: number | null
+  gridImageId: string | null
+  hideFromAuthorPage: boolean
   draft: boolean
   isDeleted: boolean
+  curatedOrder: number | null
+  userProfileOrder: number | null
   canonicalCollectionSlug: string | null
   hidden: boolean
-  hideFromAuthorPage: boolean
   noindex: boolean
   af: boolean
   contents: EditableFieldContents
@@ -1099,6 +1111,18 @@ interface DbSession extends DbObject {
   session: any /*{"definitions":[{"blackbox":true}]}*/
   expires: Date | null
   lastModified: Date | null
+}
+
+type SideCommentCachesCollection = CollectionBase<"SideCommentCaches">;
+
+interface DbSideCommentCache extends DbObject {
+  __collectionName?: "SideCommentCaches"
+  postId: string
+  annotatedHtml: string
+  commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/
+  version: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
@@ -1159,7 +1183,7 @@ interface DbSubscription extends DbObject {
   documentId: string | null
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1471,6 +1495,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationSubscribedTagPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationSubscribedSequencePost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -1788,6 +1818,7 @@ interface DbVote extends DbObject {
 
 interface CollectionsByName {
   AdvisorRequests: AdvisorRequestsCollection
+  ArbitalCaches: ArbitalCachesCollection
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
@@ -1843,6 +1874,7 @@ interface CollectionsByName {
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
+  SideCommentCaches: SideCommentCachesCollection
   SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
@@ -1862,6 +1894,7 @@ interface CollectionsByName {
 
 interface ObjectsByCollectionName {
   AdvisorRequests: DbAdvisorRequest
+  ArbitalCaches: DbArbitalCaches
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
@@ -1917,6 +1950,7 @@ interface ObjectsByCollectionName {
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
+  SideCommentCaches: DbSideCommentCache
   SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
@@ -1936,6 +1970,7 @@ interface ObjectsByCollectionName {
 
 interface ObjectsByTypeName {
   AdvisorRequest: DbAdvisorRequest
+  ArbitalCaches: DbArbitalCaches
   Ban: DbBan
   Book: DbBook
   Chapter: DbChapter
@@ -1991,6 +2026,7 @@ interface ObjectsByTypeName {
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
+  SideCommentCache: DbSideCommentCache
   SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription

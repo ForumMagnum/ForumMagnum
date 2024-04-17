@@ -42,7 +42,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   return <>
     <ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
-      className={classNames(className, {[classes.maxHeight]:!expanded})}
+      className={classNames(className, !expanded && classes.maxHeight)}
       description={description}
       nofollow={nofollow}
     />

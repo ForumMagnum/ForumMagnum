@@ -28,12 +28,12 @@ import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
-import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
 import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
 import { useLocation } from '../../lib/routeUtil';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 export type UpvotedUser = {
   _id: string;
@@ -1712,10 +1712,11 @@ export const DialogueMatchingPage = ({classes}: {
   </AnalyticsContext>)
 }
 
-const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>
-  useABTest(dialogueMatchingPageNoSSRABTest) === 'noSSR'
-  ? <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
-  : <DialogueMatchingPage {...props} />
+const NoSSRMatchingPage = (props: { classes: ClassesType<typeof styles> }) => (
+  <ForumNoSSR if={useABTest(dialogueMatchingPageNoSSRABTest) === "noSSR"}>
+    <DialogueMatchingPage {...props} />
+  </ForumNoSSR>
+);
 
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});

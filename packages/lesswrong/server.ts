@@ -79,6 +79,7 @@ import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";
 import "./server/scripts/generativeModels/coverImage";
 import "./server/scripts/addManualReviewArt";
+import "./server/scripts/backfillRecombee";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 // import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
@@ -164,6 +165,7 @@ import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
 import './server/resolvers/userResolvers';
+import './server/resolvers/wrappedResolvers';
 import './server/resolvers/karmaChangeResolvers';
 import './server/resolvers/coronaLinkDatabase';
 import './server/resolvers/mozillaHubsData';

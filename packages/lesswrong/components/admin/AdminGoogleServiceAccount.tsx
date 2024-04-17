@@ -72,7 +72,7 @@ const AdminGoogleServiceAccount = ({classes}: {
         periodically log in again.
       </p>
       <p>Email: {email ? email : "—"}</p>
-      <p>Estimated session expiry: {estimatedExpiry ? estimatedExpiry : "—"}</p>
+      <p>{`Estimated session expiry: ${estimatedExpiry ? estimatedExpiry : "—"}`}</p>
       <p>
         <b>
           Anyone will be able to download google docs accessible to this account, so make sure you log in to the service
