@@ -51,7 +51,8 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib';
+import { createAnonymousContext } from './vulcan-lib/query';
+import { getSiteUrl } from '../lib/vulcan-lib/utils';
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -338,6 +339,10 @@ export function startWebserver() {
   });
 
   app.get('*', async (request, response) => {
+    if(await prefilterHandleRequest(request, response)) {
+      return;
+    }
+    
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
@@ -454,4 +459,25 @@ export function startWebserver() {
   addStaticRoute('/api/ready', ({query}, _req, res, next) => {
     res.end('true');
   });
+}
+
+async function prefilterHandleRequest(req: express.Request, res: express.Response): Promise<boolean> {
+  const url = req.url;
+  const baseUrl = getSiteUrl();
+  const parsedUrl = new URL(url, baseUrl);
+  
+  // If the URL is of the form ...?commentId=id, serve a redirect to ...#commentId
+  const commentId = parsedUrl.searchParams.get('commentId');
+  if (commentId) {
+    // Side-effectfully transform parsedUrl
+    parsedUrl.searchParams.delete("commentId");
+    parsedUrl.hash = commentId;
+
+    res.status(301);
+    res.redirect(parsedUrl.toString());
+    res.end();
+    return true;
+  }
+  
+  return false;
 }
