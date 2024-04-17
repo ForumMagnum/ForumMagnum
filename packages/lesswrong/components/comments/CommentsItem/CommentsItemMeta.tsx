@@ -228,9 +228,10 @@ export const CommentsItemMeta = ({
   } = Components;
 
   return (
-    <div className={classNames(classes.root, {
-      [classes.sideCommentMeta]: isSideComment,
-    })}>
+    <div className={classNames(
+      classes.root,
+      isSideComment && classes.sideCommentMeta,
+    )}>
       {!parentCommentId && !comment.parentCommentId && isParentComment &&
         <div>○</div>
       }
@@ -255,8 +256,7 @@ export const CommentsItemMeta = ({
         <a className={classes.collapse} onClick={toggleCollapse}>
           {isFriendlyUI
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
-                classes.collapseChevron,
-                {[classes.collapseChevronOpen]: !collapsed},
+                classes.collapseChevron, !collapsed && classes.collapseChevronOpen
               )} />
             : <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
           }
