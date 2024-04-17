@@ -14,6 +14,9 @@ async function clientStartup() {
   await runStartupFunctions();
 }
 
+// Starting up too early is known to compete for resources with rendering the page, causing the
+// time to first meaningful paint to be delayed. This function waits until one frame has been rendered
+// before starting up the client, which appears to fix the problem.
 function startupAfterRendering() {
   // If for some reason the requestAnimationFrame functions don't fire (e.g. because
   // the tab is in the background), we still want to start the client reasonably quickly.
@@ -26,6 +29,8 @@ function startupAfterRendering() {
   });
 }
 
+// Generally speaking, on fast internet connections the former condition will be true (bundle is fully
+// downloaded before the page is ready), on slow connections the latter will be true
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', startupAfterRendering);
 } else {
