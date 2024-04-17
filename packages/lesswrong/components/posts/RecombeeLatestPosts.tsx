@@ -261,9 +261,10 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   }
 
   const enabledAlgorithms = availableAlgorithms
-    .filter(feed => !feed.disabled)
-    .filter(feed => !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1))
-    .filter(feed => !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1));
+    .filter(feed => !feed.disabled
+      && !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1)
+      && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
+    )
 
   console.log({selectedScenario, availableAlgorithms, enabledAlgorithms, })
 

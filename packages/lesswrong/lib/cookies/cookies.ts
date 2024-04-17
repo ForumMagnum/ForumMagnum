@@ -140,6 +140,12 @@ export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
   description: "Stores recombee settings for admins experimenting with latest posts"
 });
 
+export const FRONTPAGE_TAB_SETTINGS_COOKIE = registerCookie({
+  name: "frontpage_tab_settings",
+  type: "functional",
+  description: "Stores settings for which tab is active in the homepage posts section, and other related settings"
+});
+
 
 // Third party cookies
 

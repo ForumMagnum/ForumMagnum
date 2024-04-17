@@ -241,6 +241,7 @@ importComponent("CommentExcerpt", () => require('../components/common/excerpts/C
 importComponent("TagExcerpt", () => require('../components/common/excerpts/TagExcerpt'));
 importComponent("CitationTags", () => require('../components/common/CitationTags'));
 importComponent("LWHome", () => require('../components/common/LWHome'));
+importComponent("LWHomePosts", () => require('../components/common/LWHomePosts'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
 importComponent(["MenuItem","MenuItemLink"], () => require('../components/common/Menus'));
 importComponent("CommentsListCondensed", () => require('../components/common/CommentsListCondensed'));
