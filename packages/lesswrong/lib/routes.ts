@@ -11,6 +11,7 @@ import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHo
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations } from './betas';
+import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -277,14 +278,12 @@ addRoute(
     name: 'sequencesEdit',
     path: '/sequencesEdit/:_id',
     componentName: 'SequencesEditForm',
-    background: "white"
   },
   {
     name: 'sequencesNew',
     path: '/sequencesNew',
     componentName: 'SequencesNewForm',
     title: "New Sequence",
-    background: "white"
   },
   {
     name: 'sequencesPost',
@@ -1429,6 +1428,7 @@ addRoute(
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
     noFooter: hasPostRecommendations,
+    enableResourcePrefetch: postRouteWillDefinitelyReturn200,
   },
   {
     name:'posts.slug.single',

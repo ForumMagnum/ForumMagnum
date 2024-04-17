@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import moment from 'moment';
 import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
@@ -18,6 +17,7 @@ import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { podcastPost, podcasts } from '../../lib/eaPodcasts';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 /**
  * The max screen width where the Home RHS is visible
@@ -292,8 +292,8 @@ export const EAHomeRightHandSide = ({classes}: {
   let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
-    digestAdNode = <NoSSR>{digestAdNode}</NoSSR>
-    upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
+    digestAdNode = <ForumNoSSR>{digestAdNode}</ForumNoSSR>
+    upcomingEventsNode = <ForumNoSSR>{upcomingEventsNode}</ForumNoSSR>
   }
 
   return <AnalyticsContext pageSectionContext="homeRhs">

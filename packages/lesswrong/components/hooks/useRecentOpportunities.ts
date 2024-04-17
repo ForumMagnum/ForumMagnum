@@ -28,11 +28,13 @@ export const useRecentOpportunities =<
   limit = 3,
   maxAgeInDays = 7,
   post,
+  ssr,
 }: {
   fragmentName: FragmentTypeName,
   limit?: number,
   maxAgeInDays?: number,
   post?: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
+  ssr?: boolean,
 }): UseMultiResult<FragmentTypeName> & {coreTagLabel: string | null} => {
   const coreTags =
     post?.tags
@@ -67,6 +69,7 @@ export const useRecentOpportunities =<
     },
     fragmentName,
     enableTotal: false,
+    ssr,
     fetchPolicy: "cache-and-network",
   });
 

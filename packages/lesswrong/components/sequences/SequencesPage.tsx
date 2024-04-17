@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
@@ -12,6 +11,8 @@ import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
+import ForumNoSSR from '../common/ForumNoSSR';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -27,6 +28,15 @@ export const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|n
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
+  },
+  deletedText: {
+    paddingTop: 20,
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 30
+    },
+  },
+  link: {
+    color: theme.palette.primary.main
   },
   topSection: {
     display: 'flex',
@@ -137,7 +147,13 @@ const SequencesPage = ({ documentId, classes }: {
     ContentItemBody, Typography, SectionButton, ContentStyles, NotifyMeButton
   } = Components
   
-  if (document?.isDeleted) return <h3>This sequence has been deleted</h3>
+  if (document?.isDeleted) {
+    return <SingleColumnSection>
+      <Typography variant="body2" className={classes.deletedText}>
+        This sequence has been deleted. <Link to="/library" className={classes.link}>Click here to view all sequences.</Link>
+      </Typography>
+    </SingleColumnSection>
+  }
   if (loading) return <Loading />
   
   if (!document) {
@@ -180,7 +196,7 @@ const SequencesPage = ({ documentId, classes }: {
       />
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>
-          <NoSSR>
+          <ForumNoSSR>
             <div>
               <CloudinaryImage
                 publicId={bannerId}
@@ -189,7 +205,7 @@ const SequencesPage = ({ documentId, classes }: {
               />
               <div className={classes.imageScrim}/>
             </div>
-          </NoSSR>
+          </ForumNoSSR>
         </div>
       </div>}
       <SingleColumnSection>

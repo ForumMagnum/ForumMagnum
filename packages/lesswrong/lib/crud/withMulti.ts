@@ -5,8 +5,8 @@ import * as _ from 'underscore';
 import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
-import { isServer } from '../executionEnvironment';
 import { useNavigate } from '../reactRouterWrapper';
+import { apolloSSRFlag } from '../helpers';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -184,7 +184,7 @@ export function useMulti<
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
-    ssr: ssr || !isServer,
+    ssr: apolloSSRFlag(ssr),
     skip,
     notifyOnNetworkStatusChange: true
   }

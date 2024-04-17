@@ -19,6 +19,7 @@ import {
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -79,7 +80,8 @@ const AllPostsList = ({
             ...baseTerms,
             limit: 50
           }}
-          dimWhenLoading={showSettings}
+          dimWhenLoading={showSettings && !isFriendlyUI}
+          showLoading={isFriendlyUI}
         />
       </AnalyticsContext>
     );
@@ -147,7 +149,7 @@ const AllPostsList = ({
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings}
+            dimWhenLoading={showSettings && !isFriendlyUI}
             after={after}
             before={before}
             reverse={query.reverse === "true"}

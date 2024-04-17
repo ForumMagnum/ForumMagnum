@@ -1,5 +1,4 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
@@ -7,6 +6,7 @@ import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/help
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defaultSequenceBannerIdSetting } from './SequencesPage';
 import { isLWorAF } from '../../lib/instanceSettings';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -150,13 +150,13 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
       </div>
     }>
       <div className={classes.image}>
-        <NoSSR>
+        <ForumNoSSR>
           {imageId && <Components.CloudinaryImage
             publicId={imageId}
             height={124}
             width={315}
           />}
-        </NoSSR>
+        </ForumNoSSR>
       </div>
       <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
         <div className={classes.title}>

@@ -325,7 +325,7 @@ const ContentType = ({classes, className, type, label}: {
   }
 
   const innerComponent = isFriendlyUI
-    ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
+    ? <SectionTitle title={label} className={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
     </span>;

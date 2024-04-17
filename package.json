@@ -25,14 +25,14 @@
     "start-af-dev-db": "./build.js --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-af-devdb.json",
     "start-af-prod-db": "./build.js --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-af-proddb.json",
     "unit": "jest --config jest.unit.config.ts --forceExit",
-    "unit-ci": "jest --config jest.unit.config.ts --forceExit --ci",
+    "unit-ci": "jest --config jest.unit.config.ts --forceExit --ci --coverage",
     "unit-watch": "jest --config jest.unit.config.ts --watchAll",
     "unit-coverage": "jest --config jest.unit.config.ts --forceExit --coverage",
     "exec-accepted-schema": "psql $PG_URL -f ./schema/accepted_schema.sql",
     "create-integration-db": "PG_URL=$(cat ../ForumCredentials/testing-pg-conn.txt) ./scripts/createIntegrationPgDb.sh",
     "create-integration-db-ci": "yarn exec-accepted-schema && ./scripts/createIntegrationPgDb.sh",
     "integration": "PG_URL=$(cat ../ForumCredentials/testing-pg-conn.txt) PG_MAX_CONNECTIONS=5 jest --config jest.integration.config.ts --forceExit",
-    "integration-ci": "PG_MAX_CONNECTIONS=5 jest --config jest.integration.config.ts --forceExit --ci",
+    "integration-ci": "PG_MAX_CONNECTIONS=5 jest --config jest.integration.config.ts --forceExit --ci --coverage",
     "integration-watch": "jest --config jest.integration.config.ts --watchAll",
     "integration-coverage": "jest --config jest.integration.config.ts --forceExit --coverage",
     "combine-coverage": "./scripts/combineCoverage.sh",
@@ -115,7 +115,6 @@
     "@types/express-session": "^1.17.3",
     "@types/gapi": "0.0.39",
     "@types/google__maps": "^0.5.14",
-    "@types/graphql-date": "^1.0.5",
     "@types/graphql-type-json": "^0.3.2",
     "@types/html-to-text": "^9.0.0",
     "@types/htmlparser2": "^3.10.1",
@@ -215,7 +214,6 @@
     "google-auth-library": "^9.6.3",
     "gpt-3-encoder": "^1.1.3",
     "graphql": "^14.5.8",
-    "graphql-date": "^1.0.2",
     "graphql-server-express": "^0.6.0",
     "graphql-tag": "^2.9.2",
     "graphql-tools": "^4.0.7",
@@ -235,6 +233,7 @@
     "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
     "later": "^1.2.0",
+    "linkedom": "^0.16.11",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",
@@ -361,7 +360,8 @@
   "resolutions": {
     "graphql": "^14.5.8",
     "graphql-tools": "^4.0.7",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "postgres-array": "^3.0.2"
   },
   "engines": {
     "node": "18.x"

@@ -9,6 +9,8 @@ import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import type { Request, Response } from 'express';
+import pathToRegexp from "path-to-regexp";
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -168,18 +170,22 @@ export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKe
   return url;
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
+export type PostWithCommentCounts = { commentCount: number; afCommentCount: number }
+/**
+ * Get the total (cached) number of comments, including replies and answers
+ */
+export const postGetCommentCount = (post: PostWithCommentCounts): number => {
   if (isAF) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
   }
-}
+};
 
 /**
  * Can pass in a manual comment count, or retrieve the post's cached comment count
  */
-export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
     return "No comments";
@@ -199,6 +205,21 @@ export const postGetAnswerCountStr = (count: number): string => {
     return count + " answers";
   }
 }
+
+export const getResponseCounts = ({ post, answers }: { post: PostWithCommentCounts; answers: CommentsList[] }) => {
+  // answers may include some which are deleted:true, deletedPublic:true (in which
+  // case various fields are unpopulated and a deleted-item placeholder is shown
+  // in the UI). These deleted answers are *not* included in post.commentCount.
+  const nonDeletedAnswers = answers.filter((answer) => !answer.deleted);
+
+  const answerAndDescendentsCount =
+    answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0) + answers.length;
+
+  return {
+    answerCount: nonDeletedAnswers.length,
+    commentCount: postGetCommentCount(post) - answerAndDescendentsCount,
+  };
+};
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (isAF) {
@@ -442,3 +463,13 @@ export const extractGoogleDocId = (urlOrId: string): string | null => {
 export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
+
+export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, context: ResolverContext) => {
+  const matchPostPath = pathToRegexp('/posts/:_id/:slug?');
+  const [_, postId] = matchPostPath.exec(req.path) ?? [];
+
+  if (postId) {
+    return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
+  }
+  return false;
+}

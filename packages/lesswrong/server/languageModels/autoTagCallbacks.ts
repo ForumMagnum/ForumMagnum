@@ -204,15 +204,39 @@ async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> 
   return account;
 }
 
-let tagBotUserIdCache: Promise<{id: string|null}>|null = null;
+let tagBotUserIdPromise: Promise<void>|null = null;
+// If undefined, hasn't been fetched yet; if null, the account doesn't exist.
+let tagBotUserId: string|null|undefined = undefined;
+
+/**
+ * Get the ID of the tag-bot account, with caching. The first call to this will
+ * fetch the tagger account (using the tagBotAccountSlug config setting); all
+ * subsequent calls will return a cached value. If called while that first
+ * fetch is in-flight, waits for that request to finish, rather than starting a
+ * duplicate (this affects server-startup performance during development).
+ */
 export async function getTagBotUserId(context: ResolverContext): Promise<string|null> {
-  if (!tagBotUserIdCache) {
-    tagBotUserIdCache = (async () => {
-      const tagBotAccount = await getTagBotAccount(context);
-      return {id: tagBotAccount?._id ?? null};
-    })();
+  if (tagBotUserId === undefined) {
+    if (!tagBotUserIdPromise) {
+      tagBotUserIdPromise = new Promise((resolve) => {
+        void (async () => {
+          const tagBotAccount = await getTagBotAccount(context);
+          tagBotUserId = tagBotAccount?._id ?? null;
+          
+          // Discard the promise after we're done with it. Previously we didn't
+          // do this, and kept the promise in a global variable forever after it
+          // was resolved. That made this function simpler, but caused a memory
+          // leak: the promise captures its context, including the
+          // ResolverContext we got passed, which retains everything from the
+          // whole pageload.
+          tagBotUserIdPromise = null;
+          resolve();
+        })();
+      });
+    }
+    await tagBotUserIdPromise
   }
-  return (await tagBotUserIdCache).id;
+  return tagBotUserId ?? null;
 }
 
 export async function getAutoAppliedTags(): Promise<DbTag[]> {

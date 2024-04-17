@@ -410,6 +410,7 @@ importComponent("PingbacksList", () => require('../components/posts/PingbacksLis
 importComponent("PostsItemMeta", () => require('../components/posts/PostsItemMeta'));
 importComponent("PostsItem", () => require('../components/posts/PostsItem.tsx'));
 importComponent("LWPostsItem", () => require('../components/posts/LWPostsItem.tsx'));
+importComponent("FriendlyPlaceholderPostsItem", () => require('../components/posts/FriendlyPlaceholderPostsItem.tsx'));
 importComponent("EAPostsItem", () => require('../components/posts/EAPostsItem.tsx'));
 importComponent("EALargePostsItem", () => require('../components/posts/EALargePostsItem.tsx'));
 importComponent("EAPostMeta", () => require('../components/ea-forum/EAPostMeta.tsx'));

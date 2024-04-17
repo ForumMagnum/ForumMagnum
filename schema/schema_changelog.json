@@ -555,11 +555,6 @@
     "timestamp": "2024-02-13T22:27:00.000Z"
   },
   {
-    "acceptsSchemaHash": "1cca53989f92d593c9cb80c2e9e8b5a3",
-    "acceptedByMigration": "20240215T231300.addArbitalLinkPreviewCache.ts",
-    "timestamp": "2024-02-15T23:13:00.000Z"
-  },
-  {
     "acceptsSchemaHash": "c88a556fe6f1bc2d5ce4f08149eb3388",
     "acceptedByMigration": "20240222T212933.add_UserEAGDetails_collection.ts",
     "timestamp": "2024-02-22T21:29:33.000Z"
@@ -601,7 +596,27 @@
   },
   {
     "acceptsSchemaHash": "86723d78e7eb5d43201e0be72ee6f5f0",
-    "acceptedByMigration": "20240402T183930.arbitalPreviewCache.ts",
-    "timestamp": "2024-04-02T18:39:30.000Z"
+    "acceptedByMigration": "20240404T011423.add_ArbitalCaches.ts",
+    "timestamp": "2024-04-04T01:14:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ca5281426ba6c737b2621d88156ea1c6",
+    "acceptedByMigration": "20240404T190359.create_SideCommentCaches_table.ts",
+    "timestamp": "2024-04-04T19:03:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "972b9de45fa85223bdb3e607bd8d9936",
+    "acceptedByMigration": "20240409T163258.noop_reorder_sequence_fields.ts",
+    "timestamp": "2024-04-09T16:32:58.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b2d46df0cf4693fc419953f2fbe9a0cc",
+    "acceptedByMigration": "20240410T225250.add_lastUpdated_to_Sequences.ts",
+    "timestamp": "2024-04-10T22:52:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8365aace030196807258e6ab633a5466",
+    "acceptedByMigration": "20240416T151709.drop_Users_wrapped2023Viewed_experiencedIn_interestedIn.ts",
+    "timestamp": "2024-04-16T15:17:09.000Z"
   }
 ]

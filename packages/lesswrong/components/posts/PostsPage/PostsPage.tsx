@@ -37,9 +37,10 @@ import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
-import { NoSSR } from '../../../lib/utils/componentsWithChildren';
+import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
+import ForumNoSSR from '../../common/ForumNoSSR';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -524,7 +525,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   );
   
   const sequenceId = getSequenceId();
-  const sectionData = (fullPost as PostsWithNavigationAndRevision)?.tableOfContentsRevision || (post as PostsWithNavigation)?.tableOfContents;
+  const sectionData = useDynamicTableOfContents({
+    html: (post as PostsWithNavigationAndRevision)?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
+    post,
+    answers,
+  });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
   const showRecommendations = hasPostRecommendations &&
@@ -672,7 +677,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classes.centralColumn}>
+    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
@@ -823,7 +828,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd /></NoSSR>}
+    {isEAForum && showDigestAd && <ForumNoSSR><StickyDigestAd /></ForumNoSSR>}
     {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
