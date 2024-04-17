@@ -103,7 +103,7 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
     return false;
   }
 
-  return !currentUser?.hideFrontpageFilterSettingsDesktop;
+  return currentUser?.hideFrontpageFilterSettingsDesktop === false;
 };
 
 const getDefaultScenario = () => {
@@ -292,7 +292,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
         <TagFilterSettings
-          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow
+          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
         />
       </div>
     </AnalyticsContext>
