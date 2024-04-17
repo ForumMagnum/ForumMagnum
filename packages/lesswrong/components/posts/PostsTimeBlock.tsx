@@ -26,7 +26,6 @@ const styles = (theme: ThemeType): JssStyles => ({
         fontWeight: 600,
         fontSize: 18,
         color: theme.palette.grey[1000],
-        marginBottom: -12,
         marginTop: 25,
       }
       : {
@@ -59,12 +58,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
+    marginBottom: isFriendlyUI ? 8 : 0,
   },
+  subtitle: isFriendlyUI ? {
+    marginTop: 12,
+  } : {},
   frontpageSubtitle: {
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: isFriendlyUI ? -4 : 6,
+    marginTop: isFriendlyUI ? 0 : 6,
     marginBottom: 6
   },
   divider: {/* Exists only to get overriden by the eaTheme */}
@@ -179,7 +182,7 @@ const PostsTimeBlock = ({
 
   const {
     PostsItem, LoadMore, ShortformTimeBlock, TagEditsTimeBlock, ContentType,
-    Divider, Typography, PostsTagsList,
+    Divider, Typography, PostsTagsList, PostsLoading,
   } = Components;
   const timeBlock = timeframeToTimeBlock[timeframe];
 
@@ -230,18 +233,21 @@ const PostsTimeBlock = ({
         </div> }
         {displayPostsTagsList && <PostsTagsList posts={posts ?? null} currentFilter={tagFilter} handleFilter={handleTagFilter} expandedMinCount={0}/>}
         {postGroups.map(({name, filteredPosts, label}) => {
-          if (filteredPosts?.length > 0) return <div key={name}>
-            <div
-              className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
-            >
-              <ContentType type={name} label={label} />
+          if (filteredPosts?.length > 0 || (loading && isFriendlyUI)) {
+            return <div key={name}>
+              <div
+                className={name === 'frontpage' ? classes.frontpageSubtitle : classes.otherSubtitle}
+              >
+                <ContentType type={name} label={label} className={classes.subtitle} />
+              </div>
+              <div className={classes.posts}>
+                {!filteredPosts?.length && isFriendlyUI && <PostsLoading placeholderCount={10} />}
+                {filteredPosts.map((post, i) =>
+                  <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
+                )}
+              </div>
             </div>
-            <div className={classes.posts}>
-              {filteredPosts.map((post, i) =>
-                <PostsItem key={post._id} post={post} index={i} dense showBottomBorder={i < filteredPosts!.length -1}/>
-              )}
-            </div>
-          </div>
+          }
         })}
 
         {(filteredPosts && filteredPosts.length < totalCount!) && <div className={classes.loadMore}>

@@ -1,22 +1,14 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import moment from '../../lib/moment-timezone';
+import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { formatRelative } from '../../lib/utils/timeFormat';
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
   const { timezone } = useTimezone();
   return <>{moment(new Date(date)).tz(timezone).format("LLL z")}</>
 };
-
-const formatRelative = (
-  date: Date | string,
-  now: Date,
-  includeAgo?: boolean,
-): string => {
-  const formatted = moment(date).from(now);
-  return includeAgo && formatted !== "now" ? formatted + " ago" : formatted;
-}
 
 /// A relative time/date, like "4d". If tooltip is true (default), hover over
 /// for the actual (non-relative) date/time.
