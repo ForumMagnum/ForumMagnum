@@ -68,10 +68,9 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
 
   return (
     <div className={classNames(
-      classes.bottom, {
-        [classes.answer]: comment.answer,
-        [classes.bottomWithReacts]: !!VoteBottomComponent
-      }
+      classes.bottom,
+      comment.answer && classes.answer,
+      !!VoteBottomComponent && classes.bottomWithReacts,
     )}>
       <CommentBottomCaveats comment={comment} />
       {showReplyButton && replyButton}
