@@ -342,6 +342,17 @@ function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<s
   return indexedInViewEvents;
 }
 
+function createViewHomePageEvent({userId, timestamp}: { userId: string, timestamp: Date }) {
+  return {
+    eventType: 'view-home-page',
+    userPseudoId: userId,
+    eventTime: {
+      seconds: timestamp.getTime() / 1000,
+      nanos: 0
+    },
+    userInfo: { userId }
+  };
+}
 
 async function backfillPosts(offsetDate?: Date) {
   const adminContext = createAdminContext();
@@ -442,4 +453,32 @@ async function backfillPosts(offsetDate?: Date) {
   }
 }
 
+interface FrontpageView {
+  userId: string;
+  timestamp: Date;
+}
+
+async function backfillFrontpageViews(offsetDate?: Date) {
+  const userEventClient = getGoogleUserEventServiceClientOrThrow();
+
+  const frontpageViewEvensts: FrontpageView[] = JSON.parse((await readFile('/Users/rbloom/git/lesswrongSuite/logged_in_user_frontpage_loads_20240416.json')).toString());
+
+  const chunkSize = 90000;
+  const chunkedFrontpageViews = chunk(frontpageViewEvensts, chunkSize);
+
+  for (const chunk of chunkedFrontpageViews) {
+    // eslint-disable-next-line no-console
+    console.log(`Processing chunk of ${chunk.length} frontpage views`);
+    const userEvents = chunk.map(({ userId, timestamp }) => createViewHomePageEvent({ userId, timestamp }));
+    const [importUserEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents }, parent: GOOGLE_PARENT_EVENTS_PATH });
+    const [importUserEventsResponse] = await importUserEventsOperation.promise();
+    if (importUserEventsResponse.errorSamples?.length) {
+      // eslint-disable-next-line no-console
+      console.log('Error importing frontpage loads', { error: importUserEventsResponse.errorSamples[0] });
+    }
+  }
+}
+
+
 Globals.backfillBigQueryPosts = backfillPosts;
+Globals.backfillFrontpageViews = backfillFrontpageViews;
