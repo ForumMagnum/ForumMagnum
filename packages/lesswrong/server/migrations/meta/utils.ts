@@ -170,6 +170,8 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
   fieldName: string,
 ) => {
   const {collectionName} = collection;
+  // Check for data integrity issues and update any revisions that have diverged
+  // from the current denormalized value
   await db.none(`
     UPDATE "Revisions" AS r
     SET
