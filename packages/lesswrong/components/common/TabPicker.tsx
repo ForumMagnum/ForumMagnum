@@ -142,8 +142,6 @@ const TabPicker = <T extends TabRecord[]>(
 
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name);
 
-  // sortedTabs.push(...sortedTabs.slice(-1));
-
   // we use the widths of the tabs window and the underlying tab list container
   // when calculating how far to scroll left and right
   const tabsWindowRef = useRef<HTMLDivElement | null>(null);
