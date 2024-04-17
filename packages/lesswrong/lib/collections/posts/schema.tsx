@@ -2579,6 +2579,9 @@ const schema: SchemaType<"Posts"> = {
     resolveAs: {
       type: 'Boolean!',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
+        if (isFriendlyUI) {
+          return false;
+        }
         const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {
@@ -2613,7 +2616,7 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
-    hidden: ({document}) => !!document?.collabEditorDialogue,
+    hidden: ({document}) => isFriendlyUI || !!document?.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
