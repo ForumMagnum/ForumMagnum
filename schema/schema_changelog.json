@@ -615,7 +615,12 @@
     "timestamp": "2024-04-10T22:52:50.000Z"
   },
   {
-    "acceptsSchemaHash": "28d910f4e059af7209e392016f25246e",
+    "acceptsSchemaHash": "8365aace030196807258e6ab633a5466",
+    "acceptedByMigration": "20240416T151709.drop_Users_wrapped2023Viewed_experiencedIn_interestedIn.ts",
+    "timestamp": "2024-04-16T15:17:09.000Z"
+  },
+  {
+    "acceptsSchemaHash": "137496d0b5bd84406c71c0bb81025177",
     "acceptedByMigration": "20240417T130910.add_fm_get_user_by_login_token_function.ts",
     "timestamp": "2024-04-17T13:09:10.000Z"
   }
