@@ -4,7 +4,7 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import { pickerMiddleware } from './vendor/picker';
+import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
@@ -27,7 +27,6 @@ import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticatio
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
