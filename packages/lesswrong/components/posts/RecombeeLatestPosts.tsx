@@ -232,10 +232,6 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     />
     <SettingsButton
       className={classes.hideOnDesktop}
-      
-      // label={filterSettingsVisibleMobile ?
-      //   filterSettingsToggleLabels.mobileVisible :
-      //   filterSettingsToggleLabels.mobileHidden}
       showIcon={true}
       onClick={() => {
         setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
