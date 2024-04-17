@@ -342,12 +342,12 @@ function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<s
   return indexedInViewEvents;
 }
 
-function createViewHomePageEvent({userId, timestamp}: { userId: string, timestamp: Date }) {
+function createViewHomePageEvent({userId, timestamp}: { userId: string, timestamp: string }) {
   return {
     eventType: 'view-home-page',
     userPseudoId: userId,
     eventTime: {
-      seconds: timestamp.getTime() / 1000,
+      seconds: new Date(timestamp).getTime() / 1000,
       nanos: 0
     },
     userInfo: { userId }
@@ -455,13 +455,17 @@ async function backfillPosts(offsetDate?: Date) {
 
 interface FrontpageView {
   userId: string;
-  timestamp: Date;
+  timestamp: string;
 }
 
 async function backfillFrontpageViews(offsetDate?: Date) {
   const userEventClient = getGoogleUserEventServiceClientOrThrow();
 
   const frontpageViewEvensts: FrontpageView[] = JSON.parse((await readFile('/Users/rbloom/git/lesswrongSuite/logged_in_user_frontpage_loads_20240416.json')).toString());
+
+  //log first 10 frontpageViewEvents to console
+  console.log(frontpageViewEvensts.slice(0, 10));
+
 
   const chunkSize = 90000;
   const chunkedFrontpageViews = chunk(frontpageViewEvensts, chunkSize);
