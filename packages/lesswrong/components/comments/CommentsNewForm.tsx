@@ -317,8 +317,8 @@ const CommentsNewForm = ({
 
     return <div className={classNames(classes.submit, {
       [classes.submitMinimalist]: isMinimalist,
-      [classes.submitQuickTakes]: isQuickTake},
-    )}>
+      [classes.submitQuickTakes]: isQuickTake,
+    })}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}
