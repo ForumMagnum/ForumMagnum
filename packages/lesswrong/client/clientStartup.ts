@@ -1,6 +1,23 @@
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
 
+import './apolloClient';
+import '../lib/vulcan-lib';
+import '../client/start';
+
+// Make sure to register settings before everything else
+import '../client/publicSettings'
+
+import '../client/autoRefresh';
+import '../client/scrollRestoration';
+import '../client/clickableCheckboxLabels';
+import '../client/themeProvider';
+import '../client/logging';
+import '../lib/index';
+
+// Polyfills:
+import 'element-closest'
+
 let startupCalled = false;
 
 async function clientStartup() {

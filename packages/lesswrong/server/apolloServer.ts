@@ -20,7 +20,7 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
@@ -341,6 +341,9 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
+    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
+
     const {bundleHash} = getClientBundle();
     const clientScript = `<script src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
@@ -360,7 +363,7 @@ export function startWebserver() {
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
     
-    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -375,6 +378,7 @@ export function startWebserver() {
         + externalStylesPreload
         + instanceSettingsHeader
         + faviconHeader
+        + publicSettingsHeader // Must come before clientScript
         + clientScript
     );
 
