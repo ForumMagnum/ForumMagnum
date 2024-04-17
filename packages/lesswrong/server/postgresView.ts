@@ -1,6 +1,6 @@
 import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import { addCronJob } from "./cronUtil";
+import type { CronJobSpec } from "./cronUtil";
 
 class PostgresView {
   constructor(
@@ -36,7 +36,7 @@ class PostgresView {
     }
   }
 
-  registerCronJob() {
+  registerCronJob(addCronJob: (options: CronJobSpec) => void) {
     addCronJob({
       name: `refreshPostgresView-${this.name}`,
       interval: this.refreshInterval,
@@ -67,12 +67,19 @@ export const createPostgresView = (
     refreshQuery,
   );
   postgresViews.push(view);
-  view.registerCronJob();
 }
 
-export const ensurePostgresViewsExist = async (db = getSqlClientOrThrow()) => {
+export const ensurePostgresViewsExist = async (
+  db = getSqlClientOrThrow(),
+  addCronJob?: (options: CronJobSpec) => void,
+) => {
   await Promise.all(postgresViews.map((view) => view.createView(db)));
   await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
+  if (addCronJob) {
+    for (const view of postgresViews) {
+      view.registerCronJob(addCronJob);
+    }
+  }
 }
 
 export const getPostgresViewByName = (name: string): PostgresView => {
