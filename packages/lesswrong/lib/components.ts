@@ -374,7 +374,6 @@ importComponent("UserNameDeleted", () => require('../components/users/UserNameDe
 importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
-importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
