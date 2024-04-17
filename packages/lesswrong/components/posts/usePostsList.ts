@@ -242,5 +242,7 @@ export const usePostsList = ({
     maybeMorePosts,
     orderedResults,
     itemProps,
+    limit,
+    showFinalBottomBorder,
   };
 }

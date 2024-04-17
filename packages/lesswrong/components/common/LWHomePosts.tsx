@@ -136,7 +136,7 @@ function useFrontpageTabSettings() {
 }
 
 const LWHomePosts = ({classes}: {classes: ClassesType}) => {
-  const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, 
+  const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList } = Components;
 
   const { captureEvent } = useTracking() 
@@ -292,6 +292,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
 
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {(selectedTab === 'lesswrong-classic') && <AnalyticsContext feedType={selectedTab}>
+                <CuratedPostsList />
                 <PostsList2 
                   terms={recentPostsTerms} 
                   alwaysShowLoadMore 

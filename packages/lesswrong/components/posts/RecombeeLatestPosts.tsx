@@ -72,6 +72,15 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  tabPicker: {
+    width: '85%',
+    '@media (max-width: 840px)': {
+      width: '90%',
+    },
+  },
+  tagFilterSettingsButton: {
+    alignSelf: "end",
+  },
 })
 
 const advancedSortingText = isFriendlyUI
@@ -167,7 +176,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings,
     StickiedPosts, RecombeePostsList, RecombeePostsListSettings, SettingsButton,
-    TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList
+    TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList, CuratedPostsList
   } = Components;
   
   const updateCurrentUser = useUpdateCurrentUser();
@@ -227,7 +236,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
 
   const showSettingsButton = (userIsAdmin(currentUser) && selectedScenario.includes('recombee')) || usingClassicLWAlgorithm(selectedScenario);
 
-  const settingsButton = (<div>
+  const settingsButton = (<div className={classes.tagFilterSettingsButton}>
     <SettingsButton
       className={classes.hideOnMobile}
       label={filterSettingsVisibleDesktop ?
@@ -238,10 +247,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     />
     <SettingsButton
       className={classes.hideOnDesktop}
-      label={filterSettingsVisibleMobile ?
-        filterSettingsToggleLabels.mobileVisible :
-        filterSettingsToggleLabels.mobileHidden}
-      showIcon={false}
+      showIcon={true}
       onClick={() => {
         setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
         captureEvent("filterSettingsClicked", {
@@ -276,12 +282,14 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     updateSelectedScenario(tabName);
   }
 
-  const algorithmPicker = <TabPicker 
-    sortedTabs={enabledAlgorithms} 
-    defaultTab={selectedScenario} 
-    onTabSelectionUpdate={handleSwitchTab}
-    showDescriptionOnHover
-  />
+  const algorithmPicker = (<div className={classes.tabPicker}>
+    <TabPicker 
+      sortedTabs={enabledAlgorithms} 
+      defaultTab={selectedScenario} 
+      onTabSelectionUpdate={handleSwitchTab}
+      showDescriptionOnHover
+    />
+  </div>);
 
 
   let settings = null;
@@ -359,6 +367,16 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
                </AnalyticsContext>}
 
               {/* CHRONOLIGCAL FEED */}
+              {(selectedScenario === 'lesswrong-classic') && <AnalyticsContext feedType={selectedScenario}>
+                <CuratedPostsList />
+                <PostsList2 
+                  terms={recentPostsTerms} 
+                  alwaysShowLoadMore 
+                  hideHiddenFrontPagePosts
+                >
+                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
+                </PostsList2> 
+              </AnalyticsContext>}
               {(selectedScenario === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedScenario}>
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
