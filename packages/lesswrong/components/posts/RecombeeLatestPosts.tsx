@@ -70,6 +70,15 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  tabPicker: {
+    width: '85%',
+    '@media (max-width: 840px)': {
+      width: '90%',
+    },
+  },
+  tagFilterSettingsButton: {
+    alignSelf: "end",
+  },
 })
 
 const advancedSortingText = isFriendlyUI
@@ -212,7 +221,7 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
 
   const showSettingsButton = (userIsAdmin(currentUser) && selectedScenario.includes('recombee')) || usingClassicLWAlgorithm(selectedScenario);
 
-  const settingsButton = (<div>
+  const settingsButton = (<div className={classes.tagFilterSettingsButton}>
     <SettingsButton
       className={classes.hideOnMobile}
       label={filterSettingsVisibleDesktop ?
@@ -223,10 +232,11 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     />
     <SettingsButton
       className={classes.hideOnDesktop}
-      label={filterSettingsVisibleMobile ?
-        filterSettingsToggleLabels.mobileVisible :
-        filterSettingsToggleLabels.mobileHidden}
-      showIcon={false}
+      
+      // label={filterSettingsVisibleMobile ?
+      //   filterSettingsToggleLabels.mobileVisible :
+      //   filterSettingsToggleLabels.mobileHidden}
+      showIcon={true}
       onClick={() => {
         setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
         captureEvent("filterSettingsClicked", {
@@ -255,12 +265,14 @@ const RecombeeLatestPosts = ({ currentUser, classes }: {
     updateSelectedScenario(tabName);
   }
 
-  const algorithmPicker = <TabPicker 
-    sortedTabs={enabledAlgorithms} 
-    defaultTab={selectedScenario} 
-    onTabSelectionUpdate={handleSwitchTab}
-    showDescriptionOnHover
-  />
+  const algorithmPicker = (<div className={classes.tabPicker}>
+    <TabPicker 
+      sortedTabs={enabledAlgorithms} 
+      defaultTab={selectedScenario} 
+      onTabSelectionUpdate={handleSwitchTab}
+      showDescriptionOnHover
+    />
+  </div>);
 
 
   let settings = null;

@@ -6,19 +6,13 @@ import debounce from 'lodash/debounce'
 
 const styles = (theme: ThemeType) => ({
   tabsSection: {
-    marginTop: 10,
-    marginBottom: 26,
-    [theme.breakpoints.down('sm')]: {
-      marginTop: 20,
-    },
+    margin: 0,
+    width: 'inherit',
   },
   tabsRow: {
     position: 'relative',
   },
   topicsBar: {
-    // display: 'flex',
-    // columnGap: 8,
-
     display: 'flex',
     columnGap: 8,
     whiteSpace: 'nowrap',
@@ -64,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tab: {
-    width: '100px',
+    minWidth: '150px',
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.grey[500],
     fontFamily: theme.typography.fontFamily,
@@ -79,28 +73,8 @@ const styles = (theme: ThemeType) => ({
     },
 
     '@media (max-width: 840px)': {
-      fontSize: 12,
-      lineHeight: '18px',
       padding: '4px 6px',
     },
-
-    // backgroundColor: theme.palette.grey[200],
-    // color: theme.palette.grey[900],
-    // fontFamily: theme.typography.fontFamily,
-    // fontSize: 14,
-    // lineHeight: '23px',
-    // fontWeight: '500',
-    // padding: '4px 8px',
-    // borderRadius: 6,
-    // cursor: 'pointer',
-    // '&:hover': {
-    //   backgroundColor: theme.palette.grey[300],
-    // },
-    // '@media (max-width: 840px)': {
-    //   fontSize: 12,
-    //   lineHeight: '18px',
-    //   padding: '4px 6px',
-    // },
   },
   activeTab: {
     backgroundColor: theme.palette.grey[300],
@@ -179,7 +153,7 @@ const TabPicker = <T extends TabRecord[]>(
   const offsets = useRef<Array<number>>([0]);
 
   const [leftArrowVisible, setLeftArrowVisible] = useState(false);
-  const [rightArrowVisible, setRightArrowVisible] = useState(true);
+  const [rightArrowVisible, setRightArrowVisible] = useState(false);
 
   /**
    * When the tabs bar is scrolled, hide/show the left/right arrows as necessary.
@@ -191,8 +165,6 @@ const TabPicker = <T extends TabRecord[]>(
     // max amount we can scroll to the right, reduced a bit to make sure that
     // we hide the right arrow when scrolled all the way to the right
     const maxScrollLeft = tabsListRef.current.scrollWidth - tabsWindowRef.current.clientWidth - 10;
-
-    console.log({ currentScrollLeft, maxScrollLeft, tabsListScrollWidth: tabsListRef.current.scrollWidth, tabsWindowScrollWidth: tabsWindowRef.current.clientWidth });
 
     setLeftArrowVisible(currentScrollLeft > 0);
     setRightArrowVisible(currentScrollLeft < maxScrollLeft);
@@ -230,6 +202,7 @@ const TabPicker = <T extends TabRecord[]>(
       if (!tabsWindowRef.current || !tabsListRef.current) return false;
       return os < (tabsWindowRef.current.scrollLeft - 2);
     }) || 0;
+
     tabsWindowRef.current.scrollTo({
       left: nextOffset,
       behavior: 'smooth',
@@ -248,7 +221,6 @@ const TabPicker = <T extends TabRecord[]>(
       return os > tabsWindowRef.current.scrollLeft;
     });
 
-    console.log({ nextOffset, offsets });
     if (!nextOffset) return;
     tabsWindowRef.current.scrollTo({
       left: nextOffset,
