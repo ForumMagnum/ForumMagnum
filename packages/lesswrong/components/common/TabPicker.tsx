@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tab: {
-    minWidth: '150px',
+    minWidth: '100px',
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.grey[500],
     fontFamily: theme.typography.fontFamily,
