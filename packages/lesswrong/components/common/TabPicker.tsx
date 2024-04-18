@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
-import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
 import debounce from 'lodash/debounce'
 
@@ -58,7 +57,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tab: {
-    width: '140px',
+    minWidth: '140px',
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.tab.inactive.text,
     fontFamily: theme.typography.fontFamily,

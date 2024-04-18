@@ -291,13 +291,15 @@ const settingsButton = (<div className={classes.tagFilterSettingsButton}>
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
           {!!currentUser && <>
-            <TabPicker 
-              sortedTabs={enabledTabs} 
-              defaultTab={selectedTab} 
-              onTabSelectionUpdate={handleSwitchTab}
-              showDescriptionOnHover
-            />
-          {showSettingsButton && settingsButton}
+            <div className={classes.tabPicker}>
+              <TabPicker 
+                sortedTabs={enabledTabs} 
+                defaultTab={selectedTab} 
+                onTabSelectionUpdate={handleSwitchTab}
+                showDescriptionOnHover
+              />
+            </div>
+            {showSettingsButton && settingsButton}
           </>}
         </div>
         {settings}
