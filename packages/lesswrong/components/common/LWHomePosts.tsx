@@ -64,7 +64,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
   },
   tabPicker: {
-    width: '85%',
     '@media (max-width: 840px)': {
       width: '90%',
     },

@@ -1,7 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState} from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
 import classNames from 'classnames'
-import debounce from 'lodash/debounce'
+
+const rightFadeStyle = (theme: ThemeType) => ({
+  '&:after': {
+    position: 'absolute',
+    top: 0,
+    right: -1,
+    height: '100%',
+    width: 50,
+    content: '\'\'',
+    background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
+    pointerEvents: 'none',
+  },
+});
 
 const styles = (theme: ThemeType) => ({
   tabsSection: {
@@ -45,15 +57,11 @@ const styles = (theme: ThemeType) => ({
     },
   },
   rightFade: {
-    '&:after': {
-      position: 'absolute',
-      top: 0,
-      right: -1,
-      height: '100%',
-      width: 50,
-      content: '\'\'',
-      background: `linear-gradient(to left, ${theme.palette.background.default}, ${theme.palette.background.transparent})`,
-      pointerEvents: 'none',
+    ...rightFadeStyle(theme),
+  },
+  rightFadeMobile: {
+    [theme.breakpoints.down('xs')]: {
+      ...rightFadeStyle(theme),
     },
   },
   tab: {
@@ -151,11 +159,19 @@ const TabPicker = <T extends TabRecord[]>(
 
   const [leftArrowVisible, setLeftArrowVisible] = useState(false);
   const [rightArrowVisible, setRightArrowVisible] = useState(false);
+  // We have the unfortunate situation where we want the right arrow + fade to be visible on mobile by default,
+  // since the tabs will be too wide to display in full, while not being visible on wider screens, during SSR.
+  // We also want the arrows to behave correctly after the user does any scrolling.  So we do the following:
+  // 1. Default `rightArrowVisible` to false, which controls the `rightFade` class.
+  // 2. Record whether the user has ever manually scrolled on the tab bar, which controls the `rightFadeMobile` class.
+  //    That class ensures that users on mobile have a rightFade + arrow by default until they scroll.
+  // NOTE: If we implement enough tabs that we'll have scrolling on desktops as well, we can get rid of all of this and just switch the `rightArrowVisible` default back to true
+  const [everScrolled, setEverScrolled] = useState(false);
 
   /**
    * When the tabs bar is scrolled, hide/show the left/right arrows as necessary.
    */
-  const updateArrows = debounce(() => {
+  const updateArrows = useCallback(() => {
     if (!tabsWindowRef.current || !tabsListRef.current) return;
 
     const currentScrollLeft = tabsWindowRef.current.scrollLeft;
@@ -165,7 +181,8 @@ const TabPicker = <T extends TabRecord[]>(
 
     setLeftArrowVisible(currentScrollLeft > 0);
     setRightArrowVisible(currentScrollLeft < maxScrollLeft);
-  }, 80);
+    setEverScrolled(true);
+  }, []);
 
   useEffect(() => {
     if (!tabsWindowRef.current || !tabsListRef.current) return;
@@ -205,6 +222,7 @@ const TabPicker = <T extends TabRecord[]>(
       behavior: 'smooth',
     });
     setRightArrowVisible(true);
+    setEverScrolled(true);
   };
 
   /**
@@ -224,6 +242,7 @@ const TabPicker = <T extends TabRecord[]>(
       behavior: 'smooth',
     });
     setLeftArrowVisible(true);
+    setEverScrolled(true);
   };
 
   return (
@@ -235,6 +254,7 @@ const TabPicker = <T extends TabRecord[]>(
         <div className={classNames(classes.tabsWindowContainer, {
           [classes.leftFade]: leftArrowVisible,
           [classes.rightFade]: rightArrowVisible,
+          [classes.rightFadeMobile]: !everScrolled,
         })}>
           <div ref={tabsWindowRef} className={classes.tabsWindow} onScroll={() => updateArrows()}>
             <div ref={tabsListRef} className={classes.topicsBar}>
