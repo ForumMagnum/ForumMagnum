@@ -3901,7 +3901,7 @@
     "@types/react" "*"
     "@types/react-instantsearch-core" "*"
 
-"@types/react-instantsearch-dom@^6.40.4":
+"@types/react-instantsearch-dom@^6.10.4":
   version "6.12.7"
   resolved "https://registry.yarnpkg.com/@types/react-instantsearch-dom/-/react-instantsearch-dom-6.12.7.tgz#7156f9ca0b6663227ae53481f5d93b2dc0d6b889"
   integrity sha512-9PPKCOn0gnfMh+IdmM8WD3Ww1cwHbKeWsSddjI/lwLzs7SSSRh+UbYxo6RAM8kGw90EbDn0zTtrdAPl9RiizWQ==
@@ -3917,7 +3917,7 @@
     "@types/react" "*"
     "@types/react-instantsearch-core" "*"
 
-"@types/react-instantsearch@^6.40.4":
+"@types/react-instantsearch@^6.10.4":
   version "6.10.4"
   resolved "https://registry.yarnpkg.com/@types/react-instantsearch/-/react-instantsearch-6.10.4.tgz#1bfebdd86cca84c1a130decbec2124a4f693b963"
   integrity sha512-I2at92uSs4ZDMb2Tplh6HMCC23WvJ5684i8BNOD8Rwl/a+P7UpfnJDYpaFE9uyGerIrhArHmRe8oIFPGRSe5sA==
