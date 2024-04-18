@@ -1738,8 +1738,6 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
-  experiencedIn: Array<string> | null
-  interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean
   afPostCount: number
   afCommentCount: number
@@ -1750,7 +1748,6 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
-  wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents
