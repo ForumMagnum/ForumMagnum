@@ -71,7 +71,6 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.tab.inactive.hover.text
     },
-
     '@media (max-width: 840px)': {
       padding: '4px 6px',
     },

@@ -85,6 +85,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
+  readonly frontpageSelectedTab: string | null,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly allPostsTimeframe: string,
   readonly allPostsFilter: string,
@@ -2880,6 +2881,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   } | null,
   readonly hidePostsRecommendations: boolean,
   readonly currentFrontpageFilter: string,
+  readonly frontpageSelectedTab: string | null,
   readonly frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly hideFrontpageFilterSettingsDesktop: boolean | null,
   readonly allPostsTimeframe: string,
@@ -3129,7 +3131,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface UsersEdit extends UsersProfile { // fragment on Users
+interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly biography: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,

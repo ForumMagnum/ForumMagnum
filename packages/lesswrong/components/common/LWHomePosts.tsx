@@ -23,11 +23,11 @@ import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { TabRecord } from './TabPicker';
 import { postFeedsProductionSetting, postFeedsTestingSetting } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { FRONTPAGE_TAB_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
+import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 
 // Key is the algorithm/tab name
-type FrontpageTabCookieSettings = [string, RecombeeConfiguration][];
+type RecombeeCookieSettings = [string, RecombeeConfiguration][];
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -63,6 +63,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  tabPicker: {
+    width: '85%',
+    '@media (max-width: 840px)': {
+      width: '90%',
+    },
+  },
+  tagFilterSettingsButton: {
+    alignSelf: "end",
+  },
 })
 
 export const filterSettingsToggleLabels =  {
@@ -85,55 +94,17 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
   return currentUser?.hideFrontpageFilterSettingsDesktop === false;
 };
 
-const getDefaultTab = () => {
-  return postFeedsProductionSetting.get()[0].name;
+const getDefaultTab = (currentUser: UsersCurrent|null) => {
+  return currentUser?.frontpageSelectedTab ?? postFeedsProductionSetting.get()[0].name;
 };
 
-const defaultTabConfig: RecombeeConfiguration = {
+const defaultRecombeeConfig: RecombeeConfiguration = {
   rotationRate: 0.1,
   rotationTime: 12,
 };
 
-function useFrontpageTabSettings() {
-  const [cookies, setCookie] = useCookiesWithConsent();
-  const frontpageTabsCookieSettings: FrontpageTabCookieSettings = cookies[FRONTPAGE_TAB_SETTINGS_COOKIE] ?? [];
-  const [storedActiveTab, storedActiveTabConfig] = frontpageTabsCookieSettings[0] ?? [];
-  const [selectedTab, setSelectedTab] = useState(storedActiveTab ?? getDefaultTab());
-  const [tabConfig, setTabConfig] = useState(storedActiveTabConfig ?? defaultTabConfig);
 
-  const updateSelectedTab = (newTab: string) => {
-    // If we don't yet have this cookie, or have this tab stored in the cookie, add it as the first item
-    // Otherwise, reorder the existing tab + config tuples to have that tab be first
-    const newCookieValue: FrontpageTabCookieSettings = !frontpageTabsCookieSettings?.find(([tab]) => newTab === tab)
-      ? [[newTab, defaultTabConfig], ...(frontpageTabsCookieSettings ?? [])]
-      : [...frontpageTabsCookieSettings].sort((a, b) => a[0] === newTab ? -1 : 0);
-    
-    setCookie(FRONTPAGE_TAB_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
 
-    const [_, newTabConfig] = newCookieValue[0];
-    setSelectedTab(newTab);
-    setTabConfig(newTabConfig);
-  };
-
-  const updateTabConfig = (newTabConfig: RecombeeConfiguration) => {
-    const newCookieValue: FrontpageTabCookieSettings = [...frontpageTabsCookieSettings];
-    newCookieValue[0][1] = newTabConfig;
-    setCookie(FRONTPAGE_TAB_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
-    setTabConfig(newTabConfig);
-  };
-
-  useEffect(() => {
-    if (frontpageTabsCookieSettings.length === 0) {
-      setCookie(FRONTPAGE_TAB_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(), defaultTabConfig]]), { path: '/' });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return {
-    selectedTab, updateSelectedTab,
-    tabConfig, updateTabConfig
-  };
-}
 
 const LWHomePosts = ({classes}: {classes: ClassesType}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
@@ -148,8 +119,51 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
   const now = useCurrentTime();
   const { continueReading } = useContinueReading()
 
+  const [ selectedTab, setSelectedTab ] = useState(getDefaultTab(currentUser));
 
-  const { selectedTab, updateSelectedTab, tabConfig, updateTabConfig } = useFrontpageTabSettings();
+  function useRecombeeSettings(currentUser: UsersCurrent|null) {
+    const [cookies, setCookie] = useCookiesWithConsent();
+    const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
+    const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
+    const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultTab(currentUser));
+    const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
+  
+    const updateSelectedScenario = (newScenario: string) => {
+      // If we don't yet have this cookie, or have this scenario stored in the cookie, add it as the first item
+      // Otherwise, reorder the existing scenario + config tuples to have that scenario be first
+      const newCookieValue: RecombeeCookieSettings = !recombeeCookieSettings?.find(([scenario]) => newScenario === scenario)
+        ? [[newScenario, defaultRecombeeConfig], ...(recombeeCookieSettings ?? [])]
+        : [...recombeeCookieSettings].sort((a, b) => a[0] === newScenario ? -1 : 0);
+      
+      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
+  
+      const [_, newScenarioConfig] = newCookieValue[0];
+      setSelectedScenario(newScenario);
+      setScenarioConfig(newScenarioConfig);
+    };
+  
+    const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
+      const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
+      newCookieValue[0][1] = newScenarioConfig;
+      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
+      setScenarioConfig(newScenarioConfig);
+    };
+  
+    useEffect(() => {
+      if (recombeeCookieSettings.length === 0) {
+        setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(currentUser), defaultRecombeeConfig]]), { path: '/' });
+      }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+  
+    return {
+      selectedScenario, updateSelectedScenario,
+      scenarioConfig, updateScenarioConfig
+    };
+  }
+
+  // TO-DO change so only recombee config used from here
+  const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser);
 
   const { count: countBookmarks } = useMulti({
     collectionName: "Posts",
@@ -173,16 +187,17 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
       && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
     )
 
-
   const handleSwitchTab = (tabName: string) => {
+    console.log({selectedTab, selectedScenario, tabName})
     captureEvent("postFeedSwitched", {
       previousTab: selectedTab,
       newTab: tabName,
     });
-    updateSelectedTab(tabName);
-  }
 
-  console.log({selectedTab, availableAlgorithms, enabledAlgorithms })
+    setSelectedTab(tabName);  
+    void updateCurrentUser({frontpageSelectedTab: tabName}) // updates persistent user setting
+    updateSelectedScenario(tabName); // updates cookie with Recombee config
+  }
 
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
@@ -204,34 +219,30 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
     })
   };
 
-
   const showSettingsButton = (selectedTab === 'lesswrong-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ;
 
-  const settingsButton = (<div>
-    <SettingsButton
-      className={classes.hideOnMobile}
-      label={filterSettingsVisibleDesktop ?
-        filterSettingsToggleLabels.desktopVisible :
-        filterSettingsToggleLabels.desktopHidden}
-      showIcon={false}
-      onClick={changeShowTagFilterSettingsDesktop}
-    />
-    <SettingsButton
-      className={classes.hideOnDesktop}
-      label={filterSettingsVisibleMobile ?
-        filterSettingsToggleLabels.mobileVisible :
-        filterSettingsToggleLabels.mobileHidden}
-      showIcon={false}
-      onClick={() => {
-        setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-        captureEvent("filterSettingsClicked", {
-          settingsVisible: !filterSettingsVisibleMobile,
-          settings: filterSettings,
-          pageSectionContext: "latestPosts",
-          mobile: true
-        })
-      }} />
-  </div>);
+const settingsButton = (<div className={classes.tagFilterSettingsButton}>
+  <SettingsButton
+    className={classes.hideOnMobile}
+    label={filterSettingsVisibleDesktop ?
+      filterSettingsToggleLabels.desktopVisible :
+      filterSettingsToggleLabels.desktopHidden}
+    showIcon={false}
+    onClick={changeShowTagFilterSettingsDesktop}
+  />
+  <SettingsButton
+    className={classes.hideOnDesktop}
+    showIcon={true}
+    onClick={() => {
+      setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+      captureEvent("filterSettingsClicked", {
+        settingsVisible: !filterSettingsVisibleMobile,
+        settings: filterSettings,
+        pageSectionContext: "latestPosts",
+        mobile: true
+      })
+    }} />
+</div>);
 
 
   let settings = null;
@@ -252,7 +263,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
       [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
       [classes.hideOnMobile]: !filterSettingsVisibleMobile,
     })}>
-      {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={tabConfig} updateSettings={updateTabConfig} />}
+      {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
     </div>
   }
 
@@ -304,7 +315,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
               
               {/* RECOMBEE RECOMMENDATIONS */}
               {selectedTab.includes('recombee') && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={selectedTab} settings={tabConfig} />
+                <RecombeePostsList algorithm={selectedTab} settings={scenarioConfig} />
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
