@@ -1084,17 +1084,18 @@ type SequencesCollection = CollectionBase<"Sequences">;
 
 interface DbSequence extends DbObject {
   __collectionName?: "Sequences"
+  lastUpdated: Date
   userId: string
   title: string | null
-  gridImageId: string | null
   bannerImageId: string | null
-  curatedOrder: number | null
-  userProfileOrder: number | null
+  gridImageId: string | null
+  hideFromAuthorPage: boolean
   draft: boolean
   isDeleted: boolean
+  curatedOrder: number | null
+  userProfileOrder: number | null
   canonicalCollectionSlug: string | null
   hidden: boolean
-  hideFromAuthorPage: boolean
   noindex: boolean
   af: boolean
   contents: EditableFieldContents
@@ -1738,8 +1739,6 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
-  experiencedIn: Array<string> | null
-  interestedIn: Array<string> | null
   hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
@@ -1751,7 +1750,6 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
-  wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents

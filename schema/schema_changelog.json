@@ -605,8 +605,23 @@
     "timestamp": "2024-04-04T19:03:59.000Z"
   },
   {
-    "acceptsSchemaHash": "2e57ce654aad9dd034e884a1a0b3bce8",
-    "acceptedByMigration": "20240408T155640.add_people_directory.ts",
-    "timestamp": "2024-04-08T15:56:40.000Z"
+    "acceptsSchemaHash": "972b9de45fa85223bdb3e607bd8d9936",
+    "acceptedByMigration": "20240409T163258.noop_reorder_sequence_fields.ts",
+    "timestamp": "2024-04-09T16:32:58.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b2d46df0cf4693fc419953f2fbe9a0cc",
+    "acceptedByMigration": "20240410T225250.add_lastUpdated_to_Sequences.ts",
+    "timestamp": "2024-04-10T22:52:50.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8365aace030196807258e6ab633a5466",
+    "acceptedByMigration": "20240416T151709.drop_Users_wrapped2023Viewed_experiencedIn_interestedIn.ts",
+    "timestamp": "2024-04-16T15:17:09.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9174349cf01c46a4673e7173c2b2aeb4",
+    "acceptedByMigration": "20240418T144133.add_people_directory.ts",
+    "timestamp": "2024-04-18T14:41:33.000Z"
   }
 ]

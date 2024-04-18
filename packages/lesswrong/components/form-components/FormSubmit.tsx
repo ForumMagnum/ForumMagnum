@@ -34,10 +34,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
   submitButton: isFriendlyUI
     ? {
-      background: theme.palette.primary.main,
+      background: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite, // Dark mode independent
       "&:hover": {
-        background: theme.palette.primary.light,
+        background: theme.palette.primary.dark,
       },
     }
     : {

@@ -404,8 +404,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly subforumPreferredLayout: "card" | "list",
   readonly hideJobAdUntil: Date | null,
-  readonly experiencedIn: Array<string> | null,
-  readonly interestedIn: Array<string> | null,
   readonly hideFromPeopleDirectory: boolean,
   readonly allowDatadogSessionReplay: boolean,
   readonly afPostCount: number,
@@ -420,7 +418,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
-  readonly wrapped2023Viewed: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -646,17 +643,18 @@ interface BooksDefaultFragment { // fragment on Books
 }
 
 interface SequencesDefaultFragment { // fragment on Sequences
+  readonly lastUpdated: Date,
   readonly userId: string,
   readonly title: string,
-  readonly gridImageId: string,
   readonly bannerImageId: string,
-  readonly curatedOrder: number,
-  readonly userProfileOrder: number,
+  readonly gridImageId: string,
+  readonly hideFromAuthorPage: boolean,
   readonly draft: boolean,
   readonly isDeleted: boolean,
+  readonly curatedOrder: number,
+  readonly userProfileOrder: number,
   readonly canonicalCollectionSlug: string,
   readonly hidden: boolean,
-  readonly hideFromAuthorPage: boolean,
   readonly noindex: boolean,
   readonly af: boolean,
 }
@@ -3001,8 +2999,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   },
   readonly subforumPreferredLayout: "card" | "list",
   readonly hideJobAdUntil: Date | null,
-  readonly experiencedIn: Array<string> | null,
-  readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean,
   readonly hideFrontpageBook2020Ad: boolean,
   readonly hideDialogueFacilitation: boolean,
@@ -3025,7 +3021,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
-  readonly wrapped2023Viewed: boolean,
   readonly hideSunshineSidebar: boolean,
 }
 
@@ -3133,7 +3128,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface UsersEdit extends UsersProfile { // fragment on Users
+interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly biography: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,

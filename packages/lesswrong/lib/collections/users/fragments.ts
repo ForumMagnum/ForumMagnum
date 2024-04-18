@@ -200,8 +200,6 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
-    experiencedIn
-    interestedIn
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -217,8 +215,6 @@ registerFragment(`
     showMatches
     showRecommendedPartners
     hideActiveDialogueUsers
-
-    wrapped2023Viewed
 
     hideSunshineSidebar
   }
@@ -408,7 +404,7 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersEdit on User {
-    ...UsersProfile
+    ...UsersCurrent
     biography {
       ...RevisionEdit
     }

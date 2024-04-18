@@ -2843,30 +2843,6 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
   },
 
-  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-  experiencedIn: {
-    type: Array,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'experiencedIn.$': {
-    type: String,
-    optional: true
-  },
-  interestedIn: {
-    type: Array,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'interestedIn.$': {
-    type: String,
-    optional: true
-  },
-
   /* Privacy settings */
   hideFromPeopleDirectory: {
     type: Boolean,
@@ -3016,17 +2992,6 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
-  },
-
-  // EA Forum wrapped fields
-  wrapped2023Viewed: {
-    type: Boolean,
-    optional: false,
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members'],
-    hidden: true,
-    ...schemaDefaultValue(false),
   },
 };
 

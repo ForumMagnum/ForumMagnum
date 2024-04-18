@@ -280,7 +280,7 @@ export const CommentsItem = ({
       ? "comments-node-even" : "comments-node-odd"
 
     return (
-      <div className={classNames(classes.replyForm, levelClass, {[classes.replyFormMinimalist]: isMinimalist})}>
+      <div className={classNames(classes.replyForm, levelClass, isMinimalist && classes.replyFormMinimalist)}>
         <Components.CommentsNewForm
           post={treeOptions.post}
           parentComment={comment}
@@ -324,11 +324,9 @@ export const CommentsItem = ({
         classes.root,
         className,
         "recent-comments-node",
-        {
-          [classes.deleted]: comment.deleted && !comment.deletedPublic,
-          [classes.sideComment]: treeOptions.isSideComment,
-          [classes.subforumTop]: comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId,
-        },
+        comment.deleted && !comment.deletedPublic && classes.deleted,
+        treeOptions.isSideComment && classes.sideComment,
+        comment.tagCommentType === "SUBFORUM" && !comment.topLevelCommentId && classes.subforumTop,
       )}>
         { comment.parentCommentId && showParentState && (
           <div className={classes.firstParentComment}>

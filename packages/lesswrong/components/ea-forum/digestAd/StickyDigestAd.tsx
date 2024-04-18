@@ -136,7 +136,7 @@ const StickyDigestAd = ({className, classes}: {
   const ls = getBrowserLocalStorage()
   
   // We only show this after the client has viewed a few posts.
-  if (!showDigestAd || !ls?.getItem('postReadCount') || ls?.getItem('postReadCount') < 5) return null
+  if (!showDigestAd || !ls?.getItem('postReadCount') || ls?.getItem('postReadCount') < 10) return null
   
   const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
   
