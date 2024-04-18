@@ -729,6 +729,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   render() {
+    console.log("Rendering Editor.");
     const { loading } = this.state
     const { label, _classes: classes } = this.props
     const { Loading, ContentStyles } = Components
