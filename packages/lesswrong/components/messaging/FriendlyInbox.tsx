@@ -227,7 +227,7 @@ const FriendlyInbox = ({
   const { document: fetchedSelectedConversation } = useSingle({
     documentId: conversationId,
     collectionName: "Conversations",
-    fragmentName: "ConversationsList",
+    fragmentName: "ConversationsListWithReadStatus",
     skip: !conversationId,
   });
   const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;

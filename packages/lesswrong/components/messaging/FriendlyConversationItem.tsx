@@ -5,7 +5,7 @@ import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     display: "flex",
@@ -19,7 +19,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   rootSelected: {
-    background: theme.palette.grey[100],
+    // Important to take precendence over unread styles
+    background: `${theme.palette.grey[100]} !important`,
+  },
+  rootUnread: {
+      background: theme.palette.grey[60],
   },
   profileImage: {
     marginRight: 12,
@@ -42,6 +46,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: '21px'
   },
   date: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
     color: theme.palette.grey[600],
     fontSize: "13px",
     fontWeight: 500,
@@ -57,7 +64,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "13px",
     fontWeight: 500,
     marginTop: 2,
-  }
+  },
+  unread: {
+    width: 8,
+    height: 8,
+    background: theme.palette.primary.main,
+    borderRadius: "50%",
+  },
 });
 
 const FriendlyConversationItem = ({
@@ -67,9 +80,9 @@ const FriendlyConversationItem = ({
   selectedConversationId,
   setSelectedConversationId,
 }: {
-  conversation: ConversationsList;
+  conversation: ConversationsListWithReadStatus;
   currentUser: UsersCurrent;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
@@ -91,7 +104,11 @@ const FriendlyConversationItem = ({
   const previewText = truncate(latestMessagePlaintext, 400)
 
   return (
-    <div onClick={onClick} className={classNames(classes.root, {[classes.rootSelected]: isSelected})}>
+    <div onClick={onClick} className={classNames(
+      classes.root,
+      isSelected && classes.rootSelected,
+      conversation.hasUnreadMessages && classes.rootUnread,
+    )}>
       <UsersProfileImage
         user={firstParticipant}
         size={40}
@@ -103,6 +120,7 @@ const FriendlyConversationItem = ({
             {title}
           </div>
           <div className={classes.date}>
+            {conversation.hasUnreadMessages && <div className={classes.unread} />}
             <FormatDate date={conversation.latestActivity} />
           </div>
         </div>
