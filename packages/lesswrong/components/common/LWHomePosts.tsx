@@ -254,7 +254,7 @@ const settingsButton = (<div className={classes.tagFilterSettingsButton}>
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
         <TagFilterSettings
-          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow={false}
         />
       </div>
     </AnalyticsContext>
@@ -285,13 +285,15 @@ const settingsButton = (<div className={classes.tagFilterSettingsButton}>
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
-          <TabPicker 
-            sortedTabs={enabledAlgorithms} 
-            defaultTab={selectedTab} 
-            onTabSelectionUpdate={handleSwitchTab}
-            showDescriptionOnHover
-          />
+          {!!currentUser && <>
+            <TabPicker 
+              sortedTabs={enabledAlgorithms} 
+              defaultTab={selectedTab} 
+              onTabSelectionUpdate={handleSwitchTab}
+              showDescriptionOnHover
+            />
           {showSettingsButton && settingsButton}
+          </>}
         </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
