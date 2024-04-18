@@ -104,7 +104,6 @@ const schema: SchemaType<"Conversations"> = {
     graphQLtype: "Message",
     canRead: ['members'],
     resolver: async (conversation: DbConversation, args, context: ResolverContext) => {
-      const { tagId } = args;
       const { currentUser } = context;
       const message: DbMessage | null = await getWithCustomLoader<DbMessage | null, string>(
         context,
@@ -116,7 +115,21 @@ const schema: SchemaType<"Conversations"> = {
       );
       const filteredMessage = await accessFilterSingle(currentUser, context.Messages, message, context)
       return filteredMessage;
-    }
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Messages",
+      type: "left",
+      on: {
+        _id: `(
+          SELECT "_id"
+          FROM "Messages"
+          WHERE "conversationId" = ${field("_id")}
+          ORDER BY "createdAt" DESC
+          LIMIT 1
+        )`,
+      },
+      resolver: (messagesField) => messagesField("*"),
+    }),
   }),
 };
 
