@@ -342,7 +342,7 @@ export function startWebserver() {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
