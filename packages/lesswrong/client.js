@@ -1,7 +1,11 @@
-// Then import google analytics and datadog
-import './client/ga';
-import './client/datadogStart';
-import './client/type3';
+import './client/apolloClient';
+import './client/start';
 
-// Then import google reCaptcha v3
-import './client/reCaptchaStart'
+import './client/autoRefresh';
+import './client/scrollRestoration';
+import './client/clickableCheckboxLabels';
+import './client/themeProvider';
+import './client/logging';
+import './lib/index';
+
+import 'element-closest' // Polyfill

@@ -6,17 +6,7 @@ import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib';
 
 // Imports required for the whole app:
-import './apolloClient';
-import '../client/start';
-
-import '../client/autoRefresh';
-import '../client/scrollRestoration';
-import '../client/clickableCheckboxLabels';
-import '../client/themeProvider';
-import '../client/logging';
-import '../lib/index';
-
-import 'element-closest' // Polyfill
+import '../client';
 
 let startupCalled = false;
 async function clientStartup() {
@@ -26,7 +16,7 @@ async function clientStartup() {
   startupCalled = true;
 
   filterConsoleLogSpam();
-  require('../client.js');
+  require('../deferred-client-scripts.js');
   await runStartupFunctions();
 }
 
