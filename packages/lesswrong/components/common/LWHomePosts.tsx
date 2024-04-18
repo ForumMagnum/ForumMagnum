@@ -144,6 +144,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
 
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
+      && !(feed.name.includes('recombee') && !currentUser)
       && !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
     )
@@ -193,7 +194,6 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
   const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
 
   const handleSwitchTab = (tabName: string) => {
-    console.log({selectedTab, selectedScenario, tabName})
     captureEvent("postFeedSwitched", {
       previousTab: selectedTab,
       newTab: tabName,
@@ -224,30 +224,50 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
     })
   };
 
+
+  /* Settings buttons shows when:
+
+  - DESKTOP
+  -- logged-out: no (default open)
+  -- logged-in: yes (default closed)
+
+  - MOBILE
+  -- logged-out: yes (default closed)
+  -- logged-in: yes (default closed)
+
+  */
+
+
   const showSettingsButton = (selectedTab === 'lesswrong-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ;
 
-const settingsButton = (<div className={classes.tagFilterSettingsButton}>
-  <SettingsButton
-    className={classes.hideOnMobile}
-    label={filterSettingsVisibleDesktop ?
-      filterSettingsToggleLabels.desktopVisible :
-      filterSettingsToggleLabels.desktopHidden}
-    showIcon={false}
-    onClick={changeShowTagFilterSettingsDesktop}
-  />
-  <SettingsButton
-    className={classes.hideOnDesktop}
-    showIcon={true}
-    onClick={() => {
-      setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-      captureEvent("filterSettingsClicked", {
-        settingsVisible: !filterSettingsVisibleMobile,
-        settings: filterSettings,
-        pageSectionContext: "latestPosts",
-        mobile: true
-      })
-    }} />
-</div>);
+  const settingsButton = (<div className={classes.tagFilterSettingsButton}>
+    {/* Desktop button */}
+    <SettingsButton
+      className={classNames(
+        classes.hideOnMobile,
+        {[classes.hide]: !currentUser}
+      )}
+      label={filterSettingsVisibleDesktop ?
+        filterSettingsToggleLabels.desktopVisible :
+        filterSettingsToggleLabels.desktopHidden}
+      showIcon={false}
+      onClick={changeShowTagFilterSettingsDesktop}
+    />
+    <SettingsButton
+      className={classes.hideOnDesktop}
+      label={filterSettingsVisibleMobile ?
+        filterSettingsToggleLabels.mobileVisible :
+        filterSettingsToggleLabels.mobileHidden}
+      onClick={() => {
+        setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+        captureEvent("filterSettingsClicked", {
+          settingsVisible: !filterSettingsVisibleMobile,
+          settings: filterSettings,
+          pageSectionContext: "latestPosts",
+          mobile: true
+        })
+      }} />
+  </div>);
 
 
   let settings = null;
@@ -259,7 +279,11 @@ const settingsButton = (<div className={classes.tagFilterSettingsButton}>
         [classes.hideOnMobile]: !filterSettingsVisibleMobile,
       })}>
         <TagFilterSettings
-          filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter} flexWrapEndGrow={false}
+          filterSettings={filterSettings} 
+          setPersonalBlogFilter={setPersonalBlogFilter} 
+          setTagFilter={setTagFilter} 
+          removeTagFilter={removeTagFilter} 
+          flexWrapEndGrow={true}
         />
       </div>
     </AnalyticsContext>
@@ -285,22 +309,22 @@ const settingsButton = (<div className={classes.tagFilterSettingsButton}>
     limit:limit
   };
 
+  console.log({selectedTab, selectedScenario, scenarioConfig})
+
   return (
     // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
         <div className={classes.settingsVisibilityControls}>
-          {!!currentUser && <>
-            <div className={classes.tabPicker}>
-              <TabPicker 
-                sortedTabs={enabledTabs} 
-                defaultTab={selectedTab} 
-                onTabSelectionUpdate={handleSwitchTab}
-                showDescriptionOnHover
-              />
-            </div>
-            {showSettingsButton && settingsButton}
-          </>}
+          {!!currentUser && <div className={classes.tabPicker}>
+            <TabPicker 
+              sortedTabs={enabledTabs} 
+              defaultTab={selectedTab} 
+              onTabSelectionUpdate={handleSwitchTab}
+              showDescriptionOnHover
+            />
+          </div>}
+          {showSettingsButton && settingsButton}
         </div>
         {settings}
         {isFriendlyUI && <StickiedPosts />}
