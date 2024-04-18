@@ -4,6 +4,11 @@ interface SearchBase {
   publicDateMs: number,
 }
 
+type SearchLocation = {
+  type: "Point",
+  coordinates: number[],
+}
+
 interface SearchComment extends SearchBase {
   userId: string,
   baseScore: number,
@@ -61,10 +66,7 @@ interface SearchUser extends SearchBase {
   groups: Array<string>,
   af: boolean,
   socialMediaUrls: Partial<Record<SocialMediaSiteName | "website", string>> | null,
-  _geoloc?: {
-    type: "Point",
-    coordinates: number[],
-  },
+  _geoloc?: SearchLocation,
   mapLocationAddress?: string,
   tags: Array<string>,
   profileUpdatedAt: Date,
@@ -109,4 +111,27 @@ interface SearchTag extends SearchBase {
   description: string,
   bannerImageId?: string | null,
   parentTagId?: string | null,
+}
+
+interface SearchLocalgroup extends SearchBase {
+  name: string,
+  nameInAnotherLanguage: string | null,
+  organizerIds: Array<string>,
+  lastActivity: string | null,
+  types: Array<string>,
+  categories: Array<string> | null,
+  isOnline: boolean,
+  _geoloc?: SearchLocation,
+  location: string | null,
+  contactInfo: string | null,
+  facebookLink: string | null,
+  facebookPageLink: string | null,
+  meetupLink: string | null,
+  slackLink: string | null,
+  website: string | null,
+  bannerImageId: string | null,
+  inactive: boolean,
+  deleted: boolean,
+  description: string,
+  createdAt: string,
 }

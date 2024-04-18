@@ -25,16 +25,20 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
-const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+type EventMarkerLocation = {
+  lat?: number,
+  lng?: number,
+}
+
+const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location: {lat, lng}, classes }: {
   event: PostsList,
   handleMarkerClick: (eventId: string) => void,
   handleInfoWindowClose: (eventId: string) => void,
   infoOpen: boolean,
-  location: any,
+  location: EventMarkerLocation,
   classes: ClassesType,
 }) => {
-  if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-  const { geometry: {location: {lat, lng}}} = location
+  if (!lat || !lng) return null
   const { htmlHighlight = "" } = event.contents || {}
   const { GroupLinks, StyledMapPopup } = Components
   

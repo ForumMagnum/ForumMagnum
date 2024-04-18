@@ -7,13 +7,13 @@ import { useLocation } from '../../lib/routeUtil';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChildren';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
+import { useSearch } from '../../lib/search/searchUtil';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -133,13 +133,23 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     skip: !eventTerms
   });
 
-  const { results: groups = [] } = useMulti({
+  const {results: groupsPostgres} = useMulti({
     terms: groupQueryTerms,
     collectionName: "Localgroups",
     fragmentName: "localGroupsHomeFragment",
     limit: 500,
-    skip: !showGroups
+    skip: !showGroups || isFriendlyUI,
   })
+  const {results: groupsElastic} = useSearch<SearchLocalgroup>({
+    indexName: "localgroups",
+    query: "",
+    page: 0,
+    hitsPerPage: 500,
+    skip: !showGroups || !isFriendlyUI,
+  });
+  const groups: (localGroupsHomeFragment|SearchLocalgroup)[] =
+    (isFriendlyUI ? groupsElastic : groupsPostgres) ?? [];
+
   // filter the list of groups if the user has typed in a keyword
   let visibleGroups = groups
   if (keywordSearch) {
@@ -155,8 +165,6 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     limit: 500,
     skip: !showUsers
   })
-
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
 
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
@@ -276,12 +284,21 @@ const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: 
 }
 
 const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: {
-  groups: Array<localGroupsHomeFragment>,
+  groups: Array<localGroupsHomeFragment|SearchLocalgroup>,
   handleClick: (eventId: string) => void,
   handleClose: (eventId: string) => void,
   openWindows: any,
 }) => {
   return <>{groups.map((group) => {
+    const location = "googleLocation" in group
+      ? {
+        lng: group.googleLocation?.geometry?.location?.lng,
+        lat: group.googleLocation?.geometry?.location?.lat,
+      }
+      : {
+        lng: group._geoloc?.coordinates?.[0],
+        lat: group._geoloc?.coordinates?.[1],
+      };
     return(
       <Components.LocalGroupMarker
         key={group._id}
@@ -289,7 +306,7 @@ const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: 
         handleMarkerClick={handleClick}
         handleInfoWindowClose={handleClose}
         infoOpen={openWindows.includes(group._id)}
-        location={group.googleLocation}
+        location={location}
       />
     )
   })}</>

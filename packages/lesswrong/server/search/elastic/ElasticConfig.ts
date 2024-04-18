@@ -368,6 +368,38 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "deleted",
     ],
   },
+  Localgroups: {
+    fields: [
+      "name^3",
+      "nameInAnotherLanguage^3",
+      "description",
+      "location",
+    ],
+    snippet: "desciption",
+    highlight: "name",
+    ranking: [],
+    tiebreaker: "publicDateMs",
+    filters: [
+      {term: {deleted: false}},
+    ],
+    mappings: {
+      name: shingleTextMapping,
+      nameInAnotherLanguage: shingleTextMapping,
+      description: fullTextMapping,
+      organizerIds: keywordMapping,
+      types: keywordMapping,
+      categories: keywordMapping,
+      contactInfo: keywordMapping,
+      facebookLink: keywordMapping,
+      facebookPageLink: keywordMapping,
+      meetupLink: keywordMapping,
+      slackLink: keywordMapping,
+      website: keywordMapping,
+      bannerImageId: keywordMapping,
+      _geoloc: geopointMapping,
+    },
+    privateFields: [],
+  },
 };
 
 export const indexToCollectionName = (index: string): SearchIndexCollectionName => {
@@ -377,6 +409,7 @@ export const indexToCollectionName = (index: string): SearchIndexCollectionName 
     users: "Users",
     sequences: "Sequences",
     tags: "Tags",
+    localgroups: "Localgroups",
   };
   if (!data[index]) {
     throw new Error("Invalid index name: " + index);

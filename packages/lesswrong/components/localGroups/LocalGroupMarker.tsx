@@ -23,17 +23,20 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
-const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
+type GroupMarkerLocation = {
+  lat?: number,
+  lng?: number,
+}
+
+const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, infoOpen, location: {lat, lng}, classes }: {
   group: any,
   handleMarkerClick: any,
   handleInfoWindowClose: any,
   infoOpen: boolean,
-  location: any,
+  location: GroupMarkerLocation,
   classes: ClassesType,
 }) => {
-  if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-  const { geometry: {location: {lat, lng}}} = location
-
+  if (!lat || !lng) return null
   const { html = "" } = group.contents || {}
   const { StyledMapPopup, GroupLinks } = Components
   const htmlBody = {__html: html};

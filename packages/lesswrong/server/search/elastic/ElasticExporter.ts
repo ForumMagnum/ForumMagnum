@@ -9,6 +9,7 @@ import {
 } from "../../../lib/search/searchUtil";
 import {
   CommentsRepo,
+  LocalgroupsRepo,
   PostsRepo,
   SequencesRepo,
   TagsRepo,
@@ -354,6 +355,8 @@ class ElasticExporter {
       return new SequencesRepo();
     case "Tags":
       return new TagsRepo();
+    case "Localgroups":
+      return new LocalgroupsRepo();
     default:
       throw new Error("Can't find repo for collection " + collectionName);
     }

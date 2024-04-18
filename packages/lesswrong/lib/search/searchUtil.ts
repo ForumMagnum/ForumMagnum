@@ -3,8 +3,10 @@ import { TupleSet, UnionOf } from "../utils/typeGuardUtils";
 import { algoliaPrefixSetting } from '../publicSettings';
 import type { Client } from "algoliasearch/lite";
 import {isElasticEnabled} from '../instanceSettings'
+import { useEffect, useRef, useState } from "react";
+import equals from "lodash/fp/equals";
 
-export const searchIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const;
+export const searchIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags", "Localgroups"] as const;
 export type SearchIndexCollectionName = typeof searchIndexedCollectionNames[number];
 export type SearchIndexedDbObject = DbComment | DbPost | DbUser | DbSequence | DbTag;
 export interface SearchIndexedCollection extends CollectionBase<SearchIndexCollectionName> {}
@@ -17,6 +19,7 @@ export const getSearchIndexName = (collectionName: SearchIndexCollectionName): s
     case "Users": return prefix + "users";
     case "Sequences": return prefix + "sequences";
     case "Tags": return prefix + "tags";
+    case "Localgroups": return prefix + "localgroups";
   }
 }
 
@@ -89,4 +92,61 @@ export const getSearchClient = (): Client => {
     throw new Error("Couldn't initialize search client");
   }
   return client;
+}
+
+const useStableValue = <T>(value: T): T => {
+  const memoizedValue = useRef(value);
+  useEffect(() => {
+    if (!equals(value, memoizedValue.current)) {
+      memoizedValue.current = value;
+    }
+  }, [value]);
+  return memoizedValue.current;
+}
+
+export const useSearch = <T>({indexName, query, facetFilters, page, hitsPerPage, skip}: {
+  indexName: string,
+  query: string,
+  facetFilters?: string[],
+  page?: number,
+  hitsPerPage?: number
+  skip?: boolean,
+}) => {
+  const [results, setResults] = useState<T[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const memoizedFacets = useStableValue(facetFilters);
+
+  useEffect(() => {
+    if (skip) {
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    void (async () => {
+      try {
+        const searchClient = getSearchClient();
+        const response = await searchClient.search([
+          {
+            indexName,
+            query,
+            params: {
+              query,
+              facetFilters: memoizedFacets ? [memoizedFacets] : [],
+              page,
+              hitsPerPage,
+            },
+          },
+        ]);
+        setResults(response?.results?.[0]?.hits ?? null);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+        setError(e);
+      }
+      setLoading(false);
+    })();
+  }, [query, indexName, memoizedFacets, page, hitsPerPage, skip]);
+
+  return {results, loading, error};
 }

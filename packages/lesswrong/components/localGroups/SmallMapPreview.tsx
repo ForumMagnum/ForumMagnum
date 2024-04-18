@@ -4,7 +4,6 @@ import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { Helmet } from '../../lib/utils/componentsWithChildren';
 
@@ -58,8 +57,6 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
     const { post, group, classes } = this.props
     const { viewport } = this.state
 
-    const isEAForum = forumTypeSetting.get() === 'EAForum';
-    
     if (!viewport) return null
 
     return <div className={classes.previewWrapper}>
@@ -77,7 +74,10 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
           {post && <Components.LocalEventMarker
           key={post._id}
           event={post}
-          location={post.googleLocation}
+          location={{
+            lat: post.googleLocation?.geometry?.location?.lat,
+            lng: post.googleLocation?.geometry?.location?.lng,
+          }}
           handleMarkerClick={this.handleMarkerClick}
           handleInfoWindowClose={this.handleInfoWindowClose}
           infoOpen={this.state.openWindows.includes(post._id)}
@@ -85,7 +85,10 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
           {group && <Components.LocalGroupMarker
             key={group._id}
             group={group}
-            location={group.googleLocation}
+            location={{
+              lat: group.googleLocation?.geometry?.location?.lat,
+              lng: group.googleLocation?.geometry?.location?.lng,
+            }}
             handleMarkerClick={this.handleMarkerClick}
             handleInfoWindowClose={this.handleInfoWindowClose}
             infoOpen={this.state.openWindows.includes(group._id)}

@@ -1,12 +1,12 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { MouseEventHandler } from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import { useMulti } from '../../../lib/crud/withMulti';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useSearch } from '../../../lib/search/searchUtil';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -174,36 +174,13 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
 }) => {
   const { CommunityMapWrapper, CloudinaryImage2 } = Components
 
-  let groupsListTerms: LocalgroupsViewTerms = {}
-  groupsListTerms = userLocation.known ? {
-    view: 'nearby',
-    lat: userLocation.lat,
-    lng: userLocation.lng,
-    includeInactive,
-  } : {
-    view: 'local',
-    includeInactive,
-  }
-  
-  const { results, loading } = useMulti({
-    terms: groupsListTerms,
-    collectionName: "Localgroups",
-    fragmentName: 'localGroupsHomeFragment',
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: "cache-first",
-    limit: 300,
-    skip: userLocation.loading
+  const {results: localGroups, loading} = useSearch<SearchLocalgroup>({
+    indexName: "localgroups",
+    query: keywordSearch,
+    facetFilters: ["isOnline:false"],
   });
-  
+
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
-  
-  // filter the list of groups if the user has typed in a keyword
-  let localGroups = results
-  if (results && keywordSearch) {
-    localGroups = results.filter(group => (
-      `${group.name.toLowerCase()} ${group.nameInAnotherLanguage?.toLowerCase() ?? ''} ${group.location?.toLowerCase() ?? ''}`.includes(keywordSearch.toLowerCase())
-    ))
-  }
 
   return (
     <div className={classes.localGroups}>
@@ -225,13 +202,13 @@ const LocalGroups = ({keywordSearch, userLocation, distanceUnit='km', includeIna
           }
           // the distance from the user's location to the group's location
           let distanceToGroup;
-          if (userLocation.known && group.mongoLocation?.coordinates) {
-            const groupLocation = {
-              lat: group.mongoLocation.coordinates[1],
-              lng: group.mongoLocation.coordinates[0]
-            }
-            distanceToGroup = `${distance(userLocation, groupLocation, distanceUnit)} ${distanceUnit}`
-          }
+          // if (userLocation.known && group.mongoLocation?.coordinates) {
+            // const groupLocation = {
+              // lat: group.mongoLocation.coordinates[1],
+              // lng: group.mongoLocation.coordinates[0]
+            // }
+            // distanceToGroup = `${distance(userLocation, groupLocation, distanceUnit)} ${distanceUnit}`
+          // }
           
           return <div key={group._id} className={classes.localGroup}>
             <Link to={`/groups/${group._id}`} className={classes.mobileImg}>
