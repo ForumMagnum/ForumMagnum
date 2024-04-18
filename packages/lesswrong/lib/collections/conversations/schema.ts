@@ -103,7 +103,7 @@ const schema: SchemaType<"Conversations"> = {
     type: "Message",
     graphQLtype: "Message",
     canRead: ['members'],
-    resolver: async (conversation: DbConversation, args, context: ResolverContext) => {
+    resolver: async (conversation: DbConversation, _args, context: ResolverContext) => {
       const { currentUser } = context;
       const message: DbMessage | null = await getWithCustomLoader<DbMessage | null, string>(
         context,
@@ -129,6 +129,26 @@ const schema: SchemaType<"Conversations"> = {
         )`,
       },
       resolver: (messagesField) => messagesField("*"),
+    }),
+  }),
+  hasUnreadMessages: resolverOnlyField({
+    type: Boolean,
+    graphQLtype: "Boolean",
+    canRead: ["members"],
+    resolver: async () => {
+      // TODO
+      return false;
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      isNonCollectionJoin: true,
+      table: "ConversationUnreadMessages",
+      type: "left",
+      on: {
+        conversationId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (unreadMessagesField) =>
+        `COALESCE(${unreadMessagesField("hasUnreadMessages")}, FALSE)`,
     }),
   }),
 };

@@ -28,24 +28,43 @@ type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[
 
 type SqlFieldFunction<N extends CollectionNameString> = (fieldName: FieldName<N>) => string;
 
+type SqlJoinType = "inner" | "full" | "left" | "right";
+
 type SqlJoinBase<N extends CollectionNameString> = {
   table: N,
-  type?: "inner" | "full" | "left" | "right",
+  type?: SqlJoinType,
   on: Partial<Record<FieldName<N>, string>>,
 }
 
 type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
+  isNonCollectionJoin?: false,
   resolver: (field: SqlFieldFunction<N>) => string,
-};
+}
 
-type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> = SqlJoinBase<N> & {
-  prefix: string,
-};
+type SqlNonCollectionJoinBase = {
+  table: string,
+  type?: SqlJoinType,
+  on: Record<string, string>,
+}
+
+type SqlNonCollectionJoin = SqlNonCollectionJoinBase & {
+  isNonCollectionJoin: true,
+  resolver: (field: (fieldName: string) => string) => string,
+}
+
+type SqlJoinFunction = <N extends CollectionNameString>(
+  args: SqlResolverJoin<N> | SqlNonCollectionJoin,
+) => string;
+
+type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> =
+  (SqlJoinBase<N> | SqlNonCollectionJoinBase) & {
+    prefix: string,
+  };
 
 type SqlResolverArgs<N extends CollectionNameString> = {
   field: SqlFieldFunction<N>,
   currentUserField: SqlFieldFunction<'Users'>,
-  join: <J extends CollectionNameString>(args: SqlResolverJoin<J>) => string,
+  join: SqlJoinFunction,
   arg: (value: unknown) => string,
   resolverArg: (name: string) => string,
 }

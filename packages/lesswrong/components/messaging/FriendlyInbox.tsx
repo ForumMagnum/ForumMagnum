@@ -211,10 +211,10 @@ const FriendlyInbox = ({
 
   const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
 
-  const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
+  const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: "ConversationsList",
+    fragmentName: "ConversationsListWithReadStatus",
     limit: 500,
   });
   const { results: conversations, loading: conversationsLoading } = conversationsResult;
