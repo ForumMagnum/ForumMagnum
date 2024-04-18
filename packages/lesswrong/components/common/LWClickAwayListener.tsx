@@ -8,7 +8,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
  * and resulted in some annoying behavior. Also MUI v5 defaults this to "onClick".
  */
 const LWClickAwayListener = ({onClickAway, children}: {
-  onClickAway: (ev: ClickAwayEvent)=>void,
+  onClickAway: (ev: ClickAwayEvent) => void,
   children: React.ReactElement,
 }) => {
   return (

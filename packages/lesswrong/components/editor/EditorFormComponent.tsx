@@ -60,7 +60,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   commentStyles: boolean,
   classes: ClassesType,
 }, context: any) => {
-  console.log("Rendering EditorFormComponent.");
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
   const { updateCurrentValues, submitForm } = context;
