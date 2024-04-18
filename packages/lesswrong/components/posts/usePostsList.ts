@@ -46,6 +46,7 @@ export type PostsListConfig = {
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
+  placeholderCount?: number,
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
@@ -82,6 +83,7 @@ export const usePostsList = ({
   dense,
   defaultToShowUnreadComments,
   itemsPerPage = 25,
+  placeholderCount,
   hideAuthor = false,
   hideTag = false,
   hideTrailingButtons = false,
@@ -242,5 +244,7 @@ export const usePostsList = ({
     maybeMorePosts,
     orderedResults,
     itemProps,
+    limit,
+    placeholderCount,
   };
 }

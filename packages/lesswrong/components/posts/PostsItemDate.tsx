@@ -49,10 +49,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
+  useCuratedDate?: boolean,
   classes: ClassesType,
 }) => {
   if (noStyles) {
@@ -92,7 +93,9 @@ const PostsItemDate = ({post, noStyles, includeAgo, classes}: {
     </LWTooltip>
   }
 
-  const dateToDisplay = post.curatedDate || post.postedAt;
+  const dateToDisplay = useCuratedDate
+    ? post.curatedDate || post.postedAt
+    : post.postedAt;
   const timeFromNow = moment(new Date(dateToDisplay)).fromNow();
   const ago = includeAgo && timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>

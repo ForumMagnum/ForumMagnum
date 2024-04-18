@@ -45,9 +45,10 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const EAPostMeta = ({post, useEventStyles, className, classes}: {
+const EAPostMeta = ({post, useEventStyles, useCuratedDate=true, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
+  useCuratedDate?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -94,7 +95,7 @@ const EAPostMeta = ({post, useEventStyles, className, classes}: {
       <div>
         <span className={classes.date}>
           {" · "}
-          <PostsItemDate post={post} noStyles includeAgo />
+          <PostsItemDate post={post} noStyles includeAgo useCuratedDate={useCuratedDate} />
         </span>
         {(!post.fmCrosspost?.isCrosspost || post.fmCrosspost.hostedHere) &&
           <span className={classes.readTime}>
