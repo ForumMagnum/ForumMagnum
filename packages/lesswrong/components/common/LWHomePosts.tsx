@@ -114,7 +114,46 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
 };
 
 
+function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) {
+  const [cookies, setCookie] = useCookiesWithConsent();
+  const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
+  const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
+  const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultTab(currentUser, enabledTabs));
+  const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
 
+  const updateSelectedScenario = (newScenario: string) => {
+    // If we don't yet have this cookie, or have this scenario stored in the cookie, add it as the first item
+    // Otherwise, reorder the existing scenario + config tuples to have that scenario be first
+    const newCookieValue: RecombeeCookieSettings = !recombeeCookieSettings?.find(([scenario]) => newScenario === scenario)
+      ? [[newScenario, defaultRecombeeConfig], ...(recombeeCookieSettings ?? [])]
+      : [...recombeeCookieSettings].sort((a, b) => a[0] === newScenario ? -1 : 0);
+    
+    setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
+
+    const [_, newScenarioConfig] = newCookieValue[0];
+    setSelectedScenario(newScenario);
+    setScenarioConfig(newScenarioConfig);
+  };
+
+  const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
+    const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
+    newCookieValue[0][1] = newScenarioConfig;
+    setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
+    setScenarioConfig(newScenarioConfig);
+  };
+
+  useEffect(() => {
+    if (recombeeCookieSettings.length === 0) {
+      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(currentUser, enabledTabs), defaultRecombeeConfig]]), { path: '/' });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return {
+    selectedScenario, updateSelectedScenario,
+    scenarioConfig, updateScenarioConfig
+  };
+}
 
 const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
@@ -152,50 +191,9 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
       && !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
     )
-  const [ selectedTab, setSelectedTab ] = useState(getDefaultTab(currentUser, enabledTabs));
+  const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
 
-  function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) {
-    const [cookies, setCookie] = useCookiesWithConsent();
-    const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
-    const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
-    const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultTab(currentUser, enabledTabs));
-    const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
-  
-    const updateSelectedScenario = (newScenario: string) => {
-      // If we don't yet have this cookie, or have this scenario stored in the cookie, add it as the first item
-      // Otherwise, reorder the existing scenario + config tuples to have that scenario be first
-      const newCookieValue: RecombeeCookieSettings = !recombeeCookieSettings?.find(([scenario]) => newScenario === scenario)
-        ? [[newScenario, defaultRecombeeConfig], ...(recombeeCookieSettings ?? [])]
-        : [...recombeeCookieSettings].sort((a, b) => a[0] === newScenario ? -1 : 0);
-      
-      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
-  
-      const [_, newScenarioConfig] = newCookieValue[0];
-      setSelectedScenario(newScenario);
-      setScenarioConfig(newScenarioConfig);
-    };
-  
-    const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
-      const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
-      newCookieValue[0][1] = newScenarioConfig;
-      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
-      setScenarioConfig(newScenarioConfig);
-    };
-  
-    useEffect(() => {
-      if (recombeeCookieSettings.length === 0) {
-        setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(currentUser, enabledTabs), defaultRecombeeConfig]]), { path: '/' });
-      }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-  
-    return {
-      selectedScenario, updateSelectedScenario,
-      scenarioConfig, updateScenarioConfig
-    };
-  }
-
-  const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
+  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
 
   const handleSwitchTab = (tabName: string) => {
     captureEvent("postFeedSwitched", {
@@ -205,7 +203,6 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
     setSelectedTab(tabName);  
     void updateCurrentUser({frontpageSelectedTab: tabName}) // updates persistent user setting
-    updateSelectedScenario(tabName); // updates cookie with Recombee config
   }
 
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
@@ -297,7 +294,6 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
       {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
     </div>
   }
-
 
   const limit = parseInt(query.limit) || defaultLimit;
   const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
