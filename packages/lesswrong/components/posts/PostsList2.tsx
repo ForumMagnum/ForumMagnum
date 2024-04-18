@@ -27,7 +27,6 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   const {
     children,
     showNoResults,
-    hideLastUnread,
     showLoadMore,
     showLoading,
     dimWhenLoading,
@@ -42,7 +41,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     itemProps,
     limit,
     placeholderCount,
-  }= usePostsList(props);
+  } = usePostsList(props);
 
   const { PostsLoading, LoadMore, PostsNoResults, SectionFooter, PostsItem } = Components;
 
@@ -51,18 +50,6 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   }
 
   if (!orderedResults?.length && !showNoResults) {
-    return null
-  }
-  
-  // If this is the EA Forum frontpage pinned curated posts list,
-  // and we haven't curated a post in the last 5 days,
-  // then hide this entire section.
-  if (
-    isEAForum &&
-    hideLastUnread &&
-    !!orderedResults?.[0].curatedDate &&
-    moment(orderedResults[0].curatedDate).isBefore(moment().subtract(5, 'days'))
-  ) {
     return null
   }
 

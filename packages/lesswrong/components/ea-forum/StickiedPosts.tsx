@@ -29,7 +29,6 @@ const StickiedPosts = ({
       terms={{view:"stickied", limit:100, forum: true}}
       showNoResults={false}
       showLoadMore={false}
-      hideLastUnread={false}
       boxShadow={false}
       curatedIconLeft={false}
       placeholderCount={3}

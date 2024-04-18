@@ -54,6 +54,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     notPostIds?: Array<string>,
@@ -171,7 +172,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  */
 Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
+  // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const postCommentedExcludeCommunity = {$or: [
@@ -273,6 +274,9 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
+  }
+  if (terms.curatedAfter) {
+    params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
   
   return params;
