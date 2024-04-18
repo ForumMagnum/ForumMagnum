@@ -2959,7 +2959,7 @@ const schema: SchemaType<"Users"> = {
   hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
