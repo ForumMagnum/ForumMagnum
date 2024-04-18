@@ -29,7 +29,7 @@ import { RecombeeConfiguration } from '../../lib/collections/users/recommendatio
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -62,14 +62,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: "8px",
     justifyContent: "space-between",
     alignItems: "center",
+    
+  },
+  loggedOutTagFilterSettingsAlignment: {
+    flexDirection: "column",
   },
   tabPicker: {
     '@media (max-width: 840px)': {
-      width: '90%',
+      maxWidth: '100%',
     },
   },
   tagFilterSettingsButton: {
     alignSelf: "end",
+    opacity: 0.8
   },
 })
 
@@ -112,7 +117,7 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
 
 
 
-const LWHomePosts = ({classes}: {classes: ClassesType}) => {
+const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList } = Components;
 
@@ -239,6 +244,8 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
 
   const showSettingsButton = (selectedTab === 'lesswrong-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ;
 
+  const desktopSettingsButtonLabel = filterSettingsVisibleMobile ? 'Hide' : 'Customize'
+
   const settingsButton = (<div className={classes.tagFilterSettingsButton}>
     {/* Desktop button */}
     <SettingsButton
@@ -246,17 +253,13 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
         classes.hideOnMobile,
         {[classes.hide]: !currentUser}
       )}
-      label={filterSettingsVisibleDesktop ?
-        filterSettingsToggleLabels.desktopVisible :
-        filterSettingsToggleLabels.desktopHidden}
-      showIcon={false}
+      showIcon={!!currentUser}
       onClick={changeShowTagFilterSettingsDesktop}
     />
     <SettingsButton
       className={classes.hideOnDesktop}
-      label={filterSettingsVisibleMobile ?
-        filterSettingsToggleLabels.mobileVisible :
-        filterSettingsToggleLabels.mobileHidden}
+      label={!currentUser ? desktopSettingsButtonLabel : undefined}
+      showIcon={!!currentUser}
       onClick={() => {
         setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
         captureEvent("filterSettingsClicked", {
@@ -282,7 +285,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
           setPersonalBlogFilter={setPersonalBlogFilter} 
           setTagFilter={setTagFilter} 
           removeTagFilter={removeTagFilter} 
-          flexWrapEndGrow={true}
+          flexWrapEndGrow={false}
         />
       </div>
     </AnalyticsContext>
@@ -308,13 +311,11 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
     limit:limit
   };
 
-  console.log({selectedTab, selectedScenario, scenarioConfig})
-
   return (
     // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
-        <div className={classes.settingsVisibilityControls}>
+        <div className={classNames(classes.settingsVisibilityControls, {[classes.loggedOutTagFilterSettingsAlignment]: !currentUser})}>
           {!!currentUser && <div className={classes.tabPicker}>
             <TabPicker 
               sortedTabs={enabledTabs} 
