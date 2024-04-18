@@ -10,8 +10,8 @@ import groupBy from "lodash/groupBy";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import chunk from "lodash/chunk";
 
-const GOOGLE_PARENT_DOCUMENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lwrecommendations2_1713296505582/branches/default_branch';
-const GOOGLE_PARENT_EVENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lwrecommendations2_1713296505582';
+const GOOGLE_PARENT_DOCUMENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lw-recommendations3_1713386634021/branches/default_branch';
+const GOOGLE_PARENT_EVENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lw-recommendations3_1713386634021';
 
 export const getGoogleDocumentServiceClientOrThrow = (() => {
   let client: DocumentServiceClient;
@@ -262,10 +262,6 @@ function createGoogleMediaDocumentJson({ post, tags, authorIds }: CreateGoogleMe
     id: post._id,
     schemaId: 'default_schema',
     jsonData: JSON.stringify(metadata),
-    // content: {
-    //   mimeType: 'text/html',
-    //   rawBytes: Buffer.from(post.contents?.html ?? '').toString('base64')
-    // }
   };
 }
 
@@ -426,12 +422,7 @@ async function backfillPosts(offsetDate?: Date) {
           }
         }
       }
-      // const bigQueryRecordBatch = await Promise.all(postsWithTags.map(({ post, tags, authors, upvoteCount }) => createAEPostRecord({ post, context: adminContext, tags, authors, upvoteCount })));
-      // await writeFile(`aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(bigQueryRecordBatch));
-      
-      // const bigQueryRecordBatch = await executePromiseQueue(postsWithTags.map(({ post, tags }) => () => createBigQueryPostRecord({ post, context: adminContext, tags })), 10);
-      // await writeFile(`delimited_bigquery_posts_${offsetDate.toISOString()}.json`, createDelimitedJsonString(bigQueryRecordBatch));
-  
+
       const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
       if (!nextOffsetDate) {
         return;
@@ -455,11 +446,7 @@ async function backfillFrontpageViews(offsetDate?: Date) {
 
   const frontpageViewEvensts: FrontpageView[] = JSON.parse((await readFile('/Users/rbloom/git/lesswrongSuite/logged_in_user_frontpage_loads_20240416.json')).toString());
 
-  //log first 10 frontpageViewEvents to console
-  console.log(frontpageViewEvensts.slice(0, 10));
-
-  const chunkSize = 90000;
-  const chunkedFrontpageViews = chunk(frontpageViewEvensts, chunkSize);
+  const chunkedFrontpageViews = chunk(frontpageViewEvensts, 90000);
 
   for (const chunk of chunkedFrontpageViews) {
     // eslint-disable-next-line no-console
