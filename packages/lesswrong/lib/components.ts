@@ -1021,6 +1021,7 @@ importComponent("SideRecommendation", () => require('../components/recommendatio
 importComponent("PostBottomRecommendations", () => require('../components/recommendations/PostBottomRecommendations'));
 importComponent("RecommendationsPage", () => require('../components/recommendations/RecommendationsPage'));
 importComponent("CuratedPostsList", () => require('../components/recommendations/CuratedPostsList'));
+importComponent("WelcomePostItem", () => require('../components/recommendations/WelcomePostItem'));
 importComponent("RecommendationsPageCuratedList", () => require('../components/recommendations/RecommendationsPageCuratedList'));
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 importComponent("LWRecommendations", () => require('../components/recommendations/LWRecommendations'));

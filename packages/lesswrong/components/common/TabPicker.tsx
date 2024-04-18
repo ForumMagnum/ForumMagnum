@@ -81,6 +81,11 @@ const styles = (theme: ThemeType) => ({
     '@media (max-width: 840px)': {
       padding: '4px 6px',
     },
+    [theme.breakpoints.down('sm')]: {
+      fontSize: 13,
+      padding: '3px 6px',
+      minWidth: '80px',
+    }
   },
   activeTab: {
     backgroundColor: theme.palette.tab.active.background,

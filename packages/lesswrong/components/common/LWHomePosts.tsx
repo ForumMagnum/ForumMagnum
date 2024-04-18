@@ -119,7 +119,8 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
 
 const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList } = Components;
+    RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
+    WelcomePostItem } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -336,6 +337,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
               {/* LATEST POSTS (Hacker News Algorithm) */}
               {(selectedTab === 'lesswrong-classic') && <AnalyticsContext feedType={selectedTab}>
+                <WelcomePostItem />
                 <CuratedPostsList />
                 <PostsList2 
                   terms={recentPostsTerms} 
