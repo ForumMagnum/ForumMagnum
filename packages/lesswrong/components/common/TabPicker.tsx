@@ -27,6 +27,11 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     columnGap: 8,
     whiteSpace: 'nowrap',
+    overflowX: 'scroll',
+    scrollbarWidth: 'none',
+    '&::-webkit-scrollbar': {
+      height: 0,
+    },
     transition: 'transform 0.2s ease',
     '@media (max-width: 840px)': {
       columnGap: 6,
@@ -37,11 +42,6 @@ const styles = (theme: ThemeType) => ({
   },
   tabsWindow: {
     position: 'relative',
-    overflowX: 'scroll',
-    scrollbarWidth: 'none',
-    '&::-webkit-scrollbar': {
-      height: 0,
-    },
   },
   leftFade: {
     '&:before': {
@@ -149,9 +149,7 @@ const TabPicker = <T extends TabRecord[]>(
 
   const [activeTab, setActiveTab] = useState<T[number]['name']>(defaultTab ?? sortedTabs[0].name);
 
-  // we use the widths of the tabs window and the underlying tab list container
-  // when calculating how far to scroll left and right
-  const tabsWindowRef = useRef<HTMLDivElement | null>(null);
+  // we use the widths of the tab list container when calculating how far to scroll left and right
   const tabsListRef = useRef<HTMLDivElement | null>(null);
 
   // we store the tab list scrollLeft offsets that correspond to displaying each "set" of tabs
@@ -172,12 +170,12 @@ const TabPicker = <T extends TabRecord[]>(
    * When the tabs bar is scrolled, hide/show the left/right arrows as necessary.
    */
   const updateArrows = useCallback(() => {
-    if (!tabsWindowRef.current || !tabsListRef.current) return;
+    if (!tabsListRef.current) return;
 
-    const currentScrollLeft = tabsWindowRef.current.scrollLeft;
+    const currentScrollLeft = tabsListRef.current.scrollLeft;
     // max amount we can scroll to the right, reduced a bit to make sure that
     // we hide the right arrow when scrolled all the way to the right
-    const maxScrollLeft = tabsListRef.current.scrollWidth - tabsWindowRef.current.clientWidth - 10;
+    const maxScrollLeft = tabsListRef.current.scrollWidth - tabsListRef.current.clientWidth - 10;
 
     setLeftArrowVisible(currentScrollLeft > 0);
     setRightArrowVisible(currentScrollLeft < maxScrollLeft);
@@ -185,21 +183,21 @@ const TabPicker = <T extends TabRecord[]>(
   }, []);
 
   useEffect(() => {
-    if (!tabsWindowRef.current || !tabsListRef.current) return;
+    if (!tabsListRef.current) return;
     offsets.current = [0];
     Array.from(tabsListRef.current.children).forEach((tab: HTMLElement) => {
-      if (!tabsWindowRef.current || !tabsListRef.current) return;
+      if (!tabsListRef.current) return;
       // we are looking for the tab that would get cut off at the end of each "set",
       // by checking if the right edge would be past the window
       // - if so, this will be the first in the next "set"
-      if (tab.offsetLeft + tab.offsetWidth - offsets.current[offsets.current.length - 1] > tabsWindowRef.current.offsetWidth) {
+      if (tab.offsetLeft + tab.offsetWidth - offsets.current[offsets.current.length - 1] > tabsListRef.current.offsetWidth) {
         // subtract 30px to account for the fade on the left side of the tabs window
         offsets.current.push(tab.offsetLeft - 30);
       }
     });
 
     updateArrows();
-  }, [tabsWindowRef, tabsListRef, updateArrows, sortedTabs]);
+  }, [tabsListRef, updateArrows, sortedTabs]);
 
   const updateActiveTab = useCallback((activeTab: T[number]['name']) => {
     setActiveTab(activeTab)
@@ -210,14 +208,14 @@ const TabPicker = <T extends TabRecord[]>(
    * Clicking the left arrow smooth scrolls us to the previous offset (or defaults to 0).
    */
   const scrollLeft = () => {
-    if (!tabsWindowRef.current || !tabsListRef.current) return;
+    if (!tabsListRef.current) return;
     // look for the offset that is to the left of us
     const nextOffset = Array.from(offsets.current).reverse().find(os => {
-      if (!tabsWindowRef.current || !tabsListRef.current) return false;
-      return os < (tabsWindowRef.current.scrollLeft - 2);
+      if (!tabsListRef.current) return false;
+      return os < (tabsListRef.current.scrollLeft - 2);
     }) || 0;
 
-    tabsWindowRef.current.scrollTo({
+    tabsListRef.current.scrollTo({
       left: nextOffset,
       behavior: 'smooth',
     });
@@ -229,15 +227,15 @@ const TabPicker = <T extends TabRecord[]>(
    * Clicking the right arrow smooth scrolls us to the next offset (if one exists).
    */
   const scrollRight = () => {
-    if (!tabsWindowRef.current || !tabsListRef.current) return;
+    if (!tabsListRef.current) return;
     // look for the offset that is to the right of us
     const nextOffset = offsets.current.find(os => {
-      if (!tabsWindowRef.current || !tabsListRef.current) return false;
-      return os > tabsWindowRef.current.scrollLeft;
+      if (!tabsListRef.current) return false;
+      return os > tabsListRef.current.scrollLeft;
     });
 
     if (!nextOffset) return;
-    tabsWindowRef.current.scrollTo({
+    tabsListRef.current.scrollTo({
       left: nextOffset,
       behavior: 'smooth',
     });
@@ -256,24 +254,22 @@ const TabPicker = <T extends TabRecord[]>(
           [classes.rightFade]: rightArrowVisible,
           [classes.rightFadeMobile]: !everScrolled,
         })}>
-          <div ref={tabsWindowRef} className={classes.tabsWindow} onScroll={() => updateArrows()}>
-            <div ref={tabsListRef} className={classes.topicsBar}>
-              {sortedTabs.map(tab => {
-                const isActive = tab.name === activeTab;
-                return <LWTooltip
-                  title={showDescriptionOnHover ? tab.description : null} 
-                  popperClassName={classes.tagDescriptionTooltip}
-                  key={tab.name}
+          <div ref={tabsListRef} className={classes.topicsBar} onScroll={() => updateArrows()}>
+            {sortedTabs.map(tab => {
+              const isActive = tab.name === activeTab;
+              return <LWTooltip
+                title={showDescriptionOnHover ? tab.description : null} 
+                popperClassName={classes.tagDescriptionTooltip}
+                key={tab.name}
+              >
+                <button
+                  onClick={() => updateActiveTab(tab.name)}
+                  className={classNames(classes.tab, { [classes.activeTab]: isActive })}
                 >
-                  <button
-                    onClick={() => updateActiveTab(tab.name)}
-                    className={classNames(classes.tab, { [classes.activeTab]: isActive })}
-                  >
-                    {tab.label}
-                  </button>
-                </LWTooltip>
-              })}
-            </div>
+                  {tab.label}
+                </button>
+              </LWTooltip>
+            })}
           </div>
         </div>
         {rightArrowVisible && <div onClick={scrollRight} className={classNames(classes.arrow, classes.rightArrow)}>

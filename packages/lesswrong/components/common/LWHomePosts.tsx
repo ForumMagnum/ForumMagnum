@@ -68,9 +68,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
   },
   tabPicker: {
-    '@media (max-width: 840px)': {
-      maxWidth: '100%',
-    },
+    minWidth: 0,
+    marginRight: 10,
   },
   tagFilterSettingsButton: {
     alignSelf: "end",
