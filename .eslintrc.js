@@ -12,9 +12,11 @@ const restrictedImportsPaths = [
   { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
   { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
   { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
-  { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
-  { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
+  { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper", allowTypeImports: true },
+  { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper", allowTypeImports: true  },
   { name: "react-no-ssr", message: "Don't import react-no-ssr, use ForumNoSSR" },
+  { name: "react-map-gl", message: "Don't import react-map-gl directly, use the useReactMapGl wrapper instead", allowTypeImports: true },
+  { name: "recharts", message: "Don't import recharts directly use the useRecharts wrapper instead", allowTypeImports: true },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
@@ -139,7 +141,7 @@ module.exports = {
         message: "server cannot be imported into themes - move the shared code into lib",
       },
     ]}],
-    "no-restricted-imports": ["error", {
+    "@typescript-eslint/no-restricted-imports": ["error", {
       "paths": restrictedImportsPaths,
       patterns: [
         "@material-ui/core/colors/*"
@@ -268,7 +270,7 @@ module.exports = {
         "packages/lesswrong/themes/**/*.tsx",
       ],
       "rules": {
-        "no-restricted-imports": ["error", {"paths": [
+        "@typescript-eslint/no-restricted-imports": ["error", {"paths": [
           ...restrictedImportsPaths,
           ...clientRestrictedImportPaths
         ]}],

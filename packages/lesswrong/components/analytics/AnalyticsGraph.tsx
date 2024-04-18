@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { TooltipProps } from "recharts";
 import { requireCssVar } from "../../themes/cssVars";
 import moment from "moment";
@@ -9,6 +8,7 @@ import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
 import classNames from "classnames";
+import { useReCharts } from "../../splits/useRecharts";
 
 const GRAPH_HEIGHT = 300;
 
@@ -232,7 +232,8 @@ export const AnalyticsGraph = ({
   smallerTitle?: boolean;
   classes: ClassesType;
 }) => {
-  const { Typography, ForumDropdown } = Components;
+  const { ready: rechartsReady, recharts } = useReCharts();
+  const { Typography, ForumDropdown, Loading } = Components;
 
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
@@ -326,6 +327,11 @@ export const AnalyticsGraph = ({
   const yAxisWidth = 26 + Math.ceil(maxValue.toLocaleString().length * 6);
   const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 2;
 
+  if (!rechartsReady) {
+    return <Loading/>
+  }
+  const { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } = recharts;
+  
   return (
     <div className={classes.root}>
       <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle, [classes.graphHeaderNoTitle]: !title})}>

@@ -4,7 +4,7 @@ const fs = require('fs');
 const process = require('process');
 const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
-const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
+const { clientComponentStartedRebuilding, clientComponentFinishedRebuilding, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
 /**
  * This is used for clean exiting in Github workflows by the dev
  * only route /api/quit
@@ -44,6 +44,7 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 //  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
+const minifyAsIfProduction = isProduction;
 const isCypress = !!opts.cypress;
 const settingsFile = opts.settings || "settings.json"
 
@@ -93,21 +94,38 @@ const serverBundleDefinitions = {
 }
 
 const clientOutfilePath = `${getOutputDir()}/client/js/bundle.js`;
-build({
-  entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
+const clientBuildOptions = {
+  run: false,
   bundle: true,
   target: "es6",
   sourcemap: true,
   metafile: true,
   sourcesContent: true,
-  outfile: clientOutfilePath,
   minify: isProduction,
   banner: {
     js: clientBundleBanner,
   },
+};
+
+function brotliCompressFile(path) {
+  const brotliOutfilePath = `${path}.br`;
+  // Always delete compressed version if it exists, to avoid stale files
+  if (fs.existsSync(brotliOutfilePath)) {
+    fs.unlinkSync(brotliOutfilePath);
+  }
+  if (isProduction) {
+    const uncompressed = fs.readFileSync(path, 'utf8');
+    fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(uncompressed));
+  }
+}
+
+build({
+  entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],
+  outfile: clientOutfilePath,
+  ...clientBuildOptions,
   run: false,
   onStart: (config, changedFiles, ctx) => {
-    setClientRebuildInProgress(true);
+    clientComponentStartedRebuilding();
     inProgressBuildId = generateBuildId();
     config.define.buildId = `"${inProgressBuildId}"`;
     if (opts.lint) {
@@ -115,19 +133,12 @@ build({
     }
   },
   onEnd: (config, buildResult, ctx) => {
-    setClientRebuildInProgress(false);
+    clientComponentFinishedRebuilding();
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
       // Creating brotli compressed version of bundle.js to save on client download size:
-      const brotliOutfilePath = `${clientOutfilePath}.br`;
-      // Always delete compressed version if it exists, to avoid stale files
-      if (fs.existsSync(brotliOutfilePath)) {
-        fs.unlinkSync(brotliOutfilePath);
-      }
-      if (isProduction) {
-        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(clientOutfilePath, 'utf8')));
-      }
+      brotliCompressFile(clientOutfilePath);
 
       latestCompletedBuildId = inProgressBuildId;
       if (cliopts.watch) {
@@ -152,6 +163,24 @@ build({
     "cheerio",
   ],
 });
+
+for (let splitComponent of [
+  "react-map-gl", "recharts"
+]) {
+  const outputPath = `${getOutputDir()}/client/js/${splitComponent}.js`
+  build({
+    entryPoints: [`./packages/lesswrong/splits/${splitComponent}.ts`],
+    outfile: outputPath,
+    ...clientBuildOptions,
+    onEnd: (config, buildResult, ctx) => {
+      if (buildResult?.errors?.length > 0) {
+        console.log("Skipping browser refresh notification because there were build errors");
+      } else {
+        brotliCompressFile(outputPath);
+      }
+    }
+  });
+}
 
 let serverCli = ["node", "-r", "source-map-support/register", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)

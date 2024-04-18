@@ -1,6 +1,6 @@
 import React from 'react';
 import {Components, getRouteMatchingPathname, userCanAccessRoute} from '../vulcan-lib'
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/core';

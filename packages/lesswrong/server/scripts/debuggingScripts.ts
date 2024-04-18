@@ -26,7 +26,7 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
     //eslint-disable-next-line no-console
     console.log("generating new messages...")
     const conversation = await createDummyConversation(randomUser, {participantIds: [randomUser._id, user._id]});
-    _.times(messageNotifications, () => createDummyMessage(randomUser, {conversationId: conversation._id}))
+    await Promise.all(_.times(messageNotifications, () => createDummyMessage(randomUser, {conversationId: conversation._id})))
   }
   if (postNotifications > 0) {
     //eslint-disable-next-line no-console
@@ -37,7 +37,7 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
-    _.times(postNotifications, () => createDummyPost(randomUser))
+    await Promise.all(_.times(postNotifications, () => createDummyPost(randomUser)))
   }
   if (commentNotifications > 0) {
     const post = await Posts.findOneArbitrary(); // Grab random post
@@ -51,7 +51,7 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
       //eslint-disable-next-line no-console
       console.log("User already subscribed, continuing");
     }
-    _.times(commentNotifications, () => createDummyComment(randomUser, {postId: post?._id}));
+    await Promise.all(_.times(commentNotifications, () => createDummyComment(randomUser, {postId: post?._id})));
 
   }
   if (replyNotifications > 0) {
@@ -65,7 +65,7 @@ Vulcan.populateNotifications = async ({username, messageNotifications = 3, postN
       console.log("User already subscribed, continuing");
     }
     const comment: any = await createDummyComment(user, {postId: post?._id});
-    _.times(replyNotifications, () => createDummyComment(randomUser, {postId: post?._id, parentCommentId: comment._id}));
+    await Promise.all(_.times(replyNotifications, () => createDummyComment(randomUser, {postId: post?._id, parentCommentId: comment._id})));
   }
 }
 

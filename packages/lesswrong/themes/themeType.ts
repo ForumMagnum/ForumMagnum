@@ -1,4 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';

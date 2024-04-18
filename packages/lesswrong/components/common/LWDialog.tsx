@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import Dialog, { DialogProps, DialogClassKey } from '@material-ui/core/Dialog';
 
 // Wrapped to ensure the disableEnforceFocus prop is provided, since not

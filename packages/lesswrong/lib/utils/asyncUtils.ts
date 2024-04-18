@@ -68,6 +68,8 @@ export async function executePromiseQueue<T>(
     if (queue.length >= maxConcurrent) {
       await Promise.race(queue);
       // Remove resolved promises from the queue
+      // This is a false positive of missing-await detection because of the Promise.all below
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       queue = queue.filter((p) => inspect(p).includes("pending"));
     }
   }

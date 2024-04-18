@@ -2,7 +2,6 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { useUserLocation } from '../../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
-import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { defaultCenter } from '../../localGroups/CommunityMap';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
@@ -11,10 +10,8 @@ import { useSingle } from '../../../lib/crud/withSingle';
 import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
+import { useReactMapGL } from '../../../splits/useReactMapGl';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
-
-const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
-const Marker = componentWithChildren(BadlyTypedMarker);
 
 const styles = (theme: JssStyles) => ({
   root: {
@@ -103,6 +100,7 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   localEvents: Array<LocalEvent>,
   classes: ClassesType,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
   const { LocalEventWrapperPopUp } = Components
   const [ openWindows, setOpenWindows ] = useState<string[]>([])
   const handleClick = useCallback(
@@ -120,6 +118,9 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
   if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
     return null;
   }
+  
+  if (!ready) return <Components.Loading/>;
+  const { Marker } = reactMapGL;
   
   return <React.Fragment>
     {localEvents.map(localEvent => {
@@ -149,6 +150,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
   dontAskUserLocation?: boolean,
   classes: ClassesType,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
   const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
 
   const currentUser = useCurrentUser()
@@ -170,6 +172,9 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       </div>
     </>
   }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
+  
+  if (!ready) return <Components.Loading/>;
+  const { ReactMapGL } = reactMapGL;
   
   return <div className={classes.root}>
     <Helmet> 

@@ -1,5 +1,5 @@
 import React from "react";
-// eslint-disable-next-line no-restricted-imports
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { default as BadlyTypedNoSSR } from "react-no-ssr";
 import { componentWithChildren } from "../../lib/utils/componentsWithChildren";
 
