@@ -94,8 +94,15 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
   return currentUser?.hideFrontpageFilterSettingsDesktop === false;
 };
 
-const getDefaultTab = (currentUser: UsersCurrent|null) => {
-  return currentUser?.frontpageSelectedTab ?? postFeedsProductionSetting.get()[0].name;
+const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) => {
+  const defaultTab = postFeedsProductionSetting.get()[0].name;
+
+  // If the user has a selected tab that is not in the list of enabled tabs, default to the first enabled tab
+  if (!!currentUser?.frontpageSelectedTab && !enabledTabs.map(tab => tab.name).includes(currentUser.frontpageSelectedTab)) {
+    return defaultTab;
+  }
+
+  return currentUser?.frontpageSelectedTab ?? defaultTab;
 };
 
 const defaultRecombeeConfig: RecombeeConfiguration = {
@@ -119,13 +126,34 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
   const now = useCurrentTime();
   const { continueReading } = useContinueReading()
 
-  const [ selectedTab, setSelectedTab ] = useState(getDefaultTab(currentUser));
+  const { count: countBookmarks } = useMulti({
+    collectionName: "Posts",
+    terms: {
+      view: "myBookmarkedPosts",
+    },
+    fragmentName: "PostsListWithVotes",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser?._id,
+  });
 
-  function useRecombeeSettings(currentUser: UsersCurrent|null) {
+  const availableTabs: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
+  if (userIsAdmin(currentUser)) {
+    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
+    availableTabs.push(...testingFeeds);
+  }
+
+  const enabledTabs = availableTabs
+    .filter(feed => !feed.disabled
+      && !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1)
+      && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
+    )
+  const [ selectedTab, setSelectedTab ] = useState(getDefaultTab(currentUser, enabledTabs));
+
+  function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) {
     const [cookies, setCookie] = useCookiesWithConsent();
     const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
     const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
-    const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultTab(currentUser));
+    const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultTab(currentUser, enabledTabs));
     const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
   
     const updateSelectedScenario = (newScenario: string) => {
@@ -151,7 +179,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
   
     useEffect(() => {
       if (recombeeCookieSettings.length === 0) {
-        setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(currentUser), defaultRecombeeConfig]]), { path: '/' });
+        setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(currentUser, enabledTabs), defaultRecombeeConfig]]), { path: '/' });
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -162,30 +190,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType}) => {
     };
   }
 
-  // TO-DO change so only recombee config used from here
-  const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser);
-
-  const { count: countBookmarks } = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "myBookmarkedPosts",
-    },
-    fragmentName: "PostsListWithVotes",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser?._id,
-  });
-
-  const availableAlgorithms: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
-  if (userIsAdmin(currentUser)) {
-    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
-    availableAlgorithms.push(...testingFeeds);
-  }
-
-  const enabledAlgorithms = availableAlgorithms
-    .filter(feed => !feed.disabled
-      && !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1)
-      && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
-    )
+  const { selectedScenario, updateSelectedScenario, scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
 
   const handleSwitchTab = (tabName: string) => {
     console.log({selectedTab, selectedScenario, tabName})
@@ -287,7 +292,7 @@ const settingsButton = (<div className={classes.tagFilterSettingsButton}>
         <div className={classes.settingsVisibilityControls}>
           {!!currentUser && <>
             <TabPicker 
-              sortedTabs={enabledAlgorithms} 
+              sortedTabs={enabledTabs} 
               defaultTab={selectedTab} 
               onTabSelectionUpdate={handleSwitchTab}
               showDescriptionOnHover
