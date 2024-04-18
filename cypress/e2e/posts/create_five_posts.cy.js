@@ -12,7 +12,7 @@ describe('Posts', function() {
     // We do 4 rather 5 because we already have 1 post from the test seeded post
     for (let i = 0; i < 4; i++) {
       cy.visit('/newPost');
-      cy.get('.EditTitle-root').type('Test post 123');
+      cy.get('.EditTitle-root').wait(100).type('Test post 123');
       cy.get('.ck-editor__editable').type('Test body 123');
       cy.contains("Submit").click();
       cy.url().should('include', 'test-post-123');
