@@ -135,9 +135,22 @@ const schema: SchemaType<"Conversations"> = {
     type: Boolean,
     graphQLtype: "Boolean",
     canRead: ["members"],
-    resolver: async () => {
-      // TODO
-      return false;
+    resolver: async (
+      conversation: DbConversation,
+      _args,
+      context: ResolverContext,
+    ) => {
+      const {currentUser} = context;
+      if (!currentUser) {
+        return false;
+      }
+      return getWithCustomLoader<boolean, string>(
+        context,
+        "hasUnreadMessages",
+        conversation._id,
+        (conversationIds: string[]): Promise<boolean[]> =>
+          context.repos.conversations.getReadStatuses(currentUser._id, conversationIds),
+      );
     },
     sqlResolver: ({field, currentUserField, join}) => join({
       isNonCollectionJoin: true,
