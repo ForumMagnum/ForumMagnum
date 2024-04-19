@@ -163,3 +163,27 @@ export const updateFunctions = async (db: SqlClientOrTx) => {
     await db.none(query);
   }
 }
+
+export const makeColumnNullable = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  fieldName: keyof ObjectsByCollectionName[N] & string,
+): Promise<void> => {
+  await db.any(`
+    ALTER TABLE "${collection.collectionName}"
+    ALTER COLUMN "${fieldName}"
+    DROP NOT NULL
+  `);
+}
+
+export const makeColumnNotNullable = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  fieldName: keyof ObjectsByCollectionName[N] & string,
+): Promise<void> => {
+  await db.any(`
+    ALTER TABLE "${collection.collectionName}"
+    ALTER COLUMN "${fieldName}"
+    SET NOT NULL
+  `);
+}

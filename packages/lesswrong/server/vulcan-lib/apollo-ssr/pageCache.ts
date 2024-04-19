@@ -12,6 +12,7 @@ import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import { isDatadogEnabled } from '../../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
+import { sleep } from '../../../lib/utils/asyncUtils';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -195,20 +196,45 @@ const cacheLookupLocal = (cacheKey: string, abTestGroups: CompleteTestGroupAlloc
 }
 
 const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
-  const cacheResult = await (new PageCacheRepo().lookupCacheEntry({path: cacheKey, completeAbTestGroups: abTestGroups}));
+  const pageCacheRepo = new PageCacheRepo();
+  const cacheResult = await pageCacheRepo.lookupOrCreateCacheEntry({
+    path: cacheKey, completeAbTestGroups: abTestGroups
+  });
 
-  if (!cacheResult?.renderResult) {
-    // eslint-disable-next-line no-console
-    console.log(`DB cache miss for cacheKey ${cacheKey}: no cached page with this cacheKey and a valid A/B test group combination`);
+  if (cacheResult?.renderResult) {
+    //eslint-disable-next-line no-console
+    console.log(`DB cache hit for cacheKey ${cacheKey}`);
+    return {
+      ...cacheResult?.renderResult,
+      aborted: false
+    };
+  } else if (cacheResult && !cacheResult.renderResult) {
+    //eslint-disable-next-line no-console
+    console.log(`Merged in-flight requests in the DB cache for cacheKey ${cacheKey}`);
+    
+    // go into a polling loop or do pub/sub, rechecking every 100ms
+    const maxPollingDuration = 5000;
+    const pollingInterval = 100;
+    const maxTimesToPoll = maxPollingDuration / pollingInterval;
+    for (let i=0; i<maxTimesToPoll; i++) {
+      await sleep(100);
+      const cacheResult = await pageCacheRepo.lookupCacheEntry({path: cacheKey, completeAbTestGroups: abTestGroups});
+      if (cacheResult) {
+        return {
+          ...cacheResult?.renderResult,
+          aborted: false
+        };
+      }
+    }
+    //eslint-disable-next-line no-console
+    console.log(`Timed out waiting for another server to render ${cacheKey}`);
+    return null;
+  } else {
+    // We created a cache entry, return immediately and render
+    //eslint-disable-next-line no-console
+    console.log(`DB cache miss for cacheKey ${cacheKey}`);
     return null;
   }
-
-  // eslint-disable-next-line no-console
-  console.log(`DB cache hit for cacheKey ${cacheKey}`);
-  return {
-    ...cacheResult?.renderResult,
-    aborted: false
-  };
 }
 
 const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {

@@ -17,6 +17,7 @@ export type MeanPostKarma = {
 type SanitizedRenderResult = Omit<RenderResult, Exclude<keyof RenderResult, undefined>>;
 
 export const maxCacheAgeMs = 90*1000;
+export const notRenderedMaxCacheAgeMs = 20*1000;
 
 class PageCacheRepo extends AbstractRepo<"PageCache"> {
   constructor() {
@@ -25,20 +26,68 @@ class PageCacheRepo extends AbstractRepo<"PageCache"> {
 
   async lookupCacheEntry({path, completeAbTestGroups}: {path: string, completeAbTestGroups: CompleteTestGroupAllocation}): Promise<DbPageCacheEntry | null> {
     const bundleHash = getServerBundleHash();
-
-    // Note: we use db.any here rather than e.g. oneOrNone because there may (in principle) be multiple
-    // abTestGroups in the db that are a subset of the completeAbTestGroups. In this case it shouldn't
-    // matter which one we use, so we just take the first one.
-    const cacheResult = await this.getRawDb().any(`
+    return await this.oneOrNone(`
       -- PageCacheRepo.lookupCacheEntry
       SELECT * FROM "PageCache"
       WHERE "path" = $1
       AND "bundleHash" = $2
       AND "expiresAt" > NOW()
       AND fm_jsonb_subset($3::jsonb, "abTestGroups")`,
-      [path, bundleHash, JSON.stringify(completeAbTestGroups)]);
-  
-    return cacheResult?.[0] ?? null;
+      [path, bundleHash, JSON.stringify(completeAbTestGroups)]
+    );
+  }
+
+  /**
+   * Find or create a page-cache entry
+   */
+  async lookupOrCreateCacheEntry({path, completeAbTestGroups}: {path: string, completeAbTestGroups: CompleteTestGroupAllocation}): Promise<DbPageCacheEntry | null> {
+    const bundleHash = getServerBundleHash();
+    const now = new Date();
+    const _id = randomId();
+
+    const cacheResult = await this.lookupCacheEntry({path, completeAbTestGroups});
+    
+    if (cacheResult) {
+      return cacheResult;
+    } else {
+      void this.getRawDb().any(`
+        INSERT INTO "PageCache" (
+          "_id",
+          "path",
+          "abTestGroups",
+          "bundleHash",
+          "renderedAt",
+          "expiresAt",
+          "ttlMs",
+          "renderResult"
+        ) VALUES (
+          $(_id),
+          $(path),
+          $(abTestGroups),
+          $(bundleHash),
+          null,
+          $(expiresAt),
+          $(ttlMs),
+          null
+        ) ON CONFLICT (
+          "path",
+          "abTestGroups",
+          "bundleHash"
+        ) DO UPDATE SET
+          "ttlMs" = $(ttlMs),
+          "renderedAt" = null,
+          "expiresAt" = $(expiresAt),
+          "renderResult" = null
+      `, {
+        _id,
+        path,
+        abTestGroups: completeAbTestGroups,
+        bundleHash,
+        expiresAt: new Date(now.getTime() + notRenderedMaxCacheAgeMs),
+        ttlMs: notRenderedMaxCacheAgeMs,
+      });
+      return null;
+    }
   }
 
   async clearExpiredEntries(): Promise<void> {
@@ -58,13 +107,13 @@ class PageCacheRepo extends AbstractRepo<"PageCache"> {
       await this.getRawDb().none(`
         INSERT INTO "PageCache" (
           "_id",
-          "path", 
+          "path",
           "abTestGroups",
-          "bundleHash", 
+          "bundleHash",
           "renderedAt",
-          "expiresAt", 
+          "expiresAt",
           "ttlMs",
-          "renderResult", 
+          "renderResult",
           "schemaVersion",
           "createdAt"
         ) VALUES (

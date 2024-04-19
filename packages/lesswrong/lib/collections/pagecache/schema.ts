@@ -79,7 +79,7 @@ const schema: SchemaType<"PageCache"> = {
   },
   renderedAt: {
     type: Date,
-    nullable: false,
+    nullable: true,
   },
   expiresAt: {
     type: Date,
@@ -92,7 +92,7 @@ const schema: SchemaType<"PageCache"> = {
   },
   renderResult: {
     type: RenderResultSchemaType,
-    nullable: false,
+    nullable: true,
   },
 };
 
