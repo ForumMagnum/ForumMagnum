@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   },
   topicsBar: {
     display: 'flex',
-    columnGap: 4,
+    columnGap: 8,
     whiteSpace: 'nowrap',
     overflowX: 'scroll',
     scrollbarWidth: 'none',
@@ -33,9 +33,6 @@ const styles = (theme: ThemeType) => ({
       height: 0,
     },
     transition: 'transform 0.2s ease',
-    // [theme.breakpoints.down('xs')]: {
-    //   columnGap: 6,
-    // },
   },
   tabsWindowContainer: {
     position: 'relative',
@@ -67,27 +64,25 @@ const styles = (theme: ThemeType) => ({
   /**
    * These two breakpoints were determined by trial-and-error after adding the following:
    * - n tabs * 100px (their minWidth on mobile, assuming none of them have names that would cause them to be longer than that)
-   * - (n - 1) tabs * 4px columnGap
+   * - (n - 1) tabs * 8px columnGap
    * - 32px for the settings gear icon
    * - 10px marginRight on the tabPicker (in LWHomePosts)
    * - 16px for 8x left & right padding on the sides of the screen from Layout
    * 
-   * Now, this implies breakpoints of 366px for 3 tabs and 470px for 4 tabs.  I haven't figured out why they're off by 3px, but they are.
+   * Now, this implies breakpoints of 374px for 3 tabs and 482px for 4 tabs.  I haven't figured out why they're off by 3px, but they are.
    */
   rightFadeThreeTabs: {
-    '@media(max-width: 369px)': {
+    '@media(max-width: 377px)': {
       ...rightFadeStyle(theme),
     },
   },
   rightFadeFourTabs: {
-    '@media(max-width: 473px)': {
+    '@media(max-width: 485px)': {
       ...rightFadeStyle(theme),
     },
   },
   tab: {
     minWidth: '120px',
-    backgroundColor: theme.palette.panelBackground.default,
-    color: theme.palette.tab.inactive.text,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     lineHeight: '23px',
@@ -95,20 +90,23 @@ const styles = (theme: ThemeType) => ({
     padding: '4px 8px',
     borderRadius: 3,
     cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.tab.inactive.hover.text
-    },
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
       padding: '3px 6px',
       minWidth: '100px',
     }
   },
+  inactiveTab: {
+    backgroundColor: theme.palette.panelBackground.default,
+    color: theme.palette.tab.inactive.text,
+    '&:hover': {
+      color: theme.palette.tab.inactive.hover.text
+    },
+  },
   activeTab: {
     backgroundColor: theme.palette.tab.active.background,
     color: theme.palette.text.alwaysWhite,
     '&:hover': {
-      color: theme.palette.text.alwaysWhite,
       backgroundColor: theme.palette.tab.active.hover.background
     },
   },
@@ -288,7 +286,7 @@ const TabPicker = <T extends TabRecord[]>(
               >
                 <button
                   onClick={() => updateActiveTab(tab.name)}
-                  className={classNames(classes.tab, { [classes.activeTab]: isActive })}
+                  className={classNames(classes.tab, { [classes.activeTab]: isActive, [classes.inactiveTab]: !isActive })}
                 >
                   {tab.label}
                 </button>

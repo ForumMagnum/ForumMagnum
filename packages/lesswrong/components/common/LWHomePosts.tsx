@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   hide: {
-      display: "none"
+    display: "none"
   },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -55,8 +55,7 @@ const styles = (theme: ThemeType) => ({
   },
   settingsVisibilityControls: {
     display: "flex",
-    gap: "4px",
-    marginBottom: "4px",
+    marginBottom: "8px",
     justifyContent: "space-between",
     alignItems: "center",
   },
@@ -67,22 +66,56 @@ const styles = (theme: ThemeType) => ({
     minWidth: 0,
     marginRight: 10,
   },
+  tagFilterSettingsButtonContainerDesktop: {
+    [theme.breakpoints.up('md')]: {
+      alignSelf: "end",
+      opacity: 0.8,
+      display: "flex",
+      border: theme.palette.greyBorder("1px", 0.07),
+      borderRadius: 3,
+      background: theme.palette.panelBackground.default,
+      padding: "5.5px",
+      [theme.breakpoints.down('xs')]: {
+        padding: "4.5px",
+      },  
+    },
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
+  },
+  tagFilterSettingsButtonContainerMobile: {
+    [theme.breakpoints.down('sm')]: {
+      alignSelf: "end",
+      opacity: 0.8,
+    },
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
+  },
+  tagFilterSettingsButtonContainerMobileBackground: {
+    [theme.breakpoints.down('sm')]: {
+      display: "flex",
+      border: theme.palette.greyBorder("1px", 0.07),
+      borderRadius: 3,
+      background: theme.palette.panelBackground.default,
+      padding: "5.5px",
+      [theme.breakpoints.down('xs')]: {
+        padding: "4.5px",
+      },
+    },
+    [theme.breakpoints.up('md')]: {
+      display: "none",
+    },
+  },
   tagFilterSettingsButton: {
-    display: "flex",
-    background: theme.palette.panelBackground.default,
-    border: theme.palette.greyBorder("1px", 0.07),
-    borderRadius: 3,
-    padding: "6px 6px",
-    alignSelf: "end",
-    opacity: 0.8,
   },
 })
 
 export const filterSettingsToggleLabels =  {
-    desktopVisible: "Customize (Hide)",
-    desktopHidden: "Customize",
-    mobileVisible: "Customize (Hide)",
-    mobileHidden: "Customize",
+  desktopVisible: "Customize (Hide)",
+  desktopHidden: "Customize",
+  mobileVisible: "Customize (Hide)",
+  mobileHidden: "Customize",
 }
 
 const advancedSortingText = "Advanced Sorting/Filtering";
@@ -231,33 +264,33 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   */
 
 
-  const showSettingsButton = (selectedTab === 'forum-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ;
+  const showSettingsButton = (selectedTab === 'forum-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee'));
   const desktopSettingsButtonLabel = filterSettingsVisibleMobile ? 'Hide' : 'Customize'
 
-  const settingsButton = (<div className={classes.tagFilterSettingsButton}>
+  const settingsButton = (<>
     {/* Desktop button */}
-    <SettingsButton
-      className={classNames(
-        classes.hideOnMobile,
-        {[classes.hide]: !currentUser}
-      )}
-      showIcon={!!currentUser}
-      onClick={changeShowTagFilterSettingsDesktop}
-    />
-    <SettingsButton
-      className={classes.hideOnDesktop}
-      label={!currentUser ? desktopSettingsButtonLabel : undefined}
-      showIcon={!!currentUser}
-      onClick={() => {
-        setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-        captureEvent("filterSettingsClicked", {
-          settingsVisible: !filterSettingsVisibleMobile,
-          settings: filterSettings,
-          pageSectionContext: "latestPosts",
-          mobile: true
-        })
-      }} />
-  </div>);
+    <div className={classNames({ [classes.hide]: !currentUser, [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser })}>
+      <SettingsButton
+        showIcon={!!currentUser}
+        onClick={changeShowTagFilterSettingsDesktop}
+      />
+    </div>
+    {/* Mobile button */}
+    <div className={classNames(classes.tagFilterSettingsButtonContainerMobile, { [classes.tagFilterSettingsButtonContainerMobileBackground]: !!currentUser })}>
+      <SettingsButton
+        label={!currentUser ? desktopSettingsButtonLabel : undefined}
+        showIcon={!!currentUser}
+        onClick={() => {
+          setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+          captureEvent("filterSettingsClicked", {
+            settingsVisible: !filterSettingsVisibleMobile,
+            settings: filterSettings,
+            pageSectionContext: "latestPosts",
+            mobile: true
+          })
+        }} />
+      </div>
+  </>);
 
 
   let settings = null;
