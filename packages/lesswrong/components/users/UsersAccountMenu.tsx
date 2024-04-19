@@ -4,8 +4,7 @@ import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { isLW } from '../../lib/instanceSettings';
-import { blackBarTitle } from '../Layout';
+import { blackBarTitle } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {

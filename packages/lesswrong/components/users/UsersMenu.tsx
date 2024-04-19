@@ -23,7 +23,7 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
-import { blackBarTitle } from '../Layout';
+import { blackBarTitle } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

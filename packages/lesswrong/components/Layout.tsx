@@ -11,7 +11,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -30,8 +30,6 @@ import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
-
-export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null)
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 

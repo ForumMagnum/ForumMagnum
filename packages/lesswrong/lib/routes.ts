@@ -1,5 +1,5 @@
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
-import { legacyRouteAcronymSetting } from './publicSettings';
+import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -12,7 +12,6 @@ import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations } from './betas';
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
-import { blackBarTitle } from '../components/Layout';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;

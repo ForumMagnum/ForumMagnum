@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { blackBarTitle } from '../Layout';
+import { blackBarTitle } from '../../lib/publicSettings';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   subtitle: {

@@ -1,4 +1,4 @@
-import { blackBarTitle } from "../../components/Layout";
+import { blackBarTitle } from "../../lib/publicSettings";
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently

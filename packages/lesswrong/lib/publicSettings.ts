@@ -190,3 +190,5 @@ export type PostFeedDetails = {
 export const postFeedsProductionSetting = new DatabasePublicSetting<PostFeedDetails[]>('latestPosts.productionFeeds', []);
 export const postFeedsTestingSetting = new DatabasePublicSetting<PostFeedDetails[]>('latestPosts.testingFeeds', []);
 export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
+
+export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null)
