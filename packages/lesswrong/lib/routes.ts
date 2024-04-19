@@ -1,5 +1,5 @@
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
-import { legacyRouteAcronymSetting } from './publicSettings';
+import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -812,7 +812,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true,
+      sunshineSidebar: true, 
+      ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", subtitle: blackBarTitle.get()! } : {}),
     },
     {
       name: 'dialogues',

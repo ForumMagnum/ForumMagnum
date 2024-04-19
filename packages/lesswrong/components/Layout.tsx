@@ -11,7 +11,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -30,8 +30,6 @@ import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
-
-
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -356,8 +354,14 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+
+  let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined;
+  if (pathname.startsWith('/wrapped')) {
+    headerBackgroundColor = wrappedBackgroundColor;
+  } else if (blackBarTitle.get()) {
+    headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
+  }
 
   const render = () => {
     const {
