@@ -17,7 +17,6 @@ const WelcomePostItem = () => {
   const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
 
   if (!post) {
-    console.log("No post found for WelcomePostItem")
     return null;
   }
 
@@ -26,7 +25,6 @@ const WelcomePostItem = () => {
 
   // Don't display user has read post or has been a user for more than 90 days
   if ( isRead || userAgeInDays > 90) {
-    console.log("user has read post or has been a user for more than 90 days")
     return null;
   }
 

@@ -65,9 +65,9 @@ const BookmarksPage = ({ classes }: {
 
   return <AnalyticsContext pageContext="bookmarksPage" capturePostItemOnMount>
     <SingleColumnSection>
-      {/* <Typography variant="display2" className={classes.headline}>
+      <Typography variant="display2" className={classes.headline}>
         {preferredHeadingCase(`Saved & Read`)}
-      </Typography> */}
+      </Typography>
       <Tabs
         value={activeTab}
         onChange={handleChangeTab}

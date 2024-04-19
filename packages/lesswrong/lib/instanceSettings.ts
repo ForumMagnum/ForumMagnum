@@ -224,3 +224,13 @@ export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | 
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
 export const isDatadogEnabled = isEAForum;
+
+export type PostFeedDetails = {
+  name: string,
+  label: string,
+  description?: string,
+  disabled?: boolean,
+  slug?: string
+}
+
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");

@@ -4,27 +4,24 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
-import { AnalyticsContext, useOnMountTracking, useTracking } from '../../lib/analyticsEvents';
-import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
-import { reviewIsActive } from '../../lib/reviewUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { TabRecord } from './TabPicker';
-import { postFeedsProductionSetting, postFeedsTestingSetting } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { homepagePostFeedsSetting } from '../../lib/instanceSettings';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -98,7 +95,7 @@ const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | n
 };
 
 const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) => {
-  const defaultTab = postFeedsProductionSetting.get()[0].name;
+  const defaultTab = homepagePostFeedsSetting.get()[0].name;
 
   // If the user has a selected tab that is not in the list of enabled tabs, default to the first enabled tab
   if (!!currentUser?.frontpageSelectedTab && !enabledTabs.map(tab => tab.name).includes(currentUser.frontpageSelectedTab)) {
@@ -179,17 +176,13 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = postFeedsProductionSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
-  if (userIsAdmin(currentUser)) {
-    const testingFeeds = postFeedsTestingSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
-    availableTabs.push(...testingFeeds);
-  }
+  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
 
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
       && !(feed.name.includes('recombee') && !currentUser)
-      && !(feed.name === 'lesswrong-bookmarks' && (countBookmarks ?? 0) < 1)
-      && !(feed.name === 'lesswrong-continue-reading' && continueReading?.length < 1)
+      && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
+      && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
   const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
 
@@ -206,7 +199,6 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }
 
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   const defaultDesktopFilterSettingsVisibility = getDefaultDesktopFilterSettingsVisibility(currentUser, selectedTab);
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(defaultDesktopFilterSettingsVisibility);
@@ -214,9 +206,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   const changeShowTagFilterSettingsDesktop = () => {
     setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    if (isLWorAF) {
-      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
-    }
+    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
     
     captureEvent("filterSettingsClicked", {
       settings: filterSettings,
@@ -226,8 +216,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   };
 
 
-  /* Settings buttons shows when:
-
+  /* Intended behavior for filter settings button visibility:
   - DESKTOP
   -- logged-out: no (default open)
   -- logged-in: yes (default closed)
@@ -235,12 +224,10 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   - MOBILE
   -- logged-out: yes (default closed)
   -- logged-in: yes (default closed)
-
   */
 
 
-  const showSettingsButton = (selectedTab === 'lesswrong-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ;
-
+  const showSettingsButton = (selectedTab === 'forum-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee')) ;
   const desktopSettingsButtonLabel = filterSettingsVisibleMobile ? 'Hide' : 'Customize'
 
   const settingsButton = (<div className={classes.tagFilterSettingsButton}>
@@ -271,7 +258,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
   let settings = null;
 
-  if (selectedTab === 'lesswrong-classic') { 
+  if (selectedTab === 'forum-classic') { 
     settings = <AnalyticsContext pageSectionContext="tagFilterSettings">
       <div className={classNames({
         [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
@@ -323,15 +310,14 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
           {showSettingsButton && settingsButton}
         </div>
         {settings}
-        {isFriendlyUI && <StickiedPosts />}
         {/* TODO: reenable, disabled for testing to see how often duplication happens */}
         <HideRepeatedPostsProvider>
-          <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
 
               {/* LATEST POSTS (Hacker News Algorithm) */}
-              {(selectedTab === 'lesswrong-classic') && <AnalyticsContext feedType={selectedTab}>
+              {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
+              {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
                 <WelcomePostItem />
                 <CuratedPostsList />
                 <PostsList2 
@@ -349,17 +335,17 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
-              {(selectedTab === 'lesswrong-bookmarks') && <AnalyticsContext feedType={selectedTab}>
+              {(selectedTab === 'forum-bookmarks') && <AnalyticsContext feedType={selectedTab}>
                 <BookmarksList showMessageIfEmpty={true} limit={13} />
               </AnalyticsContext>}
               
               {/* CONTINUE READING */}
-              {(selectedTab === 'lesswrong-continue-reading') && (continueReading?.length > 0) && <AnalyticsContext feedType={selectedTab}>
+              {(selectedTab === 'forum-continue-reading') && (continueReading?.length > 0) && <AnalyticsContext feedType={selectedTab}>
                 <ContinueReadingList continueReading={continueReading}/>
               </AnalyticsContext>}
 
               {/* SUBSCRIBED */}
-              {(selectedTab === 'lesswrong-subscribed-authors') && <AnalyticsContext feedType={selectedTab}>
+              {(selectedTab === 'forum-subscribed-authors') && <AnalyticsContext feedType={selectedTab}>
                 <ResolverPostsList
                   resolverName="PostsBySubscribedAuthors"
                   limit={13}
@@ -369,7 +355,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                </AnalyticsContext>}
 
               {/* CHRONOLIGCAL FEED */}
-              {(selectedTab === 'lesswrong-chronological') && <AnalyticsContext feedType={selectedTab}>
+              {(selectedTab === 'forum-chronological') && <AnalyticsContext feedType={selectedTab}>
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
                   alwaysShowLoadMore 
@@ -380,7 +366,6 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               </AnalyticsContext>}
 
             </AllowHidingFrontPagePostsContext.Provider>
-          </AnalyticsContext>
         </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>

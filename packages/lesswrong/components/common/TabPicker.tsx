@@ -266,6 +266,7 @@ const TabPicker = <T extends TabRecord[]>(
                 title={showDescriptionOnHover ? tab.description : null} 
                 popperClassName={classes.tagDescriptionTooltip}
                 key={tab.name}
+                hideOnTouchScreens
               >
                 <button
                   onClick={() => updateActiveTab(tab.name)}
