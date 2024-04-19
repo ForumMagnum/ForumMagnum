@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
       height: 0,
     },
     transition: 'transform 0.2s ease',
-    '@media (max-width: 840px)': {
+    [theme.breakpoints.down('xs')]: {
       columnGap: 6,
     },
   },
@@ -64,8 +64,28 @@ const styles = (theme: ThemeType) => ({
       ...rightFadeStyle(theme),
     },
   },
+  /**
+   * These two breakpoints were determined by trial-and-error after adding the following:
+   * - n tabs * 100px (their minWidth on mobile, assuming none of them have names that would cause them to be longer than that)
+   * - (n - 1) tabs * 6px columnGap
+   * - 18px for the settings gear icon
+   * - 10px marginRight on the tabPicker (in LWHomePosts)
+   * - 16px for 8x left & right padding on the sides of the screen from Layout
+   * 
+   * Now, this implies breakpoints of 356px for 3 tabs and 462px for 4 tabs.  I haven't figured out why they're off by 3px, but they are.
+   */
+  rightFadeThreeTabs: {
+    '@media(max-width: 359px)': {
+      ...rightFadeStyle(theme),
+    },
+  },
+  rightFadeFourTabs: {
+    '@media(max-width: 465px)': {
+      ...rightFadeStyle(theme),
+    },
+  },
   tab: {
-    minWidth: '140px',
+    minWidth: '120px',
     backgroundColor: theme.palette.panelBackground.default,
     color: theme.palette.tab.inactive.text,
     fontFamily: theme.typography.fontFamily,
@@ -78,13 +98,10 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.tab.inactive.hover.text
     },
-    '@media (max-width: 840px)': {
-      padding: '4px 6px',
-    },
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('xs')]: {
       fontSize: 13,
       padding: '3px 6px',
-      minWidth: '80px',
+      minWidth: '100px',
     }
   },
   activeTab: {
@@ -110,7 +127,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.grey[700],
     },
-    '@media (max-width: 840px)': {
+    [theme.breakpoints.down('xs')]: {
       display: 'none',
     },
   },
@@ -166,8 +183,8 @@ const TabPicker = <T extends TabRecord[]>(
   // since the tabs will be too wide to display in full, while not being visible on wider screens, during SSR.
   // We also want the arrows to behave correctly after the user does any scrolling.  So we do the following:
   // 1. Default `rightArrowVisible` to false, which controls the `rightFade` class.
-  // 2. Record whether the user has ever manually scrolled on the tab bar, which controls the `rightFadeMobile` class.
-  //    That class ensures that users on mobile have a rightFade + arrow by default until they scroll.
+  // 2. Record whether the user has ever manually scrolled on the tab bar, which informs the `rightFade${Three|Four}Tabs` classes.
+  //    Those classes ensure that users on mobile have a rightFade + arrow by default until they scroll if they have enough tabs to justify it.
   // NOTE: If we implement enough tabs that we'll have scrolling on desktops as well, we can get rid of all of this and just switch the `rightArrowVisible` default back to true
   const [everScrolled, setEverScrolled] = useState(false);
 
@@ -180,7 +197,7 @@ const TabPicker = <T extends TabRecord[]>(
     const currentScrollLeft = tabsListRef.current.scrollLeft;
     // max amount we can scroll to the right, reduced a bit to make sure that
     // we hide the right arrow when scrolled all the way to the right
-    const maxScrollLeft = tabsListRef.current.scrollWidth - tabsListRef.current.clientWidth - 10;
+    const maxScrollLeft = tabsListRef.current.scrollWidth - tabsListRef.current.clientWidth;
 
     setLeftArrowVisible(currentScrollLeft > 0);
     setRightArrowVisible(currentScrollLeft < maxScrollLeft);
@@ -201,7 +218,7 @@ const TabPicker = <T extends TabRecord[]>(
       }
     });
 
-    updateArrows();
+    // updateArrows();
   }, [tabsListRef, updateArrows, sortedTabs]);
 
   const updateActiveTab = useCallback((activeTab: T[number]['name']) => {
@@ -257,7 +274,8 @@ const TabPicker = <T extends TabRecord[]>(
         <div className={classNames(classes.tabsWindowContainer, {
           [classes.leftFade]: leftArrowVisible,
           [classes.rightFade]: rightArrowVisible,
-          [classes.rightFadeMobile]: !everScrolled,
+          [classes.rightFadeThreeTabs]: sortedTabs.length === 3 && !everScrolled,
+          [classes.rightFadeFourTabs]: sortedTabs.length === 4 && !everScrolled,
         })}>
           <div ref={tabsListRef} className={classes.topicsBar} onScroll={() => updateArrows()}>
             {sortedTabs.map(tab => {
