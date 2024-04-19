@@ -100,7 +100,7 @@ augmentFieldsDict(Revisions, {
       type: 'String!',
       resolver: ({html}): string => {
         if (!html) return ""
-        const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+        const truncatedHtml = truncate(html, PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       }
     }
