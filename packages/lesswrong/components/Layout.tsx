@@ -354,8 +354,15 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+
+  let headerBackgroundColor: ColorString;
+
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : blackBarTitle.get() ? 'rgba(0, 0, 0, 0.7)' : undefined;
+  if (pathname.startsWith('/wrapped')) {
+    headerBackgroundColor = wrappedBackgroundColor;
+  } else if (blackBarTitle.get()) {
+    headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
+  }
 
   const render = () => {
     const {
