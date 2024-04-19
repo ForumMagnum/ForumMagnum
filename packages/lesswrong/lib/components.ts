@@ -398,6 +398,7 @@ importComponent("PostsLoading", () => require('../components/posts/PostsLoading'
 importComponent("PostsTimeframeList", () => require('../components/posts/PostsTimeframeList'));
 importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'));
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
+importComponent("PostsTimeframeListExponential", () => require('../components/posts/PostsTimeframeListExponential'));
 importComponent("RecombeePostsList", () => require('../components/posts/RecombeePostsList'));
 importComponent("RecombeePostsListSettings", () => require('../components/posts/RecombeePostsListSettings'));
 importComponent("RecombeeInViewTracker", () => require('../components/common/RecombeeInViewTracker'));

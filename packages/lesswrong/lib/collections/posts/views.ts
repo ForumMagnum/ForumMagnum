@@ -262,7 +262,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     let postedAt: any = {};
 
     if (terms.after) {
-      postedAt.$gt = moment(terms.after).toDate();
+      postedAt.$gte = moment(terms.after).toDate();
     }
     if (terms.before) {
       postedAt.$lt = moment(terms.before).toDate();
