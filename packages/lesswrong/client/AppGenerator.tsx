@@ -17,12 +17,18 @@ import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptio
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, themeOptions, timeOverride }: {
-  apolloClient: ApolloClient<NormalizedCacheObject>,
-  foreignApolloClient: ApolloClient<NormalizedCacheObject>,
-  abTestGroupsUsed: RelevantTestGroupAllocation,
-  themeOptions: AbstractThemeOptions,
-  timeOverride: TimeOverride,
+const AppGenerator = ({
+  apolloClient,
+  foreignApolloClient,
+  abTestGroupsUsed,
+  themeOptions,
+  timeOverride,
+}: {
+  apolloClient: ApolloClient<NormalizedCacheObject>;
+  foreignApolloClient: ApolloClient<NormalizedCacheObject>;
+  abTestGroupsUsed: RelevantTestGroupAllocation;
+  themeOptions: AbstractThemeOptions;
+  timeOverride: TimeOverride;
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
@@ -32,7 +38,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
-                  <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+                  <Components.App apolloClient={apolloClient} timeOverride={timeOverride} />
                 </LayoutOptionsContextProvider>
               </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>

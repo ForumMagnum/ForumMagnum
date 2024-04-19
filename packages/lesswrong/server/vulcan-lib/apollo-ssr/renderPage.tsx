@@ -440,6 +440,15 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   if (performanceMetricLoggingEnabled.get()) {
     setAsyncStoreValue('resolverContext', requestContext);
   }
+
+  // To do:
+  // - [ ] Separate the passed context things into:
+  //   - [ ] Server context
+  //   - [ ] Shared context
+  //   - [ ] Side effects
+  // - [ ] Keep a count of cacheWarnings (relative dates) and cacheErrors (currentUser accesses)
+  // - [ ] Make it so in dev these contain stack traces
+
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -451,7 +460,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   const context: any = {};
 
   // Allows components to set statuscodes and redirects that will get executed on the server
-  let serverRequestStatus: ServerRequestStatusContextType = {}
+  const serverRequestStatus: ServerRequestStatusContextType = {}
 
   // TODO: req object does not seem to have been processed by the Express
   // middlewares at this point
@@ -461,7 +470,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   // (side effects) by filling in any A/B test groups that turned out to be
   // used for the rendering. (Any A/B test group that was *not* relevant to
   // the render will be omitted, which is the point.)
-  let abTestGroups: RelevantTestGroupAllocation = {};
+  const abTestGroups: RelevantTestGroupAllocation = {};
   
   const now = new Date();
   const timeOverride: TimeOverride = {currentTime: now};
