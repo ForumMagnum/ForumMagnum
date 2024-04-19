@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isLW } from '../../lib/instanceSettings';
+import { blackBarTitle } from '../Layout';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '14px',
     fontWeight: isFriendlyUI ? undefined : 400,
     opacity: .8,
-    color: theme.palette.header.text,
+    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },
   login: {
     marginLeft: 12,

@@ -31,7 +31,7 @@ import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotificatio
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 
-
+export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null)
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -357,7 +357,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined;
+  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : blackBarTitle.get() ? 'rgba(0, 0, 0, 0.7)' : undefined;
 
   const render = () => {
     const {

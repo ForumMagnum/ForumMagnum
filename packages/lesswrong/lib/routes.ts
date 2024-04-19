@@ -12,6 +12,7 @@ import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations } from './betas';
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
+import { blackBarTitle } from '../components/Layout';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -812,7 +813,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true,
+      sunshineSidebar: true, 
+      ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", subtitle: blackBarTitle.get()! } : {}),
     },
     {
       name: 'dialogues',
