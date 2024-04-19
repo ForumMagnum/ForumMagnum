@@ -359,7 +359,7 @@ const Layout = ({currentUser, children, classes}: {
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
   if (pathname.startsWith('/wrapped')) {
     headerBackgroundColor = wrappedBackgroundColor;
-  } else if(blackBarTitle.get()) {
+  } else if (blackBarTitle.get()) {
     headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
   }
 
