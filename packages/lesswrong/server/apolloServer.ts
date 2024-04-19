@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
 import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
+import { renderWithCache, getThemeOptionsFromReq, renderWithSWRCache } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
@@ -385,9 +385,12 @@ export function startWebserver() {
       prefetchPrefix
     });
 
-    const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
-      : renderWithCache(request, response, user);
+    // const renderResultPromise = performanceMetricLoggingEnabled.get()
+    //   ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
+    //   : renderWithCache(request, response, user);
+
+    // TODO copy semantics of stale-while-revalidate
+    const renderResultPromise = renderWithSWRCache(request, response, user);
 
     const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
 
@@ -429,6 +432,8 @@ export function startWebserver() {
           + jssSheets
         + '</head>\n'
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
+          + `<p style="font-size: 24px">SSR rendered at: ${renderedAt.toISOString()}</p>`
+          + `<p style="font-size: 24px">Request returned at: ${new Date().toISOString()}</p>`
           + ssrBody + '\n'
         + '</body>\n'
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'

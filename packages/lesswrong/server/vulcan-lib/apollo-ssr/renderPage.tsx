@@ -12,7 +12,7 @@ import { computeContextFromUser, configureSentryScope } from '../apollo-server/c
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
-import { cachedPageRender, recordCacheBypass} from './pageCache';
+import { cacheKeyFromReq, cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
 import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
@@ -76,6 +76,85 @@ interface RenderPriorityQueueSlot extends RequestData {
   callback: () => Promise<void>;
   renderRequestParams: RenderRequestParams;
 }
+
+const cache: Record<string, RenderResult> = {};
+
+export const clearSWRCache = () => {
+  for (const key in cache) {
+    delete cache[key];
+  }
+}
+
+export const renderWithSWRCache = async (req: Request, res: Response, user: DbUser|null) => {
+  const startTime = new Date();
+  
+  const ip = getIpFromRequest(req)
+  const userAgent = req.headers["user-agent"];
+  
+  // Inject a tab ID into the page, by injecting a script fragment that puts
+  // it into a global variable. In previous versions of Vulcan this would've
+  // been handled by InjectData, but InjectData didn't surive the 1.12 version
+  // upgrade (it injects into the page template in a way that requires a
+  // response object, which the onPageLoad/sink API doesn't offer).
+  const tabId = randomId();
+  const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+  const url = getPathFromReq(req);
+  
+  const clientId = getCookieFromReq(req, "clientId");
+
+  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
+  
+  const ssrEventParams = {
+    url: url,
+    clientId, tabId,
+    userAgent: userAgent,
+  };
+
+  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
+  const cacheKey = cacheKeyFromReq(req);
+
+  const renderPromise = queueRenderRequest({
+    req, user, startTime, res, clientId, userAgent,
+  });
+
+  if (cacheKey in cache) {
+    console.log(`Serving ${url} from cache for ${userDescription}`);
+  }
+  const rendered = cacheKey in cache ? cache[cacheKey] : await renderPromise;
+
+  const revalidate = async () => {
+    cache[cacheKey] = cacheKey in cache ? await renderPromise : rendered;
+  }
+  // TODO make it so this can handle the request being closed
+  await revalidate();
+
+  if (rendered.aborted) {
+    return rendered;
+  }
+
+  console.log({relevantAbTestGroups: rendered.relevantAbTestGroups, allAbTestGroups: rendered.allAbTestGroups})
+
+  if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+    // Capture an analytics event at the conclusion of the render
+    Vulcan.captureEvent("ssr", {
+      ...ssrEventParams,
+      userId: user?._id,
+      timings: rendered.timings,
+      cached: false,
+      abTestGroups: rendered.allAbTestGroups,
+      ip
+    });
+  }
+
+  // eslint-disable-next-line no-console
+  // console.log(`Finished SSR of ${url} for ${userDescription} (${formatTimings(rendered.timings)}, tab ${tabId})`);
+
+  return {
+    ...rendered,
+    headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+  };
+};
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
