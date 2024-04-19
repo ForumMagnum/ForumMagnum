@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useMutation, useQuery } from "@apollo/client";
-import { newUserCompleteProfileMutation } from "../../users/NewUserCompleteProfile";
 import classNames from "classnames";
 import gql from "graphql-tag";
 
@@ -48,6 +47,26 @@ const styles = (theme: ThemeType) => ({
     },
   },
 });
+
+const newUserCompleteProfileMutation = gql`
+  mutation NewUserCompleteProfile(
+    $username: String!,
+    $subscribeToDigest: Boolean!,
+    $email: String,
+    $acceptedTos: Boolean
+  ) {
+    NewUserCompleteProfile(
+      username: $username,
+      subscribeToDigest: $subscribeToDigest,
+      email: $email,
+      acceptedTos: $acceptedTos
+    ) {
+      username
+      slug
+      displayName
+    }
+  }
+`;
 
 const links = {
   username: "https://jimpix.co.uk/words/random-username-generator.asp",

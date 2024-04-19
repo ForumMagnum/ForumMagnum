@@ -52,7 +52,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
- * and we require them to fill this in in the NewUserCompleteProfile form before continuing.
+ * and we require them to fill this in using the onboarding flow before continuing.
  * This is a list of route names that the user is allowed to view despite having an
  * 'incomplete' account.
  */
@@ -370,7 +370,6 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsPageInitializer,
       NavigationEventSender,
       PetrovDayWrapper,
-      NewUserCompleteProfile,
       EAOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
@@ -406,7 +405,6 @@ const Layout = ({currentUser, children, classes}: {
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
-    const showNewUserCompleteProfile = currentUser?.usernameUnset && !isIncompletePath;
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -501,10 +499,7 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {showNewUserCompleteProfile && !isEAForum
-                      ? <NewUserCompleteProfile currentUser={currentUser}/>
-                      : children
-                    }
+                    {children}
                     {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
@@ -530,7 +525,6 @@ const Layout = ({currentUser, children, classes}: {
                 }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
-                  !showNewUserCompleteProfile &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
