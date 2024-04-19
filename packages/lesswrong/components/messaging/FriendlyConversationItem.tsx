@@ -22,9 +22,6 @@ const styles = (theme: ThemeType) => ({
     // Important to take precendence over unread styles
     background: `${theme.palette.grey[100]} !important`,
   },
-  rootUnread: {
-      background: theme.palette.grey[60],
-  },
   profileImage: {
     marginRight: 12,
   },
@@ -45,6 +42,9 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     lineHeight: '21px'
   },
+  titleUnread: {
+    fontWeight: 700,
+  },
   date: {
     display: "flex",
     alignItems: "center",
@@ -64,6 +64,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: "13px",
     fontWeight: 500,
     marginTop: 2,
+  },
+  previewUnread: {
+    color: theme.palette.grey[1000],
+    fontWeight: 600,
   },
   unread: {
     width: 8,
@@ -102,12 +106,12 @@ const FriendlyConversationItem = ({
   // This will be truncated further by webkit-line-clamp. This truncation is just to avoid padding
   // the html with too much junk
   const previewText = truncate(latestMessagePlaintext, 400)
+  const {hasUnreadMessages = false} = conversation;
 
   return (
     <div onClick={onClick} className={classNames(
       classes.root,
       isSelected && classes.rootSelected,
-      conversation.hasUnreadMessages && classes.rootUnread,
     )}>
       <UsersProfileImage
         user={firstParticipant}
@@ -116,15 +120,21 @@ const FriendlyConversationItem = ({
       />
       <div className={classes.content}>
         <div className={classes.titleRow}>
-          <div className={classes.title}>
+          <div className={classNames(
+            classes.title,
+            hasUnreadMessages && classes.titleUnread,
+          )}>
             {title}
           </div>
           <div className={classes.date}>
-            {conversation.hasUnreadMessages && <div className={classes.unread} />}
+            {hasUnreadMessages && <div className={classes.unread} />}
             <FormatDate date={conversation.latestActivity} />
           </div>
         </div>
-        <div className={classes.preview}>
+        <div className={classNames(
+          classes.preview,
+          hasUnreadMessages && classes.previewUnread,
+        )}>
           {previewText}
         </div>
       </div>
