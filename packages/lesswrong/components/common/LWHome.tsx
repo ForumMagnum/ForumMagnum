@@ -7,7 +7,6 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
-import { useCurrentUser } from './withUser';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget, 
