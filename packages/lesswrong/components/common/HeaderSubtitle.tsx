@@ -24,7 +24,7 @@ const HeaderSubtitle = ({classes}: {
   }
 
   const SubtitleComponent: any = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
-  const subtitleString = currentRoute.subtitle;
+  const subtitleString = currentRoute.headerSubtitle ?? currentRoute.subtitle;
   const subtitleLink = currentRoute.subtitleLink;
 
   if (SubtitleComponent) {
