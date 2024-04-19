@@ -5,6 +5,7 @@ import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
 import { userIsAdmin } from '../../lib/vulcan-users';
+import { userHasDarkModeHotkey } from '../../lib/betas';
 
 export const GlobalHotkeys = () => {
   const currentThemeOptions = useConcreteThemeOptions();
@@ -15,7 +16,7 @@ export const GlobalHotkeys = () => {
   useGlobalKeydown((e) => {
     // Toggle Dark Mode
     // option+shift+d (mac) / alt+shift+d (everyone else)
-    if (e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 68) {
+    if (userHasDarkModeHotkey(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 68) {
       e.preventDefault();
 
       const newThemeName = currentThemeOptions.name === 'dark' ? 'default' : 'dark';
