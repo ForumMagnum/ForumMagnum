@@ -367,6 +367,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    useCuratedDate,
     annualReviewMarketInfo,
     marketLink,
     showReadCheckbox,
@@ -499,7 +500,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               </div>
             </PostsItem2MetaInfo>}
 
-            {showDate && <PostsItemDate post={post} />}
+            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
