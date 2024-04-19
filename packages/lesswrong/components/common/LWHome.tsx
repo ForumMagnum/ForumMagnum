@@ -23,9 +23,7 @@ const LWHome = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          <SingleColumnSection>
-            <DismissibleSpotlightItem current/>
-          </SingleColumnSection>
+          <DismissibleSpotlightItem current standaloneSection />
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>

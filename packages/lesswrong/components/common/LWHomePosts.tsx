@@ -56,10 +56,9 @@ const styles = (theme: ThemeType) => ({
   settingsVisibilityControls: {
     display: "flex",
     gap: "4px",
-    marginBottom: "8px",
+    marginBottom: "4px",
     justifyContent: "space-between",
     alignItems: "center",
-    
   },
   loggedOutTagFilterSettingsAlignment: {
     flexDirection: "column",
@@ -69,8 +68,13 @@ const styles = (theme: ThemeType) => ({
     marginRight: 10,
   },
   tagFilterSettingsButton: {
+    display: "flex",
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.greyBorder("1px", 0.07),
+    borderRadius: 3,
+    padding: "6px 6px",
     alignSelf: "end",
-    opacity: 0.8
+    opacity: 0.8,
   },
 })
 

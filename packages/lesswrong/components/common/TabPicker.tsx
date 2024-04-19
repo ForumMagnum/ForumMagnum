@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   },
   topicsBar: {
     display: 'flex',
-    columnGap: 8,
+    columnGap: 4,
     whiteSpace: 'nowrap',
     overflowX: 'scroll',
     scrollbarWidth: 'none',
@@ -33,9 +33,9 @@ const styles = (theme: ThemeType) => ({
       height: 0,
     },
     transition: 'transform 0.2s ease',
-    [theme.breakpoints.down('xs')]: {
-      columnGap: 6,
-    },
+    // [theme.breakpoints.down('xs')]: {
+    //   columnGap: 6,
+    // },
   },
   tabsWindowContainer: {
     position: 'relative',
@@ -67,20 +67,20 @@ const styles = (theme: ThemeType) => ({
   /**
    * These two breakpoints were determined by trial-and-error after adding the following:
    * - n tabs * 100px (their minWidth on mobile, assuming none of them have names that would cause them to be longer than that)
-   * - (n - 1) tabs * 6px columnGap
-   * - 18px for the settings gear icon
+   * - (n - 1) tabs * 4px columnGap
+   * - 32px for the settings gear icon
    * - 10px marginRight on the tabPicker (in LWHomePosts)
    * - 16px for 8x left & right padding on the sides of the screen from Layout
    * 
-   * Now, this implies breakpoints of 356px for 3 tabs and 462px for 4 tabs.  I haven't figured out why they're off by 3px, but they are.
+   * Now, this implies breakpoints of 366px for 3 tabs and 470px for 4 tabs.  I haven't figured out why they're off by 3px, but they are.
    */
   rightFadeThreeTabs: {
-    '@media(max-width: 359px)': {
+    '@media(max-width: 369px)': {
       ...rightFadeStyle(theme),
     },
   },
   rightFadeFourTabs: {
-    '@media(max-width: 465px)': {
+    '@media(max-width: 473px)': {
       ...rightFadeStyle(theme),
     },
   },

@@ -41,14 +41,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     ...theme.typography.commentStyle,
     display: "inline-block",
-    marginBottom: 4,
-    marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
     color: isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
-    ...(isFriendlyUI ? {} : {
+    ...(isFriendlyUI ? {
+      marginBottom: 4,
+      marginRight: 4,
+    } : {
       maxWidth: 180,
       whiteSpace: "nowrap",
     }),
