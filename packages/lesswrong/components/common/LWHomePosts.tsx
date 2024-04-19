@@ -319,7 +319,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               {/* Frustratingly, the AnalyticsContext update doesn't update upon switching tab so it's necessary to have a wrapper around each section individually, could be investigated further */}
               {(selectedTab === 'forum-classic') && <AnalyticsContext feedType={selectedTab}>
                 <WelcomePostItem />
-                <CuratedPostsList />
+                <CuratedPostsList overrideLimit={2}/>
                 <PostsList2 
                   terms={recentPostsTerms} 
                   alwaysShowLoadMore 

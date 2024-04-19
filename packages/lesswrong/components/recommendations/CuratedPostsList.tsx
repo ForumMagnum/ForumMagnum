@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentCuratedPostCount } from "../hooks/useCurrentCuratedPostCount";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const CuratedPostsList = () => {
+const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   return (
     <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">
       <Components.PostsList2
-        terms={{view:"curated", limit: currentCuratedPostCount}}
+        terms={{view:"curated", limit: overrideLimit ?? currentCuratedPostCount}}
         showNoResults={false}
         showLoadMore={false}
         hideLastUnread={true}
