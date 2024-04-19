@@ -106,9 +106,9 @@ const styles = (theme: ThemeType) => ({
   },
   activeTab: {
     backgroundColor: theme.palette.tab.active.background,
-    color: theme.palette.tab.active.text,
+    color: theme.palette.text.alwaysWhite,
     '&:hover': {
-      color: theme.palette.tab.active.text,
+      color: theme.palette.text.alwaysWhite,
       backgroundColor: theme.palette.tab.active.hover.background
     },
   },
