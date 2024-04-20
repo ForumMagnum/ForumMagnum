@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
     color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
-    wordBreak: 'break-word',
+    wordBreak: 'break-word'
   },
   userImageButton: {
     display: 'flex',
