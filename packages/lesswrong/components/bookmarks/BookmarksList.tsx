@@ -26,7 +26,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsLoading, PostsItem, LoadMore, SectionFooter } = Components
+  const { PostsLoading, PostsItem, LoadMore } = Components
   
   const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
     collectionName: "Posts",
@@ -68,9 +68,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
           showBottomBorder={i < sortedBookmarkedPosts.length-1}
         />
       )}
-      <SectionFooter>
-        {!hideLoadMore && <LoadMore {...loadMoreProps} sectionFooterStyles />}
-      </SectionFooter>
+      <LoadMore {...loadMoreProps} sectionFooterStyles />
     </div>
   </AnalyticsContext>
 }
