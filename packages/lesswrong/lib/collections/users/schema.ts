@@ -19,6 +19,7 @@ import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesE
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
