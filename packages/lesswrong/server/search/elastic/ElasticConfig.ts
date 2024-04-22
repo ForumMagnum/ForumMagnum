@@ -278,7 +278,6 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     filters: [
       {term: {deleted: false}},
       {term: {deleteContent: false}},
-      {term: {hideFromPeopleDirectory: false}},
     ],
     mappings: {
       displayName: shingleTextMapping,

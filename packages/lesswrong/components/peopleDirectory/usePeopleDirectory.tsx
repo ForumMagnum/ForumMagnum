@@ -145,6 +145,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           organizations.selectedValues.map((org) => `organization:${org}`),
           locations.selectedValues.map((location) => `mapLocationAddress:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
+          ["hideFromPeopleDirectory:false"],
         ];
         const response = await getSearchClient().search([
           {
