@@ -1,11 +1,14 @@
 import { useCallback, useMemo } from "react"
 import LRU from "lru-cache";
 
+/**
+ * Persistant cache for use inside react components.
+ * If passing in `options` make sure to cache the object as a global or with
+ * useMemo/useState, otherwise the cache will be destroyed and recreated on
+ * every render
+ */
 export const useLRUCache = <Key, Value>(
   createValue: (key: Key) => Value,
-  // If passing in options make sure to cache the object as a global or with
-  // useMemo/useState, otherwise the cache will be destroyed and recreated on
-  // every render
   options?: Partial<LRU.Options<Key, Value>>,
 ) => {
   const cache = useMemo(() => {
