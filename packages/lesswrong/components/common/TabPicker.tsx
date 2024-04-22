@@ -65,19 +65,20 @@ const styles = (theme: ThemeType) => ({
    * These two breakpoints were determined by trial-and-error after adding the following:
    * - n tabs * 100px (their minWidth on mobile, assuming none of them have names that would cause them to be longer than that)
    * - (n - 1) tabs * 8px columnGap
-   * - 32px for the settings gear icon
+   * - 29px for the settings gear icon
    * - 10px marginRight on the tabPicker (in LWHomePosts)
    * - 16px for 8x left & right padding on the sides of the screen from Layout
+   * - 7 px for labs icon on Recommendations tab
    * 
-   * Now, this implies breakpoints of 374px for 3 tabs and 482px for 4 tabs.  I haven't figured out why they're off by 3px, but they are.
+   * This gives breakpoints of 378px for 3 tabs and 486px for 4 tabs
    */
   rightFadeThreeTabs: {
-    '@media(max-width: 377px)': {
+    '@media(max-width: 378px)': {
       ...rightFadeStyle(theme),
     },
   },
   rightFadeFourTabs: {
-    '@media(max-width: 485px)': {
+    '@media(max-width: 486px)': {
       ...rightFadeStyle(theme),
     },
   },
@@ -141,7 +142,6 @@ const styles = (theme: ThemeType) => ({
     right: -30,
   },
   labsIcon: {
-    
     marginLeft: 3,
     alignSelf: 'center',
     height: 14,
