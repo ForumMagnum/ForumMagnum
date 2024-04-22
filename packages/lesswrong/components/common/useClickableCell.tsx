@@ -47,7 +47,7 @@ export const useClickableCell = ({
       captureEvent();
       navigate(href, {openInNewTab});
     }
-  }, [navigate, ignoreLinks, href, onClick, captureEvent]);
+  }, [navigate, ignoreLinks, href, onClick, openInNewTab, captureEvent]);
 
   return {
     onClick: wrappedOnClick,
