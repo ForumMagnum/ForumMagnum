@@ -64,7 +64,7 @@ export const PeopleDirectorySearchableFilter = ({
   const showLoading = loading;
   const showNoResults = search && !loading && suggestions.length === 0;
   const showResults = !loading && suggestions.length > 0;
-  const showClearAll = !loading && selectedValues.length > 1;
+  const showClearAll = !loading && selectedValues.length > 0;
   const showAnything = showLoading || showNoResults || showResults || showClearAll;
 
   const {
