@@ -24,3 +24,10 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment ConversationsListWithReadStatus on Conversation {
+    ...ConversationsList
+    hasUnreadMessages
+  }
+`);
