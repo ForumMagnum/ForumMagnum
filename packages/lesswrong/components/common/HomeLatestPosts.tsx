@@ -122,7 +122,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts, RecombeeLatestPosts
+    CuratedPostsList, SectionTitle, StickiedPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -151,10 +151,6 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
-
-  if (currentUser && recombeeFrontpagePrototypeEnabled) {
-    return <RecombeeLatestPosts currentUser={currentUser} />
-  }
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
