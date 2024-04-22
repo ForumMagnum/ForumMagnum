@@ -56,12 +56,10 @@ export const useCacheErrors = () => {
   return { logCacheError, logCacheWarning };
 }
 
-export const userWithSideEffects = (user: UsersCurrent, renderSideEffects: RenderSideEffects) => {
+export const userWithSideEffects = (user: UsersCurrent, logCacheError: (message?: string) => void) => {
   return new Proxy(user, {
     get(target, property, receiver) {
-      if (renderSideEffects.cacheErrors) {
-        logCacheIssue(renderSideEffects.cacheErrors, `Accessing property ${String(property)} of currentUser`);
-      }
+      logCacheError(`Accessing property ${String(property)} of currentUser`);
       return Reflect.get(target, property, receiver);
     }
   });

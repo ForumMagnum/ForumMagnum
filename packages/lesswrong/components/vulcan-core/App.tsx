@@ -32,7 +32,6 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   history: History
 }) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
-
   const reactDomLocation = useLocation();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);

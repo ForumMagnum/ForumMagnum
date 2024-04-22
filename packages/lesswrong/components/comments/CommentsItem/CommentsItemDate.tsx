@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import ForumNoSSR from '../../common/ForumNoSSR';
 import { isLWorAF } from '../../../lib/instanceSettings';
-import { isServer } from '../../../lib/executionEnvironment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

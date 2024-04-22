@@ -78,6 +78,7 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
+// TODO remove SWR caching for this PR
 const cache: Record<string, RenderResult> = {};
 
 export const clearSWRCache = () => {
@@ -524,7 +525,10 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   }
   
   client.stop();
-  console.log(JSON.stringify({renderSideEffects}, null, 3))
+
+  // TODO remove
+  console.log({renderSideEffects})
+
   return {
     ssrBody,
     headers: [head],

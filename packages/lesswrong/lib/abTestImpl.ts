@@ -187,12 +187,9 @@ export function useABTest<Groups extends string>(abtest: ABTest<Groups>): Groups
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   const group = getUserABTestGroup(currentUser ? {user: currentUser} : {clientId}, abtest);
 
-  const { cacheErrors } = useCacheErrors();
+  const { logCacheError } = useCacheErrors();
 
-  if (cacheErrors) {
-    cacheErrors.count++;
-    cacheErrors.info?.push(`Accessing A/B test ${abtest.name}, ${new Error().stack}`);
-  }
+  logCacheError(`Accessing A/B test ${abtest.name}`);
   
   abTestGroupsUsed[abtest.name] = group;
   return group;

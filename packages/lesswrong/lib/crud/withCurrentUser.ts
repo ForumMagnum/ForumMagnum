@@ -12,7 +12,7 @@ import { useCacheErrors, userWithSideEffects } from '../sideEffects';
  */
 export const useQueryCurrentUser = () => {
   console.log("Rendering useQueryCurrentUser")
-  const { cacheErrors, cacheWarnings } = useCacheErrors();
+  const { logCacheError } = useCacheErrors();
   const {data, refetch, loading} = useQuery<{currentUser: UsersCurrent | null}>(gql`
     query getCurrentUser {
       currentUser {
@@ -26,7 +26,7 @@ export const useQueryCurrentUser = () => {
   });
 
   return {
-    currentUser: data?.currentUser ? userWithSideEffects(data?.currentUser, { cacheErrors, cacheWarnings }) : null,
+    currentUser: data?.currentUser ? userWithSideEffects(data?.currentUser, logCacheError) : null,
     refetchCurrentUser: refetch,
     currentUserLoading: loading,
   }

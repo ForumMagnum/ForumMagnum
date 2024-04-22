@@ -5,7 +5,7 @@ import { matchPath } from 'react-router';
 import qs from 'qs'
 import { captureException } from '@sentry/core';
 import { isClient } from '../executionEnvironment';
-import type { RouterLocation } from '../vulcan-lib/routes';
+import type { RouterLocation, Route } from '../vulcan-lib/routes';
 import type { History } from 'history'
 
 export interface ServerRequestStatusContextType {
