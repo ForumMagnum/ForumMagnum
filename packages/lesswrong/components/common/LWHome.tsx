@@ -6,12 +6,11 @@ import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { useRecombeeFrontpage, visitorGetsDynamicFrontpage } from '../../lib/betas';
-import { useCurrentUser } from './withUser';
+import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, 
-    FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget, 
+    SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection, LWHomePosts } = Components
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
@@ -20,17 +19,11 @@ const LWHome = () => {
     }
   }, [setCookie])
 
-  const currentUser = useCurrentUser()
-  const recombeeFrontpagePrototypeEnabled = useRecombeeFrontpage(currentUser)
-  
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          {recombeeFrontpagePrototypeEnabled && <SingleColumnSection>
-            <DismissibleSpotlightItem current/>
-          </SingleColumnSection>}
-          {!recombeeFrontpagePrototypeEnabled && !reviewIsActive() && <LWRecommendations configName="frontpage" />}
+          <DismissibleSpotlightItem current standaloneSection />
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
@@ -41,10 +34,10 @@ const LWHome = () => {
           </SingleColumnSection>}
           
           <AnalyticsInViewTracker
-              eventProps={{inViewType: "latestPosts"}}
+              eventProps={{inViewType: "homePosts"}}
               observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <HomeLatestPosts />
+            <LWHomePosts />
           </AnalyticsInViewTracker>
 
           <QuickTakesSection />

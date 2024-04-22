@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
-      paddingTop: 0,
+      paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
       paddingRight: 8,
     },
