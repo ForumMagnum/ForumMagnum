@@ -302,6 +302,7 @@ importComponent("Error404", () => require('../components/common/Error404'));
 importComponent("ErrorAccessDenied", () => require('../components/common/ErrorAccessDenied'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
+importComponent("GlobalHotkeys", () => require('../components/common/GlobalHotkeys'));
 
 importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu'));
 importComponent("TabNavigationMenuFooter", () => require('../components/common/TabNavigationMenu/TabNavigationMenuFooter'));
