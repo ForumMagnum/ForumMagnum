@@ -68,7 +68,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
           showBottomBorder={i < sortedBookmarkedPosts.length-1}
         />
       )}
-      <LoadMore {...loadMoreProps} sectionFooterStyles />
+      {!hideLoadMore && <LoadMore {...loadMoreProps} />}
     </div>
   </AnalyticsContext>
 }
