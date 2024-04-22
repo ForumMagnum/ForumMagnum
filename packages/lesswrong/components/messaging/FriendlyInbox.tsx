@@ -211,13 +211,17 @@ const FriendlyInbox = ({
 
   const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
 
-  const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
+  const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: "ConversationsList",
+    fragmentName: "ConversationsListWithReadStatus",
     limit: 500,
   });
-  const { results: conversations, loading: conversationsLoading } = conversationsResult;
+  const {
+    results: conversations,
+    loading: conversationsLoading,
+    refetch: refetchConversations,
+  } = conversationsResult;
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.
@@ -227,16 +231,21 @@ const FriendlyInbox = ({
   const { document: fetchedSelectedConversation } = useSingle({
     documentId: conversationId,
     collectionName: "Conversations",
-    fragmentName: "ConversationsList",
+    fragmentName: "ConversationsListWithReadStatus",
     skip: !conversationId,
   });
   const selectedConversation = fetchedSelectedConversation || eagerSelectedConversation;
 
+  const onOpenConversation = useCallback(async (conversationId: string) => {
+    await markConversationRead(conversationId);
+    await refetchConversations();
+  }, [markConversationRead, refetchConversations]);
+
   useEffect(() => {
     if (fetchedSelectedConversation?._id) {
-      void markConversationRead(fetchedSelectedConversation._id);
+      void onOpenConversation(fetchedSelectedConversation._id);
     }
-  }, [fetchedSelectedConversation, markConversationRead]);
+  }, [fetchedSelectedConversation, onOpenConversation]);
 
   const openConversationOptions = () => {
     if (!conversationId) return;
