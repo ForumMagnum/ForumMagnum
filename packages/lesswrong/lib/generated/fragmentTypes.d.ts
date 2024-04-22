@@ -403,8 +403,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly subforumPreferredLayout: "card" | "list",
   readonly hideJobAdUntil: Date | null,
-  readonly experiencedIn: Array<string> | null,
-  readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean,
   readonly afPostCount: number,
   readonly afCommentCount: number,
@@ -418,7 +416,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
-  readonly wrapped2023Viewed: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -1878,6 +1875,10 @@ interface ConversationsList extends ConversationsMinimumInfo { // fragment on Co
   readonly latestMessage: messageListFragment|null,
 }
 
+interface ConversationsListWithReadStatus extends ConversationsList { // fragment on Conversations
+  readonly hasUnreadMessages: boolean|null,
+}
+
 interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
   readonly userId: string,
   readonly ownedByUser: boolean,
@@ -3129,7 +3130,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface UsersEdit extends UsersProfile { // fragment on Users
+interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly biography: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
@@ -3931,6 +3932,7 @@ interface FragmentTypes {
   messageListFragment: messageListFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
+  ConversationsListWithReadStatus: ConversationsListWithReadStatus
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   newRSSFeedFragment: newRSSFeedFragment
@@ -4091,7 +4093,7 @@ interface FragmentTypesByCollection {
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
   Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"
-  Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"
+  Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
@@ -4247,6 +4249,7 @@ interface CollectionNamesByFragmentName {
   messageListFragment: "Messages"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
+  ConversationsListWithReadStatus: "Conversations"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RSSFeedMinimumInfo: "RSSFeeds"
   newRSSFeedFragment: "RSSFeeds"

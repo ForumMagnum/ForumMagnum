@@ -1,10 +1,10 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import { pickerMiddleware } from './vendor/picker';
+import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
@@ -27,7 +27,6 @@ import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticatio
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
@@ -52,6 +51,53 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { createAnonymousContext } from './vulcan-lib';
+
+/**
+ * Try to set the response status, but log an error if the headers have already been sent.
+ */
+const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
+  if (!response.headersSent) {
+    response.status(status);
+  } else if (response.statusCode !== status) {
+    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
+    if (isProduction) {
+      // eslint-disable-next-line no-console
+      console.error(message);
+    } else {
+      throw new Error(message);
+    }
+  }
+
+  return response;
+}
+
+/**
+ * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
+ */
+const maybePrefetchResources = async ({
+  request,
+  response,
+  enableResourcePrefetch,
+  prefetchPrefix
+}: {
+  request: express.Request;
+  response: express.Response;
+  enableResourcePrefetch?: boolean | ((req: express.Request, res: express.Response, context: ResolverContext) => Promise<boolean>);
+  prefetchPrefix: string;
+}) => {
+  const prefetchResources =
+    typeof enableResourcePrefetch === "function"
+      ? await enableResourcePrefetch(request, response, createAnonymousContext())
+      : enableResourcePrefetch;
+
+  if (prefetchResources) {
+    response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
+    trySetResponseStatus({ response, status: 200 });
+    response.write(prefetchPrefix);
+  }
+  return prefetchResources;
+};
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -295,7 +341,7 @@ export function startWebserver() {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
@@ -305,7 +351,6 @@ export function startWebserver() {
     const parsedRoute = parseRoute({
       location: parsePath(request.url)
     });
-    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
@@ -331,23 +376,27 @@ export function startWebserver() {
         + faviconHeader
         + clientScript
     );
-    
-    if (prefetchResources) {
-      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      response.status(200);
-      response.write(prefetchPrefix);
-    }
-    
-    const renderResult = performanceMetricLoggingEnabled.get()
-      ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
-      : await renderWithCache(request, response, user);
-    
+
+    // Note: this may write to the response
+    const prefetchResourcesPromise = maybePrefetchResources({
+      request,
+      response,
+      enableResourcePrefetch: parsedRoute.currentRoute?.enableResourcePrefetch,
+      prefetchPrefix
+    });
+
+    const renderResultPromise = performanceMetricLoggingEnabled.get()
+      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
+      : renderWithCache(request, response, user);
+
+    const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
+
     if (renderResult.aborted) {
-      response.status(499);
+      trySetResponseStatus({ response, status: 499 });
       response.end();
       return;
     }
-    
+
     const {
       ssrBody,
       headers,
@@ -366,18 +415,16 @@ export function startWebserver() {
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
     
     // Finally send generated HTML with initial data to the client
-    if (redirectUrl && !prefetchResources) {
+    if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      response.status(status||301).redirect(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
     } else {
-      if (!prefetchResources) {
-        response.status(status||200);
-        response.write(prefetchPrefix);
-      }
+      trySetResponseStatus({ response, status: status || 200 });
+
       response.write(
-        // <html><head> opened by the prefetch prefix
-          headers.join('\n')
+        (prefetchingResources ? '' : prefetchPrefix)
+          + headers.join('\n')
           + themeOptionsHeader
           + jssSheets
         + '</head>\n'

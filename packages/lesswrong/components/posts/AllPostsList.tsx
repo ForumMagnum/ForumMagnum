@@ -19,6 +19,7 @@ import {
   DatabasePublicSetting,
 } from "../../lib/publicSettings";
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 // Number of weeks to display in the timeframe view
 const forumAllPostsNumWeeksSetting = new DatabasePublicSetting<number>("forum.numberOfWeeks", 4);
@@ -66,7 +67,7 @@ const AllPostsList = ({
     before: query.before,
   };
 
-  const {PostsTimeframeList, PostsList2} = Components;
+  const {PostsTimeframeList, PostsTimeframeListExponential, PostsList2} = Components;
 
   if (currentTimeframe === "allTime") {
     return (
@@ -79,12 +80,13 @@ const AllPostsList = ({
             ...baseTerms,
             limit: 50
           }}
-          dimWhenLoading={showSettings}
+          dimWhenLoading={showSettings && !isFriendlyUI}
+          showLoading={isFriendlyUI}
         />
       </AnalyticsContext>
     );
   }
-
+  
   const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType];
   const timeBlock = timeframeToTimeBlock[currentTimeframe as TimeframeType];
 
@@ -95,6 +97,19 @@ const AllPostsList = ({
 
   if (parseInt(query.limit)) {
     postListParameters.limit = parseInt(query.limit);
+  }
+
+  if (currentTimeframe === 'exponential') {
+    return (
+      <AnalyticsContext
+        listContext={"allPostsPage"}
+        terms={postListParameters}
+      >
+        <PostsTimeframeListExponential
+          postListParameters={postListParameters}
+        />
+      </AnalyticsContext>
+    );
   }
 
   const after = query.after || getAfterDefault({
@@ -134,7 +149,7 @@ const AllPostsList = ({
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings}
+            dimWhenLoading={showSettings && !isFriendlyUI}
             after={after}
             before={before}
             reverse={query.reverse === "true"}

@@ -76,6 +76,8 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
+  /** If the post is curated, whether to show the curation date instead of the postedAt date. Default true. */
+  useCuratedDate?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
@@ -124,6 +126,7 @@ export const usePostsItem = ({
   showReadCheckbox = false,
   showMostValuableCheckbox = false,
   showKarma = true,
+  useCuratedDate = true,
   isVoteable = false,
   recombeeRecommId,
   className,
@@ -231,6 +234,7 @@ export const usePostsItem = ({
     showReviewCount,
     showIcons,
     showKarma,
+    useCuratedDate,
     annualReviewMarketInfo,
     marketLink,
     showReadCheckbox,

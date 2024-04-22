@@ -97,7 +97,12 @@ class PageCacheRepo extends AbstractRepo<"PageCache"> {
         renderedAt: now,
         expiresAt: new Date(now.getTime() + maxCacheAgeMs),
         ttlMs: maxCacheAgeMs,
-        renderResult,
+        
+        // Stringify renderResult before handing it to the postgres library. We
+        // do this because the string can be large, and if we pass it as a JSON
+        // object, the postgres library will stringify it in a slower way that
+        // adds bignum support (which we don't use).
+        renderResult: JSON.stringify(renderResult),
         schemaVersion: 1,
         createdAt: now,
       });

@@ -374,7 +374,6 @@ importComponent("UserNameDeleted", () => require('../components/users/UserNameDe
 importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
-importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
@@ -397,6 +396,7 @@ importComponent("PostsLoading", () => require('../components/posts/PostsLoading'
 importComponent("PostsTimeframeList", () => require('../components/posts/PostsTimeframeList'));
 importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'));
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
+importComponent("PostsTimeframeListExponential", () => require('../components/posts/PostsTimeframeListExponential'));
 importComponent("RecombeePostsList", () => require('../components/posts/RecombeePostsList'));
 importComponent("RecombeePostsListSettings", () => require('../components/posts/RecombeePostsListSettings'));
 importComponent("RecombeeLatestPosts", () => require('../components/posts/RecombeeLatestPosts'));

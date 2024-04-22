@@ -204,6 +204,7 @@ const EAPostsItem = ({
     isRepeated,
     analyticsProps,
     isVoteable,
+    useCuratedDate,
     className,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
@@ -300,7 +301,7 @@ const EAPostsItem = ({
                 className={classes.title}
               />
               <div className={classes.meta}>
-                <EAPostMeta post={post} />
+                <EAPostMeta post={post} useCuratedDate={useCuratedDate} />
                 <div className={classNames(
                   classes.secondaryContainer,
                   classes.onlyMobile,
