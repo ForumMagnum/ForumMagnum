@@ -6,6 +6,7 @@ import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectory
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
+import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 
 type PeopleDirectorySorting = {
   field: string,
@@ -63,7 +64,16 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   });
 
   const flattenedResults = useMemo(() => {
-    return results.flatMap((resultsPage) => resultsPage);
+    const flattenedResults = results.flatMap((resultsPage) => resultsPage);
+    // HACK: We mostly can't repro the situation that causes undefined values in
+    // the results, so instead of finding the root cause we'll just filter them
+    // out.
+    const hackyNullRemoval = filterNonnull(flattenedResults);
+    if (flattenedResults.length !== hackyNullRemoval.length) {
+      // eslint-disable-next-line no-console
+      console.error("People directory results contained undefined values", flattenedResults);
+    }
+    return hackyNullRemoval;
   }, [results]);
 
   const clearSearch = useCallback(() => {
