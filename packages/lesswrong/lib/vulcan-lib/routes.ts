@@ -34,6 +34,7 @@ export type Route = {
   title?: string,
   titleComponentName?: keyof ComponentTypes,
   subtitle?: string,
+  headerSubtitle?: string,
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
   description?: string,

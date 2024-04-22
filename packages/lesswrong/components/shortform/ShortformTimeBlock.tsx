@@ -5,7 +5,7 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (_: ThemeType): JssStyles => ({
   shortformGroup: {
-    marginTop: isFriendlyUI ? -10 : 12,
+    marginTop: isFriendlyUI ? 20 : 12,
   },
   subtitle: {
     marginTop: 6,
@@ -37,15 +37,20 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
+const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   reportEmpty: () => void,
+  before: string
+  after: string
   terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const {LoadMore, ContentType} = Components;
 
   const {totalCount, loadMore, loading, results: comments} = useMulti({
-    terms,
+    terms: {
+      ...terms,
+      before, after,
+    },
     collectionName: "Comments",
     fragmentName: 'ShortformComments',
     fetchPolicy: 'cache-and-network',
