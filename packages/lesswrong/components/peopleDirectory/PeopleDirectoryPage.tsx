@@ -50,7 +50,7 @@ export const PeopleDirectoryPage = ({classes}: {
             target="_blank"
             rel="noopener noreferrer"
           >
-            sharing you thoughts
+            sharing your thoughts
           </Link>
         </div>
         <PeopleDirectoryProvider>
