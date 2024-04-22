@@ -466,8 +466,8 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   const renderSideEffects: RenderSideEffects = {
     serverRequestStatus: {},
     abTestGroupsUsed: {},
-    cacheErrors: {count: 0},
-    cacheWarnings: {count: 0},
+    cacheErrors: {count: 0, info: []},
+    cacheWarnings: {count: 0, info: []},
   };
   
   const now = new Date();
@@ -524,7 +524,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   }
   
   client.stop();
-
+  console.log(JSON.stringify({renderSideEffects}, null, 3))
   return {
     ssrBody,
     headers: [head],

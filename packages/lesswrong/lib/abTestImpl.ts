@@ -4,6 +4,7 @@ import * as _ from 'underscore';
 import rng from './seedrandom';
 import { CLIENT_ID_COOKIE } from './cookies/cookies';
 import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
+import { useCacheErrors } from './sideEffects';
 
 //
 // A/B tests. Each A/B test has a name (which should be unique across all A/B
@@ -185,6 +186,13 @@ export function useABTest<Groups extends string>(abtest: ABTest<Groups>): Groups
   const clientId = useClientId();
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
   const group = getUserABTestGroup(currentUser ? {user: currentUser} : {clientId}, abtest);
+
+  const { cacheErrors } = useCacheErrors();
+
+  if (cacheErrors) {
+    cacheErrors.count++;
+    cacheErrors.info?.push(`Accessing A/B test ${abtest.name}, ${new Error().stack}`);
+  }
   
   abTestGroupsUsed[abtest.name] = group;
   return group;

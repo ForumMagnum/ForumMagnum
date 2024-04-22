@@ -1,6 +1,7 @@
 import React from "react";
-import { RelevantTestGroupAllocation } from "./abTestImpl";
+import type { RelevantTestGroupAllocation } from "./abTestImpl";
 import { ServerRequestStatusContextType } from "./vulcan-core/appContext";
+import { isProduction } from "./executionEnvironment";
 
 /**
  * Log of errors/warnings that have occured during a function execution. The intended use case is to pass
@@ -37,14 +38,29 @@ export interface RenderSideEffects {
 
 export const CacheErrorsContext = React.createContext<Pick<RenderSideEffects, 'cacheErrors' | 'cacheWarnings'>>({});
 
-export const useCacheErrors = () => React.useContext(CacheErrorsContext);
+const logCacheIssue = (warningLog: WarningLog, message = '') => {
+  warningLog.count++;
+  if (!isProduction) {
+    // Uncomment below for debugging purposes, too slow to run always
+    // message = message + "\n" + new Error().stack;{
+    warningLog.info?.push(message);
+  }
+};
+
+export const useCacheErrors = () => {
+  const { cacheErrors, cacheWarnings } = React.useContext(CacheErrorsContext);
+
+  const logCacheError = cacheErrors ? (message?: string) => logCacheIssue(cacheErrors, message) : () => {};
+  const logCacheWarning = cacheWarnings ? (message?: string) => logCacheIssue(cacheWarnings, message) : () => {};
+
+  return { logCacheError, logCacheWarning };
+}
 
 export const userWithSideEffects = (user: UsersCurrent, renderSideEffects: RenderSideEffects) => {
   return new Proxy(user, {
     get(target, property, receiver) {
       if (renderSideEffects.cacheErrors) {
-        renderSideEffects.cacheErrors.count++;
-        renderSideEffects.cacheErrors.info?.push(`Accessing property ${String(property)} of currentUser`);
+        logCacheIssue(renderSideEffects.cacheErrors, `Accessing property ${String(property)} of currentUser`);
       }
       return Reflect.get(target, property, receiver);
     }
