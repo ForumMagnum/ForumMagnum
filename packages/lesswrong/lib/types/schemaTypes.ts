@@ -37,6 +37,15 @@ type SqlJoinBase<N extends CollectionNameString> = {
 }
 
 type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
+  /**
+   * By default, the `table` value in `SqlJoinBase` must be a table associated
+   * with a collection, and when this is the case we get type safety for the
+   * values in `on` and for the `field` argument to `resolver`.
+   * Setting `isNonCollectionJoin` to true allows us to join on anything that
+   * isn't a collection (like a custom table or a view for instance) at the
+   * expense of type-safety as we don't have schemas for these objects so
+   * everything just becomes strings.
+   */
   isNonCollectionJoin?: false,
   resolver: (field: SqlFieldFunction<N>) => string,
 }
