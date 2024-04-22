@@ -230,6 +230,7 @@ export type PostFeedDetails = {
   label: string,
   description?: string,
   disabled?: boolean,
+  showLabsIcon?: boolean,
   slug?: string
 }
 

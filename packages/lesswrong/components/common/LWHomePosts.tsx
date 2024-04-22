@@ -213,7 +213,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get().map(feed => ({ name: feed.name, label: feed.label, description: feed.description, disabled: feed.disabled }));
+  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get()
 
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled

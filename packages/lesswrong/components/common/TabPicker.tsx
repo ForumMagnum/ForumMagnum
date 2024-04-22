@@ -82,6 +82,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tab: {
+    display: 'flex',
+    justifyContent: 'center',
     minWidth: '120px',
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
@@ -138,6 +140,17 @@ const styles = (theme: ThemeType) => ({
   rightArrow: {
     right: -30,
   },
+  labsIcon: {
+    
+    marginLeft: 3,
+    alignSelf: 'center',
+    height: 14,
+    width: 14,
+    [theme.breakpoints.down('xs')]: {
+      height: 13,
+      width: 13,
+    }
+  }
 })
 
 export interface TabRecord {
@@ -145,6 +158,7 @@ export interface TabRecord {
   label: string,
   description?: string,
   disabled?: boolean,
+  showLabsIcon?: boolean,
 }
 
 /**
@@ -289,6 +303,7 @@ const TabPicker = <T extends TabRecord[]>(
                   className={classNames(classes.tab, { [classes.activeTab]: isActive, [classes.inactiveTab]: !isActive })}
                 >
                   {tab.label}
+                  {tab.showLabsIcon && <ForumIcon icon="LabBeaker" className={classes.labsIcon} />}
                 </button>
               </LWTooltip>
             })}
