@@ -26,11 +26,11 @@ export default function withUser(Component: React.FC<WithUserProps>) {
 
 export type RefetchCurrentUserFunction = (
   variables?: Partial<OperationVariables>,
-) => Promise<ApolloQueryResult<UsersCurrent | null>>;
+) => Promise<ApolloQueryResult<{currentUser: UsersCurrent | null}>>;
 
 export const RefetchCurrentUserContext = createContext<RefetchCurrentUserFunction>(
   async () => ({
-    data: null,
+    data: {currentUser: null},
     loading: false,
     networkStatus: NetworkStatus.ready,
   }),

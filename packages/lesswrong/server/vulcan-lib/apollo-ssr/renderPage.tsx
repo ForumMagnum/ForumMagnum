@@ -443,10 +443,9 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   }
 
   // To do:
-  // - [ ] Separate the passed context things into:
-  //   - [ ] Server context
-  //   - [ ] Shared context
-  //   - [ ] Side effects
+  // - [ ] Keep a count of cacheErrors when the user is accessed during rendering
+  // - [ ] Keep a count of cacheErrors when the user is accessed during resolving
+  // - [ ] Handle warnings, including ideally generating a warning when we try and fail to access the user
   // - [ ] Keep a count of cacheWarnings (relative dates) and cacheErrors (currentUser accesses)
   // - [ ] Make it so in dev these contain stack traces
 

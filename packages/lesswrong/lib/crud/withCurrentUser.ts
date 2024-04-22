@@ -1,6 +1,7 @@
 import { fragmentTextForQuery } from '../vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import { hookToHoc } from '../hocUtils';
+import { useCacheErrors, userWithSideEffects } from '../sideEffects';
 
 /**
  * HoC for a graphQL that fetches the logged-in user object. This is used once,
@@ -10,7 +11,9 @@ import { hookToHoc } from '../hocUtils';
  * context.
  */
 export const useQueryCurrentUser = () => {
-  const {data, refetch, loading} = useQuery(gql`
+  console.log("Rendering useQueryCurrentUser")
+  const { cacheErrors, cacheWarnings } = useCacheErrors();
+  const {data, refetch, loading} = useQuery<{currentUser: UsersCurrent | null}>(gql`
     query getCurrentUser {
       currentUser {
         ...UsersCurrent
@@ -21,9 +24,9 @@ export const useQueryCurrentUser = () => {
     fetchPolicy: "cache-first",
     ssr: true,
   });
-  
+
   return {
-    currentUser: data?.currentUser,
+    currentUser: data?.currentUser ? userWithSideEffects(data?.currentUser, { cacheErrors, cacheWarnings }) : null,
     refetchCurrentUser: refetch,
     currentUserLoading: loading,
   }

@@ -1,3 +1,4 @@
+import React from "react";
 import { RelevantTestGroupAllocation } from "./abTestImpl";
 import { ServerRequestStatusContextType } from "./vulcan-core/appContext";
 
@@ -32,4 +33,20 @@ export interface RenderSideEffects {
    * but is not a deal breaker. E.g. using a relative date.
    */
   cacheWarnings?: WarningLog;
+}
+
+export const CacheErrorsContext = React.createContext<Pick<RenderSideEffects, 'cacheErrors' | 'cacheWarnings'>>({});
+
+export const useCacheErrors = () => React.useContext(CacheErrorsContext);
+
+export const userWithSideEffects = (user: UsersCurrent, renderSideEffects: RenderSideEffects) => {
+  return new Proxy(user, {
+    get(target, property, receiver) {
+      if (renderSideEffects.cacheErrors) {
+        renderSideEffects.cacheErrors.count++;
+        renderSideEffects.cacheErrors.info?.push(`Accessing property ${String(property)} of currentUser`);
+      }
+      return Reflect.get(target, property, receiver);
+    }
+  });
 }

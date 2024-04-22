@@ -11,7 +11,7 @@ import { ABTestGroupsUsedContext } from '../../../../lib/abTestImpl';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
 import type { TimeOverride } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
-import type { RenderSideEffects } from '../../../../lib/sideEffects';
+import { CacheErrorsContext, RenderSideEffects } from '../../../../lib/sideEffects';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
@@ -32,13 +32,17 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, renderSideEffect
         <StaticRouter location={req.url}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed ?? {}}>
-              <LayoutOptionsContextProvider>
-                <Components.App
-                  apolloClient={apolloClient}
-                  serverRequestStatus={serverRequestStatus}
-                  timeOverride={timeOverride}
-                />
-              </LayoutOptionsContextProvider>
+              <CacheErrorsContext.Provider
+                value={{ cacheErrors: renderSideEffects.cacheErrors, cacheWarnings: renderSideEffects.cacheWarnings }}
+              >
+                <LayoutOptionsContextProvider>
+                  <Components.App
+                    apolloClient={apolloClient}
+                    serverRequestStatus={serverRequestStatus}
+                    timeOverride={timeOverride}
+                  />
+                </LayoutOptionsContextProvider>
+              </CacheErrorsContext.Provider>
             </ABTestGroupsUsedContext.Provider>
           </CookiesProvider>
         </StaticRouter>

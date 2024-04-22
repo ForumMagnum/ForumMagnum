@@ -39,6 +39,7 @@ const AppGenerator = ({
         <CookiesProvider>
           <BrowserRouter>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed ?? {}}>
+              {/* Omit CacheErrorsContext on the client, the info is only relevant on the server */}
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
                   <Components.App apolloClient={apolloClient} timeOverride={timeOverride} />
