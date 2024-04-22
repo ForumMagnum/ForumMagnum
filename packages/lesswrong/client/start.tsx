@@ -31,7 +31,7 @@ onStartup(() => {
     <AppGenerator
       apolloClient={apolloClient}
       foreignApolloClient={foreignApolloClient}
-      abTestGroupsUsed={{}}
+      renderSideEffects={{}}
       themeOptions={window.themeOptions}
       timeOverride={timeOverride}
     />

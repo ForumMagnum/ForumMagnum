@@ -1428,7 +1428,8 @@ addRoute(
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
     noFooter: hasPostRecommendations,
-    enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    // TODO reenable
+    // enableResourcePrefetch: postRouteWillDefinitelyReturn200,
   },
   {
     name:'posts.slug.single',
