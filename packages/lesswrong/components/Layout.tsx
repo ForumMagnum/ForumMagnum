@@ -382,7 +382,7 @@ const Layout = ({currentUser, children, classes}: {
       EAHomeRightHandSide,
       CloudinaryImage2,
       ForumEventBanner,
-      GlobalHotkeys: ThemePickerHotkeys,
+      GlobalHotkeys,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -447,7 +447,7 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
-              <ThemePickerHotkeys/>
+              <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <ForumNoSSR>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
