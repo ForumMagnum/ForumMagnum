@@ -60,6 +60,7 @@ export const PeopleDirectoryResultRow = ({result, classes}: {
   const {onClick} = useClickableCell({
     href: result ? userGetProfileUrl(result) : "#",
     ignoreLinks: true,
+    openInNewTab: true,
   });
   const {columns} = usePeopleDirectory();
   return (
