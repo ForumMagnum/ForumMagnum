@@ -211,6 +211,7 @@ import './server/embeddings';
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
+import './server/search/facetFieldSearch';
 
 // Incremental views
 import './server/analytics/analyticsCron';
