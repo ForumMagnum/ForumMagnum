@@ -59,7 +59,7 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
   moderationGroup: {
     order:60,
     name: "moderation",
-    label: preferredHeadingCase("Moderation & Moderation Guidelines"),
+    label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation & Moderation Guidelines"),
     startCollapsed: true,
   },
   aboutMe: {

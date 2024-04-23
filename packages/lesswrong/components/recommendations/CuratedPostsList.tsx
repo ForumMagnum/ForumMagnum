@@ -6,7 +6,7 @@ import { isEAForum } from "../../lib/instanceSettings";
 import moment from "moment";
 import { useTimezone } from "../common/withTimezone";
 
-const CuratedPostsList = () => {
+const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const { timezone } = useTimezone()
   const fiveDaysAgo = moment().tz(timezone).subtract(5, 'days').format("YYYY-MM-DD")
@@ -16,7 +16,7 @@ const CuratedPostsList = () => {
       <Components.PostsList2
         terms={{
           view: "curated",
-          limit: currentCuratedPostCount,
+          limit: overrideLimit ?? currentCuratedPostCount,
           ...(isEAForum ? {curatedAfter: fiveDaysAgo} : {}),
         }}
         showNoResults={false}

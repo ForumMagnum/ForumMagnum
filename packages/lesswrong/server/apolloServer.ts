@@ -52,6 +52,7 @@ import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener 
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib';
+import { DatabaseServerSetting } from './databaseSettings';
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -70,6 +71,28 @@ const trySetResponseStatus = ({ response, status }: { response: express.Response
   }
 
   return response;
+}
+
+const cloudfrontExperimentEnabledSetting = new DatabaseServerSetting<boolean>('cloudfrontExperiment.enabled', false);
+const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "s-max-age=1, stale-while-revalidate=86400");
+const cloudfrontCachingExperimentLoggedInCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontCachingExperiment.loggedInCacheControl', "no-cache, no-store, must-revalidate, max-age=0");
+/**
+ * For experimenting on staging to find out how CloudFront handles different cache-control headers set by the origin. The crux
+ * is to figure out whether setting origin headers is sufficient to make it so responses are never cached for logged in users, but are cached
+ * for logged out
+ */
+const cloudfrontCachingExperiment = ({ response, user }: { response: express.Response, user: DbUser | null; }) => {
+  // TODO remove before this, the hard cutoff is just in case we forget
+  if (!cloudfrontExperimentEnabledSetting.get() || new Date() > new Date('2024-05-07')) return;
+
+  const loggedInCacheControl = cloudfrontCachingExperimentLoggedInCacheControlSetting.get();
+  const loggedOutCacheControl = cloudfrontExperimentLoggedOutCacheControlSetting.get();
+
+  if (user) {
+    response.setHeader("Cache-Control", loggedInCacheControl);
+  } else {
+    response.setHeader("Cache-Control", loggedOutCacheControl);
+  }
 }
 
 /**
@@ -341,7 +364,7 @@ export function startWebserver() {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
@@ -358,6 +381,9 @@ export function startWebserver() {
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
+
+    // TODO remove and replace with a permanent version
+    cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
     

@@ -41,12 +41,13 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     itemProps,
     limit,
     placeholderCount,
+    showFinalBottomBorder,
   } = usePostsList(props);
 
-  const { PostsLoading, LoadMore, PostsNoResults, SectionFooter, PostsItem } = Components;
+  const { Loading, LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
 
   if (!orderedResults && loading) {
-    return <PostsLoading placeholderCount={placeholderCount || limit} />
+    return <PostsLoading placeholderCount={placeholderCount || limit} showFinalBottomBorder={showFinalBottomBorder} />
   }
 
   if (!orderedResults?.length && !showNoResults) {
