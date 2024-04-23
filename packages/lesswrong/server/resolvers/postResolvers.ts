@@ -32,6 +32,7 @@ import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/goog
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { googleVertexApi } from '../google-vertex/client';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -703,5 +704,36 @@ createPaginatedResolver({
     }
 
     return await repos.posts.getPostsFromPostSubscriptions(currentUser._id, limit);
+  }
+});
+
+addGraphQLSchema(`
+  type VertexRecommendedPost {
+    post: Post!
+    attributionId: String
+  }
+`);
+
+interface VertexRecommendedPost {
+  post: Partial<DbPost>;
+  attributionId?: string | null;
+}
+
+createPaginatedResolver({
+  name: "GoogleVertexPosts",
+  graphQLType: "GoogleRecommendedPost",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args: { settings: RecombeeRecommendationArgs }
+  ): Promise<VertexRecommendedPost[]> => {
+    const { currentUser } = context;
+
+    if (!currentUser) {
+      throw new Error(`You must be logged in to use Google recommendations right now`);
+    }
+
+    return await googleVertexApi.getRecommendations(context);
   }
 });

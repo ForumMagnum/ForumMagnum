@@ -5,10 +5,98 @@ import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { Globals, createAdminContext } from "../vulcan-lib";
 import findByIds from "../vulcan-lib/findbyids";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { DocumentServiceClient, UserEventServiceClient, protos } from "@google-cloud/discoveryengine";
+import { DocumentServiceClient, UserEventServiceClient, v1beta, protos } from "@google-cloud/discoveryengine";
 import groupBy from "lodash/groupBy";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import chunk from "lodash/chunk";
+
+type GoogleMediaPersonOrgRole = 'director' | 'actor' | 'player' | 'team' | 'league' | 'editor' | 'author' | 'character' | 'contributor' | 'creator' | 'editor' | 'funder' | 'producer' | 'provider' | 'publisher' | 'sponsor' | 'translator' | 'music-by' | 'channel' | 'custom-role';
+
+interface GoogleMediaDocumentMetadata {
+  title: string;
+  categories: string[];
+  uri: string;
+  description?: string;
+  /**
+   * For document recommendation, this field is ignored and the text language is detected automatically.
+   * The document can include text in different languages, but duplicating documents to provide text in multiple languages can result in degraded performance.
+   */
+  language_code?: string;
+  images?: Array<{
+    uri?: string;
+    name?: string;
+  }>;
+  duration?: string;
+  /**
+   * The time that the content is available to the end-users. This field identifies the freshness of a content for end-users. The timestamp should conform to RFC 3339 standard.
+   */
+  available_time: string;
+  expire_time?: string;
+  media_type?: 'episode' | 'movie' | 'concert' | 'event' | 'live-event' | 'broadcast' | 'tv-series' | 'video-game' | 'clip' | 'vlog' | 'audio' | 'audio-book' | 'music' | 'album' | 'articles' | 'news' | 'radio' | 'podcast' | 'book' | 'sports-game';
+  in_languages?: string[];
+  country_of_origin?: string;
+  filter_tags?: string[];
+  hash_tags?: string[];
+  content_rating?: string[];
+  persons?: Array<{
+    name: string;
+    role: GoogleMediaPersonOrgRole;
+    custom_role?: string;
+    rank?: number;
+    uri?: string;
+  }>;
+  organizations?: Array<{
+    name: string;
+    role: GoogleMediaPersonOrgRole;
+    custom_role?: string;
+    /**
+     * Is this really a string?  That's what their JSON schema says, but it's an int for `persons`...
+     */
+    rank?: string;
+    uri?: string;
+  }>;
+  aggregate_ratings?: Array<{
+    rating_source: string;
+    rating_score?: number;
+    rating_count?: number;
+  }>
+}
+
+interface CreateGoogleMediaDocumentMetadataArgs {
+  post: DbPost;
+  tags?: {
+    _id: string;
+    name: string;
+    core: boolean;
+  }[];
+  authorIds?: string[];
+}
+
+interface CreateBigQueryPostRecordArgs {
+  post: DbPost;
+  context: ResolverContext;
+  tags?: {
+    _id: string;
+    name: string;
+    core: boolean;
+  }[];
+}
+
+interface CreateAEPostRecordArgs {
+  post: DbPost;
+  tags: {
+    _id: string;
+    name: string;
+    core: boolean;
+  }[];
+  authors?: string[];
+  upvoteCount?: number;
+}
+
+interface FrontpageView {
+  userId: string;
+  timestamp: string;
+}
 
 const GOOGLE_PARENT_DOCUMENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lw-recommendations3_1713386634021/branches/default_branch';
 const GOOGLE_PARENT_EVENTS_PATH = 'projects/lesswrong-recommendations/locations/global/dataStores/datastore-lw-recommendations3_1713386634021';
@@ -106,18 +194,8 @@ const postBatchQuery = `
 
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
-  const limit = 100;
+  const limit = 5000;
   return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][], authors: string[], authorIds: string[], upvoteCount: number }>(postBatchQuery, [offsetDate, limit]);
-}
-
-interface CreateBigQueryPostRecordArgs {
-  post: DbPost;
-  context: ResolverContext;
-  tags?: {
-    _id: string;
-    name: string;
-    core: boolean;
-  }[];
 }
 
 async function createBigQueryPostRecord({ post, context, tags }: CreateBigQueryPostRecordArgs) {
@@ -146,27 +224,12 @@ async function createBigQueryPostRecord({ post, context, tags }: CreateBigQueryP
   };
 }
 
-interface CreateAEPostRecordArgs {
-  post: DbPost;
-  context: ResolverContext;
-  tags?: {
-    _id: string;
-    name: string;
-    core: boolean;
-  }[];
-  authors?: string[];
-  upvoteCount?: number;
-}
-
-async function createAEPostRecord({ post, context, tags, authors, upvoteCount }: CreateAEPostRecordArgs) {
-  const { Tags } = context;
-
-  const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId);
-  tags ??= filterNonnull(await findByIds(Tags, tagIds));
+function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRecordArgs) {
   const tagNames = filterNonnull(tags.map(tag => tag.name));
   const postText = htmlToTextDefault(post.contents?.html);
 
   return {
+    _id: post._id,
     title: post.title,
     authors,
     score: post.score,
@@ -175,70 +238,9 @@ async function createAEPostRecord({ post, context, tags, authors, upvoteCount }:
     postedAt: post.postedAt,
     tags: tagNames,
     commentCount: post.commentCount,
-    upvoteCount
+    upvoteCount,
+    url: `https://www.lesswrong.com/posts/${post._id}/${post.slug}`
   };
-}
-
-type GoogleMediaPersonOrgRole = 'director' | 'actor' | 'player' | 'team' | 'league' | 'editor' | 'author' | 'character' | 'contributor' | 'creator' | 'editor' | 'funder' | 'producer' | 'provider' | 'publisher' | 'sponsor' | 'translator' | 'music-by' | 'channel' | 'custom-role';
-
-interface GoogleMediaDocumentMetadata {
-  title: string;
-  categories: string[];
-  uri: string;
-  description?: string;
-  /**
-   * For document recommendation, this field is ignored and the text language is detected automatically.
-   * The document can include text in different languages, but duplicating documents to provide text in multiple languages can result in degraded performance.
-   */
-  language_code?: string;
-  images?: Array<{
-    uri?: string;
-    name?: string;
-  }>;
-  duration?: string;
-  /**
-   * The time that the content is available to the end-users. This field identifies the freshness of a content for end-users. The timestamp should conform to RFC 3339 standard.
-   */
-  available_time: string;
-  expire_time?: string;
-  media_type?: 'episode' | 'movie' | 'concert' | 'event' | 'live-event' | 'broadcast' | 'tv-series' | 'video-game' | 'clip' | 'vlog' | 'audio' | 'audio-book' | 'music' | 'album' | 'articles' | 'news' | 'radio' | 'podcast' | 'book' | 'sports-game';
-  in_languages?: string[];
-  country_of_origin?: string;
-  filter_tags?: string[];
-  hash_tags?: string[];
-  content_rating?: string[];
-  persons?: Array<{
-    name: string;
-    role: GoogleMediaPersonOrgRole;
-    custom_role?: string;
-    rank?: number;
-    uri?: string;
-  }>;
-  organizations?: Array<{
-    name: string;
-    role: GoogleMediaPersonOrgRole;
-    custom_role?: string;
-    /**
-     * Is this really a string?  That's what their JSON schema says, but it's an int for `persons`...
-     */
-    rank?: string;
-    uri?: string;
-  }>;
-  aggregate_ratings?: Array<{
-    rating_source: string;
-    rating_score?: number;
-    rating_count?: number;
-  }>
-}
-
-interface CreateGoogleMediaDocumentMetadataArgs {
-  post: DbPost;
-  tags?: {
-    _id: string;
-    name: string;
-    core: boolean;
-  }[];
-  authorIds?: string[];
 }
 
 function createGoogleMediaDocumentJson({ post, tags, authorIds }: CreateGoogleMediaDocumentMetadataArgs): protos.google.cloud.discoveryengine.v1.IDocument {
@@ -343,7 +345,7 @@ function createViewHomePageEvent({userId, timestamp}: { userId: string, timestam
   };
 }
 
-async function backfillPosts(offsetDate?: Date) {
+async function backfillVertexPosts(offsetDate?: Date) {
   const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
   const documentClient = getGoogleDocumentServiceClientOrThrow();
@@ -436,11 +438,6 @@ async function backfillPosts(offsetDate?: Date) {
   }
 }
 
-interface FrontpageView {
-  userId: string;
-  timestamp: string;
-}
-
 async function backfillFrontpageViews(offsetDate?: Date) {
   const userEventClient = getGoogleUserEventServiceClientOrThrow();
 
@@ -461,6 +458,49 @@ async function backfillFrontpageViews(offsetDate?: Date) {
   }
 }
 
+async function exportAEPostRecords(offsetDate?: Date) {
+  const adminContext = createAdminContext();
+  const db = getSqlClientOrThrow();
 
-Globals.backfillBigQueryPosts = backfillPosts;
+  if (!offsetDate) {
+    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
+  }
+
+  // eslint-disable-next-line no-console
+  console.log(`Initial post batch offset date: ${offsetDate.toISOString()}`);
+
+  let batch = await getPostBatch(offsetDate);
+
+  try {
+    while (batch.length) {
+      // eslint-disable-next-line no-console
+      console.log(`Post batch size: ${batch.length}.`);
+
+      const postsWithMetadata = batch.map(({ tags, authors, authorIds, upvoteCount, ...post }) => ({
+        post,
+        tags: filterNonnull(tags.map(([_id, name, core]) => ({ _id, name, core }))),
+        authors,
+        authorIds,
+        upvoteCount,
+      }));
+
+      const postRecords = postsWithMetadata.map(createAEPostRecord);
+
+      await writeFile(`/Users/robert/Documents/repos/ForumMagnum/aestudios/lw_posts_${offsetDate.toISOString()}.json`, JSON.stringify(postRecords));
+
+      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
+      if (!nextOffsetDate) {
+        return;
+      }
+      offsetDate = nextOffsetDate;
+      batch = await getPostBatch(offsetDate);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(`Error when exporting AE Studio post records.  Last offset date: ${offsetDate.toISOString()}`, { err });
+  }
+}
+
+Globals.backfillVertexPosts = backfillVertexPosts;
 Globals.backfillFrontpageViews = backfillFrontpageViews;
+Globals.exportAEPosts = exportAEPostRecords;

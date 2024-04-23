@@ -224,3 +224,5 @@ export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | 
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
 export const isDatadogEnabled = isEAForum;
+
+export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
