@@ -116,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe

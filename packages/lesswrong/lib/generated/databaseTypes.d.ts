@@ -1421,6 +1421,7 @@ interface DbUser extends DbObject {
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
+  frontpageSelectedTab: string | null
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
   hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string | null

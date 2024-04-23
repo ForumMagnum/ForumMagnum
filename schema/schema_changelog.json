@@ -620,8 +620,13 @@
     "timestamp": "2024-04-16T15:17:09.000Z"
   },
   {
-    "acceptsSchemaHash": "9174349cf01c46a4673e7173c2b2aeb4",
-    "acceptedByMigration": "20240418T144133.add_people_directory.ts",
-    "timestamp": "2024-04-18T14:41:33.000Z"
+    "acceptsSchemaHash": "082b143a17fca4e8ba5edd982a645837",
+    "acceptedByMigration": "20240419T013927.add_frontpageSelectedTab_to_Users.ts",
+    "timestamp": "2024-04-19T01:39:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "35b03da27ac8a95a62e65627ee08d9c6",
+    "acceptedByMigration": "20240423T092933.add_people_directory.ts",
+    "timestamp": "2024-04-23T09:29:33.000Z"
   }
 ]

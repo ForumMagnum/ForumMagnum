@@ -933,6 +933,15 @@ const schema: SchemaType<"Users"> = {
     canCreate: 'guests',
     hidden: true,
   },
+  frontpageSelectedTab: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   frontpageFilterSettings: {
     type: Object,
     blackbox: true,

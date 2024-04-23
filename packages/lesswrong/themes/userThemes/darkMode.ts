@@ -291,6 +291,11 @@ export const darkModeTheme: UserThemeSpecification = {
       panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
       postScoreArrow: '#BCBCBC',
     },
+    tab: {
+      inactive: {
+        text: shadePalette.grey[600]
+      },
+    },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
     postImageStyles: {
