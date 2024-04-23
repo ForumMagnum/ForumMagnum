@@ -246,6 +246,7 @@ export const AnalyticsGraph = ({
   const { analyticsSeries: dataSeries } = useAnalyticsSeries({
     userId,
     postIds,
+    displayFields,
     startDate: displayStartDate,
     endDate: displayEndDate,
   });

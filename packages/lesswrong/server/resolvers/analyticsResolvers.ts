@@ -191,7 +191,6 @@ addGraphQLResolvers({
       const INDIRECTLY_SORTABLE_FIELDS = ["views", "reads"];
 
       const { currentUser } = context;
-      const analyticsDb = getAnalyticsConnectionOrThrow();
 
       const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
@@ -280,7 +279,6 @@ addGraphQLResolvers({
       context: ResolverContext
     ): Promise<AnalyticsSeriesValue[]> {
       const { currentUser } = context;
-      const analyticsDb = getAnalyticsConnectionOrThrow();
 
       if (!userId && (!postIds || !postIds.length)) {
         throw new Error("Must provide either userId or postIds");
