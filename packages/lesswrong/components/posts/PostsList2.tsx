@@ -4,8 +4,6 @@ import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
-import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
 
 const Error = ({error}: any) => <div>
   <FormattedMessage id={error.id} values={{value: error.value}}/>{error.message}
@@ -44,7 +42,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     showFinalBottomBorder,
   } = usePostsList(props);
 
-  const { Loading, LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
+  const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
 
   if (!orderedResults && loading) {
     return <PostsLoading placeholderCount={placeholderCount || limit} showFinalBottomBorder={showFinalBottomBorder} />
