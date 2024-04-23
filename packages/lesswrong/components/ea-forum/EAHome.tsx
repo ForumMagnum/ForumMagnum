@@ -15,10 +15,6 @@ const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBann
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
 const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
-// TODO remove these once we have measured the effect (or after 2024-04-14)
-const noSSRPopularCommentsSetting = new DatabasePublicSetting<boolean>('noSSRPopularComments', true)
-const noSSRRecentDiscussionSetting = new DatabasePublicSetting<boolean>('noSSRRecentDiscussion', true)
-
 /**
  * Build structured data to help with SEO.
  */
