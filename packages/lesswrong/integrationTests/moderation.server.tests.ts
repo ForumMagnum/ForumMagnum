@@ -19,6 +19,7 @@ import {
   userCanModeratePost,
   userCanEditUsersBannedUserIds,
 } from '../lib/collections/users/helpers';
+import { randomId } from "../lib/random";
 
 describe('userIsBannedFromPost --', () => {
   it('returns false if post.bannedUserIds does not contain exist', async () => {
@@ -451,7 +452,9 @@ describe('userCanModeratePost --', ()=> {
   })
   it("returns true if user in trustLevel1 AND owns post AND has moderationGuidelines", async () => {
     const author = await createDummyUser({groups:['trustLevel1'], moderationStyle:"1"})
-    const post = await createDummyPost(author, {moderationGuidelines: {originalContents: {type: "html", data: "beware"}}})
+    const post = await createDummyPost(author, {
+      moderationGuidelines_latest: randomId(),
+    });
     expect(userCanModeratePost(author, post)).to.be.true;
   })
   it("returns true if user in sunshineRegiment", async () => {
@@ -534,7 +537,9 @@ describe('Comments deleted permissions --', function() {
   it("set deleted should succeed if user in trustLevel1, has set moderationGuidelines and owns post", async () => {
     const user = await createDummyUser({groups:["trustLevel1"], moderationStyle:"easy"})
     const commentAuthor = await createDummyUser()
-    const post = await createDummyPost(user, {moderationGuidelines: {originalContents: {type: "html", data: "beware"}}})
+    const post = await createDummyPost(user, {
+      moderationGuidelines_latest: randomId(),
+    });
     const comment = await createDummyComment(commentAuthor, {postId:post._id})
     const query = `
       mutation  {
