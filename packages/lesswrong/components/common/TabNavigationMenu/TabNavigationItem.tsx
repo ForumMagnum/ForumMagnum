@@ -5,6 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCurrentUser } from '../withUser';
 
 export const iconWidth = 30
 
@@ -118,9 +119,13 @@ export type TabNavigationItemProps = {
 }
 
 const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components
-  const { pathname } = useLocation()
-  
+  const {pathname} = useLocation();
+  const currentUser = useCurrentUser();
+
+  if (tab.betaOnly && !currentUser?.beta) {
+    return null;
+  }
+
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
   const externalLink = /https?:\/\//.test(tab.link);
@@ -139,6 +144,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
+  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}

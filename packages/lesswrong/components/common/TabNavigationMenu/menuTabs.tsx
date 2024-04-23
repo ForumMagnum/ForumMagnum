@@ -93,6 +93,7 @@ export type MenuTabRegular = {
   loggedOutOnly?: boolean,
   flag?: string,
   desktopOnly?: boolean,
+  betaOnly?: boolean,
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -309,6 +310,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
       flag: "beta",
       desktopOnly: true,
+      betaOnly: true,
     }, {
       id: 'takeAction',
       title: 'Take action',
