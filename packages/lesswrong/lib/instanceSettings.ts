@@ -225,4 +225,15 @@ export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string |
 
 export const isDatadogEnabled = isEAForum;
 
+export type PostFeedDetails = {
+  name: string,
+  label: string,
+  description?: string,
+  disabled?: boolean,
+  showLabsIcon?: boolean,
+  slug?: string
+}
+
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
+
 export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");

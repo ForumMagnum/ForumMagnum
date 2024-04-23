@@ -406,6 +406,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     reviewGold: 'lch(68 34.48 85.39 / 76%)',
     onboardingSection: "#f5f5f5",
     onboardingPodcast: "#e7e7e7",
+    placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -488,6 +489,22 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
     onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
   },
+  tab: {
+    inactive: {
+      text: shades.grey[500],
+      hover: {
+        text: shades.grey[700]
+      }
+    },
+    active: {
+      background: "rgba(127, 175, 131, 1)",
+      text: shades.grey[0],
+      hover: {
+        background: "rgba(127, 175, 131, 0.7)",
+      }
+    },
+  },
+
   geosuggest: {
     dropdownText: "#000",
     dropdownBackground: "#fff",

@@ -40,12 +40,15 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     maybeMorePosts,
     orderedResults,
     itemProps,
-  }= usePostsList(props);
+    limit,
+    placeholderCount,
+    showFinalBottomBorder,
+  } = usePostsList(props);
 
-  const { Loading, LoadMore, PostsNoResults, SectionFooter, PostsItem } = Components;
+  const { Loading, LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
 
   if (!orderedResults && loading) {
-    return <Loading />
+    return <PostsLoading placeholderCount={placeholderCount || limit} showFinalBottomBorder={showFinalBottomBorder} />
   }
 
   if (!orderedResults?.length && !showNoResults) {
@@ -67,7 +70,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={decodeIntlError(error)} />}
-      {loading && showLoading && (topLoading || dimWhenLoading) && <Loading />}
+      {loading && showLoading && (topLoading || dimWhenLoading) && <PostsLoading placeholderCount={placeholderCount || limit} />}
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
       <div className={boxShadow ? classes.posts : undefined}>

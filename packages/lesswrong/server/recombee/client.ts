@@ -288,23 +288,22 @@ const recombeeApi = {
       excludedPostFilter
     } = await recombeeRequestHelpers.getOnsitePostInfo(lwAlgoSettings, context);
 
-    // TODO: Now having Recombee filter out read posts, maybe clean up?
-    const modifiedCount = count * 1;
-    const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
-
-    const curatedPostReadStatusesPromise = lwAlgoSettings.loadMore
-      ? Promise.resolve([])
-      : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
-
-    // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
-    const [recombeeResponse, curatedPostReadStatuses] = await Promise.all([
-      client.send(request) as Promise<RecommendationResponse>,
-      curatedPostReadStatusesPromise
-    ]);
-
-    const { recomms, recommId } = recombeeResponse;
+    const curatedPostReadStatuses = await (
+      lwAlgoSettings.loadMore
+        ? Promise.resolve([])
+        : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch()
+    );
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length;
+
+    const modifiedCount = count - curatedAndStickiedPostCount;
+    const recommendationsRequestBody = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
+
+    // We need the type cast here because recombee's type definitions can't handle inferring response types for union request types, even if they have the same response type
+    const recombeeResponse = await client.send(recommendationsRequestBody) as RecommendationResponse;
+    const { recomms, recommId } = recombeeResponse;
+
     const recommendationIdPairs = recomms.map(rec => [rec.id, recommId] as const);
     const recommendedPostIds = recomms.map(({ id }) => id);
     const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
@@ -340,7 +339,16 @@ const recombeeApi = {
       excludedPostFilter
     } = await recombeeRequestHelpers.getOnsitePostInfo(lwAlgoSettings, context);
 
-    const modifiedCount = count + 0; // might want later?
+    const curatedPostReadStatuses = await (
+      lwAlgoSettings.loadMore
+        ? Promise.resolve([])
+        : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch()
+    );
+
+    const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length;
+
+    const modifiedCount = count - curatedAndStickiedPostCount;
     const split = 0.5;
     const firstCount = Math.floor(modifiedCount * split);
     const secondCount = modifiedCount - firstCount;
@@ -352,21 +360,13 @@ const recombeeApi = {
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
     const batchRequest = recombeeRequestHelpers.getBatchRequest([firstRequest, secondRequest]);
 
-    const curatedPostReadStatusesPromise = lwAlgoSettings.loadMore
-      ? Promise.resolve([])
-      : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
-
-    const [batchResponse, curatedPostReadStatuses] = await Promise.all([
-      client.send(batchRequest),
-      curatedPostReadStatusesPromise
-    ]);
+    const batchResponse = await client.send(batchRequest);
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
     const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId] as const));
     const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
-    const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));

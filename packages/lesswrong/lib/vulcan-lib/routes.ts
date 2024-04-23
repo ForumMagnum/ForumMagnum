@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'
+import type { Request, Response } from 'express';
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -33,6 +34,7 @@ export type Route = {
   title?: string,
   titleComponentName?: keyof ComponentTypes,
   subtitle?: string,
+  headerSubtitle?: string,
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
   description?: string,
@@ -51,19 +53,16 @@ export type Route = {
   fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
   unspacedGrid?: boolean // for routes with standalone navigation, setting this to true allows the page body to be full-width (the default is to have empty columns providing padding)
   
-  // enablePrefetch: Start loading stylesheet and JS bundle before the page is
+  // enableResourcePrefetch: Start loading stylesheet and JS bundle before the page is
   // rendered. This requires sending headers before rendering, which means
   // that the page can't return an HTTP error status or an HTTP redirect. In
   // exchange, loading time is significantly improved for users who don't have
   // the stylesheet and JS bundle already in their cache.
   //
-  // This should only be set for routes which are guaranteed to be valid, ie,
-  // they don't have a post-ID or anything variable in them.
-  //
-  // Currently used for / and for /allPosts which is where this matters most.
-  // Not used for post-pages because we don't know whether a post page is going
-  // to be a 404 until we render it.
-  enableResourcePrefetch?: boolean
+  // This should only return true for routes which are *guaranteed* to return a 200 status code.
+  // I.e. it is better to give false negatives (not prefetching on a route that actually returns
+  // a 200) than false positives.
+  enableResourcePrefetch?: boolean | ((req: Request, res: Response, context: ResolverContext) => Promise<boolean>),
   isAdmin?: boolean
 };
 

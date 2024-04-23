@@ -116,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
@@ -404,7 +405,7 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersEdit on User {
-    ...UsersProfile
+    ...UsersCurrent
     biography {
       ...RevisionEdit
     }

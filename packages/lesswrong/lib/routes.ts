@@ -1,5 +1,5 @@
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
-import { legacyRouteAcronymSetting } from './publicSettings';
+import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -11,6 +11,7 @@ import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHo
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations } from './betas';
+import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -45,7 +46,7 @@ const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
-const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
 const faqPostIdSetting = new PublicInstanceSetting<string>('faqPostId', '2rWKkWuPrgTMpLRbp', "warning") // Post ID for the /faq route
 const contactPostIdSetting = new PublicInstanceSetting<string>('contactPostId', "ehcYkvyz7dh9L7Wt8", "warning")
 const introPostIdSetting = new PublicInstanceSetting<string | null>('introPostId', null, "optional")
@@ -811,7 +812,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true,
+      sunshineSidebar: true, 
+      ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
     },
     {
       name: 'dialogues',
@@ -1427,6 +1429,7 @@ addRoute(
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
     noFooter: hasPostRecommendations,
+    enableResourcePrefetch: postRouteWillDefinitelyReturn200,
   },
   {
     name:'posts.slug.single',

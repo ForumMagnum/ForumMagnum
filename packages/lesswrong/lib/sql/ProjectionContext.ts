@@ -222,7 +222,10 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     }
   }
 
-  addJoin<J extends CollectionNameString>({resolver, ...joinBase}: SqlResolverJoin<J>) {
+  addJoin<J extends CollectionNameString>({
+    resolver,
+    ...joinBase
+  }: SqlResolverJoin<J> | SqlNonCollectionJoin) {
     const spec = this.getJoinSpec(joinBase);
     const subField = (name: FieldName<J>) => `"${spec.prefix}"."${name}"`;
     return resolver(subField);
@@ -266,7 +269,11 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
       : randomId(5, this.randIntCallback);
   }
 
-  private getJoinSpec<J extends CollectionNameString>({table, type, on}: SqlJoinBase<J>): SqlJoinSpec {
+  private getJoinSpec<J extends CollectionNameString>({
+    table,
+    type,
+    on,
+  }: SqlJoinBase<J> | SqlNonCollectionJoinBase): SqlJoinSpec {
     for (const join of this.joins) {
       if (
         join.table === table &&
@@ -276,7 +283,14 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
         return join;
       }
     }
-    const join = {table, type, on, prefix: this.generateTablePrefix()};
+    const join: SqlJoinSpec = {
+      table,
+      type,
+      // Cast is needed here as `SqlJoinBase` is partial and TS thinks we might
+      // assign undefined to a string, but this is actually impossible
+      on: on as Record<string, string>,
+      prefix: this.generateTablePrefix(),
+    };
     this.joins.push(join);
     return join;
   }

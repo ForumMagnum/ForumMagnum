@@ -199,6 +199,7 @@ export const styles = (theme: ThemeType) => ({
       display: "none",
     },
     flexGrow: 1,
+    height: 24,
   },
   mobileActions: {
     cursor: "pointer",
@@ -304,7 +305,7 @@ export const styles = (theme: ThemeType) => ({
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit*1.5,
     position: "relative",
-    top: 2,
+    height: 22,
   },
   isRead: {
     // this is just a placeholder, enabling easier theming.
@@ -366,6 +367,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    useCuratedDate,
     annualReviewMarketInfo,
     marketLink,
     showReadCheckbox,
@@ -498,7 +500,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               </div>
             </PostsItem2MetaInfo>}
 
-            {showDate && <PostsItemDate post={post} />}
+            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 

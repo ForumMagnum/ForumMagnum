@@ -941,6 +941,15 @@ const schema: SchemaType<"Users"> = {
     canCreate: 'guests',
     hidden: true,
   },
+  frontpageSelectedTab: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   frontpageFilterSettings: {
     type: Object,
     blackbox: true,
@@ -1070,6 +1079,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     control: "select",
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "Style",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
@@ -1092,6 +1102,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1105,6 +1116,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
+    hidden: isFriendlyUI,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -2840,30 +2852,6 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
   },
 
-  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-  experiencedIn: {
-    type: Array,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'experiencedIn.$': {
-    type: String,
-    optional: true
-  },
-  interestedIn: {
-    type: Array,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'interestedIn.$': {
-    type: String,
-    optional: true
-  },
-
   /* Privacy settings */
   allowDatadogSessionReplay: {
     type: Boolean,
@@ -2983,7 +2971,7 @@ const schema: SchemaType<"Users"> = {
   hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
@@ -3001,17 +2989,6 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
-  },
-
-  // EA Forum wrapped fields
-  wrapped2023Viewed: {
-    type: Boolean,
-    optional: false,
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members'],
-    hidden: true,
-    ...schemaDefaultValue(false),
   },
 };
 

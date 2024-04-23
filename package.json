@@ -234,6 +234,7 @@
     "jsonwebtoken": "^9.0.0",
     "juice": "^7.0.0",
     "later": "^1.2.0",
+    "linkedom": "^0.16.11",
     "logrocket": "^1.0.0",
     "lolex": "^3.0.0",
     "lru-cache": "^5.1.1",
