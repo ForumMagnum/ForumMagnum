@@ -5,6 +5,12 @@ import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 
 export type SearchableMultiSelectState = MultiSelectState & {
+  /**
+   * If the user enters a search, selects and option, then searches for
+   * something else then the option they selected will be kept even if it
+   * doesn't match the new search - this option is considered to be
+   * "grandfathered" into the results.
+   */
   grandfathered: boolean,
 }
 
