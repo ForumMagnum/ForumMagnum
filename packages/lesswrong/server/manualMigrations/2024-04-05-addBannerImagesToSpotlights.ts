@@ -41,7 +41,9 @@ registerMigration({
           documentId: spotlight._id,
           set: {
             // customSubtitle: `<a href='https://www.lesswrong.com/bestoflesswrong'>Best of LessWrong ${winner.reviewYear}</a>`,
-            spotlightSplashImageUrl: winner.reviewWinner.reviewWinnerArt.splashArtImageUrl
+            spotlightSplashImageUrl: winner.reviewWinner.reviewWinnerArt.splashArtImageUrl,
+            contextInfo: `<a href='/bestoflesswrong'>Best of LessWrong ${winner.reviewWinner.reviewYear}</a>`,
+            showAuthor: true
           },
           context: createAdminContext()
         });

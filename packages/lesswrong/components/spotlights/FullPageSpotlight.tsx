@@ -66,9 +66,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[100],
     },
     marginBottom: 24,
-    [theme.breakpoints.down('sm')]: {
+    [`@media(max-width: ${pageTransitionWidth}px)`]: {
       background: theme.palette.panelBackground.translucent3,
       padding: 16,
+      paddingBottom: 12,
       marginTop: 8,
       marginBottom: 12,
     },
@@ -105,12 +106,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     }
   },
-  postPadding: {
-    paddingBottom: 12,
-    [theme.breakpoints.down('sm')]: {
-      paddingBottom: 0,
-    }
-  },
   description: {
     marginTop: 7,
     marginBottom: 10,
@@ -119,12 +114,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: "none"
     },
-    ...(isFriendlyUI ? {
-      fontSize: 13,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.grey[700],
-      marginTop: 8,
-    } : {}),
+    [`@media(max-width: ${pageTransitionWidth}px)`]: {
+      fontSize: "1.2rem"
+    },
   },
   title: {
     ...theme.typography.headerStyle,
@@ -139,19 +131,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     '& a:hover': {
       opacity: 'unset'
-    }
-  },
-  featured: {
-    ...theme.typography.postStyle,
-    fontStyle: "italic",
-    color: theme.palette.grey[700],
-    fontSize: 15,
-    marginBottom: 4,
-    [`@media(min-width: ${pageTransitionWidth}px)`]: {
-      display: "none",
     },
-    [theme.breakpoints.down('sm')]: {
-      display: "none"
+    [`@media(max-width: ${pageTransitionWidth}px)`]: {
+      fontSize: 20
     }
   },
   subtitle: {
@@ -187,9 +169,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   author: {
     ...theme.typography.postStyle,
-    fontStyle: "italic",
+    color: theme.palette.primary.main,
+    fontSize: "1.2rem",
+  },
+  contextInfo: {
+    ...theme.typography.postStyle,
     color: theme.palette.grey[700],
-    fontSize: 15,
+    fontSize: "1.2rem",
+    fontVariant: "small-caps",
   },
   authorName: {
     color: theme.palette.primary.main,
@@ -298,6 +285,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundImage: "none",
     }
   },
+  dividerBullet: {
+    margin: "0 8px",
+    color: theme.palette.grey[500]
+  }
 });
 
 export const FullPageSpotlight = ({
@@ -319,7 +310,7 @@ export const FullPageSpotlight = ({
   listDisplay?: boolean
 }) => {
   const {
-    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
+    MetaInfo, Row, AnalyticsTracker, ContentItemBody, UsersNameDisplay, LWTooltip,
     WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading, Typography
   } = Components
   
@@ -346,10 +337,7 @@ export const FullPageSpotlight = ({
       </>}
       <div className={classNames(classes.root, className, {[classes.listDisplay]: listDisplay, [classes.fullPageDisplay]: !listDisplay})} id={spotlight._id}>
         <div className={classes.spotlightItem}>
-          <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
-            {<div className={classes.featured}>
-              Featured {spotlight.documentType}
-            </div>}
+          <div className={classNames(classes.content)}>
             <div className={classes.title}>
               <Link to={url}>
                 <span dangerouslySetInnerHTML={{__html:spotlight.customTitle ?? spotlight.document.title}}/>
@@ -382,12 +370,15 @@ export const FullPageSpotlight = ({
                 />
               }
             </div>}
-            <div>
-              {spotlight.contextInfo && <div dangerouslySetInnerHTML={{__html: spotlight.contextInfo}} />}
-              {spotlight.showAuthor && spotlight.document.user && <Typography variant='body2' className={classes.author}>
-                By <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlight.document.user.slug)}>{spotlight.document.user.displayName}</Link>
-              </Typography>}
-            </div>
+            <Row justifyContent='flex-start'>
+              {spotlight.showAuthor && spotlight.document.user &&
+                <div className={classes.author}><UsersNameDisplay user={spotlight.document.user} /></div>
+              }
+              {spotlight.contextInfo && spotlight.showAuthor && <div className={classes.dividerBullet}>•</div>}
+              {spotlight.contextInfo && <div className={classes.contextInfo}><div dangerouslySetInnerHTML={{__html: spotlight.contextInfo}} /></div>
+              }
+
+            </Row>
             <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
           </div>
           {hideBanner && <div className={classes.closeButtonWrapper}>

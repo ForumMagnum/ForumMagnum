@@ -9,10 +9,9 @@ export const useCurrentFrontpageSpotlight = <FragmentTypeName extends FragmentTy
     fragmentName: fragmentName,
     terms: {
       view: "mostRecentlyPromotedSpotlights",
-      limit: 10,
+      limit: 1,
     },
     skip,
   });
-  // console.log(currentSpotlightResults?.map(spotlight => spotlight?.document?.title));
-  return currentSpotlightResults?.[5];
+  return currentSpotlightResults?.[0];
 }

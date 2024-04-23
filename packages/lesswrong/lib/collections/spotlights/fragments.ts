@@ -40,9 +40,7 @@ registerFragment(`
       title
       slug
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
     }
     sequenceChapters {

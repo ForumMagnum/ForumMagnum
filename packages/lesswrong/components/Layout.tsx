@@ -509,25 +509,6 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {/* { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                    <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
-                      <div className={classes.bannerText}>
-                        <h2><a href="http://less.online">LessOnline</a></h2>
-                        <h3>A Festival of Writers Who are Wrong on the Internet</h3>
-                        <h3 className={classes.lessOnlineBannerDateAndLocation}>May 31 - Jun 2, Berkeley, CA</h3>
-                        <button><a href="http://less.online/#tickets-section">Buy Ticket ($400)</a></button>
-                      </div>
-                    </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
-                  </>
-                } */}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&

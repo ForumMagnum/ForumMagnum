@@ -12,8 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16
   },
   spotlightWrapper: {
-    marginBottom: 1000,
-    marginTop: 1000,
+    marginBottom: 550,
+    marginTop: 550,
     width: 425
   }
 });
@@ -30,7 +30,7 @@ export const FullPageSpotlightsPage = ({classes}: {
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: "spotlightsPage",
-      limit: 100
+      limit: 300
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only'

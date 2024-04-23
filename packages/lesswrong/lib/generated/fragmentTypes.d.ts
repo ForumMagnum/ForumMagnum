@@ -3129,7 +3129,7 @@ interface UsersMapEntry extends UsersMinimumInfo { // fragment on Users
   readonly mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface UsersEdit extends UsersProfile { // fragment on Users
+interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly biography: RevisionEdit|null,
   readonly moderationGuidelines: RevisionEdit|null,
   readonly markDownPostEditor: boolean,
@@ -3500,13 +3500,7 @@ interface SpotlightDisplay_document { // fragment on Posts
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
-  readonly user: SpotlightDisplay_document_user|null,
-}
-
-interface SpotlightDisplay_document_user { // fragment on Users
-  readonly _id: string,
-  readonly displayName: string,
-  readonly slug: string,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions
