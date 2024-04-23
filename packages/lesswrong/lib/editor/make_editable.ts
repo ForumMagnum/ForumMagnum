@@ -107,13 +107,12 @@ const buildEditableResolver = <N extends CollectionNameString>(
   normalized: boolean,
 ): CollectionFieldResolveAs<N> => {
   if (normalized) {
-    // TODO: Handle explicit versions
     return {
       type: "Revision",
       arguments: "version: String",
       resolver: async (
         doc: ObjectsByCollectionName[N],
-        {version}: {version?: string},
+        _args: {version?: string},
         context: ResolverContext,
       ): Promise<DbRevision|null> => {
         const {currentUser, Revisions} = context;
@@ -129,7 +128,7 @@ const buildEditableResolver = <N extends CollectionNameString>(
         table: "Revisions",
         type: "left",
         on: {
-          _id: field(`${fieldName}_latest` as FieldName<N>),
+          _id: `COALESCE(${resolverArg("version")}, ${field(`${fieldName}_latest` as FieldName<N>)})`,
         },
         resolver: (revisionField) => revisionField("*"),
       }),
