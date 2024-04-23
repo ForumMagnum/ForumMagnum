@@ -225,19 +225,19 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
     const firstNonZeroIndex = utcPropsStartDate ? 0 : fullSeries.findIndex((entry) =>
       props.displayFields.some((field) => (entry[field] ?? 0) > 0)
     );
-  
-    const truncated = fullSeries.slice(firstNonZeroIndex).filter((value) => {
+
+    const truncated = firstNonZeroIndex >= 0 ? fullSeries.slice(firstNonZeroIndex).filter((value) => {
       const date = new Date(value.date);
       return (!utcPropsStartDate || date >= utcPropsStartDate) && date <= utcPropsEndDate;
-    });
-  
+    }): [];
+
     // Now pad the series with 0 values for any missing dates
     const effectiveStartDate = utcPropsStartDate ?? (truncated[0]?.date ? new Date(truncated[0].date) : null);
     const truncatedStartDate = new Date(truncated[0]?.date ?? effectiveStartDate);
-    const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? utcPropsEndDate);
-  
+    const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? truncatedStartDate);
+
     if (truncatedStartDate === effectiveStartDate && truncatedEndDate === utcPropsEndDate) return truncated;
-  
+
     const startPaddingLength = effectiveStartDate ? Math.floor(moment.duration(moment(truncatedStartDate).utc().diff(effectiveStartDate)).asDays()) : 0;
     const endPaddingLength = Math.floor(moment.duration(moment(utcPropsEndDate).utc().diff(truncatedEndDate)).asDays());
 
