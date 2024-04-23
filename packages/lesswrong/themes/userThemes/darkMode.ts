@@ -149,6 +149,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         loginInputHovered: "#3f3f3f",
         onboardingSection: "#424242",
         onboardingPodcast: "#525252",
+        placeholderGradient: 'linear-gradient(90deg, #3f3f3f 33%, #4a4a4a 50%, #3f3f3f 66%)',
       },
       background: {
         primaryTranslucent: "rgba(12,134,155,0.4)",
@@ -289,6 +290,11 @@ export const darkModeTheme: UserThemeSpecification = {
       panelBackground: "rgba(255, 255, 255, 0.10)",
       panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
       postScoreArrow: '#BCBCBC',
+    },
+    tab: {
+      inactive: {
+        text: shadePalette.grey[600]
+      },
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

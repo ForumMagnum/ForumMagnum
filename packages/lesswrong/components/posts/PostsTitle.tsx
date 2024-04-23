@@ -207,17 +207,17 @@ const PostsTitle = ({
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span className={classNames({[classes.read]: read && isFriendlyUI})}>
-      <Wrapper>{post.title}</Wrapper>
-    </span>
+    <Wrapper>{post.title}</Wrapper>
   </span>
 
   return (
-    <span className={classNames(classes.root, {
-      [classes.read]: read && !isFriendlyUI,
-      [classes.wrap]: wrap,
-      [classes.strikethroughTitle]: strikethroughTitle
-    }, className)}>
+    <span className={classNames(
+      classes.root,
+      read && classes.read,
+      wrap && classes.wrap,
+      strikethroughTitle && classes.strikethroughTitle,
+      className,
+    )}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <InteractionWrapper className={classes.interactionWrapper}>
           <CuratedIcon hasColor />

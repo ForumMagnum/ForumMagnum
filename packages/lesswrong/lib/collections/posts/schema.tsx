@@ -2579,6 +2579,9 @@ const schema: SchemaType<"Posts"> = {
     resolveAs: {
       type: 'Boolean!',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
+        if (isFriendlyUI) {
+          return false;
+        }
         const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {
@@ -2613,7 +2616,7 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
-    hidden: ({document}) => !!document?.collabEditorDialogue,
+    hidden: ({document}) => isFriendlyUI || !!document?.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2690,7 +2693,9 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
       const { commentsLimit, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const oneHourInMs = 60*60*1000;
+      const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
+      const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours*oneHourInMs));
       const loaderName = af?"recentCommentsAf" : "recentComments";
       const filter: MongoSelector<DbComment> = {
         ...getDefaultViewSelector("Comments"),

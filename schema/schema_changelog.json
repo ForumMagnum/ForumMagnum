@@ -615,8 +615,18 @@
     "timestamp": "2024-04-10T22:52:50.000Z"
   },
   {
-    "acceptsSchemaHash": "528a4db36848699725f40ea694eccc8e",
-    "acceptedByMigration": "20240416T184405.normalize_posts_moderationGuidelines.ts",
-    "timestamp": "2024-04-16T18:44:05.000Z"
+    "acceptsSchemaHash": "8365aace030196807258e6ab633a5466",
+    "acceptedByMigration": "20240416T151709.drop_Users_wrapped2023Viewed_experiencedIn_interestedIn.ts",
+    "timestamp": "2024-04-16T15:17:09.000Z"
+  },
+  {
+    "acceptsSchemaHash": "082b143a17fca4e8ba5edd982a645837",
+    "acceptedByMigration": "20240419T013927.add_frontpageSelectedTab_to_Users.ts",
+    "timestamp": "2024-04-19T01:39:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "882f9e74e59c19383fb2dc6087a23ba1",
+    "acceptedByMigration": "20240423T213728.normalize_posts_moderationGuidelines.ts",
+    "timestamp": "2024-04-23T21:37:28.000Z"
   }
 ]

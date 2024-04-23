@@ -71,7 +71,10 @@ const LWTooltip = ({
 
   if (!title) return <>{children}</>
 
-  return <As className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
+  return <As className={classNames(
+    inlineBlock && classes.root,
+    className
+  )} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -85,7 +88,12 @@ const LWTooltip = ({
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
     >
-      <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
+      <div className={classNames(
+        tooltip && classes.tooltip,
+        titleClassName
+      )}>
+        {title}
+      </div>
     </LWPopper>}
 
     {children}

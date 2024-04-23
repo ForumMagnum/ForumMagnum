@@ -10,7 +10,7 @@ const INITIAL_LIMIT = 5
 
 const styles = (_: ThemeType): JssStyles => ({
   subtitle: {
-    marginTop: isFriendlyUI ? -4 : 6,
+    marginTop: isFriendlyUI ? 20 : 6,
     marginBottom: 6
   },
 });

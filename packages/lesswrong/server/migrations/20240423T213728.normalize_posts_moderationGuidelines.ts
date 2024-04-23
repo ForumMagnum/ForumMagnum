@@ -1,7 +1,7 @@
 import { Posts } from "../../lib/collections/posts";
 import { denormalizeEditableField, normalizeEditableField } from "./meta/utils";
 
-export const acceptsSchemaHash = "528a4db36848699725f40ea694eccc8e";
+export const acceptsSchemaHash = "882f9e74e59c19383fb2dc6087a23ba1";
 
 export const up = async ({db}: MigrationContext) => {
   await normalizeEditableField(db, Posts, "moderationGuidelines");

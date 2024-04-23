@@ -69,13 +69,13 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, LoadMore, PostsItem, SectionFooter } = Components;
+  const { Loading, LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -105,7 +105,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 10, classes }: 
   });
 
   if (loading && !results) {
-    return <Loading />;
+    return <PostsLoading placeholderCount={limit} />;
   }
 
   if (!results) {

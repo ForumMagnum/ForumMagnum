@@ -32,6 +32,7 @@ const StickiedPosts = ({
       hideLastUnread={false}
       boxShadow={false}
       curatedIconLeft={false}
+      placeholderCount={3}
     />
     {isEAForum && <TargetedJobAdSection />}
   </SingleColumnSection>
