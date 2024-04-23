@@ -22,7 +22,6 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
     if (!api) throw new Error("OpenAI API not configured")
     
     const comments = await Comments.find({
-      _id: 'Kjyg73FjFLeJbfKTi',
       postId: {$exists: true},
       deleted: false
     }, {
