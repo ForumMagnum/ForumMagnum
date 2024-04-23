@@ -170,6 +170,23 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
   fieldName: string,
 ) => {
   const {collectionName} = collection;
+
+  // First, check if the field is already denormalized - this won't be the
+  // case if we're running the migration on a new forum instance that's been
+  // created from a newer version of the schema. In this case we should just
+  // early-return without an error.
+  const columnInfo = await db.oneOrNone(`
+    SELECT *
+    FROM information_schema.columns
+    WHERE
+      table_schema = 'public'
+      AND table_name = '${collectionName}'
+      AND column_name = '${fieldName}'
+  `);
+  if (!columnInfo) {
+    return;
+  }
+
   // Check for data integrity issues and update any revisions that have diverged
   // from the current denormalized value
   await db.none(`
