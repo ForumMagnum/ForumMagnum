@@ -33,7 +33,7 @@ export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   fieldName: keyof SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
-  const text = user[fieldName] || EMPTY_TEXT_PLACEHOLDER;
+  const text = String(user[fieldName] || "").trim() || EMPTY_TEXT_PLACEHOLDER;
   const {LWTooltip} = Components;
   return (
     <LWTooltip title={user[fieldName]}>
