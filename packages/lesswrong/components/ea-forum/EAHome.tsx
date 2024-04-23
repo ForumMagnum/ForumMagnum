@@ -90,10 +90,10 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
           <HomeLatestPosts />
           {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
           {isEAForum && <QuickTakesSection />}
-          <ForumNoSSR if={!!currentUser && noSSRPopularCommentsSetting.get()}>
+          <ForumNoSSR if={!!currentUser}>
             <EAPopularCommentsSection />
           </ForumNoSSR>
-          <ForumNoSSR if={!!currentUser && noSSRRecentDiscussionSetting.get()}>
+          <ForumNoSSR if={!!currentUser}>
             <RecentDiscussionFeed
               title="Recent discussion"
               af={false}
