@@ -1231,6 +1231,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'BookmarksPage',
       title: 'Saved & read',
     },
+    {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
+    },
   ],
 })
 
