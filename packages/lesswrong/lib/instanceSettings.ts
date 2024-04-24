@@ -254,6 +254,8 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
   ]
   , 'optional')
 
+export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>('email.assumeVerified', isEAForum, 'optional')
+
 /**
  * This is a filepath that is _relative_ to the location of the instance settings file itself.
  * See full explanation in `google-vertex/client.ts`

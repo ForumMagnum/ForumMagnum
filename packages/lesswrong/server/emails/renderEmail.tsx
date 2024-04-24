@@ -334,7 +334,7 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
     return "User is deactivated"
   if (!user.email)
     return "No email address";
-  if (!userEmailAddressIsVerified(user) && !isEAForum) // TODO: make this an instance setting?
+  if (!userEmailAddressIsVerified(user))
     return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";
