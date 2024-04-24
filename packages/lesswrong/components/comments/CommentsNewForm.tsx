@@ -361,7 +361,7 @@ const CommentsNewForm = ({
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
-  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, isQuickTake, loading, openDialog, type]);
+  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, isQuickTake, loading, openDialog, type, quickTakesSubmitButtonAtBottom]);
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
