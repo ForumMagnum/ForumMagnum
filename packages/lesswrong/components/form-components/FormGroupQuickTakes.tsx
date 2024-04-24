@@ -11,6 +11,11 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
+/**
+ * For the quick takes entry we need to show the submit button _above_ one of
+ * the form entries (the tag picker), so we do that with a little CSS hack in
+ * this layout component.
+ */
 const FormGroupQuickTakes = ({
   children,
   classes,
