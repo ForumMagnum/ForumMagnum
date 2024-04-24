@@ -176,9 +176,8 @@ export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolea
 
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
 
-// TODO: Delete after fully migrated to new settings
-export const latestPostsAlgorithmsSetting = new DatabasePublicSetting<string[]>('latestPosts.algorithms', []);
 
 export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
+export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
 
 export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null)

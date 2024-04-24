@@ -302,6 +302,7 @@ importComponent("Error404", () => require('../components/common/Error404'));
 importComponent("ErrorAccessDenied", () => require('../components/common/ErrorAccessDenied'));
 importComponent("PermanentRedirect", () => require('../components/common/PermanentRedirect'));
 importComponent("SeparatorBullet", () => require('../components/common/SeparatorBullet'));
+importComponent("GlobalHotkeys", () => require('../components/common/GlobalHotkeys'));
 
 importComponent("TabNavigationMenu", () => require('../components/common/TabNavigationMenu/TabNavigationMenu'));
 importComponent("TabNavigationMenuFooter", () => require('../components/common/TabNavigationMenu/TabNavigationMenuFooter'));
@@ -977,6 +978,7 @@ importComponent("ThemeSelect", () => require('../components/form-components/Them
 importComponent("FormGroupLayout", () => require('../components/form-components/FormGroupLayout'))
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
+importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 
