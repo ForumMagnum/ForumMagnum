@@ -412,8 +412,8 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'shortform',
-      title: 'Shortform',
-      link: '/shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
       subItem: true,
     }, {
       id: 'subscribeWidget',
