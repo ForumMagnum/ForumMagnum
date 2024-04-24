@@ -364,7 +364,7 @@ export function startWebserver() {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-    const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
 
     const {bundleHash} = getClientBundle();
     const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
@@ -438,8 +438,6 @@ export function startWebserver() {
       renderedAt,
       allAbTestGroups,
     } = renderResult;
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
