@@ -5,13 +5,12 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
 import findByIds from '../vulcan-lib/findbyids';
-import ReadStatuses from '../../lib/collections/readStatus/collection';
-import moment from 'moment';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
+import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -306,6 +305,8 @@ const recombeeApi = {
       excludedPostFilter
     } = await recombeeRequestHelpers.getOnsitePostInfo(lwAlgoSettings, context);
 
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get()
+
     const curatedPostReadStatuses = await (
       lwAlgoSettings.loadMore
         ? Promise.resolve([])
@@ -313,7 +314,7 @@ const recombeeApi = {
     );
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length;
+    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length + manuallyStickiedPostIds.length;
 
     const modifiedCount = count - curatedAndStickiedPostCount;
     const split = 0.5;
@@ -334,7 +335,7 @@ const recombeeApi = {
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
     const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId] as const));
     const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
-    const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
+    const postIds = [...includedCuratedPostIds, ...manuallyStickiedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
     const orderedPosts = filterNonnull(postIds.map(id => posts.find(post => post._id === id)));
@@ -347,10 +348,15 @@ const recombeeApi = {
       if (recommId) {
         return { post, recommId };
       } else {
+        const stickied = stickiedPostIds.includes(postId) || manuallyStickiedPostIds.includes(postId);
+        if ( stickied ) {
+          post.sticky = true;
+        }
+
         return {
           post,
           curated: curatedPostIds.includes(postId),
-          stickied: stickiedPostIds.includes(postId)  
+          stickied  
         };
       }
     });
