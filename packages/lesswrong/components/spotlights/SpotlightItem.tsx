@@ -93,6 +93,9 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     height: 20,
     color: theme.palette.text.alwaysWhite,
+    "&:hover": {
+      opacity: 0.8,
+    },
   },
   content: {
     padding: 16,
@@ -141,6 +144,10 @@ const styles = (theme: ThemeType) => ({
       "& a": {
         color: theme.palette.text.alwaysWhite,
         textDecoration: "underline",
+        "&:hover": {
+          opacity: 0.8,
+          color: `${theme.palette.text.alwaysWhite} !important`,
+        },
         "&:visited": {
           color: theme.palette.text.alwaysWhite,
         },
