@@ -42,6 +42,7 @@ const ShortformSubmitForm = ({
   cancelCallback,
   className,
   defaultExpanded,
+  hideCloseButton,
   submitButtonAtBottom,
   classes,
 }: {
@@ -51,6 +52,7 @@ const ShortformSubmitForm = ({
   noDefaultStyles?: boolean,
   className?: string,
   defaultExpanded?: boolean,
+  hideCloseButton?: boolean,
   submitButtonAtBottom?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -59,9 +61,11 @@ const ShortformSubmitForm = ({
 
   return (
     <div className={className}>
-      <div className={classes.close} onClick={cancelCallback}>
-        <ForumIcon icon="Close" />
-      </div>
+      {!hideCloseButton &&
+        <div className={classes.close} onClick={cancelCallback}>
+          <ForumIcon icon="Close" />
+        </div>
+      }
       <div className={classes.newQuickTake}>New quick take</div>
       <QuickTakesEntry
         currentUser={currentUser}
