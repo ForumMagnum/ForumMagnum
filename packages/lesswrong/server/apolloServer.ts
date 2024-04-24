@@ -51,7 +51,7 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib';
+import { createAnonymousContext } from './vulcan-lib/query';
 import { DatabaseServerSetting } from './databaseSettings';
 
 /**
