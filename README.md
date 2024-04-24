@@ -196,6 +196,9 @@ monorepo codebase at a non-megacorp is that we can get good results just by
 searching for `hiddenRelatedQuestion` to find exactly how that database field is
 used.
 
+You might want to set `SLOW_QUERY_REPORT_CUTOFF_MS` to something other than the default (2000 ms),
+it can give a lot of false positives when you are running against a remote database.
+
 ### Debugging
 
 * Use google chrome. Its debugging tools are superior.

@@ -69,6 +69,8 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
 }
 
+export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
+
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
