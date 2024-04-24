@@ -25,7 +25,7 @@ export type FormDisplayMode = "default" | "minimalist"
 
 export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
@@ -43,12 +43,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   rootQuickTakes: {
-    '& .form-component-EditorFormComponent': {
+    "& .form-component-EditorFormComponent": {
       background: theme.palette.grey[100],
       padding: COMMENTS_NEW_FORM_PADDING,
       borderTopLeftRadius: theme.borderRadius.quickTakesEntry,
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
-    }
+    },
+  },
+  quickTakesSubmitButtonAtBottom: {
+    "& .form-component-EditorFormComponent": {
+      background: "transparent",
+      borderRadius: theme.borderRadius.quickTakesEntry,
+    },
+    "& .form-input": {
+      padding: "0 20px",
+    },
   },
   loadingRoot: {
     opacity: 0.5
@@ -79,6 +88,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: COMMENTS_NEW_FORM_PADDING,
     borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
     borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
+  },
+  submitQuickTakesButtonAtBottom: {
+    marginTop: 20,
+    padding: 20,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
   formButton: isFriendlyUI ? {
     fontSize: 14,
@@ -172,8 +186,9 @@ export type CommentsNewFormProps = {
   padding?: boolean,
   formStyle?: FormDisplayMode,
   overrideHintText?: string,
-  classes: ClassesType,
+  quickTakesSubmitButtonAtBottom?: boolean,
   className?: string,
+  classes: ClassesType<typeof styles>,
 }
 
 const CommentsNewForm = ({
@@ -192,8 +207,9 @@ const CommentsNewForm = ({
   padding=true,
   formStyle="default",
   overrideHintText,
-  classes,
+  quickTakesSubmitButtonAtBottom,
   className,
+  classes,
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -317,7 +333,8 @@ const CommentsNewForm = ({
 
     return <div className={classNames(classes.submit, {
       [classes.submitMinimalist]: isMinimalist,
-      [classes.submitQuickTakes]: isQuickTake,
+      [classes.submitQuickTakes]: isQuickTake && !quickTakesSubmitButtonAtBottom,
+      [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
     })}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
@@ -382,10 +399,20 @@ const CommentsNewForm = ({
     <div className={classNames(
       className,
       isMinimalist ? classes.rootMinimalist : classes.root,
-      {[classes.loadingRoot]: loading, [classes.rootQuickTakes]: isQuickTake}
+      {
+        [classes.loadingRoot]: loading,
+        [classes.rootQuickTakes]: isQuickTake,
+        [classes.quickTakesSubmitButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
+      }
     )} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
+        <div className={padding
+          ? classNames({
+            [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
+            [classes.formMinimalist]: isMinimalist,
+          })
+          : undefined
+        }>
           {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
@@ -408,7 +435,9 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: isQuickTake ? FormGroupQuickTakes : FormGroupNoStyling,
+                FormGroupLayout: isQuickTake && !quickTakesSubmitButtonAtBottom
+                  ? FormGroupQuickTakes
+                  : FormGroupNoStyling,
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}

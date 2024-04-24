@@ -146,6 +146,7 @@ const QuickTakesEntry = ({
         cancelCallback={onCancel}
         successCallback={successCallback}
         overrideHintText={placeholder}
+        quickTakesSubmitButtonAtBottom={submitButtonAtBottom}
       />
     </div>
   </div>
