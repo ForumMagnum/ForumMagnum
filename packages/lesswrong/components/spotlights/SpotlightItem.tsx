@@ -185,9 +185,16 @@ const styles = (theme: ThemeType) => ({
       marginTop: -1,
     }),
   },
-  startOrContinue: {
-    marginTop: isFriendlyUI ? 0 : 4,
-  },
+  startOrContinue: isFriendlyUI
+    ? {
+      marginTop: 0,
+      [theme.breakpoints.down("xs")]: {
+        marginTop: 8,
+      },
+    }
+    : {
+      marginTop: 4,
+    },
   image: {
     height: "100%",
     position: "absolute",
