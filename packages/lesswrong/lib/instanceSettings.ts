@@ -235,7 +235,24 @@ export type PostFeedDetails = {
   slug?: string
 }
 
-export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [
+    {
+      'name': 'forum-classic',
+      'label': 'Latest',
+      'description': 'The classic LessWrong frontpage algorithm that combines karma with time discounting, plus any tag-based weighting if applied.',
+    },
+    {
+      'name': 'forum-bookmarks',
+      'label': 'Bookmarks',
+      'description': 'A list of posts you saved because you wanted to have them findable later.',
+    },
+    {
+      'name': 'forum-continue-reading',
+      'label': 'Resume Reading',
+      'description': 'Further posts in post sequences that you started reading.',
+    },
+  ]
+  , 'optional')
 
 /**
  * This is a filepath that is _relative_ to the location of the instance settings file itself.
