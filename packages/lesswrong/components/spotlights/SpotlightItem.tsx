@@ -1,9 +1,8 @@
 import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
@@ -13,7 +12,6 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
-
 
 export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
@@ -34,7 +32,7 @@ export const descriptionStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
@@ -59,9 +57,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover $editButtonIcon': {
       opacity: .2
     },
-    '&:hover $closeButton': {
+    '&:hover $closeButton': isFriendlyUI ? {} : {
       color: theme.palette.grey[100],
     }
+  },
+  spotlightFadeBackground: {
+    background: `
+      linear-gradient(
+        90deg,
+        var(--spotlight-fade) 0%,
+        var(--spotlight-fade) 30%,
+        ${theme.palette.greyAlpha(0)} 50%
+      );
+    `,
   },
   closeButtonWrapper: {
     position: 'absolute',
@@ -72,21 +80,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: theme.palette.grey[300],
+    color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   content: {
     padding: 16,
     paddingRight: 35,
     display: "flex",
-    // overflow: "hidden",
     flexDirection: "column",
     justifyContent: "space-between",
     marginRight: 150,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: `
+    textShadow: isFriendlyUI ? undefined : `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -115,37 +122,55 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     ...(isFriendlyUI ? {
       fontSize: 13,
+      fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.grey[700],
+      color: theme.palette.text.alwaysWhite,
       marginTop: 8,
+      maxWidth: 400,
+      "& a": {
+        color: theme.palette.text.alwaysWhite,
+        textDecoration: "underline",
+        "&:visited": {
+          color: theme.palette.text.alwaysWhite,
+        },
+      },
     } : {}),
   },
   title: {
     ...theme.typography.headerStyle,
-    fontSize: 20,
-    ...(isFriendlyUI ?
-      {fontWeight: 600} :
-      {fontVariant: "small-caps"}
+    ...(isFriendlyUI
+      ? {
+        fontSize: 22,
+        fontWeight: 700,
+        color: theme.palette.text.alwaysWhite,
+      }
+      : {
+        fontSize: 20,
+        fontVariant: "small-caps",
+        lineHeight: "1.2em",
+      }
     ),
-    lineHeight: "1.2em",
     display: "flex",
     alignItems: "center"
   },
   subtitle: {
     ...theme.typography.postStyle,
-    color: theme.palette.grey[700],
     ...theme.typography.italic,
     ...(isFriendlyUI ? {
       fontSize: 13,
+      fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.text.alwaysWhite,
       marginTop: 8,
+      maxWidth: 400,
     } : {
+      color: theme.palette.grey[700],
       fontSize: 15,
       marginTop: -1,
     }),
   },
   startOrContinue: {
-    marginTop: isFriendlyUI ? 16 : 4,
+    marginTop: isFriendlyUI ? 0 : 4,
   },
   image: {
     height: "100%",
@@ -256,13 +281,8 @@ export const SpotlightItem = ({
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
-    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading, Typography
-  } = Components
-  
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -272,14 +292,30 @@ export const SpotlightItem = ({
 
   const duration = spotlight.duration
 
-  const onUpdate = () => {
+  const onUpdate = useCallback(() => {
     setEdit(false);
     refetchAllSpotlights?.();
-  };
-  
+  }, [refetchAllSpotlights]);
+
+  // Define fade color with a CSS variable to be accessed in the styles
+  const style = {
+    "--spotlight-fade": spotlight.imageFadeColor,
+  } as CSSProperties;
+
+  const {
+    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
+    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
+    Typography, LWTooltip, ForumIcon,
+  } = Components
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classNames(classes.root, className)} id={spotlight._id}>
-      <div className={classes.spotlightItem}>
+    <div
+      id={spotlight._id}
+      style={style}
+      className={classNames(classes.root, className)}
+    >
+      <div className={classNames(classes.spotlightItem, {
+        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+      })}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
@@ -328,7 +364,7 @@ export const SpotlightItem = ({
         {hideBanner && <div className={classes.closeButtonWrapper}>
           <LWTooltip title="Hide this spotlight" placement="right">
             <Button className={classes.closeButton} onClick={hideBanner}>
-              <CloseIcon className={classes.closeIcon} />
+              <ForumIcon icon="Close" />
             </Button>
           </LWTooltip>
         </div>}
