@@ -50,15 +50,17 @@ const styles = (theme: ThemeType) => ({
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: {
-    "& .form-component-EditorFormComponent": {
-      background: "transparent",
-      borderRadius: theme.borderRadius.quickTakesEntry,
-    },
-    "& .form-input": {
-      padding: "0 20px",
-    },
-  },
+  quickTakesSubmitButtonAtBottom: isFriendlyUI
+    ? {
+      "& .form-component-EditorFormComponent": {
+        background: "transparent",
+        borderRadius: theme.borderRadius.quickTakesEntry,
+      },
+      "& .form-input": {
+        padding: "0 20px",
+      },
+    }
+    : {},
   loadingRoot: {
     opacity: 0.5
   },
@@ -89,11 +91,13 @@ const styles = (theme: ThemeType) => ({
     borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
     borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
   },
-  submitQuickTakesButtonAtBottom: {
-    marginTop: 20,
-    padding: 20,
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
-  },
+  submitQuickTakesButtonAtBottom: isFriendlyUI
+    ? {
+      marginTop: 20,
+      padding: 20,
+      borderTop: `1px solid ${theme.palette.grey[300]}`,
+    }
+    : {},
   formButton: isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
@@ -333,7 +337,7 @@ const CommentsNewForm = ({
 
     return <div className={classNames(classes.submit, {
       [classes.submitMinimalist]: isMinimalist,
-      [classes.submitQuickTakes]: isQuickTake && !quickTakesSubmitButtonAtBottom,
+      [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
       [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
     })}>
       {(type === "reply" && !isMinimalist) && <Button
@@ -435,7 +439,7 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: isQuickTake && !quickTakesSubmitButtonAtBottom
+                FormGroupLayout: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)
                   ? FormGroupQuickTakes
                   : FormGroupNoStyling,
               }}
