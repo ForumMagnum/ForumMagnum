@@ -581,7 +581,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
 
-      return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
+      return <div
+        className={classNames(this.getHeightClass(), classes.ckEditorStyles)}
+        onClick={this.interceptDetailsBlockClick.bind(this)}
+      >
         {editorWarning && <Components.WarningBanner message={editorWarning} />}
         {isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
@@ -591,6 +594,28 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             />
           : <CKEditor key="ck-default" { ...editorProps } />}
       </div>
+    }
+  }
+
+  /**
+   * When we click on a .detailsBlockTitle element
+   */
+  interceptDetailsBlockClick = (ev: React.MouseEvent<HTMLElement>) => {
+    // Get the exact element that was clicked on. We can't use ev.target for
+    // this because React gives us the element that the event handler was bound
+    // to, but we want a more specific target than that.
+    //
+    // Normally getting the actual target would be problematic, because it can
+    // point to a child of the element of interest such as a text node. But in
+    // this case, that's what we want--click events on the text node inside the
+    // title should not trigger expand/collapse, but clicks on the background
+    // should.
+    const target = ev.nativeEvent?.target;
+    if (!target) return;
+
+    if ((target as HTMLElement).classList?.contains("detailsBlockTitle")) {
+      console.log("Clicked on a details block title");
+      // TODO toggle collapse
     }
   }
 

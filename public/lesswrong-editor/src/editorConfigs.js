@@ -135,6 +135,7 @@ export const postEditorConfig = {
 		'mediaEmbed',
 		'ctaButtonToolbarItem',
 		'footnote',
+		'collapsibleSectionButton',
 	],
 	toolbar: {
 		items: [

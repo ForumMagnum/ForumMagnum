@@ -244,6 +244,46 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
+  '& .detailsBlock': {
+    // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
+    // that tries to turn border off and on to indicate selection. Use
+    // !important to ensure it's visible.
+    border: theme.palette.border.normal+' !important',
+    borderRadius: 8,
+  },
+  '& .detailsBlockTitle': {
+    padding: 8,
+    borderRadius: 0,
+
+    // give background !important to take precedence over CkEditor making it
+    // pure-white when the cursor is inside it, which would make the
+    // title-vs-contents distinction invisible
+    background: theme.palette.panelBackground.darken05+'!important',
+  },
+  '& .detailsBlockTitle[open]': {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  '& summary.detailsBlockTitle': {
+  },
+  '& .detailsBlockContent': {
+    padding: 8,
+    
+  },
+  // Cancel out a global paragraph style that adds bottom margin to paragraphs
+  // in the editor for some reason, which would create a page/editor mismatch
+  // and mess up the bottom margin of detail block contents.
+  "& .detailsBlockContent > p:last-child": {
+    marginBottom: '0 !important',
+  },
+  '& div.detailsBlockTitle::before': {
+    content: '"▼"',
+    fontSize: 14,
+    paddingRight: 4,
+  },
+});
+
 // Calling requireCssVar results in the variable being defined in the stylesheet
 // (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
 // are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
@@ -442,6 +482,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
+    ...collapsibleSectionStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {

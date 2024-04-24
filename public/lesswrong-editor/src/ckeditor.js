@@ -58,6 +58,7 @@ import Autosave from '@ckeditor/ckeditor5-autosave/src/autosave';
 import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
+import CollapsibleSections from './collapsible-sections-plugin';
 import RestyledCommentButton from './restyled-comment-button-plugin';
 import CTAButton from './ckeditor5-cta-button/cta-button';
 import Footnote from './ckeditor5-footnote/src/footnote';
@@ -120,6 +121,7 @@ const sharedPlugins = [
 	SanitizeTags,
 	InternalBlockLinks,
 	Spoilers,
+	CollapsibleSections,
 	AutoLink,
 	Footnote,
 	Mention,
