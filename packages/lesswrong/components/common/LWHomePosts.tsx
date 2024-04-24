@@ -378,7 +378,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               
               {/* CONTINUE READING */}
               {(selectedTab === 'forum-continue-reading') && (continueReading?.length > 0) && <AnalyticsContext feedType={selectedTab}>
-                <ContinueReadingList continueReading={continueReading}/>
+                <ContinueReadingList continueReading={continueReading} limit={6} shuffle />
               </AnalyticsContext>}
 
               {/* SUBSCRIBED */}
