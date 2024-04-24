@@ -8,4 +8,4 @@ import './client/themeProvider';
 import './client/logging';
 import './lib/index';
 
-import 'element-closest' // Polyfill
+import './client/polyfills'
