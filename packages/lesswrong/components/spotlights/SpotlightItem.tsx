@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover $editButtonIcon': {
       opacity: .2
     },
-    '&:hover $closeButton': isFriendlyUI ? {} : {
+    '&:hover $closeButton': {
       color: theme.palette.grey[100],
     }
   },
@@ -84,6 +84,15 @@ const styles = (theme: ThemeType) => ({
     minWidth: '.75em',
     color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
+  },
+  hideButton: {
+    cursor: "pointer",
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 20,
+    height: 20,
+    color: theme.palette.text.alwaysWhite,
   },
   content: {
     padding: 16,
@@ -363,13 +372,26 @@ export const SpotlightItem = ({
             [classes.imageFade]: spotlight.imageFade,
           })}
         />}
-        {hideBanner && <div className={classes.closeButtonWrapper}>
-          <LWTooltip title="Hide this spotlight" placement="right">
-            <Button className={classes.closeButton} onClick={hideBanner}>
-              <ForumIcon icon="Close" />
-            </Button>
-          </LWTooltip>
-        </div>}
+        {hideBanner && (
+          isFriendlyUI
+            ? (
+              <ForumIcon
+                icon="Close"
+                onClick={hideBanner}
+                className={classes.hideButton}
+              />
+            )
+            : (
+              <div className={classes.closeButtonWrapper}>
+                <LWTooltip title="Hide this spotlight" placement="right">
+                  <Button className={classes.closeButton} onClick={hideBanner}>
+                    <ForumIcon icon="Close" />
+                  </Button>
+                </LWTooltip>
+              </div>
+            )
+          )
+        }
         <div className={classes.editAllButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
