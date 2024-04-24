@@ -721,12 +721,11 @@ interface VertexRecommendedPost {
 
 createPaginatedResolver({
   name: "GoogleVertexPosts",
-  graphQLType: "GoogleRecommendedPost",
+  graphQLType: "VertexRecommendedPost",
   args: { settings: "JSON" },
   callback: async (
     context: ResolverContext,
     limit: number,
-    args: { settings: RecombeeRecommendationArgs }
   ): Promise<VertexRecommendedPost[]> => {
     const { currentUser } = context;
 
@@ -734,6 +733,6 @@ createPaginatedResolver({
       throw new Error(`You must be logged in to use Google recommendations right now`);
     }
 
-    return await googleVertexApi.getRecommendations(context);
+    return await googleVertexApi.getRecommendations(limit, context);
   }
 });

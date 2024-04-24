@@ -12,6 +12,7 @@ import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../..
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
+import { timedFunc } from '../../lib/helpers';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -360,7 +361,7 @@ const recombeeApi = {
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
     const batchRequest = recombeeRequestHelpers.getBatchRequest([firstRequest, secondRequest]);
 
-    const batchResponse = await client.send(batchRequest);
+    const batchResponse = await timedFunc('recombee', () => client.send(batchRequest));
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
 

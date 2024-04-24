@@ -192,7 +192,7 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
 const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
-    WelcomePostItem } = Components;
+    VertexPostsList, WelcomePostItem } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -369,6 +369,10 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               {/* RECOMBEE RECOMMENDATIONS */}
               {selectedTab.includes('recombee') && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={selectedTab} settings={scenarioConfig} />
+              </AnalyticsContext>}
+
+              {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
+                <VertexPostsList />  
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}

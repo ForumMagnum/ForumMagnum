@@ -402,6 +402,7 @@ importComponent("PostsTimeframeListExponential", () => require('../components/po
 importComponent("RecombeePostsList", () => require('../components/posts/RecombeePostsList'));
 importComponent("RecombeePostsListSettings", () => require('../components/posts/RecombeePostsListSettings'));
 importComponent("RecombeeInViewTracker", () => require('../components/common/RecombeeInViewTracker'));
+importComponent("VertexPostsList", () => require('../components/posts/VertexPostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
 importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
