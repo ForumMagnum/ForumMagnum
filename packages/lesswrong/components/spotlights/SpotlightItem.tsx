@@ -34,6 +34,11 @@ export const descriptionStyles = (theme: ThemeType) => ({
   },
 })
 
+const buildFadeMask = (breakpoints: string[]) => {
+  const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
+  return {mask, "-webkit-mask-image": mask};
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
@@ -64,14 +69,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   spotlightFadeBackground: {
-    background: `
-      linear-gradient(
-        90deg,
-        var(--spotlight-fade) 0%,
-        var(--spotlight-fade) 45%,
-        ${theme.palette.greyAlpha(0)} 60%
-      );
-    `,
+    background: "var(--spotlight-fade)",
   },
   closeButtonWrapper: {
     position: 'absolute',
@@ -200,10 +198,17 @@ const styles = (theme: ThemeType) => ({
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
     ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
   },
-  imageFade: {
-    mask: `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
-    "-webkit-mask-image": `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
-  },
+  imageFade: buildFadeMask([
+    "transparent 0",
+    `${theme.palette.text.alwaysWhite} 80%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
+  imageFadeCustom: buildFadeMask([
+    "transparent 0",
+    "transparent 30%",
+    `${theme.palette.text.alwaysWhite} 90%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
   author: {
     marginTop: 4,
     color: theme.palette.grey[600],
@@ -376,7 +381,8 @@ export const SpotlightItem = ({
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
           className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade,
+            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
           })}
         />}
         {hideBanner && (
