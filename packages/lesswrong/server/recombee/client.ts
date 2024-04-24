@@ -349,7 +349,7 @@ const recombeeApi = {
         return { post, recommId };
       } else {
         const stickied = stickiedPostIds.includes(postId) || manuallyStickiedPostIds.includes(postId);
-        if ( stickied ) {
+        if (stickied) {
           post.sticky = true;
         }
 
