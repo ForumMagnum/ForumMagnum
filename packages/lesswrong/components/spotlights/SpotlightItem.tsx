@@ -13,6 +13,8 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 
+const TEXT_WIDTH = 350;
+
 export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
   ...(isBookUI ? theme.typography.body2 : {}),
@@ -66,8 +68,8 @@ const styles = (theme: ThemeType) => ({
       linear-gradient(
         90deg,
         var(--spotlight-fade) 0%,
-        var(--spotlight-fade) 30%,
-        ${theme.palette.greyAlpha(0)} 50%
+        var(--spotlight-fade) 45%,
+        ${theme.palette.greyAlpha(0)} 60%
       );
     `,
   },
@@ -126,7 +128,7 @@ const styles = (theme: ThemeType) => ({
       fontFamily: theme.palette.fonts.sansSerifStack,
       color: theme.palette.text.alwaysWhite,
       marginTop: 8,
-      maxWidth: 400,
+      maxWidth: TEXT_WIDTH,
       "& a": {
         color: theme.palette.text.alwaysWhite,
         textDecoration: "underline",
@@ -162,7 +164,7 @@ const styles = (theme: ThemeType) => ({
       fontFamily: theme.palette.fonts.sansSerifStack,
       color: theme.palette.text.alwaysWhite,
       marginTop: 8,
-      maxWidth: 400,
+      maxWidth: TEXT_WIDTH,
     } : {
       color: theme.palette.grey[700],
       fontSize: 15,
