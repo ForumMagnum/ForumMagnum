@@ -35,7 +35,7 @@ export const getAllTagsRedirectPaths: () => string[] = () => {
 }
 
 export const communityPath = isEAForum ? '/groups' : '/community';
-const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups & people' : 'Community' };
+const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
 const rationalitySubtitle = { subtitleLink: "/rationality", subtitle: "Rationality: A-Z" };
 const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Highlights" };
@@ -804,6 +804,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/editForumEvent/:documentId',
       componentName: 'EditForumEventPage',
       title: 'Edit forum event',
+    },
+    {
+      name: 'peopleDirectory',
+      path: '/people-directory',
+      componentName: 'PeopleDirectoryPage',
+      title: 'People directory',
     },
   ],
   LessWrong: [

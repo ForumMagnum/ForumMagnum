@@ -5,6 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCurrentUser } from '../withUser';
 
 export const iconWidth = 30
 
@@ -14,7 +15,7 @@ const iconTransform = forumSelect({
   default: undefined,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
@@ -25,7 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   menuItem: {
-    width: 190,
+    width: isFriendlyUI ? 210 : 190,
+  },
+  desktopOnly: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none !important",
+    },
   },
   navButton: {
     '&:hover': {
@@ -91,19 +97,35 @@ const styles = (theme: ThemeType): JssStyles => ({
   tooltip: {
     maxWidth: isFriendlyUI ? 190 : undefined,
   },
-})
+  flag: {
+    padding: "2px 4px",
+    marginLeft: 10,
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: "110%",
+    letterSpacing: "0.33px",
+    textTransform: "uppercase",
+    background: theme.palette.primary.main,
+    borderRadius: theme.borderRadius.small,
+    color: theme.palette.text.alwaysWhite,
+  },
+});
 
 export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }
 
 const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components
-  const { pathname } = useLocation()
-  
+  const {pathname} = useLocation();
+  const currentUser = useCurrentUser();
+
+  if (tab.betaOnly && !currentUser?.beta) {
+    return null;
+  }
+
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
   const externalLink = /https?:\/\//.test(tab.link);
@@ -122,6 +144,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
+  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}
@@ -138,6 +161,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
+        [classes.desktopOnly]: tab.desktopOnly,
       })}
       disableTouchRipple
     >
@@ -156,6 +180,7 @@ const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItem
           {tab.title}
         </span>
       }
+      {tab.flag && <span className={classes.flag}>{tab.flag}</span>}
     </MenuItemLink>
   </LWTooltip>
 }

@@ -1,11 +1,8 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import {
-  SocialMediaProfileField,
-  SOCIAL_MEDIA_PROFILE_FIELDS,
-  CAREER_STAGES,
-} from "../../../lib/collections/users/schema";
+import { CAREER_STAGES } from "../../../lib/collections/users/schema";
+import { SOCIAL_MEDIA_PROFILE_FIELDS, SocialMediaProfileField } from "../../../lib/collections/users/helpers";
 import { communityPath } from "../../../lib/routes";
 
 const styles = (theme: ThemeType): JssStyles => ({

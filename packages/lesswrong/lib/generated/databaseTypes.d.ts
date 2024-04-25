@@ -1720,6 +1720,7 @@ interface DbUser extends DbObject {
   usernameUnset: boolean
   paymentEmail: string | null
   paymentInfo: string | null
+  profileUpdatedAt: Date
   profileImageId: string | null
   jobTitle: string | null
   organization: string | null
@@ -1740,6 +1741,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
+  hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
   afCommentCount: number
