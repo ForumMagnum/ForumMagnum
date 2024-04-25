@@ -185,7 +185,7 @@ const recombeeRequestHelpers = {
 
     const isConfigurable = hybridArm === 'configurable';
     const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 12};
-    const prevRecommIdIndex = isConfigurable ? 1 : 0;
+    const prevRecommIdIndex = isConfigurable ? 0 : 1;
     const loadMoreConfig = loadMore
       ? { loadMore: { prevRecommId: loadMore.prevRecommIds[prevRecommIdIndex] } }
       : {};
