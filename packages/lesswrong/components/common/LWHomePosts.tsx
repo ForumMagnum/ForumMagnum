@@ -372,7 +372,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 <RecombeePostsList 
                 algorithm={'recombee-hybrid'} settings={{
                   ...scenarioConfig,
-                  hybridScenarios: ['recombee-emulate-hacker-news', 'recombee-personal']
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
                 }} />
               </AnalyticsContext>}
 
@@ -380,7 +380,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
                   ...scenarioConfig, 
-                  hybridScenarios: ['recombee-emulate-hacker-news', 'recombee-lesswrong-custom']
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
                 }} 
                 />
               </AnalyticsContext>}

@@ -11,6 +11,7 @@ import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
+import { HybridArmsConfig } from '../../lib/collections/users/recommendationSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -177,16 +178,12 @@ const recombeeRequestHelpers = {
     };
   },
 
-  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: 'first' | 'second', filter?: string) {
+  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof HybridArmsConfig, filter?: string) {
     const { loadMore, userId, hybridScenarios, ...rest } = hybridArgs;
 
-    if (hybridScenarios.length !== 2) {
-      // eslint-disable-next-line no-console
-      console.log('Hybrid scenario array must have exactly two elements');
-    }
-    const scenario = hybridScenarios[hybridArm === 'first' ? 0 : 1];
+    const scenario = hybridScenarios[hybridArm];
 
-    const isConfigurable = hybridArm === 'second';
+    const isConfigurable = hybridArm === 'configurable';
     const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 12};
     const prevRecommIdIndex = isConfigurable ? 1 : 0;
     const loadMoreConfig = loadMore
@@ -328,8 +325,8 @@ const recombeeApi = {
     const firstCount = Math.floor(modifiedCount * split);
     const secondCount = modifiedCount - firstCount;
 
-    const firstRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'first', excludedPostFilter);
-    const secondRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'second', excludedPostFilter);
+    const firstRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
+    const secondRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'fixed', excludedPostFilter);
 
     const firstRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, firstCount, firstRequestSettings);
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
