@@ -1166,6 +1166,7 @@ interface DbSpotlight extends DbObject {
   draft: boolean
   showAuthor: boolean
   imageFade: boolean
+  imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date
@@ -1421,6 +1422,7 @@ interface DbUser extends DbObject {
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
+  frontpageSelectedTab: string | null
   frontpageFilterSettings: any /*{"definitions":[{"blackbox":true}]}*/
   hideFrontpageFilterSettingsDesktop: boolean | null
   allPostsTimeframe: string | null

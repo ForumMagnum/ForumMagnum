@@ -31,11 +31,6 @@ const titleWrapper = isLWorAF ? {
 };
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    '& .FriendlyPlaceholderPostsItem-root:nth-of-type(3)': {
-      marginBottom: 8
-    }
-  },
   titleWrapper,
   title: {
     ...sectionTitleStyle(theme),
@@ -127,7 +122,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts, RecombeeLatestPosts
+    CuratedPostsList, SectionTitle, StickiedPosts
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -157,13 +152,9 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
-  if (currentUser && recombeeFrontpagePrototypeEnabled) {
-    return <RecombeeLatestPosts currentUser={currentUser} />
-  }
-
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
-      <SingleColumnSection className={classes.root}>
+      <SingleColumnSection>
         <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
           <LWTooltip
             title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
