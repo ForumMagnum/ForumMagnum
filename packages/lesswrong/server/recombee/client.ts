@@ -1,5 +1,5 @@
 import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
-import { HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
@@ -52,6 +52,7 @@ interface OnsitePostRecommendationsInfo {
 
 export interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
+  scenario: string,
   recommId: string,
   curated?: never,
   stickied?: never,
@@ -59,6 +60,7 @@ export interface RecombeeRecommendedPost {
 
 export type RecommendedPost = RecombeeRecommendedPost | {
   post: Partial<DbPost>,
+  scenario?: never,
   recommId?: never,
   curated: boolean,
   stickied: boolean,
@@ -175,12 +177,13 @@ const recombeeRequestHelpers = {
     };
   },
 
-  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof typeof HYBRID_SCENARIO_MAP, filter?: string) {
-    const { loadMore, userId, ...rest } = hybridArgs;
+  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof HybridArmsConfig, filter?: string) {
+    const { loadMore, userId, hybridScenarios, ...rest } = hybridArgs;
 
-    const scenario = HYBRID_SCENARIO_MAP[hybridArm];
+    const scenario = hybridScenarios[hybridArm];
+
     const isConfigurable = hybridArm === 'configurable';
-    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 144};
+    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 12};
     const prevRecommIdIndex = isConfigurable ? 0 : 1;
     const loadMoreConfig = loadMore
       ? { loadMore: { prevRecommId: loadMore.prevRecommIds[prevRecommIdIndex] } }
@@ -282,7 +285,7 @@ const recombeeApi = {
       const postId = post._id!;
       const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
       if (recommId) {
-        return { post, recommId };
+        return { post, recommId, scenario: lwAlgoSettings.scenario };
       } else {
         return {
           post,
@@ -331,10 +334,11 @@ const recombeeApi = {
     const batchResponse = await client.send(batchRequest);
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
+    const recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({ ...response, scenario: index === 0 ? firstRequestSettings.scenario : secondRequestSettings.scenario }));
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId] as const));
-    const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
+    const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const));
+    const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
     const postIds = [...includedCuratedPostIds, ...manuallyStickiedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
@@ -344,9 +348,11 @@ const recombeeApi = {
     const mappedPosts = filteredPosts.map(post => {
       // _id isn't going to be filtered out by `accessFilterMultiple`
       const postId = post._id!;
-      const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
+      const recommId = recommendationIdTuples.find(([id]) => id === postId)?.[1];
+      const scenario = recommendationIdTuples.find(([id]) => id === postId)?.[2];
+
       if (recommId) {
-        return { post, recommId };
+        return { post, recommId, scenario };
       } else {
         const stickied = stickiedPostIds.includes(postId) || manuallyStickiedPostIds.includes(postId);
         if (stickied) {
