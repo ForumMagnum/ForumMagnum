@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -26,6 +26,8 @@ import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { allowSubscribeToUserComments } from '../../lib/betas';
+import { useApolloClient } from '@apollo/client';
+import gql from 'graphql-tag';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -103,8 +105,7 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFn = ({terms, slug, classes}: {
-  terms: UsersViewTerms,
+const UsersProfileFn = ({slug, classes}: {
   slug: string,
   classes: ClassesType,
 }) => {
@@ -114,20 +115,53 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const { flash } = useMessages();
   
   const {loading, results} = useMulti({
-    terms,
+    terms: {view: "usersProfile", slug},
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
-  const user = getUserFromResults(results)
+
+  const apolloClient = useApolloClient();
+
+  // TODO: Fetch the user (with a UsersMinimumInfo fragment) from the Apollo
+  // cache for a preload state, the same way we do for post pages. This will
+  // eliminate a loading-state flash when you click through a user name to a
+  // user profile page, making it effectively instant.
+  // The catch is that we only have the user _slug_, not the user _id_, so we
+  // need to either figure out how to dig through the Apollo cache to find a
+  // user by slug, or we need to do some hacky thing to store the slug-to-id
+  // mapping in a global variable somewhere when you click on a user-page link.
+  const userPreload = null;
+  /*const preloadUserId: string|null = null;
+  const userPreload = preloadUserId ? apolloClient.cache.readFragment<UsersMinimumInfo>({
+    fragment: getFragment("UsersMinimumInfo"),
+    fragmentName: "UsersMinimumInfo",
+    id: 'User:'+preloadUserId,
+  }) : null;*/
+
+  const fullUser = getUserFromResults(results)
+  const user = fullUser ?? userPreload;
   
   const { query } = useLocation()
 
-  const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (isAF) {
-        return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
+  const displaySequenceSection = (canEdit: boolean, user: UsersMinimumInfo|UsersProfile) => {
+    // Whether to display the Sequences section on a user profile page. This
+    // should be shown iff it would contain at least one sequence, ie they
+    // either have a non-draft sequence, or this is the user looking at their
+    // own profile page and they have a draft sequence.
+    if ('sequenceDraftCount' in user) {
+      // If we have a full user
+      const draftCount = isAF ? user.afSequenceDraftCount : user.sequenceDraftCount;
+      const sequenceCount = isAF ? user.afSequenceCount : user.sequenceCount;
+  
+      return !!(
+        (canEdit && draftCount)
+        || sequenceCount
+      )
     } else {
-        return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
+      // If we only have a preload of the user. This has false negatives, which
+      // is fine because it's only for a brief loading state.
+      return !isAF && !!user.sequenceCount;
     }
   }
 
@@ -207,7 +241,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug) && !user.deleted) {
+    if (fullUser?.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
@@ -228,8 +262,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const unlistedTerms: PostsViewTerms = {view: "unlisted", userId: user._id, limit: 20}
     const afSubmissionTerms: PostsViewTerms = {view: "userAFSubmissions", userId: user._id, limit: 4}
     const terms: PostsViewTerms = {view: "userPosts", ...query, userId: user._id, authorIsUnreviewed: null};
-    const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:9}
-    const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
+    const sequencesLimit = 9;
+    const sequenceTerms: SequencesViewTerms = {view: "userProfile", userId: user._id, limit:sequencesLimit}
+    const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:sequencesLimit}
 
     // maintain backward compatibility with bookmarks
     const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
@@ -249,12 +284,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
-        <HeadTags
+        {fullUser && <HeadTags
           description={metaDescription}
-          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
-          structuredData={getUserStructuredData(user)}
+          noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || fullUser.noindex}
+          structuredData={getUserStructuredData(fullUser)}
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
-        />
+        />}
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
@@ -275,13 +310,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </LWTooltip>
                 </div>
               }
-              { currentUser?.isAdmin &&
+              { currentUser?.isAdmin && fullUser &&
                 <div>
                   <DialogGroup
                     actions={[]}
                     trigger={<a>Register RSS</a>}
                   >
-                    <div><Components.NewFeedButton user={user} /></div>
+                    <div><Components.NewFeedButton user={fullUser} /></div>
                   </DialogGroup>
                 </div>
               }
@@ -322,8 +357,10 @@ const UsersProfileFn = ({terms, slug, classes}: {
               {ownPage && <SequencesNewButton />}
             </SectionTitle>
             <Components.SequencesGridWrapper
-                terms={ownPage ? sequenceAllTerms : sequenceTerms}
-                showLoadMore={true}/>
+              terms={ownPage ? sequenceAllTerms : sequenceTerms}
+              placeholderCount={Math.min(user.sequenceCount, sequencesLimit)}
+              showLoadMore={true}
+            />
           </SingleColumnSection> }
 
           {/* Drafts Section */}
@@ -361,8 +398,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
               currentIncludeEvents={currentIncludeEvents}
             />}
             <AnalyticsContext listContext={"userPagePosts"}>
-              {user.shortformFeedId && <Components.ProfileShortform user={user}/>}
-              <PostsList2 terms={terms} hideAuthor />
+              {fullUser?.shortformFeedId && <Components.ProfileShortform user={fullUser}/>}
+              <PostsList2 terms={terms} placeholderCount={Math.min(user.postCount, terms.limit ?? 10)} hideAuthor />
             </AnalyticsContext>
           </SingleColumnSection>
           {/* Groups Section */
@@ -402,7 +439,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
             </SingleColumnSection>
           </AnalyticsContext>
 
-          <ReportUserButton user={user}/>
+          {fullUser && <ReportUserButton user={fullUser}/>}
         </AnalyticsContext>
       </div>
     )

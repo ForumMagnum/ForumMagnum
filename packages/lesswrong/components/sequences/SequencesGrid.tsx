@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
+import range from 'lodash/range';
 
 // Shared with SequencesGridWrapper
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -30,26 +31,34 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {
-  sequences: Array<SequencesPageFragment>,
+const SequencesGrid = ({sequences, placeholderCount, showAuthor, classes, bookItemStyle }: {
+  sequences: Array<SequencesPageFragment>|null,
+  placeholderCount?: number,
   showAuthor?: boolean,
   classes: ClassesType,
   bookItemStyle?: boolean
-}) =>
-  <div className={classes.grid}>
+}) => {
+  const { SequencesGridItem } = Components;
+  return <div className={classes.grid}>
     <div className={classes.gridContent}>
-      {sequences.map(sequence => {
-        return (
-          <Components.SequencesGridItem
-            sequence={sequence}
-            key={sequence._id}
-            showAuthor={showAuthor}
-            bookItemStyle={bookItemStyle}
-          />
-        );
-      })}
+      {sequences && sequences.map(sequence => <SequencesGridItem
+        sequence={sequence}
+        key={sequence._id}
+        showAuthor={showAuthor}
+        bookItemStyle={bookItemStyle}
+      />)}
+      {!sequences && placeholderCount!==undefined && range(0, placeholderCount)
+        .map(i => <SequencesGridItem
+          sequence={null}
+          placeholder={true}
+          key={i}
+          showAuthor={showAuthor}
+          bookItemStyle={bookItemStyle}
+        />)
+      }
     </div>
   </div>
+}
 
 const SequencesGridComponent = registerComponent('SequencesGrid', SequencesGrid, {styles});
 

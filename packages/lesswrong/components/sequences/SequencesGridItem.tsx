@@ -123,28 +123,33 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
-  sequence: SequencesPageFragment,
+const SequencesGridItem = ({ sequence, placeholder, showAuthor=false, classes, bookItemStyle }: {
   showAuthor?: boolean,
   classes: ClassesType,
   bookItemStyle?: boolean
-}) => {
+} & (
+  { sequence: SequencesPageFragment, placeholder?: false }
+  | { sequence: null, placeholder: true }
+)) => {
   const { LinkCard, SequencesSummary } = Components;
 
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20
-  if (sequence.title.length > 26) positionAdjustment -= 17
+  if (sequence && sequence.title.length > 26) positionAdjustment -= 17
   
-  let imageId: string|null = sequence.gridImageId
+  let imageId: string|null = sequence?.gridImageId ?? null;
+
   if (!imageId) {
     // LW falls back to a specific image.
     // Other sites fall back first to the sequence banner image, and otherwise to their own site-specific image
-    imageId = isLWorAF ? "sequences/vnyzzznenju0hzdv6pqb.jpg" : (sequence.bannerImageId || defaultSequenceBannerIdSetting.get())
+    imageId = isLWorAF
+      ? "sequences/vnyzzznenju0hzdv6pqb.jpg"
+      : (sequence?.bannerImageId ?? defaultSequenceBannerIdSetting.get())
   }
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
-    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={
+    <LinkCard to={sequence ? getCollectionOrSequenceUrl(sequence) : "#"} tooltip={
       <div style={{marginTop:positionAdjustment}}>
         <SequencesSummary sequence={sequence} showAuthor={showAuthor}/>
       </div>
@@ -160,10 +165,10 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
       </div>
       <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
         <div className={classes.title}>
-          {sequence.draft && <span className={classes.draft}>[Draft] </span>}
-          {sequence.title}
+          {sequence?.draft && <span className={classes.draft}>[Draft] </span>}
+          {placeholder ? <>&nbsp;</> : sequence.title}
         </div>
-        { showAuthor && sequence.user &&
+        { showAuthor && sequence?.user &&
           <div className={classes.author}>
             by <Components.UsersName user={sequence.user} />
           </div>}

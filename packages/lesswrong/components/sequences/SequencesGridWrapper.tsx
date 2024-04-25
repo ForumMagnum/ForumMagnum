@@ -8,6 +8,7 @@ import { styles } from './SequencesGrid';
 
 const SequencesGridWrapper = ({
   terms,
+  placeholderCount,
   className,
   classes,
   itemsPerPage=10,
@@ -15,6 +16,7 @@ const SequencesGridWrapper = ({
   showAuthor = false,
 }: {
   terms: SequencesViewTerms,
+  placeholderCount?: number,
   className?: string,
   classes: ClassesType,
   itemsPerPage?: number,
@@ -35,9 +37,19 @@ const SequencesGridWrapper = ({
       {showLoadMore && <Components.LoadMore {...loadMoreProps} />}
     </div>);
   } else if (loading) {
-    return (<div className={classNames(className, classes.grid)}>
-      <Components.Loading/>
-    </div>);
+    if (placeholderCount !== undefined) {
+      return <div className={classNames(className, classes.grid)}>
+        <Components.SequencesGrid
+          sequences={null}
+          placeholderCount={placeholderCount}
+          showAuthor={showAuthor}
+        />
+      </div>
+    } else {
+      return (<div className={classNames(className, classes.grid)}>
+        <Components.Loading/>
+      </div>);
+    }
   } else {
     return (<div className={classNames(className, classes.grid)}>
       <div className={classes.gridContent}>

@@ -21,20 +21,29 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
 
   const { SunshineNewUsersInfo, SectionButton } = Components
 
-  const { document: user, refetch } = useSingle({
+  const { document: user, loading, refetch } = useSingle({
     documentId:userId,
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
   });
 
-  if (!user) return null
+  const expandButton = <div className={classes.root} onClick={() => setExpanded(true)}>
+    <SectionButton>{preferredHeadingCase("Expand Moderation Tools")}</SectionButton>
+  </div>
 
-  if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) return null
+  if (!currentUser || !userCanDo(currentUser, 'posts.moderate.all')) {
+    return null
+  }
+  if (!user) {
+    if (loading) {
+      return expandButton;
+    } else {
+      return null
+    }
+  }
   
   if (user.reviewedByUserId && !user.snoozedUntilContentCount && !expanded) {
-    return <div className={classes.root} onClick={() => setExpanded(true)}>
-      <SectionButton>{preferredHeadingCase("Expand Moderation Tools")}</SectionButton>
-    </div>
+    return expandButton;
   }
   
   return <div className={classes.root}>

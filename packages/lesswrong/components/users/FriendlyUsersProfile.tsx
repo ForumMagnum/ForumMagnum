@@ -162,14 +162,13 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const FriendlyUsersProfile = ({terms, slug, classes}: {
-  terms: UsersViewTerms,
+const FriendlyUsersProfile = ({slug, classes}: {
   slug: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const {loading, results} = useMulti({
-    terms,
+    terms: {view: "usersProfile", slug},
     collectionName: "Users",
     fragmentName: 'UsersProfile',
     enableTotal: false,
