@@ -625,8 +625,13 @@
     "timestamp": "2024-04-19T01:39:27.000Z"
   },
   {
-    "acceptsSchemaHash": "35b03da27ac8a95a62e65627ee08d9c6",
-    "acceptedByMigration": "20240423T092933.add_people_directory.ts",
-    "timestamp": "2024-04-23T09:29:33.000Z"
+    "acceptsSchemaHash": "1907632649f70f5e77f6e6de79357d74",
+    "acceptedByMigration": "20240424T142239.add_imageFadeColor_to_Spotlights.ts",
+    "timestamp": "2024-04-24T14:22:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c192cfffc5d07ae27caf1477da048644",
+    "acceptedByMigration": "20240425T075639.add_people_directory.ts",
+    "timestamp": "2024-04-25T07:56:39.000Z"
   }
 ]

@@ -3460,6 +3460,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly draft: boolean,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
+  readonly imageFadeColor: string | null,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
 }
@@ -3481,6 +3482,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly duration: number,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
+  readonly imageFadeColor: string | null,
 }
 
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights

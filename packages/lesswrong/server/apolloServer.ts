@@ -20,7 +20,7 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
@@ -51,7 +51,8 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib';
+import { createAnonymousContext } from './vulcan-lib/query';
+import { DatabaseServerSetting } from './databaseSettings';
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -70,6 +71,28 @@ const trySetResponseStatus = ({ response, status }: { response: express.Response
   }
 
   return response;
+}
+
+const cloudfrontExperimentEnabledSetting = new DatabaseServerSetting<boolean>('cloudfrontExperiment.enabled', false);
+const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "s-max-age=1, stale-while-revalidate=86400");
+const cloudfrontCachingExperimentLoggedInCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontCachingExperiment.loggedInCacheControl', "no-cache, no-store, must-revalidate, max-age=0");
+/**
+ * For experimenting on staging to find out how CloudFront handles different cache-control headers set by the origin. The crux
+ * is to figure out whether setting origin headers is sufficient to make it so responses are never cached for logged in users, but are cached
+ * for logged out
+ */
+const cloudfrontCachingExperiment = ({ response, user }: { response: express.Response, user: DbUser | null; }) => {
+  // TODO remove before this, the hard cutoff is just in case we forget
+  if (!cloudfrontExperimentEnabledSetting.get() || new Date() > new Date('2024-05-07')) return;
+
+  const loggedInCacheControl = cloudfrontCachingExperimentLoggedInCacheControlSetting.get();
+  const loggedOutCacheControl = cloudfrontExperimentLoggedOutCacheControlSetting.get();
+
+  if (user) {
+    response.setHeader("Cache-Control", loggedInCacheControl);
+  } else {
+    response.setHeader("Cache-Control", loggedOutCacheControl);
+  }
 }
 
 /**
@@ -340,6 +363,9 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
+    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
+
     const {bundleHash} = getClientBundle();
     const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
@@ -358,6 +384,9 @@ export function startWebserver() {
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
+
+    // TODO remove and replace with a permanent version
+    cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
     
@@ -374,6 +403,7 @@ export function startWebserver() {
         + externalStylesPreload
         + instanceSettingsHeader
         + faviconHeader
+        + publicSettingsHeader // Must come before clientScript
         + clientScript
     );
 
@@ -408,8 +438,6 @@ export function startWebserver() {
       renderedAt,
       allAbTestGroups,
     } = renderResult;
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);

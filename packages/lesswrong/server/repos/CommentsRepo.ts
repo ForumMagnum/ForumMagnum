@@ -9,6 +9,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
+import { getViewablePostsSelector } from "./helpers";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -192,6 +193,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE
         p."hideFromPopularComments" IS NOT TRUE
+        AND ${getViewablePostsSelector('p')}
         ${excludedTagIdCondition}
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC
       OFFSET $(offset)

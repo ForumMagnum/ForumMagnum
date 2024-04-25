@@ -10,6 +10,7 @@ import { isServer } from '../../lib/executionEnvironment';
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
+  scenario: string,
   recommId: string,
   curated?: never,
   stickied?: never,
@@ -17,6 +18,7 @@ interface RecombeeRecommendedPost {
 
 type RecommendedPost = RecombeeRecommendedPost | {
   post: PostsListWithVotes,
+  scenario?: never,
   recommId?: never,
   curated: boolean,
   stickied: boolean,
@@ -40,6 +42,7 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
         post {
           ...PostsListWithVotes
         }
+        scenario
         recommId
         curated
         stickied
@@ -75,7 +78,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
+  const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -96,10 +99,12 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
   const postIds = results?.map(({post}) => post._id) ?? [];
+  const postIdsWithScenario = results?.map(({post, scenario}) => ({postId: post._id, scenario: scenario ?? 'none'})) ?? [];
 
   useOnMountTracking({
     eventType: "postList",
-    eventProps: { postIds },
+    // TODO: Remove postIds which is redundant once analytics dashboard written to use postIdsWithScenario
+    eventProps: { postIds, postIdsWithScenario, algorithm },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });

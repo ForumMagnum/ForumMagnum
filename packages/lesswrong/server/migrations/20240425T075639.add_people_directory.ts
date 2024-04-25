@@ -1,7 +1,7 @@
 import Users from "../../lib/collections/users/collection";
 import { addField, dropField, installExtensions, updateFunctions } from "./meta/utils";
 
-export const acceptsSchemaHash = "35b03da27ac8a95a62e65627ee08d9c6";
+export const acceptsSchemaHash = "c192cfffc5d07ae27caf1477da048644";
 
 export const up = async ({db}: MigrationContext) => {
   await addField(db, Users, "hideFromPeopleDirectory");
