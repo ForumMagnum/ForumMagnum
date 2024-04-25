@@ -11,15 +11,18 @@ export type ClickableCellProps = {
 } & ({
   href: string,
   onClick?: never,
+  openInNewTab?: boolean,
 } | {
   href?: never,
   onClick: (e: MouseEvent<HTMLDivElement>) => void,
+  openInNewTab?: never,
 });
 
 export const useClickableCell = ({
   ignoreLinks,
   href,
   onClick,
+  openInNewTab,
 }: ClickableCellProps) => {
   const navigate = useNavigate();
   // Note that we only trigger this event if an href is provided
@@ -42,9 +45,9 @@ export const useClickableCell = ({
       window.open(href, "_blank");
     } else {
       captureEvent();
-      navigate(href);
+      navigate(href, {openInNewTab});
     }
-  }, [navigate, ignoreLinks, href, onClick, captureEvent]);
+  }, [navigate, ignoreLinks, href, onClick, openInNewTab, captureEvent]);
 
   return {
     onClick: wrappedOnClick,

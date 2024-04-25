@@ -180,4 +180,4 @@ export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('goo
 export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
 export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
 
-export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null)
+export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
