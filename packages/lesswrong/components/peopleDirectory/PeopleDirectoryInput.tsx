@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useCallback } from "react";
+import React, { ChangeEvent, MutableRefObject, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
@@ -46,7 +46,7 @@ export const PeopleDirectoryInput = ({
   inputRef?: MutableRefObject<HTMLInputElement | null>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const onChange = useCallback((ev) => {
+  const onChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setValue?.(ev.target?.value ?? "");
   }, [setValue]);
   const {ForumIcon} = Components;
