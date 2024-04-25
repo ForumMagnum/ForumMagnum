@@ -21,6 +21,7 @@ import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
+import {quickTakesTagsEnabledSetting} from '../../lib/publicSettings'
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -470,7 +471,7 @@ const TagPage = ({classes}: {
                 <AddPostsToTag tag={tag} />
               </PostsList2>
             </AnalyticsContext>
-            <DeferRender ssr={false}>
+            {quickTakesTagsEnabledSetting.get() && <DeferRender ssr={false}>
               <AnalyticsContext pageSectionContext="quickTakesSection">
                 <CommentsListCondensed
                   label="Quick takes"
@@ -485,7 +486,7 @@ const TagPage = ({classes}: {
                   hideTag
                 />
               </AnalyticsContext>
-            </DeferRender>
+            </DeferRender>}
           </>}
         </div>
       </ToCColumn>
