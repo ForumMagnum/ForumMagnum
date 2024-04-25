@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     width: isFriendlyUI ? 210 : 190,
   },
   desktopOnly: {
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down("xs")]: {
       display: "none !important",
     },
   },
