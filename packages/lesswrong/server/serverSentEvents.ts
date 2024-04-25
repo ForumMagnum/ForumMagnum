@@ -25,7 +25,7 @@ export function addServerSentEventsEndpoint(app: Express) {
     const parsedUrl = new URL(req.url, getSiteUrl())
     const apiVersionStr = parsedUrl.searchParams.get("version") ?? "1";
     const apiVersion = parseInt(apiVersionStr);
-    const currentUser = await getUserFromReq(req)
+    const currentUser = getUserFromReq(req)
 
     // Can't subscribe to notifications if logged out
     if (!currentUser) {
