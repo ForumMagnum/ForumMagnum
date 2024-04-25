@@ -1114,3 +1114,25 @@ importComponent("CookiePolicy", () => require('../components/common/CookieBanner
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
 importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 
+// People directory
+importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
+importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));
+importComponent("PeopleDirectoryMainSearch", () => require('../components/peopleDirectory/PeopleDirectoryMainSearch'));
+importComponent("PeopleDirectoryFilters", () => require('../components/peopleDirectory/PeopleDirectoryFilters'));
+importComponent("PeopleDirectoryFilterDropdown", () => require('../components/peopleDirectory/PeopleDirectoryFilterDropdown'));
+importComponent("PeopleDirectoryStaticFilter", () => require('../components/peopleDirectory/PeopleDirectoryStaticFilter'));
+importComponent("PeopleDirectorySearchableFilter", () => require('../components/peopleDirectory/PeopleDirectorySearchableFilter'));
+importComponent("PeopleDirectorySelectOption", () => require('../components/peopleDirectory/PeopleDirectorySelectOption'));
+importComponent("PeopleDirectoryClearAll", () => require('../components/peopleDirectory/PeopleDirectoryClearAll'));
+importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
+importComponent("PeopleDirectoryNoResults", () => require('../components/peopleDirectory/PeopleDirectoryNoResults'));
+importComponent("PeopleDirectoryResultRow", () => require('../components/peopleDirectory/PeopleDirectoryResultRow'));
+importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
+importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
+importComponent("PeopleDirectoryTextCell", () => require('../components/peopleDirectory/PeopleDirectoryTextCell'));
+importComponent("PeopleDirectoryDateCell", () => require('../components/peopleDirectory/PeopleDirectoryDateCell'));
+importComponent("PeopleDirectoryNumberCell", () => require('../components/peopleDirectory/PeopleDirectoryNumberCell'));
+importComponent("PeopleDirectorySocialMediaCell", () => require('../components/peopleDirectory/PeopleDirectorySocialMediaCell'));
+importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));
+importComponent("PeopleDirectorySkeletonUserCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonUserCell'));
+importComponent("PeopleDirectorySkeletonTextCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonTextCell'));

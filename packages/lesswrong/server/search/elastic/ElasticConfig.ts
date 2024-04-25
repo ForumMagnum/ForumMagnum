@@ -104,6 +104,10 @@ const fullTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
   },
 };
 
@@ -119,6 +123,10 @@ const shingleTextMapping: MappingProperty = {
     exact: {
       type: "text",
       analyzer: "fm_exact_analyzer",
+    },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
     },
   },
 };
@@ -291,6 +299,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "deleteContent",
       "deleted",
       "isAdmin",
+      "hideFromPeopleDirectory",
     ],
     karmaField: "karma",
     locationField: "_geoloc",
@@ -360,7 +369,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
 };
 
-const indexToCollectionName = (index: string): SearchIndexCollectionName => {
+export const indexToCollectionName = (index: string): SearchIndexCollectionName => {
   const data: Record<string, SearchIndexCollectionName> = {
     comments: "Comments",
     posts: "Posts",
@@ -387,4 +396,15 @@ export const collectionNameToConfig = (
 export const indexNameToConfig = (indexName: string): IndexConfig => {
   const collectionName = indexToCollectionName(indexName);
   return collectionNameToConfig(collectionName);
+}
+
+export const isFullTextField = <N extends SearchIndexCollectionName>(
+  collectionName: N,
+  fieldName: string,
+) => {
+  const config = elasticSearchConfig[collectionName];
+  if (!config) {
+    throw new Error(`Invalid elastic collection name: ${collectionName}`);
+  }
+  return config.mappings?.[fieldName] === fullTextMapping;
 }
