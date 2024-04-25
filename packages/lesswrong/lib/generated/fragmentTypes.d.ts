@@ -1254,6 +1254,7 @@ interface PostsList extends PostsListBase { // fragment on Posts
 interface PostsList_contents { // fragment on Revisions
   readonly _id: string,
   readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
   readonly wordCount: number | null,
   readonly version: string,
 }
