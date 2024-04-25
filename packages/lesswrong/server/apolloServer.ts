@@ -53,6 +53,7 @@ import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddlewar
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/query';
 import { DatabaseServerSetting } from './databaseSettings';
+import { Route } from '../lib/vulcan-lib';
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -74,7 +75,7 @@ const trySetResponseStatus = ({ response, status }: { response: express.Response
 }
 
 const cloudfrontExperimentEnabledSetting = new DatabaseServerSetting<boolean>('cloudfrontExperiment.enabled', false);
-const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "s-max-age=1, stale-while-revalidate=86400");
+const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "max-age=1, s-max-age=1, stale-while-revalidate=86400");
 const cloudfrontCachingExperimentLoggedInCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontCachingExperiment.loggedInCacheControl', "no-cache, no-store, must-revalidate, max-age=0");
 /**
  * For experimenting on staging to find out how CloudFront handles different cache-control headers set by the origin. The crux
@@ -92,6 +93,21 @@ const cloudfrontCachingExperiment = ({ response, user }: { response: express.Res
     response.setHeader("Cache-Control", loggedInCacheControl);
   } else {
     response.setHeader("Cache-Control", loggedOutCacheControl);
+  }
+}
+
+/**
+ * Cache-control header indicating the response is private (user-specific) and should never be stored by a shared cache.
+ * Note that for use with CloudFront, the max-age=0 is necessary to ensure the response is not cache (regardless of the
+ * behaviour that is set up). This is a footgun imo.
+ */
+const privateCacheHeader = "private, no-cache, no-store, must-revalidate, max-age=0"
+const swrCacheHeader = "max-age=1, s-max-age=1, stale-while-revalidate=86400"
+const applyCacheControlHeader = ({ response, user, route }: { response: express.Response, user: DbUser | null, route: Route | null }) => {
+  if (route?.swrCaching === "logged-out" && !user) {
+    response.setHeader("Cache-Control", swrCacheHeader);
+  } else if (user) {
+    response.setHeader("Cache-Control", privateCacheHeader)
   }
 }
 
@@ -385,8 +401,9 @@ export function startWebserver() {
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
 
-    // TODO remove and replace with a permanent version
-    cloudfrontCachingExperiment({ user, response })
+    applyCacheControlHeader({ user, response, route: parsedRoute.currentRoute })
+    // // TODO remove and replace with a permanent version
+    // cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
     
