@@ -33,6 +33,7 @@ import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers'
 import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
