@@ -236,4 +236,8 @@ export type PostFeedDetails = {
 
 export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
 
+/**
+ * This is a filepath that is _relative_ to the location of the instance settings file itself.
+ * See full explanation in `google-vertex/client.ts`
+ */
 export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");

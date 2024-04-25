@@ -4,7 +4,7 @@ import { googleRecommendationsCredsPath } from "../../lib/instanceSettings";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { loadByIds } from "../../lib/loaders";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
-import { getCommandLineArguments } from "../commandLine";
+import { getInstanceSettingsFilePath } from "../commandLine";
 import { vertexDocumentServiceParentPathSetting, vertexRecommendationServingConfigPathSetting, vertexUserEventServiceParentPathSetting } from "../databaseSettings";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import path from "path";
@@ -20,9 +20,10 @@ onStartup(() => {
   // was to put the path of the creds file _relative to the instance settings file_ into an instance setting, and then join it with the path to the instance settings file.
   // See https://cloud.google.com/docs/authentication/provide-credentials-adc#wlif-key for details
   const credsPath = googleRecommendationsCredsPath.get();
-  const clArgs = getCommandLineArguments();
-  if (credsPath && clArgs.settingsFileName) {
-    process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(path.dirname(clArgs.settingsFileName), credsPath);
+  const settingsFileName = getInstanceSettingsFilePath();
+  if (credsPath && settingsFileName) {
+    const settingsFileDirectory = path.dirname(settingsFileName);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(settingsFileDirectory, credsPath);
   }
 });
 
