@@ -636,6 +636,7 @@ createPaginatedResolver({
 addGraphQLSchema(`
   type RecombeeRecommendedPost {
     post: Post!
+    scenario: String
     recommId: String
     curated: Boolean
     stickied: Boolean

@@ -52,6 +52,7 @@ interface OnsitePostRecommendationsInfo {
 
 export interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
+  scenario: string,
   recommId: string,
   curated?: never,
   stickied?: never,
@@ -59,6 +60,7 @@ export interface RecombeeRecommendedPost {
 
 export type RecommendedPost = RecombeeRecommendedPost | {
   post: Partial<DbPost>,
+  scenario?: never,
   recommId?: never,
   curated: boolean,
   stickied: boolean,
@@ -282,7 +284,7 @@ const recombeeApi = {
       const postId = post._id!;
       const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
       if (recommId) {
-        return { post, recommId };
+        return { post, recommId, scenario: lwAlgoSettings.scenario };
       } else {
         return {
           post,
@@ -331,10 +333,11 @@ const recombeeApi = {
     const batchResponse = await client.send(batchRequest);
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
+    const recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({ ...response, scenario: index === 0 ? firstRequestSettings.scenario : secondRequestSettings.scenario }));
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId] as const));
-    const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
+    const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const));
+    const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
     const postIds = [...includedCuratedPostIds, ...manuallyStickiedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
@@ -344,9 +347,11 @@ const recombeeApi = {
     const mappedPosts = filteredPosts.map(post => {
       // _id isn't going to be filtered out by `accessFilterMultiple`
       const postId = post._id!;
-      const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
+      const recommId = recommendationIdTuples.find(([id]) => id === postId)?.[1];
+      const scenario = recommendationIdTuples.find(([id]) => id === postId)?.[2];
+
       if (recommId) {
-        return { post, recommId };
+        return { post, recommId, scenario };
       } else {
         const stickied = stickiedPostIds.includes(postId) || manuallyStickiedPostIds.includes(postId);
         if (stickied) {
