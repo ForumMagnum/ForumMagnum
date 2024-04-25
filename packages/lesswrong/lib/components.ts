@@ -557,6 +557,7 @@ importComponent("Community", () => require('../components/community/Community'))
 importComponent("CommunityBanner", () => require('../components/community/modules/CommunityBanner'));
 importComponent("LocalGroups", () => require('../components/community/modules/LocalGroups'));
 importComponent("OnlineGroups", () => require('../components/community/modules/OnlineGroups'));
+importComponent("CommunityMembers", () => require('../components/community/modules/CommunityMembers'));
 importComponent("CommunityMembersFullMap", () => require('../components/community/modules/CommunityMembersFullMap'));
 importComponent("DistanceUnitToggle", () => require('../components/community/modules/DistanceUnitToggle'));
 importComponent("SearchResultsMap", () => require('../components/community/modules/SearchResultsMap'));
