@@ -598,7 +598,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   /**
-   * When we click on a .detailsBlockTitle element
+   * When we click on a .detailsBlockTitle element, we want to toggle whether
+   * the corresponding .detailsBlock is open or closed. We do this with our own
+   * event handler, rather than a <details> tag (which is used outside the
+   * editor), because we need finer control of click targets; we don't want
+   * clicking on the text in the title to open/close the block, since you're
+   * probably trying to place the cursor, and that's disruptive.
    */
   interceptDetailsBlockClick = (ev: React.MouseEvent<HTMLElement>) => {
     // Get the exact element that was clicked on. We can't use ev.target for
@@ -613,10 +618,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const target = ev.nativeEvent?.target;
     if (!target) return;
 
+    // HACK: Pointer events don't distinguish between clicking on a ::before
+    // pseudo-element and clicking on its parent, but we know the expand-arrow
+    // will fill the left edge of the title block, so use `offsetX`.
     if ((target as HTMLElement).classList?.contains("detailsBlockTitle")
       && ev.nativeEvent.offsetX < 24
     ) {
-      console.log("Clicked on a details block title");
       const parentElement = (target as HTMLElement).parentElement;
       if (parentElement?.classList.contains("detailsBlock")) {
         if (parentElement.classList.contains("closed")) {
