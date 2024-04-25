@@ -21,7 +21,7 @@ import { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { homepagePostFeedsSetting } from '../../lib/instanceSettings';
+import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -213,10 +213,11 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get()
+  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
 
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
+      && !(feed.adminOnly && !userIsAdmin(currentUser))
       && !(feed.name.includes('recombee') && !currentUser)
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
@@ -367,8 +368,21 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               </AnalyticsContext>}
               
               {/* RECOMBEE RECOMMENDATIONS */}
-              {selectedTab.includes('recombee') && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={selectedTab} settings={scenarioConfig} />
+              {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList 
+                algorithm={'recombee-hybrid'} settings={{
+                  ...scenarioConfig,
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
+                }} />
+              </AnalyticsContext>}
+
+              {/* RECOMBEE RECOMMENDATIONS 2 */}
+              {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
+                  ...scenarioConfig, 
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
+                }} 
+                />
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
