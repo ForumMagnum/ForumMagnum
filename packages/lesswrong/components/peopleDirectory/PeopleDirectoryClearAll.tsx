@@ -12,13 +12,14 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryClearAll = ({onClear, classes}: {
+export const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
+  text?: string,
   onClear: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
     <div onClick={onClear} className={classes.root}>
-      Clear all
+      {text}
     </div>
   );
 }

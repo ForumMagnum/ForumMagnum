@@ -29,6 +29,8 @@ type PeopleDirectoryContext = {
   locations: SearchableMultiSelectResult,
   careerStages: MultiSelectResult,
   columns: (PeopleDirectoryColumn & MultiSelectState)[],
+  columnsEdited: boolean,
+  resetColumns: () => void,
 }
 
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
@@ -92,6 +94,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     careerStages.selectedValues.length === 0;
 
   const [columns, setColumns] = useState(peopleDirectoryColumns);
+  const [columnsEdited, setColumnsEdited] = useState(false);
   const toggleColumn = useCallback((columnLabel: string) => {
     setColumns((columns) => columns.map((column) => {
       return column.label === columnLabel && column.hideable
@@ -101,6 +104,11 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         }
         : column;
     }));
+    setColumnsEdited(true);
+  }, []);
+  const resetColumns = useCallback(() => {
+    setColumns(peopleDirectoryColumns);
+    setColumnsEdited(false);
   }, []);
   const columnSelectState = useMemo(() => {
     return columns.map((column) => ({
@@ -212,6 +220,8 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       locations,
       careerStages,
       columns: columnSelectState,
+      columnsEdited,
+      resetColumns,
     }}>
       {children}
     </peopleDirectoryContext.Provider>

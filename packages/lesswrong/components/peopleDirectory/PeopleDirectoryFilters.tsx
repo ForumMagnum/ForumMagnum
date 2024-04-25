@@ -41,12 +41,15 @@ export const PeopleDirectoryFilters = ({classes}: {
     locations,
     careerStages,
     columns,
+    columnsEdited,
+    resetColumns,
     totalResults,
     isEmptySearch,
   } = usePeopleDirectory();
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
     PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
+    PeopleDirectoryClearAll,
   } = Components;
   return (
     <div className={classes.root}>
@@ -71,6 +74,11 @@ export const PeopleDirectoryFilters = ({classes}: {
           {columns.filter(({hideable}) => hideable).map((state) => (
             <PeopleDirectorySelectOption state={state} key={state.value} />
           ))}
+          {columnsEdited &&
+            <div>
+              <PeopleDirectoryClearAll text="Reset" onClear={resetColumns} />
+            </div>
+          }
         </PeopleDirectoryFilterDropdown>
       </div>
     </div>
