@@ -1,13 +1,13 @@
 import { useState, useCallback, useRef } from 'react';
-import { useMessages } from '../common/withMessages';
 import { useDialog } from '../common/withDialog';
-import { useMutation, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
 import { isAF } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
+import { useMutate } from '../hooks/useMutate';
 
 const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) => {
   const typeName = collection.options.typeName;
@@ -27,14 +27,12 @@ const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) 
 }
 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
-  const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const collection = getCollection(collectionName);
-  const typeName = collection.options.typeName;
-  const query = getVoteMutationQuery(collection);
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();
+  const mutate = useMutate();
   
   const showVotingPatternWarningPopup= useCallback(() => {
     openDialog({
@@ -44,19 +42,6 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       closeOnNavigate: true,
     });
   }, [openDialog]);
-  
-  const [mutate] = useMutation(query, {
-    onCompleted: useCallback((mutationResult: AnyBecauseHard) => {
-      if (++mutationCounts.current.completedMutationIndex === mutationCounts.current.optimisticMutationIndex) {
-        setOptimisticResponseDocument(null)
-      }
-      
-      const mutationName = `performVote${typeName}`;
-      if (mutationResult?.[mutationName]?.showVotingPatternWarning) {
-        showVotingPatternWarningPopup();
-      }
-    }, [typeName, showVotingPatternWarningPopup]),
-  });
   
   const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {
     document: T,
@@ -77,21 +62,31 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     
     const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
-    try {
-      mutationCounts.current.optimisticMutationIndex++;
-      setOptimisticResponseDocument(newDocument);
-      await mutate({
-        variables: {
-          documentId: document._id,
-          voteType, extendedVote,
-        },
-      })
-    } catch(e) {
-      const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
-      messages.flash({ messageString: errorMessage });
+    mutationCounts.current.optimisticMutationIndex++;
+    setOptimisticResponseDocument(newDocument);
+
+    const typeName = collection.options.typeName;
+    const { result, error } = await mutate({
+      mutation: getVoteMutationQuery(collection),
+      variables: {
+        documentId: document._id,
+        voteType, extendedVote,
+      },
+      errorHandling: "flashMessageAndReturn"
+    })
+    if (error) {
       setOptimisticResponseDocument(null);
+      return;
     }
-  }, [messages, mutate, collection, votingSystemOrDefault]);
+    if (++mutationCounts.current.completedMutationIndex === mutationCounts.current.optimisticMutationIndex) {
+      setOptimisticResponseDocument(null)
+    }
+    
+    const mutationName = `performVote${typeName}`;
+    if (result?.[mutationName]?.showVotingPatternWarning) {
+      showVotingPatternWarningPopup();
+    }
+  }, [mutate, collection, votingSystemOrDefault, showVotingPatternWarningPopup]);
 
   const result = optimisticResponseDocument || document;
   return {
