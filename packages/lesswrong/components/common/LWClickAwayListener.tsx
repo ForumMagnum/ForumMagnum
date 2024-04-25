@@ -17,7 +17,9 @@ const LWClickAwayListener = ({onClickAway, children}: {
         onClickAway(ev);
       }}
     >
-      {children}
+      <span>
+        {children}
+      </span>
     </ClickAwayListener>
   );
 }
