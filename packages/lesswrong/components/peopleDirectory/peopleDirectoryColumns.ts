@@ -27,6 +27,7 @@ export type PeopleDirectoryColumn<
   label: string,
   shortLabel?: string,
   sortField?: string,
+  defaultSort?: "asc" | "desc",
   columnWidth?: string,
   componentName: T,
   props?: Omit<ComponentProps<ComponentTypes[T]>, "user">,
@@ -93,6 +94,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Karma",
+    sortField: "karma",
+    defaultSort: "desc",
     columnWidth: "80px",
     componentName: "PeopleDirectoryNumberCell",
     props: {

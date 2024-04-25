@@ -31,13 +31,15 @@ export const PeopleDirectoryHeading = ({column, classes}: {
   const {sorting, setSorting} = usePeopleDirectory();
 
   const onToggleSort = useCallback(() => {
+    const firstSort = column.defaultSort ?? "asc";
+    const secondSort = firstSort === "asc" ? "desc" : "asc";
     if (!column.sortField) {
       return;
     } else if (sorting?.field === column.sortField) {
-      if (sorting.direction === "asc") {
+      if (sorting.direction === firstSort) {
         setSorting({
           field: column.sortField,
-          direction: "desc",
+          direction: secondSort,
         });
       } else {
         setSorting(null);
@@ -45,10 +47,10 @@ export const PeopleDirectoryHeading = ({column, classes}: {
     } else {
       setSorting({
         field: column.sortField,
-        direction: "asc",
+        direction: firstSort,
       });
     }
-  }, [sorting, setSorting, column.sortField]);
+  }, [sorting, setSorting, column.sortField, column.defaultSort]);
 
   const isCurrentSort = column.sortField && sorting?.field === column.sortField;
 
