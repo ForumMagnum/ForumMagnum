@@ -98,4 +98,4 @@ export type {
   GoogleMediaPersonOrgRole,
   InViewEvent,
   SettingName,
-}
+};
