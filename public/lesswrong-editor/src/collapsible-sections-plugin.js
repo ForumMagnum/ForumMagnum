@@ -1,6 +1,7 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
+import collapsibleSectionIcon from './collapsible-section-icon.svg';
 
 /**
  * CkEditor5 plugin that makes a collapsible section, using the html <details>
@@ -63,7 +64,7 @@ export default class CollapsibleSections extends Plugin {
         // The t() function helps localize the editor. All strings enclosed in t() can be
         // translated and change when the language of the editor changes.
         label: 'Collapsible Section',
-        withText: true,
+        icon: collapsibleSectionIcon,
         tooltip: true
       });
 
@@ -82,14 +83,14 @@ export default class CollapsibleSections extends Plugin {
     
     schema.register('collapsibleSection', {
       allowWhere: '$block',
-      //allowContentOf: ['collapsibleSectionTitle', 'collapsibleSectionContent'],
-      allowContentOf: '$block',
+      allowContentOf: ['collapsibleSectionTitle', 'collapsibleSectionContent'],
+      //allowContentOf: '$block',
     });
     
     schema.register('collapsibleSectionTitle', {
       isLimit: true,
       allowIn: 'collapsibleSection',
-      allowContentOf: '$block',
+      allowContentOf: '$root',
     });
 
     schema.register('collapsibleSectionContent', {
@@ -181,7 +182,6 @@ class InsertCollapsibleSectionCommand extends Command {
   execute() {
     const model = this.editor.model;
     model.change(writer => {
-      console.log("Inserting collapsible section");
       const selection = model.document.selection;
       const currentElement = selection.getFirstPosition().parent;
       const insertPosition = (currentElement.childCount > 0)
@@ -209,7 +209,7 @@ function createCollapsibleSection(writer) {
   writer.append(collapsibleSectionTitle, collapsibleSection);
   writer.append(collapsibleSectionContent, collapsibleSection);
 
-  writer.appendElement('paragraph', collapsibleSectionTitle);
+  //writer.appendElement('paragraph', collapsibleSectionTitle);
   writer.appendElement('paragraph', collapsibleSectionContent);
 
   return collapsibleSection;

@@ -251,6 +251,8 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
     // !important to ensure it's visible.
     border: theme.palette.border.normal+' !important',
     borderRadius: 8,
+    marginTop: 8,
+    marginBottom: 8,
   },
   '& .detailsBlockTitle': {
     padding: 8,
@@ -260,12 +262,17 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
     // pure-white when the cursor is inside it, which would make the
     // title-vs-contents distinction invisible
     background: theme.palette.panelBackground.darken05+'!important',
+    
+    "&>p": {
+      display: "inline-block",
+    },
   },
   '& .detailsBlockTitle[open]': {
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0,
   },
   '& summary.detailsBlockTitle': {
+    cursor: "pointer",
   },
   '& .detailsBlockContent': {
     padding: 8,
@@ -274,14 +281,33 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
   // in the editor for some reason, which would create a page/editor mismatch
   // and mess up the bottom margin of detail block contents.
-  "& .detailsBlockContent > p:last-child": {
+  "& .detailsBlockContent > p:last-child, & .detailsBlockTitle > p:last-child": {
     marginBottom: '0 !important',
   },
+  
+  "& .detailsBlock.closed .detailsBlockContent": {
+    display: "none",
+  },
+  
+  // The 'div' part of this selector makes it specific to the editor (outside
+  // the editor it would be a <summary> tag)
+  '& div.detailsBlockTitle': {
+    paddingLeft: 24,
+  },
+
+  // The 'div' part of this selector makes it specific to the editor (outside
+  // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle::before': {
     content: '"▼"',
+    cursor: "pointer",
     fontSize: 14,
     paddingRight: 4,
+    position: "absolute",
+    left: 8,
   },
+  '& .detailsBlock.closed div.detailsBlockTitle::before': {
+    content: '"▶"',
+  }
 });
 
 // Calling requireCssVar results in the variable being defined in the stylesheet

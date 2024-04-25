@@ -613,9 +613,18 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const target = ev.nativeEvent?.target;
     if (!target) return;
 
-    if ((target as HTMLElement).classList?.contains("detailsBlockTitle")) {
+    if ((target as HTMLElement).classList?.contains("detailsBlockTitle")
+      && ev.nativeEvent.offsetX < 24
+    ) {
       console.log("Clicked on a details block title");
-      // TODO toggle collapse
+      const parentElement = (target as HTMLElement).parentElement;
+      if (parentElement?.classList.contains("detailsBlock")) {
+        if (parentElement.classList.contains("closed")) {
+          parentElement.classList.remove("closed");
+        } else {
+          parentElement.classList.add("closed");
+        }
+      }
     }
   }
 
