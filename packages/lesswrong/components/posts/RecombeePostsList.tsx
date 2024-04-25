@@ -103,6 +103,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
 
   useOnMountTracking({
     eventType: "postList",
+    // TODO: Remove postIds which is redundant once analytics dashboard written to use postIdsWithScenario
     eventProps: { postIds, postIdsWithScenario, algorithm },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
