@@ -113,6 +113,7 @@ export interface RecombeeConfiguration {
   rotationTime?: number,
   booster?: string,
   filter?: string,
+  hybridScenarios?: string[],
   refreshKey?: string,
   loadMore?: {
     prevRecommId: string,
@@ -127,6 +128,7 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
 }
 
 export interface HybridRecombeeConfiguration {
+  hybridScenarios: string[],
   userId?: string,
   rotationRate?: number,
   rotationTime?: number,

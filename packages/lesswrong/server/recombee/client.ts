@@ -177,11 +177,16 @@ const recombeeRequestHelpers = {
     };
   },
 
-  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof typeof HYBRID_SCENARIO_MAP, filter?: string) {
-    const { loadMore, userId, ...rest } = hybridArgs;
+  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: 'first' | 'second', filter?: string) {
+    const { loadMore, userId, hybridScenarios, ...rest } = hybridArgs;
 
-    const scenario = HYBRID_SCENARIO_MAP[hybridArm];
-    const isConfigurable = hybridArm === 'configurable';
+    if (hybridScenarios.length !== 2) {
+      // eslint-disable-next-line no-console
+      console.log('Hybrid scenario array must have exactly two elements');
+    }
+    const scenario = hybridScenarios[hybridArm === 'first' ? 0 : 1];
+
+    const isConfigurable = hybridArm === 'second';
     const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 144};
     const prevRecommIdIndex = isConfigurable ? 0 : 1;
     const loadMoreConfig = loadMore
@@ -323,8 +328,8 @@ const recombeeApi = {
     const firstCount = Math.floor(modifiedCount * split);
     const secondCount = modifiedCount - firstCount;
 
-    const firstRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
-    const secondRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'fixed', excludedPostFilter);
+    const firstRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'first', excludedPostFilter);
+    const secondRequestSettings = recombeeRequestHelpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'second', excludedPostFilter);
 
     const firstRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, firstCount, firstRequestSettings);
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
