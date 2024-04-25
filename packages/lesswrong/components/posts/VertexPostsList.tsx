@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
-import { HybridRecombeeConfiguration, RecombeeConfiguration, VertexConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { VertexConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
-import uniq from 'lodash/uniq';
-import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isServer } from '../../lib/executionEnvironment';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
@@ -108,27 +106,10 @@ export const VertexPostsList = ({ limit = 100, classes }: {
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
-          // Purely for admin testing
+          // Purely for admin testing, see e.g. RecombeePostsList for a custom loadMore implementation if we figure one out for Vertex
           if (displayCount < 100) {
             setDisplayCount(Math.min(100, displayCount + 15));
           }
-          // const loadMoreSettings = getLoadMoreSettings(resolverName, results);
-          // void fetchMore({
-          //   variables: {
-          //     settings: { loadMore: loadMoreSettings },
-          //   },
-          //   // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
-          //   updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
-          //     if (!fetchMoreResult) return prev;
-
-          //     return {
-          //       [resolverName]: {
-          //         __typename: fetchMoreResult[resolverName].__typename,
-          //         results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results]
-          //       }
-          //     };
-          //   }
-          // });
         }}
         sectionFooterStyles
       />

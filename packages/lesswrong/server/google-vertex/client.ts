@@ -14,6 +14,11 @@ import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocume
 const { RecommendationServiceClient } = v1beta;
 
 onStartup(() => {
+  // This is a weird hack which is necessary because this was the least crazy way to authenticate with Google Cloud from the outside.
+  // The tl;dr is that Google's client libraries will read process.env.GOOGLE_APPLICATION_CREDENTIALS and expect to find a filepath to the credentials file.
+  // The easiest way I thought of to solve the problem of differing relative paths between local env and production
+  // was to put the path of the creds file _relative to the instance settings file_ into an instance setting, and then join it with the path to the instance settings file.
+  // See https://cloud.google.com/docs/authentication/provide-credentials-adc#wlif-key for details
   const credsPath = googleRecommendationsCredsPath.get();
   const clArgs = getCommandLineArguments();
   if (credsPath && clArgs.settingsFileName) {
