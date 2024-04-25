@@ -206,6 +206,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 terms={recentPostsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
+                cardView
               >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>

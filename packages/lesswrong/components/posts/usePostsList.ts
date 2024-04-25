@@ -6,6 +6,7 @@ import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { PostsItemConfig } from "./usePostsItem";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -58,6 +59,8 @@ export type PostsListConfig = {
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
   loadMoreMessage?: string,
+  /** Show the items in card view (currently only implemented in friendly UI) */
+  cardView?: boolean,
 }
 
 const defaultTooltipPlacement = isFriendlyUI
@@ -95,6 +98,7 @@ export const usePostsList = ({
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
   loadMoreMessage,
+  cardView = false,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -199,7 +203,7 @@ export const usePostsList = ({
 
   const hasResults = orderedResults && orderedResults.length > 1;
 
-  const itemProps = orderedResults?.filter(
+  const itemProps: PostsItemConfig[] | undefined = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
   ).map((post, i) => ({
     post,
@@ -214,10 +218,12 @@ export const usePostsList = ({
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
-    defaultToShowUnreadComments, showPostedAt,
+    defaultToShowUnreadComments,
+    showPostedAt,
     showBottomBorder: showFinalBottomBorder ||
       (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
+    cardView,
   }));
 
   const onLoadMore = useCallback(() => {

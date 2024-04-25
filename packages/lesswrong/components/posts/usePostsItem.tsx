@@ -80,6 +80,8 @@ export type PostsItemConfig = {
   useCuratedDate?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
+  /** Show the item in card view (currently only implemented in friendly UI) */
+  cardView?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
@@ -125,6 +127,7 @@ export const usePostsItem = ({
   forceSticky = false,
   showReadCheckbox = false,
   showMostValuableCheckbox = false,
+  cardView = false,
   showKarma = true,
   useCuratedDate = true,
   isVoteable = false,
@@ -256,6 +259,7 @@ export const usePostsItem = ({
     dense,
     curatedIconLeft,
     strikethroughTitle,
+    cardView,
     bookmark,
     isVoteable,
     className,
