@@ -1,5 +1,5 @@
 import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
-import { HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
@@ -11,7 +11,6 @@ import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
-import { HybridArmsConfig } from '../../lib/collections/users/recommendationSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
