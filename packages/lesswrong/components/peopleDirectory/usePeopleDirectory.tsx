@@ -7,6 +7,8 @@ import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
+import { useLocation, useNavigate } from "../../lib/routeUtil";
+import qs from "qs";
 
 type PeopleDirectorySorting = {
   field: string,
@@ -37,7 +39,9 @@ const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null
 
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
-  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+  const {location, query: urlQuery} = useLocation();
+  const [query, setQuery_] = useState(urlQuery.query ?? "");
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
   // We store the results in an 2D-array, where the index in the first array
   // corresponds to the "page" of the contained results. This prevents a class
@@ -77,6 +81,16 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     }
     return hackyNullRemoval;
   }, [results]);
+
+  const updateUrlQuery = useCallback((update: Record<string, string>) => {
+    const newQuery = {...urlQuery, ...update};
+    navigate({...location, search: `?${qs.stringify(newQuery)}`});
+  }, [navigate, location, urlQuery]);
+
+  const setQuery = useCallback((query: string) => {
+    setQuery_(query);
+    updateUrlQuery({query});
+  }, [updateUrlQuery]);
 
   const clearSearch = useCallback(() => {
     setQuery("");
