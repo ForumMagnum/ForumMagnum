@@ -20,7 +20,7 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
@@ -51,7 +51,7 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib';
+import { createAnonymousContext } from './vulcan-lib/query';
 import { DatabaseServerSetting } from './databaseSettings';
 
 /**
@@ -363,6 +363,9 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
+    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
+
     const {bundleHash} = getClientBundle();
     const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
@@ -400,6 +403,7 @@ export function startWebserver() {
         + externalStylesPreload
         + instanceSettingsHeader
         + faviconHeader
+        + publicSettingsHeader // Must come before clientScript
         + clientScript
     );
 
@@ -434,8 +438,6 @@ export function startWebserver() {
       renderedAt,
       allAbTestGroups,
     } = renderResult;
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);

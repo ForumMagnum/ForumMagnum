@@ -17,7 +17,7 @@ type LinkProps = {
   eventProps?: Record<string, string>
   className?: string
   style?: CSSProperties,
-  dangerouslySetInnerHTML?: {__html: string}
+  dangerouslySetInnerHTML?: {__html: TrustedHTML}
   target?: string
   smooth?: boolean,
   id?: string
