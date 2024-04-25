@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { COLUMN_HORIZONTAL_PADDING } from "./PeopleDirectoryResultRow";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -13,6 +14,9 @@ const styles = (theme: ThemeType) => ({
     padding: `8px ${COLUMN_HORIZONTAL_PADDING}px`,
     whiteSpace: "nowrap",
     color: theme.palette.grey[600],
+  },
+  currentSort: {
+    color: theme.palette.grey[1000],
   },
   icon: {
     cursor: "pointer",
@@ -46,9 +50,14 @@ export const PeopleDirectoryHeading = ({column, classes}: {
     }
   }, [sorting, setSorting, column.sortField]);
 
+  const isCurrentSort = column.sortField && sorting?.field === column.sortField;
+
   const {ForumIcon} = Components;
   return (
-    <div className={classes.root}>
+    <div className={classNames(
+      classes.root,
+      isCurrentSort && classes.currentSort,
+    )}>
       {column.shortLabel ?? column.label}
       {column.sortField &&
         <ForumIcon
