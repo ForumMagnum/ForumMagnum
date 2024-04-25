@@ -299,6 +299,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
       showOnMobileStandalone: true,
       showOnCompressed: true,
+      /*
     }, {
       id: 'peopleDirectory',
       title: 'People directory',
@@ -311,6 +312,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       flag: "beta",
       desktopOnly: true,
       betaOnly: true,
+       */
     }, {
       id: 'takeAction',
       title: 'Take action',
