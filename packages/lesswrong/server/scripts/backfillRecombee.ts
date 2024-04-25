@@ -121,7 +121,6 @@ function getPostBatch(offsetDate: Date) {
 }
 
 async function backfillPosts(offsetDate?: Date) {
-  const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
   const recombeeClient = getRecombeeClientOrThrow();
 
@@ -141,10 +140,10 @@ async function backfillPosts(offsetDate?: Date) {
 
       const postsWithTags = batch.map(({ tags, ...post }) => ({
         post,
-        tags: tags.map(([_, name, core]) => ({ name, core }))
+        tags: tags.map(([_id, name, core]) => ({ _id, name, core }))
       }));
 
-      const requestBatch = await Promise.all(postsWithTags.map(({ post, tags }) => recombeeRequestHelpers.createUpsertPostRequest(post, adminContext, tags)));
+      const requestBatch = postsWithTags.map((postData) => recombeeRequestHelpers.createUpsertPostRequest(postData));
       const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
       await recombeeClient.send(batchRequest);
   
