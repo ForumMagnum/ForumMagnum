@@ -63,6 +63,7 @@ export const styles = (theme: ThemeType) => ({
   },
   containerCard: {
     paddingTop: 16,
+    paddingBottom: 12,
   },
   postsVote: {
     position: "relative",
@@ -176,6 +177,9 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "flex-end",
     gap: "70px",
+    [theme.breakpoints.down("xs")]: {
+      gap: "16px",
+    },
   },
   cardText: {
     display: "-webkit-box",
@@ -188,11 +192,19 @@ export const styles = (theme: ThemeType) => ({
     lineHeight: "150%",
     color: theme.palette.grey[600],
     maxHeight: 70,
+    [theme.breakpoints.down("xs")]: {
+      "-webkit-line-clamp": 4,
+      lineHeight: "140%",
+    },
   },
   cardImage: {
     borderRadius: theme.borderRadius.small,
     width: 124,
     height: 70,
+    objectFit: "cover",
+    [theme.breakpoints.down("xs")]: {
+      width: 100,
+    },
   },
 });
 
