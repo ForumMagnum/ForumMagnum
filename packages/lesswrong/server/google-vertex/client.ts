@@ -30,6 +30,7 @@ const getGoogleClientInstanceOrThrow = <T extends new () => InstanceType<T>, Dep
   constructor: T,
   /**
    * If the client depends on any settings at runtime, pass them in here to cause the getter to throw if any of the settings are missing.
+   * The settings need to be provided via an object with the field names being formatted like `fooSetting` (ending in `Setting`), and returning a `T | null` value for arbitrary `T`.
    */
   runtimeSettingDependencies?: Deps
 ): () => { client: InstanceType<T>, settingValues: ClientSettings<Deps> } => ((ClientConstructor: T) => {
