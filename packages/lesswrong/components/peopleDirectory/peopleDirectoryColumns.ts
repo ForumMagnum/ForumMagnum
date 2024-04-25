@@ -106,6 +106,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Location",
+    sortField: "mapLocationAddress.sort",
     componentName: "PeopleDirectoryTextCell",
     props: {
       fieldName: "mapLocationAddress",
