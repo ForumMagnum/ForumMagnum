@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
-import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
+import { HybridRecombeeConfiguration, RecombeeConfiguration, VertexConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -39,14 +39,14 @@ const getVertexPostsQuery = (resolverName: VertexResolver) => gql`
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
-const getLoadMoreSettings = (resolverName: VertexResolver, results: VertexRecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
+const getLoadMoreSettings = (resolverName: VertexResolver, results: VertexRecommendedPost[]): VertexConfiguration['loadMore'] => {
   switch (resolverName) {
     case DEFAULT_RESOLVER_NAME:
-      const prevRecommId = results.find(result => result.attributionId)?.attributionId;
-      if (!prevRecommId) {
+      const prevAttributionId = results.find(result => result.attributionId)?.attributionId;
+      if (!prevAttributionId) {
         return undefined;
       }
-      return { prevRecommId };  
+      return { prevAttributionId };  
   }
 }
 
@@ -56,15 +56,13 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const VertexPostsList = ({ limit = 15, classes }: {
-  // algorithm: string,
-  // settings: RecombeeConfiguration,
+export const VertexPostsList = ({ limit = 100, classes }: {
   limit?: number,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
 
-  // const recombeeSettings = { ...settings, scenario: algorithm };
+  const [displayCount, setDisplayCount] = useState(15);
 
   const resolverName = DEFAULT_RESOLVER_NAME;
 
@@ -96,10 +94,9 @@ export const VertexPostsList = ({ limit = 15, classes }: {
     return null;
   }
 
-
   return <div>
     <div className={classes.root}>
-      {results.map(({ post, attributionId: recommId, curated, stickied }) => <PostsItem 
+      {results.slice(0, displayCount).map(({ post, attributionId: recommId, curated, stickied }) => <PostsItem 
         key={post._id} 
         post={post} 
         recombeeRecommId={recommId} 
@@ -111,23 +108,27 @@ export const VertexPostsList = ({ limit = 15, classes }: {
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
-          const loadMoreSettings = getLoadMoreSettings(resolverName, results);
-          void fetchMore({
-            variables: {
-              settings: { loadMore: loadMoreSettings },
-            },
-            // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
-            updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
-              if (!fetchMoreResult) return prev;
+          // Purely for admin testing
+          if (displayCount < 100) {
+            setDisplayCount(Math.min(100, displayCount + 15));
+          }
+          // const loadMoreSettings = getLoadMoreSettings(resolverName, results);
+          // void fetchMore({
+          //   variables: {
+          //     settings: { loadMore: loadMoreSettings },
+          //   },
+          //   // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
+          //   updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
+          //     if (!fetchMoreResult) return prev;
 
-              return {
-                [resolverName]: {
-                  __typename: fetchMoreResult[resolverName].__typename,
-                  results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results]
-                }
-              };
-            }
-          });
+          //     return {
+          //       [resolverName]: {
+          //         __typename: fetchMoreResult[resolverName].__typename,
+          //         results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results]
+          //       }
+          //     };
+          //   }
+          // });
         }}
         sectionFooterStyles
       />

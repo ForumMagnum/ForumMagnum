@@ -137,6 +137,12 @@ export interface HybridRecombeeConfiguration {
   },
 }
 
+export interface VertexConfiguration {
+  loadMore?: {
+    prevAttributionId: string,
+  },
+}
+
 
 export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   method: "top",

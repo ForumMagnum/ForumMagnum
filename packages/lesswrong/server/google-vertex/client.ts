@@ -6,7 +6,6 @@ import { loadByIds } from "../../lib/loaders";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { getCommandLineArguments } from "../commandLine";
 import path from "path";
-import { timedFunc } from "../../lib/helpers";
 
 const { RecommendationServiceClient } = v1beta;
 
@@ -38,12 +37,12 @@ const clients = {
 const googleVertexApi = {
   async getRecommendations(limit: number, context: ResolverContext) {
     const client = clients.recommendations();
-    const [recommendationsResponse] = await timedFunc('recommend', () => client.recommend({
+    const [recommendationsResponse] = await client.recommend({
       validateOnly: false,
       servingConfig: 'projects/lesswrong-recommendations/locations/global/collections/default_collection/dataStores/datastore-lw-recommendations3_1713386634021/servingConfigs/lw-recommendations-5_1713464089330',
       pageSize: limit,
-      userEvent: { eventType: 'view-home-page', userPseudoId: context.currentUser?._id }
-    }));
+      userEvent: { eventType: 'view-home-page', userPseudoId: context.currentUser?._id },
+    });
     if (!recommendationsResponse.results) {
       // TODO: error?
       // eslint-disable-next-line no-console
