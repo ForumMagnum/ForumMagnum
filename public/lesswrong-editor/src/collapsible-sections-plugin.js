@@ -148,7 +148,7 @@ export default class CollapsibleSections extends Plugin {
       view: {name: "div", classes: "detailsBlockTitle"},
     });
     conversion.for("editingDowncast").elementToElement({
-      model: "collapsibleSec0tionTitle",
+      model: "collapsibleSectionTitle",
       view: (modelElement, { writer: viewWriter }) => {
         const collapsibleSectionTitle = viewWriter.createContainerElement('div', { class: 'detailsBlockTitle' });
         return toWidgetEditable(collapsibleSectionTitle, viewWriter, { label: 'details' });
