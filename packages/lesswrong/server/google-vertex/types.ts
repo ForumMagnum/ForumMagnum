@@ -77,9 +77,6 @@ interface GoogleMediaDocumentMetadata {
 interface InViewEvent {
   userId: string;
   postId: string;
-  /**
-   * When generating the table with these events, we forgot to alias the MIN(timestamp) back to `timestamp`.
-   */
   timestamp: Date;
 }
 
