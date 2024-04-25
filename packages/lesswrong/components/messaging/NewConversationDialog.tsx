@@ -6,7 +6,7 @@ import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/searc
 import { useCurrentUser } from "../common/withUser";
 import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useNavigate } from "../../lib/reactRouterWrapper";
-import { Hit } from "react-instantsearch-core";
+import type { Hit } from "react-instantsearch-core";
 import Chip from "@material-ui/core/Chip";
 import { InstantSearch } from "../../lib/utils/componentsWithChildren";
 
