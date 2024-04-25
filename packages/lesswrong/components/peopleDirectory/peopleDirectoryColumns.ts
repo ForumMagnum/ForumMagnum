@@ -116,6 +116,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   {
     label: "Profile last updated",
     shortLabel: "Profile updated",
+    sortField: "profileUpdatedAt",
+    defaultSort: "desc",
     columnWidth: "120px",
     componentName: "PeopleDirectoryDateCell",
     props: {
