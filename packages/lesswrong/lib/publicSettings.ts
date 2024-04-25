@@ -1,6 +1,7 @@
 import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 import {forumSelect} from './forumTypeUtils'
+import {isEAForum} from './instanceSettings'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -182,3 +183,5 @@ export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recomb
 export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
 
 export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+
+export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)

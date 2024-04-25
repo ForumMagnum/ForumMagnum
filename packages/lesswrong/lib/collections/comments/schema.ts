@@ -9,6 +9,7 @@ import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
+import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -674,7 +675,7 @@ const schema: SchemaType<"Comments"> = {
     canCreate: ['members', 'admins', 'sunshineRegiment'],
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
-    hidden: ({document}) => !isEAForum || !document?.shortform,
+    hidden: ({document}) => !quickTakesTagsEnabledSetting.get() || !document?.shortform,
     control: "FormComponentQuickTakesTags",
   },
   'relevantTagIds.$': {

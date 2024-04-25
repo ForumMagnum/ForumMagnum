@@ -47,8 +47,6 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isFriendlyUI ? adminOnly : shippedFeature;
 
-export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
-
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
