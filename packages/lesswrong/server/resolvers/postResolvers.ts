@@ -730,8 +730,8 @@ createPaginatedResolver({
   ): Promise<VertexRecommendedPost[]> => {
     const { currentUser } = context;
 
-    if (!currentUser) {
-      throw new Error(`You must be logged in to use Google recommendations right now`);
+    if (userIsAdmin(currentUser)) {
+      throw new Error(`You must be an admin to use Google recommendations right now`);
     }
 
     return await googleVertexApi.getRecommendations(limit, context);
