@@ -3,10 +3,16 @@ import { getCookieFromReq, setCookieOnResponse } from './utils/httpUtil';
 import { createMutator } from './vulcan-lib/mutators';
 import { ClientIds } from '../lib/collections/clientIds/collection';
 import type { AddMiddlewareType } from './apolloServer';
-import { swrCacheHeader } from './cacheControlMiddleware';
+import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
+import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 
-const isApplicableUrl = (url: string) =>
-  url !== "/robots.txt" && url.indexOf("/api/") < 0;
+/**
+ * Cache-control header indicating the response is private (user-specific) and should never be stored by a shared cache.
+ * Note that for use with CloudFront, the max-age=0 is necessary to ensure the response is not cache (regardless of the
+ * behaviour that is set up). This is a footgun imo.
+ */
+const privateCacheHeader = "private, no-cache, no-store, must-revalidate, max-age=0"
+export const swrCacheHeader = "max-age=1, s-max-age=1, stale-while-revalidate=86400"
 
 // TODO:
 // - [ ] Make sure this doesn't add set-cookie to requests that might be cached
@@ -17,35 +23,19 @@ const isApplicableUrl = (url: string) =>
 //         (this ensures that even if the CDN isn't set up properly we do get a clientId after the first request)
 //   - [ ] Add a setting to enable the caching thing, so other instances can still set cookies if they want (or ideally infer it from the request)
 
-// Middleware for assigning a client ID, if one is not currently assigned.
-export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
+
+export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
   addMiddleware(function addClientId(req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) {
-    const cacheControlHeader = res.headers?.["Cache-Control"]
-    if (!getCookieFromReq(req, "clientId") && cacheControlHeader !== swrCacheHeader) {
-      const newClientId = randomId();
-      setCookieOnResponse({
-        req, res,
-        cookieName: "clientId",
-        cookieValue: newClientId,
-        maxAge: 315360000
-      });
-      
-      try {
-        if (isApplicableUrl(req.url)) {
-          const referrer = req.headers?.["referer"] ?? null;
-          const url = req.url;
-          
-          void ClientIds.rawInsert({
-            clientId: newClientId,
-            firstSeenReferrer: referrer,
-            firstSeenLandingPage: url,
-            userIds: undefined,
-          });
-        }
-      } catch(e) {
-        //eslint-disable-next-line no-console
-        console.error(e);
-      }
+    const parsedRoute = parseRoute({
+      location: parsePath(req.url)
+    });
+    
+    const user = getUserFromReq(req);
+    
+    if (parsedRoute.currentRoute?.swrCaching === "logged-out" && !user) {
+      res.setHeader("Cache-Control", swrCacheHeader);
+    } else if (user) {
+      res.setHeader("Cache-Control", privateCacheHeader)
     }
     
     next();
