@@ -43,7 +43,6 @@ onStartup(() => {
     <Main />,
   );
   setTimeout(() => {
-    // TODO: Check: is this too early?
     apolloClient.disableNetworkFetches = false;
     foreignApolloClient.disableNetworkFetches = false;
     timeOverride.currentTime = null;
