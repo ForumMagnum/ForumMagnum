@@ -1,5 +1,12 @@
 import React, { FC, ReactNode, createContext, useContext, useState } from "react";
-import type { PostsListViewType } from "../posts/usePostsItem";
+import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
+
+const postsListViewTypes = new TupleSet(["list", "card"] as const);
+
+export type PostsListViewType = UnionOf<typeof postsListViewTypes>;
+
+export const isPostsListViewType = (value: string): value is PostsListViewType =>
+  postsListViewTypes.has(value);
 
 type PostsListViewContext = {
   view: PostsListViewType,

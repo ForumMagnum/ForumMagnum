@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib";
-import type { PostsListViewType } from './usePostsItem';
+import type { PostsListViewType } from '../hooks/usePostsListView';
 
 const styles = (theme: ThemeType) => ({
   root: {

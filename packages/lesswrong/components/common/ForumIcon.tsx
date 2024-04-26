@@ -128,6 +128,8 @@ import { VotedIcon } from "../icons/votedIcon";
 import { LightbulbChatIcon } from "../icons/lightbulbChatIcon";
 import { AddReactionIcon } from "../icons/AddReactionIcon";
 import { LabBeakerIcon } from "../icons/LabBeakerIcon";
+import { ListViewIcon } from "../icons/ListViewIcon";
+import { CardViewIcon } from "../icons/CardViewIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -221,6 +223,8 @@ export type ForumIconName =
   "InfoCircle" |
   "BarsArrowDown" |
   "ViewColumns" |
+  "ListView" |
+  "CardView" |
   "LightbulbChat" |
   "VoteBallot" |
   "Import" |
@@ -315,6 +319,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
     ViewColumns: ViewColumnsIcon,
+    ListView: ListViewIcon,
+    CardView: CardViewIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
@@ -407,6 +413,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
     ViewColumns: ViewColumnsIcon,
+    ListView: ListViewIcon,
+    CardView: CardViewIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,

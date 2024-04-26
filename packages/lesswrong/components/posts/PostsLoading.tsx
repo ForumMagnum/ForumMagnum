@@ -2,7 +2,7 @@ import range from 'lodash/range';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import type { PostsListViewType } from './usePostsItem';
+import type { PostsListViewType } from '../hooks/usePostsListView';
 
 const PostsLoading = ({
   placeholderCount,
@@ -43,4 +43,3 @@ declare global {
     PostsLoading: typeof PostsLoadingComponent
   }
 }
-

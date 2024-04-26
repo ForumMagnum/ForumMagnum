@@ -57,6 +57,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postsListSettings: {
     display: "flex",
+    alignItems: "center",
     gap: "6px",
   },
 });

@@ -16,13 +16,12 @@ import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../li
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
+import type { PostsListViewType } from "../hooks/usePostsListView";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
     ? post.sticky || (terms.af && post.afSticky) || (terms.meta && post.metaSticky)
     : false;
-
-export type PostsListViewType = "list" | "card";
 
 export type PostsItemConfig = {
   /** post: The post displayed.*/
