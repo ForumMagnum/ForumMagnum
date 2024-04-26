@@ -99,7 +99,8 @@ const PostsListViewToggle = ({classes}: {
   }, []);
 
   const showFlag = data.viewCount < 4 &&
-    (moment(data.firstViewedAt).add(1, "month").isAfter(moment()));
+    moment(data.firstViewedAt).add(1, "month").isAfter(moment()) &&
+    new Date() < new Date("2024-05-31");
 
   const {view, setView} = usePostsListView();
 
