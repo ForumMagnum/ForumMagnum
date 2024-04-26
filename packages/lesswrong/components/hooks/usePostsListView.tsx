@@ -2,6 +2,7 @@ import React, { FC, ReactNode, createContext, useCallback, useContext, useState 
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
 import { POSTS_LIST_VIEW_TYPE_COOKIE } from "../../lib/cookies/cookies";
+import { useCurrentUser } from "../common/withUser";
 
 const postsListViewTypes = new TupleSet(["list", "card"] as const);
 
@@ -25,11 +26,15 @@ const useCookieValue = (): {
   cookieValue: PostsListViewType | null,
     setCookieValue: (value: PostsListViewType) => void,
 } => {
+  const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([POSTS_LIST_VIEW_TYPE_COOKIE]);
-  const value = cookies[POSTS_LIST_VIEW_TYPE_COOKIE];
   const setCookieValue = useCallback((newValue: PostsListViewType) => {
     setCookie(POSTS_LIST_VIEW_TYPE_COOKIE, newValue);
   }, [setCookie]);
+
+  // TODO: We currently need to disable persisting the card view for logged out
+  // users because it plays really badly with the page cache
+  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : "list";
   return {
     cookieValue: isPostsListViewType(value) ? value : null,
     setCookieValue,
