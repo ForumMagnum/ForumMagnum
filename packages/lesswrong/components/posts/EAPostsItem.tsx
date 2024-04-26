@@ -200,7 +200,9 @@ export const styles = (theme: ThemeType) => ({
   cardImage: {
     borderRadius: theme.borderRadius.small,
     width: 124,
+    minWidth: 124,
     height: 70,
+    minHeight: 70,
     objectFit: "cover",
     [theme.breakpoints.down("xs")]: {
       width: 100,
