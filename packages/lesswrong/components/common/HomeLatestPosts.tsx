@@ -19,7 +19,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
-import { PostsListViewProvider } from '../hooks/usePostsListView';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -159,69 +158,67 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <PostsListViewProvider>
-          <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
-            <div className={classes.postsListSettings}>
-              <LWTooltip
-                title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
-                hideOnTouchScreens
-              >
-                <SettingsButton
-                  className={classes.hideOnMobile}
-                  label={filterSettingsVisibleDesktop ?
-                    filterSettingsToggleLabels.desktopVisible :
-                    filterSettingsToggleLabels.desktopHidden}
-                  showIcon={false}
-                  onClick={changeShowTagFilterSettingsDesktop}
-                  textShadow={isLWorAF}
-                />
-                <SettingsButton
-                  className={classes.hideOnDesktop}
-                  label={filterSettingsVisibleMobile ?
-                    filterSettingsToggleLabels.mobileVisible :
-                    filterSettingsToggleLabels.mobileHidden}
-                  showIcon={false}
-                  onClick={() => {
-                    setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-                    captureEvent("filterSettingsClicked", {
-                      settingsVisible: !filterSettingsVisibleMobile,
-                      settings: filterSettings,
-                      pageSectionContext: "latestPosts"
-                    })
-                  }} />
-              </LWTooltip>
-              {isFriendlyUI && <PostsListViewToggle />}
-            </div>
-          </SectionTitle>
-
-          <AnalyticsContext pageSectionContext="tagFilterSettings">
-            <div className={classNames({
-              [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-              [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-            })}>
-              <TagFilterSettings
-                filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
+          <div className={classes.postsListSettings}>
+            <LWTooltip
+              title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+              hideOnTouchScreens
+            >
+              <SettingsButton
+                className={classes.hideOnMobile}
+                label={filterSettingsVisibleDesktop ?
+                  filterSettingsToggleLabels.desktopVisible :
+                  filterSettingsToggleLabels.desktopHidden}
+                showIcon={false}
+                onClick={changeShowTagFilterSettingsDesktop}
+                textShadow={isLWorAF}
               />
-            </div>
+              <SettingsButton
+                className={classes.hideOnDesktop}
+                label={filterSettingsVisibleMobile ?
+                  filterSettingsToggleLabels.mobileVisible :
+                  filterSettingsToggleLabels.mobileHidden}
+                showIcon={false}
+                onClick={() => {
+                  setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+                  captureEvent("filterSettingsClicked", {
+                    settingsVisible: !filterSettingsVisibleMobile,
+                    settings: filterSettings,
+                    pageSectionContext: "latestPosts"
+                  })
+                }} />
+            </LWTooltip>
+            {isFriendlyUI && <PostsListViewToggle />}
+          </div>
+        </SectionTitle>
+
+        <AnalyticsContext pageSectionContext="tagFilterSettings">
+          <div className={classNames({
+            [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+            [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+          })}>
+            <TagFilterSettings
+              filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+            />
+          </div>
+        </AnalyticsContext>
+        {isFriendlyUI && <StickiedPosts />}
+        <HideRepeatedPostsProvider>
+          {showCurated && <CuratedPostsList />}
+          <AnalyticsContext listContext={"latestPosts"}>
+            {/* Allow hiding posts from the front page*/}
+            <AllowHidingFrontPagePostsContext.Provider value={true}>
+              <PostsList2
+                terms={recentPostsTerms}
+                alwaysShowLoadMore
+                hideHiddenFrontPagePosts
+                viewType="fromContext"
+              >
+                <Link to={"/allPosts"}>{advancedSortingText}</Link>
+              </PostsList2>
+            </AllowHidingFrontPagePostsContext.Provider>
           </AnalyticsContext>
-          {isFriendlyUI && <StickiedPosts />}
-          <HideRepeatedPostsProvider>
-            {showCurated && <CuratedPostsList />}
-            <AnalyticsContext listContext={"latestPosts"}>
-              {/* Allow hiding posts from the front page*/}
-              <AllowHidingFrontPagePostsContext.Provider value={true}>
-                <PostsList2
-                  terms={recentPostsTerms}
-                  alwaysShowLoadMore
-                  hideHiddenFrontPagePosts
-                  viewType="fromContext"
-                >
-                  <Link to={"/allPosts"}>{advancedSortingText}</Link>
-                </PostsList2>
-              </AllowHidingFrontPagePostsContext.Provider>
-            </AnalyticsContext>
-          </HideRepeatedPostsProvider>
-        </PostsListViewProvider>
+        </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>
   )

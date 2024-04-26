@@ -5,6 +5,8 @@ import {tagPostTerms} from '../tagging/TagPage'
 import {Link} from '../../lib/reactRouterWrapper'
 import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
+import { isFriendlyUI } from '../../themes/forumTheme'
+import { PostsListViewProvider } from '../hooks/usePostsListView'
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
@@ -17,8 +19,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontWeight: 600
   },
+  postsListSettings: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
 })
-
 
 // The order in which the topics are displayed is slightly different from their default ordering
 const topicTabsOrder = [
@@ -75,17 +81,19 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
   //   skip: !activeCoreTopic?.sequence?._id,
   // });
   // const spotlight = spotLightResults?.[0]
-  
-  const { SingleColumnSection, SectionTitle, PostsList2, HomeTagBar } = Components
-  
+
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
     sortedBy: 'magic',
     limit: 30
   }
 
+  const {
+    SingleColumnSection, SectionTitle, PostsList2, HomeTagBar,
+    PostsListViewToggle,
+  } = Components;
   return (
-    <>
+    <PostsListViewProvider>
       <HomeTagBar onTagSelectionUpdated={setActiveTab} sortTopics={sortTopics} frontpageTab={frontpageTab}/>
 
       {activeTab.name === FRONTPAGE_TAB_NAME ? <FrontpageNode/> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
@@ -95,16 +103,22 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
             className={classes.spotlightMargin}
           />} */}
           <SectionTitle title="New & upvoted" noTopMargin>
-            <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
+            <div className={classes.postsListSettings}>
+              <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>
+                View more
+              </Link>
+              {isFriendlyUI && <PostsListViewToggle />}
+            </div>
           </SectionTitle>
           <PostsList2
             terms={topicPostTerms}
             itemsPerPage={30}
             hideTag
+            viewType="fromContext"
           />
         </SingleColumnSection>
       </AnalyticsContext>}
-    </>
+    </PostsListViewProvider>
   )
 }
 
