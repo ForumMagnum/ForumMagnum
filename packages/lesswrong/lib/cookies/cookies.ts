@@ -146,6 +146,11 @@ export const NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE = registerCookie({
   description: "Tracks whether or not to show the \"NEW\" flag on the posts list view toggle"
 });
 
+export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
+  name: "posts_list_view_type",
+  type: "necessary",
+  description: "Whether to display post lists as list items or card items"
+});
 
 // Third party cookies
 
