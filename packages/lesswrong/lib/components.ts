@@ -229,6 +229,7 @@ importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
 importComponent("ContentStyles", () => require('../components/common/ContentStyles'));
 importComponent("FormatDate", () => require('../components/common/FormatDate'));
+importComponent(["TimeTag", "FormatTimeTag"], () => require('../components/common/FormatDate'));
 importComponent("BetaTag", () => require('../components/common/BetaTag'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages'));
 importComponent("Header", () => require('../components/common/Header'));
