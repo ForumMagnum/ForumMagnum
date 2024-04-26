@@ -159,6 +159,7 @@ export interface TabRecord {
   description?: string,
   disabled?: boolean,
   showLabsIcon?: boolean,
+  isInfiniteScroll?: boolean,
 }
 
 /**

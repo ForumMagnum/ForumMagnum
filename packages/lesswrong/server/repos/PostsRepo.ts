@@ -30,6 +30,13 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
+type PostAndCommentsResultRow = {
+  postId: string
+  commentIds: string[]|null
+  subscribedPosts: boolean|null
+  subscribedComments: boolean|null
+};
+
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
@@ -725,6 +732,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   async getPostsFromPostSubscriptions(userId: string, limit: number) {
+    // 2024-04-26: This is used on a prototype subscriptions tab that's currently disabled, which might be dropped entirely and replaced with a better subscriptions tab
     return await this.any(`
       WITH user_subscriptions AS (
         SELECT DISTINCT type, "documentId" AS "userId"
@@ -746,6 +754,70 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT $2
     `, 
     [userId, limit]);
+  }
+  
+  async getPostsAndCommentsFromSubscriptions(userId: string, numDays: number): Promise<Array<PostAndCommentsResultRow >> {
+    return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
+      WITH user_subscriptions AS (
+      SELECT DISTINCT "displayName", type, "documentId" AS "userId"
+      FROM "Subscriptions" s
+               LEFT JOIN "Users" u ON u._id = s."documentId"
+      WHERE state = 'subscribed'
+        AND s.deleted IS NOT TRUE
+        AND "collectionName" = 'Users'
+        AND "type" IN ('newUserComments', 'newPosts')
+        AND "userId" = $1
+      ),
+      posts_by_subscribees AS (
+           SELECT
+      --          title,
+              p._id AS "postId",
+              "postedAt",
+              TRUE as "subscribedPosts" --,
+      --         us.*
+           FROM "Posts" p
+                    JOIN user_subscriptions us USING ("userId")
+           WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
+             AND type = 'newPosts'
+           ORDER BY p."postedAt" DESC
+       ),
+      posts_with_comments_from_subscribees AS (
+          SELECT
+             "postId",
+             ARRAY_AGG(c._id ORDER BY c."baseScore" DESC) AS "commentIds",
+             MAX(c."postedAt") AS last_updated,
+              TRUE as "subscribedComments" --,
+          FROM "Comments" c
+               JOIN user_subscriptions us USING ("userId")
+               LEFT JOIN "Posts" p ON c."postId" = p._id
+          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2 AND us.type = 'newUserComments'
+          AND c.deleted IS NOT TRUE
+          AND c."authorIsUnreviewed" IS NOT TRUE
+          AND c.retracted IS NOT TRUE
+          GROUP BY "postId", p.title
+      ),
+      combined AS (
+          SELECT
+              *
+          FROM
+              posts_by_subscribees
+          FULL JOIN posts_with_comments_from_subscribees USING ("postId")
+      )
+      SELECT combined.*
+      FROM combined
+      JOIN "Posts" p ON combined."postId" = p._id
+      WHERE
+          p.draft IS NOT TRUE
+          AND p.status = 2
+          AND p.rejected IS NOT TRUE
+          AND p."authorIsUnreviewed" IS NOT TRUE
+          AND p."hiddenRelatedQuestion" IS NOT TRUE
+          AND p.unlisted IS NOT TRUE
+          AND p."isFuture" IS NOT TRUE;
+    `, [
+      userId,
+      `${numDays} days`
+    ]);
   }
 }
 

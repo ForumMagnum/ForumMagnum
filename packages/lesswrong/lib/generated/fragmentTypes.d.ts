@@ -3837,6 +3837,12 @@ interface SuggestAlignmentComment_suggestForAlignmentUsers { // fragment on User
   readonly displayName: string,
 }
 
+interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
+  readonly post: any,
+  readonly comments: any,
+  readonly postIsFromSubscribedUser: any,
+}
+
 interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
@@ -4088,6 +4094,7 @@ interface FragmentTypes {
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinates: SplashArtCoordinates
   SuggestAlignmentComment: SuggestAlignmentComment
+  SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
 
 interface FragmentTypesByCollection {
@@ -4152,6 +4159,7 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
+  SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
 interface CollectionNamesByFragmentName {
@@ -4405,6 +4413,7 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinates: "SplashArtCoordinates"
   SuggestAlignmentComment: "Comments"
+  SubscribedPostAndCommentsFeed: "SubscribedPostAndCommentses"
 }
 
 type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

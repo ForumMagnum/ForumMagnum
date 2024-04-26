@@ -189,7 +189,10 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
-const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const LWHomePosts = ({children, classes}: {
+  children: React.ReactNode,
+  classes: ClassesType<typeof styles>}
+) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
     WelcomePostItem } = Components;
@@ -213,7 +216,14 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get()
+  const availableTabs: TabRecord[] = [
+    ...homepagePostFeedsSetting.get(),
+    {
+      name: "forum-subscribed-authors",
+      label: "Subscribed",
+      isInfiniteScroll: true,
+    }
+  ];
 
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
@@ -222,6 +232,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
   const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
+  const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
 
@@ -383,12 +394,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
               {/* SUBSCRIBED */}
               {(selectedTab === 'forum-subscribed-authors') && <AnalyticsContext feedType={selectedTab}>
-                <ResolverPostsList
-                  resolverName="PostsBySubscribedAuthors"
-                  limit={13}
-                  fallbackText="Visits users' profile pages to subscribe to their posts and comments."
-                  showLoadMore
-                />
+                <Components.SubscribedUsersFeed />
                </AnalyticsContext>}
 
               {/* CHRONOLIGCAL FEED */}
@@ -404,6 +410,10 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
             </AllowHidingFrontPagePostsContext.Provider>
         </HideRepeatedPostsProvider>
+        
+        {!selectedTabSettings.isInfiniteScroll && <>
+          {children}
+        </>}
       </SingleColumnSection>
     </AnalyticsContext>
   )

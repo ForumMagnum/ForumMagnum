@@ -170,13 +170,14 @@ const MixedTypeFeed = (args: {
             // Deduplicate by removing repeated results from the newly fetched page. Ideally we
             // would use cursor-based pagination to avoid this
             const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
-            const deduplicatedResults = fetchMoreResult[resolverName].results.filter((result: any) => !prevKeys.has(keyFunc(result)));
-
+            const newResults = fetchMoreResult[resolverName].results;
+            const deduplicatedResults = newResults.filter((result: any) => !prevKeys.has(keyFunc(result)));
+            
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
-                endOffset: data[resolverName].endOffset,
+                endOffset: fetchMoreResult[resolverName].endOffset,
                 results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
@@ -186,7 +187,6 @@ const MixedTypeFeed = (args: {
     }
   }
 
-  
   // Load-more triggers. Check (1) after render, and (2) when the page is scrolled.
   // We *don't* check inside handleLoadFinished, because that's before the results
   // have been attached to the DOM, so we can''t test whether they reach the bottom.

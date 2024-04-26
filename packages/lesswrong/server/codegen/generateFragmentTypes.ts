@@ -55,8 +55,7 @@ function fragmentNameToCollectionName(fragmentName: FragmentName): CollectionNam
 function generateFragmentTypeDefinition(fragmentName: FragmentName): string {
   const parsedFragment = getParsedFragment(fragmentName);
   const collectionName = fragmentNameToCollectionName(fragmentName);
-  const collection = getCollection(collectionName);
-  assert(!!collection);
+  const collection = isValidCollectionName(collectionName) ? getCollection(collectionName) : null;
   
   return fragmentToInterface(fragmentName, parsedFragment, collection);
 }
@@ -124,7 +123,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragme
   const spreadFragments = getSpreadFragments(parsedFragment);
   const inheritanceStr = spreadFragments.length>0 ? ` extends ${spreadFragments.join(', ')}` : "";
   
-  sb.push(`interface ${interfaceName}${inheritanceStr} { // fragment on ${collection.collectionName}\n`);
+  sb.push(`interface ${interfaceName}${inheritanceStr} { // fragment on ${collection?.collectionName ?? "non-collection type"}\n`);
   
   const allSubfragments: Array<string> = [];
   for (let selection of parsedFragment.selectionSet.selections) {
@@ -162,6 +161,14 @@ function getSpreadFragments(parsedFragment: AnyBecauseTodo): Array<string> {
 function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBecauseTodo, collection: AnyBecauseTodo):
   { fieldType: string, subfragment: string|null }
 {
+  if (collection === null) {
+    // Fragments may not correspond to a collection, if eg they're on a graphql
+    // type defined with addGraphQLSchema. In that case, emit a type with the
+    // right set of fields but with every field having type `any` because sadly
+    // we aren't yet tracking down the schema definition.
+    return { fieldType: "any", subfragment: null };
+  }
+
   const fieldName: string = parsedFragmentField.name.value;
   if (fieldName === "__typename") {
     return { fieldType: "string", subfragment: null };
