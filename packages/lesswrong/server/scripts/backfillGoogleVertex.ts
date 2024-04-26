@@ -6,7 +6,7 @@ import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
-import { ReadStatusWithPostId } from "../google-vertex/types";
+import type { ReadStatusWithPostId } from "../google-vertex/types";
 
 interface CreateAEPostRecordArgs {
   post: DbPost;
