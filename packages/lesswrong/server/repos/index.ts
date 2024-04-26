@@ -1,4 +1,5 @@
 import CollectionsRepo from "./CollectionsRepo";
+import ClientIdsRepo from "./ClientIdsRepo";
 import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
@@ -34,6 +35,7 @@ declare global {
 
 const getAllRepos = () => ({
   collections: new CollectionsRepo(),
+  clientIds: new ClientIdsRepo(),
   comments: new CommentsRepo(),
   conversations: new ConversationsRepo(),
   curationEmails: new CurationEmailsRepo(),
@@ -66,6 +68,7 @@ const getAllRepos = () => ({
 
 export {
   CollectionsRepo,
+  ClientIdsRepo,
   CommentsRepo,
   ConversationsRepo,
   CurationEmailsRepo,
