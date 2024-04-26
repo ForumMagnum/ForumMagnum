@@ -6,7 +6,7 @@ import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { PostsItemConfig } from "./usePostsItem";
+import { PostsItemConfig, PostsListViewType } from "./usePostsItem";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -59,8 +59,7 @@ export type PostsListConfig = {
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
   loadMoreMessage?: string,
-  /** Show the items in card view (currently only implemented in friendly UI) */
-  cardView?: boolean,
+  viewType?: PostsListViewType | "fromContext",
 }
 
 const defaultTooltipPlacement = isFriendlyUI
@@ -98,7 +97,7 @@ export const usePostsList = ({
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
   loadMoreMessage,
-  cardView = false,
+  viewType = "list",
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -223,7 +222,7 @@ export const usePostsList = ({
     showBottomBorder: showFinalBottomBorder ||
       (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
-    cardView,
+    viewType,
   }));
 
   const onLoadMore = useCallback(() => {

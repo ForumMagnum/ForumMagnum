@@ -16,11 +16,14 @@ import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../li
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
+import { usePostsListView } from "../hooks/usePostsListView";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
     ? post.sticky || (terms.af && post.afSticky) || (terms.meta && post.metaSticky)
     : false;
+
+export type PostsListViewType = "list" | "card";
 
 export type PostsItemConfig = {
   /** post: The post displayed.*/
@@ -81,7 +84,7 @@ export type PostsItemConfig = {
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
   /** Show the item in card view (currently only implemented in friendly UI) */
-  cardView?: boolean,
+  viewType?: PostsListViewType | "fromContext",
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
@@ -95,7 +98,6 @@ const areNewComments = (lastCommentedAt: Date | null, lastVisitedAt: Date | null
   if (!lastVisitedAt) return true;
   return lastVisitedAt < lastCommentedAt;
 }
-
 
 export const usePostsItem = ({
   post,
@@ -127,7 +129,7 @@ export const usePostsItem = ({
   forceSticky = false,
   showReadCheckbox = false,
   showMostValuableCheckbox = false,
-  cardView = false,
+  viewType: configuredViewType = "list",
   showKarma = true,
   useCuratedDate = true,
   isVoteable = false,
@@ -213,7 +215,12 @@ export const usePostsItem = ({
     <Link to={commentGetPageUrl(annualReviewMarketComment)}>
       <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
     </Link>
-  
+
+  const {view: contextViewType} = usePostsListView();
+  const viewType: PostsListViewType = configuredViewType === "fromContext"
+    ? contextViewType
+    : configuredViewType;
+  const cardView = viewType === "card";
 
   return {
     post,
