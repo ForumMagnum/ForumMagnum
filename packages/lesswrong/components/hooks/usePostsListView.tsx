@@ -17,7 +17,7 @@ type PostsListViewContext = {
 
 const postsListViewContext = createContext<PostsListViewContext>({
   view: "list",
-  // eslint-disable-next-line
+  // eslint-disable-next-line no-console
   setView: () => console.error("Can't set view outside of PostsListViewProvider"),
 });
 
