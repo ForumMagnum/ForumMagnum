@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
@@ -50,9 +50,6 @@ const styles = (theme: ThemeType) => ({
     verticalAlign: "middle",
     position: "relative",
     ...(isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
-  },
-  padding: {
-    width: "var(--dropdown-multiselect-padding)",
   },
   selectedIcon: {
     verticalAlign: "middle",
@@ -141,10 +138,6 @@ const ForumDropdownMultiselect = ({
       return `${prev}, ${nextLabel}`
     }, '');
 
-  const paddingStyle = {
-    "--dropdown-multiselect-padding": `${paddingSize}px`,
-  } as CSSProperties;
-
   const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
     <div className={classNames(classes.root, className)}>
@@ -173,12 +166,12 @@ const ForumDropdownMultiselect = ({
             {label}
             {values.includes(option) && isFriendlyUI && (
               <>
-                <div className={classes.padding} style={paddingStyle} />
+                <div style={{width: paddingSize}} />
                 <ForumIcon icon="Check" className={classes.selectedIcon} />
               </>
             )}
           </MenuItem>
-          
+
           if (queryParam) {
             return <QueryLink key={option} query={{ [queryParam]: option }} merge>
               {menuItem}
