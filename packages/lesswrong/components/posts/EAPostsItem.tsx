@@ -245,12 +245,13 @@ const EAPostsItem = ({
     condensedAndHiddenComments,
     isRepeated,
     analyticsProps,
-    cardView,
+    viewType,
     isVoteable,
     useCuratedDate,
     className,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
+  const cardView = viewType === "card";
 
   if (isRepeated) {
     return null;

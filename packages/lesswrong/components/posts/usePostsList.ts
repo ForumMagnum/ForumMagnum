@@ -7,6 +7,7 @@ import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig, PostsListViewType } from "./usePostsItem";
+import { usePostsListView } from "../hooks/usePostsListView";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -97,7 +98,7 @@ export const usePostsList = ({
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
   loadMoreMessage,
-  viewType = "list",
+  viewType: configuredViewType = "list",
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -202,6 +203,11 @@ export const usePostsList = ({
 
   const hasResults = orderedResults && orderedResults.length > 1;
 
+  const {view: contextViewType} = usePostsListView();
+  const viewType: PostsListViewType = configuredViewType === "fromContext"
+    ? contextViewType
+    : configuredViewType;
+
   const itemProps: PostsItemConfig[] | undefined = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
   ).map((post, i) => ({
@@ -252,5 +258,6 @@ export const usePostsList = ({
     limit,
     showFinalBottomBorder,
     placeholderCount,
+    viewType,
   };
 }

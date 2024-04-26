@@ -16,7 +16,6 @@ import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../li
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
-import { usePostsListView } from "../hooks/usePostsListView";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -84,7 +83,7 @@ export type PostsItemConfig = {
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
   /** Show the item in card view (currently only implemented in friendly UI) */
-  viewType?: PostsListViewType | "fromContext",
+  viewType?: PostsListViewType,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
@@ -129,7 +128,7 @@ export const usePostsItem = ({
   forceSticky = false,
   showReadCheckbox = false,
   showMostValuableCheckbox = false,
-  viewType: configuredViewType = "list",
+  viewType = "list",
   showKarma = true,
   useCuratedDate = true,
   isVoteable = false,
@@ -216,12 +215,6 @@ export const usePostsItem = ({
       <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
     </Link>
 
-  const {view: contextViewType} = usePostsListView();
-  const viewType: PostsListViewType = configuredViewType === "fromContext"
-    ? contextViewType
-    : configuredViewType;
-  const cardView = viewType === "card";
-
   return {
     post,
     postLink,
@@ -266,7 +259,7 @@ export const usePostsItem = ({
     dense,
     curatedIconLeft,
     strikethroughTitle,
-    cardView,
+    viewType,
     bookmark,
     isVoteable,
     className,
