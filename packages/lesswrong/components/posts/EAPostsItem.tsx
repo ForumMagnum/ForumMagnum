@@ -63,7 +63,6 @@ export const styles = (theme: ThemeType) => ({
   },
   containerCard: {
     paddingTop: 16,
-    paddingBottom: 12,
   },
   postsVote: {
     position: "relative",
