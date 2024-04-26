@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { isPostsListViewType, usePostsListView } from "../hooks/usePostsListView";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -15,13 +16,15 @@ const options = {
 const PostsListViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {captureEvent} = useTracking();
   const {view, setView} = usePostsListView();
 
   const onSelect = useCallback((value: string) => {
     if (isPostsListViewType(value)) {
       setView(value);
+      captureEvent("postsListViewToggle", {value});
     }
-  }, [setView]);
+  }, [setView, captureEvent]);
 
   const {ForumDropdown} = Components;
   return (

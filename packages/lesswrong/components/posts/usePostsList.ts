@@ -193,20 +193,25 @@ export const usePostsList = ({
       return {postId: post._id, score: post.score, baseScore: post.baseScore}
     });
 
+  const {view: contextViewType} = usePostsListView();
+  const viewType: PostsListViewType = configuredViewType === "fromContext"
+    ? contextViewType
+    : configuredViewType;
+
   // Analytics Tracking
   useOnMountTracking({
     eventType: "postList",
-    eventProps: {postIds, postVisibility: hiddenPosts, postMountData: postIdsWithScores},
+    eventProps: {
+      postIds,
+      postVisibility: hiddenPosts,
+      postMountData: postIdsWithScores,
+      viewType,
+    },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
 
   const hasResults = orderedResults && orderedResults.length > 1;
-
-  const {view: contextViewType} = usePostsListView();
-  const viewType: PostsListViewType = configuredViewType === "fromContext"
-    ? contextViewType
-    : configuredViewType;
 
   const itemProps: PostsItemConfig[] | undefined = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
