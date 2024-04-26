@@ -232,6 +232,7 @@ export type PostFeedDetails = {
   disabled?: boolean,
   adminOnly?: boolean,
   showLabsIcon?: boolean,
+  isInfiniteScroll?: boolean,
   slug?: string
 }
 
