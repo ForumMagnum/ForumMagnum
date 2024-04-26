@@ -58,7 +58,7 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
-  false;// isEAForum && !!user?.beta;
+  isEAForum && !!user?.beta;
 
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
