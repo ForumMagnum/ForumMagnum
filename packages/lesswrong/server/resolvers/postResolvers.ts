@@ -731,7 +731,7 @@ createPaginatedResolver({
   ): Promise<VertexRecommendedPost[]> => {
     const { currentUser } = context;
 
-    if (userIsAdmin(currentUser)) {
+    if (!userIsAdmin(currentUser)) {
       throw new Error(`You must be an admin to use Google recommendations right now`);
     }
 
