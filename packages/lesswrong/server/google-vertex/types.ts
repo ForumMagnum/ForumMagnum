@@ -74,16 +74,23 @@ interface GoogleMediaDocumentMetadata {
   }>
 }
 
-interface InViewEvent {
+interface PostEvent {
   userId: string;
   postId: string;
   timestamp: Date;
+  attributionId?: string | null;
+}
+
+interface ReadStatusWithPostId extends DbReadStatus {
+  postId: string;
 }
 
 interface FrontpageViewEvent {
   userId: string;
   timestamp: Date;
 }
+
+type SupportedPostEventTypes = 'view-item' | 'media-play' | 'media-complete';
 
 export type {
   Setting,
@@ -93,6 +100,8 @@ export type {
   FrontpageViewEvent,
   GoogleMediaDocumentMetadata,
   GoogleMediaPersonOrgRole,
-  InViewEvent,
+  PostEvent,
+  ReadStatusWithPostId,
   SettingName,
+  SupportedPostEventTypes,
 };

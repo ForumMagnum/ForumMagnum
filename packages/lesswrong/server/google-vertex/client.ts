@@ -9,7 +9,7 @@ import { vertexDocumentServiceParentPathSetting, vertexRecommendationServingConf
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import path from "path";
 import chunk from "lodash/chunk";
-import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocumentMetadataArgs, GoogleMediaDocumentMetadata, InViewEvent, FrontpageViewEvent } from "./types";
+import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocumentMetadataArgs, GoogleMediaDocumentMetadata, PostEvent, FrontpageViewEvent, ReadStatusWithPostId, SupportedPostEventTypes } from "./types";
 
 const { RecommendationServiceClient } = v1beta;
 
@@ -89,9 +89,8 @@ const helpers = {
     };
   },
 
-  createViewItemEvent(eventType: 'view-item' | 'media-play', readStatus: DbReadStatus): protos.google.cloud.discoveryengine.v1.IUserEvent {
-    const { userId, postId, lastUpdated: timestamp } = readStatus;
-  
+  createBasePostEvent(eventType: SupportedPostEventTypes, eventInfo: PostEvent) {
+    const { userId, postId, timestamp, attributionId } = eventInfo;
     return {
       eventType,
       // TODO - this should maybe be clientId for logged out users if doing real stuff with it, but no logged out users for now
@@ -102,25 +101,26 @@ const helpers = {
       },
       userInfo: { userId },
       documents: [{ id: postId }],
+      attributionToken: attributionId
     };
   },
 
-  createMediaCompleteEvent(inViewEvent: InViewEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
-    const { userId, postId, timestamp } = inViewEvent;
-  
+  createViewItemEventFromReadStatus(eventType: 'view-item' | 'media-play', readStatus: ReadStatusWithPostId): protos.google.cloud.discoveryengine.v1.IUserEvent {
+    const { userId, postId, lastUpdated: timestamp } = readStatus;
+    return helpers.createViewItemEvent(eventType, { userId, postId, timestamp });
+  },
+
+  createViewItemEvent(eventType: 'view-item' | 'media-play', eventInfo: PostEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
+    return helpers.createBasePostEvent(eventType, eventInfo);
+  },
+
+  createMediaCompleteEvent(eventInfo: PostEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
+    const baseEvent = helpers.createBasePostEvent('media-complete', eventInfo);
     return {
-      eventType: 'media-complete',
-      // TODO - this should maybe be clientId for logged out users if doing real stuff with it, but no logged out users for now
-      userPseudoId: userId, 
-      eventTime: {
-        seconds: timestamp.getTime() / 1000,
-        nanos: 0
-      },
-      userInfo: { userId },
-      documents: [{ id: postId }],
+      ...baseEvent,
       mediaInfo: {
         mediaProgressPercentage: 1
-      }
+      },
     };
   },
 
@@ -200,6 +200,12 @@ const googleVertexApi = {
         console.log('Error importing user events', { error: importUserEventsResponse.errorSamples[0] });
       }
     }
+  },
+
+  async writeUserEvent(userEvent: protos.google.cloud.discoveryengine.v1.IUserEvent) {
+    const { client: userEventClient, settingValues: { vertexUserEventServiceParentPath } } = clients.userEvents();
+
+    await userEventClient.writeUserEvent({ userEvent, parent: vertexUserEventServiceParentPath });
   }
 };
 
