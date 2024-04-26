@@ -81,7 +81,6 @@ export type PostsItemConfig = {
   useCuratedDate?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
-  /** Show the item in card view (currently only implemented in friendly UI) */
   viewType?: PostsListViewType,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,

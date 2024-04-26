@@ -60,6 +60,11 @@ export type PostsListConfig = {
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
   loadMoreMessage?: string,
+  /**
+   * The view to use for the items - if set to `fromContext` it will use the
+   * value from the nearest `PostsListViewProvider` (which default to "list"
+   * if there is no provider).
+   */
   viewType?: PostsListViewType | "fromContext",
 }
 

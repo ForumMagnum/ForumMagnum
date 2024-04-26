@@ -70,6 +70,13 @@ const PostsListViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
+
+  /*
+   * Hide the NEW flag when any of the following is true:
+   *   - The user clicks the toggle
+   *   - The user sees it three times without clicking
+   *   - One month passes from when the user first saw it
+   */
   const [cookies, setCookie] = useCookiesWithConsent([
     NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE,
   ]);
