@@ -193,9 +193,9 @@ const LWHomePosts = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
-  const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
-    WelcomePostItem } = Components;
+  const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
+    RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
+    SubscribedUsersFeed, WelcomePostItem } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -216,21 +216,23 @@ const LWHomePosts = ({children, classes}: {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = [
-    ...homepagePostFeedsSetting.get(),
-    {
-      name: "forum-subscribed-authors",
-      label: "Subscribed",
-      isInfiniteScroll: true,
-    }
-  ];
+  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get();
 
+  const feed = {isAdminOnly: true}
+
+  console.log({
+    query,
+    noRecExperiment: query.recExperiment!=='true',
+    condition: !(feed.isAdminOnly && !userIsAdmin(currentUser) && query.recExperiment !== 'true') 
+  })
+  
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
-      && !(feed.name.includes('recombee') && !currentUser)
+      && (!feed.isAdminOnly || (userIsAdmin(currentUser) || query.recExperiment === 'true')) 
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
+
   const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
@@ -394,7 +396,7 @@ const LWHomePosts = ({children, classes}: {
 
               {/* SUBSCRIBED */}
               {(selectedTab === 'forum-subscribed-authors') && <AnalyticsContext feedType={selectedTab}>
-                <Components.SubscribedUsersFeed />
+                <SubscribedUsersFeed />
                </AnalyticsContext>}
 
               {/* CHRONOLIGCAL FEED */}
