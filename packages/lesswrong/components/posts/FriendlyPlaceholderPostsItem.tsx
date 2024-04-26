@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   rootCard: {
     padding: '16px 17px',
     marginBottom: 2,
-    height: 144,
+    height: 143,
   },
   container: {
     display: 'flex',

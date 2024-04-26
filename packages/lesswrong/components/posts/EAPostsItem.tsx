@@ -62,7 +62,11 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   containerCard: {
-    paddingTop: 16,
+    paddingTop: 12,
+    paddingBottom: 11,
+  },
+  containerCardWithImage: {
+    paddingBottom: 0,
   },
   postsVote: {
     position: "relative",
@@ -321,7 +325,8 @@ const EAPostsItem = ({
         <div className={classes.expandedCommentsWrapper}>
           <div onClick={onClick} className={classNames(
             classes.container,
-            cardView && classes.containerCard
+            cardView && classes.containerCard,
+            cardView && post.socialPreviewData.imageUrl && classes.containerCardWithImage,
           )}>
             {isVoteable
               ? (
