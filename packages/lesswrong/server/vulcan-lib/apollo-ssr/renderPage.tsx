@@ -76,19 +76,12 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string) => {
   const startTime = new Date();
   
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
-  // Inject a tab ID into the page, by injecting a script fragment that puts
-  // it into a global variable. In previous versions of Vulcan this would've
-  // been handled by InjectData, but InjectData didn't surive the 1.12 version
-  // upgrade (it injects into the page template in a way that requires a
-  // response object, which the onPageLoad/sink API doesn't offer).
-  const tabId = randomId();
-  const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   const url = getPathFromReq(req);
   
   const clientId = getCookieFromReq(req, "clientId");
@@ -161,7 +154,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader],
+      headers: [...rendered.headers],
     };
   } else {
     if (performanceMetricLoggingEnabled.get()) {
@@ -220,7 +213,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader],
+      headers: [...rendered.headers],
     };
   }
 };

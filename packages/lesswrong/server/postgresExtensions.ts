@@ -13,6 +13,8 @@ export const postgresExtensions = [
   "intarray",
   // vector is used for text embeddings
   "vector",
+  // trigrams are used for searching facets in the people directory
+  "pg_trgm",
 ] as const;
 
 export type PostgresExtension = typeof postgresExtensions[number];

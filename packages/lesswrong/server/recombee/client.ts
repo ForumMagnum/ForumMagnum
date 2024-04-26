@@ -1,5 +1,5 @@
 import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
-import { HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
@@ -66,6 +66,48 @@ export type RecommendedPost = RecombeeRecommendedPost | {
   stickied: boolean,
 };
 
+interface PostFieldDependencies {
+  title: 'title',
+  author: 'author',
+  authorId: 'userId',
+  karma: 'baseScore',
+  body: 'contents',
+  postedAt: 'postedAt',
+  curated: 'curatedDate',
+  frontpage: 'frontpageDate',
+  draft: 'draft',
+  lastCommentedAt: 'lastCommentedAt',
+  shortform: 'shortform',
+}
+
+interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostFieldDependencies] = PostFieldDependencies[keyof PostFieldDependencies]> {
+  post: Pick<DbPost, FieldMask | '_id'>,
+  tags: Pick<DbTag, 'name' | 'core'>[],
+}
+
+const recombeePostFieldMappings = {
+  title:            ({ post }: UpsertPostData) => post.title,
+  author:           ({ post }: UpsertPostData) => post.author,
+  authorId:         ({ post }: UpsertPostData) => post.userId,
+  karma:            ({ post }: UpsertPostData) => post.baseScore,
+  body:             ({ post }: UpsertPostData) => htmlToTextDefault(truncate(post.contents?.html, 2000, 'words')),
+  postedAt:         ({ post }: UpsertPostData) => post.postedAt,
+  tags:             ({ tags }: UpsertPostData) => tags.map(tag => tag.name),
+  coreTags:         ({ tags }: UpsertPostData) => tags.filter(tag => tag.core).map(tag => tag.name),
+  curated:          ({ post }: UpsertPostData) => !!post.curatedDate,
+  frontpage:        ({ post }: UpsertPostData) => !!post.frontpageDate,
+  draft:            ({ post }: UpsertPostData) => !!post.draft,
+  lastCommentedAt:  ({ post }: UpsertPostData) => post.lastCommentedAt,
+  shortform:        ({ post }: UpsertPostData) => post.shortform,
+};
+
+type RecombeePostFields = keyof typeof recombeePostFieldMappings;
+
+const ALL_RECOMBEE_POST_FIELDS = [
+  'title', 'author', 'authorId', 'karma', 'body', 'postedAt', 'tags', 'coreTags',
+  'curated', 'frontpage', 'draft', 'lastCommentedAt', 'shortform'
+] as const;
+
 const recombeeRequestHelpers = {
   createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
     const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
@@ -88,30 +130,21 @@ const recombeeRequestHelpers = {
     });
   },
 
-  async createUpsertPostRequest(post: DbPost, context: ResolverContext, tags?: { name: string, core: boolean }[]) {
-    const { Tags } = context;
+  createUpsertPostRequest<Fields extends ReadonlyArray<RecombeePostFields>>(
+    postData: UpsertPostData,
+    fieldMask?: Fields,
+    overrideOptions?: requests.SetValuesOptions
+  ) {
+    const { post } = postData;
+    
+    const recombeePostInfo = Object.fromEntries(
+      (fieldMask ?? ALL_RECOMBEE_POST_FIELDS).map(field => [
+        field,
+        recombeePostFieldMappings[field](postData)
+      ] as const)
+    );
 
-    const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId)
-    tags ??= filterNonnull(await findByIds(Tags, tagIds))
-    const tagNames = tags.map(tag => tag.name)
-    const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
-
-    const postText = htmlToTextDefault(truncate(post.contents?.html, 2000, 'words'))
-
-    return new requests.SetItemValues(post._id, {
-      title: post.title,
-      author: post.author,
-      authorId: post.userId,
-      karma: post.baseScore,
-      body: postText,
-      postedAt: post.postedAt,
-      tags: tagNames,
-      coreTags: coreTagNames,
-      curated: !!post.curatedDate,
-      frontpage: !!post.frontpageDate,
-      draft: !!post.draft,
-      lastCommentedAt: post.lastCommentedAt,
-    }, { cascadeCreate: true });
+    return new requests.SetItemValues(post._id, recombeePostInfo, { cascadeCreate: true, ...overrideOptions });
   },
 
   createReadStatusRequest(readStatus: DbReadStatus) {
@@ -177,12 +210,13 @@ const recombeeRequestHelpers = {
     };
   },
 
-  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof typeof HYBRID_SCENARIO_MAP, filter?: string) {
-    const { loadMore, userId, ...rest } = hybridArgs;
+  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof HybridArmsConfig, filter?: string) {
+    const { loadMore, userId, hybridScenarios, ...rest } = hybridArgs;
 
-    const scenario = HYBRID_SCENARIO_MAP[hybridArm];
+    const scenario = hybridScenarios[hybridArm];
+
     const isConfigurable = hybridArm === 'configurable';
-    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 144};
+    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 12};
     const prevRecommIdIndex = isConfigurable ? 0 : 1;
     const loadMoreConfig = loadMore
       ? { loadMore: { prevRecommId: loadMore.prevRecommIds[prevRecommIdIndex] } }
@@ -377,7 +411,12 @@ const recombeeApi = {
 
   async upsertPost(post: DbPost, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
-    const request = await recombeeRequestHelpers.createUpsertPostRequest(post, context);
+    const { Tags } = context;
+
+    const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId);
+    const tags = filterNonnull(await findByIds(Tags, tagIds));
+
+    const request = recombeeRequestHelpers.createUpsertPostRequest({ post, tags });
 
     await client.send(request);
   },

@@ -21,7 +21,7 @@ import { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { homepagePostFeedsSetting } from '../../lib/instanceSettings';
+import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -195,7 +195,7 @@ const LWHomePosts = ({children, classes}: {
 ) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
-    SubscribedUsersFeed, WelcomePostItem } = Components;
+    VertexPostsList, WelcomePostItem, SubscribedUsersFeed } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -216,19 +216,17 @@ const LWHomePosts = ({children, classes}: {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get();
+  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
 
-  const feed = {isAdminOnly: true}
-
-  console.log({
-    query,
-    noRecExperiment: query.recExperiment!=='true',
-    condition: !(feed.isAdminOnly && !userIsAdmin(currentUser) && query.recExperiment !== 'true') 
-  })
+  // console.log({
+  //   query,
+  //   noRecExperiment: query.recExperiment!=='true',
+  //   condition: !(feed.isAdminOnly && !userIsAdmin(currentUser) && query.recExperiment !== 'true') 
+  // })
   
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
-      && (!feed.isAdminOnly || (userIsAdmin(currentUser) || query.recExperiment === 'true')) 
+      && (!feed.adminOnly || (userIsAdmin(currentUser) || query.recExperiment === 'true')) 
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
@@ -380,8 +378,25 @@ const LWHomePosts = ({children, classes}: {
               </AnalyticsContext>}
               
               {/* RECOMBEE RECOMMENDATIONS */}
-              {selectedTab.includes('recombee') && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={selectedTab} settings={scenarioConfig} />
+              {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList 
+                algorithm={'recombee-hybrid'} settings={{
+                  ...scenarioConfig,
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
+                }} />
+              </AnalyticsContext>}
+
+              {/* RECOMBEE RECOMMENDATIONS 2 */}
+              {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
+                  ...scenarioConfig, 
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
+                }} 
+                />
+              </AnalyticsContext>}
+
+              {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
+                <VertexPostsList />  
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
