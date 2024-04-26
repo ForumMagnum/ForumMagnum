@@ -140,6 +140,12 @@ export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
   description: "Stores recombee settings for admins experimenting with latest posts"
 });
 
+export const NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE = registerCookie({
+  name: "new_posts_list_view_toggle",
+  type: "necessary",
+  description: "Tracks whether or not to show the \"NEW\" flag on the posts list view toggle"
+});
+
 
 // Third party cookies
 

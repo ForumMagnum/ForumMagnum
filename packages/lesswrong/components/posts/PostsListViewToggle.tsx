@@ -1,7 +1,10 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { isPostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { useTracking } from "../../lib/analyticsEvents";
+import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
+import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
+import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -37,10 +40,60 @@ const options = {
   list: {label: "List view", icon: "ListView"},
 } as const;
 
+type ViewToggleCookieData = {
+  viewCount: number,
+  firstViewedAt: Date,
+}
+
+const getCookieData = (data: unknown): ViewToggleCookieData => {
+  try {
+    if (
+      !data || typeof data !== "object" ||
+      !("viewCount" in data) || typeof data.viewCount !== "number" ||
+      !("firstViewedAt" in data) || typeof data.firstViewedAt !== "string"
+    ) {
+      throw new Error("Invalid data");
+    }
+    return {
+      viewCount: data.viewCount,
+      firstViewedAt: new Date(data.firstViewedAt),
+    };
+  } catch (e) {
+    return {
+      viewCount: 0,
+      firstViewedAt: new Date(),
+    };
+  }
+}
+
 const PostsListViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
+  const [cookies, setCookie] = useCookiesWithConsent([
+    NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE,
+  ]);
+  const [data, setData] = useState(
+    () => getCookieData(cookies[NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE]),
+  );
+
+  const updateData = useCallback((newData: ViewToggleCookieData) => {
+    setCookie(NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE, JSON.stringify(newData));
+    setData(newData);
+  }, [setCookie]);
+
+  const onClick = useCallback(() => {
+    updateData({...data, viewCount: 5});
+  }, [data, updateData]);
+
+  useEffect(() => {
+    updateData({...data, viewCount: data.viewCount + 1});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const showFlag = data.viewCount < 4 &&
+    (moment(data.firstViewedAt).add(1, "month").isAfter(moment()));
+
   const {view, setView} = usePostsListView();
 
   const onSelect = useCallback((value: string) => {
@@ -52,7 +105,7 @@ const PostsListViewToggle = ({classes}: {
 
   const {ForumDropdown} = Components;
   return (
-    <div className={classes.root}>
+    <div className={classes.root} onClick={onClick}>
       <ForumDropdown
         value={view}
         options={options}
@@ -61,10 +114,12 @@ const PostsListViewToggle = ({classes}: {
         useIconLabel
         className={classes.root}
       />
-      <div className={classes.flag}>
-        <div className={classes.flagPoint} />
-        NEW
-      </div>
+      {showFlag &&
+        <div className={classes.flag}>
+          <div className={classes.flagPoint} />
+          NEW
+        </div>
+      }
     </div>
   );
 }
