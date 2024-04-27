@@ -1051,7 +1051,7 @@ type RevisionsCollection = CollectionBase<"Revisions">;
 interface DbRevision extends DbObject {
   __collectionName?: "Revisions"
   documentId: string | null
-  collectionName: CollectionNameString
+  collectionName: CollectionNameString | null
   fieldName: string | null
   editedAt: Date | null
   autosaveTimeoutStart: Date | null

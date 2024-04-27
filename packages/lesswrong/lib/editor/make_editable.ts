@@ -155,7 +155,7 @@ export const makeEditable = <N extends CollectionNameString>({
       type: RevisionStorageType,
       optional: true,
       logChanges: false, //Logged via Revisions rather than LWEvents
-      typescriptType: "EditableFieldContents | null",
+      typescriptType: "EditableFieldContents",
       group: formGroup,
       ...permissions,
       order,
