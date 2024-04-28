@@ -339,6 +339,8 @@ export const shouldSubmitContents = (editorRef: Editor) => {
   const editorType = editorRef.props.value.type;
   const ckEditorReference = editorRef.state.ckEditorReference;
 
+  console.log({editorType, ckEditorReference})
+
   if (editorType !== 'ckEditorMarkup') return true;
   return !!ckEditorReference;
 }
@@ -371,7 +373,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   focus() {
-    this.state.ckEditorReference?.focus();
+    // this.state.ckEditorReference?.focus();
   }
 
   clear(currentUser: UsersCurrent | null) {
@@ -405,8 +407,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-        data = ckEditorReference.getData()
-        if (ckEditorReference.plugins.has("TrackChangesData"))  {
+        data = ckEditorReference.getData?.() ?? ckEditorReference.getHTML?.()
+        console.log({data})
+        if (ckEditorReference.plugins?.has("TrackChangesData"))  {
           // Suggested-edits made by the TrackChanges plugin should be treated as private, until they've actually been 
           // accepted by a post-author/editor. getDataWithDiscardedSuggestions is ckEditor's preferred tool for reliably
           // stripping out all suggestions from the body.
@@ -558,19 +561,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         formType: formType,
         userId: currentUser?._id,
         placeholder: this.props.placeholder ?? undefined,
-        onChange: (_event: AnyBecauseTodo, editor: AnyBecauseTodo) => {
-          this.debouncedValidateEditor(editor.model.document)
-          // If transitioning from empty to nonempty or nonempty to empty,
-          // bypass throttling. These cases don't have the performance
-          // implications that motivated having throttling in the first place,
-          // and this prevents a timing bug with form-clearing on submit.
-          if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
-            this.throttledSetCkEditor.cancel();
-            this.setContents("ckEditorMarkup", editor.getData());
-          } else {
-            this.throttledSetCkEditor(() => editor.getData())
-          }
-        },
         onFocus,
         onInit: (editor: any) => this.setState({ckEditorReference: editor}),
         document,
