@@ -5,7 +5,7 @@ import { Globals } from "../vulcan-lib";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
-import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
+import { clients, googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
 import type { ReadStatusWithPostId } from "../google-vertex/types";
 
 interface CreateAEPostRecordArgs {
@@ -92,7 +92,7 @@ const postBatchQuery = `
 
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
-  const limit = 5000;
+  const limit = 100;
   return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][], authors: string[], authorIds: string[], upvoteCount: number }>(postBatchQuery, [offsetDate, limit]);
 }
 
@@ -142,20 +142,27 @@ function indexInViewEvents(inViewEvents: InViewEvent[]): Record<string, Record<s
   return indexedInViewEvents;
 }
 
-async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Date) {
+interface BackfillVertexPostsOptions {
+  inViewEventsFilepath: string,
+  postCheckpointOffsetDate?: Date,
+  postImportOffsetDate?: Date,
+  readStatusOffsetDate?: Date,
+}
+
+async function backfillVertexPosts({ inViewEventsFilepath, postCheckpointOffsetDate, postImportOffsetDate, readStatusOffsetDate }: BackfillVertexPostsOptions) {
   const db = getSqlClientOrThrow();
 
   const inViewEvents: InViewEvent[] = JSON.parse((await readFile(inViewEventsFilepath)).toString());
   const indexedInViewEvents = indexInViewEvents(inViewEvents);
 
-  if (!offsetDate) {
-    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
+  if (!postCheckpointOffsetDate) {
+    ({ offsetDate: postCheckpointOffsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
   }
 
   // eslint-disable-next-line no-console
-  console.log(`Initial post batch offset date: ${offsetDate.toISOString()}`);
+  console.log(`Initial post batch offset date: ${postCheckpointOffsetDate.toISOString()}`);
 
-  let batch = await getPostBatch(offsetDate);
+  let batch = await getPostBatch(postCheckpointOffsetDate);
 
   try {
     while (batch.length) {
@@ -172,14 +179,22 @@ async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Da
 
       if (postsWithTags.length) {
         const postIds = postsWithTags.map(({ post }) => post._id);
+        const readStatusOffset = readStatusOffsetDate ? { lastUpdated: { $gt: readStatusOffsetDate } } : {};
+
         const readStatusOperation = () => (ReadStatuses.find(
-          { postId: { $in: postIds }, isRead: true }, 
+          { postId: { $in: postIds }, isRead: true, ...readStatusOffset }, 
           undefined, 
           { _id: 1, userId: 1, postId: 1, lastUpdated: 1 }
         ).fetch() as Promise<ReadStatusWithPostId[]>);
+
+        const postsToImport = postsWithTags.filter(({ post }) => postImportOffsetDate ? post.createdAt > postImportOffsetDate : true);
+
+        const importPostsOperation = postsToImport.length
+          ? () => googleVertexApi.importPosts(postsToImport)
+          : () => Promise.resolve();
         
         const [_, readStatuses] = await Promise.all([
-          googleVertexApi.importPosts(postsWithTags),
+          importPostsOperation(),
           readStatusOperation()
         ]);
 
@@ -204,16 +219,16 @@ async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Da
         await googleVertexApi.importUserEvents(userEvents);
       }
 
-      const nextOffsetDate: Date | undefined = getNextOffsetDate(offsetDate, batch);
+      const nextOffsetDate: Date | undefined = getNextOffsetDate(postCheckpointOffsetDate, batch);
       if (!nextOffsetDate) {
         return;
       }
-      offsetDate = nextOffsetDate;
-      batch = await getPostBatch(offsetDate);
+      postCheckpointOffsetDate = nextOffsetDate;
+      batch = await getPostBatch(postCheckpointOffsetDate);
     }  
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log(`Error when backfilling Google Vertex with posts.  Last offset date: ${offsetDate.toISOString()}`, { err });
+    console.log(`Error when backfilling Google Vertex with posts.  Last offset date: ${postCheckpointOffsetDate.toISOString()}`, { err });
   }
 }
 
