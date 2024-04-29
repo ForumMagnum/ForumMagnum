@@ -1,10 +1,11 @@
-import React, { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import React, {FormEvent, ReactNode, useCallback, useEffect, useRef, useState} from 'react'
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
 import { useMutation, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import gql from "graphql-tag";
+import {lightbulbIcon} from '../../icons/lightbulbIcon'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -80,7 +81,8 @@ const displayNameTakenQuery = gql`
   }
 `;
 
-export const EAOnboardingUserStage = ({classes}: {
+export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
+  icon?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const { goToNextStage, goToNextStageAfter, captureOnboardingEvent, viewAsAdmin } = useEAOnboarding();
@@ -173,6 +175,7 @@ export const EAOnboardingUserStage = ({classes}: {
       canContinue={canContinue}
       className={classes.root}
       thin
+      icon={icon}
     >
       <div>Many Forum users use their real name.</div>
       <form onSubmit={onSubmit}>
