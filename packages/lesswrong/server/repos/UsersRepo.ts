@@ -6,6 +6,7 @@ import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotificati
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { getPostgresViewByName } from "../postgresView";
+import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -181,19 +182,27 @@ class UsersRepo extends AbstractRepo<"Users"> {
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
         COALESCE(u."deleted", FALSE) AS "deleted",
         COALESCE(u."deleteContent", FALSE) AS "deleteContent",
+        COALESCE(u."hideFromPeopleDirectory", FALSE) AS "hideFromPeopleDirectory",
         u."profileImageId",
         u."biography"->>'html' AS "bio",
         u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
         u."howICanHelpOthers"->>'html' AS "howICanHelpOthers",
         COALESCE(u."karma", 0) AS "karma",
         u."slug",
-        u."jobTitle",
-        u."organization",
+        NULLIF(TRIM(u."jobTitle"), '') AS "jobTitle",
+        NULLIF(TRIM(u."organization"), '') AS "organization",
         u."careerStage",
-        u."website",
+        NULLIF(TRIM(u."website"), '') AS "website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         u."profileTagIds" AS "tags",
+        NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
+          'website', NULLIF(TRIM(u."website"), ''),
+          'github', NULLIF(TRIM(u."githubProfileURL"), ''),
+          'twitter', NULLIF(TRIM(u."twitterProfileURL"), ''),
+          'linkedin', NULLIF(TRIM(u."linkedinProfileURL"), ''),
+          'facebook', NULLIF(TRIM(u."facebookProfileURL"), '')
+        )), '{}') AS "socialMediaUrls",
         CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN NULL ELSE
           JSONB_BUILD_OBJECT(
             'type', 'point',
@@ -202,6 +211,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
               u."mapLocation"->'geometry'->'location'->'lat'
           )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
+        u."profileUpdatedAt",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;
@@ -639,6 +649,38 @@ class UsersRepo extends AbstractRepo<"Users"> {
       ORDER BY u."createdAt" desc
       LIMIT $1;
     `, [limit])
+  }
+
+  async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
+    const {name, pgField} = getFacetField(facetFieldName);
+    const normalizedFacetField = name === "mapLocationAddress"
+      ? `TRIM(${pgField})`
+      : `INITCAP(TRIM(${pgField}))`;
+
+    // If you change this query you may also need to update the indexes
+    // created for `allowedFacetFields` in `facetFieldSearch.ts`
+    const results = await this.getRawDb().any(`
+      -- UsersRepo.searchFacets
+      SELECT
+        DISTINCT ${normalizedFacetField} AS "result",
+        TS_RANK_CD(
+          TO_TSVECTOR('english', ${pgField}),
+          WEBSEARCH_TO_TSQUERY($1),
+          1
+        ) * 5 + COALESCE(SIMILARITY(${pgField}, $1), 0) AS "rank"
+      FROM "Users"
+      WHERE
+        (
+          TO_TSVECTOR('english', ${pgField}) @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY(${pgField}, $1), 0) > 0.22 OR
+          ${pgField} ILIKE ($1 || '%')
+        ) AND
+        ${getDefaultFacetFieldSelector(pgField)}
+      ORDER BY "rank" DESC, ${normalizedFacetField} DESC
+      LIMIT 8
+    `, [query]);
+
+    return results.map(({result}) => result);
   }
 
   async getCurationSubscribedUserIds(): Promise<string[]> {

@@ -1,3 +1,5 @@
+import { allUserProfileFields } from "./userProfileUpdates";
+
 /**
  * List of the Postgres functions required to run ForumMagnum. After editing
  * this list you must run `makemigrations` to generate a new schema hash and a
@@ -221,6 +223,25 @@ export const postgresFunctions = [
             ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
       END IF;
     END
+  $$`,
+  // Calculate the last date user updated their profile. This is very slow - you
+  // should generally use the denormalized value in the user's `profileUpdatedAt`
+  // field. This function is just used for updating that value.
+  `CREATE OR REPLACE FUNCTION fm_get_user_profile_updated_at(userid TEXT)
+    RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
+      SELECT COALESCE(
+        (SELECT "createdAt"
+        FROM (
+          SELECT JSONB_OBJECT_KEYS("properties"->'after') AS "key", "createdAt"
+          FROM "LWEvents"
+          WHERE "documentId" = userid AND "name" = 'fieldChanges'
+        ) q
+        WHERE "key" IN (${allUserProfileFields.map((f) => `'${f}'`).join(", ")})
+        ORDER BY "createdAt" DESC
+        LIMIT 1),
+        (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
+        TO_TIMESTAMP(0)
+      )
   $$`,
 ] as const;
 

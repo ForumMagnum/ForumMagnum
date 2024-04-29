@@ -224,3 +224,21 @@ export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | 
 export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
 
 export const isDatadogEnabled = isEAForum;
+
+export type PostFeedDetails = {
+  name: string,
+  label: string,
+  description?: string,
+  disabled?: boolean,
+  adminOnly?: boolean,
+  showLabsIcon?: boolean,
+  slug?: string
+}
+
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
+
+/**
+ * This is a filepath that is _relative_ to the location of the instance settings file itself.
+ * See full explanation in `google-vertex/client.ts`
+ */
+export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");

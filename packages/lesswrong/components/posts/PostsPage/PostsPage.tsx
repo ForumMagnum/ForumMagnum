@@ -211,6 +211,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      // This can only be used when display: "block" is applied, otherwise the 100% confuses the
+      // grid layout into adding loads of left margin
+      maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
+    }
+  },
+  postBody: {
+    width: "max-content",
   },
   postContent: { //Used by a Cypress test
     marginBottom: isFriendlyUI ? 40 : undefined

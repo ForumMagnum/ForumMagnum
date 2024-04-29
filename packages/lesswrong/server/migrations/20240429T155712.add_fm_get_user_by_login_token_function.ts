@@ -1,6 +1,6 @@
 import { updateFunctions } from "./meta/utils";
 
-export const acceptsSchemaHash = "137496d0b5bd84406c71c0bb81025177";
+export const acceptsSchemaHash = "ce481181abda13b83244a8ccd8ed5782";
 
 export const up = async ({db}: MigrationContext) => {
   await updateFunctions(db);

@@ -116,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
@@ -464,6 +465,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review

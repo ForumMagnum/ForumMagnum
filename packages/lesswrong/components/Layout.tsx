@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
-      paddingTop: 0,
+      paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
       paddingRight: 8,
     },
@@ -385,6 +385,7 @@ const Layout = ({currentUser, children, classes}: {
       EAHomeRightHandSide,
       CloudinaryImage2,
       ForumEventBanner,
+      GlobalHotkeys,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -448,6 +449,7 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
+              <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <ForumNoSSR>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
