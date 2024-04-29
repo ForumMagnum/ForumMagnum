@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -19,12 +19,13 @@ function getDateFormat(dense: boolean, isThisYear: boolean): string {
   }
 }
 
-// TODO how is this different from PrettyEventDateTime?
 const EventTime = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,
 }) => {
   const { timezone } = useTimezone();
+  const { TimeTag } = Components;
+
   const start = post.startTime ? moment(post.startTime).tz(timezone) : undefined;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : undefined;
 
@@ -50,7 +51,7 @@ const EventTime = ({post, dense=false}: {
   // less sense, but users can enter silly things.)
   else if (!start || !end) {
     const eventTime = start ? start : end;
-    return <>{eventTime!.calendar(calendarFormat)} {eventTime!.format('z')}</>
+    return eventTime ? <TimeTag dateTime={eventTime.toISOString()}>{eventTime!.calendar(calendarFormat)} {eventTime!.format('z')}</TimeTag> : <>TBD</>
   }
   // Both start end end time specified
   else {
@@ -61,13 +62,20 @@ const EventTime = ({post, dense=false}: {
     // In both cases we avoid duplicating the timezone.
     if (start.format("YYYY-MM-DD") === end.format("YYYY-MM-DD")) {
       return <div>
-        <div>{start.format(dateFormat)}</div>
-        <div>{start.format(startTimeFormat) + ' – ' + end.format(timeFormat)}</div>
+        <TimeTag dateTime={start.toISOString()}>
+          <div>{start.format(dateFormat)}</div>
+          <div>{start.format(startTimeFormat) + ' – ' + end.format(timeFormat)}</div>
+        </TimeTag>
       </div>
     } else {
-      return (<span>
-        {start.calendar({}, calendarFormat)} to {end.calendar({}, calendarFormat)} {end.format('z')}
-      </span>);
+      return (
+        <span>
+          <TimeTag dateTime={start.toISOString()}>{start.calendar({}, calendarFormat)}</TimeTag> to{" "}
+          <TimeTag dateTime={end.toISOString()}>
+            {end.calendar({}, calendarFormat)} {end.format("z")}
+          </TimeTag>
+        </span>
+      );
     }
   }
 };

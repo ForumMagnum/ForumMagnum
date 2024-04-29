@@ -116,7 +116,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { Loading, AddToCalendarButton, PrettyEventDateTimes } = Components
+  const { Loading, AddToCalendarButton, PrettyEventDateTime } = Components
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
@@ -166,7 +166,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
       <div className={classes.content}>
         <div className={classes.text}>
           <div className={classes.detail}>
-            <PrettyEventDateTimes post={event} timezone={timezone} dense={true} />
+            <PrettyEventDateTime post={event} timezone={timezone} dense={true} />
           </div>
           <h1 className={classes.title}>
             <Link to={`/events/${event._id}/${event.slug}`} onClick={() => captureEvent('highlightedEventClicked')}>

@@ -51,7 +51,7 @@ const EventUpdatedEmail = ({postId, classes}: {
   
   if (loading || !post) return null;
 
-  const { PrettyEventDateTimes } = Components;
+  const { PrettyEventDateTime } = Components;
   
   const link = postGetPageUrl(post, true);
   
@@ -77,7 +77,7 @@ const EventUpdatedEmail = ({postId, classes}: {
     </div>
     <p>
       <div className={classes.label}>Date and Time</div>
-      <div className={classes.data}><PrettyEventDateTimes post={post} timezone={timezoneIsKnown ? timezone : undefined} /></div>
+      <div className={classes.data}><PrettyEventDateTime post={post} timezone={timezoneIsKnown ? timezone : undefined} /></div>
     </p>
     <p>
       <div className={classes.label}>Location</div>

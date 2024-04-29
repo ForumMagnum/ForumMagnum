@@ -136,7 +136,7 @@ const VirtualProgramCard = ({program, classes}: {
     >
       <Card className={classNames(classes.eventCard, classes.introVPCard)}>
         <div className={classes.eventCardTime}>
-          <FormatDate date={startOfVp.toISOString()} format={"MMMM D"} granularity='date' /> - <FormatDate date={endOfVp.toISOString()} format={"MMMM D"} granularity='date' />
+          <FormatDate date={startOfVp.toISOString()} format={"MMMM D"} granularity='date' /> – <FormatDate date={endOfVp.toISOString()} format={"MMMM D"} granularity='date' />
         </div>
         <div className={classes.eventCardTitle}>
           Introductory EA Program
@@ -175,7 +175,7 @@ const VirtualProgramCard = ({program, classes}: {
       >
         <div>
           <div className={classes.eventCardTime}>
-            <FormatDate date={startOfVp.toISOString()} format={"MMMM D"} granularity='date' /> - <FormatDate date={endOfVp.toISOString()} format={"MMMM D"} granularity='date' />
+            <FormatDate date={startOfVp.toISOString()} format={"MMMM D"} granularity='date' /> – <FormatDate date={endOfVp.toISOString()} format={"MMMM D"} granularity='date' />
           </div>
           <div className={classes.eventCardTitle}>
             In-Depth EA Program
@@ -193,7 +193,7 @@ const VirtualProgramCard = ({program, classes}: {
       >
         <div>
           <div className={classes.eventCardTime}>
-            <FormatDate date={startOfPrecipice.toISOString()} format={"MMMM D"} granularity='date' /> - <FormatDate date={endOfPrecipice.toISOString()} format={"MMMM D"} granularity='date' />
+            <FormatDate date={startOfPrecipice.toISOString()} format={"MMMM D"} granularity='date' /> – <FormatDate date={endOfPrecipice.toISOString()} format={"MMMM D"} granularity='date' />
           </div>
           <div className={classes.eventCardTitle}>
             <em>The Precipice</em> Reading Group

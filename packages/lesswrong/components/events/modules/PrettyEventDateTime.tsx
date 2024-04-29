@@ -11,17 +11,16 @@ import moment from '../../../lib/moment-timezone';
  * @param {string} [dense] - (Optional) Exclude the day of the week.
  * @returns {string} The formatted event datetimes.
  */
-export const PrettyEventDateTimes = ({
+export const PrettyEventDateTime = ({
   post,
   timezone,
   dense = false,
 }: {
-  post: PostsBase | DbPost;
+  post: Pick<DbPost, 'startTime' | 'endTime' | 'localStartTime' | 'localEndTime'>,
   timezone?: string;
   dense?: boolean;
 }) => {
-  // when no start time, just show "TBD"
-  if (!post.startTime) return "TBD";
+  if (!post.startTime) return <>TBD</>;
 
   const { TimeTag } = Components;
 
@@ -57,7 +56,7 @@ export const PrettyEventDateTimes = ({
     // ex: Starts on Mon, Jan 3 at 4:30 PM
     // ex: Starts on Mon, Jan 3, 2023 at 4:30 PM EST
     return (
-      <TimeTag dateTime={start.toISOString()}>{`${
+      <TimeTag dateTime={post.startTime}>{`${
         dense ? "" : "Starts on "
       }${startDate}${startYear} at ${startTime}${startAmPm}${tz}`}</TimeTag>
     );
@@ -71,8 +70,8 @@ export const PrettyEventDateTimes = ({
     // hide the start time am/pm if it's the same as the end time's
     startAmPm = start.format("A") === end.format("A") ? "" : startAmPm;
     return (
-      <TimeTag dateTime={start.toISOString()}>
-        {`${startDate}${startYear} at ${startTime}${startAmPm} - ${endTime}${tz}`}
+      <TimeTag dateTime={post.startTime}>
+        {`${startDate}${startYear} at ${startTime}${startAmPm} – ${endTime}${tz}`}
       </TimeTag>
     );
   }
@@ -84,17 +83,17 @@ export const PrettyEventDateTimes = ({
   const endYear = now.isSame(end, "year") || end.isBefore(sixMonthsFromNow) ? "" : `, ${end.format("YYYY")}`;
   return (
     <>
-      <TimeTag dateTime={start.toISOString()}>{`${startDate}${startYear} at ${startTime}${startAmPm}`}</TimeTag>
-      {" - "}
-      <TimeTag dateTime={end.toISOString()}>{`${endDate}${endYear} at ${endTime}${tz}`}</TimeTag>
+      <TimeTag dateTime={post.startTime}>{`${startDate}${startYear} at ${startTime}${startAmPm}`}</TimeTag>
+      {" – "}
+      <TimeTag dateTime={post.endTime ?? end.toISOString()}>{`${endDate}${endYear} at ${endTime}${tz}`}</TimeTag>
     </>
   );
 };
 
-const PrettyEventDateTimesComponent = registerComponent("PrettyEventDateTimes", PrettyEventDateTimes);
+const PrettyEventDateTimeComponent = registerComponent("PrettyEventDateTime", PrettyEventDateTime);
 
 declare global {
   interface ComponentTypes {
-    PrettyEventDateTimes: typeof PrettyEventDateTimesComponent;
+    PrettyEventDateTime: typeof PrettyEventDateTimeComponent;
   }
 }

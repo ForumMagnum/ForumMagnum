@@ -8,10 +8,10 @@ const EmailPostDate = ({post}: {
 }) => {
   const { timezone, timezoneIsKnown } = useTimezone()
   
-  const { EmailFormatDate, PrettyEventDateTimes } = Components;
+  const { EmailFormatDate, PrettyEventDateTime } = Components;
   
   if (post.isEvent) {
-    return <span><PrettyEventDateTimes post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>
+    return <span><PrettyEventDateTime post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>
   } else if (post.curatedDate) {
     return <EmailFormatDate date={post.curatedDate}/>
   } else {
