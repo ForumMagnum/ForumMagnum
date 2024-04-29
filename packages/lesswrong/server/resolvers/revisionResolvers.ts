@@ -198,7 +198,7 @@ defineMutation({
       getLatestRev(tagId, 'description')
     ]);
 
-    const anyDiff = !isEqual(tag.description.originalContents, revertToRevision.originalContents);
+    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
 
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');

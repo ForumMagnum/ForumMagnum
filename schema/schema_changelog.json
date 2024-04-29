@@ -625,8 +625,18 @@
     "timestamp": "2024-04-19T01:39:27.000Z"
   },
   {
-    "acceptsSchemaHash": "882f9e74e59c19383fb2dc6087a23ba1",
-    "acceptedByMigration": "20240423T213728.normalize_posts_moderationGuidelines.ts",
-    "timestamp": "2024-04-23T21:37:28.000Z"
+    "acceptsSchemaHash": "1907632649f70f5e77f6e6de79357d74",
+    "acceptedByMigration": "20240424T142239.add_imageFadeColor_to_Spotlights.ts",
+    "timestamp": "2024-04-24T14:22:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c192cfffc5d07ae27caf1477da048644",
+    "acceptedByMigration": "20240425T075639.add_people_directory.ts",
+    "timestamp": "2024-04-25T07:56:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2d15ba155031a8c3e7ea1851c1bbce17",
+    "acceptedByMigration": "20240429T191302.normalize_posts_moderationGuidelines.ts",
+    "timestamp": "2024-04-29T19:13:02.000Z"
   }
 ]

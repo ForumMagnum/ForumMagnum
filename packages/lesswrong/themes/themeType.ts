@@ -557,6 +557,7 @@ declare global {
     borderRadius: {
       default: number,
       small: number,
+      quickTakesEntry: number,
     },
     palette: ThemePalette,
     typography: {

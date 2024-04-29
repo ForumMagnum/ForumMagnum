@@ -59,7 +59,7 @@ interface DbBook extends DbObject {
   displaySequencesAsGrid: boolean | null
   hideProgressBar: boolean | null
   showChapters: boolean | null
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -74,7 +74,7 @@ interface DbChapter extends DbObject {
   number: number | null
   sequenceId: string | null
   postIds: Array<string>
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -115,7 +115,7 @@ interface DbCollection extends DbObject {
   firstPageLink: string
   hideStartReadingButton: boolean | null
   noindex: boolean
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -198,7 +198,7 @@ interface DbComment extends DbObject {
   originalDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   voteCount: number
@@ -446,9 +446,9 @@ interface DbForumEvent extends DbObject {
   bannerImageId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  frontpageDescription: EditableFieldContents
+  frontpageDescription: EditableFieldContents | null
   frontpageDescription_latest: string | null
-  postPageDescription: EditableFieldContents
+  postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null
 }
 
@@ -469,7 +469,7 @@ interface DbGardenCode extends DbObject {
   afOnly: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
 }
@@ -545,7 +545,7 @@ interface DbLocalgroup extends DbObject {
   inactive: boolean
   deleted: boolean
   salesforceId: string | null
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -571,7 +571,7 @@ interface DbMessage extends DbObject {
   userId: string
   conversationId: string
   noEmail: boolean
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -599,7 +599,7 @@ interface DbModerationTemplate extends DbObject {
   deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
 }
 
@@ -940,11 +940,11 @@ interface DbPost extends DbObject {
   agentFoundationsId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines_latest: string | null
-  customHighlight: EditableFieldContents
+  customHighlight: EditableFieldContents | null
   customHighlight_latest: string | null
   voteCount: number
   baseScore: number
@@ -1050,7 +1050,7 @@ type RevisionsCollection = CollectionBase<"Revisions">;
 interface DbRevision extends DbObject {
   __collectionName?: "Revisions"
   documentId: string | null
-  collectionName: CollectionNameString
+  collectionName: CollectionNameString | null
   fieldName: string | null
   editedAt: Date | null
   autosaveTimeoutStart: Date | null
@@ -1097,7 +1097,7 @@ interface DbSequence extends DbObject {
   hidden: boolean
   noindex: boolean
   af: boolean
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1165,11 +1165,12 @@ interface DbSpotlight extends DbObject {
   draft: boolean
   showAuthor: boolean
   imageFade: boolean
+  imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  description: EditableFieldContents
+  description: EditableFieldContents | null
   description_latest: string | null
 }
 
@@ -1197,7 +1198,7 @@ interface DbTagFlag extends DbObject {
   order: number | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents
+  contents: EditableFieldContents | null
   contents_latest: string | null
 }
 
@@ -1270,11 +1271,11 @@ interface DbTag extends DbObject {
   noindex: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  description: EditableFieldContents
+  description: EditableFieldContents | null
   description_latest: string | null
-  subforumWelcomeText: EditableFieldContents
+  subforumWelcomeText: EditableFieldContents | null
   subforumWelcomeText_latest: string | null
-  moderationGuidelines: EditableFieldContents
+  moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
 }
 
@@ -1718,6 +1719,7 @@ interface DbUser extends DbObject {
   usernameUnset: boolean
   paymentEmail: string | null
   paymentInfo: string | null
+  profileUpdatedAt: Date
   profileImageId: string | null
   jobTitle: string | null
   organization: string | null
@@ -1738,6 +1740,7 @@ interface DbUser extends DbObject {
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
   hideJobAdUntil: Date | null
+  hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
   afCommentCount: number
@@ -1750,13 +1753,13 @@ interface DbUser extends DbObject {
   inactiveSurveyEmailSentAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  moderationGuidelines: EditableFieldContents
+  moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
-  howOthersCanHelpMe: EditableFieldContents
+  howOthersCanHelpMe: EditableFieldContents | null
   howOthersCanHelpMe_latest: string | null
-  howICanHelpOthers: EditableFieldContents
+  howICanHelpOthers: EditableFieldContents | null
   howICanHelpOthers_latest: string | null
-  biography: EditableFieldContents
+  biography: EditableFieldContents | null
   biography_latest: string | null
   recommendationSettings: {
     frontpage: {
