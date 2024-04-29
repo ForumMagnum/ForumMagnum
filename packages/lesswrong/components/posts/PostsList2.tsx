@@ -45,6 +45,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
 
   if (!orderedResults && loading) {
+    if (!showLoading) return null;
     return <PostsLoading placeholderCount={placeholderCount || limit} showFinalBottomBorder={showFinalBottomBorder} />
   }
 

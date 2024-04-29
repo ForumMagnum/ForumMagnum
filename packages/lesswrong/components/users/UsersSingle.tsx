@@ -57,8 +57,8 @@ const UsersSingle = () => {
     return <Components.PermanentRedirect url={canonicalUrl} />;
   } else {
     return isFriendlyUI ?
-      <Components.FriendlyUsersProfile terms={{view: 'usersProfile', slug}} slug={slug} /> :
-      <Components.UsersProfile terms={{view: 'usersProfile', slug}} slug={slug} />
+      <Components.FriendlyUsersProfile slug={slug} /> :
+      <Components.UsersProfile slug={slug} />
   }
 };
 

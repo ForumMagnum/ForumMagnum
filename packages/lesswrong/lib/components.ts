@@ -886,6 +886,7 @@ importComponent("SequencesEditForm", () => require('../components/sequences/Sequ
 importComponent("SequencesNewForm", () => require('../components/sequences/SequencesNewForm'));
 importComponent("LibraryPage", () => require('../components/sequences/LibraryPage'));
 importComponent("SequencesGrid", () => require('../components/sequences/SequencesGrid'));
+importComponent("SequencesGridPlaceholder", () => require('../components/sequences/SequencesGridPlaceholder'));
 importComponent("SequencesGridWrapper", () => require('../components/sequences/SequencesGridWrapper'));
 importComponent("SequencesNavigationLink", () => require('../components/sequences/SequencesNavigationLink'));
 importComponent("SequencesNewButton", () => require('../components/sequences/SequencesNewButton'));

@@ -1705,7 +1705,8 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
   },
 
-  // sequenceCount: count of how many non-draft, non-deleted sequences you have
+  // sequenceCount: count of how many sequences you have visible on your profile
+  // page, ie non-draft, non-deleted, non-hidden sequences.
   sequenceCount: {
     ...denormalizedCountOfReferences({
       fieldName: "sequenceCount",
@@ -1713,7 +1714,11 @@ const schema: SchemaType<"Users"> = {
       foreignCollectionName: "Sequences",
       foreignTypeName: "sequence",
       foreignFieldName: "userId",
-      filterFn: sequence => !sequence.draft && !sequence.isDeleted && !sequence.hideFromAuthorPage
+      filterFn: sequence => !sequence.draft
+        && !sequence.isDeleted
+        && !sequence.hideFromAuthorPage
+        && !sequence.hidden
+        && !sequence.hideFromAuthorPage
     }),
     canRead: ['guests'],
   },
