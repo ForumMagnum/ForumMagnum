@@ -15,9 +15,9 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   observerProps?: Record<string,any>,
   children?: React.ReactNode
 }) => {
-  const { setNode, entry } = useIsInView(observerProps)
-  const [alreadySent, setAlreadySent] =  useState(false);
-  const currentUser = useCurrentUser()
+  const { setNode, entry } = useIsInView(observerProps);
+  const [alreadySent, setAlreadySent] = useState(false);
+  const currentUser = useCurrentUser();
 
   const sendViewPortionEvent = useCallback(
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
