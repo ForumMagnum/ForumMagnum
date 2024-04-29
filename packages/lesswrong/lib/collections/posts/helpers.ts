@@ -298,6 +298,7 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
+// TODO convert to component
 /**
  * Returns the event datetimes in a user-friendly format,
  * ex: Mon, Jan 3 at 4:30 - 5:30 PM
