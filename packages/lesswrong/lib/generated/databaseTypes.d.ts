@@ -943,7 +943,6 @@ interface DbPost extends DbObject {
   contents: EditableFieldContents
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string | null
   customHighlight: EditableFieldContents
   customHighlight_latest: string | null
