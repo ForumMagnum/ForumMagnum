@@ -225,7 +225,6 @@ const googleVertexApi = {
     authorIds ??= [post.userId, ...getConfirmedCoauthorIds(post)];
 
     const postWithHydratedMetadata = { post, tags, authorIds };
-
     const googleMediaDocument = helpers.createMediaDocument(postWithHydratedMetadata, vertexDocumentServiceParentPath);
 
     await client.updateDocument({ document: googleMediaDocument, allowMissing: true },);
