@@ -127,15 +127,21 @@ const embedConfig = {
 }
 
 export const postEditorConfig = {
-	blockToolbar: [
-		'imageUpload',
-		'insertTable',
-		'horizontalLine',
-		'mathDisplay',
-		'mediaEmbed',
-		'ctaButtonToolbarItem',
-		'footnote',
-	],
+	blockToolbar: {
+		items: [
+			'imageUpload',
+			'insertTable',
+			'horizontalLine',
+			'mathDisplay',
+			'mediaEmbed',
+			'ctaButtonToolbarItem',
+			'footnote',
+		],
+		
+		/* At some point the default icon for the block toolbar changed from a
+		 * pilcrow to a drag handle. Change it back. */
+		icon: 'pilcrow'
+	},
 	toolbar: {
 		items: [
 			'restyledCommentButton',

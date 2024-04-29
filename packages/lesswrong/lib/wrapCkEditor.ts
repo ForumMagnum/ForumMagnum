@@ -10,4 +10,4 @@ export const getCkEditor = (forumType: ForumTypeString) => {
   return { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };
 }
 
-export const ckEditorBundleVersion = "32.1.1";
+export const ckEditorBundleVersion = "41.3.0";
