@@ -304,7 +304,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader);
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context));
         return market?.probability
       }
     }
@@ -316,7 +316,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return false;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.isResolved
       }
     }
@@ -328,7 +328,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.year
       }
     }
