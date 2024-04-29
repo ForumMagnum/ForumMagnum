@@ -19,10 +19,9 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   const [alreadySent, setAlreadySent] =  useState(false);
   const currentUser = useCurrentUser()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const sendViewPortionEvent = useCallback(
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
-  [])
+  []);
 
   const [sendVertexMediaCompleteEvent] = useMutation(gql`
     mutation sendVertexMediaCompleteEventMutation($postId: String!, $attributionId: String) {
@@ -50,7 +49,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entry, sendViewPortionEvent, alreadySent])
+  }, [entry, sendViewPortionEvent, sendVertexMediaCompleteEvent, alreadySent]);
 
   return (
     <span ref={setNode}>
