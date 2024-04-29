@@ -52,6 +52,7 @@ type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminCl
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesAdminDashboard";
 type ReviewWinnerArtsViewName = "postArt";
 type ReviewWinnersViewName = never
+type RevisionExcerptsViewName = never
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
 type SessionsViewName = never
@@ -127,6 +128,7 @@ interface ViewTermsByCollectionName {
   ReviewVotes: ReviewVotesViewTerms
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
   ReviewWinners: ViewTermsBase
+  RevisionExcerpts: ViewTermsBase
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
   Sessions: ViewTermsBase

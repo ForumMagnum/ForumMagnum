@@ -246,6 +246,10 @@ import './collections/postEmbeddings/collection';
 import './collections/sideCommentCaches/collection';
 import './collections/sideCommentCaches/fragments';
 
+// RevisionExcerpts
+import './collections/revisionExcerpts/collection';
+import './collections/revisionExcerpts/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 

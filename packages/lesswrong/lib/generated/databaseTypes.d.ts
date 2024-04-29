@@ -1046,6 +1046,15 @@ interface DbReviewWinner extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type RevisionExcerptsCollection = CollectionBase<"RevisionExcerpts">;
+
+interface DbRevisionExcerpt extends DbObject {
+  __collectionName?: "RevisionExcerpts"
+  dummy: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type RevisionsCollection = CollectionBase<"Revisions">;
 
 interface DbRevision extends DbObject {
@@ -1872,6 +1881,7 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
+  RevisionExcerpts: RevisionExcerptsCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
@@ -1948,6 +1958,7 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
+  RevisionExcerpts: DbRevisionExcerpt
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
@@ -2024,6 +2035,7 @@ interface ObjectsByTypeName {
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner
+  RevisionExcerpt: DbRevisionExcerpt
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
