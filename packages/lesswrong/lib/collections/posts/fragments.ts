@@ -375,7 +375,6 @@ registerFragment(`
     }
 
     # Moderation stuff
-    showModerationGuidelines
     bannedUserIds
     moderationStyle
     

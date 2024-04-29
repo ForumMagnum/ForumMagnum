@@ -1296,7 +1296,6 @@ interface PostsDetails extends PostsListBase { // fragment on Posts
   readonly canonicalBook: PostsDetails_canonicalBook|null,
   readonly canonicalCollection: PostsDetails_canonicalCollection|null,
   readonly podcastEpisode: PostsDetails_podcastEpisode|null,
-  readonly showModerationGuidelines: boolean,
   readonly bannedUserIds: Array<string>,
   readonly moderationStyle: string,
   readonly currentUserVote: string|null,
