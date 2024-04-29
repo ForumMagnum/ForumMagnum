@@ -125,8 +125,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
-  // TODO check on faster connection
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').toISOString()
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     ...query,
