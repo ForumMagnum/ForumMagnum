@@ -185,6 +185,7 @@ import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
+import './server/resolvers/googleVertexResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

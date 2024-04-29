@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { useHideRepeatedPosts } from "./HideRepeatedPostsContext";
-import { useRecordPostView } from "../hooks/useRecordPostView";
+import { RecommendationOptions, useRecordPostView } from "../hooks/useRecordPostView";
 import { useCurrentUser } from "../common/withUser";
 import {
   postCanDelete,
@@ -15,7 +15,8 @@ import type { PopperPlacementType } from "@material-ui/core/Popper"
 import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
-import { RECOMBEE_RECOMM_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
+import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
+import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -83,6 +84,7 @@ export type PostsItemConfig = {
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
+  vertexAttributionId?: string,
   className?: string,
 }
 
@@ -129,6 +131,7 @@ export const usePostsItem = ({
   useCuratedDate = true,
   isVoteable = false,
   recombeeRecommId,
+  vertexAttributionId,
   className,
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
@@ -139,21 +142,26 @@ export const usePostsItem = ({
 
   const currentUser = useCurrentUser();
 
+  const recommendationEventOptions: RecommendationOptions = useMemo(() => ({
+    recombeeOptions: { recommId: recombeeRecommId },
+    vertexOptions: { attributionId: vertexAttributionId },
+  }), [recombeeRecommId, vertexAttributionId]);
+
   const toggleComments = useCallback(
     () => {
-      void recordPostView({post, extraEventProperties: {type: "toggleComments"}, recombeeOptions: {recommId: recombeeRecommId}})
+      void recordPostView({ post, extraEventProperties: { type: "toggleComments" }, recommendationOptions: recommendationEventOptions });
       setShowComments(!showComments);
       setReadComments(true);
     },
-    [post, recordPostView, setShowComments, showComments, setReadComments, recombeeRecommId],
+    [post, recordPostView, setShowComments, showComments, setReadComments, recommendationEventOptions],
   );
 
   const toggleDialogueMessages = useCallback(
     () => {
-      void recordPostView({post, extraEventProperties: {type: "toggleDialogueMessages"}, recombeeOptions: {recommId: recombeeRecommId}})
+      void recordPostView({ post, extraEventProperties: { type: "toggleDialogueMessages" }, recommendationOptions: recommendationEventOptions });
       setShowDialogueMessages(!showDialogueMessages);
     },
-    [post, recordPostView, setShowDialogueMessages, showDialogueMessages, recombeeRecommId],
+    [post, recordPostView, setShowDialogueMessages, showDialogueMessages, recommendationEventOptions],
   );
 
   const compareVisitedAndCommentedAt = (
@@ -174,8 +182,11 @@ export const usePostsItem = ({
     ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
-  if (recombeeRecommId) {
+  if (recombeeRecommId && recombeeEnabledSetting.get()) {
     postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`
+    // These shouldn't ever both be present at the same time
+  } else if (vertexAttributionId && vertexEnabledSetting.get()) {
+    postLink = `${postLink}?${VERTEX_ATTRIBUTION_ID_QUERY_PARAM}=${vertexAttributionId}`
   }
 
   const showDismissButton = Boolean(currentUser && resumeReading);

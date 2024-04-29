@@ -8,9 +8,7 @@ import { isServer } from '../../lib/executionEnvironment';
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface VertexRecommendedPost {
   post: PostsListWithVotes,
-  attributionId: string,
-  curated?: never,
-  stickied?: never,
+  attributionId?: string,
 }
 
 const styles = (theme: ThemeType) => ({
@@ -65,7 +63,7 @@ export const VertexPostsList = ({ limit = 100, classes }: {
   const resolverName = DEFAULT_RESOLVER_NAME;
 
   const query = getVertexPostsQuery(resolverName);
-  const { data, loading, fetchMore, networkStatus } = useQuery(query, {
+  const { data, loading, networkStatus } = useQuery(query, {
     ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
@@ -94,12 +92,10 @@ export const VertexPostsList = ({ limit = 100, classes }: {
 
   return <div>
     <div className={classes.root}>
-      {results.slice(0, displayCount).map(({ post, attributionId: recommId, curated, stickied }) => <PostsItem 
+      {results.slice(0, displayCount).map(({ post, attributionId }) => <PostsItem 
         key={post._id} 
         post={post} 
-        recombeeRecommId={recommId} 
-        curatedIconLeft={curated} 
-        terms={stickied ? stickiedPostTerms : undefined}
+        vertexAttributionId={attributionId} 
       />)}
     </div>
     <SectionFooter>
