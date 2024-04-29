@@ -24,7 +24,15 @@ export const RevisionStorageType = new SimpleSchema({
 type EditableFieldName<N extends CollectionNameString> =
   keyof ObjectsByCollectionName[N] & string;
 
-export interface MakeEditableOptions<N extends CollectionNameString> {
+type MakeEditableOptionsFieldName<N extends CollectionNameString> = {
+  fieldName?: EditableFieldName<N>,
+  normalized?: false,
+} | {
+  fieldName?: string,
+  normalized: true,
+};
+
+export type MakeEditableOptions<N extends CollectionNameString> = {
   commentEditor?: boolean,
   commentStyles?: boolean,
   commentLocalStorage?: boolean,
@@ -35,7 +43,6 @@ export interface MakeEditableOptions<N extends CollectionNameString> {
     canUpdate?: any,
     canCreate?: any,
   },
-  fieldName?: EditableFieldName<N>,
   label?: string,
   order?: number,
   hideControls?: boolean,
@@ -44,8 +51,7 @@ export interface MakeEditableOptions<N extends CollectionNameString> {
   revisionsHaveCommitMessages?: boolean,
   hidden?: boolean,
   hasToc?: boolean,
-  normalized?: boolean,
-}
+} & MakeEditableOptionsFieldName<N>;
 
 export const defaultEditorPlaceholder = isFriendlyUI ?
 `Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
@@ -103,7 +109,7 @@ export function sealEditableFields() { editableFieldsSealed=true }
 
 const buildEditableResolver = <N extends CollectionNameString>(
   collection: CollectionBase<N>,
-  fieldName: EditableFieldName<N>,
+  fieldName: string,
   normalized: boolean,
 ): CollectionFieldResolveAs<N> => {
   if (normalized) {
@@ -170,7 +176,8 @@ const buildEditableResolver = <N extends CollectionNameString>(
         }
       }
 
-      const docField = doc[fieldName] as EditableFieldContents;
+      const typedFieldName = fieldName as keyof ObjectsByCollectionName[N];
+      const docField = doc[typedFieldName] as EditableFieldContents;
       if (!docField) {
         return null;
       }
