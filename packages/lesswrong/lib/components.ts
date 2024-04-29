@@ -553,6 +553,7 @@ importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcom
 importComponent("EventsHome", () => require('../components/events/EventsHome'));
 importComponent("HighlightedEventCard", () => require('../components/events/modules/HighlightedEventCard'));
 importComponent("EventCards", () => require('../components/events/modules/EventCards'));
+importComponent("PrettyEventDateTimes", () => require('../components/events/modules/PrettyEventDateTimes'));
 importComponent("VirtualProgramCard", () => require('../components/events/modules/VirtualProgramCard'));
 // this is the new Community page, used by the EA Forum
 importComponent("Community", () => require('../components/community/Community'));

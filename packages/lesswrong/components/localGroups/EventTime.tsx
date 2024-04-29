@@ -19,7 +19,7 @@ function getDateFormat(dense: boolean, isThisYear: boolean): string {
   }
 }
 
-// TODO
+// TODO how is this different from PrettyEventDateTime?
 const EventTime = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,

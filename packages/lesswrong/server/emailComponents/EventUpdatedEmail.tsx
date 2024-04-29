@@ -1,7 +1,7 @@
 import React from 'react';
-import { getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { postGetPageUrl, prettyEventDateTimes } from '../../lib/collections/posts/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -37,6 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+// TODO test
 const EventUpdatedEmail = ({postId, classes}: {
   postId: string,
   classes: any,
@@ -49,6 +50,8 @@ const EventUpdatedEmail = ({postId, classes}: {
   const { timezone, timezoneIsKnown } = useTimezone()
   
   if (loading || !post) return null;
+
+  const { PrettyEventDateTimes } = Components;
   
   const link = postGetPageUrl(post, true);
   
@@ -74,7 +77,7 @@ const EventUpdatedEmail = ({postId, classes}: {
     </div>
     <p>
       <div className={classes.label}>Date and Time</div>
-      <div className={classes.data}>{prettyEventDateTimes(post, timezoneIsKnown ? timezone : undefined)}</div>
+      <div className={classes.data}><PrettyEventDateTimes post={post} timezone={timezoneIsKnown ? timezone : undefined} /></div>
     </p>
     <p>
       <div className={classes.label}>Location</div>

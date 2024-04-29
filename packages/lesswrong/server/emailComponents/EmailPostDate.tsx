@@ -1,17 +1,17 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { prettyEventDateTimes } from '../../lib/collections/posts/helpers';
 import { useTimezone } from '../../components/common/withTimezone';
 
+// TODO test
 const EmailPostDate = ({post}: {
   post: PostsBase
 }) => {
   const { timezone, timezoneIsKnown } = useTimezone()
   
-  const { EmailFormatDate } = Components;
+  const { EmailFormatDate, PrettyEventDateTimes } = Components;
   
   if (post.isEvent) {
-    return <span>{prettyEventDateTimes(post, timezoneIsKnown ? timezone : undefined)}</span>
+    return <span><PrettyEventDateTimes post={post} timezone={timezoneIsKnown ? timezone : undefined} /></span>
   } else if (post.curatedDate) {
     return <EmailFormatDate date={post.curatedDate}/>
   } else {
