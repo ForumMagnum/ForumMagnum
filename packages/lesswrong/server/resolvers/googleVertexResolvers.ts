@@ -13,7 +13,6 @@ defineMutation({
       throw new Error('Must be logged in to record Vertex events');
     }
 
-    
     const { postId, attributionId } = args;
     const now = new Date();
     const eventInfo: PostEvent = { userId: currentUser._id, postId, timestamp: now, attributionId };
