@@ -46,7 +46,7 @@ export const PeopleDirectoryPage = ({classes}: {
         <div className={classes.feedback}>
           This is a beta feature, help us out by{" "}
           <Link
-            to="https://forms.gle/3RpvUhiwyKFzMSju9"
+            to="https://tally.so/r/meBLeJ"
             target="_blank"
             rel="noopener noreferrer"
           >
