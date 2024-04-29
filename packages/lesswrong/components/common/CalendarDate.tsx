@@ -1,4 +1,4 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
@@ -9,8 +9,10 @@ import { useTimezone } from '../common/withTimezone';
 const CalendarDate = ({date}: {
   date: Date,
 }) => {
+  const { TimeTag } = Components;
+
   const { timezone } = useTimezone();
-  return <span>{moment(new Date(date)).tz(timezone).calendar()}</span>
+  return <TimeTag dateTime={date}>{moment(new Date(date)).tz(timezone).calendar()}</TimeTag>
 };
 
 const CalendarDateComponent = registerComponent('CalendarDate', CalendarDate);

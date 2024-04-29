@@ -19,6 +19,7 @@ function getDateFormat(dense: boolean, isThisYear: boolean): string {
   }
 }
 
+// TODO
 const EventTime = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,

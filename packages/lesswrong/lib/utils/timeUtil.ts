@@ -27,6 +27,7 @@ export function useCurrentTime(): Date {
   }
 }
 
+// TODO handle the case where this is a fairly long time in the past
 export const useSsrRenderedAt = () => {
   const currentTime = useCurrentTime();
   return typeof window === "undefined"

@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
@@ -199,7 +198,6 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { query } = useLocation();
-  const { timezone } = useTimezone();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading()
 
@@ -321,7 +319,8 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }
 
   const limit = parseInt(query.limit) || defaultLimit;
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  // TODO check on faster connection
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').toISOString();
 
   const recentPostsTerms = {
     ...query,

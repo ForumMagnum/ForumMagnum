@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
@@ -109,7 +108,6 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({
     eventType:"frontpageFilterSettings",
     eventProps: {
@@ -127,7 +125,8 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  // TODO check on faster connection
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').toISOString()
 
   const recentPostsTerms = {
     ...query,

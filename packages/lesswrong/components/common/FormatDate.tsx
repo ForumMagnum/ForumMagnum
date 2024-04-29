@@ -6,32 +6,36 @@ import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
-  const { timezone } = useTimezone();
-  return <>{moment(new Date(date)).tz(timezone).format("LLL z")}</>
+  const { FormatDate } = Components
+  return <FormatDate date={date} format={"LLL z"} />
 };
 
 /// A relative time/date, like "4d". If tooltip is true (default), hover over
 /// for the actual (non-relative) date/time.
-const FormatDate = ({date, format, includeAgo, tooltip=true}: {
+const FormatDate = ({date, format, includeAgo, tooltip=true, className}: {
   date: Date | string,
   format?: string,
   includeAgo?: boolean,
   tooltip?: boolean,
+  className?: string
 }) => {
   const now = useCurrentTime();
+  const { timezone } = useTimezone();
   const dateToRender = date||now;
-  const { LWTooltip } = Components
+  const { LWTooltip, TimeTag } = Components
 
-  const formatted: string = format
-    ? moment(dateToRender).format(format)
-    : formatRelative(dateToRender, now, includeAgo);
+  const formatted = (
+    <TimeTag dateTime={dateToRender} className={className}>
+      {format ? moment(dateToRender).tz(timezone).format(format) : formatRelative(dateToRender, now, includeAgo)}
+    </TimeTag>
+  );
 
   if (tooltip) {
     return <LWTooltip title={<ExpandedDate date={date}/>}>
       {formatted}
     </LWTooltip>
   } else {
-    return <>{formatted}</>
+    return formatted;
   }
 };
 

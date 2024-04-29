@@ -1,8 +1,9 @@
-import moment from 'moment';
 import { registerComponent } from '../../lib/vulcan-lib';
 import React, { ReactNode } from 'react';
-import { useTimezone } from './withTimezone';
 
+/**
+ * Wrapper around the html <time> element
+ */
 const TimeTag = ({dateTime, children, className}: {
   dateTime: Date | string,
   children: ReactNode,
@@ -16,23 +17,10 @@ const TimeTag = ({dateTime, children, className}: {
   return <time className={className} dateTime={dateTimeString} suppressHydrationWarning>{children}</time>
 };
 
-const FormatTimeTag = ({dateTime, format, className}: {
-  dateTime: Date | string,
-  format: string,
-  className?: string
-}) => {
-  const { timezone } = useTimezone()
-  const contents = moment(new Date(dateTime)).tz(timezone).format(format)
-
-  return <TimeTag className={className} dateTime={dateTime}>{contents}</TimeTag>
-};
-
 const TimeTagComponent = registerComponent('TimeTag', TimeTag);
-const FormatTimeTagComponent = registerComponent('FormatTimeTag', FormatTimeTag);
 
 declare global {
   interface ComponentTypes {
     TimeTag: typeof TimeTagComponent
-    FormatTimeTag: typeof FormatTimeTagComponent
   }
 }
