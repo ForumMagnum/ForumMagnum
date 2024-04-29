@@ -22,7 +22,7 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
   
     for (const comment of comments) {
       const mainTextHtml = sanitizeHtml(
-        comment.contents.html, {
+        comment.contents?.html ?? "", {
           allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
           nonTextTags: ['img', 'style']
         }

@@ -55,9 +55,15 @@ function generateCollectionDbType(collection: CollectionBase<any>): string {
     if (fieldName.indexOf(".$") >= 0) {
       continue;
     }
-    
-    const typeName = schema[fieldName].typescriptType || simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type, 2, true);
-    
+
+    let typeName: string;
+    if (schema[fieldName].typescriptType) {
+      const nullable = schema[fieldName].nullable === false ? "" : " | null";
+      typeName = schema[fieldName].typescriptType + nullable;
+    } else {
+      typeName = simplSchemaTypeToTypescript(schema, fieldName, schema[fieldName].type, 2, true);
+    }
+
     sb.push(`  ${fieldName}: ${typeName}\n`);
   }
   
