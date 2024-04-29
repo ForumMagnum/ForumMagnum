@@ -1,4 +1,4 @@
-import { DocumentServiceClient, UserEventServiceClient, v1beta, protos, v1 } from "@google-cloud/discoveryengine";
+import { DocumentServiceClient, UserEventServiceClient, v1beta, protos } from "@google-cloud/discoveryengine";
 import { onStartup } from "../../lib/executionEnvironment";
 import { googleRecommendationsCredsPath } from "../../lib/instanceSettings";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";

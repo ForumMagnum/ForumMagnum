@@ -19,7 +19,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   const [alreadySent, setAlreadySent] = useState(false);
   const currentUser = useCurrentUser();
 
-  const sendViewPortionEvent = useCallback(
+  const sendRecombeeViewPortionEvent = useCallback(
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
   []);
 
@@ -37,7 +37,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
       if (!alreadySent && isIntersecting && intersectionRatio > 0) {
         if (recombeeEnabledSetting.get()) {
           const { vertexAttributionId, ...recombeeEventProps } = eventProps;
-          void sendViewPortionEvent({ ...recombeeEventProps, timestamp: new Date(), userId: currentUser._id });
+          void sendRecombeeViewPortionEvent({ ...recombeeEventProps, timestamp: new Date(), userId: currentUser._id });
           setAlreadySent(true);
         }
 
@@ -49,7 +49,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entry, sendViewPortionEvent, sendVertexMediaCompleteEvent, alreadySent]);
+  }, [entry, sendRecombeeViewPortionEvent, sendVertexMediaCompleteEvent, alreadySent]);
 
   return (
     <span ref={setNode}>
