@@ -181,7 +181,7 @@ export const styles = (theme: ThemeType) => ({
     alignItems: "flex-end",
     gap: "70px",
     [theme.breakpoints.down("xs")]: {
-      gap: "8px",
+      gap: "12px",
     },
   },
   cardText: {
