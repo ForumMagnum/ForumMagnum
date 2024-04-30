@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
       whiteSpace: "unset",
-      lineHeight: "1.8rem",
+      lineHeight: "1.7rem",
     },
     marginRight: theme.spacing.unit,
   },
