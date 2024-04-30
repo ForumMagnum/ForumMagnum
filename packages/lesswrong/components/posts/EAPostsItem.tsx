@@ -200,6 +200,9 @@ export const styles = (theme: ThemeType) => ({
       lineHeight: "140%",
     },
   },
+  cardTextNoImage: {
+    marginRight: 30,
+  },
   cardImage: {
     borderRadius: theme.borderRadius.small,
     width: 124,
@@ -397,7 +400,10 @@ const EAPostsItem = ({
           </div>
           {cardView &&
             <div className={classes.card} onClick={onClick}>
-              <div className={classes.cardText}>
+              <div className={classNames(
+                classes.cardText,
+                !post.socialPreviewData.imageUrl && classes.cardTextNoImage,
+              )}>
                 {post.contents?.plaintextDescription}
               </div>
               {post.socialPreviewData.imageUrl &&
