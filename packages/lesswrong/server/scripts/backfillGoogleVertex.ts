@@ -6,6 +6,7 @@ import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { readFile, writeFile } from "fs/promises";
 import groupBy from "lodash/groupBy";
 import { googleVertexApi, helpers as googleVertexHelpers } from "../google-vertex/client";
+import type { ReadStatusWithPostId } from "../google-vertex/types";
 
 interface CreateAEPostRecordArgs {
   post: DbPost;
@@ -171,11 +172,11 @@ async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Da
 
       if (postsWithTags.length) {
         const postIds = postsWithTags.map(({ post }) => post._id);
-        const readStatusOperation = () => ReadStatuses.find(
+        const readStatusOperation = () => (ReadStatuses.find(
           { postId: { $in: postIds }, isRead: true }, 
           undefined, 
           { _id: 1, userId: 1, postId: 1, lastUpdated: 1 }
-        ).fetch();
+        ).fetch() as Promise<ReadStatusWithPostId[]>);
         
         const [_, readStatuses] = await Promise.all([
           googleVertexApi.importPosts(postsWithTags),
@@ -184,8 +185,8 @@ async function backfillVertexPosts(inViewEventsFilepath: string, offsetDate?: Da
 
         const postReadStatusMap = groupBy(readStatuses, 'postId');
         
-        const viewItemEvents = readStatuses.map(readStatus => googleVertexHelpers.createViewItemEvent('view-item', readStatus));
-        const mediaPlayEvents = readStatuses.map(readStatus => googleVertexHelpers.createViewItemEvent('media-play', readStatus));
+        const viewItemEvents = readStatuses.map(readStatus => googleVertexHelpers.createViewItemEventFromReadStatus('view-item', readStatus));
+        const mediaPlayEvents = readStatuses.map(readStatus => googleVertexHelpers.createViewItemEventFromReadStatus('media-play', readStatus));
 
         const inViewEvents = postsWithTags.map(({ post }) => {
           const postReadStatuses = postReadStatusMap[post._id] ?? [];
