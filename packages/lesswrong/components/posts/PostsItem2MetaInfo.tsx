@@ -19,7 +19,6 @@ const PostsItem2MetaInfo = ({children, className, classes, read}: {
   classes: ClassesType,
   read?: boolean,
 }) => {
-  // TODO handle dates here
   return <Components.Typography
     component='span'
     className={classNames(classes.metaInfo, {[classes.read]: read}, className)}

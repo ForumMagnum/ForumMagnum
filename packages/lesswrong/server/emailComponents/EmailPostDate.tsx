@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTimezone } from '../../components/common/withTimezone';
 
-// TODO test
 const EmailPostDate = ({post}: {
   post: PostsBase
 }) => {

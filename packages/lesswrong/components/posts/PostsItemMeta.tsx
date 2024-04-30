@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   const { FormatDate } = Components;
-  return <FormatDate date={date} format={"MMM Do"} />
+  return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
 const PostsItemMeta = ({post, read, hideTags, classes}: {

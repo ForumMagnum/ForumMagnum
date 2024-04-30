@@ -37,7 +37,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-// TODO test
 const EventUpdatedEmail = ({postId, classes}: {
   postId: string,
   classes: any,
