@@ -11,10 +11,6 @@ const TimeTag = ({dateTime, children, className}: {
 }) => {
   const dateTimeString = typeof dateTime === 'string' ? dateTime : dateTime.toISOString();
 
-  // Cached SSRs may produce a value for `children` that isn't quite correct (e.g. "5m ago", or a different date
-  // due to timezone differences). Currently we handle this by just allowing it to be wrong for a split second and
-  // letting hydration fix it, so we want to suppress the hydration warning
-  // TODO eliminate this suppressHydrationWarning
   return <time className={className} dateTime={dateTimeString} suppressHydrationWarning>{children}</time>
 };
 
