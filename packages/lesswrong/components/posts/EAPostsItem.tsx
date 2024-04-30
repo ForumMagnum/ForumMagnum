@@ -63,7 +63,7 @@ export const styles = (theme: ThemeType) => ({
   },
   containerCard: {
     paddingTop: 12,
-    paddingBottom: 11,
+    paddingBottom: 12,
   },
   containerCardWithImage: {
     paddingBottom: 0,
