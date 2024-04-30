@@ -11,7 +11,7 @@ const TimeTag = ({dateTime, children, className}: {
 }) => {
   const dateTimeString = typeof dateTime === 'string' ? dateTime : dateTime.toISOString();
 
-  return <time className={className} dateTime={dateTimeString} suppressHydrationWarning>{children}</time>
+  return <time className={className} dateTime={dateTimeString}>{children}</time>
 };
 
 const TimeTagComponent = registerComponent('TimeTag', TimeTag);

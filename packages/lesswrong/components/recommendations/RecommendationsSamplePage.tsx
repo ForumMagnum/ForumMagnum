@@ -101,7 +101,7 @@ const RecommendationsSamplePage = ({classes}: {
       after: moment(now).subtract(
         frontpageDaysAgoCutoffSetting.get(),
         "days",
-      ).toISOString(),
+      ).startOf("hour").toISOString(),
       view: "magic",
       forum: true,
       limit: 20,
