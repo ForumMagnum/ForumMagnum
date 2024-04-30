@@ -693,6 +693,27 @@ class UsersRepo extends AbstractRepo<"Users"> {
 
     return userIdRecords.map(({ _id }) => _id);
   }
+
+  async getAllUserPostIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Posts" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserCommentIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Comments" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserSequenceIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Sequences" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
