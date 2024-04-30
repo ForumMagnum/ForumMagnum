@@ -1,4 +1,4 @@
-import { getAllFragmentNames, getFragment, getCollectionName, getCollection, getAllCollections, isValidCollectionName } from '../../lib/vulcan-lib';
+import { getAllFragmentNames, getFragment, graphqlTypeToCollectionName, getCollection, getAllCollections, isValidCollectionName } from '../../lib/vulcan-lib';
 import { generatedFileHeader, assert, simplSchemaTypeToTypescript, graphqlTypeToTypescript } from './typeGenerationUtils';
 import { getSchema } from '../../lib/utils/getSchema';
 import groupBy from 'lodash/groupBy';
@@ -48,7 +48,7 @@ function fragmentNameToCollectionName(fragmentName: FragmentName): CollectionNam
     throw new Error("Not a type node");
   }
   const typeName = parsedFragment.typeCondition.name?.value;
-  const collectionName = getCollectionName(typeName!);
+  const collectionName = graphqlTypeToCollectionName(typeName!);
   return collectionName;
 }
 
@@ -89,7 +89,11 @@ function generateCollectionNamesByFragmentNameType(): string {
   sb.push(`interface CollectionNamesByFragmentName {\n`);
   for (let fragmentName of fragmentNames) {
     const collectionName = fragmentNameToCollectionName(fragmentName);
-    sb.push(`  ${fragmentName}: "${collectionName}"\n`);
+    if (isValidCollectionName(collectionName)) {
+      sb.push(`  ${fragmentName}: "${collectionName}"\n`);
+    } else {
+      sb.push(`  ${fragmentName}: never\n`);
+    }
   }
   sb.push('}\n\n');
   
@@ -289,7 +293,7 @@ function subfragmentTypeToCollection(fieldType: string): {
       nullable: false
     };
   } else {
-    const collectionName = getCollectionName(fieldType);
+    const collectionName = graphqlTypeToCollectionName(fieldType);
     if (isValidCollectionName(collectionName)) {
       return {
         collection: getCollection(collectionName),
