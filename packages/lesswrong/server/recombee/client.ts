@@ -369,7 +369,6 @@ const recombeeApi = {
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
     const recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({ ...response, scenario: index === 0 ? firstRequestSettings.scenario : secondRequestSettings.scenario }));
 
-    console.log({ batchResponse: JSON.stringify(batchResponse, null, 2) });
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
     const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const)).filter(r => !!r);
     const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
