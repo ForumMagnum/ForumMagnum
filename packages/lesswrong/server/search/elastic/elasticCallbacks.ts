@@ -33,7 +33,7 @@ if (isElasticEnabled) {
     newUser: DbUser,
     oldUser: DbUser,
   ) {
-    if (newUser.deleted && !oldUser.deleted) {
+    if (!!newUser.deleted !== !!oldUser.deleted) {
       const repo = new UsersRepo();
       const [
         postIds,
@@ -47,18 +47,11 @@ if (isElasticEnabled) {
 
       const client = new ElasticClient();
       const exporter = new ElasticExporter(client);
-
-      for (const id of postIds) {
-        await exporter.updateDocument("Posts", id);
-      }
-
-      for (const id of commentIds) {
-        await exporter.updateDocument("Comments", id);
-      }
-
-      for (const id of sequenceIds) {
-        await exporter.updateDocument("Sequences", id);
-      }
+      await Promise.all([
+        ...postIds.map((id) => exporter.updateDocument("Posts", id)),
+        ...commentIds.map((id) => exporter.updateDocument("Comments", id)),
+        ...sequenceIds.map((id) => exporter.updateDocument("Sequences", id)),
+      ]);
     }
   });
 }
