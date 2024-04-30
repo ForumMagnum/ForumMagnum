@@ -29,7 +29,7 @@ const useCookieValue = (): {
   const currentUser = useCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([POSTS_LIST_VIEW_TYPE_COOKIE]);
   const setCookieValue = useCallback((newValue: PostsListViewType) => {
-    setCookie(POSTS_LIST_VIEW_TYPE_COOKIE, newValue);
+    setCookie(POSTS_LIST_VIEW_TYPE_COOKIE, newValue, {path: "/"});
   }, [setCookie]);
 
   // TODO: We currently need to disable persisting the card view for logged out

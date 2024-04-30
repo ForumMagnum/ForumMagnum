@@ -85,7 +85,9 @@ const PostsListViewToggle = ({classes}: {
   );
 
   const updateData = useCallback((newData: ViewToggleCookieData) => {
-    setCookie(NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE, JSON.stringify(newData));
+    setCookie(NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE, JSON.stringify(newData), {
+      path: "/",
+    });
     setData(newData);
   }, [setCookie]);
 
