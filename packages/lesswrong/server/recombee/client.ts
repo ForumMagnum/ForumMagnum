@@ -370,7 +370,7 @@ const recombeeApi = {
     const recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({ ...response, scenario: index === 0 ? firstRequestSettings.scenario : secondRequestSettings.scenario }));
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const)).filter(r => !!r);
+    const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const));
     const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
     const postIds = [...includedCuratedPostIds, ...manuallyStickiedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
