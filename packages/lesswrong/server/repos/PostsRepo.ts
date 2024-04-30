@@ -365,9 +365,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
         fm_post_tag_ids(p."_id") AS "tags",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."fullName" AS "authorFullName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."fullName"
+        END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
         p."contents"->>'html' AS "body",
