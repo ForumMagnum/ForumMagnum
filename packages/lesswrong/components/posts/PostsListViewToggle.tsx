@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     width: 34,
     height: 18,
     padding: "2px 4px",
-    background: theme.palette.primary.dark,
+    background: theme.palette.primary.main,
     color: theme.palette.text.alwaysWhite,
     borderRadius: theme.borderRadius.small,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     width: 6,
     height: 6,
     transform: "scaleY(70%) rotate(45deg)",
-    background: theme.palette.primary.dark,
+    background: theme.palette.primary.main,
   },
 });
 
