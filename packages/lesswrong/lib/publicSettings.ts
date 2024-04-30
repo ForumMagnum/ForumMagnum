@@ -181,3 +181,5 @@ export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recomb
 export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
 
 export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+
+export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
