@@ -181,7 +181,7 @@ export const styles = (theme: ThemeType) => ({
     alignItems: "flex-end",
     gap: "70px",
     [theme.breakpoints.down("xs")]: {
-      gap: "16px",
+      gap: "8px",
     },
   },
   cardText: {
@@ -200,6 +200,9 @@ export const styles = (theme: ThemeType) => ({
       lineHeight: "140%",
     },
   },
+  cardTextWithImage: {
+    marginTop: 12,
+  },
   cardTextNoImage: {
     marginRight: 30,
   },
@@ -212,6 +215,7 @@ export const styles = (theme: ThemeType) => ({
     objectFit: "cover",
     [theme.breakpoints.down("xs")]: {
       width: 100,
+      minWidth: 100,
     },
   },
 });
@@ -402,6 +406,7 @@ const EAPostsItem = ({
             <div className={classes.card} onClick={onClick}>
               <div className={classNames(
                 classes.cardText,
+                post.socialPreviewData.imageUrl && classes.cardTextWithImage,
                 !post.socialPreviewData.imageUrl && classes.cardTextNoImage,
               )}>
                 {post.contents?.plaintextDescription}
