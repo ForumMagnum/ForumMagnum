@@ -2,6 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 function getDateFormat(dense: boolean, isThisYear: boolean): string {
   if (dense) {
@@ -23,13 +24,14 @@ const EventTime = ({post, dense=false}: {
   post: PostsBase,
   dense?: boolean,
 }) => {
+  const now = moment(useCurrentTime())
   const { timezone } = useTimezone();
   const { TimeTag } = Components;
 
   const start = post.startTime ? moment(post.startTime).tz(timezone) : undefined;
   const end = post.endTime ? moment(post.endTime).tz(timezone) : undefined;
 
-  const isThisYear = moment().isSame(start, 'year')
+  const isThisYear = now.isSame(start, 'year')
 
   // Date and time formats
   const timeFormat = 'h:mm a z'; // 11:30 am PDT

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import moment from '../../../lib/moment-timezone';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
 /**
  * Returns the event datetimes in a user-friendly format,
@@ -20,6 +21,7 @@ export const PrettyEventDateTime = ({
   timezone?: string;
   dense?: boolean;
 }) => {
+  const now = moment(useCurrentTime())
   if (!post.startTime) return <>TBD</>;
 
   const { TimeTag } = Components;
@@ -43,8 +45,7 @@ export const PrettyEventDateTime = ({
   }
 
   // hide the year if it's reasonable to assume it
-  const now = moment();
-  const sixMonthsFromNow = moment().add(6, "months");
+  const sixMonthsFromNow = moment(now).add(6, "months");
   const startYear = now.isSame(start, "year") || start.isBefore(sixMonthsFromNow) ? "" : `, ${start.format("YYYY")}`;
 
   const startDate = dense ? start.format("MMM D") : start.format("ddd, MMM D");

@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -56,6 +57,8 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
   useCuratedDate?: boolean,
   classes: ClassesType,
 }) => {
+  const now = useCurrentTime();
+
   if (noStyles) {
     classes = {
       tooltipSmallText: classes.tooltipSmallText,
@@ -74,7 +77,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
       </span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
-        {moment(post.startTime).format("YYYY")===moment().format("YYYY")
+        {moment(post.startTime).format("YYYY")===moment(now).format("YYYY")
           ? <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
           : <FormatDate date={post.startTime} format={"YYYY MMM Do"} tooltip={false}/>
         }
