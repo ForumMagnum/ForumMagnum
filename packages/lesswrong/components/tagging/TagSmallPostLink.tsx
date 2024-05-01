@@ -66,7 +66,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
 }) => {
   const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
   return (
-    <PostsTooltip post={post} clickable placement="left-start">
+    <PostsTooltip post={post} clickable={false} placement="bottom-start">
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
         <div className={classes.post}>
           {!hideMeta &&
