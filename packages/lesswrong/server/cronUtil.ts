@@ -11,14 +11,15 @@ SyncedCron.options = {
   collectionTTL: 172800
 };
 
-export function addCronJob(options: {
+export type CronJobSpec = {
   name: string,
   interval?: string,
   // uses later.js parser, no seconds allowed though
   cronStyleSchedule?: string,
   job: () => void,
-})
-{
+}
+
+export function addCronJob(options: CronJobSpec) {
   onStartup(function() {
     if (!isAnyTest && !getCommandLineArguments().shellMode) {
       // Defer starting of cronjobs until 20s after server startup
