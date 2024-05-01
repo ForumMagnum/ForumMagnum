@@ -1,4 +1,5 @@
 import type { AbstractThemeOptions } from '../../themes/themeNames';
+import type { SSRMetadata } from '../utils/timeUtil';
 
 declare global {
   // Typechecking for things we add to the window object on the client.
@@ -8,6 +9,8 @@ declare global {
   // or in shared code.
   interface Window {
     themeOptions: AbstractThemeOptions,
+    ssrMetadata: SSRMetadata
+    /** TODO Remove after 2024-05-14, here for backwards compatibility */
     ssrRenderedAt: string,
     publicSettings: any,
     publicInstanceSettings: any,

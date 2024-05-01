@@ -54,8 +54,9 @@ import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/query';
 import { DatabaseServerSetting } from './databaseSettings';
 import { randomId } from '../lib/random';
-import { Route } from '../lib/vulcan-lib';
-import { addCacheControlMiddleware } from './cacheControlMiddleware';
+import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
+import { DEFAULT_TIMEZONE, SSRMetadata } from '../lib/utils/timeUtil';
+import { getCookieFromReq } from './utils/httpUtil';
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -366,6 +367,8 @@ export function startWebserver() {
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+    const maybeProxyCached = responseIsCacheable(response);
+    const timezone = getCookieFromReq(request, "timezone") ?? DEFAULT_TIMEZONE;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
@@ -388,9 +391,6 @@ export function startWebserver() {
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
-
-    // // TODO remove and replace with a permanent version
-    // cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
 
@@ -463,6 +463,11 @@ export function startWebserver() {
       trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
     } else {
       trySetResponseStatus({ response, status: status || 200 });
+      const ssrMetadata: SSRMetadata = {
+        renderedAt: renderedAt.toISOString(),
+        cacheFriendly: maybeProxyCached,
+        timezone
+      }
 
       response.write(
         (prefetchingResources ? '' : prefetchPrefix)
@@ -473,7 +478,8 @@ export function startWebserver() {
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody + '\n'
         + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
         + '</html>\n')

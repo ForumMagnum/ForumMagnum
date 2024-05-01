@@ -5,13 +5,14 @@ import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { DEFAULT_TIMEZONE } from '../../lib/utils/timeUtil';
 
 export const TimezoneContext = React.createContext<string|null>(null);
 
 export const useTimezone = (): WithTimezoneProps => {
   const timezone = React.useContext(TimezoneContext);
   return {
-    timezone: timezone ? timezone : "GMT",
+    timezone: timezone ? timezone : DEFAULT_TIMEZONE,
     timezoneIsKnown: !!timezone,
   };
 }

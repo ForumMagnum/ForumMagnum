@@ -1,6 +1,16 @@
 import React, { useContext } from 'react';
 import moment from '../moment-timezone';
 
+export const DEFAULT_TIMEZONE = "GMT";
+
+export type SSRMetadata = {
+  /** ISO timestamp */
+  renderedAt: string;
+  cacheFriendly: boolean;
+  /** The timezone used on the server. This may differ from the client's timezone if this is a cached render */
+  timezone: string;
+}
+
 export interface TimeOverride {
   currentTime: Date|null;
 }
@@ -31,7 +41,7 @@ export const useSsrRenderedAt = () => {
   const currentTime = useCurrentTime();
   return typeof window === "undefined"
     ? currentTime
-    : new Date(window.ssrRenderedAt);
+    : new Date(window.ssrMetadata.renderedAt);
 }
 
 // Given a time of day (number of hours, 0-24), a day of the week (string or

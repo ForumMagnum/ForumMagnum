@@ -3,6 +3,7 @@ import { getCookieFromReq, setCookieOnResponse } from './utils/httpUtil';
 import { ClientIds } from '../lib/collections/clientIds/collection';
 import type { AddMiddlewareType } from './apolloServer';
 import express from 'express';
+import { responseIsCacheable } from './cacheControlMiddleware';
 
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
@@ -12,11 +13,10 @@ const isApplicableUrl = (url: string) =>
 // - [X] Make sure this doesn't add set-cookie to requests that might be cached
 // - [ ] [Pending checking for duplicates] Rewrite ensure section as an INSERT ... ON CONFLICT query
 // - [ ] Deal with timezone
-//    - [ ] Convert all instances of dates to use a <time> tag, so that the info is at least there for machines if needed
-//    - [ ] Make it just return the wrong date to begin with (strip timezone cookie from requests that might be cached)
-//    - [ ] In future: add a script that runs faster than the main react script to update all the values
+//    - [X] Convert all instances of dates to use a <time> tag, so that the info is at least there for machines if needed
+//    - [ ] Add the logic for timeOverride described in the PR (this will add a `maybeCached`)
 // - [ ] Deal with the theme
-//    - [ ] Remove the cookie if possible
+//    - [ ] Bypass cache for those requests (fine because it doesn't persist for logged out anyway)
 // - [ ] Deal with tabId
 //    - [ ] Don't set it for cacheable requests, generate it on the client instead
 // - [ ] Deal with A/B tests
@@ -42,15 +42,12 @@ if (!(await ClientIds.findOne({clientId: existingClientId}, undefined, {_id: 1})
  */
 export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
   addMiddleware(function addClientId(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const cacheControlHeader = res.get('Cache-Control')?.toLowerCase() || '';
-    const highestMaxAge = Math.max(0, ...[...cacheControlHeader.matchAll(/max-age=(\d+)/g)].map(match => parseInt(match[1], 10)))
-
     const existingClientId = getCookieFromReq(req, "clientId")
     const referrer = req.headers?.["referer"] ?? null;
     const url = req.url;
 
     // 1. If there is no client id, and this page won't be cached, create a clientId and add it to the response
-    if (!existingClientId && highestMaxAge === 0) {
+    if (!existingClientId && !responseIsCacheable(res)) {
       const newClientId = randomId();
       setCookieOnResponse({
         req, res,

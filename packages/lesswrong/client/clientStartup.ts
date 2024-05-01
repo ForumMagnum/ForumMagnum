@@ -63,10 +63,10 @@ function importAllComponents() {
     while (index < componentNames.length && (!yieldMs || Date.now() - startTime < yieldMs)) {
       const componentName = componentNames[index];
 
-      // window.ssrRenderedAt being present indicates that the main content has started being parsed.
+      // window.ssrMetadata being present indicates that the main content has started being parsed.
       // Yield to the main thread and import all other components as an idle callback (will generally
       // run >1s later, after the main content has been rendered)
-      if (yieldMs !== null && window.ssrRenderedAt) {
+      if (yieldMs !== null && window.ssrMetadata) {
         requestIdleCallback(() => importNextChunk());
         return;
       }
