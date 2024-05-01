@@ -8,22 +8,28 @@ import { responseIsCacheable } from './cacheControlMiddleware';
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
 
+// General contract:
+// - Anything that is a securty risk, or causes inconsistencies in our *analytics* is the responsibilty of the server to handle
+// - Other inconsistencies should be handled by the CDN (and e.g. we might decide it's worth having inconsistent dates to get a higher cache hit rate)
+
 // TODO:
 // - [X] Check if the cookies are forwarded when the refresh request is sent to CloudFront
 // - [X] Make sure this doesn't add set-cookie to requests that might be cached
-// - [ ] [Pending checking for duplicates] Rewrite ensure section as an INSERT ... ON CONFLICT query
+// - [ ] [Pending checking for duplicates] Rewrite ensure section as an INSERT ... ON CONFLICT query (add unique index in separate PR)
 // - [X] Deal with timezone
 //    - [X] Convert all instances of dates to use a <time> tag, so that the info is at least there for machines if needed
 //    - [X] Add the logic for timeOverride described in the PR (this will add a `maybeCached`)
-// - [ ] Deal with the theme
-//    - [ ] Bypass cache for those requests (fine because it doesn't persist for logged out anyway)
 // - [ ] Deal with tabId
 //    - [ ] Don't set it for cacheable requests, generate it on the client instead
+//    - [ ] Make sure this is reflected correctly in logs
 // - [ ] Deal with A/B tests
-//    - [ ] Set a flag that this is a cacheable request, throw an error if A/B tests are used (although given the existing cache
-//          doesn't do this, maybe this isn't necessary)
-// - [ ] Generate a clientId cookie in the CDN for users that don't have one (one will be created on the first analytics request, so not a huge deal if this is missed)
+//    - [ ] Throw an error if A/B tests are used in a cacheFriendly request
+// - [ ] Deal with the theme
+//    - [ ] Make it part of the cacheKey in the CDN
+// - [ ] Resolve inconsistencies between our local caching and external caching
 // - [ ] Add a setting to enable the caching thing, so other instances can still set cookies if they want (or ideally infer it from the request)
+// - [ ] [Probably don't do] Generate a clientId cookie in the CDN for users that don't have one (one will be created on the first analytics request, so not a huge deal if this is missed)
+
 
 // timeOverride logic:
 // - Keep the concept of it being an override at the level of <App/>

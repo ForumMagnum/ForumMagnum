@@ -26,7 +26,8 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
 }) => {
   const [timeOverride, setTimeOverride] = useState<TimeOverride | null>({
     currentTime: new Date(ssrMetadata.renderedAt),
-    ...ssrMetadata,
+    cacheFriendly: ssrMetadata.cacheFriendly,
+    timezone: ssrMetadata.timezone
   });
 
   useEffect(() => {
