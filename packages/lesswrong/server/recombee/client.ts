@@ -4,7 +4,6 @@ import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
-import findByIds from '../vulcan-lib/findbyids';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
@@ -126,7 +125,8 @@ const recombeeRequestHelpers = {
       ...settings,
       // Explicitly coalesce empty strings to undefined, since empty strings aren't valid booster expressions
       booster: settings.booster || undefined,
-      rotationTime: rotationTimeSeconds
+      rotationTime: rotationTimeSeconds,
+      cascadeCreate: true
     });
   },
 
@@ -414,7 +414,7 @@ const recombeeApi = {
     const { Tags } = context;
 
     const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId);
-    const tags = filterNonnull(await findByIds(Tags, tagIds));
+    const tags = filterNonnull(await loadByIds(context, 'Tags', tagIds));
 
     const request = recombeeRequestHelpers.createUpsertPostRequest({ post, tags });
 
