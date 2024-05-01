@@ -211,6 +211,7 @@ export const usePostsItem = ({
     pageElementContext: "postItem",
     postId: post._id,
     isSticky: isSticky(post, terms),
+    viewType,
   };
 
   const annualReviewMarketInfo = getMarketInfo(post)

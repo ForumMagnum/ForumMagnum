@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 
 const Error = ({error}: any) => <div>
@@ -70,9 +71,12 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
       }
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
-      <div className={boxShadow ? classes.posts : undefined}>
-        {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
-      </div>
+      <AnalyticsContext viewType={viewType}>
+        <div className={boxShadow ? classes.posts : undefined}>
+          {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
+        </div>
+      </AnalyticsContext>
+
       {showLoadMore && <SectionFooter>
         <LoadMore
           {...loadMoreProps}
