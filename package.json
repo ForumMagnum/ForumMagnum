@@ -328,6 +328,7 @@
     "@graphql-codegen/cli": "^1.9.1",
     "@graphql-codegen/fragment-matcher": "^1.9.0",
     "@graphql-codegen/introspection": "^1.9.0",
+    "@playwright/test": "^1.43.1",
     "@types/csso": "^5.0.0",
     "@types/hepburn": "^1.2.0",
     "@types/raf": "^3.4.0",
