@@ -249,9 +249,9 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
     // that tries to turn border off and on to indicate selection. Use
     // !important to ensure it's visible.
-    border: theme.palette.border.normal+' !important',
+    border: isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
     borderRadius: 8,
-    marginTop: 8,
+    marginTop: isFriendlyUI ? 0 : 8,
     marginBottom: 8,
   },
   '& .detailsBlockTitle': {
@@ -261,7 +261,7 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
     // give background !important to take precedence over CkEditor making it
     // pure-white when the cursor is inside it, which would make the
     // title-vs-contents distinction invisible
-    background: theme.palette.panelBackground.darken05+'!important',
+    background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
     
     "&>p": {
       display: "inline-block",
@@ -275,7 +275,7 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   '& .detailsBlockContent': {
-    padding: 8,
+    padding: isFriendlyUI ? "0 8px 8px 20px" : 8,
     
   },
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
@@ -292,7 +292,11 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   // The 'div' part of this selector makes it specific to the editor (outside
   // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle': {
-    paddingLeft: 24,
+    paddingLeft: isFriendlyUI ? 20 : 24,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: isFriendlyUI ? "1.6rem" : undefined,
+    lineHeight: isFriendlyUI ? "1.25em" : undefined,
+    fontWeight: isFriendlyUI ? 600 : undefined,
   },
 
   // The 'div' part of this selector makes it specific to the editor (outside
@@ -300,10 +304,10 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   '& div.detailsBlockTitle::before': {
     content: '"▼"',
     cursor: "pointer",
-    fontSize: 14,
+    fontSize: isFriendlyUI ? 12 : 14,
     paddingRight: 4,
     position: "absolute",
-    left: 8,
+    left: isFriendlyUI ? 0 : 8,
   },
   '& .detailsBlock.closed div.detailsBlockTitle::before': {
     content: '"▶"',
