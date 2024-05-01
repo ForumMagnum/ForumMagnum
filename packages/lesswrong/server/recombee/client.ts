@@ -125,7 +125,8 @@ const recombeeRequestHelpers = {
       ...settings,
       // Explicitly coalesce empty strings to undefined, since empty strings aren't valid booster expressions
       booster: settings.booster || undefined,
-      rotationTime: rotationTimeSeconds
+      rotationTime: rotationTimeSeconds,
+      cascadeCreate: true
     });
   },
 
