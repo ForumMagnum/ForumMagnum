@@ -17,6 +17,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import { RECOMBEE_RECOMM_ID_QUERY_PARAM, VERTEX_ATTRIBUTION_ID_QUERY_PARAM } from "./PostsPage/PostsPage";
 import { recombeeEnabledSetting, vertexEnabledSetting } from "../../lib/publicSettings";
+import type { PostsListViewType } from "../hooks/usePostsListView";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -81,6 +82,7 @@ export type PostsItemConfig = {
   useCuratedDate?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
+  viewType?: PostsListViewType,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
   recombeeRecommId?: string,
@@ -95,7 +97,6 @@ const areNewComments = (lastCommentedAt: Date | null, lastVisitedAt: Date | null
   if (!lastVisitedAt) return true;
   return lastVisitedAt < lastCommentedAt;
 }
-
 
 export const usePostsItem = ({
   post,
@@ -127,6 +128,7 @@ export const usePostsItem = ({
   forceSticky = false,
   showReadCheckbox = false,
   showMostValuableCheckbox = false,
+  viewType = "list",
   showKarma = true,
   useCuratedDate = true,
   isVoteable = false,
@@ -209,6 +211,7 @@ export const usePostsItem = ({
     pageElementContext: "postItem",
     postId: post._id,
     isSticky: isSticky(post, terms),
+    viewType,
   };
 
   const annualReviewMarketInfo = getMarketInfo(post)
@@ -221,7 +224,6 @@ export const usePostsItem = ({
     <Link to={commentGetPageUrl(annualReviewMarketComment)}>
       <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
     </Link>
-  
 
   return {
     post,
@@ -267,6 +269,7 @@ export const usePostsItem = ({
     dense,
     curatedIconLeft,
     strikethroughTitle,
+    viewType,
     bookmark,
     isVoteable,
     className,

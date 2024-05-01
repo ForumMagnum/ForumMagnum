@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
@@ -43,22 +43,41 @@ const getStructuredData = () => ({
   }),
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   spotlightMargin: {
     marginBottom: 24,
   },
 });
 
-const EAHome = ({classes}: {classes: ClassesType}) => {
+const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
+  const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   const {
-    RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
-    SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,
-    SingleColumnSection, HomeLatestPosts, EAHomeCommunityPosts, HeadTags,
-    EAPopularCommentsSection, BotSiteBanner, DismissibleSpotlightItem
+    RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
+    HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
   } = Components
+  return (
+    <>
+      <DismissibleSpotlightItem current className={classes.spotlightMargin} />
+      <HomeLatestPosts />
+      {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+      {isEAForum && <QuickTakesSection />}
+      <ForumNoSSR if={!!currentUser}>
+        <EAPopularCommentsSection />
+      </ForumNoSSR>
+      <ForumNoSSR if={!!currentUser}>
+        <RecentDiscussionFeed
+          title="Recent discussion"
+          af={false}
+          commentsLimit={recentDiscussionCommentsPerPost}
+          maxAgeHours={18}
+        />
+      </ForumNoSSR>
+    </>
+  );
+}
 
-  const recentDiscussionCommentsPerPost = (currentUser && currentUser.isAdmin) ? 4 : 3;
+const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
   const shouldRenderSmallpox = showSmallpoxSetting.get()
   // Only show the maintenance banner if the the current time is before the maintenance time (plus 5 minutes leeway),
@@ -68,6 +87,15 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
   const shouldRenderMaintenanceBanner = showMaintenanceBannerSetting.get() && isBeforeMaintenanceTime
   const shouldRenderBotSiteBanner = isBotSiteSetting.get() && isEAForum
 
+  const FrontpageNodeWithClasses = useCallback(
+    () => <FrontpageNode classes={classes} />,
+    [classes],
+  );
+
+  const {
+    EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
+    FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner,
+  } = Components
   return (
     <AnalyticsContext pageContext="homePage">
       <HeadTags structuredData={getStructuredData()}/>
@@ -80,25 +108,7 @@ const EAHome = ({classes}: {classes: ClassesType}) => {
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
       </SingleColumnSection>}
 
-      <EAHomeMainContent FrontpageNode={
-        () => <>
-          <DismissibleSpotlightItem current className={classes.spotlightMargin} />
-          <HomeLatestPosts />
-          {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-          {isEAForum && <QuickTakesSection />}
-          <ForumNoSSR if={!!currentUser}>
-            <EAPopularCommentsSection />
-          </ForumNoSSR>
-          <ForumNoSSR if={!!currentUser}>
-            <RecentDiscussionFeed
-              title="Recent discussion"
-              af={false}
-              commentsLimit={recentDiscussionCommentsPerPost}
-              maxAgeHours={18}
-            />
-          </ForumNoSSR>
-        </>
-      } />
+      <EAHomeMainContent FrontpageNode={FrontpageNodeWithClasses} />
     </AnalyticsContext>
   )
 }
