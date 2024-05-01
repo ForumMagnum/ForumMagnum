@@ -25,16 +25,17 @@ import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeName
 import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
-import type { TimeOverride } from '../../../lib/utils/timeUtil';
+import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
-import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
+import { onStartup, isAnyTest, isProduction } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
+import { responseIsCacheable } from '../../cacheControlMiddleware';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -56,6 +57,8 @@ export type RenderResult = {
   allAbTestGroups: CompleteTestGroupAllocation
   themeOptions: AbstractThemeOptions,
   renderedAt: Date,
+  cacheFriendly: boolean,
+  timezone: string,
   timings: RenderTimings,
   aborted: false,
 } | {
@@ -338,6 +341,9 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 }
 
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
+  const cacheFriendly = responseIsCacheable(res);
+  const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
+
   const requestContext = await computeContextFromUser(user, req, res);
   if (req.closed) {
     // eslint-disable-next-line no-console
@@ -371,17 +377,16 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   // (side effects) by filling in any A/B test groups that turned out to be
   // used for the rendering. (Any A/B test group that was *not* relevant to
   // the render will be omitted, which is the point.)
-  let abTestGroups: RelevantTestGroupAllocation = {};
+  let abTestGroupsUsed: RelevantTestGroupAllocation = {};
   
   const now = new Date();
-  const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
     req={req}
     apolloClient={client}
     foreignApolloClient={foreignClient}
     serverRequestStatus={serverRequestStatus}
-    abTestGroupsUsed={abTestGroups}
-    timeOverride={timeOverride}
+    abTestGroupsUsed={abTestGroupsUsed}
+    ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
@@ -437,10 +442,12 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
-    relevantAbTestGroups: abTestGroups,
+    relevantAbTestGroups: abTestGroupsUsed,
     allAbTestGroups: getAllUserABTestGroups(user ? {user} : {clientId}),
     themeOptions,
     renderedAt: now,
+    cacheFriendly,
+    timezone,
     timings,
     aborted: false,
   };

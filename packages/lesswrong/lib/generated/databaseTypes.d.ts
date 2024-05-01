@@ -656,6 +656,8 @@ interface DbPageCacheEntry extends DbObject {
     allAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
     themeOptions: any /*{"definitions":[{"blackbox":true}]}*/,
     renderedAt: Date,
+    cacheFriendly: boolean,
+    timezone: string,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
   createdAt: Date

@@ -12,9 +12,9 @@ const isApplicableUrl = (url: string) =>
 // - [X] Check if the cookies are forwarded when the refresh request is sent to CloudFront
 // - [X] Make sure this doesn't add set-cookie to requests that might be cached
 // - [ ] [Pending checking for duplicates] Rewrite ensure section as an INSERT ... ON CONFLICT query
-// - [ ] Deal with timezone
+// - [X] Deal with timezone
 //    - [X] Convert all instances of dates to use a <time> tag, so that the info is at least there for machines if needed
-//    - [ ] Add the logic for timeOverride described in the PR (this will add a `maybeCached`)
+//    - [X] Add the logic for timeOverride described in the PR (this will add a `maybeCached`)
 // - [ ] Deal with the theme
 //    - [ ] Bypass cache for those requests (fine because it doesn't persist for logged out anyway)
 // - [ ] Deal with tabId
@@ -24,6 +24,13 @@ const isApplicableUrl = (url: string) =>
 //          doesn't do this, maybe this isn't necessary)
 // - [ ] Generate a clientId cookie in the CDN for users that don't have one (one will be created on the first analytics request, so not a huge deal if this is missed)
 // - [ ] Add a setting to enable the caching thing, so other instances can still set cookies if they want (or ideally infer it from the request)
+
+// timeOverride logic:
+// - Keep the concept of it being an override at the level of <App/>
+// - But remove the concept at the level of <AppGenerator />, pass it in as ssrMetadata there
+// - Add a useEffect in <AppGenerator />
+//   - setState(null) after the first render
+//   - use memo() to make it only trigger a re-render if `cacheFriendly` or `timezone` changes, or the time changes significantly
 
 const ensureClientId = async ({ existingClientId, referrer, url }: { existingClientId: string; referrer: string | null; url: string; }) => {
 if (!(await ClientIds.findOne({clientId: existingClientId}, undefined, {_id: 1}))) {

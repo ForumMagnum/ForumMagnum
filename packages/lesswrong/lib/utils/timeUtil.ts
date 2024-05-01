@@ -11,10 +11,10 @@ export type SSRMetadata = {
   timezone: string;
 }
 
-export interface TimeOverride {
-  currentTime: Date|null;
+export type TimeOverride = Pick<SSRMetadata, "cacheFriendly" | "timezone"> & {
+  currentTime: Date;
 }
-export const TimeContext = React.createContext<TimeOverride>({currentTime: null});
+export const TimeOverrideContext = React.createContext<TimeOverride | null>(null);
 
 // useCurrentTime: If we're rehydrating a server-side render, returns the
 // time the SSR was prepared. If we're preparing an SSR, returns the time the
@@ -29,7 +29,7 @@ export const TimeContext = React.createContext<TimeOverride>({currentTime: null}
 // (This isn't necessary inside of event handlers or in any context that
 // isn't a component or used by components.)
 export function useCurrentTime(): Date {
-  const time = useContext(TimeContext);
+  const time = useContext(TimeOverrideContext);
   if (time?.currentTime) {
     return time.currentTime;
   } else {
