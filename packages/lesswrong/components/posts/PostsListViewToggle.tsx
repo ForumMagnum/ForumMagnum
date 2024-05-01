@@ -23,6 +23,9 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 11,
     fontWeight: 600,
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   flagPoint: {
     position: "absolute",
