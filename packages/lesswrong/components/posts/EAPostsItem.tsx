@@ -8,6 +8,7 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
+import { usePostContents } from "../hooks/useForeignCrosspost";
 
 const KARMA_WIDTH = 50;
 
@@ -270,6 +271,11 @@ const EAPostsItem = ({
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
   const cardView = viewType === "card";
+  const {postContents} = usePostContents({
+    post,
+    fragmentName: "PostsList",
+    skip: !cardView,
+  });
 
   if (isRepeated) {
     return null;
@@ -323,7 +329,11 @@ const EAPostsItem = ({
     </PostsItemTooltipWrapper>
   );
 
-  const hasBody = (post.contents?.plaintextDescription ?? "").trim().length > 0;
+  const body =
+    postContents?.plaintextDescription ||
+    post.contents?.plaintextDescription ||
+    "";
+  const hasBody = body.trim().length > 0;
   const hasImage = !!post.socialPreviewData.imageUrl;
 
   return (
@@ -418,7 +428,7 @@ const EAPostsItem = ({
                 hasImage && classes.cardTextWithImage,
                 !hasImage && classes.cardTextNoImage,
               )}>
-                {post.contents?.plaintextDescription}
+                {body}
               </div>
               {hasImage &&
                 <img
