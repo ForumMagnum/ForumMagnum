@@ -317,6 +317,9 @@ const EAPostsItem = ({
     </PostsItemTooltipWrapper>
   );
 
+  const hasBody = (post.contents?.plaintextDescription ?? "").trim().length > 0;
+  const hasImage = !!post.socialPreviewData.imageUrl;
+
   return (
     <AnalyticsContext {...analyticsProps}>
       <div className={classNames(
@@ -402,16 +405,16 @@ const EAPostsItem = ({
               />
             </InteractionWrapper>
           </div>
-          {cardView &&
+          {cardView && (hasBody || hasImage) &&
             <div className={classes.card} onClick={onClick}>
               <div className={classNames(
                 classes.cardText,
-                post.socialPreviewData.imageUrl && classes.cardTextWithImage,
-                !post.socialPreviewData.imageUrl && classes.cardTextNoImage,
+                hasImage && classes.cardTextWithImage,
+                !hasImage && classes.cardTextNoImage,
               )}>
                 {post.contents?.plaintextDescription}
               </div>
-              {post.socialPreviewData.imageUrl &&
+              {hasImage &&
                 <img
                   src={post.socialPreviewData.imageUrl}
                   alt={post.title}
