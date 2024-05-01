@@ -21,8 +21,10 @@ const refreshUserLoginTokensIndexQuery = `
 
 createPostgresView(
   "UserLoginTokens",
-  "every 5 minutes",
   createUserLoginTokensQuery,
   [createUserLoginTokensIndexQuery],
-  refreshUserLoginTokensIndexQuery,
+  {
+    interval: "every 5 minutes",
+    query: refreshUserLoginTokensIndexQuery,
+  },
 );

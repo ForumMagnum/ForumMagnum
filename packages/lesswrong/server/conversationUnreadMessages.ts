@@ -2,7 +2,6 @@ import { createPostgresView } from "./postgresView";
 
 createPostgresView(
   "ConversationUnreadMessages",
-  "every 1 hour",
   `CREATE OR REPLACE VIEW "ConversationUnreadMessages" AS
     SELECT q."conversationId", q."userId", EXISTS (
       SELECT *

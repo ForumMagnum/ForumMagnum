@@ -38,8 +38,10 @@ const refreshUniquePostUpvotersQuery = `
 
 createPostgresView(
   "UniquePostUpvoters",
-  "every 1 hour",
   createUniquePostUpvotersQuery,
   [createUniquePostUpvotersIndexQuery],
-  refreshUniquePostUpvotersQuery,
+  {
+    interval: "every 1 hour",
+    query: refreshUniquePostUpvotersQuery,
+  },
 );
