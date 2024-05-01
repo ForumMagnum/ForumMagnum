@@ -7,6 +7,7 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 
 const KARMA_WIDTH = 50;
 
@@ -220,6 +221,11 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
+const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
+
+const formatImageUrl = (url: string) =>
+  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
+
 export type EAPostsItemProps = PostsItemConfig & {
   hideSecondaryInfo?: boolean,
   classes: ClassesType<typeof styles>,
@@ -416,7 +422,7 @@ const EAPostsItem = ({
               </div>
               {hasImage &&
                 <img
-                  src={post.socialPreviewData.imageUrl}
+                  src={formatImageUrl(post.socialPreviewData.imageUrl)}
                   alt={post.title}
                   className={classes.cardImage}
                 />
