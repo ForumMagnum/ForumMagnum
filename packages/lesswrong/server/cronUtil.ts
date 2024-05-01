@@ -19,8 +19,7 @@ export type CronJobSpec = {
   job: () => void,
 }
 
-export function addCronJob(options: CronJobSpec)
-{
+export function addCronJob(options: CronJobSpec) {
   onStartup(function() {
     if (!isAnyTest && !getCommandLineArguments().shellMode) {
       // Defer starting of cronjobs until 20s after server startup
