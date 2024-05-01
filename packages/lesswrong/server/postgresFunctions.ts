@@ -1,3 +1,5 @@
+import { allUserProfileFields } from "./userProfileUpdates";
+
 /**
  * List of the Postgres functions required to run ForumMagnum. After editing
  * this list you must run `makemigrations` to generate a new schema hash and a
@@ -186,6 +188,61 @@ export const postgresFunctions = [
     LIMIT 1
   $$
   `,
+  // Checks a user has a verified email, from their `emails`.
+  `CREATE OR REPLACE FUNCTION fm_has_verified_email(emails jsonb[])
+    RETURNS boolean LANGUAGE plpgsql IMMUTABLE AS $$
+    DECLARE
+      item jsonb;
+    BEGIN
+      FOR item IN SELECT unnest(emails)
+      LOOP
+        IF (item->>'verified')::boolean THEN
+          RETURN true;
+        END IF;
+      END LOOP;
+      RETURN false;
+    END;
+  $$`,
+  // Fetches user by hashed login token. First attempts to read from the cached
+  // version in the `UserLoginTokens` materialized view, otherwise falls back
+  // to reading directly from the user object (which is slower).
+  `CREATE OR REPLACE FUNCTION fm_get_user_by_login_token(hashed_token TEXT)
+    RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
+    DECLARE
+    BEGIN
+      RETURN QUERY
+        SELECT u.*
+        FROM "Users" u
+        JOIN "UserLoginTokens" lt ON lt."userId" = u."_id"
+        WHERE lt."hashedToken" = hashed_token;
+      IF (FOUND = FALSE) THEN
+        RETURN QUERY
+          SELECT *
+          FROM "Users"
+          WHERE "services"->'resume'->'loginTokens' @>
+            ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
+      END IF;
+    END
+  $$`,
+  // Calculate the last date user updated their profile. This is very slow - you
+  // should generally use the denormalized value in the user's `profileUpdatedAt`
+  // field. This function is just used for updating that value.
+  `CREATE OR REPLACE FUNCTION fm_get_user_profile_updated_at(userid TEXT)
+    RETURNS TIMESTAMPTZ LANGUAGE sql AS $$
+      SELECT COALESCE(
+        (SELECT "createdAt"
+        FROM (
+          SELECT JSONB_OBJECT_KEYS("properties"->'after') AS "key", "createdAt"
+          FROM "LWEvents"
+          WHERE "documentId" = userid AND "name" = 'fieldChanges'
+        ) q
+        WHERE "key" IN (${allUserProfileFields.map((f) => `'${f}'`).join(", ")})
+        ORDER BY "createdAt" DESC
+        LIMIT 1),
+        (SELECT "createdAt" FROM "Users" WHERE "_id" = userid),
+        TO_TIMESTAMP(0)
+      )
+  $$`,
 ] as const;
 
 export type PostgresFunction = typeof postgresFunctions[number];

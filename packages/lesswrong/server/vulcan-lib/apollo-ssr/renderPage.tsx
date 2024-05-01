@@ -19,7 +19,6 @@ import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
-import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
@@ -34,6 +33,8 @@ import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
+import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -75,25 +76,15 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string) => {
   const startTime = new Date();
   
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
-  // Inject a tab ID into the page, by injecting a script fragment that puts
-  // it into a global variable. In previous versions of Vulcan this would've
-  // been handled by InjectData, but InjectData didn't surive the 1.12 version
-  // upgrade (it injects into the page template in a way that requires a
-  // response object, which the onPageLoad/sink API doesn't offer).
-  const tabId = randomId();
-  const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
   const url = getPathFromReq(req);
   
   const clientId = getCookieFromReq(req, "clientId");
-
-  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-  const publicSettingsHeader = `<script> var publicSettings = ${JSON.stringify(getPublicSettings())}</script>`
   
   const ssrEventParams = {
     url: url,
@@ -111,7 +102,12 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   
   const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
   
-  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
+  const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
+  // For LW, skip the cache on users who have visited the frontpage before, including logged out. 
+  // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
+  const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
+  
+  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot || showDynamicFrontpage) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     
@@ -158,7 +154,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      headers: [...rendered.headers],
     };
   } else {
     if (performanceMetricLoggingEnabled.get()) {
@@ -217,7 +213,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     
     return {
       ...rendered,
-      headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
+      headers: [...rendered.headers],
     };
   }
 };

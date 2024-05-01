@@ -12,13 +12,11 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 
-export const KARMA_WIDTH = 32
+export const KARMA_WIDTH = 32;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -53,6 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     position: "relative",
     padding: 10,
+    paddingLeft: 6,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -87,7 +86,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   karma: {
     width: KARMA_WIDTH,
-    justifyContent: "center",
+    marginRight: 4,
     [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
@@ -200,6 +199,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
     flexGrow: 1,
+    height: 24,
   },
   mobileActions: {
     cursor: "pointer",
@@ -305,7 +305,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit*1.5,
     position: "relative",
-    top: 2,
+    height: 22,
   },
   isRead: {
     // this is just a placeholder, enabling easier theming.
@@ -343,7 +343,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
@@ -367,6 +367,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    useCuratedDate,
     annualReviewMarketInfo,
     marketLink,
     showReadCheckbox,
@@ -450,6 +451,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
               <AnalyticsTracker
                   eventType={"postItem"}
+                  eventProps={{mountedPostId: post._id, mountedPostScore: post.score, mountedPostBaseScore: post.baseScore}}
                   captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                   captureOnClick={false}
               >
@@ -498,16 +500,16 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               </div>
             </PostsItem2MetaInfo>}
 
-            {showDate && <PostsItemDate post={post} />}
+            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostActionsButton post={post} autoPlace />}
-            </div>}
-
             {showIcons && <div className={classes.nonMobileIcons}>
               <PostsItemIcons post={post}/>
+            </div>}
+
+            {<div className={classes.mobileActions}>
+              {!resumeReading && <PostActionsButton post={post} autoPlace />}
             </div>}
 
             {!resumeReading && <div className={classes.commentsIcon}>

@@ -7,6 +7,7 @@ import { useTracking } from '../../../lib/analyticsEvents';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useIsAboveBreakpoint } from '../../hooks/useScreenWidth';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,13 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, classes}: {
+const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeBookmark=true, className, classes}: {
   post: PostsList|SunshinePostsList,
   vertical?: boolean,
   popperGap?: number,
   autoPlace?: boolean,
   flip?: boolean,
   includeBookmark?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
@@ -64,9 +66,9 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
   const { PopperCard, PostActions, LWClickAwayListener } = Components
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
+      <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}

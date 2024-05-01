@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
+import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -15,11 +15,11 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -240,25 +240,55 @@ const userTheme = new SimpleSchema({
   },
 });
 
+export type CareerStageValue =
+  'highSchool'|
+  'associateDegree'|
+  'undergradDegree'|
+  'professionalDegree'|
+  'graduateDegree'|
+  'doctoralDegree'|
+  'otherDegree'|
+  'earlyCareer'|
+  'midCareer'|
+  'lateCareer'|
+  'seekingWork'|
+  'retired'
+
+// list of career stage options from EAG
+type EAGCareerStage =
+  'Student (high school)'|
+  'Pursuing an associates degree'|
+  'Pursuing an undergraduate degree'|
+  'Pursuing a professional degree'|
+  'Pursuing a graduate degree (e.g. Masters)'|
+  'Pursuing a doctoral degree (e.g. PhD)'|
+  'Pursuing other degree/diploma'|
+  'Working (0-5 years of experience)'|
+  'Working (6-15 years of experience)'|
+  'Working (15+ years of experience)'|
+  'Not employed, but looking'|
+  'Retired'
+
 type CareerStage = {
-  value: string,
+  value: CareerStageValue,
   label: string,
   icon: ForumIconName,
+  EAGLabel: EAGCareerStage
 }
 
 export const CAREER_STAGES: CareerStage[] = [
-  {value: 'highSchool', label: "In high school", icon: "School"},
-  {value: 'associateDegree', label: "Pursuing an associate's degree", icon: "School"},
-  {value: 'undergradDegree', label: "Pursuing an undergraduate degree", icon: "School"},
-  {value: 'professionalDegree', label: "Pursuing a professional degree", icon: "School"},
-  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)", icon: "School"},
-  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)", icon: "School"},
-  {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School"},
-  {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work"},
-  {value: 'midCareer', label: "Working (6-15 years)", icon: "Work"},
-  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work"},
-  {value: 'seekingWork', label: "Seeking work", icon: "Work"},
-  {value: 'retired', label: "Retired", icon: "Work"},
+  {value: 'highSchool', label: "In high school", icon: "School", EAGLabel: 'Student (high school)'},
+  {value: 'associateDegree', label: "Pursuing an associate's degree", icon: "School", EAGLabel: 'Pursuing an associates degree'},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree", icon: "School", EAGLabel: 'Pursuing an undergraduate degree'},
+  {value: 'professionalDegree', label: "Pursuing a professional degree", icon: "School", EAGLabel: 'Pursuing a professional degree'},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)", icon: "School", EAGLabel: 'Pursuing a graduate degree (e.g. Masters)'},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)", icon: "School", EAGLabel: 'Pursuing a doctoral degree (e.g. PhD)'},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School", EAGLabel: 'Pursuing other degree/diploma'},
+  {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work", EAGLabel: 'Working (0-5 years of experience)'},
+  {value: 'midCareer', label: "Working (6-15 years)", icon: "Work", EAGLabel: 'Working (6-15 years of experience)'},
+  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work", EAGLabel: 'Working (6-15 years of experience)'},
+  {value: 'seekingWork', label: "Seeking work", icon: "Work", EAGLabel: 'Not employed, but looking'},
+  {value: 'retired', label: "Retired", icon: "Work", EAGLabel: 'Retired'},
 ]
 
 export const PROGRAM_PARTICIPATION = [
@@ -274,14 +304,6 @@ export const PROGRAM_PARTICIPATION = [
   {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
   {value: '80k', label: "Received career coaching from 80,000 Hours"},
 ]
-
-export const SOCIAL_MEDIA_PROFILE_FIELDS = {
-  linkedinProfileURL: 'linkedin.com/in/',
-  facebookProfileURL: 'facebook.com/',
-  twitterProfileURL: 'twitter.com/',
-  githubProfileURL: 'github.com/'
-}
-export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
@@ -911,6 +933,15 @@ const schema: SchemaType<"Users"> = {
     canCreate: 'guests',
     hidden: true,
   },
+  frontpageSelectedTab: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   frontpageFilterSettings: {
     type: Object,
     blackbox: true,
@@ -1040,6 +1071,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     control: "select",
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "Style",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
@@ -1062,6 +1094,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1075,6 +1108,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
+    hidden: isFriendlyUI,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -1338,6 +1372,16 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedUserPost: {
     label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(),
+    onCreate: () => {
+      if (!isLWorAF) {
+        return {...defaultNotificationTypeSettings, channel: 'both'}
+      }
+    }
+  },
+  notificationSubscribedUserComment: {
+    label: "Comments by users I'm subscribed to",
+    ...notificationTypeSettingsField(),
+    hidden: !allowSubscribeToUserComments
   },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
@@ -1347,6 +1391,11 @@ const schema: SchemaType<"Users"> = {
   notificationSubscribedTagPost: {
     label: "Posts added to tags I'm subscribed to",
     ...notificationTypeSettingsField(),
+  },
+  notificationSubscribedSequencePost: {
+    label: "Posts added to sequences I'm subscribed to",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !allowSubscribeToSequencePosts
   },
   notificationPrivateMessage: {
     label: "Private messages",
@@ -1585,7 +1634,6 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     canRead: ['members'],
   },
-  // Not reusing curated, because we might actually use that as well
   subscribedToDigest: {
     type: Boolean,
     optional: true,
@@ -2120,7 +2168,7 @@ const schema: SchemaType<"Users"> = {
       type: "Post",
       nullable: true,
     }),
-    label: isFriendlyUI ? "Quick takes feed ID" : "Shortform feed ID",
+    label: "Quick takes feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -2428,7 +2476,19 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
-  
+
+  profileUpdatedAt: {
+    type: Date,
+    optional: false,
+    nullable: false,
+    canCreate: ["members"],
+    canRead: ["guests"],
+    canUpdate: [userOwns, "admins"],
+    hidden: true,
+    onInsert: (user) => user.createdAt,
+    ...schemaDefaultValue(new Date(0)),
+  },
+
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     hidden: true,
@@ -2796,31 +2856,19 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
   },
 
-  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-  experiencedIn: {
-    type: Array,
+  /* Privacy settings */
+  hideFromPeopleDirectory: {
+    type: Boolean,
     optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'experiencedIn.$': {
-    type: String,
-    optional: true
-  },
-  interestedIn: {
-    type: Array,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'interestedIn.$': {
-    type: String,
-    optional: true
+    hidden: !isEAForum,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    label: "Hide my profile from the People directory",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
   },
 
-  /* Privacy settings */
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
@@ -2939,7 +2987,7 @@ const schema: SchemaType<"Users"> = {
   hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
@@ -2947,16 +2995,16 @@ const schema: SchemaType<"Users"> = {
     hidden: isEAForum,
     ...schemaDefaultValue(false),
   },
-
-  // EA Forum wrapped fields
-  wrapped2023Viewed: {
-    type: Boolean,
-    optional: false,
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members'],
+  
+  // EA Forum emails the user a survey if they haven't read a post in 3 months
+  inactiveSurveyEmailSentAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
     hidden: true,
-    ...schemaDefaultValue(false),
+    canCreate: ['members'],
+    canRead: ['admins'],
+    canUpdate: ['admins'],
   },
 };
 

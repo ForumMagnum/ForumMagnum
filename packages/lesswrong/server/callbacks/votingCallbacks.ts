@@ -2,7 +2,7 @@ import moment from 'moment';
 import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { isLWorAF, reviewUserBotSetting } from '../../lib/instanceSettings';
+import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { postPublishedCallback } from '../notificationCallbacks';
@@ -10,16 +10,15 @@ import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
-import { DatabaseServerSetting } from '../databaseSettings';
 import { createMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments';
 import { createAdminContext } from '../vulcan-lib';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
-import { MINIMUM_KARMA_REVIEW_MARKET_CREATION } from '../../lib/annualReviewMarkets';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
+import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -188,7 +187,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
-  if (newDocument.baseScore < MINIMUM_KARMA_REVIEW_MARKET_CREATION) return;
+  if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
@@ -216,15 +215,9 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   // Return if market creation fails
   if (!liteMarket) return;
 
-  const reviewTagSlug = 'annual-review-market';
-  const reviewYearTagSlug = `annual-review-${year}-market`;
-
-  // add the review tags to the post
   const [comment] = await Promise.all([
     makeMarketComment(post._id, year, liteMarket.url, botUser),
     Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-    addTagToPost(post._id, reviewTagSlug, botUser, context),
-    addTagToPost(post._id, reviewYearTagSlug, botUser, context)
   ])
 
   await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
@@ -253,5 +246,45 @@ const makeMarketComment = async (postId: string, year: number, marketUrl: string
     context: createAdminContext()
   })
 
+
   return result.data
 }
+
+voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, context) => {
+  if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
+    return;
+  }
+
+  const adminContext = createAdminContext();
+
+  const { userId } = newDocument;
+
+  const [longtermDownvoteScore, previousAlert] = await Promise.all([
+    context.repos.votes.getLongtermDownvoteScore(userId),
+    context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
+  ]);
+
+  // If the user has already been flagged with this moderator action in the last month, no need to apply it again
+  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
+    return;
+  }
+
+  const {
+    commentCount,
+    longtermScore,
+    longtermSeniorDownvoterCount
+  } = longtermDownvoteScore;
+
+  if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      document: {
+        type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
+        userId: userId,
+        endedAt: new Date()
+      },
+      context: adminContext,
+      currentUser: adminContext.currentUser,
+    });
+  }
+});

@@ -54,7 +54,13 @@ const UsersNameDisplay = ({
 
   classes: ClassesType,
 }) => {
-  const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
+  const {eventHandlers, hover} = useHover({
+    eventProps: {
+      pageElementContext: "linkPreview",
+      pageSubElementContext: "userNameDisplay",
+      userId: user?._id
+    },
+  });
   const currentUser = useCurrentUser();
   const {disableNoKibitz} = useContext(DisableNoKibitzContext);
   const noKibitz = (currentUser
@@ -76,9 +82,10 @@ const UsersNameDisplay = ({
   if (simple) {
     return <span
       {...eventHandlers}
-      className={classNames(colorClass, className, {
-        [classes.noKibitz]: noKibitz
-      })}
+      className={classNames(
+        colorClass, className,
+        noKibitz && classes.noKibitz
+      )}
     >
       {displayName}
     </span>
@@ -99,7 +106,7 @@ const UsersNameDisplay = ({
         >
           <Link
             to={profileUrl}
-            className={classNames(colorClass, { [classes.noKibitz]: noKibitz, })}
+            className={classNames(colorClass, noKibitz && classes.noKibitz)}
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}

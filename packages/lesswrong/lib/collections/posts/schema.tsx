@@ -19,6 +19,7 @@ import {
   isEAForum,
   isLWorAF,
   requireReviewToFrontpagePostsSetting,
+  reviewUserBotSetting,
 } from '../../instanceSettings'
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
@@ -32,6 +33,11 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import SideCommentCaches from '../sideCommentCaches/collection';
+import { hasSideComments } from '../../betas';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
+import { stableSortTags } from '../tags/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -47,7 +53,7 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-function getDefaultVotingSystem() {
+export function getDefaultVotingSystem() {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
@@ -139,7 +145,7 @@ const eaFrontpageDateDefault = (
 export const sideCommentCacheVersion = 1;
 export interface SideCommentsCache {
   version: number,
-  generatedAt: Date,
+  createdAt: Date,
   annotatedHtml: string
   commentsByBlock: Record<string,string[]>
 }
@@ -972,10 +978,19 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
-      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {}
-      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await loadByIds(context, "Tags", tagIds);
-      return await accessFilterMultiple(currentUser, context.Tags, tags, context)
+      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {};
+      const tagIds = Object.keys(tagRelevanceRecord).filter(id => tagRelevanceRecord[id] > 0);
+      const tags = (await loadByIds(context, "Tags", tagIds)).filter(tag => !!tag) as DbTag[];
+
+      const tagInfo = tags.map(tag => ({
+        tag: tag,
+        tagRel: { baseScore: tagRelevanceRecord[tag._id] } as TagRelMinimumFragment
+      }));
+      const sortedTagInfo = stableSortTags(tagInfo);
+
+      const sortedTags = sortedTagInfo.map(({ tag }) => tag);
+
+      return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
     }
   }),
   
@@ -1126,6 +1141,9 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "ReviewVote",
     canRead: ['members'],
     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
+      if (!isLWorAF) {
+        return null;
+      }
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1149,7 +1167,29 @@ const schema: SchemaType<"Posts"> = {
       resolver: (reviewVotesField) => reviewVotesField("*"),
     }),
   }),
-  
+
+  reviewWinner: resolverOnlyField({
+    type: "ReviewWinner",
+    graphQLtype: "ReviewWinner",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!isLWorAF) {
+        return null;
+      }
+      const { currentUser, ReviewWinners } = context;
+      const winner = await getPostReviewWinnerInfo(post._id, context);
+      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "ReviewWinners",
+      type: "left",
+      on: {
+        postId: field("_id"),
+      },
+      resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,
@@ -2371,7 +2411,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2468,17 +2508,42 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
-  
-  // sideCommentsCache: Stores the matching between comments on a post,
-  // and paragraph IDs within the post. Invalid if the cache-generation
-  // time is older than when the post was last modified (modifiedAt) or
-  // commented on (lastCommentedAt).
-  // SideCommentsCache
-  sideCommentsCache: {
-    type: Object,
-    canRead: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
-    optional: true, nullable: true, hidden: true,
-  },
+
+  /**
+   * Resolver to fetch the relevant data from the side comment caches table.
+   * This data isn't directly viewable on the client, which instead uses the
+   * data generated by the resolver for the `sideComments` field above. The
+   * permissions here allow anybody to read this field (which is needed to
+   * make this data accessible in the resolver) but the sqlPostProcess function
+   * always sets the result to null to avoid sending large amounts of duplicated
+   * data to the client (the data isn't sensitive though - just large).
+   */
+  sideCommentsCache: resolverOnlyField({
+    type: "SideCommentCache",
+    graphQLtype: "SideCommentCache",
+    canRead: ["guests"],
+    resolver: ({_id}: DbPost) => {
+      if (!hasSideComments) {
+        return null;
+      }
+      return SideCommentCaches.findOne({
+        postId: _id,
+        version: sideCommentCacheVersion,
+      });
+    },
+    ...(hasSideComments && {
+      sqlResolver: ({field, join}) => join({
+        table: "SideCommentCaches",
+        type: "left",
+        on: {
+          postId: field("_id"),
+          version: `${sideCommentCacheVersion}`,
+        },
+        resolver: (sideCommentsField) => sideCommentsField("*"),
+      }),
+      sqlPostProcess: () => null,
+    }),
+  }),
   
   // This is basically deprecated. We now have them enabled by default
   // for all users. Leaving this field for legacy reasons.
@@ -2514,6 +2579,9 @@ const schema: SchemaType<"Posts"> = {
     resolveAs: {
       type: 'Boolean!',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
+        if (isFriendlyUI) {
+          return false;
+        }
         const { LWEvents, currentUser } = context;
         if(currentUser){
           const query = {
@@ -2548,7 +2616,7 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
-    hidden: ({document}) => !!document?.collabEditorDialogue,
+    hidden: ({document}) => isFriendlyUI || !!document?.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2625,7 +2693,9 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
       const { commentsLimit, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const oneHourInMs = 60*60*1000;
+      const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
+      const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours*oneHourInMs));
       const loaderName = af?"recentCommentsAf" : "recentComments";
       const filter: MongoSelector<DbComment> = {
         ...getDefaultViewSelector("Comments"),
@@ -2633,6 +2703,7 @@ const schema: SchemaType<"Posts"> = {
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
         ...(af ? {af:true} : {}),
+        ...(isLWorAF ? {userId: {$ne: reviewUserBotSetting.get()}} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
         return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
@@ -2808,12 +2879,20 @@ const schema: SchemaType<"Posts"> = {
 
       if (!firstComment) return null;
 
-      return firstComment.contents.html;
+      return firstComment.contents?.html;
     }
   }),
 
   dialogueMessageContents: {
     type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
+  
+  firstVideoAttribsForPreview: {
+    type: GraphQLJSON,
     canRead: ['guests'],
     hidden: true,
     optional: true

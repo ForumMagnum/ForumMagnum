@@ -16,12 +16,14 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const zIndexes = {
+  splashHeaderImageOptions: 2000,
   frontpageBooks: 0,
   frontpageSplashImage: 0,
   sequenceBanner: 0,
   modTopBar: 1, 
   spotlightItem: 1,
   editorPresenceList: 1,
+  postsPageSplashHeader: 1,
   singleColumnSection: 2,
   spotlightItemCloseButton: 2,
   commentsMenu: 2,
@@ -90,6 +92,7 @@ export const baseTheme: BaseThemeSpecification = {
       borderRadius: {
         default: 0,
         small: 3,
+        quickTakesEntry: 3,
       },
       typography: {
         cloudinaryFont: {
@@ -322,7 +325,15 @@ export const baseTheme: BaseThemeSpecification = {
           }
         }
       },
-      rawCSS: [],
+      rawCSS: [
+        `@global: {
+          @property --top-posts-page-scrim-opacity: {
+            syntax: "<percentage>";
+            inherits: false;
+            initial-value: 36%;
+          }
+        }`
+      ],
     }
   }
 };

@@ -25,6 +25,32 @@ registerFragment(`
   }
 `);
 
+// ...PostsAuthors
+
+registerFragment(`
+  fragment PostsTopItemInfo on Post {
+    ...PostsMinimumInfo
+    ...PostsAuthors
+    isRead
+    contents {
+      _id
+      htmlHighlight
+      wordCount
+      version
+    }
+    customHighlight {
+      _id
+      html
+    }
+    tags {
+      ...TagPreviewFragment
+    }
+    reviewWinner {
+      ...ReviewWinnerTopPostsPage
+    }
+  }
+`);
+
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
@@ -41,10 +67,13 @@ registerFragment(`
     meta
     deletedDraft
     postCategory
+    tagRelevance
 
     shareWithUsers
     sharingSettings
+    linkSharingKey
 
+    contents_latest
     commentCount
     voteCount
     baseScore
@@ -247,11 +276,11 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
-    tagRelevance
     deletedDraft
     contents {
       _id
       htmlHighlight
+      plaintextDescription
       wordCount
       version
     }
@@ -434,6 +463,9 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -443,6 +475,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -489,15 +524,14 @@ registerFragment(`
       ...RevisionDisplay
     }
     myEditorAccess
-    linkSharingKey
   }
 `)
 
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
+    ...PostSideComments
     myEditorAccess
-    linkSharingKey
     version
     coauthorStatuses
     readTimeMinutesOverride
@@ -512,7 +546,6 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
-    sideComments
     socialPreviewImageId
     socialPreview
     socialPreviewData {
@@ -561,7 +594,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
-    ...PostsList
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
@@ -570,7 +603,7 @@ registerFragment(`
 
 registerFragment(`
   fragment ShortformRecentDiscussion on Post {
-    ...PostsList
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsListWithTopLevelComment
     }
@@ -663,10 +696,28 @@ registerFragment(`
   }
 `);
 
+/**
+ * Note that the side comments cache isn't actually used by the client. We
+ * include it in this fragment though as it means that it will be fetched with
+ * a join by the SQL resolver which allows us to avoid a database round-trip in
+ * the code resolver for `sideComments`.
+ *
+ * The order of the fields is very important. The cache is permission gated via
+ * `sqlPostProcess` to prevent it from being sent to the client, but it needs to
+ * be accessible to the code resolver for `sideComments`. GraphQL resolves the
+ * fields _in the order_ that they are defined in the fragment. The cache must
+ * be specified after the main field otherwise it will be removed by its
+ * permission gate. (There's no sensitive data in the cache so technically this
+ * isn't the end of the word, but it is a _big_ field that we don't want to
+ * waste bandwidth on).
+ */
 registerFragment(`
   fragment PostSideComments on Post {
     _id
     sideComments
+    sideCommentsCache {
+      ...SideCommentCacheMinimumInfo
+    }
   }
 `);
 
@@ -704,5 +755,6 @@ registerFragment(`
       text
       imageUrl
     }
+    firstVideoAttribsForPreview
   }
 `);

@@ -6,6 +6,8 @@ import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { hasAuthorModeration } from '../../betas';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -47,6 +49,9 @@ export const Posts = createCollection({
 });
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 
@@ -79,6 +84,7 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {

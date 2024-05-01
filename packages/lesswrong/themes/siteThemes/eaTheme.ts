@@ -129,6 +129,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       borderRadius: {
         default: defaultBorderRadius,
         small: 4,
+        quickTakesEntry: defaultBorderRadius,
       },
       typography: {
         fontDownloads: [

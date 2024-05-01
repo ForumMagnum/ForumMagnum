@@ -31,8 +31,12 @@ import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
 import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
 import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
-import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
-import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
+import GroupsIcon from "@heroicons/react/24/outline/UserGroupIcon";
+import GroupsSelectedIcon from "@heroicons/react/24/solid/UserGroupIcon";
+import {
+  PeopleDirectoryIcon,
+  PeopleDirectorySelectedIcon,
+} from '../../icons/peopleDirectoryIcon';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -86,7 +90,10 @@ export type MenuTabRegular = {
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
   subItem?: boolean,
-  loggedOutOnly?: boolean
+  loggedOutOnly?: boolean,
+  flag?: string,
+  desktopOnly?: boolean,
+  betaOnly?: boolean,
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
@@ -130,6 +137,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
+      id: 'leastwrong',
+      title: 'Best of LessWrong',
+      link: '/leastwrong',
+      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
+      subItem: true,
+    }, {
       id: 'highlights',
       title: 'Sequence Highlights',
       link: '/highlights',
@@ -161,12 +174,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
       subItem: true,
     }, {
-      id: 'bestoflesswrong',
-      title: 'Best Of',
-      link: '/bestoflesswrong',
-      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
-      subItem: true,
-    }, {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
@@ -183,13 +190,13 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'dialogueMatchmaking',
-      title: 'Dialogue Matchmaking',
-      link: '/dialogueMatching',
-      subItem: true
-    }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
+    }, {
+      id: 'lwAlbum',
+      title: 'LW the Album',
+      link: '/posts/YMo5PuXnZDwRjhHhE/the-story-of-i-have-been-a-good-bing',
+      subItem: true
     }, {
       id: 'about',
       title: 'About',
@@ -293,6 +300,18 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'peopleDirectory',
+      title: 'People directory',
+      link: '/people-directory',
+      iconComponent: PeopleDirectoryIcon,
+      selectedIconComponent: PeopleDirectorySelectedIcon,
+      tooltip: 'Search and filter Forum users',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+      flag: "beta",
+      desktopOnly: true,
+      betaOnly: true,
+    }, {
       id: 'takeAction',
       title: 'Take action',
       link: `/${taggingNamePluralSetting.get()}/opportunities-to-take-action`,
@@ -311,7 +330,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true
     }, {
       id: 'community',
-      title: 'Groups & people',
+      title: 'Groups',
       link: communityPath,
       iconComponent: GroupsIcon,
       selectedIconComponent: GroupsSelectedIcon,

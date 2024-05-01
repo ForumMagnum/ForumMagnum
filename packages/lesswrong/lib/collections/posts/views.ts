@@ -13,6 +13,7 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
+import { visitorGetsDynamicFrontpage } from '../../betas';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -53,6 +54,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     notPostIds?: Array<string>,
@@ -152,7 +154,8 @@ export const filters: Record<string,any> = {
  * sorting, do not try to supply your own.
  */
 export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
-  magic: { score: -1 },
+  // filteredScore is added as a synthetic field by filterSettingsToParams
+  magic: { filteredScore: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
   new: { postedAt: -1 },
@@ -169,7 +172,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  */
 Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
+  // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const postCommentedExcludeCommunity = {$or: [
@@ -231,6 +234,14 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
       options: { ...params.options, ...filterParams.options },
       syntheticFields: { ...params.syntheticFields, ...filterParams.syntheticFields },
     };
+  } else {
+    // The "magic" sorting needs a `filteredScore` to use when ordering. This
+    // is normally filled in using the filter settings, but we need to just
+    // copy over the normal score when filter settings are not supplied.
+    params.syntheticFields = {
+      ...params.syntheticFields,
+      filteredScore: "$score",
+    };
   }
   if (terms.sortedBy) {
     if (terms.sortedBy === 'topAdjusted') {
@@ -252,7 +263,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     let postedAt: any = {};
 
     if (terms.after) {
-      postedAt.$gt = moment(terms.after).toDate();
+      postedAt.$gte = moment(terms.after).toDate();
     }
     if (terms.before) {
       postedAt.$lt = moment(terms.before).toDate();
@@ -263,6 +274,9 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
+  }
+  if (terms.curatedAfter) {
+    params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
   
   return params;
@@ -354,10 +368,10 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context?.currentUser && isEAForum
+  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
 
   const syntheticFields = {
-    score: {$divide:[
+    filteredScore: {$divide:[
       {$multiply: [
         {$add:[
           "$baseScore",
@@ -410,12 +424,18 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
 }
 
 function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && 0 < mode && mode < 1) {
+  // Example: "x10.0" is a multiplier of 10
+  const match = typeof mode === "string" && mode.match(/^x(\d+(?:\.\d+)?)$/);
+  if (match) {
+    return parseFloat(match[1]);
+  } else if (typeof mode === "number" && 0 < mode && mode < 1) {
     return mode;
-  } else switch(mode) {
-    default:
-    case "Default": return 1;
-    case "Reduced": return 0.5;
+  } else {
+    switch(mode) {
+      default:
+      case "Default": return 1;
+      case "Reduced": return 0.5;
+    }
   }
 }
 

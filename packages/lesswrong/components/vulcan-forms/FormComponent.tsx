@@ -12,6 +12,8 @@ interface FormComponentState {
 }
 
 class FormComponent<T extends DbObject> extends Component<FormComponentWrapperProps<T>,FormComponentState> {
+  declare context: AnyBecauseTodo
+
   constructor(props: FormComponentWrapperProps<T>) {
     super(props);
 

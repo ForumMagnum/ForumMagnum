@@ -3,7 +3,7 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
-import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
+import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
@@ -154,6 +154,10 @@ declare global {
       primaryDarkOnDim: ColorString,
       contentHeader?: ColorString,
     
+      reviewWinner: {
+        title: ColorString,
+        author: ColorString,
+      }
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,
@@ -164,7 +168,7 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
-
+      
       debateComment: {
         [1]: ColorString,
         [2]: ColorString,
@@ -221,7 +225,7 @@ declare global {
       recentDiscussionGrey: ColorString,
       headerKarma: ColorString,
       activeDotOrange: ColorString,
-
+      
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
@@ -241,6 +245,7 @@ declare global {
       grey200: string,
       grey300: string,
       grey400: string,
+      grey800: string,
       maxIntensity: string,
       tableHeadingDivider: string,
       table: string,
@@ -301,6 +306,7 @@ declare global {
       tooltipBackground2: ColorString,
       modalBackground: ColorString,
       loginInput: ColorString,
+      loginInputHovered: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -318,6 +324,10 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
+      reviewGold: ColorString
+      onboardingSection: ColorString,
+      onboardingPodcast: ColorString,
+      placeholderGradient: ColorString,
     },
     boxShadow: {
       default: string,
@@ -378,6 +388,10 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
+      digestAdBannerNoThanks: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
     },
     tag: {
       text: ColorString,
@@ -393,7 +407,25 @@ declare global {
       hollowTagBorder: string,
       boxShadow: string,
       addTagButtonBackground: ColorString,
+      onboardingBackground: ColorString,
+      onboardingBackgroundHover: ColorString,
+      onboardingBackgroundSelected: ColorString,
     },
+    tab: {
+      inactive: {
+        text: ColorString,
+        hover: {
+          text: ColorString,
+        }
+      },
+      active: {
+        text: ColorString,
+        background: ColorString
+        hover: {
+          background: ColorString,
+        }
+      },
+    }
     geosuggest: {
       dropdownBackground: ColorString,
       dropdownText: ColorString,
@@ -408,6 +440,14 @@ declare global {
       adminButton: ColorString,
       winner: ColorString,
     },
+    leastwrong: {
+      fadeOut: ColorString,
+      imageGridHeaderHighlighted: ColorString,
+      imageGridHeader: ColorString,
+      highlightedPost: ColorString,
+      imageGridBackground: ColorString,
+      postBodyScrim: ColorString,
+    }
     background: {
       default: ColorString
       paper: ColorString,
@@ -425,6 +465,7 @@ declare global {
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      digestAdBannerInput: ColorString,
     },
     header: {
       text: ColorString,
@@ -498,6 +539,7 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
+    themeOptions: ThemeOptions,
 
     baseFontSize: number,
     
@@ -515,6 +557,7 @@ declare global {
     borderRadius: {
       default: number,
       small: number,
+      quickTakesEntry: number,
     },
     palette: ThemePalette,
     typography: {

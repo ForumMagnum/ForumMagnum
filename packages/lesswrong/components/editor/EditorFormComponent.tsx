@@ -18,11 +18,14 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useCallbackDebugRerenders } from '../hooks/useCallbackDebugRerenders';
+import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
-export function isCollaborative(post: DbPost, fieldName: string): boolean {
+export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
@@ -165,10 +168,20 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 
   // Run this check up to once per 20 min.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledCheckIsCriticism = useCallback(_.throttle(checkIsCriticism, 1000*60*20), [])
+  const throttledCheckIsCriticism = useDebouncedCallback(checkIsCriticism, {
+    rateLimitMs: 1000*60*20,
+    callOnLeadingEdge: true,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
   // Run this check up to once per 2 min (called only when there is a significant amount of text added).
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledCheckIsCriticismLargeDiff = useCallback(_.throttle(checkIsCriticism, 1000*60*2), [])
+  const throttledCheckIsCriticismLargeDiff = useDebouncedCallback(checkIsCriticism, {
+    rateLimitMs: 1000*60*2,
+    callOnLeadingEdge: true,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  })
   
   useEffect(() => {
     // check when loading the post edit form
@@ -232,26 +245,35 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
    * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
    */
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledSetContentsValue = useCallback(_.throttle(async () => {
+  const throttledSetContentsValue = useDebouncedCallback(async (_: {}) => {
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
     
     // Preserve other fields in "contents" which may have been sent from the server
     updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
-  }, autosaveInterval, {leading: true}), [autosaveInterval])
+  }, {
+    rateLimitMs: autosaveInterval,
+    callOnLeadingEdge: true,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
   
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledSaveBackup = useCallback(
-    _.throttle(saveBackup, autosaveInterval, {leading: false}),
-    [saveBackup, autosaveInterval]
-  );
+  const throttledSaveBackup = useDebouncedCallback(saveBackup, {
+    rateLimitMs: autosaveInterval,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const throttledSaveRemoteBackup = useCallback(
-    _.throttle(saveRemoteBackup, remoteAutosaveInterval, {leading: false}),
-    [saveRemoteBackup, remoteAutosaveInterval]
-  );
+  const throttledSaveRemoteBackup = useDebouncedCallback(saveRemoteBackup, {
+    rateLimitMs: remoteAutosaveInterval,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
   
-  const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
+  const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
     if (dynamicTableOfContents && editableFieldOptions.hasToc) {
       dynamicTableOfContents.setToc(change.contents);
@@ -273,7 +295,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
-    void throttledSetContentsValue()
+    void throttledSetContentsValue({})
     
     if (autosave) {
       throttledSaveBackup(newContents);
@@ -291,18 +313,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [
-    isCollabEditor,
-    updateCurrentValues,
-    fieldName,
-    throttledSetContentsValue,
-    throttledSaveBackup,
-    contents,
-    throttledCheckIsCriticismLargeDiff,
-    throttledCheckIsCriticism,
-    dynamicTableOfContents,
-    editableFieldOptions.hasToc
-  ]);
+  });
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
@@ -409,7 +420,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
   if (!document) return null;
-    
+
   return <div className={classes.root}>
     {showEditorWarning &&
       <Components.LastEditedInWarning

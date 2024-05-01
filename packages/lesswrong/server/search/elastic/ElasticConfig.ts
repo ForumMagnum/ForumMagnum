@@ -4,6 +4,7 @@ import type {
 } from "@elastic/elasticsearch/lib/api/types";
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 export type Ranking = {
   field: string,
@@ -103,6 +104,10 @@ const fullTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
   },
 };
 
@@ -118,6 +123,10 @@ const shingleTextMapping: MappingProperty = {
     exact: {
       type: "text",
       analyzer: "fm_exact_analyzer",
+    },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
     },
   },
 };
@@ -204,7 +213,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
-      {range: {baseScore: {gte: 0}}},
+      ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
     mappings: {
       title: fullTextMapping,
@@ -290,6 +299,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "deleteContent",
       "deleted",
       "isAdmin",
+      "hideFromPeopleDirectory",
     ],
     karmaField: "karma",
     locationField: "_geoloc",
@@ -359,7 +369,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   },
 };
 
-const indexToCollectionName = (index: string): SearchIndexCollectionName => {
+export const indexToCollectionName = (index: string): SearchIndexCollectionName => {
   const data: Record<string, SearchIndexCollectionName> = {
     comments: "Comments",
     posts: "Posts",
@@ -386,4 +396,15 @@ export const collectionNameToConfig = (
 export const indexNameToConfig = (indexName: string): IndexConfig => {
   const collectionName = indexToCollectionName(indexName);
   return collectionNameToConfig(collectionName);
+}
+
+export const isFullTextField = <N extends SearchIndexCollectionName>(
+  collectionName: N,
+  fieldName: string,
+) => {
+  const config = elasticSearchConfig[collectionName];
+  if (!config) {
+    throw new Error(`Invalid elastic collection name: ${collectionName}`);
+  }
+  return config.mappings?.[fieldName] === fullTextMapping;
 }

@@ -1,10 +1,10 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import { pickerMiddleware } from './vendor/picker';
+import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
@@ -20,20 +20,19 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -52,6 +51,77 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { createAnonymousContext } from './vulcan-lib/query';
+import { DatabaseServerSetting } from './databaseSettings';
+import { randomId } from '../lib/random';
+
+/**
+ * Try to set the response status, but log an error if the headers have already been sent.
+ */
+const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
+  if (!response.headersSent) {
+    response.status(status);
+  } else if (response.statusCode !== status) {
+    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
+    if (isProduction) {
+      // eslint-disable-next-line no-console
+      console.error(message);
+    } else {
+      throw new Error(message);
+    }
+  }
+
+  return response;
+}
+
+const cloudfrontExperimentEnabledSetting = new DatabaseServerSetting<boolean>('cloudfrontExperiment.enabled', false);
+const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "s-max-age=1, stale-while-revalidate=86400");
+const cloudfrontCachingExperimentLoggedInCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontCachingExperiment.loggedInCacheControl', "no-cache, no-store, must-revalidate, max-age=0");
+/**
+ * For experimenting on staging to find out how CloudFront handles different cache-control headers set by the origin. The crux
+ * is to figure out whether setting origin headers is sufficient to make it so responses are never cached for logged in users, but are cached
+ * for logged out
+ */
+const cloudfrontCachingExperiment = ({ response, user }: { response: express.Response, user: DbUser | null; }) => {
+  // TODO remove before this, the hard cutoff is just in case we forget
+  if (!cloudfrontExperimentEnabledSetting.get() || new Date() > new Date('2024-05-07')) return;
+
+  const loggedInCacheControl = cloudfrontCachingExperimentLoggedInCacheControlSetting.get();
+  const loggedOutCacheControl = cloudfrontExperimentLoggedOutCacheControlSetting.get();
+
+  if (user) {
+    response.setHeader("Cache-Control", loggedInCacheControl);
+  } else {
+    response.setHeader("Cache-Control", loggedOutCacheControl);
+  }
+}
+
+/**
+ * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
+ */
+const maybePrefetchResources = async ({
+  request,
+  response,
+  enableResourcePrefetch,
+  prefetchPrefix
+}: {
+  request: express.Request;
+  response: express.Response;
+  enableResourcePrefetch?: boolean | ((req: express.Request, res: express.Response, context: ResolverContext) => Promise<boolean>);
+  prefetchPrefix: string;
+}) => {
+  const prefetchResources =
+    typeof enableResourcePrefetch === "function"
+      ? await enableResourcePrefetch(request, response, createAnonymousContext())
+      : enableResourcePrefetch;
+
+  if (prefetchResources) {
+    response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
+    trySetResponseStatus({ response, status: 200 });
+    response.write(prefetchPrefix);
+  }
+  return prefetchResources;
+};
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -146,7 +216,9 @@ export function startWebserver() {
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
-  app.use(datadogMiddleware);
+  if (isDatadogEnabled) {
+    app.use(datadogMiddleware);
+  }
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
@@ -292,8 +364,11 @@ export function startWebserver() {
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
+    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
+
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
@@ -303,7 +378,6 @@ export function startWebserver() {
     const parsedRoute = parseRoute({
       location: parsePath(request.url)
     });
-    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
@@ -311,8 +385,16 @@ export function startWebserver() {
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
+
+    // TODO remove and replace with a permanent version
+    cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+
+    // Inject a tab ID into the page, by injecting a script fragment that puts
+    // it into a global variable.
+    const tabId = randomId();
+    const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -327,25 +409,35 @@ export function startWebserver() {
         + externalStylesPreload
         + instanceSettingsHeader
         + faviconHeader
+        // Embedded script tags that must precede the client bundle
+        + publicSettingsHeader
+        + tabIdHeader
+        // The client bundle. Because this uses <script async>, its load order
+        // relative to any scripts that come later than this is undetermined and
+        // varies based on timings and the browser cache.
         + clientScript
     );
-    
-    if (prefetchResources) {
-      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      response.status(200);
-      response.write(prefetchPrefix);
-    }
-    
-    const renderResult = performanceMetricLoggingEnabled.get()
-      ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
-      : await renderWithCache(request, response, user);
-    
+
+    // Note: this may write to the response
+    const prefetchResourcesPromise = maybePrefetchResources({
+      request,
+      response,
+      enableResourcePrefetch: parsedRoute.currentRoute?.enableResourcePrefetch,
+      prefetchPrefix
+    });
+
+    const renderResultPromise = performanceMetricLoggingEnabled.get()
+      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
+      : renderWithCache(request, response, user, tabId);
+
+    const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
+
     if (renderResult.aborted) {
-      response.status(499);
+      trySetResponseStatus({ response, status: 499 });
       response.end();
       return;
     }
-    
+
     const {
       ssrBody,
       headers,
@@ -357,25 +449,21 @@ export function startWebserver() {
       renderedAt,
       allAbTestGroups,
     } = renderResult;
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
     
     // Finally send generated HTML with initial data to the client
-    if (redirectUrl && !prefetchResources) {
+    if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      response.status(status||301).redirect(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
     } else {
-      if (!prefetchResources) {
-        response.status(status||200);
-        response.write(prefetchPrefix);
-      }
+      trySetResponseStatus({ response, status: status || 200 });
+
       response.write(
-        // <html><head> opened by the prefetch prefix
-          headers.join('\n')
+        (prefetchingResources ? '' : prefetchPrefix)
+          + headers.join('\n')
           + themeOptionsHeader
           + jssSheets
         + '</head>\n'

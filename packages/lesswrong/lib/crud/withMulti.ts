@@ -1,12 +1,12 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import qs from 'qs';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
 import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
-import { isServer } from '../executionEnvironment';
 import { useNavigate } from '../reactRouterWrapper';
+import { apolloSSRFlag } from '../helpers';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -159,14 +159,14 @@ export function useMulti<
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
-  const graphQLVariables = {
+  const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
       enableCache, enableTotal, createIfMissing
     },
-    ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
-  }
-  
+    ...extraVariablesValues
+  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
+
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {
     setLastTerms(terms);
@@ -184,18 +184,18 @@ export function useMulti<
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
-    ssr: ssr || !isServer,
+    ssr: apolloSSRFlag(ssr),
     skip,
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
 
   const client = useApolloClient();
-  const invalidateCache = () => invalidateQuery({
+  const invalidateCache = useCallback(() => invalidateQuery({
     client,
     query,
     variables: graphQLVariables,
-  });
+  }), [client, query, graphQLVariables]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the

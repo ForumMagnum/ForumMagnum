@@ -18,11 +18,11 @@ import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
-import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
 import { UsersRepo } from './repos';
+import { syncDocumentWithLatestRevision } from './editor/utils';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -296,6 +296,9 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
+    if (!revision.collectionName) {
+      continue;
+    }
     const collection = getCollectionsByName()[revision.collectionName];
     const document = await collection.findOne({_id: revision.documentId})
     if (document && revision.fieldName) {
@@ -362,7 +365,7 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     // index's keys.
     //
     // EDIT 2022-09-16: This is still the case in postgres ^
-    await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);    
+    const readStatus = await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);
   }
   return event;
 });

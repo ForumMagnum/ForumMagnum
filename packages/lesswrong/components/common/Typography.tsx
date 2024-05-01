@@ -52,7 +52,12 @@ const Typography = ({children, variant, component, className, onClick, gutterBot
   return (
     <Component
       id={id}
-      className={classNames(classes.root, classes[variant], className, {[classes.gutterBottom]: gutterBottom})}
+      className={classNames(
+        classes.root,
+        classes[variant],
+        className,
+        gutterBottom && classes.gutterBottom,
+      )}
       onClick={onClick}
     >
       {children}

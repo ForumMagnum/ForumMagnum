@@ -1,5 +1,5 @@
 import { initializeSetting } from './publicSettings'
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isCypress } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
@@ -205,8 +205,40 @@ const disableElastic = new PublicInstanceSetting<boolean>(
   "optional",
 );
 
-export const isElasticEnabled = !isAnyTest && !disableElastic.get();
+export const isElasticEnabled = !isAnyTest && !isCypress && !disableElastic.get();
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
+
+/** Karma threshold upon which we automatically create a market for whether this post will be a winner in the review for its year */
+export const reviewMarketCreationMinimumKarmaSetting = new PublicInstanceSetting<number>('annualReviewMarket.marketCreationMinimumKarma', 100, "optional");
+/** Minimum market odds required to highlight this post (e.g. make its karma gold) as a potential review winner */
+export const highlightReviewWinnerThresholdSetting = new PublicInstanceSetting<number>('annualReviewMarket.highlightReviewWinnerThreshold', 0.25, "optional");
+
+export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
+export const maxAllowedApiSkip = new PublicInstanceSetting<number | null>("maxAllowedApiSkip", 2000, "optional")
+
+export const recombeeDatabaseIdSetting = new PublicInstanceSetting<string | null>('recombee.databaseId', null, "optional");
+export const recombeePublicApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.publicApiToken', null, "optional");
+export const recombeePrivateApiTokenSetting = new PublicInstanceSetting<string | null>('recombee.privateApiToken', null, "optional");
+
+export const isDatadogEnabled = isEAForum;
+
+export type PostFeedDetails = {
+  name: string,
+  label: string,
+  description?: string,
+  disabled?: boolean,
+  adminOnly?: boolean,
+  showLabsIcon?: boolean,
+  slug?: string
+}
+
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
+
+/**
+ * This is a filepath that is _relative_ to the location of the instance settings file itself.
+ * See full explanation in `google-vertex/client.ts`
+ */
+export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");

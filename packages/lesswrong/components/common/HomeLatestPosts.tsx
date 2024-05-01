@@ -54,11 +54,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
   },
-})
+  postsListSettings: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+});
 
 const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
-const filterSettingsToggleLabels = forumSelect({
+export const filterSettingsToggleLabels = forumSelect({
   EAForum: {
     desktopVisible: "Customize feed",
     desktopHidden: "Customize feed",
@@ -66,10 +71,10 @@ const filterSettingsToggleLabels = forumSelect({
     mobileHidden: "Customize feed",
   },
   default: {
-    desktopVisible: "Customize Feed (Hide)",
-    desktopHidden: "Customize Feed",
-    mobileVisible: "Customize Feed (Hide)",
-    mobileHidden: "Customize Feed (Show)",
+    desktopVisible: "Customize (Hide)",
+    desktopHidden: "Customize",
+    mobileVisible: "Customize (Hide)",
+    mobileHidden: "Customize",
   }
 })
 
@@ -108,11 +113,19 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({
+    eventType:"frontpageFilterSettings",
+    eventProps: {
+      filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts"
+    },
+    captureOnMount: true,
+  })
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts
+    CuratedPostsList, SectionTitle, StickiedPosts, PostsListViewToggle,
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -146,35 +159,39 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
         <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
-          <LWTooltip
-            title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
-            hideOnTouchScreens
-          >
-            <SettingsButton
-              className={classes.hideOnMobile}
-              label={filterSettingsVisibleDesktop ?
-                filterSettingsToggleLabels.desktopVisible :
-                filterSettingsToggleLabels.desktopHidden}
-              showIcon={false}
-              onClick={changeShowTagFilterSettingsDesktop}
-            />
-            <SettingsButton
-              className={classes.hideOnDesktop}
-              label={filterSettingsVisibleMobile ?
-                filterSettingsToggleLabels.mobileVisible :
-                filterSettingsToggleLabels.mobileHidden}
-              showIcon={false}
-              onClick={() => {
-                setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-                captureEvent("filterSettingsClicked", {
-                  settingsVisible: !filterSettingsVisibleMobile,
-                  settings: filterSettings,
-                  pageSectionContext: "latestPosts"
-                })
-              }} />
-          </LWTooltip>
+          <div className={classes.postsListSettings}>
+            <LWTooltip
+              title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+              hideOnTouchScreens
+            >
+              <SettingsButton
+                className={classes.hideOnMobile}
+                label={filterSettingsVisibleDesktop ?
+                  filterSettingsToggleLabels.desktopVisible :
+                  filterSettingsToggleLabels.desktopHidden}
+                showIcon={false}
+                onClick={changeShowTagFilterSettingsDesktop}
+                textShadow={isLWorAF}
+              />
+              <SettingsButton
+                className={classes.hideOnDesktop}
+                label={filterSettingsVisibleMobile ?
+                  filterSettingsToggleLabels.mobileVisible :
+                  filterSettingsToggleLabels.mobileHidden}
+                showIcon={false}
+                onClick={() => {
+                  setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+                  captureEvent("filterSettingsClicked", {
+                    settingsVisible: !filterSettingsVisibleMobile,
+                    settings: filterSettings,
+                    pageSectionContext: "latestPosts"
+                  })
+                }} />
+            </LWTooltip>
+            {isFriendlyUI && <PostsListViewToggle />}
+          </div>
         </SectionTitle>
-  
+
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({
             [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
@@ -195,6 +212,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 terms={recentPostsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
+                viewType="fromContext"
               >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>

@@ -17,7 +17,7 @@ describe('Groups', function() {
     cy.url().should('include', 'newPost');
     
     // Fill in some event fields and submit
-    cy.get('.EditTitle-root').type('Test event 123');
+    cy.get('.EditTitle-root').wait(100).type('Test event 123');
     cy.get('.ck-editor__editable').type('Test body 123');
     cy.contains("Submit").click();
     

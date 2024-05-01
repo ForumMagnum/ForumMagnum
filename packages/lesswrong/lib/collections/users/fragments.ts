@@ -116,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
@@ -200,8 +201,6 @@ registerFragment(`
     subforumPreferredLayout
     
     hideJobAdUntil
-    experiencedIn
-    interestedIn
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
@@ -217,8 +216,6 @@ registerFragment(`
     showMatches
     showRecommendedPartners
     hideActiveDialogueUsers
-
-    wrapped2023Viewed
 
     hideSunshineSidebar
   }
@@ -408,7 +405,7 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersEdit on User {
-    ...UsersProfile
+    ...UsersCurrent
     biography {
       ...RevisionEdit
     }
@@ -468,6 +465,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review
@@ -488,7 +486,9 @@ registerFragment(`
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
+    notificationSubscribedUserComment
     notificationSubscribedTagPost
+    notificationSubscribedSequencePost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
@@ -580,5 +580,16 @@ registerFragment(`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
+  }
+`);
+
+registerFragment(`
+  fragment UserOnboardingAuthor on User {
+    _id
+    displayName
+    profileImageId
+    karma
+    jobTitle
+    organization
   }
 `);

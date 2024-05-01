@@ -5,9 +5,11 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const PostsAudioCard = ({post}: {post: PostsBestOfList}) => {
   const {eventHandlers} = useHover({
-    pageElementContext: "audioCard",
-    documentId: post._id,
-    documentSlug: post.slug,
+    eventProps: {
+      pageElementContext: "audioCard",
+      documentId: post._id,
+      documentSlug: post.slug,
+    },
   });
 
   if (!post.podcastEpisode) {

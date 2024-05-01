@@ -6,6 +6,8 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments } from '../../lib/betas';
+import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
@@ -133,6 +135,14 @@ const ViewSubscriptionsPage = ({classes}: {
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
       noSubscriptionsMessage="You are not subscribed to any users' posts."
     />
+    {allowSubscribeToUserComments && <SubscriptionsList
+      title="Subscribed to All Comments By Users"
+      collectionName="Users"
+      subscriptionType="newUserComments"
+      fragmentName="UsersMinimumInfo"
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+      noSubscriptionsMessage="You are not subscribed to any users' comments."
+    />}
     
     <SubscriptionsList
       title="Subscribed to Comments on Posts"
@@ -208,6 +218,14 @@ const ViewSubscriptionsPage = ({classes}: {
       noSubscriptionsMessage="You are not subscribed to any tags."
     />
     
+    {allowSubscribeToSequencePosts && <SubscriptionsList
+      title="Subscribed to Sequences"
+      collectionName="Sequences"
+      subscriptionType="newSequencePosts"
+      fragmentName="SequencesPageTitleFragment"
+      renderDocument={(sequence: SequencesPageTitleFragment) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
+      noSubscriptionsMessage="You are not subscribed to any sequences."
+    />}
     
   </SingleColumnSection>;
 }

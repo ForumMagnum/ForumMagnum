@@ -5,7 +5,7 @@ import { useClickableCell } from "../common/useClickableCell";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     display: "flex",
@@ -19,7 +19,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   rootSelected: {
-    background: theme.palette.grey[100],
+    // Important to take precendence over unread styles
+    background: `${theme.palette.grey[100]} !important`,
   },
   profileImage: {
     marginRight: 12,
@@ -41,7 +42,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     lineHeight: '21px'
   },
+  titleUnread: {
+    fontWeight: 700,
+  },
   date: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
     color: theme.palette.grey[600],
     fontSize: "13px",
     fontWeight: 500,
@@ -57,7 +64,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "13px",
     fontWeight: 500,
     marginTop: 2,
-  }
+  },
+  previewUnread: {
+    color: theme.palette.grey[1000],
+    fontWeight: 600,
+  },
+  unread: {
+    width: 8,
+    height: 8,
+    background: theme.palette.primary.main,
+    borderRadius: "50%",
+  },
 });
 
 const FriendlyConversationItem = ({
@@ -67,9 +84,9 @@ const FriendlyConversationItem = ({
   selectedConversationId,
   setSelectedConversationId,
 }: {
-  conversation: ConversationsList;
+  conversation: ConversationsListWithReadStatus;
   currentUser: UsersCurrent;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
@@ -89,9 +106,13 @@ const FriendlyConversationItem = ({
   // This will be truncated further by webkit-line-clamp. This truncation is just to avoid padding
   // the html with too much junk
   const previewText = truncate(latestMessagePlaintext, 400)
+  const {hasUnreadMessages = false} = conversation;
 
   return (
-    <div onClick={onClick} className={classNames(classes.root, {[classes.rootSelected]: isSelected})}>
+    <div onClick={onClick} className={classNames(
+      classes.root,
+      isSelected && classes.rootSelected,
+    )}>
       <UsersProfileImage
         user={firstParticipant}
         size={40}
@@ -99,14 +120,21 @@ const FriendlyConversationItem = ({
       />
       <div className={classes.content}>
         <div className={classes.titleRow}>
-          <div className={classes.title}>
+          <div className={classNames(
+            classes.title,
+            hasUnreadMessages && classes.titleUnread,
+          )}>
             {title}
           </div>
           <div className={classes.date}>
+            {hasUnreadMessages && <div className={classes.unread} />}
             <FormatDate date={conversation.latestActivity} />
           </div>
         </div>
-        <div className={classes.preview}>
+        <div className={classNames(
+          classes.preview,
+          hasUnreadMessages && classes.previewUnread,
+        )}>
           {previewText}
         </div>
       </div>

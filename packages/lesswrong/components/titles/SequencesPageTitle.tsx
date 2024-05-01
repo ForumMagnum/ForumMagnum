@@ -4,8 +4,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
-import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const SequencesPageTitle = ({isSubtitle, siteName, classes}: {
   isSubtitle: boolean,

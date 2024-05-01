@@ -227,6 +227,23 @@ const CommentsNode = ({
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
   
+  const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
+    <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
+    {showExtraChildrenButton}
+    {childComments.map(child => <Components.CommentsNode
+      isChild={true}
+      treeOptions={treeOptions}
+      comment={child.item}
+      parentCommentId={comment._id}
+      parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
+      nestingLevel={updatedNestingLevel + 1}
+      truncated={isTruncated}
+      childComments={child.children}
+      key={child.item._id}
+      expandNewComments={expandNewComments}
+      enableGuidelines={enableGuidelines} />)}
+  </div>;
+
   return <div className={comment.gapIndicator ? classes.gapIndicator : undefined}>
     <CommentFrame
       comment={comment}
@@ -276,24 +293,7 @@ const CommentsNode = ({
         }
       </div>}
 
-      {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
-        { showExtraChildrenButton }
-        {childComments.map(child =>
-          <Components.CommentsNode
-            isChild={true}
-            treeOptions={treeOptions}
-            comment={child.item}
-            parentCommentId={comment._id}
-            parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
-            nestingLevel={updatedNestingLevel+1}
-            truncated={isTruncated}
-            childComments={child.children}
-            key={child.item._id}
-            expandNewComments={expandNewComments}
-            enableGuidelines={enableGuidelines}
-          />)}
-      </div>}
+      {childrenSection}
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">

@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, PropsWithChildren } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
@@ -293,7 +293,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
   }
 }
 
-const ContentTypeWrapper: FC<{classes: ClassesType, className?: string}> = ({
+const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType, className?: string}>> = ({
   classes,
   className,
   children,
@@ -325,7 +325,7 @@ const ContentType = ({classes, className, type, label}: {
   }
 
   const innerComponent = isFriendlyUI
-    ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
+    ? <SectionTitle title={label} className={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
     </span>;

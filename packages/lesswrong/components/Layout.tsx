@@ -1,7 +1,6 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
-import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
@@ -12,12 +11,12 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
+import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import NoSSR from 'react-no-ssr';
+import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
@@ -28,9 +27,9 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
-import { reviewIsActive } from '../lib/reviewUtils';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
-
+import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
+import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
@@ -51,7 +50,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
- * and we require them to fill this in in the NewUserCompleteProfile form before continuing.
+ * and we require them to fill this in using the onboarding flow before continuing.
  * This is a list of route names that the user is allowed to view despite having an
  * 'incomplete' account.
  */
@@ -68,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
-      paddingTop: 0,
+      paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
       paddingRight: 8,
     },
@@ -129,7 +128,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'imageGap',
     [theme.breakpoints.down('md')]: {
       display: 'none'
-    }
+    },
   },
   backgroundImage: {
     position: 'absolute',
@@ -143,9 +142,50 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   votingImage: {
-    width: '55vw',
-    maxWidth: '1000px',
-    marginLeft: '-15px'
+    width: '777px',
+    right: '-150px',
+    height: '960px',
+    marginTop: '27px',
+    objectFit: 'cover',
+    transform: 'scaleX(-1)',
+    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
+  },
+  bannerText: {
+    ...theme.typography.postStyle,
+    position: 'absolute',
+    right: 16,
+    top: 70,
+    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
+    color: theme.palette.text.alwaysBlack,
+    textAlign: 'right',
+    width: '240px',
+    '& h2': {
+      fontSize: '2.2rem',
+      margin: 0,
+    },
+    '& h3': {
+      fontSize: '20px',
+      margin: 0,
+      lineHeight: '1.2',
+      marginBottom: 8
+    },
+    '& button': {
+      ...theme.typography.commentStyle,
+      backgroundColor: theme.palette.text.alwaysWhite,
+      opacity: 0.8,
+      border: 'none',
+      color: theme.palette.text.alwaysBlack,
+      borderRadius: '3px',
+      textAlign: 'center',
+      padding: 8,
+      fontSize: '14px',
+    }
+  },
+  lessOnlineBannerDateAndLocation: {
+    ...theme.typography.commentStyle,
+    fontSize: '16px !important',
+    fontStyle: 'normal',
+    marginBottom: '16px !important',
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -250,8 +290,8 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -314,8 +354,14 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+
+  let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
+  if (pathname.startsWith('/wrapped')) {
+    headerBackgroundColor = wrappedBackgroundColor;
+  } else if (blackBarTitle.get()) {
+    headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
+  }
 
   const render = () => {
     const {
@@ -328,7 +374,7 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsPageInitializer,
       NavigationEventSender,
       PetrovDayWrapper,
-      NewUserCompleteProfile,
+      EAOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -338,7 +384,8 @@ const Layout = ({currentUser, children, classes}: {
       SunshineSidebar,
       EAHomeRightHandSide,
       CloudinaryImage2,
-      ReviewVotingCanvas
+      ForumEventBanner,
+      GlobalHotkeys,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -362,8 +409,7 @@ const Layout = ({currentUser, children, classes}: {
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
-    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
-      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -384,6 +430,7 @@ const Layout = ({currentUser, children, classes}: {
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
+      <CurrentForumEventProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -402,10 +449,11 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
+              <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
-              <NoSSR>
+              <ForumNoSSR>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              </NoSSR>
+              </ForumNoSSR>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -419,6 +467,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={!!currentRoute?.staticHeader}
                 backgroundColor={headerBackgroundColor}
               />}
+              <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
@@ -456,20 +505,23 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {showNewUserCompleteProfile
-                      ? <NewUserCompleteProfile currentUser={currentUser}/>
-                      : children
-                    }
+                    {children}
+                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-                      </div> 
+                    <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
+                      <div className={classes.bannerText}>
+                        <h2><a href="http://less.online">LessOnline</a></h2>
+                        <h3>A Festival of Writers Who are Wrong on the Internet</h3>
+                        <h3 className={classes.lessOnlineBannerDateAndLocation}>May 31 - Jun 2, Berkeley, CA</h3>
+                        <button><a href="http://less.online/#tickets-section">Buy Ticket ($400)</a></button>
+                      </div>
+                    </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
@@ -479,7 +531,6 @@ const Layout = ({currentUser, children, classes}: {
                 }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
-                  !showNewUserCompleteProfile &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
@@ -490,14 +541,15 @@ const Layout = ({currentUser, children, classes}: {
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <NoSSR>
+                  <ForumNoSSR>
                     <SunshineSidebar/>
-                  </NoSSR>
+                  </ForumNoSSR>
                 </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>

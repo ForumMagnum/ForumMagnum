@@ -5,6 +5,7 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { isAF } from "../../lib/instanceSettings";
 
 type MeanPostKarma = {
   _id: number,
@@ -32,6 +33,19 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
+  }
+
+  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
+    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- PostsRepo.postRouteWillDefinitelyReturn200
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Posts"
+        WHERE "_id" = $1 AND ${getViewablePostsSelector()} AND "af" = $2
+      )
+    `, [id, isAF]);
+
+    return res?.exists ?? false;
   }
 
   async getEarliestPostTime(): Promise<Date> {
@@ -97,7 +111,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."shortform" is not true AND
         p."isFuture" is not true AND
         p."authorIsUnreviewed" is not true AND
-        p."draft" is not true
+        p."draft" is not true AND
+        p."deletedDraft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end], "getEligiblePostsForDigest");
@@ -350,9 +365,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
         fm_post_tag_ids(p."_id") AS "tags",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."fullName" AS "authorFullName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."fullName"
+        END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
         p."contents"->>'html' AS "body",
@@ -563,7 +587,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getUserReadsPerCoreTag
       WITH core_tags AS (
         SELECT _id
-        FROM tags
+        FROM "Tags"
         WHERE core IS TRUE AND deleted is not true
       )
       
@@ -577,7 +601,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         rs."lastUpdated" >= NOW() - interval '6 months'
         AND rs."userId" = $1
         AND rs."isRead" IS TRUE
-        AND tr."tagId" IN (SELECT _id FROM core_tags)
+        AND (
+          tr."tagId" = 'u3Xg8MjDe2e6BvKtv' -- special case to include "AI governance"
+          OR tr."tagId" IN (SELECT _id FROM core_tags)
+        )
         AND tr."deleted" IS FALSE
       GROUP BY tr."tagId"
       `,
@@ -604,7 +631,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getReadCoreTagStats
       WITH core_tags AS (
           SELECT _id
-          FROM tags
+          FROM "Tags"
           WHERE core IS TRUE AND deleted is not true
       ),
       read_posts AS (
@@ -681,6 +708,53 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       userReadCount: read_count,
       readLikelihoodRatio: ratio
     }));
+  }
+
+  async getActivelyDiscussedPosts(limit: number) {
+    return await this.any(`
+      WITH post_ids AS (
+        SELECT "postId" AS _id,
+        COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0) AS total_karma_from_high_karma_comments
+        FROM "Comments" c
+              LEFT JOIN "Posts" p ON p._id = c."postId"
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL '14 days'
+        AND p.shortform IS NOT TRUE
+        GROUP BY c."postId"
+        HAVING COUNT(*) FILTER (WHERE c."baseScore" > 10) > 0
+        ORDER BY COALESCE(SUM(c."baseScore") FILTER (WHERE c."baseScore" > 5), 0)
+      )
+      SELECT
+          p.*
+      FROM "Posts" p
+      JOIN post_ids pid USING (_id)
+      ORDER BY pid.total_karma_from_high_karma_comments DESC
+      LIMIT $1
+    `,
+    [limit]);
+  }
+
+  async getPostsFromPostSubscriptions(userId: string, limit: number) {
+    return await this.any(`
+      WITH user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" = 'newPosts'
+          AND "userId" = $1
+        )
+      SELECT *
+      FROM "Posts" p
+      JOIN user_subscriptions us USING ("userId")
+      WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL '90 days'
+        AND type = 'newPosts'
+        AND shortform IS NOT TRUE 
+        AND draft IS NOT TRUE
+      ORDER BY p."postedAt" DESC
+      LIMIT $2
+    `, 
+    [userId, limit]);
   }
 }
 

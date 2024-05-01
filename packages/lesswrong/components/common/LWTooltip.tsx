@@ -33,12 +33,13 @@ export type LWTooltipProps = {
   analyticsProps?: AnalyticsProps,
   titleClassName?: string
   popperClassName?: string,
+  onShow?: () => void,
+  onHide?: () => void,
   children?: ReactNode,
   classes: ClassesType,
 }
 
 const LWTooltip = ({
-  children,
   title,
   placement="bottom-start",
   tooltip=true,
@@ -48,22 +49,32 @@ const LWTooltip = ({
   As="span",
   disabled=false,
   hideOnTouchScreens=false,
-  classes,
-  className,
   analyticsProps,
   titleClassName,
   popperClassName,
+  onShow,
+  onHide,
+  children,
+  className,
+  classes,
 }: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
-    title: typeof title === "string" ? title : undefined,
-    ...analyticsProps,
+    eventProps: {
+      pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
+      title: typeof title === "string" ? title : undefined,
+      ...analyticsProps,
+    },
+    onEnter: onShow,
+    onLeave: onHide,
   });
 
   if (!title) return <>{children}</>
 
-  return <As className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
+  return <As className={classNames(
+    inlineBlock && classes.root,
+    className
+  )} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
@@ -77,7 +88,12 @@ const LWTooltip = ({
       hideOnTouchScreens={hideOnTouchScreens}
       className={popperClassName}
     >
-      <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
+      <div className={classNames(
+        tooltip && classes.tooltip,
+        titleClassName
+      )}>
+        {title}
+      </div>
     </LWPopper>}
 
     {children}

@@ -1,5 +1,4 @@
 import React from "react";
-import NoSSR from "react-no-ssr";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
@@ -8,7 +7,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
-import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,9 +24,6 @@ const styles = (theme: ThemeType) => ({
   section: {
     maxWidth: MAX_CONTENT_WIDTH,
     margin: "0 auto 60px",
-  },
-  digestAd: {
-    marginTop: -30
   },
   sectionHeading: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -49,22 +44,26 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision,
+const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
+  ssr?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {
     recommendationsLoading: moreFromAuthorLoading,
     recommendations: moreFromAuthorPosts,
   } = useRecommendations({
-    strategy: {
-      name: "moreFromAuthor",
-      postId: post._id,
-      context: "post-footer",
+    algorithm: {
+      strategy: {
+        name: "moreFromAuthor",
+        postId: post._id,
+        context: "post-footer",
+      },
+      count: 3,
+      disableFallbacks: true,
     },
-    count: 3,
-    disableFallbacks: true,
+    ssr
   });
 
   const {
@@ -74,13 +73,18 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
     fragmentName: "PostsPage",
     resolverName: "CuratedAndPopularThisWeek",
     limit: 3,
+    ssr
   });
 
   const {
     results: opportunityPosts,
     loading: opportunitiesLoading,
+    coreTagLabel
   } = useRecentOpportunities({
     fragmentName: "PostsListWithVotes",
+    post,
+    maxAgeInDays: 60,
+    ssr
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -89,7 +93,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
 
   const {
-    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip, DigestAd
+    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip
   } = Components;
 
   return (
@@ -100,7 +104,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
           notHideable
         >
           <div>
-            <NoSSR><DigestAd largeVersion className={classNames(classes.section, classes.digestAd)} /></NoSSR>
             {hasUserPosts &&
               <div className={classes.section}>
                 <div className={classes.sectionHeading}>
@@ -144,7 +147,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
             </div>
             <div className={classes.section}>
               <div className={classes.sectionHeading}>
-                Recent opportunities
+                {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
               {opportunitiesLoading && !opportunityPosts?.length &&
                 <PostsLoading />

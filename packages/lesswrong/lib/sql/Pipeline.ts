@@ -15,6 +15,7 @@ class Unit<T extends DbObject> {
   private addFields: any;
   private sort?: any;
   private limit?: number;
+  private skip?: number;
   private selector?: any;
   private lookup?: any;
   private group?: any;
@@ -41,6 +42,7 @@ class Unit<T extends DbObject> {
       {
         sort: this.sort,
         limit: this.limit,
+        skip: this.skip,
         projection: this.project,
       },
       {
@@ -80,6 +82,10 @@ class Unit<T extends DbObject> {
 
   addLimitStage(data: number): Unit<T> {
     return this.addSimpleStage("limit", data);
+  }
+
+  addSkipStage(data: number): Unit<T> {
+    return this.addSimpleStage("skip", data);
   }
 
   addLookupStage(data: Lookup): Unit<T> {
@@ -151,6 +157,7 @@ class Pipeline<T extends DbObject> {
         case "$addFields": unit = unit.addAddFieldsStage(data); break;
         case "$sort":      unit = unit.addSortStage(data);      break;
         case "$limit":     unit = unit.addLimitStage(data);     break;
+        case "$skip":      unit = unit.addSkipStage(data);      break;
         case "$lookup":    unit = unit.addLookupStage(data);    break;
         case "$project":   unit = unit.addProjectStage(data);   break;
         case "$group":     unit = unit.addGroupStage(data);     break;

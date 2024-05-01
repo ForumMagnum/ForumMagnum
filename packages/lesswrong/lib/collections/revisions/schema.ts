@@ -219,6 +219,18 @@ const schema: SchemaType<"Revisions"> = {
     blackbox: true,
     canRead: ['guests']
   },
+  /**
+   * For revisions imported from a google doc, this contains some metadata about the doc,
+   * see `GoogleDocMetadata` in packages/lesswrong/server/resolvers/postResolvers.ts for the
+   * fields that are included.
+   */
+  googleDocMetadata: {
+    type: Object,
+    nullable: true,
+    optional: true,
+    blackbox: true,
+    canRead: ['guests']
+  },
   
   tag: resolverOnlyField({
     type: "Tag",
