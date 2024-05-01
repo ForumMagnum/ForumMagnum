@@ -71,6 +71,7 @@ export const createPostgresView = (
 
 export const ensurePostgresViewsExist = async (
   db = getSqlClientOrThrow(),
+  /** Dependency injected to avoid cycle. Should always be passed in unless in testing. */
   addCronJob?: (options: CronJobSpec) => void,
 ) => {
   await Promise.all(postgresViews.map((view) => view.createView(db)));
