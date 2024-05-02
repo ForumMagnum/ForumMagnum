@@ -33,5 +33,11 @@ describe("CreateIndexQuery", () => {
       expectedSql: 'CREATE INDEX IF NOT EXISTS "idx_TestCollection_b_ci" ON "TestCollection" USING btree ( LOWER("b") )',
       expectedArgs: [],
     },
+    {
+      name: "can build index query with CONCURRENTLY",
+      getQuery: () => new CreateIndexQuery(testTable, testTable.getIndexes()[5]),
+      expectedSql: 'CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_TestCollection_a_c" ON "TestCollection" USING btree ( "a" , "c" )',
+      expectedArgs: [],
+    },
   ]);
 });

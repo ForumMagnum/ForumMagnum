@@ -4,6 +4,7 @@ const schema: SchemaType<"ClientIds"> = {
   clientId: {
     type: String,
     canRead: ['sunshineRegiment','admins'],
+    nullable: false
   },
   firstSeenReferrer: {
     type: String,
