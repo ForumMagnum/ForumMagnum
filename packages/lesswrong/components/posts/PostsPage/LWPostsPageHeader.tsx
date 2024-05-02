@@ -12,6 +12,7 @@ import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -164,10 +165,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16,
   },
   tagSection: {
-    flex: 1,
-    display: "flex",
-    flexDirection: isFriendlyUI ? "column" : "row",
     height: "100%",
+    position: 'absolute',
+    right: 8, 
+    top: -42
+  },
+  rightHeaderVote: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 8,
   }
 });
 
@@ -221,9 +229,9 @@ const CommentsLink: FC<{
   );
 }
 
-/// PostsPagePostHeader: The metadata block at the top of a post page, with
+/// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
@@ -237,7 +245,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag} = Components;
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag, PostsSplashPageHeaderVote} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -334,55 +342,27 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </AnalyticsContext>
     </span>
 
-  let secondaryInfoNode;
-  if (isBookUI) {
-    // this is the info section under the post title, to the right of the author names
-    secondaryInfoNode = <div className={classes.secondaryInfo}>
-      <div className={classes.secondaryInfoLeft}>
-        {crosspostNode}
-        {readingTimeNode}
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {post.isEvent && <GroupLinks document={post} noMargin />}
-        {answersNode}
-        <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-          {postGetCommentCountStr(post, commentCount)}
-        </CommentsLink>
-        {audioNode}
-        {addToCalendarNode}
-        {tripleDotMenuNode}
-      </div>
+  const secondaryInfoNode = <div className={classes.secondaryInfo}>
+    <div className={classes.secondaryInfoLeft}>
+      {crosspostNode}
+      {readingTimeNode}
+      {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+      {post.isEvent && <GroupLinks document={post} noMargin />}
+      {answersNode}
+      <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+        {postGetCommentCountStr(post, commentCount)}
+      </CommentsLink>
+      {audioNode}
+      {addToCalendarNode}
+      {tripleDotMenuNode}
     </div>
-  } else {
-    // EA Forum splits the info into two sections, plus has the info in a different order
-    secondaryInfoNode = <div className={classes.secondaryInfo}>
-      <div className={classes.secondaryInfoLeft}>
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {readingTimeNode}
-        {audioNode}
-        {post.isEvent && <GroupLinks document={post} noMargin />}
-        {answersNode}
-        {!post.shortform &&
-          <LWTooltip title={postGetCommentCountStr(post, commentCount)}>
-            <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-              <ForumIcon icon="Comment" className={classes.commentIcon} /> {commentCount}
-            </CommentsLink>
-          </LWTooltip>
-        }
-        {addToCalendarNode}
-        {crosspostNode}
-      </div>
-      <div className={classes.secondaryInfoRight}>
-        <BookmarkButton post={post} className={classes.bookmarkButton} placement='bottom-start' />
-        <SharePostButton post={post} />
-        {tripleDotMenuNode}
-      </div>
-    </div>
-  }
-
+  </div>
+  
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
+  const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
@@ -393,6 +373,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       <AnalyticsContext pageSectionContext="tagHeader">
         <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} align="right" />
       </AnalyticsContext>
+      <div className={classes.rightHeaderVote}>
+        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
+      </div>
+      
     </div>}
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
@@ -411,9 +395,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
           {secondaryInfoNode}
         </div>
       </div>
-      {!post.shortform && <div className={classes.headerVote}>
+      {/* {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
-      </div>}
+      </div>} */}
     </div>
     <div className={classes.headerFooter}>
       
@@ -422,12 +406,12 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   </>
 }
 
-const PostsPagePostHeaderComponent = registerComponent(
-  'PostsPagePostHeader', PostsPagePostHeader, {styles}
+const LWPostsPageHeaderComponent = registerComponent(
+  'LWPostsPageHeader', LWPostsPageHeader, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    PostsPagePostHeader: typeof PostsPagePostHeaderComponent,
+    LWPostsPageHeader: typeof LWPostsPageHeaderComponent,
   }
 }

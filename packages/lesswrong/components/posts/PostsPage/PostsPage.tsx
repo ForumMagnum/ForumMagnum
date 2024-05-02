@@ -486,7 +486,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     skip: !post.debate || !fullPost
   });
 
-  const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
+  const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
@@ -634,7 +634,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && <PostsPagePostHeader
+          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+            post={post}
+            answers={answers ?? []}
+            showEmbeddedPlayer={showEmbeddedPlayer}
+            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            dialogueResponses={debateResponses} 
+            annualReviewMarketInfo={marketInfo}/>}
+          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
