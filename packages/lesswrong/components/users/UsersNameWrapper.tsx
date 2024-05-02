@@ -10,10 +10,11 @@ import type { PopperPlacementType } from '@material-ui/core/Popper'
  * display their name. If the nofollow attribute is true OR the user has a
  * spam-risk score below 0.8, the user-page link will be marked nofollow.
  */
-const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className, ...otherProps}: {
+const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=false, className, ...otherProps}: {
   documentId: string,
   nofollow?: boolean,
   simple?: boolean,
+  nowrap?: boolean,
   className?: string,
   tooltipPlacement?: PopperPlacementType,
 }) => {
@@ -25,7 +26,7 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, className, 
   if (!document && loading) {
     return <Components.Loading />
   } else if (document) {
-    return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} className={className} {...otherProps}/>
+    return <Components.UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
   } else {
     return <Components.UserNameDeleted/>
   }
