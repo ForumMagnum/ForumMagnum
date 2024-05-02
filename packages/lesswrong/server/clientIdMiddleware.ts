@@ -34,14 +34,17 @@ const isApplicableUrl = (url: string) =>
 // - [X] Deal with A/B tests
 //    - [X] Throw an error if on dev A/B tests are used in a cacheFriendly request
 //    - [X] Understand how the clientId thing affects this, maybe default to an unseeded random pick to help with not messing up the analytics
-// - [ ] Deal with the theme
-//    - [ ] Disable caching for non-default theme (as logged out users can only practically use the default theme unless they set their own cookies)
-// - [ ] Ensure this works with previous deploys (expect it to due to caching of bundle and allStyles after our servers can no longer generate them)
+// - [X] Deal with the theme
+//    - [X] Disable caching for non-default theme (as logged out users can only practically use the default theme unless they set their own cookies)
 // - [ ] Add a way of measuring hit rate
-// - [ ] Deal with cookies controlling UI
+//   - [ ] Add a field to the pageLoadFinished event that checks the header sent from CloudFront
+// - [ ] Add a way of measuring staleness?
+// - [X] Deal with cookies controlling UI
 //    - Could be OK to punt on this, seeing as these mismatches already happen
 // - [ ] Resolve inconsistencies between our local caching and external caching
-// - [ ] Add a setting to enable the caching thing, so other instances can still set cookies if they want (or ideally infer it from the request)
+// - [ ] Add a setting to enable this, so other instances can still set cookies if they want
+// - [ ] [Maybe after deploying to a subset of posts, to get a baseline on staleness] Handle invalidation on write
+// - [ ] [After deploying on a subset of posts] Ensure this works with previous deploys (i.e. it can handle the hash of the bundle not being up to date)
 // - [ ] [Probably don't do] Generate a clientId cookie in the CDN for users that don't have one (one will be created on the first analytics request, so not a huge deal if this is missed)
 
 

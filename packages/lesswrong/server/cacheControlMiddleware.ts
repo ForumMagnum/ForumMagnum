@@ -2,6 +2,7 @@ import type { AddMiddlewareType } from './apolloServer';
 import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import express from 'express';
+import { getCookieFromReq } from './utils/httpUtil';
 
 export const responseIsCacheable = (res: express.Response) => {
   const cacheControlHeader = res.get('Cache-Control')?.toLowerCase() || '';
@@ -25,8 +26,11 @@ export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
     });
 
     const user = getUserFromReq(req);
+    // Note: EAF doesn't use this cookie, LW does. If LW want to adopt this caching they can change this to
+    // check that the *default* theme is being used
+    const theme = getCookieFromReq(req, "theme");
 
-    if (parsedRoute.currentRoute?.swrCaching === "logged-out" && !user) {
+    if (parsedRoute.currentRoute?.swrCaching === "logged-out" && !user && !theme) {
       res.setHeader("Cache-Control", swrCacheHeader);
     } else if (user) {
       res.setHeader("Cache-Control", privateCacheHeader)
