@@ -1,8 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { ClientIds } from "../../lib/collections/clientIds/collection";
+import { randomId } from "../../lib/random";
 
-// TODO decide one way or the other whether to keep this
 class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
   constructor() {
     super(ClientIds);
@@ -10,10 +10,10 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
 
   async ensureClientId({ clientId, firstSeenReferrer, firstSeenLandingPage }: { clientId: string; firstSeenReferrer: string | null; firstSeenLandingPage: string; }): Promise<void> {
     await this.getRawDb().query(`
-      INSERT INTO "ClientIds" ("clientId", "firstSeenReferrer", "firstSeenLandingPage", "userIds")
-      VALUES ($1, $2, $3, NULL)
+      INSERT INTO "ClientIds" ("_id", "clientId", "firstSeenReferrer", "firstSeenLandingPage")
+      VALUES ($1, $2, $3, $4)
       ON CONFLICT ("clientId") DO NOTHING;
-    `, [clientId, firstSeenReferrer, firstSeenLandingPage]);
+    `, [randomId(), clientId, firstSeenReferrer, firstSeenLandingPage]);
   }
 }
 
