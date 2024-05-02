@@ -5,6 +5,8 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
+import { getPostgresViewByName } from "../postgresView";
+import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -50,12 +52,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
   getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
     return this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
-      SELECT *
-      FROM "Users"
-      WHERE "services"->'resume'->'loginTokens' @> ('[{"hashedToken": "' || $1 || '"}]')::JSONB
+      SELECT * FROM fm_get_user_by_login_token($1)
     `, [hashedToken]);
   }
-  
+
   getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
     // the notification radius is in miles, so we convert the EARTH_DISTANCE from meters to miles
     return this.any(`
@@ -90,8 +90,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
-  clearLoginTokens(userId: string): Promise<null> {
-    return this.none(`
+  async clearLoginTokens(userId: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.clearLoginTokens
       UPDATE "Users"
       SET services = jsonb_set(
@@ -102,10 +102,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId]);
+    await this.refreshUserLoginTokens();
   }
 
-  resetPassword(userId: string, hashedPassword: string): Promise<null> {
-    return this.none(`
+  async resetPassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.resetPassword
       UPDATE "Users"
       SET services = jsonb_set(
@@ -130,6 +131,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId, hashedPassword]);
+    await this.refreshUserLoginTokens();
+  }
+
+  private async refreshUserLoginTokens() {
+    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
@@ -176,19 +182,27 @@ class UsersRepo extends AbstractRepo<"Users"> {
         COALESCE(u."isAdmin", FALSE) AS "isAdmin",
         COALESCE(u."deleted", FALSE) AS "deleted",
         COALESCE(u."deleteContent", FALSE) AS "deleteContent",
+        COALESCE(u."hideFromPeopleDirectory", FALSE) AS "hideFromPeopleDirectory",
         u."profileImageId",
         u."biography"->>'html' AS "bio",
         u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
         u."howICanHelpOthers"->>'html' AS "howICanHelpOthers",
         COALESCE(u."karma", 0) AS "karma",
         u."slug",
-        u."jobTitle",
-        u."organization",
+        NULLIF(TRIM(u."jobTitle"), '') AS "jobTitle",
+        NULLIF(TRIM(u."organization"), '') AS "organization",
         u."careerStage",
-        u."website",
+        NULLIF(TRIM(u."website"), '') AS "website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         u."profileTagIds" AS "tags",
+        NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
+          'website', NULLIF(TRIM(u."website"), ''),
+          'github', NULLIF(TRIM(u."githubProfileURL"), ''),
+          'twitter', NULLIF(TRIM(u."twitterProfileURL"), ''),
+          'linkedin', NULLIF(TRIM(u."linkedinProfileURL"), ''),
+          'facebook', NULLIF(TRIM(u."facebookProfileURL"), '')
+        )), '{}') AS "socialMediaUrls",
         CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN NULL ELSE
           JSONB_BUILD_OBJECT(
             'type', 'point',
@@ -197,6 +211,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
               u."mapLocation"->'geometry'->'location'->'lat'
           )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
+        u."profileUpdatedAt",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;
@@ -636,6 +651,38 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [limit])
   }
 
+  async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
+    const {name, pgField} = getFacetField(facetFieldName);
+    const normalizedFacetField = name === "mapLocationAddress"
+      ? `TRIM(${pgField})`
+      : `INITCAP(TRIM(${pgField}))`;
+
+    // If you change this query you may also need to update the indexes
+    // created for `allowedFacetFields` in `facetFieldSearch.ts`
+    const results = await this.getRawDb().any(`
+      -- UsersRepo.searchFacets
+      SELECT
+        DISTINCT ${normalizedFacetField} AS "result",
+        TS_RANK_CD(
+          TO_TSVECTOR('english', ${pgField}),
+          WEBSEARCH_TO_TSQUERY($1),
+          1
+        ) * 5 + COALESCE(SIMILARITY(${pgField}, $1), 0) AS "rank"
+      FROM "Users"
+      WHERE
+        (
+          TO_TSVECTOR('english', ${pgField}) @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY(${pgField}, $1), 0) > 0.22 OR
+          ${pgField} ILIKE ($1 || '%')
+        ) AND
+        ${getDefaultFacetFieldSelector(pgField)}
+      ORDER BY "rank" DESC, ${normalizedFacetField} DESC
+      LIMIT 8
+    `, [query]);
+
+    return results.map(({result}) => result);
+  }
+
   async getCurationSubscribedUserIds(): Promise<string[]> {
     const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
 
@@ -650,6 +697,27 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `);
 
     return userIdRecords.map(({ _id }) => _id);
+  }
+
+  async getAllUserPostIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Posts" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserCommentIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Comments" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserSequenceIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Sequences" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
   }
 }
 

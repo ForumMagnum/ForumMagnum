@@ -33,11 +33,11 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
       const post = await Posts.findOne(comment.postId)
       if (!post) continue
       
-      const commentText = sanitizeHtml(comment.contents.html, {
+      const commentText = sanitizeHtml(comment.contents?.html ?? "", {
         allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
         nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
       })
-      const postText = sanitizeHtml(post.contents.html, {
+      const postText = sanitizeHtml(post.contents?.html ?? "", {
         allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
         nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
       })
@@ -54,7 +54,7 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
         // If this comment has a parent, include that as well
         const parentComment = await Comments.findOne({_id: comment.parentCommentId})
         if (parentComment) {
-          const parentCommentText = sanitizeHtml(parentComment.contents.html, {
+          const parentCommentText = sanitizeHtml(parentComment.contents?.html ?? "", {
             allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
             nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
           })

@@ -21,7 +21,9 @@ import { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
-import { homepagePostFeedsSetting } from '../../lib/instanceSettings';
+import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
+import { gql, useMutation } from '@apollo/client';
+import { vertexEnabledSetting } from '../../lib/publicSettings';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -192,7 +194,7 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
 const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
-    WelcomePostItem } = Components;
+    VertexPostsList, WelcomePostItem } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -213,10 +215,19 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     skip: !currentUser?._id,
   });
 
-  const availableTabs: TabRecord[] = homepagePostFeedsSetting.get()
+  const [sendVertexViewHomePageEvent] = useMutation(gql`
+    mutation sendVertexViewHomePageEventMutation {
+      sendVertexViewHomePageEvent
+    }
+  `, {
+    ignoreResults: true
+  });
+
+  const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
 
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
+      && !(feed.adminOnly && !userIsAdmin(currentUser))
       && !(feed.name.includes('recombee') && !currentUser)
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
@@ -331,6 +342,14 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     limit:limit
   };
 
+  useEffect(() => {
+    if (currentUser && vertexEnabledSetting.get()) {
+      void sendVertexViewHomePageEvent();
+    }
+    // We explicitly only want to send it once on page load, no matter what changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
@@ -367,8 +386,25 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               </AnalyticsContext>}
               
               {/* RECOMBEE RECOMMENDATIONS */}
-              {selectedTab.includes('recombee') && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={selectedTab} settings={scenarioConfig} />
+              {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList 
+                algorithm={'recombee-hybrid'} settings={{
+                  ...scenarioConfig,
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
+                }} />
+              </AnalyticsContext>}
+
+              {/* RECOMBEE RECOMMENDATIONS 2 */}
+              {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
+                  ...scenarioConfig, 
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
+                }} 
+                />
+              </AnalyticsContext>}
+
+              {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
+                <VertexPostsList />  
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
@@ -378,7 +414,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               
               {/* CONTINUE READING */}
               {(selectedTab === 'forum-continue-reading') && (continueReading?.length > 0) && <AnalyticsContext feedType={selectedTab}>
-                <ContinueReadingList continueReading={continueReading}/>
+                <ContinueReadingList continueReading={continueReading} limit={6} shuffle />
               </AnalyticsContext>}
 
               {/* SUBSCRIBED */}

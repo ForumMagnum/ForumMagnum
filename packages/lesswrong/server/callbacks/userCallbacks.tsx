@@ -28,9 +28,11 @@ import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
+import isEqual from 'lodash/isEqual';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
+import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -440,7 +442,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
   
   const subjectLine = welcomePost.title;
-  const welcomeMessageBody = welcomePost.contents.html;
+  const welcomeMessageBody = welcomePost.contents?.html ?? "";
   
   const conversationData = {
     participantIds: [user._id, adminsAccount._id],
@@ -500,4 +502,23 @@ getCollectionHooks("Users").createAsync.add(({ document }) => {
   void recombeeApi.createUser(document)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending created user to recombee', { e }));
+});
+
+getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier, user: DbUser) {
+  for (const field of simpleUserProfileFields) {
+    if (
+      (field in modifier.$set && !isEqual(modifier.$set[field], user[field])) ||
+      (field in modifier.$unset && (user[field] !== null && user[field] !== undefined))
+    ) {
+      modifier.$set.profileUpdatedAt = new Date();
+      return modifier;
+    }
+  }
+  for (const field of editableUserProfileFields) {
+    if (field in modifier.$set && modifier.$set[field]?.html !== user[field]?.html) {
+      modifier.$set.profileUpdatedAt = new Date();
+      return modifier;
+    }
+  }
+  return modifier;
 });

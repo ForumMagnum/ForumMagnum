@@ -1,5 +1,5 @@
 import { initializeSetting } from './publicSettings'
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isCypress } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
@@ -205,7 +205,7 @@ const disableElastic = new PublicInstanceSetting<boolean>(
   "optional",
 );
 
-export const isElasticEnabled = !isAnyTest && !disableElastic.get();
+export const isElasticEnabled = !isAnyTest && !isCypress && !disableElastic.get();
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
@@ -230,8 +230,15 @@ export type PostFeedDetails = {
   label: string,
   description?: string,
   disabled?: boolean,
+  adminOnly?: boolean,
   showLabsIcon?: boolean,
   slug?: string
 }
 
 export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
+
+/**
+ * This is a filepath that is _relative_ to the location of the instance settings file itself.
+ * See full explanation in `google-vertex/client.ts`
+ */
+export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");

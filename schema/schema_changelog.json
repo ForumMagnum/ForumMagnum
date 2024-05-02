@@ -623,5 +623,20 @@
     "acceptsSchemaHash": "082b143a17fca4e8ba5edd982a645837",
     "acceptedByMigration": "20240419T013927.add_frontpageSelectedTab_to_Users.ts",
     "timestamp": "2024-04-19T01:39:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1907632649f70f5e77f6e6de79357d74",
+    "acceptedByMigration": "20240424T142239.add_imageFadeColor_to_Spotlights.ts",
+    "timestamp": "2024-04-24T14:22:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c192cfffc5d07ae27caf1477da048644",
+    "acceptedByMigration": "20240425T075639.add_people_directory.ts",
+    "timestamp": "2024-04-25T07:56:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ce481181abda13b83244a8ccd8ed5782",
+    "acceptedByMigration": "20240429T155712.add_fm_get_user_by_login_token_function.ts",
+    "timestamp": "2024-04-29T15:57:12.000Z"
   }
 ]

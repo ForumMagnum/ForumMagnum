@@ -32,6 +32,8 @@ import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/goog
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { googleVertexApi } from '../google-vertex/client';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -42,7 +44,7 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
 
   // fetch remote document from storage / fetch latest revision / post latest contents
   const latestRevision = await getLatestRev(post._id, "contents")
-  const html = latestRevision?.html ?? post.contents.html ?? ""
+  const html = latestRevision?.html ?? post.contents?.html ?? ""
 
   const $ = cheerioParse(html)
   const message = $(`[message-id="${messageId}"]`);
@@ -164,7 +166,7 @@ augmentFieldsDict(Posts, {
             : sqlFetchedPost.sideCommentsCache;
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
-        const editedAt = new Date(post.contents?.editedAt);
+        const editedAt = new Date(post.contents?.editedAt ?? 0);
 
         const cacheIsValid = cache
           && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt)
@@ -206,7 +208,7 @@ augmentFieldsDict(Posts, {
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
           const sideCommentMatches = matchSideComments({
-            html: html,
+            html: html ?? "",
             comments: comments.map(comment => ({
               _id: comment._id,
               html: comment.contents?.html ?? "",
@@ -302,7 +304,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader);
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context));
         return market?.probability
       }
     }
@@ -314,7 +316,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return false;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.isResolved
       }
     }
@@ -326,7 +328,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.year
       }
     }
@@ -341,7 +343,7 @@ augmentFieldsDict(Posts, {
           "https://youtube.com",
           "https://youtu.be",
         ];
-        const $ = cheerioParse(post.contents?.html);
+        const $ = cheerioParse(post.contents?.html ?? "");
         const iframes = $("iframe").toArray();
         for (const iframe of iframes) {
           if ("attribs" in iframe) {
@@ -636,6 +638,7 @@ createPaginatedResolver({
 addGraphQLSchema(`
   type RecombeeRecommendedPost {
     post: Post!
+    scenario: String
     recommId: String
     curated: Boolean
     stickied: Boolean
@@ -703,5 +706,35 @@ createPaginatedResolver({
     }
 
     return await repos.posts.getPostsFromPostSubscriptions(currentUser._id, limit);
+  }
+});
+
+addGraphQLSchema(`
+  type VertexRecommendedPost {
+    post: Post!
+    attributionId: String
+  }
+`);
+
+interface VertexRecommendedPost {
+  post: Partial<DbPost>;
+  attributionId?: string | null;
+}
+
+createPaginatedResolver({
+  name: "GoogleVertexPosts",
+  graphQLType: "VertexRecommendedPost",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<VertexRecommendedPost[]> => {
+    const { currentUser } = context;
+
+    if (!currentUser) {
+      throw new Error(`You must logged in to use Google Vertex recommendations right now`);
+    }
+
+    return await googleVertexApi.getRecommendations(limit, context);
   }
 });

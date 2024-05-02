@@ -1,17 +1,15 @@
 import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
-import { HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
-import findByIds from '../vulcan-lib/findbyids';
-import ReadStatuses from '../../lib/collections/readStatus/collection';
-import moment from 'moment';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
+import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -41,8 +39,8 @@ const voteTypeRatingsMap: Partial<Record<string, number>> = {
 };
 
 const HYBRID_SCENARIO_MAP = {
-  configurable: 'recombee-personal-latest',
-  fixed: 'recombee-personal'
+  fixed: 'recombee-emulate-hacker-news',
+  configurable: 'recombee-personal'
 };
 
 interface OnsitePostRecommendationsInfo {
@@ -53,6 +51,7 @@ interface OnsitePostRecommendationsInfo {
 
 export interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
+  scenario: string,
   recommId: string,
   curated?: never,
   stickied?: never,
@@ -60,10 +59,53 @@ export interface RecombeeRecommendedPost {
 
 export type RecommendedPost = RecombeeRecommendedPost | {
   post: Partial<DbPost>,
+  scenario?: never,
   recommId?: never,
   curated: boolean,
   stickied: boolean,
 };
+
+interface PostFieldDependencies {
+  title: 'title',
+  author: 'author',
+  authorId: 'userId',
+  karma: 'baseScore',
+  body: 'contents',
+  postedAt: 'postedAt',
+  curated: 'curatedDate',
+  frontpage: 'frontpageDate',
+  draft: 'draft',
+  lastCommentedAt: 'lastCommentedAt',
+  shortform: 'shortform',
+}
+
+interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostFieldDependencies] = PostFieldDependencies[keyof PostFieldDependencies]> {
+  post: Pick<DbPost, FieldMask | '_id'>,
+  tags: Pick<DbTag, 'name' | 'core'>[],
+}
+
+const recombeePostFieldMappings = {
+  title:            ({ post }: UpsertPostData) => post.title,
+  author:           ({ post }: UpsertPostData) => post.author,
+  authorId:         ({ post }: UpsertPostData) => post.userId,
+  karma:            ({ post }: UpsertPostData) => post.baseScore,
+  body:             ({ post }: UpsertPostData) => htmlToTextDefault(truncate(post.contents?.html, 2000, 'words')),
+  postedAt:         ({ post }: UpsertPostData) => post.postedAt,
+  tags:             ({ tags }: UpsertPostData) => tags.map(tag => tag.name),
+  coreTags:         ({ tags }: UpsertPostData) => tags.filter(tag => tag.core).map(tag => tag.name),
+  curated:          ({ post }: UpsertPostData) => !!post.curatedDate,
+  frontpage:        ({ post }: UpsertPostData) => !!post.frontpageDate,
+  draft:            ({ post }: UpsertPostData) => !!post.draft,
+  lastCommentedAt:  ({ post }: UpsertPostData) => post.lastCommentedAt,
+  shortform:        ({ post }: UpsertPostData) => post.shortform,
+};
+
+type RecombeePostFields = keyof typeof recombeePostFieldMappings;
+
+const ALL_RECOMBEE_POST_FIELDS = [
+  'title', 'author', 'authorId', 'karma', 'body', 'postedAt', 'tags', 'coreTags',
+  'curated', 'frontpage', 'draft', 'lastCommentedAt', 'shortform'
+] as const;
 
 const recombeeRequestHelpers = {
   createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
@@ -83,34 +125,26 @@ const recombeeRequestHelpers = {
       ...settings,
       // Explicitly coalesce empty strings to undefined, since empty strings aren't valid booster expressions
       booster: settings.booster || undefined,
-      rotationTime: rotationTimeSeconds
+      rotationTime: rotationTimeSeconds,
+      cascadeCreate: true
     });
   },
 
-  async createUpsertPostRequest(post: DbPost, context: ResolverContext, tags?: { name: string, core: boolean }[]) {
-    const { Tags } = context;
+  createUpsertPostRequest<Fields extends ReadonlyArray<RecombeePostFields>>(
+    postData: UpsertPostData,
+    fieldMask?: Fields,
+    overrideOptions?: requests.SetValuesOptions
+  ) {
+    const { post } = postData;
+    
+    const recombeePostInfo = Object.fromEntries(
+      (fieldMask ?? ALL_RECOMBEE_POST_FIELDS).map(field => [
+        field,
+        recombeePostFieldMappings[field](postData)
+      ] as const)
+    );
 
-    const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId)
-    tags ??= filterNonnull(await findByIds(Tags, tagIds))
-    const tagNames = tags.map(tag => tag.name)
-    const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
-
-    const postText = htmlToTextDefault(truncate(post.contents?.html, 2000, 'words'))
-
-    return new requests.SetItemValues(post._id, {
-      title: post.title,
-      author: post.author,
-      authorId: post.userId,
-      karma: post.baseScore,
-      body: postText,
-      postedAt: post.postedAt,
-      tags: tagNames,
-      coreTags: coreTagNames,
-      curated: !!post.curatedDate,
-      frontpage: !!post.frontpageDate,
-      draft: !!post.draft,
-      lastCommentedAt: post.lastCommentedAt,
-    }, { cascadeCreate: true });
+    return new requests.SetItemValues(post._id, recombeePostInfo, { cascadeCreate: true, ...overrideOptions });
   },
 
   createReadStatusRequest(readStatus: DbReadStatus) {
@@ -176,12 +210,13 @@ const recombeeRequestHelpers = {
     };
   },
 
-  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof typeof HYBRID_SCENARIO_MAP, filter?: string) {
-    const { loadMore, userId, ...rest } = hybridArgs;
+  convertHybridToRecombeeArgs(hybridArgs: HybridRecombeeConfiguration, hybridArm: keyof HybridArmsConfig, filter?: string) {
+    const { loadMore, userId, hybridScenarios, ...rest } = hybridArgs;
 
-    const scenario = HYBRID_SCENARIO_MAP[hybridArm];
+    const scenario = hybridScenarios[hybridArm];
+
     const isConfigurable = hybridArm === 'configurable';
-    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 144};
+    const clientConfig: Partial<Omit<HybridRecombeeConfiguration,"loadMore"|"userId">> = isConfigurable ? rest : {rotationRate: 0.1, rotationTime: 12};
     const prevRecommIdIndex = isConfigurable ? 0 : 1;
     const loadMoreConfig = loadMore
       ? { loadMore: { prevRecommId: loadMore.prevRecommIds[prevRecommIdIndex] } }
@@ -283,7 +318,7 @@ const recombeeApi = {
       const postId = post._id!;
       const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
       if (recommId) {
-        return { post, recommId };
+        return { post, recommId, scenario: lwAlgoSettings.scenario };
       } else {
         return {
           post,
@@ -306,6 +341,8 @@ const recombeeApi = {
       excludedPostFilter
     } = await recombeeRequestHelpers.getOnsitePostInfo(lwAlgoSettings, context);
 
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get()
+
     const curatedPostReadStatuses = await (
       lwAlgoSettings.loadMore
         ? Promise.resolve([])
@@ -313,7 +350,7 @@ const recombeeApi = {
     );
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length;
+    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length + manuallyStickiedPostIds.length;
 
     const modifiedCount = count - curatedAndStickiedPostCount;
     const split = 0.5;
@@ -330,11 +367,12 @@ const recombeeApi = {
     const batchResponse = await client.send(batchRequest);
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
+    const recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({ ...response, scenario: index === 0 ? firstRequestSettings.scenario : secondRequestSettings.scenario }));
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recommendationIdPairs = recombeeResponses.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId] as const));
-    const recommendedPostIds = recommendationIdPairs.map(([id]) => id);
-    const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
+    const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const));
+    const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
+    const postIds = [...includedCuratedPostIds, ...manuallyStickiedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const posts = filterNonnull(await loadByIds(context, 'Posts', postIds));
     const orderedPosts = filterNonnull(postIds.map(id => posts.find(post => post._id === id)));
@@ -343,14 +381,21 @@ const recombeeApi = {
     const mappedPosts = filteredPosts.map(post => {
       // _id isn't going to be filtered out by `accessFilterMultiple`
       const postId = post._id!;
-      const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
+      const recommId = recommendationIdTuples.find(([id]) => id === postId)?.[1];
+      const scenario = recommendationIdTuples.find(([id]) => id === postId)?.[2];
+
       if (recommId) {
-        return { post, recommId };
+        return { post, recommId, scenario };
       } else {
+        const stickied = stickiedPostIds.includes(postId) || manuallyStickiedPostIds.includes(postId);
+        if (stickied) {
+          post.sticky = true;
+        }
+
         return {
           post,
           curated: curatedPostIds.includes(postId),
-          stickied: stickiedPostIds.includes(postId)  
+          stickied  
         };
       }
     });
@@ -366,7 +411,12 @@ const recombeeApi = {
 
   async upsertPost(post: DbPost, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
-    const request = await recombeeRequestHelpers.createUpsertPostRequest(post, context);
+    const { Tags } = context;
+
+    const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId);
+    const tags = filterNonnull(await loadByIds(context, 'Tags', tagIds));
+
+    const request = recombeeRequestHelpers.createUpsertPostRequest({ post, tags });
 
     await client.send(request);
   },

@@ -269,13 +269,13 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
     newDocument.spam ||
     newDocument.retracted ||
     newDocument.shortform ||
-    !oldDocument.contents.originalContents?.data ||
-    !newDocument.contents.originalContents?.data
+    !oldDocument.contents?.originalContents?.data ||
+    !newDocument.contents?.originalContents?.data
   ) {
     return
   }
   
-  const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
+  const noChange = oldDocument.contents?.originalContents.data === newDocument.contents?.originalContents.data
   if (noChange) return
 
   // only have ModGPT check comments on posts tagged with "Community"

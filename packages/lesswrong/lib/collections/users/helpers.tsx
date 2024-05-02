@@ -1,7 +1,7 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
 import { forumTypeSetting, isEAForum } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
+import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
@@ -9,6 +9,7 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
+import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -109,6 +110,9 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
 }
 
 const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
@@ -589,3 +593,23 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
 export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   return { fail: false };
 };
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export const profileFieldToSocialMediaHref = (
+  field: SocialMediaProfileField,
+  userUrl: string,
+) => `https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field], userUrl)}`;
+
+export const socialMediaSiteNameToHref = (
+  siteName: SocialMediaSiteName | "website",
+  userUrl: string,
+) => siteName === "website"
+  ? `https://${userUrl}`
+  : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);

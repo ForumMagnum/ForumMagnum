@@ -94,7 +94,9 @@ const PrivateMessagesEmailConversation = ({conversation, messages, participantsB
     {messages.map((message,i) => <div className={classes.message} key={i}>
       <EmailUsername user={participantsById[message.userId]!}/>
       {" "}<EmailFormatDate date={message.createdAt}/>
-      <EmailContentItemBody dangerouslySetInnerHTML={{__html: message.contents.html}}/>
+      <EmailContentItemBody dangerouslySetInnerHTML={{
+        __html: message.contents?.html ?? "",
+      }}/>
     </div>)}
   </React.Fragment>);
 }
