@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { decodeIntlError } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import { PostsListConfig, usePostsList } from './usePostsList';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import FormattedMessage from '../../lib/vulcan-i18n/message';
 
 const Error = ({error}: any) => <div>
@@ -40,12 +41,19 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     limit,
     placeholderCount,
     showFinalBottomBorder,
+    viewType,
   } = usePostsList(props);
 
   const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
 
   if (!orderedResults && loading) {
-    return <PostsLoading placeholderCount={placeholderCount || limit} showFinalBottomBorder={showFinalBottomBorder} />
+    return (
+      <PostsLoading
+        placeholderCount={placeholderCount || limit}
+        showFinalBottomBorder={showFinalBottomBorder}
+        viewType={viewType}
+      />
+    );
   }
 
   if (!orderedResults?.length && !showNoResults) {
@@ -55,12 +63,20 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
   return (
     <div className={classNames({[classes.itemIsLoading]: loading && dimWhenLoading})}>
       {error && <Error error={decodeIntlError(error)} />}
-      {loading && showLoading && (topLoading || dimWhenLoading) && <PostsLoading placeholderCount={placeholderCount || limit} />}
+      {loading && showLoading && (topLoading || dimWhenLoading) &&
+        <PostsLoading
+          placeholderCount={placeholderCount || limit}
+          viewType={viewType}
+        />
+      }
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
-      <div className={boxShadow ? classes.posts : undefined}>
-        {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
-      </div>
+      <AnalyticsContext viewType={viewType}>
+        <div className={boxShadow ? classes.posts : undefined}>
+          {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
+        </div>
+      </AnalyticsContext>
+
       {showLoadMore && <SectionFooter>
         <LoadMore
           {...loadMoreProps}

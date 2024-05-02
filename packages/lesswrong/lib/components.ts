@@ -449,6 +449,7 @@ importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingl
 importComponent("PostsSingleSlugRedirect", () => require('../components/posts/PostsSingleSlugRedirect'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
+importComponent("PostsListViewToggle", () => require('../components/posts/PostsListViewToggle'));
 importComponent("ResolverPostsList", () => require('../components/posts/ResolverPostsList'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
 importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));

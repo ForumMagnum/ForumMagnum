@@ -9,6 +9,7 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
+import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -109,6 +110,9 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
 }
 
 const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
