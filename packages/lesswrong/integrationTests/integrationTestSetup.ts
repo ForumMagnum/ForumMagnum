@@ -8,15 +8,26 @@ import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';
 import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../lib/sql/sqlClient';
 import {
-  preparePgTables,
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
+import { Collections } from '../lib/vulcan-lib';
+import PgCollection from '../lib/sql/PgCollection';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
 require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
+
+const preparePgTables = () => {
+  for (let collection of Collections) {
+    if (collection instanceof PgCollection) {
+      if (!collection.getTable()) {
+        collection.buildPostgresTable();
+      }
+    }
+  }
+}
 
 let pgConnected = false;
 const ensurePgConnection = async () => {

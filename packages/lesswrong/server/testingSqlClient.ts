@@ -1,15 +1,8 @@
 import { Application, json, Request, Response } from "express";
-import PgCollection from "../lib/sql/PgCollection";
-import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
-import CreateTableQuery from "../lib/sql/CreateTableQuery";
-import { Collections } from "./vulcan-lib";
-import { expectedIndexes } from "../lib/collectionIndexUtils";
-import { ensurePostgresViewsExist } from "./postgresView";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
-import { inspect } from "util";
 import { testServerSetting } from "../lib/instanceSettings";
-import { installExtensions, updateFunctions } from "./migrations/meta/utils";
+import { readFile } from "fs/promises";
 import Posts from "../lib/collections/posts/collection";
 import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
@@ -24,52 +17,9 @@ import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 import seedUsers from "../../../cypress/fixtures/users";
 
-export const preparePgTables = () => {
-  for (let collection of Collections) {
-    if (collection instanceof PgCollection) {
-      if (!collection.getTable()) {
-        collection.buildPostgresTable();
-      }
-    }
-  }
-}
-
-const buildTables = async (client: SqlClient) => {
-  await installExtensions(client);
-
-  preparePgTables();
-
-  // TODO: Just load the schema file
-  for (let collection of Collections) {
-    if (collection instanceof PgCollection) {
-      const {collectionName} = collection;
-      const table = collection.getTable();
-      const createTableQuery = new CreateTableQuery(table);
-      const {sql, args} = createTableQuery.compile();
-      try {
-        await client.any(sql, args);
-      } catch (e) {
-        throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
-      }
-
-      const rawIndexes = expectedIndexes[collectionName as CollectionNameString] ?? [];
-      for (const rawIndex of rawIndexes) {
-        const {key, ...options} = rawIndex;
-        const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;
-        const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
-        const createIndexQuery = new CreateIndexQuery(table, index, true);
-        const {sql, args} = createIndexQuery.compile();
-        try {
-          await client.any(sql, args);
-        } catch (e) {
-          throw new Error(`Create index query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
-        }
-      }
-    }
-  }
-
-  await updateFunctions(client);
-  await ensurePostgresViewsExist(client);
+const loadDbSchema = async (client: SqlClient) => {
+  const schema = await readFile("./schema/acceptedSchema");
+  await client.multi(schema.toString());
 }
 
 const makeDbName = (id?: string) => {
@@ -116,7 +66,7 @@ export const createTestingSqlClient = async (
   await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
-  await buildTables(sql);
+  await loadDbSchema(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
   }
