@@ -13,6 +13,8 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useLocation } from '../../lib/routeUtil';
+import CloseIcon from '@material-ui/icons/Close';
+
 
 const TEXT_WIDTH = 350;
 
@@ -313,6 +315,10 @@ const styles = (theme: ThemeType) => ({
     // backgroundImage: `linear-gradient(to right, #f8f4ee 50%, transparent 75%)`,
     backgroundImage: `linear-gradient(to bottom, transparent 0%, #f8f4ee 8%)`,
     zIndex: 0
+  },
+  closeIcon: {
+    width: 20,
+    height: 20,
   }
 });
 
