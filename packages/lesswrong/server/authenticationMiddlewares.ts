@@ -17,13 +17,14 @@ import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from './au
 import moment from 'moment';
 import type { AddMiddlewareType } from './apolloServer';
 import { Request, Response, NextFunction, json } from "express";
-import { AUTH0_SCOPE, loginAuth0User, signupAuth0User } from './authentication/auth0';
+import { AUTH0_SCOPE, ProfileFromAccessToken, loginAuth0User, signupAuth0User } from './authentication/auth0';
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
 import { promisify } from 'util';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { oauth2 } from '@googleapis/oauth2';
 import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
 import { userIsAdmin } from '../lib/vulcan-users';
+import { isCypress } from '../lib/executionEnvironment';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -395,12 +396,22 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     })
   }
 
+  let profileFromAccessToken: ProfileFromAccessToken = async (token: string) => ({
+    provider: "auth0",
+    id: token,
+    displayName: token,
+    birthday: "",
+    _raw: token,
+    _json: {},
+  });
+
   // NB: You must also set the expressSessionSecret setting in your database
   // settings - auth0 passport strategy relies on express-session to store state
   const auth0ClientId = auth0ClientIdSetting.get();
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
-  if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
+  const hasAuth0 = !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
+  if (hasAuth0) {
     const auth0Strategy = new Auth0StrategyFixed(
       {
         clientID: auth0ClientId,
@@ -424,10 +435,10 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
       })(req, res, next)
     })
 
-    const profileFromAccessToken = promisify(
-      auth0Strategy.userProfile.bind(auth0Strategy),
-    );
+    profileFromAccessToken = promisify(auth0Strategy.userProfile.bind(auth0Strategy));
+  }
 
+  if (hasAuth0 || isCypress) {
     addConnectHandler("/auth/auth0/embedded-login", json({limit: "1mb"}));
     addConnectHandler("/auth/auth0/embedded-login", async (req: Request, res: Response) => {
       const errorHandler: NextFunction = (err) => {
