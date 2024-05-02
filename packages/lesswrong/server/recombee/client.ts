@@ -10,6 +10,7 @@ import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
+import { closePerfMetric, getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -83,6 +84,8 @@ interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostField
   post: Pick<DbPost, FieldMask | '_id'>,
   tags: Pick<DbTag, 'name' | 'core'>[],
 }
+
+type RecRequest = requests.RecommendNextItems | requests.RecommendItemsToUser;
 
 const recombeePostFieldMappings = {
   title:            ({ post }: UpsertPostData) => post.title,
@@ -272,7 +275,21 @@ const recombeeRequestHelpers = {
     }
 
     return interleavedPosts;
-  }
+  },
+
+  openHybridRecombeePerfMetric<T extends RecRequest>(firstRequest: T, secondRequest: T) {
+    const firstRequestType = firstRequest.constructor.name;
+
+    const opName = (firstRequest instanceof requests.RecommendNextItems || secondRequest instanceof requests.RecommendNextItems)
+      ? `batch_${firstRequestType}`
+      : `batch_${firstRequestType}_${firstRequest.bodyParameters().scenario ?? 'unknown'}_${secondRequest.bodyParameters().scenario ?? 'unknown'}`;
+
+    return openPerfMetric({
+      op_type: 'recombee',
+      op_name: opName,
+      ...getParentTraceId()
+    });
+  },
 };
 
 const curatedPostTerms: PostsViewTerms = {
@@ -363,8 +380,11 @@ const recombeeApi = {
     const firstRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, firstCount, firstRequestSettings);
     const secondRequest = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, secondCount, secondRequestSettings);
     const batchRequest = recombeeRequestHelpers.getBatchRequest([firstRequest, secondRequest]);
-
-    const batchResponse = await client.send(batchRequest);
+    
+    const batchResponse = await wrapWithPerfMetric(
+      () => client.send(batchRequest),
+      () => recombeeRequestHelpers.openHybridRecombeePerfMetric(firstRequest, secondRequest)
+    );
     // We need the type cast here because recombee's type definitions don't provide response types for batch requests
     const recombeeResponses = batchResponse.map(({json}) => json as RecommendationResponse);
     const recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({ ...response, scenario: index === 0 ? firstRequestSettings.scenario : secondRequestSettings.scenario }));
