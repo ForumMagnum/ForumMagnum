@@ -8,5 +8,11 @@
 'use strict';
 
 module.exports = {
-	extends: 'ckeditor5'
+	extends: 'ckeditor5',
+	"ignorePatterns": [
+	  "build",
+	  "obj",
+	  "tests",
+	  "webpack-*.config.js",
+	],
 };
