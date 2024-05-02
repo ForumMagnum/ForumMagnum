@@ -40,7 +40,7 @@ const EAOnboardingFlow = ({viewAsAdmin, classes}: {
     EAOnboardingWorkStage, EAOnboardingThankYouStage,
   } = Components;
   return (
-    <BlurredBackgroundModal open className={classes.root}>
+    <BlurredBackgroundModal open className={classes.root} testId="onboarding-flow">
       <EAOnboardingContextProvider onOnboardingComplete={onOnboardingComplete} viewAsAdmin={viewAsAdmin}>
         <EAOnboardingUserStage />
         <EAOnboardingSubscribeStage />

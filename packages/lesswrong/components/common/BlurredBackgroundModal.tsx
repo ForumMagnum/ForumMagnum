@@ -38,12 +38,14 @@ const styles = (theme: ThemeType) => ({
 export const BlurredBackgroundModal = ({
   open,
   onClose,
+  testId,
   children,
   className,
   classes,
 }: {
   open: boolean,
   onClose?: () => void,
+  testId?: string,
   children: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -58,7 +60,10 @@ export const BlurredBackgroundModal = ({
       TransitionComponent={Fade}
     >
       {open &&
-        <div className={classNames(classes.root, className)}>
+        <div
+          data-testid={testId}
+          className={classNames(classes.root, className)}
+        >
           {children}
         </div>
       }

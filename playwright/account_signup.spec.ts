@@ -1,34 +1,34 @@
 import { test, expect } from "@playwright/test";
 
-/*
-test("has title", async ({ page }) => {
-  await page.goto("https://playwright.dev/");
-
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
-
-test("get started link", async ({ page }) => {
-  await page.goto("https://playwright.dev/");
-
-  // Click the get started link.
-  await page.getByRole("link", { name: "Get started" }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole("heading", { name: "Installation" })).toBeVisible();
-});
-*/
+const createNewUserDetails = () => {
+  const n = Math.floor(Math.random() * 10_000_000);
+  return {
+    username: `test${n}`,
+    email: `test${n}@example.com`,
+    password: "hunter2!",
+  };
+}
 
 test("account signup", async ({page}) => {
-  const email = "test573814830@example.com";
-  const password = "hunter2!";
-  await page.goto("/");
-  await page.getByRole("button", {name: "LOGIN"}).click();
-  await page.getByPlaceholder("username or email").fill(email);
-  await page.getByPlaceholder("username or email").fill(email);
+  const {username, email, password} = createNewUserDetails();
 
-  // await page.getByTestId("signup-button").click();
-  // await page.getByTestId("login-email-input").fill(email);
-  // await page.getByTestId("login-password-input").fill(password);
-  // await page.getByTestId("signup-submit").click();
+  // Go to home page
+  await page.goto("/");
+
+  // Click the signup button and submit email and password
+  await page.getByTestId("user-signup-button").click();
+  await page.getByTestId("login-email-input").fill(email);
+  await page.getByTestId("login-password-input").fill(password);
+  await page.getByTestId("login-submit").click();
+
+  // Enter username in the modal and skip through the rest of onboarding
+  await page.getByPlaceholder("Spaces and special characters allowed").fill(username);
+  await page.getByTestId("onboarding-continue-user").click();
+  await page.getByText("Skip for now").click();
+  await page.getByText("Skip for now").click();
+  await page.getByText("Go to the forum").click();
+
+  // Check the user menu is visible, which means our username was set corrently
+  await expect(page.getByTestId("onboarding-flow")).not.toBeVisible();
+  await expect(page.getByTestId("users-menu")).toBeVisible();
 });
