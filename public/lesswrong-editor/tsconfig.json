@@ -16,5 +16,10 @@
     "skipLibCheck": true
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules/**/*"]
+  "exclude": [
+    "build",
+    "obj",
+    "node_modules/**/*",
+    "tests"
+  ]
 }
