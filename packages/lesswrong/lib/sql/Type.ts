@@ -271,6 +271,13 @@ const valueToString = (value: any, subtype?: Type, isNested = false): string => 
   return `${value}`;
 }
 
+export const sqlInterpolateArgs = (sql: string, args: any[]) => {
+  for (let i = 0; i < args.length; i++) {
+    sql = sql.replace(new RegExp(`\\$${i + 1}`, "g"), valueToString(args[i]));
+  }
+  return sql;
+}
+
 /**
  * Annotate a type as having a default value. Subtype may or may not be concrete.
  */
