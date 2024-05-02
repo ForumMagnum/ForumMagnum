@@ -325,7 +325,7 @@ class SubmitDialogueMessageCommand extends Command {
             const root = model.document.getRoot();
             if (!root) return;
 
-            const dialogueMessageInput = findMessageInputs(root).find(node => node.getAttribute('user-id') === userId);
+            const dialogueMessageInput = findMessageInputs(root).find((node: AnyBecauseTodo) => node.getAttribute('user-id') === userId);
 		  
 			const dialogueConfig = this.editor.config.get('dialogues');
 
@@ -362,7 +362,7 @@ class SubmitDialogueMessageCommand extends Command {
                 }
 				
 				writer.setSelection(dialogueMessageInput, 0);
-			  	dialogueConfig.dialogueParticipantNotificationCallback();
+				dialogueConfig.dialogueParticipantNotificationCallback();
             }
         });
     }
@@ -423,11 +423,11 @@ function createHeaderElement(viewWriter, elementName, headerAttributes, userDisp
 function findMessageInputs(root) {
     const rootChildren = Array.from(root.getChildren());
     // For backwards compatibility, when we didn't have a wrapper around the message inputs
-    const rootInputs = rootChildren.filter(child => child.is('element', 'dialogueMessageInput'));
+    const rootInputs = rootChildren.filter((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInput'));
     /**
      * @type {Element}
      */
-    const dialogueMessageInputWrapper = rootChildren.find(child => child.is('element', 'dialogueMessageInputWrapper'));
+    const dialogueMessageInputWrapper = rootChildren.find((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInputWrapper'));
 
     if (!dialogueMessageInputWrapper) return rootInputs;
 

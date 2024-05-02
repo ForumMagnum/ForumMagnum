@@ -39,6 +39,13 @@ const defaultCommitKeyCodes = [
  * @extends module:core/plugin~Plugin
  */
 export default class MentionUI extends Plugin {
+  _mentionsView: AnyBecauseTodo
+  _mentionsConfigurations: AnyBecauseTodo
+  _requestFeedDebounced: AnyBecauseTodo
+  _lastRequested: AnyBecauseTodo
+  _balloon: AnyBecauseTodo
+  _items: AnyBecauseTodo
+
   /**
    * @inheritDoc
    */

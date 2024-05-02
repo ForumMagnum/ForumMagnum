@@ -16,6 +16,14 @@ import MathView from './mathview';
 import '../mathform.css';
 
 export default class MainFormView extends View {
+	mathInputView : AnyBecauseTodo
+	previewEnabled : AnyBecauseTodo
+	mathView : AnyBecauseTodo
+	focusTracker: AnyBecauseTodo
+	keystrokes: AnyBecauseTodo
+	_focusables: AnyBecauseTodo
+	_focusCycler: AnyBecauseTodo
+
 	constructor( locale, engine, previewEnabled, previewUid ) {
 		super( locale );
 		// Create key event & focus trackers
@@ -26,7 +34,7 @@ export default class MainFormView extends View {
 
 		this.previewEnabled = previewEnabled;
 
-		let children = [];
+		let children: AnyBecauseTodo[] = [];
 		if ( this.previewEnabled ) {
 			// Math element
 			this.mathView = new MathView( engine, locale, previewUid );

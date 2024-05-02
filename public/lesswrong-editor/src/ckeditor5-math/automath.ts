@@ -8,6 +8,9 @@ import global from '@ckeditor/ckeditor5-utils/src/dom/global';
 import { defaultConfig, extractDelimiters, hasDelimiters, delimitersCounts } from './utils';
 
 export default class AutoMath extends Plugin {
+	_timeoutId: AnyBecauseTodo
+	_positionToInsert: AnyBecauseTodo
+
 	static get requires() {
 		return [ Clipboard, Undo ];
 	}

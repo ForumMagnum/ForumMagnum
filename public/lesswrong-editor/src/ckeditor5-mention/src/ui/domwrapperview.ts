@@ -17,6 +17,9 @@ import { View } from 'ckeditor5/src/ui';
  * @extends {module:ui/view~View}
  */
 export default class DomWrapperView extends View {
+  template: AnyBecauseTodo
+  domElement: AnyBecauseTodo
+
   /**
    * Creates an instance of {@link module:mention/ui/domwrapperview~DomWrapperView} class.
    *

@@ -17,6 +17,18 @@ import './ctaform.css';
 import { validateUrl } from "../url-validator-utils";
 
 class MainFormView extends View {
+  editor: AnyBecauseTodo
+  selectedElement: AnyBecauseTodo
+  buttonTextView: AnyBecauseTodo
+  linkToView: AnyBecauseTodo
+  previewEnabled: AnyBecauseTodo
+  _focusables: AnyBecauseTodo
+  focusTracker: AnyBecauseTodo
+  keystrokes: AnyBecauseTodo
+  _focusCycler: AnyBecauseTodo
+  label: AnyBecauseTodo
+  locale: AnyBecauseTodo
+
   constructor(locale, editor) {
     super(locale);
 
@@ -223,6 +235,9 @@ class MainFormView extends View {
  * Plugin for the form to edit the text and link of a CTA button
  */
 export default class CTAButtonForm extends Plugin {
+  formView: AnyBecauseTodo
+  _balloon: AnyBecauseTodo
+
   static get requires() {
     return [ContextualBalloon];
   }

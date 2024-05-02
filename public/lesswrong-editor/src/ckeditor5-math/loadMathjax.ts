@@ -1,3 +1,10 @@
+declare global {
+	interface Window {
+		MathJax?: AnyBecauseTodo
+		MathJaxReady?: boolean
+	}
+}
+
 /* eslint-disable no-tabs */
 export function loadMathJax() {
 	if ( !window.MathJax ) {
@@ -12,7 +19,7 @@ export function loadMathJax() {
 			tex: {
 				autoload: {
 					color: [],
-      				colorv2: [ 'color' ]
+					colorv2: [ 'color' ]
 				},
 				packages: { '[+]': [ 'noerrors', 'color' ] }
 			},

@@ -18,6 +18,10 @@ import '../../theme/mentionui.css';
  * @extends module:ui/list/listview~ListView
  */
 export default class MentionsView extends ListView {
+  selected: AnyBecauseTodo
+  items: AnyBecauseTodo
+  element: AnyBecauseTodo
+
   /**
    * @inheritDoc
    */
@@ -72,10 +76,8 @@ export default class MentionsView extends ListView {
    * Handles selection cycling when passed index is out of bounds:
    * - if the index is lower than 0, it will select the last item,
    * - if the index is higher than the last item index, it will select the first item.
-   *
-   * @param {Number} index Index of an item to be marked as selected.
    */
-  select( index ) {
+  select(index: number) {
 	let indexToGet = 0;
 
 	if ( index > 0 && index < this.items.length ) {

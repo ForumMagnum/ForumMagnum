@@ -10,6 +10,8 @@
 import { ListItemView } from 'ckeditor5/src/ui';
 
 export default class MentionListItemView extends ListItemView {
+  children: AnyBecauseTodo
+
   highlight() {
 	const child = this.children.first;
 

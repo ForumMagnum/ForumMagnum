@@ -1,6 +1,8 @@
-/* eslint-disable max-len */
 /* eslint-disable no-tabs */
-/* globals MathJax */
+
+declare global {
+	let MathJax: AnyBecauseTodo
+}
 
 export const defaultConfig = {
 	engine: 'mathjax',
