@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["ES2019", "ES2020.String", "DOM", "DOM.Iterable"],
+    "outDir": "obj",
 
     "noImplicitAny": false,
     "noImplicitThis": false,
