@@ -12,7 +12,8 @@ export const up = async ({db}: MigrationContext) => {
           // eslint-disable-next-line no-console
           console.warn("Index doesn't exist:", index);
         }
-        await createIndex(db, collection, index);
+        // allowConcurrent = false because CONCURRENTLY isn't allowed inside a transaction
+        await createIndex(db, collection, index, true, false);
       }
     }
   }

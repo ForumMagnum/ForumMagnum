@@ -19,7 +19,7 @@ import { StringType } from "./Type";
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
   private isUnique: boolean;
 
-  constructor(table: Table<T>, index: TableIndex<T>, ifNotExists = true) {
+  constructor(table: Table<T>, index: TableIndex<T>, ifNotExists = true, allowConcurrent=true) {
     super(table);
     this.isIndex = true;
     this.calculateIsUnique(index);
@@ -27,7 +27,7 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
 
     const {useGin, fields} = this.getFieldList(index);
     this.atoms = [
-      `CREATE ${this.isUnique ? "UNIQUE " : ""}INDEX${concurrently ? " CONCURRENTLY" : ""}${ifNotExists ? " IF NOT EXISTS" : ""}`,
+      `CREATE ${this.isUnique ? "UNIQUE " : ""}INDEX${concurrently && allowConcurrent ? " CONCURRENTLY" : ""}${ifNotExists ? " IF NOT EXISTS" : ""}`,
       `"${index.getName()}"`,
       "ON",
       table,
