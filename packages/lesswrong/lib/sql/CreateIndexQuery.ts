@@ -23,10 +23,11 @@ class CreateIndexQuery<T extends DbObject> extends Query<T> {
     super(table);
     this.isIndex = true;
     this.calculateIsUnique(index);
+    const concurrently = index.createConcurrently()
 
     const {useGin, fields} = this.getFieldList(index);
     this.atoms = [
-      `CREATE ${this.isUnique ? "UNIQUE " : ""}INDEX${ifNotExists ? " IF NOT EXISTS" : ""}`,
+      `CREATE ${this.isUnique ? "UNIQUE " : ""}INDEX${concurrently ? " CONCURRENTLY" : ""}${ifNotExists ? " IF NOT EXISTS" : ""}`,
       `"${index.getName()}"`,
       "ON",
       table,

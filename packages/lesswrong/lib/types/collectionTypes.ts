@@ -176,6 +176,7 @@ type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
 type MongoEnsureIndexOptions<T> = {
   partialFilterExpression?: Record<string, any>,
   unique?: boolean,
+  concurrently?: boolean,
   name?: string,
   collation?: {
     locale: string,

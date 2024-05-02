@@ -57,6 +57,10 @@ class TableIndex<T extends DbObject> {
     return !!this.options?.unique;
   }
 
+  createConcurrently() {
+    return !!this.options?.concurrently;
+  }
+
   isCaseInsensitive() {
     return this.collationType === "case-insensitive";
   }
