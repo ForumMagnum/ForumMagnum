@@ -3,7 +3,7 @@ import PgCollection from "../lib/sql/PgCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
-import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
+import { expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
@@ -23,10 +23,6 @@ import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 import seedUsers from "../../../cypress/fixtures/users";
-import { DatabaseMetadata } from "../lib/collections/databaseMetadata/collection";
-import DebouncerEvents from "../lib/collections/debouncerEvents/collection";
-import PageCache from "../lib/collections/pagecache/collection";
-import ReadStatuses from "../lib/collections/readStatus/collection";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
@@ -38,43 +34,12 @@ export const preparePgTables = () => {
   }
 }
 
-/**
- * These are custom indexes we created during the nullability PR for various ON CONFLICT queries.
- * We need to run them here but with options to ensure they actually get run, because the calls to create them in the codebase don't get run during test setup.
- * We need a better way to handle `ensureCustomPgIndex` properly for indexes required by tests.
- */
-const ensureMigratedIndexes = async (client: SqlClient) => {
-  const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
-  // eslint-disable-next-line no-console
-  console.log('Creating custom indexes');
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
-    ON public."DatabaseMetadata" USING btree
-    (name);
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
-    ON public."DebouncerEvents" USING btree
-    (dispatched, af, key, name)
-    WHERE (dispatched IS FALSE);
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
-    ON public."PageCache" USING btree
-    (path, "abTestGroups", "bundleHash");
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
-    ON public."ReadStatuses" USING btree
-    (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
-  `, options);
-}
-
 const buildTables = async (client: SqlClient) => {
   await installExtensions(client);
 
   preparePgTables();
 
+  // TODO: Just load the schema file
   for (let collection of Collections) {
     if (collection instanceof PgCollection) {
       const {collectionName} = collection;
@@ -103,7 +68,6 @@ const buildTables = async (client: SqlClient) => {
     }
   }
 
-  await ensureMigratedIndexes(client);
   await updateFunctions(client);
   await ensurePostgresViewsExist(client);
 }
