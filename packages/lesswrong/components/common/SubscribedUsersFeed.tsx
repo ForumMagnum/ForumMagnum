@@ -7,7 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const SubscribedUsersFeed = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { MixedTypeFeed, ResolverPostsList } = Components;
+  const { MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
   /*return <ResolverPostsList
     resolverName="PostsBySubscribedAuthors"
     limit={13}
@@ -15,26 +15,29 @@ const SubscribedUsersFeed = ({classes}: {
     showLoadMore
   />*/
   
-  return <MixedTypeFeed
-    resolverName={"SubscribedFeed"}
-    firstPageSize={10}
-    pageSize={20}
-    sortKeyType="Date"
-    renderers={{
-      postCommented: {
-        fragmentName: "SubscribedPostAndCommentsFeed",
-        render: (postCommented: SubscribedPostAndCommentsFeed) => {
-          return <Components.RecentDiscussionThread
-            key={postCommented.post._id}
-            post={postCommented.post}
-            comments={postCommented.comments}
-            refetch={()=>{} /*TODO*/}
-            smallerFonts={true}
-          />
-        },
-      }
-    }}
-  />
+  return <div>
+    <SuggestedFeedSubscriptions />
+    <MixedTypeFeed
+      resolverName={"SubscribedFeed"}
+      firstPageSize={10}
+      pageSize={20}
+      sortKeyType="Date"
+      renderers={{
+        postCommented: {
+          fragmentName: "SubscribedPostAndCommentsFeed",
+          render: (postCommented: SubscribedPostAndCommentsFeed) => {
+            return <Components.RecentDiscussionThread
+              key={postCommented.post._id}
+              post={postCommented.post}
+              comments={postCommented.comments}
+              refetch={()=>{} /*TODO*/}
+              smallerFonts={true}
+            />
+          },
+        }
+      }}
+    />
+  </div>
 }
 
 const SubscribedUsersFeedComponent = registerComponent('SubscribedUsersFeed', SubscribedUsersFeed, {styles});
