@@ -1,5 +1,12 @@
 import { DatabaseServerSetting } from "../databaseSettings";
-import { AppMetadata, AuthenticationClient, ManagementClient, User, UserMetadata } from "auth0";
+import {
+  AppMetadata,
+  AuthenticationClient,
+  ManagementClient,
+  UpdateUserData,
+  User,
+  UserMetadata,
+} from "auth0";
 import Profile from "passport-auth0/lib/Profile";
 import { getAuth0Id } from "../../lib/collections/users/helpers";
 import { Profile as Auth0Profile } from 'passport-auth0';
@@ -8,7 +15,6 @@ import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./au
 import { auth0ClientSettings } from "../../lib/publicSettings";
 import { UsersRepo } from "../repos";
 import { isCypress } from "../../lib/executionEnvironment";
-import { UpdateUserData } from "auth0";
 
 type Auth0Settings = {
   appId: string;
