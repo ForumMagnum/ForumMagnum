@@ -1,5 +1,31 @@
 import { defineConfig, devices } from "@playwright/test";
 
+type WebServers = Extract<Parameters<typeof defineConfig>[0]["webServer"], any[]>;
+
+const getWebServers = () => {
+  const webServers: WebServers = [];
+
+  if (!process.env.CI) {
+    webServers.push({
+      command: "yarn playwright-db",
+      port: 5433,
+      reuseExistingServer: true,
+      stdout: "ignore",
+      stderr: "ignore",
+    });
+  }
+
+  webServers.push({
+    command: "yarn start-playwright",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    stdout: "ignore",
+    stderr: "pipe",
+  });
+
+  return webServers;
+}
+
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -68,10 +94,5 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: {
-    command: "yarn ea-start-testing-db",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: getWebServers(),
 });

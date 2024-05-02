@@ -26,6 +26,50 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
+  runPlaywrightTests:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Setup database
+      run: |
+        psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+        psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
+    - name: Install browsers
+      run: yarn playwright install --with-deps
+    - name: Run playwright tests
+      run: yarn playwright test
+    - name: Upload playwright report
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: Playwright report
+        path: playwright-report
+    - name: Upload playwright test results
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: Playwright test results
+        path: test-results
+
   runUnitTests:
     runs-on: ubuntu-latest
     steps:
