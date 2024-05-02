@@ -70,7 +70,7 @@ interface RenderRequestParams {
   user: DbUser|null,
   startTime: Date,
   res: Response,
-  clientId: string,
+  clientId?: string,
   userAgent?: string,
 }
 
@@ -110,7 +110,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
   const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
   
-  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot || showDynamicFrontpage) {
+  if ((!isHealthCheck && (user || isExcludedFromPageCache(url))) || isSlackBot || showDynamicFrontpage) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     
@@ -299,7 +299,7 @@ function logRenderQueueState() {
   }
 }
 
-function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+function isExcludedFromPageCache(path: string): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
 }
@@ -433,6 +433,19 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   }
   
   client.stop();
+
+  if (cacheFriendly && Object.keys(abTestGroupsUsed).length) {
+    const message = `A/B tests used during a render that may be cached externally: ${Object.keys(abTestGroupsUsed).join(", ")}. Defer the A/B test until after SSR or disable caching on this route (\`swrCaching\`)`;
+    const url = getPathFromReq(req);
+    // eslint-disable-next-line no-console
+    console.error(message, {url})
+    captureException(new Error(`A/B tests used during a render that may be cached externally: ${Object.keys(abTestGroupsUsed).join(", ")}. Defer the A/B test until after SSR or disable caching on this route (\`swrCaching\`)`), {
+      extra: { url }
+    });
+    if (!isProduction) {
+      return {aborted: true};
+    }
+  }
 
   return {
     ssrBody,

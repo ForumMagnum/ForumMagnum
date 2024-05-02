@@ -31,13 +31,15 @@ const isApplicableUrl = (url: string) =>
 //    - [X] Make sure this is reflected correctly in logs
 //      - Old behaviour: tabId always defined during SSR
 //      - New behaviour: tabId null during SSR for page loads that are cacheable
-// - [ ] Deal with A/B tests
-//    - [ ] Throw an error if on dev A/B tests are used in a cacheFriendly request
-//    - [ ] Understand how the clientId thing affects this, maybe default to an unseeded random pick to help with not messing up the analytics
+// - [X] Deal with A/B tests
+//    - [X] Throw an error if on dev A/B tests are used in a cacheFriendly request
+//    - [X] Understand how the clientId thing affects this, maybe default to an unseeded random pick to help with not messing up the analytics
 // - [ ] Deal with the theme
-//    - [ ] Disable it for non-default theme for now (as logged out users can only practically use the default theme)
+//    - [ ] Disable caching for non-default theme (as logged out users can only practically use the default theme unless they set their own cookies)
 // - [ ] Ensure this works with previous deploys (expect it to due to caching of bundle and allStyles after our servers can no longer generate them)
 // - [ ] Add a way of measuring hit rate
+// - [ ] Deal with cookies controlling UI
+//    - Could be OK to punt on this, seeing as these mismatches already happen
 // - [ ] Resolve inconsistencies between our local caching and external caching
 // - [ ] Add a setting to enable the caching thing, so other instances can still set cookies if they want (or ideally infer it from the request)
 // - [ ] [Probably don't do] Generate a clientId cookie in the CDN for users that don't have one (one will be created on the first analytics request, so not a huge deal if this is missed)
