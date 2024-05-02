@@ -8,6 +8,7 @@ declare global {
   // various places. These should NOT be being read anywhere by the server,
   // or in shared code.
   interface Window {
+    tabId: string | null;
     themeOptions: AbstractThemeOptions,
     ssrMetadata: SSRMetadata
     /** TODO Remove after 2024-05-14, here for backwards compatibility */

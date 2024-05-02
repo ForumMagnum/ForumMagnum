@@ -1,6 +1,5 @@
 import { isNotRandomId, randomId } from '../lib/random';
 import { getCookieFromReq, setCookieOnResponse } from './utils/httpUtil';
-import { ClientIds } from '../lib/collections/clientIds/collection';
 import type { AddMiddlewareType } from './apolloServer';
 import express from 'express';
 import { responseIsCacheable } from './cacheControlMiddleware';
@@ -20,18 +19,25 @@ const isApplicableUrl = (url: string) =>
 // - [X] Deal with timezone
 //    - [X] Convert all instances of dates to use a <time> tag, so that the info is at least there for machines if needed
 //    - [X] Add the logic for timeOverride described in the PR (this will add a `maybeCached`)
-// - [ ] Deal with clientId
+// - [X] Deal with clientId
 //    - [X] Don't set it for cacheable requests
-//    - [ ] Generate it on the client instead
-//    - [ ] Make sure this is reflected correctly in logs
-// - [ ] Deal with tabId
-//    - [ ] Don't set it for cacheable requests
-//    - [ ] Generate it on the client instead
-//    - [ ] Make sure this is reflected correctly in logs
+//    - [X] Generate it on the client instead
+//    - [X] Make sure this is reflected correctly in logs/analytics
+//      - Old behaviour: clientId always defined for SSR analytics event (including never before seen users, due to picking up the setCookieOnResponse)
+//      - New behaviour: clientId is `undefined` throughout SSR for new users, on page loads that are cacheable
+// - [X] Deal with tabId
+//    - [X] Don't set it for cacheable requests
+//    - [X] Generate it on the client instead
+//    - [X] Make sure this is reflected correctly in logs
+//      - Old behaviour: tabId always defined during SSR
+//      - New behaviour: tabId null during SSR for page loads that are cacheable
 // - [ ] Deal with A/B tests
-//    - [ ] Throw an error if A/B tests are used in a cacheFriendly request
+//    - [ ] Throw an error if on dev A/B tests are used in a cacheFriendly request
+//    - [ ] Understand how the clientId thing affects this, maybe default to an unseeded random pick to help with not messing up the analytics
 // - [ ] Deal with the theme
-//    - [ ] Make it part of the cacheKey in the CDN
+//    - [ ] Disable it for non-default theme for now (as logged out users can only practically use the default theme)
+// - [ ] Ensure this works with previous deploys (expect it to due to caching of bundle and allStyles after our servers can no longer generate them)
+// - [ ] Add a way of measuring hit rate
 // - [ ] Resolve inconsistencies between our local caching and external caching
 // - [ ] Add a setting to enable the caching thing, so other instances can still set cookies if they want (or ideally infer it from the request)
 // - [ ] [Probably don't do] Generate a clientId cookie in the CDN for users that don't have one (one will be created on the first analytics request, so not a huge deal if this is missed)

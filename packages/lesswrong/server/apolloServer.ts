@@ -371,9 +371,9 @@ export function startWebserver() {
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
 
     // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable.
-    const tabId = randomId();
-    const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+    // it into a global variable. If the response is cacheable (may same html may be used
+    // by multiple tabs), this is generated in `clientStartup.ts` instead.
+    const tabId = responseIsCacheable(response) ? null : randomId();
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -390,7 +390,7 @@ export function startWebserver() {
         + faviconHeader
         // Embedded script tags that must precede the client bundle
         + publicSettingsHeader
-        + tabIdHeader
+        + embedAsGlobalVar("tabId", tabId)
         // The client bundle. Because this uses <script async>, its load order
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.

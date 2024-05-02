@@ -35,6 +35,7 @@ export const AnalyticsClient = () => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
     AnalyticsUtil.clientContextVars.userId = currentUserId;
     AnalyticsUtil.clientContextVars.clientId = clientId;
+    AnalyticsUtil.clientContextVars.tabId = window.tabId;
     if (!isLWorAF) {
       AnalyticsUtil.clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
     }

@@ -76,8 +76,3 @@ window.addEventListener('load', ev => {
     },
   });
 });
-
-
-// Put the tabId, which was injected into the page as a global variable, into
-// the analytics context vars. See apollo-ssr/renderPage.js
-AnalyticsUtil.clientContextVars.tabId = (window as any).tabId

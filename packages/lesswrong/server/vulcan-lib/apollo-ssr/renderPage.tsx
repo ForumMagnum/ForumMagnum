@@ -79,7 +79,7 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string) => {
+export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
   const startTime = new Date();
   
   const ip = getIpFromRequest(req)
