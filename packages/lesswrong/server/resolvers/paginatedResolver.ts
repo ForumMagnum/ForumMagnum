@@ -15,13 +15,14 @@ type MaybeCollectionType<GraphQLType extends string, Fallback> =
     ? ObjectsByTypeName[GraphQLType]
     : Fallback;
 
-type PrimitiveGraphQLType = 'Int' | 'Float' | 'String' | 'Boolean' | 'Date';
+type PrimitiveGraphQLType = 'Int' | 'Float' | 'String' | 'Boolean' | 'Date' | 'JSON';
 interface PrimitiveGraphQLTypeMap {
   Int: number;
   Float: number;
   String: string;
   Boolean: boolean;
   Date: Date;
+  JSON: Json;
 }
 
 type NullableArraybleGraphQLType<T extends string = string> = T extends `[${infer U}]${infer Nullability}`
