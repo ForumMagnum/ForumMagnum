@@ -20,6 +20,7 @@ registerFragment(`
     duration
     showAuthor
     imageFade
+    imageFadeColor
   }
 `)
 

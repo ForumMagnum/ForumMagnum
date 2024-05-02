@@ -327,6 +327,7 @@ declare global {
       reviewGold: ColorString
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
+      placeholderGradient: ColorString,
     },
     boxShadow: {
       default: string,
@@ -410,6 +411,21 @@ declare global {
       onboardingBackgroundHover: ColorString,
       onboardingBackgroundSelected: ColorString,
     },
+    tab: {
+      inactive: {
+        text: ColorString,
+        hover: {
+          text: ColorString,
+        }
+      },
+      active: {
+        text: ColorString,
+        background: ColorString
+        hover: {
+          background: ColorString,
+        }
+      },
+    }
     geosuggest: {
       dropdownBackground: ColorString,
       dropdownText: ColorString,
@@ -541,6 +557,7 @@ declare global {
     borderRadius: {
       default: number,
       small: number,
+      quickTakesEntry: number,
     },
     palette: ThemePalette,
     typography: {

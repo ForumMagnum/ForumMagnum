@@ -1,7 +1,7 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
 import { forumTypeSetting, isEAForum } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
+import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
@@ -9,7 +9,6 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
-import moment from 'moment';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -44,6 +43,10 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
  * Count a user as "new" if they have low karma or joined less than a week ago
  */
 export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const oneYearInMs = 365*24*60*60*1000;
+  const oneWeekInMs = 7*24*60*60*1000;
+  const userCreatedAt = new Date(user.createdAt);
+
   const karmaThreshold = newUserIconKarmaThresholdSetting.get()
   const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
@@ -52,16 +55,16 @@ export const isNewUser = (user: UsersMinimumInfo): boolean => {
   // 1. the user is below the karma threshold, or
   // 2. the user was created less than a week ago
   if (isEAForum) {
-    return userBelowKarmaThreshold || moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+    return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
   }
 
   // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
   if (userBelowKarmaThreshold) {
-    return moment(user.createdAt).isAfter(moment().subtract(1, "year"));
+    return userCreatedAt.getTime() > new Date().getTime() - oneYearInMs;
   }
   
   // But continue to return true for a week even if they pass the karma threshold
-  return moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+  return userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
 }
 
 export interface SharableDocument {
@@ -586,3 +589,23 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
 export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   return { fail: false };
 };
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export const profileFieldToSocialMediaHref = (
+  field: SocialMediaProfileField,
+  userUrl: string,
+) => `https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field], userUrl)}`;
+
+export const socialMediaSiteNameToHref = (
+  siteName: SocialMediaSiteName | "website",
+  userUrl: string,
+) => siteName === "website"
+  ? `https://${userUrl}`
+  : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);

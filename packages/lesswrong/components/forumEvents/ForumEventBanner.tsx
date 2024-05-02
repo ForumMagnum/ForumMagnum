@@ -1,6 +1,7 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useLocation } from "../../lib/routeUtil";
+import { hasForumEvents } from "../../lib/betas";
 
 type BannerType = "frontpage" | "postpage";
 
@@ -13,6 +14,11 @@ export const ForumEventBanner = () => {
   const {currentRoute} = useLocation();
   const bannerType = bannerTypes[currentRoute?.name ?? ""];
   const {ForumEventFrontpageBanner, ForumEventPostPageBanner} = Components;
+  
+  if (!hasForumEvents) {
+    return null;
+  }
+  
   switch (bannerType) {
   case "frontpage":
     return (

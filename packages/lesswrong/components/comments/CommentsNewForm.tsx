@@ -23,7 +23,9 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type FormDisplayMode = "default" | "minimalist"
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
+
+const styles = (theme: ThemeType) => ({
   root: isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
@@ -40,14 +42,37 @@ const styles = (theme: ThemeType): JssStyles => ({
       flexDirection: "row",
     }
   },
+  rootQuickTakes: {
+    "& .form-component-EditorFormComponent": {
+      background: theme.palette.grey[100],
+      padding: COMMENTS_NEW_FORM_PADDING,
+      borderTopLeftRadius: theme.borderRadius.quickTakesEntry,
+      borderTopRightRadius: theme.borderRadius.quickTakesEntry,
+    },
+  },
+  quickTakesSubmitButtonAtBottom: isFriendlyUI
+    ? {
+      "& .form-component-EditorFormComponent": {
+        background: "transparent",
+        borderRadius: theme.borderRadius.quickTakesEntry,
+      },
+      "& .form-input": {
+        padding: "0 20px",
+      },
+    }
+    : {},
   loadingRoot: {
     opacity: 0.5
   },
   form: {
-    padding: isFriendlyUI ? 12 : 10,
+    padding: COMMENTS_NEW_FORM_PADDING,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
+  },
+  quickTakesForm: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   rateLimitNote: {
     paddingTop: '4px',
@@ -60,6 +85,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     textAlign: 'right',
   },
+  submitQuickTakes: {
+    background: theme.palette.grey[100],
+    padding: COMMENTS_NEW_FORM_PADDING,
+    borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
+    borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
+  },
+  submitQuickTakesButtonAtBottom: isFriendlyUI
+    ? {
+      marginTop: 20,
+      padding: 20,
+      borderTop: `1px solid ${theme.palette.grey[300]}`,
+    }
+    : {},
   formButton: isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
@@ -119,6 +157,11 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
+const getSubmitLabel = (isQuickTake: boolean) => {
+  if (!isFriendlyUI) return 'Submit'
+  return isQuickTake ? 'Publish' : 'Comment'
+}
+
 export type BtnProps = {
   variant?: 'contained',
   color?: 'primary',
@@ -147,8 +190,9 @@ export type CommentsNewFormProps = {
   padding?: boolean,
   formStyle?: FormDisplayMode,
   overrideHintText?: string,
-  classes: ClassesType,
+  quickTakesSubmitButtonAtBottom?: boolean,
   className?: string,
+  classes: ClassesType<typeof styles>,
 }
 
 const CommentsNewForm = ({
@@ -167,8 +211,9 @@ const CommentsNewForm = ({
   padding=true,
   formStyle="default",
   overrideHintText,
-  classes,
+  quickTakesSubmitButtonAtBottom,
   className,
+  classes,
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -182,6 +227,7 @@ const CommentsNewForm = ({
     extraVariablesValues: { postId: post?._id },
     fetchPolicy: "cache-and-network",
     skip: !currentUser,
+    ssr: false
   });
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
@@ -201,12 +247,12 @@ const CommentsNewForm = ({
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
+  const isQuickTake = !!prefilledProps.shortform
   const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, NewCommentModerationWarning, RateLimitWarning } = Components
-  
+
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -288,8 +334,12 @@ const CommentsNewForm = ({
     if (formDisabledDueToRateLimit) {
       submitBtnProps.disabled = true
     }
-    
-    return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist})}>
+
+    return <div className={classNames(classes.submit, {
+      [classes.submitMinimalist]: isMinimalist,
+      [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
+      [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
+    })}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}
@@ -315,7 +365,7 @@ const CommentsNewForm = ({
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
-  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, loading, openDialog, type]);
+  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, isQuickTake, loading, openDialog, type, quickTakesSubmitButtonAtBottom]);
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
@@ -344,14 +394,29 @@ const CommentsNewForm = ({
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
+  const {
+    ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning,
+    NewCommentModerationWarning, RateLimitWarning, FormGroupQuickTakes,
+    FormGroupNoStyling,
+  } = Components;
   return (
     <div className={classNames(
       className,
       isMinimalist ? classes.rootMinimalist : classes.root,
-      {[classes.loadingRoot]: loading}
+      {
+        [classes.loadingRoot]: loading,
+        [classes.rootQuickTakes]: isQuickTake,
+        [classes.quickTakesSubmitButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
+      }
     )} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
+        <div className={padding
+          ? classNames({
+            [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
+            [classes.formMinimalist]: isMinimalist,
+          })
+          : undefined
+        }>
           {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
@@ -374,16 +439,19 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: Components.FormGroupNoStyling
+                FormGroupLayout: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)
+                  ? FormGroupQuickTakes
+                  : FormGroupNoStyling,
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}
               removeFields={removeFields}
               formProps={{
+                formClassName: isQuickTake ? classes.quickTakesForm : '',
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isFriendlyUI && !prefilledProps.shortform ? 'Comment' : 'Submit'}
+              submitLabel={getSubmitLabel(isQuickTake)}
             />
           </div>
         </div>

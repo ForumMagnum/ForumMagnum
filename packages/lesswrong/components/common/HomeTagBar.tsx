@@ -8,6 +8,7 @@ import {useNavigate} from '../../lib/reactRouterWrapper.tsx'
 import {useLocation} from '../../lib/routeUtil.tsx'
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
+import range from 'lodash/range'
 
 const eventTabStyles = (invertColors: boolean) => ({
   backgroundColor: invertColors
@@ -140,6 +141,23 @@ const styles = (theme: ThemeType) => ({
   activeEventTab: {
     ...eventTabStyles(theme.themeOptions.name !== "dark"),
   },
+  placeholderTab: {
+    flex: 'none',
+    height: 31,
+    width: 110,
+    background: theme.palette.panelBackground.placeholderGradient,
+    backgroundSize: "300% 100%",
+    animation: "profile-image-loader 1.8s infinite",
+    cursor: 'default',
+    '&:hover': {
+      background: theme.palette.panelBackground.placeholderGradient,
+      backgroundSize: "300% 100%",
+    },
+    '@media (max-width: 840px)': {
+      height: 26,
+      width: 100,
+    },
+  },
   tagDescriptionTooltip: {
     margin: 8,
   }
@@ -185,7 +203,7 @@ const HomeTagBar = (
   // we store the topic bar scrollLeft offsets that correspond to displaying each "set" of topics
   const offsets = useRef<Array<number>>([0])
 
-  const {results: coreTopics} = useMulti({
+  const {results: coreTopics, loading: coreTopicsLoading} = useMulti({
     terms: {view: 'coreTags'},
     collectionName: 'Tags',
     fragmentName: 'TagFragment',
@@ -323,7 +341,7 @@ const HomeTagBar = (
                     const isActive = tab._id === activeTab._id;
                     const isEventTab = tab._id === currentForumEvent?.tag?._id;
                     return <LWTooltip
-                      title={showDescriptionOnHover ? tab.description?.plaintextDescription : null} 
+                      title={showDescriptionOnHover ? tab.description?.plaintextDescription : null}
                       popperClassName={classes.tagDescriptionTooltip}
                       key={tabName}
                     >
@@ -346,6 +364,9 @@ const HomeTagBar = (
                         {tabName}
                       </button>
                     </LWTooltip>
+                  })}
+                  {!coreTopics?.length && coreTopicsLoading && range(0, 6).map(i => {
+                    return <div key={i} className={classNames(classes.tab, classes.placeholderTab)}></div>
                   })}
                 </div>
               </div>

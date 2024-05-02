@@ -31,14 +31,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const timeframes = {
-  allTime: 'All time',
-  daily: 'Daily',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-}
-
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
 const formatSort = (sorting: PostSortingMode) => {

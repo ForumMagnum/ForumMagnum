@@ -16,7 +16,7 @@ export const DismissibleSpotlightItem = ({
   current?: boolean,
   spotlight?: SpotlightDisplay,
   fullpage?: boolean,
-  className?: string,
+  className?: string
 }) => {
   const { SpotlightItem, FullPageSpotlight } = Components
   const { captureEvent } = useTracking()

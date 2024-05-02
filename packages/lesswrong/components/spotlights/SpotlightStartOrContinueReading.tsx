@@ -5,11 +5,10 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   boxesRoot: {
   },
   firstPost: {
@@ -24,18 +23,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   postProgressBox: {
-    ...postProgressBoxStyles(theme)
+    ...postProgressBoxStyles(theme),
+    ...(isFriendlyUI && {
+      borderColor: theme.palette.text.alwaysWhite,
+    }),
   },
-  read: {
-    backgroundColor: theme.palette.primary.main,
-    border: theme.palette.primary.dark,
-    opacity: .4
-  }
+  read: isFriendlyUI
+    ? {
+      backgroundColor: theme.palette.text.alwaysWhite,
+      border: theme.palette.text.alwaysWhite,
+    }
+    : {
+      backgroundColor: theme.palette.primary.main,
+      border: theme.palette.primary.dark,
+      opacity: .4
+    },
 });
 
 export const SpotlightStartOrContinueReading = ({classes, spotlight, className}: {
   spotlight: SpotlightDisplay,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   const chapters = spotlight.sequenceChapters;

@@ -230,6 +230,16 @@ const schema: SchemaType<"Spotlights"> = {
     onCreate: ({document}) => document.imageFade ?? (isLWorAF ? false : true),
     canAutofillDefault: true,
   },
+  imageFadeColor: {
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    type: String,
+    order: 87,
+    optional: true,
+    nullable: true,
+    control: "FormComponentColorPicker",
+  },
   spotlightImageId: {
     type: String,
     canRead: ['guests'],

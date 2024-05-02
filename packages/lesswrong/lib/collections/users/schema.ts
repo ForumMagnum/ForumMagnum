@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
+import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -16,10 +16,10 @@ import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -304,14 +304,6 @@ export const PROGRAM_PARTICIPATION = [
   {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
   {value: '80k', label: "Received career coaching from 80,000 Hours"},
 ]
-
-export const SOCIAL_MEDIA_PROFILE_FIELDS = {
-  linkedinProfileURL: 'linkedin.com/in/',
-  facebookProfileURL: 'facebook.com/',
-  twitterProfileURL: 'twitter.com/',
-  githubProfileURL: 'github.com/'
-}
-export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
@@ -941,6 +933,15 @@ const schema: SchemaType<"Users"> = {
     canCreate: 'guests',
     hidden: true,
   },
+  frontpageSelectedTab: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: userOwns,
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: 'guests',
+    hidden: true,
+  },
   frontpageFilterSettings: {
     type: Object,
     blackbox: true,
@@ -1070,6 +1071,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     control: "select",
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "Style",
     canRead: ['guests'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
@@ -1092,6 +1094,7 @@ const schema: SchemaType<"Users"> = {
     type: Boolean,
     optional: true,
     group: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     label: "I'm happy for site moderators to help enforce my policy",
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1105,6 +1108,7 @@ const schema: SchemaType<"Users"> = {
     optional: true,
     group: formGroups.moderationGroup,
     label: "On my posts, collapse my moderation guidelines by default",
+    hidden: isFriendlyUI,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -2472,7 +2476,19 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
-  
+
+  profileUpdatedAt: {
+    type: Date,
+    optional: false,
+    nullable: false,
+    canCreate: ["members"],
+    canRead: ["guests"],
+    canUpdate: [userOwns, "admins"],
+    hidden: true,
+    onInsert: (user) => user.createdAt,
+    ...schemaDefaultValue(new Date(0)),
+  },
+
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     hidden: true,
@@ -2840,31 +2856,19 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
   },
 
-  /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-  experiencedIn: {
-    type: Array,
+  /* Privacy settings */
+  hideFromPeopleDirectory: {
+    type: Boolean,
     optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'experiencedIn.$': {
-    type: String,
-    optional: true
-  },
-  interestedIn: {
-    type: Array,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canRead: [userOwns, 'admins'],
-  },
-  'interestedIn.$': {
-    type: String,
-    optional: true
+    hidden: !isEAForum,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    label: "Hide my profile from the People directory",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
   },
 
-  /* Privacy settings */
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
@@ -2983,7 +2987,7 @@ const schema: SchemaType<"Users"> = {
   hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'admins'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
@@ -3001,17 +3005,6 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
-  },
-
-  // EA Forum wrapped fields
-  wrapped2023Viewed: {
-    type: Boolean,
-    optional: false,
-    canRead: [userOwns, 'admins'],
-    canUpdate: [userOwns, 'admins'],
-    canCreate: ['members'],
-    hidden: true,
-    ...schemaDefaultValue(false),
   },
 };
 

@@ -32,6 +32,8 @@ import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/goog
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { googleVertexApi } from '../google-vertex/client';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -636,6 +638,7 @@ createPaginatedResolver({
 addGraphQLSchema(`
   type RecombeeRecommendedPost {
     post: Post!
+    scenario: String
     recommId: String
     curated: Boolean
     stickied: Boolean
@@ -703,5 +706,35 @@ createPaginatedResolver({
     }
 
     return await repos.posts.getPostsFromPostSubscriptions(currentUser._id, limit);
+  }
+});
+
+addGraphQLSchema(`
+  type VertexRecommendedPost {
+    post: Post!
+    attributionId: String
+  }
+`);
+
+interface VertexRecommendedPost {
+  post: Partial<DbPost>;
+  attributionId?: string | null;
+}
+
+createPaginatedResolver({
+  name: "GoogleVertexPosts",
+  graphQLType: "VertexRecommendedPost",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<VertexRecommendedPost[]> => {
+    const { currentUser } = context;
+
+    if (!userIsAdmin(currentUser)) {
+      throw new Error(`You must be an admin to use Google recommendations right now`);
+    }
+
+    return await googleVertexApi.getRecommendations(limit, context);
   }
 });
