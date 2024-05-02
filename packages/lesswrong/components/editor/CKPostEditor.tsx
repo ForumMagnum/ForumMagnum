@@ -322,6 +322,8 @@ export type ConnectedUserInfo = {
   name: string
 }
 
+const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
+
 const CKPostEditor = ({
   data,
   collectionName,
@@ -435,16 +437,16 @@ const CKPostEditor = ({
     const trackChanges = editor.commands.get('trackChanges')!;
     switch(mode) {
       case "Viewing":
-        editor.isReadOnly = true;
+        editor.enableReadOnlyMode(readOnlyPermissionsLock);
         trackChanges.value = false;
         break;
       case "Commenting":
-        editor.isReadOnly = false;
+        editor.disableReadOnlyMode(readOnlyPermissionsLock);
         trackChanges.value = true;
         break;
       case "Editing":
       case "Editing (override)":
-        editor.isReadOnly = false;
+        editor.disableReadOnlyMode(readOnlyPermissionsLock);
         trackChanges.value = false;
         break;
     }
