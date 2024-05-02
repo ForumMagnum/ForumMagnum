@@ -162,7 +162,7 @@ class MainFormView extends View {
         input: buttonTextBind.to("input"),
       },
     });
-    buttonTextView.label = "Button text";
+    (buttonTextView as AnyBecauseTodo).label = "Button text";
     buttonTextView.on("input", () => {
       const model = this.editor.model;
       const selectedElement = this.selectedElement;
@@ -200,7 +200,7 @@ class MainFormView extends View {
         input: linkToBind.to("input"),
       },
     });
-    linkToView.label = "Link to";
+    (linkToView as AnyBecauseTodo).label = "Link to";
     linkToView.on("input", () => {
       const model = this.editor.model;
       const selectedElement = this.selectedElement;

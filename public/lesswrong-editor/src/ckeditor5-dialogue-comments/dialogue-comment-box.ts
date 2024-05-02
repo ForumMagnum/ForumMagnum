@@ -4,6 +4,8 @@ import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
 
+type DialoguesConfig = AnyBecauseTodo;
+
 export default class DialogueCommentBox extends Plugin {
     static get requires() {
         return [ SimpleBoxEditing, SimpleBoxUI ];
@@ -25,7 +27,7 @@ class SimpleBoxUI extends Plugin {
         // to be displayed in the toolbar.
         editor.ui.componentFactory.add( 'rootParagraphBox', locale => {
             // The state of the button will be bound to the widget command.
-            const command = editor.commands.get( 'insertRootParagraphBox' );
+            const command = editor.commands.get('insertRootParagraphBox') as InsertRootParagraphBoxCommand;
 
             // The button will be an instance of ButtonView.
             const buttonView = new ButtonView( locale );
@@ -39,7 +41,7 @@ class SimpleBoxUI extends Plugin {
             } );
 
             // Bind the state of the button to the command.
-            buttonView.bind( 'isOn', 'isEnabled' ).to( command, 'value', 'isEnabled' );
+            buttonView.bind( 'isOn', 'isEnabled' ).to( command as AnyBecauseTodo, 'value' as AnyBecauseTodo, 'isEnabled' as AnyBecauseTodo );
 
             // Execute the command when the button is clicked (executed).
             this.listenTo( buttonView, 'execute', () => editor.execute( 'insertRootParagraphBox' ) );
@@ -80,7 +82,7 @@ class SimpleBoxEditing extends Plugin {
             const deletedElement = selectedBlocks[0];
             if (!deletedElement || !deletedElement.parent) return;
 
-            const messageParent = deletedElement.getAncestors().find(ancestor => ancestor.is('element', 'dialogueMessage'));
+            const messageParent: AnyBecauseTodo = deletedElement.getAncestors().find(ancestor => ancestor.is('element', 'dialogueMessage'));
             if (!messageParent) return;
 
             const isFirstChild = messageParent.getChildIndex(deletedElement) === 0;
@@ -291,7 +293,8 @@ class InsertRootParagraphBoxCommand extends Command {
         model.change(writer => {
             const paragraph = writer.createElement('paragraph');
             const selectedBlocks = Array.from(model.document.selection.getSelectedBlocks());
-            model.insertContent(paragraph, writer.createPositionBefore(selectedBlocks[0].parent), 'before');
+            const parent = selectedBlocks[0].parent as AnyBecauseTodo;
+            model.insertContent(paragraph, writer.createPositionBefore(parent), 'before');
         });
     }
 
@@ -300,7 +303,7 @@ class InsertRootParagraphBoxCommand extends Command {
         const selection = model.document.selection;
 
         let childOfDialogueMessage = false;
-        let currentElement = Array.from(selection.getSelectedBlocks())[0];
+        let currentElement: AnyBecauseTodo = Array.from(selection.getSelectedBlocks())[0];
         while (currentElement) {
             if (currentElement && currentElement.is('element', 'dialogueMessage')) {
                 childOfDialogueMessage = true;
@@ -325,9 +328,9 @@ class SubmitDialogueMessageCommand extends Command {
             const root = model.document.getRoot();
             if (!root) return;
 
-            const dialogueMessageInput = findMessageInputs(root).find((node: AnyBecauseTodo) => node.getAttribute('user-id') === userId);
+            const dialogueMessageInput: AnyBecauseTodo = findMessageInputs(root).find((node: AnyBecauseTodo) => node.getAttribute('user-id') === userId);
 		  
-			const dialogueConfig = this.editor.config.get('dialogues');
+			const dialogueConfig = this.editor.config.get('dialogues') as DialoguesConfig;
 
             if (dialogueMessageInput) {
                 const submittedDate = (new Date()).toUTCString();
@@ -350,7 +353,7 @@ class SubmitDialogueMessageCommand extends Command {
 
                     writer.append(contentDiv, dialogueMessage);
 
-                    inputContents.forEach(userInput => {
+                    inputContents.forEach((userInput: AnyBecauseTodo) => {
                         writer.append(userInput, contentDiv);
                     });
 
@@ -424,14 +427,11 @@ function findMessageInputs(root) {
     const rootChildren = Array.from(root.getChildren());
     // For backwards compatibility, when we didn't have a wrapper around the message inputs
     const rootInputs = rootChildren.filter((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInput'));
-    /**
-     * @type {Element}
-     */
-    const dialogueMessageInputWrapper = rootChildren.find((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInputWrapper'));
+    const dialogueMessageInputWrapper = rootChildren.find((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInputWrapper')) as AnyBecauseTodo;
 
     if (!dialogueMessageInputWrapper) return rootInputs;
 
-    const wrapperInputs = Array.from(dialogueMessageInputWrapper.getChildren()).filter(child => child.is('element', 'dialogueMessageInput'));
+    const wrapperInputs = Array.from(dialogueMessageInputWrapper.getChildren()).filter((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInput'));
     return [...rootInputs, ...wrapperInputs];
 }
 

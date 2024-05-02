@@ -49,7 +49,8 @@ export default class FootnoteEditing extends Plugin {
 		addFootnoteAutoformatting(this.editor, this.rootElement);
 
 		this.editor.model.document.on('change:data', (eventInfo, batch) => {
-			const diffItems = [...eventInfo.source.differ.getChanges()];
+			const eventSource: AnyBecauseTodo = eventInfo.source;
+			const diffItems = [...eventSource.differ.getChanges()];
 			// If a footnote reference is inserted, ensure that footnote references remain ordered.
 			if(diffItems.some(diffItem => (
 				diffItem.type === 'insert' &&

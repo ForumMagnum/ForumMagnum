@@ -94,11 +94,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * Finds all anchor tags with an id indicating they're a footnote referenceand
 	 * with a backLink that has a matching index. (references to nonexistent footnotes
 	 * aren't parsed.)
-	 * @param {Range} documentRange
-	 * @param {Object.<string, {item: Element, id: string}>} backLinks
-	 * @returns {Object.<string, {item: Element, id: string}>}
 	 */
-	_getFootnoteReferences(documentRange, backLinks) {
+	_getFootnoteReferences(documentRange: Range, backLinks: Record<string, {item: Element, id: string}>): Record<string, {item: Element, id: string}> {
 		const idPattern = /^ftnt_ref(\d+)$/;
 		const footnoteReferenceMatcher = new Matcher({
 			name: 'a',
@@ -110,7 +107,7 @@ export default class GoogleDocsFootnotesNormalizer {
 			.reduce((acc, { item, type }) => {
 				if (
 					type === 'elementStart' &&
-					footnoteReferenceMatcher.match(item)
+					footnoteReferenceMatcher.match(item as AnyBecauseTodo)
 				) {
 					// ensure that a matching footnote exists for this reference
 					// @ts-ignore: matcher above eliminates the null / undefined cases here.
@@ -129,11 +126,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	 *
 	 * Presumes a structure s.t. each backlink is wrapped in two elements, the outer of which
 	 * contains the entire contents of the footnote.
-	 * @param {UpcastWriter} writer
-	 * @param {Object.<string, {item: Element, id: string}>} backLinks
-	 * @returns {Element[]}
 	 */
-	_createFootnoteItems(writer, backLinks) {
+	_createFootnoteItems(writer: UpcastWriter, backLinks: Record<string, {item: Element, id: string}>): Element[] {
 		return Object.entries(backLinks).map(([ index, {item, id}]) => {
 			if(!item.parent || !item.parent.parent || !item.parent.parent.is('element')) {
 				throw new Error("Unexpected Dom structure; expected footnote backLink to be nested within two parent tags.");
@@ -179,10 +173,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	/**
 	 * Adds `footnoteReference` `footnoteIndex`, and `footnoteId`
 	 * attributes to each footnote reference.
-	 * @param {UpcastWriter} writer
-	 * @param {Object.<string, {item: Element, id: string}>} references
 	 */
-	_preprocessFootnoteReferences(writer, references) {
+	_preprocessFootnoteReferences(writer: UpcastWriter, references: Record<string, {item: Element, id: string}>) {
 		for (const [ index, { item, id } ] of Object.entries(references)) {
 			writer.setAttribute(ATTRIBUTES.footnoteReference, '', item);
 			writer.setAttribute(ATTRIBUTES.footnoteIndex, index, item);

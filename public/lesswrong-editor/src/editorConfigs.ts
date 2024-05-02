@@ -65,8 +65,7 @@ const embedConfig = {
 					<script async src="https://cdn.strawpoll.com/dist/widgets.js" charset="utf-8"></script>
 				</div>
 			`
-		}
-		,
+		},
 		{
 			name: "Metaforecast",
 			url: /^metaforecast\.org\/questions\/([\w-]+)$/,

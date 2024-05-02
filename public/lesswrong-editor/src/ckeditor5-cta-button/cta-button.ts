@@ -48,7 +48,7 @@ export default class CTAButton extends Plugin {
           // Check if the current block has any content
           if (currentElement.childCount > 0) {
             // If there is content, insert after the current block
-            insertPosition = writer.createPositionAfter(currentElement);
+            insertPosition = writer.createPositionAfter(currentElement as AnyBecauseTodo);
           } else {
             // If there is no content, use the current block itself
             insertPosition = writer.createPositionAt(currentElement, 0);
@@ -90,13 +90,14 @@ export default class CTAButton extends Plugin {
     editor.conversion.for("editingDowncast").elementToElement({
       model: "ctaButton",
       view: (modelElement, { writer: viewWriter }) => {
+        const existingClasses = (modelElement.getAttribute("class") || "").toString();
         const div = viewWriter.createContainerElement("div", {
           // Add any classes from the model (ck-cta-button itself is not included on the model)
-          class: [CTA_CLASS, ...(modelElement.getAttribute("class") || "").split(" ")].join(" "),
+          class: [CTA_CLASS, ...existingClasses.split(" ")].join(" "),
           href: modelElement.getAttribute("href") || "",
         });
 
-        return toWidget(div, viewWriter, "div");
+        return toWidget(div, viewWriter, {});
       },
     });
 
@@ -108,8 +109,9 @@ export default class CTAButton extends Plugin {
         // href on the <a> element appears to also get picked up by another plugin which
         // breaks things. I'm also using a div instead of a <button> to simplify what we
         // allow in `sanitize()` (see packages/lesswrong/lib/vulcan-lib/utils.ts)
+        const existingClasses = (modelElement.getAttribute("class") || "").toString();
         const div = viewWriter.createContainerElement("a", {
-          class: [CTA_CLASS, ...(modelElement.getAttribute("class") || "").split(" ")].join(" "),
+          class: [CTA_CLASS, ...existingClasses.split(" ")].join(" "),
           // The href on the <a> element appears to also get picked up by another plugin, which
           // breaks things, so use data-href and map it to href in ContentItemBody
           "data-href": modelElement.getAttribute("href") || "",
@@ -137,7 +139,7 @@ export default class CTAButton extends Plugin {
         }
 
         // Map the text nodes from the view to the model
-        const innerText = viewElement.getChild(0).data;
+        const innerText = (viewElement.getChild(0) as AnyBecauseTodo).data;
         const textNode = modelWriter.createText(innerText);
         modelWriter.append(textNode, ctaButton);
 

@@ -56,7 +56,7 @@ export default class MathEditing extends Plugin {
 					}
 				},
 				model: ( viewElement, { writer } ) => {
-					const equation = viewElement.getChild( 0 ).data.trim();
+					const equation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
 					return writer.createElement( 'mathtex', {
 						equation,
 						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script',
@@ -73,7 +73,7 @@ export default class MathEditing extends Plugin {
 					}
 				},
 				model: ( viewElement, { writer } ) => {
-					const equation = viewElement.getChild( 0 ).data.trim();
+					const equation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
 					return writer.createElement( 'mathtex-display', {
 						equation,
 						type: mathConfig.forceOutputType ? mathConfig.outputType : 'script',
@@ -88,7 +88,7 @@ export default class MathEditing extends Plugin {
 					classes: [ 'math-tex' ]
 				},
 				model: ( viewElement, { writer } ) => {
-					const rawEquation = viewElement.getChild( 0 ).data.trim();
+					const rawEquation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
 					const { display, equation } = extractDelimiters( rawEquation );
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
 					if ( display ) {
@@ -106,7 +106,7 @@ export default class MathEditing extends Plugin {
 				},
 				model: ( viewElement, { writer } ) => {
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
-					const firstChild = viewElement.getChild( 0 );
+					const firstChild: AnyBecauseTodo = viewElement.getChild(0);
 					const classes = Array.from( viewElement.getClassNames() );
 					if ( classes.includes( 'MJXc-display' ) ) {
 						return writer.createElement( 'mathtex-display', { equation: firstChild.getAttribute( 'aria-label' ), type, display: true } );
@@ -143,14 +143,14 @@ export default class MathEditing extends Plugin {
 				model: 'mathtex',
 				view: ( modelItem, { writer } ) => {
 					const widgetElement = createMathtexEditingView( modelItem, writer, false );
-					return toWidget( widgetElement, writer, 'span' );
+					return toWidget( widgetElement, writer, {} );
 				}
 			} )
 			.elementToElement( {
 				model: 'mathtex-display',
 				view: ( modelItem, { writer } ) => {
 					const widgetElement = createMathtexEditingView( modelItem, writer, true );
-					return toWidget( widgetElement, writer, 'div' );
+					return toWidget( widgetElement, writer, {} );
 				}
 			} );
 

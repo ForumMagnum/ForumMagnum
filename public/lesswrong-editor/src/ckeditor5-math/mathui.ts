@@ -14,6 +14,7 @@ import MathEditing from './mathediting';
 import { defaultConfig, getSelectedMathModelWidget, resizeInputElement } from './utils';
 
 import mathIcon from './math.svg';
+import type MathCommand from './mathcommand';
 
 const mathKeystroke = 'Ctrl+4';
 const mathDisplayKeystroke = 'Ctrl+M';
@@ -60,7 +61,7 @@ export default class MathUI extends Plugin {
 
 	_showUI() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get( 'math' );
+		const mathCommand = editor.commands.get('math') as MathCommand;
 
 		if ( !mathCommand.isEnabled ) {
 			return;
@@ -71,7 +72,7 @@ export default class MathUI extends Plugin {
 		const selection = editor.model.document.selection;
 		const range = selection.getFirstRange();
 		const selectedItems = range.getItems();
-		const concatenatedSelection = Array.from( selectedItems ).map( item => item.data ? item.data : '' ).join( '' );
+		const concatenatedSelection = Array.from( selectedItems ).map( (item: AnyBecauseTodo) => item.data ? item.data : '' ).join( '' );
 		if ( concatenatedSelection && concatenatedSelection.length ) {
 			mathCommand.value = concatenatedSelection;
 		}
@@ -83,7 +84,7 @@ export default class MathUI extends Plugin {
 
 	_createFormView() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get( 'math' );
+		const mathCommand = editor.commands.get('math') as MathCommand;
 
 		const mathConfig = Object.assign( defaultConfig, this.editor.config.get( 'math' ) );
 
@@ -135,7 +136,7 @@ export default class MathUI extends Plugin {
 		}
 
 		const editor = this.editor;
-		const mathCommand = editor.commands.get( 'math' );
+		const mathCommand = editor.commands.get('math') as MathCommand;
 
 		this._balloon.add( {
 			view: this.formView,
@@ -172,7 +173,7 @@ export default class MathUI extends Plugin {
 	}
 
 	_closeFormView() {
-		const mathCommand = this.editor.commands.get( 'math' );
+		const mathCommand = this.editor.commands.get('math') as MathCommand;
 		if ( mathCommand.value !== undefined ) {
 			this._removeFormView();
 		} else {
@@ -203,7 +204,7 @@ export default class MathUI extends Plugin {
 
 	_createToolbarMathButton() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get( 'math' );
+		const mathCommand = editor.commands.get('math') as MathCommand;
 		const t = editor.t;
 
 		// Handle the `Ctrl+4` keystroke and show the panel.

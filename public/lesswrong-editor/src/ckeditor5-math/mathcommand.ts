@@ -3,6 +3,8 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import { getSelectedMathModelWidget } from './utils';
 
 export default class MathCommand extends Command {
+	display: AnyBecauseTodo
+
 	execute( equation, display, outputType, forceOutputType ) {
 		const model = this.editor.model;
 		const selection = model.document.selection;

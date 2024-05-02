@@ -20,6 +20,8 @@ import MentionListItemView from './ui/mentionlistitemview';
 
 const VERTICAL_SPACING = 3;
 
+type MentionConfigFeed = AnyBecauseTodo;
+
 // The key codes that mention UI handles when it is open (without commit keys).
 const defaultHandledKeyCodes = [
   keyCodes.arrowup,
@@ -101,7 +103,7 @@ export default class MentionUI extends Plugin {
   init() {
 	const editor = this.editor;
 
-	const commitKeys = editor.config.get( 'mention.commitKeys' ) || defaultCommitKeyCodes;
+	const commitKeys: number[] = (editor.config.get('mention.commitKeys') as number[]|undefined) || defaultCommitKeyCodes;
 	const handledKeyCodes = defaultHandledKeyCodes.concat( commitKeys );
 
 	/**
@@ -144,7 +146,7 @@ export default class MentionUI extends Plugin {
 	  callback: () => this._hideUIAndRemoveMarker()
 	} );
 
-	const feeds = editor.config.get( 'mention.feeds' );
+	const feeds = editor.config.get('mention.feeds') as MentionConfigFeed[];
 
 	for ( const mentionDescription of feeds ) {
 	  const feed = mentionDescription.feed;

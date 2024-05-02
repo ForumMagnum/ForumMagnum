@@ -35,7 +35,7 @@ export default class FootnoteUI extends Plugin {
 			dropdownView.bind( 'isEnabled' ).to( command );
 			dropdownView.on('change:isOpen', ( evt, propertyName, newValue, oldValue ) => {
 				if ( newValue ) {
-					addListToDropdown(dropdownView, this.getDropdownItemsDefinitions());
+					addListToDropdown(dropdownView, this.getDropdownItemsDefinitions() as AnyBecauseTodo);
 				}
 				else {
 					dropdownView.listView.items.clear();

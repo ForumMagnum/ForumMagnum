@@ -7,10 +7,13 @@
  * @module mention/ui/mentionlistitemview
  */
 
-import { ListItemView } from 'ckeditor5/src/ui';
+import ListItemView from '@ckeditor/ckeditor5-ui/src/list/listitemview';
 
 export default class MentionListItemView extends ListItemView {
   children: AnyBecauseTodo
+  
+  item: AnyBecauseTodo
+  marker: AnyBecauseTodo
 
   highlight() {
 	const child = this.children.first;

@@ -40,6 +40,7 @@ import Mention from './ckeditor5-mention/src/mention';
 import RealTimeCollaborativeEditing from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativeediting';
 
 import RealTimeCollaborativeComments from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativecomments';
+import { Comments } from '@ckeditor/ckeditor5-comments';
 import RealTimeCollaborativeTrackChanges from '@ckeditor/ckeditor5-real-time-collaboration/src/realtimecollaborativetrackchanges';
 import TrackChangesData from '@ckeditor/ckeditor5-track-changes/src/trackchangesdata';
 
@@ -142,6 +143,7 @@ const collaborativeEditorPlugins = [
 	RestyledCommentButton,
 	RealTimeCollaborativeEditing,
 	RealTimeCollaborativeComments,
+	Comments,
 	RealTimeCollaborativeTrackChanges,
 	TrackChangesData,
 	PresenceList,

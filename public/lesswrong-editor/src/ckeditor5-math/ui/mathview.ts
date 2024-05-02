@@ -5,6 +5,8 @@ import { renderEquation } from '../utils';
 export default class MathView extends View {
 	engine: AnyBecauseTodo
 	previewUid: AnyBecauseTodo
+	value: AnyBecauseTodo
+	display: AnyBecauseTodo
 
 	constructor( engine, locale, previewUid ) {
 		super( locale );

@@ -59,7 +59,7 @@ async function wait( seconds ) {
 
 const MAX_MATHJAX_WAITING_PERIODS = 10;
 const MATHJAX_WAITING_PERIOD_LENGTH = 300;
-export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid, pastAttempts = 0 ) {
+export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid = null, pastAttempts = 0 ) {
 	if ( pastAttempts > MAX_MATHJAX_WAITING_PERIODS ) {
 		console.warn( `MathJax still not loaded, even after waiting ${ MATHJAX_WAITING_PERIOD_LENGTH }ms ${ MAX_MATHJAX_WAITING_PERIODS } times` );
 		return;

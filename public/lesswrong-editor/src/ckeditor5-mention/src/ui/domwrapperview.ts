@@ -19,6 +19,7 @@ import { View } from 'ckeditor5/src/ui';
 export default class DomWrapperView extends View {
   template: AnyBecauseTodo
   domElement: AnyBecauseTodo
+  isOn: boolean
 
   /**
    * Creates an instance of {@link module:mention/ui/domwrapperview~DomWrapperView} class.

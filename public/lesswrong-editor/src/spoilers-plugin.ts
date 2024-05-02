@@ -6,6 +6,8 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import blockAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
 import first from '@ckeditor/ckeditor5-utils/src/first';
 
+type SpoilerBlockCommandOptions = AnyBecauseTodo
+
 export default class Spoilers extends Plugin {
 	static get requires() {
 		return [ Widget ];
@@ -56,7 +58,7 @@ export default class Spoilers extends Plugin {
 	 */
 	_addCodeBlockAutoformats() {
 		if ( this.editor.commands.get( 'spoiler' ) ) {
-			blockAutoformatEditing( this.editor, this, /^>!$/, 'spoiler' );
+			blockAutoformatEditing( this.editor, this as AnyBecauseTodo, /^>!$/, 'spoiler' );
 		}
 	}
 
@@ -126,7 +128,7 @@ class SpoilerBlockCommand extends Command {
 	 * @param {Boolean} [options.forceValue] If set, it will force the command behavior. If `true`, the command will apply a block quote,
 	 * otherwise the command will remove the block quote. If not set, the command will act basing on its current value.
 	 */
-	execute( options = {} ) {
+	execute( options: SpoilerBlockCommandOptions = {} ) {
 		const model = this.editor.model;
 		const schema = model.schema;
 		const selection = model.document.selection;
