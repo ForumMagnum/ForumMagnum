@@ -1,6 +1,7 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
 import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
+import type { ClipboardPipeline } from '@ckeditor/ckeditor5-clipboard';
 
 /**
  * CkEditor plugin to replace pasted redirect links with their target (currently only for google redirects)
@@ -11,7 +12,8 @@ import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
  */
 export default class RemoveRedirect extends Plugin {
 	init() {
-		this.editor.plugins.get( 'ClipboardPipeline' ).on('inputTransformation', ( _, data ) => {
+		const clipboardPipeline: ClipboardPipeline = this.editor.plugins.get('ClipboardPipeline')
+		clipboardPipeline.on('inputTransformation', ( _, data ) => {
 				if ( data.content ) {
 					const writer = new UpcastWriter( data.content.document );
 					
