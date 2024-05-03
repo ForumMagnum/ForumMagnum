@@ -4,8 +4,7 @@ import Users from "../../lib/vulcan-users";
 import { wrapAndSendEmail } from "../emails";
 import { Globals, createAdminContext } from "../vulcan-lib";
 
-const LessOnlineEmail = (user: DbUser) => {
-  if (!user?.displayName) return
+const LessOnlineEmail = () => {
   return <div>
     <p>
     <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline: a weekend festival celebrating truth-seeking and blogging</a>,from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
@@ -95,29 +94,24 @@ const lessOnlineMessaging = async () => {
 
   const raemon = await Users.findOne({username: "Raemon"})
   const benito = await Users.findOne({displayName: "Ben Pace"})
-  if (raemon) {
-    await wrapAndSendEmail({
-      user: raemon,
-      subject: "Less Online Messaging",
-      body: LessOnlineEmail(raemon)
-    });
+  const habryka = await Users.findOne({displayName: "habryka"})
+  const kave = await Users.findOne({displayName: "kave"})
+  const users = [
+    raemon, 
+    benito, 
+    // habryka, 
+    // kave
+  ]
+  
+  for (const user of users) {
+    if (user) {
+      await wrapAndSendEmail({
+        user: user,
+        subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
+        body: LessOnlineEmail()
+      });
+    }
   }
-  if (benito) {
-    await wrapAndSendEmail({
-      user: raemon,
-      subject: "Less Online Messaging",
-      body: LessOnlineEmail(benito)
-    });
-  }
-  // for (const user of users) {
-  //   if (user.displayName === "Ben Pace") {
-  //     await wrapAndSendEmail({
-  //       user: user,
-  //       subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
-  //       body: LessOnlineEmail(user)
-  //     });
-  //   }
-  // }
 }
 
 Globals.lessOnlineMessaging = lessOnlineMessaging
