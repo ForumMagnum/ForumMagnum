@@ -271,8 +271,13 @@ const valueToString = (value: any, subtype?: Type, isNested = false): string => 
   return `${value}`;
 }
 
+/**
+ * Interpolate SQL args into a compiled SQL string - you should _NEVER_ use
+ * this unless you know exactly what you're doing and you have a good reason
+ * as it's extremely dangerous with untrusted input.
+ */
 export const sqlInterpolateArgs = (sql: string, args: any[]) => {
-  for (let i = 0; i < args.length; i++) {
+  for (let i = args.length - 1; i >= 0; i--) {
     sql = sql.replace(new RegExp(`\\$${i + 1}`, "g"), valueToString(args[i]));
   }
   return sql;
