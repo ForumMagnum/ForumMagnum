@@ -6,9 +6,9 @@ import { Globals, createAdminContext } from "../vulcan-lib";
 
 const LessOnlineEmail = () => {
   return <div>
-    <p>
+    <div>
     tl;dr: The LessWrong team is hosting <a href="https://less.online/">LessOnline</a>, a weekend festival celebrating truth-seeking and blogging, from May 31st to Sun June 2nd in Berkeley, California. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase.
-    </p>
+    </div>
     <p><b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are harder to plan around) and <a href="https://less.online/">you can buy tickets at the website</a></p>
     <p>More details below.</p>
     <p></p>
@@ -89,58 +89,102 @@ const lessOnlineMessaging = async () => {
   const users = await Users.find({
     lastNotificationsCheck: {$gt: new Date("2020-01-01")},
     $or: [{ banned: { $exists: false } }, { banned: { $lte: new Date() } }],
-    karma: {$gte: 0}
-  }, {sort: {karma: 1, createdAt: -1}}).fetch()
+    karma: {$gte: 0},
+    deleted: false,
+  }, {sort: {createdAt: 1}}).fetch()
 
-  const ignoredDisplayNames = ['Elizabeth', 'Scott Alexander', 'Eliezer Yudkowsky', 'Tsvi Benson-Tilsen', 'TsviBT', '[DEACTIVATED] Duncan Sabien', 'Raelifin', 'PeterMcCluskey', 'Peter_McCluskey', 'ozymandias', 'Rob Bensinger', 'Ziz', 'Gwen_', 'ialdabaoth', 'Holly_Elmore', 'David_Gerard', 'sarahconstantin', 'Sarah Constantin', 'LoganStrohl', 'Malcolm Ocean', 'MalcolmOcean', 'johnswentworth', 'eukaryote', 'Eric Neyman', 'Eneasz Brodski', 'Eli Tyre', 'Malmesbury', 'Zvi', 'Kaj_Sotala', 'Vaniver', 'Alicorn', 'Joe Carlsmith']
+  const ignoredDisplayNames = ['Elizabeth', 'Scott Alexander', 'Eliezer Yudkowsky', 'Tsvi Benson-Tilsen', 'TsviBT', '[DEACTIVATED] Duncan Sabien', 'Raelifin', 'PeterMcCluskey', 'Peter_McCluskey', 'ozymandias', 'Rob Bensinger', 'Ziz', 'Gwen_', 'ialdabaoth', 'Holly_Elmore', 'David_Gerard', 'sarahconstantin', 'Sarah Constantin', 'LoganStrohl', 'Malcolm Ocean', 'MalcolmOcean', 'johnswentworth', 'eukaryote', 'Eric Neyman', 'Eneasz Brodski', 'Eli Tyre', 'Malmesbury', 'Zvi', 'Kaj_Sotala', 'Vaniver', 'Alicorn', 'Joe Carlsmith', 'RobinGoins']
 
-  console.log(users.length)
-  const usersMinusLessOnline = users.filter(user => user?.displayName && !ignoredDisplayNames.includes(user.displayName))
-  console.log(usersMinusLessOnline.length)
+  const emailList = [
+    "Forrest.weiswolf@gmail.com",
+    "declangw@shaw.ca",
+    "washi.chiisai@gmail.com",
+    "drake.morrison@hey.com",
+    "davidcjames@gmail.com",
+    "robin@coponder.com",
+    "drethelin@gmail.com",
+    "philip.hazelden@gmail.com",
+    "so8res@gmail.com",
+    "bshlegeris@gmail.com",
+    "philip.gubbins@ae.studio",
+    "giovanni@riva.ink",
+    "zac.hatfield.dodds@gmail.com",
+    "jasminermj@gmail.com",
+    "b@w-r.me",
+    "declangw@shaw.ca",
+    "drake.morrison@hey.com",
+    "christinelpeterson1@gmail.com",
+    "ed@edwinevans.me",
+    "kaya@emailkaya.com",
+    "vkgsfca@gmail.com",
+    "scientiapotentiaest1@gmail.com",
+    "ja.kopczynski@gmail.com",
+    "philip.gubbins@ae.studio",
+    "unoriginaljack@icloud.com",
+    "philip.gubbins@ae.studio",
+    "patrick.orthonormal@gmail.com",
+    "a@machinaut.com",
+    "vaniver@gmail.com",
+    "lesswrong@cloomis.com",
+    "havenharms23@gmail.com",
+    "gworley3@gmail.com",
+    "df@danielfilan.com",
+    "maxhowald@gmail.com"
+  ];
 
-  // const raemon = await Users.findOne({username: "Raemon"})
-  // const benito = await Users.findOne({displayName: "Ben Pace"})
-  // const habryka = await Users.findOne({displayName: "habryka"})
-  // const kave = await Users.findOne({displayName: "kave"})
-  // const robert = await Users.findOne({displayName: "RobertM"})
-  // const ruby = await Users.findOne({displayName: "Ruby"})
+  console.log(users.length, emailList.length, ignoredDisplayNames.length)
+  const usersMinusLessOnline = users.filter(user => {
+    const userNoDisplayNameOrShouldntIgnoreName = !user?.displayName || !ignoredDisplayNames.includes(user.displayName)
+    const userNoEmailOrShouldntIgnoreEmail = !user?.email || !emailList.includes(user.email)
+    const userNoEmailsOrShouldntIgnoreEmails = !user?.emails || !emailList.includes(user.emails[0])
+    return userNoDisplayNameOrShouldntIgnoreName && userNoEmailOrShouldntIgnoreEmail && userNoEmailsOrShouldntIgnoreEmails
+  })
+  console.log(users.length - usersMinusLessOnline.length)
 
-  // const teamUsers = [
-  //   raemon, 
-  //   benito,
-  //   ruby
-  //   // ruby,
-  //   // robert
-  //   // habryka, 
-  //   // kave
-  // ]
+  const raemon = await Users.findOne({username: "Raemon"})
+  const benito = await Users.findOne({displayName: "Ben Pace"})
+  const habryka = await Users.findOne({displayName: "habryka"})
+  const kave = await Users.findOne({displayName: "kave"})
+  const robert = await Users.findOne({displayName: "RobertM"})
+  const ruby = await Users.findOne({displayName: "Ruby"})
 
-  // for (const user of teamUsers) {
-  //   if (user) {
-  //     await wrapAndSendEmail({
-  //       user: user,
-  //       subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
-  //       body: LessOnlineEmail()
-  //     });
-  //   }
-  // }
-  
-  for (let i = 0; i < usersMinusLessOnline.length; i++) {
+  const teamUsers = [
+    raemon
+    // benito,
+    // habryka,
+    // kave
+    // ruby,
+    // robert
+    // habryka, 
+    // kave
+  ]
 
-    console.log(i, 
-      usersMinusLessOnline[i].displayName, 
-      usersMinusLessOnline[i].karma, 
-      usersMinusLessOnline[i].createdAt, 
-      usersMinusLessOnline[i]._id
-    )
-
-    if (usersMinusLessOnline[i]) {
+  for (const user of teamUsers) {
+    if (user) {
       await wrapAndSendEmail({
-        user: usersMinusLessOnline[i],
+        user: user,
         subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
         body: LessOnlineEmail()
       });
     }
+  }
+  
+  for (let i = 0; i < usersMinusLessOnline.length; i++) {
+
+    // console.log(i, 
+    //   usersMinusLessOnline[i].displayName, 
+    //   usersMinusLessOnline[i].karma, 
+    //   usersMinusLessOnline[i].createdAt, 
+    //   usersMinusLessOnline[i]._id
+    // )
+
+    // if (usersMinusLessOnline[i]) {
+    //   await wrapAndSendEmail({
+    //     user: usersMinusLessOnline[i],
+    //     subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
+    //     body: LessOnlineEmail()
+    //   });
+    // }
   }
 }
 
