@@ -199,11 +199,11 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
   }
   
-  const sitename = forumTitleSetting.get();
-  if (!sitename) {
-    throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
-  }
-  const taggedSubject = `[${sitename}] ${subject}`;
+  // const sitename = forumTitleSetting.get();
+  // if (!sitename) {
+  //   throw new Error("No site name configured. Make sure \"title\" is set in your settings.json.");
+  // }
+  // const taggedSubject = `[${sitename}] ${subject}`;
   
   return {
     user,
