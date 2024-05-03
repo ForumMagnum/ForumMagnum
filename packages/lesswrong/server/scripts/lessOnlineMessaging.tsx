@@ -8,16 +8,16 @@ const LessOnlineEmail = (user: DbUser) => {
   if (!user?.displayName) return
   return <div>
     <p>
-    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline</a></b>, a weekend festival celebrating truth-seeking and blogging, <b>from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
+    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline: a weekend festival celebrating truth-seeking and blogging</a>,from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
     </p>
     <p>
       Hello there,
     </p>
     <p>
-      We're bringing people together for a weekend festival celebrating truth-seeking and blogging. It’s called <b><a href="https://less.online/">LessOnline: A Festival of Writers Who are Wrong on the Internet (But Striving To Be Less So)</a></b>. There are many people trying to understand the world and earnestly write up explanations of it, and this is to celebrate all such attempts.
+      We're bringing people together for a weekend festival celebrating truth-seeking and blogging. It’s called <b><a href="https://less.online/">LessOnline: A Festival of Writers Who are Wrong on the Internet (But Striving To Be Less So)</a></b>. There are many people trying to understand the world and earnestly write up explanations of it, and this is to celebrate them and their attempts.
     </p>
     <p>
-      People have formed a lot of excellent relationships and birthed a lot of fascinating and useful ideas in the blogosphere, but to fully build those relationships I think having an in-person component is really valuable. I think LessOnline will be a place where you can have lots of high bandwidth, in person conversations with people and on topics that you couldn’t have anywhere else.
+     Some people’s most enduring relationships are from the blogosphere, and I know of no better source of new ideas. But I think in-person adds an extra dimension. I think LessOnline will be a place where you can have lots of high bandwidth, in-person conversations with people and on topics that you couldn’t have anywhere else.
     </p>
     <p>
       It's at the end of this month, May 31 — June 2, at the LessWrong team's home venue <b><a href="https://www.lighthaven.space/">Lighthaven</a></b> in Berkeley, CA. 
@@ -30,10 +30,10 @@ const LessOnlineEmail = (user: DbUser) => {
     </p>
     <ul>
       <li>
-        <b>Writers about the art of rationality</b> — Eliezer Yudkowsky, Zvi Mowshowitz,Duncan Sabien, Nate Soares, Jacob Falkovich, Logan Strohl, Alkjash, and more.
+        <b>Writers about the art of rationality</b> — Eliezer Yudkowsky, Zvi Mowshowitz, Duncan Sabien, Nate Soares, Jacob Falkovich, Logan Strohl, Alkjash, and more.
       </li>
       <li>
-        <b>Writers who try to understand and earnestly explain how the world works</b> — Scott Alexander, Kevin Simler, Sarah Constantin, Crémieux Recueil, Alexey Guzey, Aella, Katja Grace, and more.
+        <b>Writers who try to understand and earnestly explain how the world works</b> — Scott Alexander, Kevin Simler, Sarah Constantin, Crémieux Recueil, Aella, Katja Grace, and more.
       </li>
       <li>
         <b>Writers of rational fiction with intelligent characters and lawful universes</b> — Alexander Wales, Alicorn, Daystar Eld, Jamie Wahls, and more.
@@ -63,10 +63,14 @@ const LessOnlineEmail = (user: DbUser) => {
 
     </p>
     <p>
-      — Ben Pace & the <b><a href="https://less.online/"></a>LessOnline</b> Team
+      — Ben Pace & the <b><a href="https://less.online/">LessOnline</a></b> Team
     </p>
     <p>
-      P.S. This festival started as an idea when we were talking to the team behind the forecasting & prediction market festival Manifest. They ran a smash-hit event last year at Lighthaven, and this year they encouraged us to run our own event as part of a series. This means that the weekend right after LessOnline is Manifest, and we've teamed up to offer a discounted ticket to both. Already many people have made plans to come for both and will be staying at Lighthaven for the week in between!
+      P.S. This festival started as an idea when we were talking to the team behind the forecasting & prediction market festival <b><a href="https://www.manifest.is/">Manifest</a></b>. They ran a smash-hit event last year at Lighthaven, and this year they encouraged us to run our own event as part of a series. This means that the weekend right after LessOnline is Manifest, and we've <b><a href="https://less.online/#tickets-section">teamed up to offer a discounted ticket to both</a></b>. Already many people have made plans to come for both and will be staying at Lighthaven for the week in between!
+    </p>
+    <p>
+      P.P.S. <b>Got questions?</b> You can’t reply to this email, but <b>comments and questions are welcome in <a href="https://www.lesswrong.com/posts/MmWziepD8DDauSide/lessonline-festival-updates-thread">this LW thread</a></b> and/or using <b>the intercom bubble</b> in the bottom right of the <a href="https://less.online/">less.online</a> or <a href="http://lesswrong.com">lesswrong.com</a> websites.
+
     </p>
     <img src=""/>
   </div>
