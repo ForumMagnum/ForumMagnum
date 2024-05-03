@@ -328,6 +328,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
+    Sparkle: SparkleIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,

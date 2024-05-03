@@ -72,10 +72,11 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationsIcon = false, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
+  showRecommendationsIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
@@ -127,6 +128,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
         post={post} 
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
+        showRecommendationIcon={showRecommendationsIcon}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>
