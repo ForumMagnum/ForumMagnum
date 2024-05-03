@@ -6,7 +6,6 @@ import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { isServer } from '../../lib/executionEnvironment';
-import { log } from 'console';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -102,21 +101,19 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
   const postIds = results?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = results?.map(({post, scenario, curated, stickied }) => {
-
+  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
     let loggedScenario = scenario;
     if (!loggedScenario) {
       if (curated) {
         loggedScenario = 'curated';
       } else if (stickied) {
-      loggedScenario = 'stickied';
+        loggedScenario = 'stickied';
       } else {
         loggedScenario = 'hacker-news';
       }
     }
     
-    return { postId: post._id, scenario: loggedScenario }
-
+    return { postId: post._id, scenario: loggedScenario };
   }) ?? [];
 
   useOnMountTracking({

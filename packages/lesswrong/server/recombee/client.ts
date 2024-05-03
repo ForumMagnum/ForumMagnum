@@ -40,11 +40,6 @@ const voteTypeRatingsMap: Partial<Record<string, number>> = {
   bigUpvote: 1,
 };
 
-const HYBRID_SCENARIO_MAP = {
-  fixed: 'recombee-emulate-hacker-news',
-  configurable: 'recombee-lesswrong-custom'
-};
-
 interface OnsitePostRecommendationsInfo {
   curatedPostIds: string[],
   stickiedPostIds: string[],
