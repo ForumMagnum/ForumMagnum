@@ -92,7 +92,6 @@ const lessOnlineMessaging = async () => {
   // const usersMinusLessOnline = users.filter(user => ignoredDisplayNames.includes(user.displayName))
   // console.log(users.length)
 
-<<<<<<< HEAD
   const raemon = await Users.findOne({username: "Raemon"})
   const benito = await Users.findOne({displayName: "Ben Pace"})
   const habryka = await Users.findOne({displayName: "habryka"})
@@ -113,7 +112,7 @@ const lessOnlineMessaging = async () => {
       });
     }
   }
-=======
+
   // const raemon = await Users.findOne({username: "Raemon"})
   // const benito = await Users.findOne({displayName: "Ben Pace"})
   // console.log(raemon)
@@ -134,7 +133,6 @@ const lessOnlineMessaging = async () => {
   //     });
   //   }
   // }
->>>>>>> origin/sendDMaboutLessOnline
 }
 
 Globals.lessOnlineMessaging = lessOnlineMessaging
