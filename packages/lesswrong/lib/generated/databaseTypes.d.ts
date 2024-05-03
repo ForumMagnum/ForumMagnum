@@ -1171,6 +1171,7 @@ interface DbSpotlight extends DbObject {
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
   spotlightSplashImageUrl: string | null
+  pinned: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents

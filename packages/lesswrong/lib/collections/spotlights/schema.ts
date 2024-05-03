@@ -253,7 +253,7 @@ const schema: SchemaType<"Spotlights"> = {
   spotlightDarkImageId: {
     type: String,
     canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshinn eRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     control: "ImageUpload",
     optional: true,
@@ -291,6 +291,14 @@ const schema: SchemaType<"Spotlights"> = {
     type: "Chapter",
     foreignKey: "Chapters",
     optional: true,
+  },
+  pinned: {
+    type: Boolean,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 120,
+    ...schemaDefaultValue(false),
   },
 };
 

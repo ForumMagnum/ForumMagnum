@@ -615,6 +615,11 @@
     "timestamp": "2024-04-10T22:52:50.000Z"
   },
   {
+    "acceptsSchemaHash": "03c2c32b40e6a6a6575fc5d9b7cd299b",
+    "acceptedByMigration": "20240413T014318.add_splashImageUrl_and_contextInfo_to_spotlights.ts",
+    "timestamp": "2024-04-13T01:43:18.000Z"
+  },
+  {
     "acceptsSchemaHash": "8365aace030196807258e6ab633a5466",
     "acceptedByMigration": "20240416T151709.drop_Users_wrapped2023Viewed_experiencedIn_interestedIn.ts",
     "timestamp": "2024-04-16T15:17:09.000Z"

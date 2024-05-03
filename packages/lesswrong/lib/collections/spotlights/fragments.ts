@@ -21,6 +21,7 @@ registerFragment(`
     showAuthor
     imageFade
     imageFadeColor
+    pinned
   }
 `)
 
