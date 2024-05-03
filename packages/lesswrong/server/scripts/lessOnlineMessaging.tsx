@@ -7,7 +7,7 @@ import { Globals, createAdminContext } from "../vulcan-lib";
 const LessOnlineEmail = () => {
   return <div>
     <p>
-    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline, a weekend festival celebrating truth-seeking and blogging</a>,from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
+    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline, a weekend festival celebrating truth-seeking and blogging</a>, from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
     </p>
     <p>
       Hello LessWrong reader,
