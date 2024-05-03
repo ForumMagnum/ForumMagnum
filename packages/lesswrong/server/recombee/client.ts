@@ -482,8 +482,6 @@ const recombeeApi = {
       deferredPostsPromise
     ]);
 
-    console.log({ fixedArmCount, configurableArmCount, orderedPostsCount: orderedPosts.length });
-
     const topDeferredPosts = deferredPosts.slice(0, fixedArmCount);
 
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
