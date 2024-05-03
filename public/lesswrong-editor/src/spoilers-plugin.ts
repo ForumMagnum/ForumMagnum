@@ -5,8 +5,15 @@ import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import Command from '@ckeditor/ckeditor5-core/src/command';
 import blockAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
 import first from '@ckeditor/ckeditor5-utils/src/first';
+import type { Element } from '@ckeditor/ckeditor5-engine';
 
-type SpoilerBlockCommandOptions = AnyBecauseTodo
+type SpoilerBlockCommandOptions = {
+	/**
+	 * If set, it will force the command behavior. If `true`, the command will apply a block quote,
+	 * otherwise the command will remove the block quote. If not set, the command will act basing on its current value.
+	*/
+	forceValue?: boolean
+}
 
 export default class Spoilers extends Plugin {
 	static get requires() {
@@ -124,9 +131,6 @@ class SpoilerBlockCommand extends Command {
 	 * a block quote.
 	 *
 	 * @fires execute
-	 * @param {Object} [options] Command options.
-	 * @param {Boolean} [options.forceValue] If set, it will force the command behavior. If `true`, the command will apply a block quote,
-	 * otherwise the command will remove the block quote. If not set, the command will act basing on its current value.
 	 */
 	execute( options: SpoilerBlockCommandOptions = {} ) {
 		const model = this.editor.model;
@@ -156,9 +160,8 @@ class SpoilerBlockCommand extends Command {
 	 * Checks the command's {@link #value}.
 	 *
 	 * @private
-	 * @returns {Boolean} The current value.
 	 */
-	_getValue() {
+	_getValue(): boolean {
 		const selection = this.editor.model.document.selection;
 
 		const firstBlock = first( selection.getSelectedBlocks() );
@@ -171,9 +174,8 @@ class SpoilerBlockCommand extends Command {
 	 * Checks whether the command can be enabled in the current context.
 	 *
 	 * @private
-	 * @returns {Boolean} Whether the command should be enabled.
 	 */
-	_checkEnabled() {
+	_checkEnabled(): boolean {
 		if ( this.value ) {
 			return true;
 		}
@@ -199,9 +201,8 @@ class SpoilerBlockCommand extends Command {
 	 *
 	 * @private
 	 * @param {module:engine/model/writer~Writer} writer
-	 * @param {Array.<module:engine/model/element~Element>} blocks
 	 */
-	_removeSpoiler( writer, blocks ) {
+	_removeSpoiler(writer, blocks: Element[]) {
 		// Unquote all groups of block. Iterate in the reverse order to not break following ranges.
 		getRangesOfBlockGroups( writer, blocks ).reverse().forEach( groupRange => {
 			if ( groupRange.start.isAtStart && groupRange.end.isAtEnd ) {
@@ -240,7 +241,7 @@ class SpoilerBlockCommand extends Command {
 	 * @param {module:engine/model/writer~Writer} writer
 	 * @param {Array.<module:engine/model/element~Element>} blocks
 	 */
-	_applySpoiler( writer, blocks ) {
+	_applySpoiler(writer, blocks: Element[]) {
 		const spoilersToMerge = [];
 
 		// Quote all groups of block. Iterate in the reverse order to not break following ranges.
@@ -284,7 +285,7 @@ function findSpoiler( elementOrPosition ) {
 //
 // @param {Array.<module:engine/model/element~Element>} blocks
 // @returns {Array.<module:engine/model/range~Range>}
-function getRangesOfBlockGroups( writer, blocks ) {
+function getRangesOfBlockGroups(writer, blocks: Element[]) {
 	let startPosition;
 	let i = 0;
 	const ranges = [];

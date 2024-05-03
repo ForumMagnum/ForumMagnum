@@ -30,9 +30,9 @@ export default class FootnoteEditing extends Plugin {
 	}
 
 	/**
-	 * @type {RootElement} The root element of the document.
+	 * The root element of the document.
 	 */
-	get rootElement() {
+	get rootElement(): RootElement {
 		const rootElement = this.editor.model.document.getRoot();
 		if(!rootElement) {
 			throw new Error('Document has no rootElement element.');
@@ -153,9 +153,8 @@ export default class FootnoteEditing extends Plugin {
 	 * a footnote without deleting it. modelWriter is passed in to
 	 * batch these changes with the ones that instantiated them,
 	 * such that the set can be undone with a single action.
-	 * @param {ModelElement} footnoteContent
 	 */
-	_clearContents(modelWriter, footnoteContent) {
+	_clearContents(modelWriter: ModelWriter, footnoteContent: ModelElement) {
 		const contents = modelWriter.createRangeIn(footnoteContent);
 		modelWriter.appendElement("paragraph", footnoteContent);
 		modelWriter.remove(contents);
@@ -166,10 +165,8 @@ export default class FootnoteEditing extends Plugin {
 	 * id attribute changes, it's references automatically update from a dispatcher event in converters.js,
 	 * which triggers the `updateReferenceIds` method. modelWriter is passed in to batch these changes with
 	 * the ones that instantiated them, such that the set can be undone with a single action.
-	 * @param {ModelWriter} modelWriter
-	 * @param {ModelElement} footnote
 	 */
-	_removeFootnote(modelWriter, footnote) {
+	_removeFootnote(modelWriter: ModelWriter, footnote: ModelElement) {
 		// delete the current footnote and its references,
 		// and renumber subsequent footnotes.
 		if(!this.editor) {
@@ -222,11 +219,9 @@ export default class FootnoteEditing extends Plugin {
 	 * Deletes all references to the footnote with the given id. If no id is provided,
 	 * all references are deleted. modelWriter is passed in to batch these changes with
 	 * the ones that instantiated them, such that the set can be undone with a single action.
-	 * @param {ModelWriter} modelWriter
-	 * @param {string|undefined} footnoteId
 	 */
-	_removeReferences(modelWriter, footnoteId=undefined) {
-		const removeList = [];
+	_removeReferences(modelWriter: ModelWriter, footnoteId: string|undefined=undefined) {
+		const removeList: AnyBecauseTodo[] = [];
 		if(!this.rootElement) throw new Error('Document has no root element.');
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
 		footnoteReferences.forEach((footnoteReference) => {
@@ -245,11 +240,8 @@ export default class FootnoteEditing extends Plugin {
 	 * the index attribute of an existing footnote changes, which happens when a footnote
 	 * with a lower index is deleted. batch is passed in to group these changes with
 	 * the ones that instantiated them.
-	 * @param {Batch} batch
-	 * @param {string} footnoteId
-	 * @param {string} newFootnoteIndex
 	 */
-	_updateReferenceIndices(batch, footnoteId, newFootnoteIndex) {
+	_updateReferenceIndices(batch: Batch, footnoteId: string, newFootnoteIndex: string) {
 		const footnoteReferences = modelQueryElementsAll(
 			this.editor,
 			this.rootElement,
@@ -266,9 +258,8 @@ export default class FootnoteEditing extends Plugin {
 	 * Reindexes footnotes such that footnote references occur in order, and reorders
 	 * footnote items in the footer section accordingly. batch is passed in to group changes with
 	 * the ones that instantiated them.
-	 * @param {Batch} batch
 	 */
-	_orderFootnotes(batch) {
+	_orderFootnotes(batch: Batch) {
 		const footnoteReferences = modelQueryElementsAll(this.editor, this.rootElement, e => e.is('element', ELEMENTS.footnoteReference));
 		const uniqueIds = new Set(footnoteReferences.map(e => e.getAttribute(ATTRIBUTES.footnoteId)));
 		const orderedFootnotes = [...uniqueIds].map(id => (

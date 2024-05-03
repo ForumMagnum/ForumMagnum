@@ -1,5 +1,3 @@
-// @ts-check (uses JSDoc types for type checking)
-
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import ModelText from '@ckeditor/ckeditor5-engine/src/model/text';
 import ModelTextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
@@ -16,17 +14,14 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 /**
  * Returns an array of all descendant elements of
  * the root for which the provided predicate returns true.
- * @param {Editor} editor
- * @param {ModelElement} rootElement  
- * @param {(item: ModelElement) => boolean} predicate
- * @returns {ModelElement[]} */
- export const modelQueryElementsAll = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+ */
+export const modelQueryElementsAll = (
+	editor: Editor, 
+	rootElement: ModelElement,
+	predicate: (item: ModelElement) => boolean =(_) => true,
+): ModelElement[] => {
 	const range = editor.model.createRangeIn(rootElement);
-	const output = [];
+	const output: ModelElement[] = [];
 
 	for(const item of range.getItems()) {
 		if (!(item instanceof ModelElement)) {
@@ -43,17 +38,14 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 /**
  * Returns an array of all descendant text nodes and text proxies of
  * the root for which the provided predicate returns true.
- * @param {Editor} editor
- * @param {ModelElement} rootElement  
- * @param {(item: ModelText|ModelTextProxy) => boolean} predicate
- * @returns {(ModelText|ModelTextProxy)[]} */
- export const modelQueryTextAll = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+ */
+export const modelQueryTextAll = (
+	editor: Editor,
+	rootElement: ModelElement,
+	predicate: (item: ModelText|ModelTextProxy) => boolean =(_) => true,
+): (ModelText|ModelTextProxy)[] => {
 	const range = editor.model.createRangeIn(rootElement);
-	const output = [];
+	const output: (ModelText|ModelTextProxy)[] = [];
 
 	for(const item of range.getItems()) {
 		if (!(item instanceof ModelText || item instanceof ModelTextProxy)) {
@@ -70,17 +62,14 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 /**
  * Returns an array of all descendant elements of
  * the root for which the provided predicate returns true.
- * @param {Editor} editor
- * @param {ViewElement} rootElement  
- * @param {(item: ViewElement) => boolean} predicate
- * @returns {ViewElement[]} */
- export const viewQueryElementsAll = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+ */
+export const viewQueryElementsAll = (
+	editor: Editor,
+	rootElement: ViewElement,
+	predicate: (item: ViewElement) => boolean =(_) => true,
+): ViewElement[] => {
 	const range = editor.editing.view.createRangeIn(rootElement);
-	const output = [];
+	const output: ViewElement[] = [];
 
 	for(const item of range.getItems()) {
 		if (!(item instanceof ViewElement)) {
@@ -97,17 +86,14 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 /**
  * Returns an array of all descendant text nodes and text proxies of
  * the root for which the provided predicate returns true.
- * @param {Editor} editor
- * @param {ViewElement} rootElement  
- * @param {(item: ViewText|ViewTextProxy) => boolean} predicate
- * @returns {(ViewText|ViewTextProxy)[]} */
- export const viewQueryTextAll = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+ */
+export const viewQueryTextAll = (
+	editor: Editor,
+	rootElement: ViewElement,
+	predicate: (item: ViewText|ViewTextProxy) => boolean = (_) => true,
+): (ViewText|ViewTextProxy)[] => {
 	const range = editor.editing.view.createRangeIn(rootElement);
-	const output = [];
+	const output: (ViewText|ViewTextProxy)[] = [];
 
 	for(const item of range.getItems()) {
 		if (!(item instanceof ViewText || item instanceof ViewTextProxy)) {
@@ -124,15 +110,12 @@ import { Editor } from '@ckeditor/ckeditor5-core';
 /**
  * Returns the first descendant element of the root for which the provided
  * predicate returns true, or null if no such element is found.
- * @param {Editor} editor
- * @param {ModelElement} rootElement  
- * @param {(item: ModelElement) => boolean} predicate
- * @returns {ModelElement|null} */
+ */
 export const modelQueryElement = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+	editor: Editor,
+	rootElement: ModelElement,
+	predicate: (item: ModelElement) => boolean = (_) => true,
+): ModelElement|null => {
 	const range = editor.model.createRangeIn(rootElement);
 
 	for(const item of range.getItems()) {
@@ -150,15 +133,12 @@ export const modelQueryElement = (
 /**
  * Returns the first descendant text node or text proxy of the root for which the provided
  * predicate returns true, or null if no such element is found.
- * @param {Editor} editor
- * @param {ModelElement} rootElement  
- * @param {(item: ModelText|ModelTextProxy) => boolean} predicate
- * @returns {ModelText|ModelTextProxy|null} */
+ */
 export const modelQueryText = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+	editor: Editor,
+	rootElement: ModelElement,
+	predicate: (item: ModelText|ModelTextProxy) => boolean = (_) => true,
+): ModelText|ModelTextProxy|null => {
 	const range = editor.model.createRangeIn(rootElement);
 
 	for(const item of range.getItems()) {
@@ -176,15 +156,12 @@ export const modelQueryText = (
 /**
  * Returns the first descendant element of the root for which the provided
  * predicate returns true, or null if no such element is found.
- * @param {Editor} editor
- * @param {ViewElement} rootElement  
- * @param {(item: ViewElement) => boolean} predicate
- * @returns {ViewElement|null} */
- export const viewQueryElement = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+ */
+export const viewQueryElement = (
+	editor: Editor,
+	rootElement: ViewElement,
+	predicate: (item: ViewElement) => boolean = (_) => true,
+): ViewElement|null => {
 	const range = editor.editing.view.createRangeIn(rootElement);
 
 	for(const item of range.getItems()) {
@@ -202,15 +179,12 @@ export const modelQueryText = (
 /**
  * Returns the first descendant text node or text proxy of the root for which the provided
  * predicate returns true, or null if no such element is found.
- * @param {Editor} editor
- * @param {ViewElement} rootElement  
- * @param {(item: ViewText|ViewTextProxy) => boolean} predicate
- * @returns {ViewText|ViewTextProxy|null} */
- export const viewQueryText = (
-	editor, 
-	rootElement,
-	predicate=(_) => true,
-) => {
+ */
+export const viewQueryText = (
+	editor: Editor,
+	rootElement: ViewElement,
+	predicate: (item: ViewText|ViewTextProxy) => boolean = (_) => true,
+): ViewText|ViewTextProxy|null => {
 	const range = editor.editing.view.createRangeIn(rootElement);
 
 	for(const item of range.getItems()) {

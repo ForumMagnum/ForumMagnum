@@ -1,15 +1,13 @@
 // @ts-check (uses JSDoc types for type checking)
 
 import { ATTRIBUTES, ELEMENTS } from "../constants";
-import Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
+import type Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
 
 /**
  * Declares the custom element types used by the footnotes plugin.
  * See here for the meanings of each rule: https://ckeditor.com/docs/ckeditor5/latest/api/module_engine_model_schema-SchemaItemDefinition.html#member-isObject
- * @param {Schema} schema
- * @returns {void}
  */
-export const defineSchema = schema => {
+export const defineSchema = (schema: Schema) => {
 	/**
 	 * Footnote section at the footer of the document.
 	 */

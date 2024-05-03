@@ -1,7 +1,5 @@
-// @ts-check (uses JSDoc types for type checking)
-
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
+import type ModelWriter from '@ckeditor/ckeditor5-engine/src/model/writer';
 import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
 import { modelQueryElement } from './utils';
@@ -13,9 +11,8 @@ export default class InsertFootnoteCommand extends Command {
 	 * footnote if one doesn't already exist. Also creates the footnote section
 	 * if it doesn't exist. If `footnoteIndex` is 0 (or not provided), the added
 	 * footnote is given the next unused index--e.g. 7, if 6 footnotes exist so far.
-	 * @param {{footnoteIndex?: number}} props
 	 */
-	execute({ footnoteIndex } = { footnoteIndex: 0 }) {
+	execute({footnoteIndex}: {footnoteIndex?: number} = {footnoteIndex: 0}) {
 		this.editor.model.enqueueChange(modelWriter => {
 			const doc = this.editor.model.document;
 			const rootElement = doc.getRoot();
@@ -72,11 +69,8 @@ export default class InsertFootnoteCommand extends Command {
 
 	/**
 	 * Returns the footnote section if it exists, or creates on if it doesn't.
-	 * @param {Writer} writer
-	 * @param {RootElement} rootElement
-	 * @returns {ModelElement}
 	 */
-	_getFootnoteSection(writer, rootElement) {
+	_getFootnoteSection(writer: ModelWriter, rootElement: RootElement): ModelElement {
 		const footnoteSection = modelQueryElement(this.editor, rootElement, element =>  element.is('element', ELEMENTS.footnoteSection));
 		if(footnoteSection) {
 			return footnoteSection;

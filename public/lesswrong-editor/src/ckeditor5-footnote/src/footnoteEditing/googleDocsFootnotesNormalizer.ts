@@ -1,5 +1,3 @@
-// @ts-check
-
 import UpcastWriter from '@ckeditor/ckeditor5-engine/src/view/upcastwriter';
 import Matcher from '@ckeditor/ckeditor5-engine/src/view/matcher';
 import { ATTRIBUTES } from '../constants';
@@ -35,18 +33,18 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * identifying attributes to footnoteReferences and footnotebackLinks,
 	 * and adding surrounding footnoteContent, footnoteItem, and footnoteSection
 	 * elements.
-	 * @param {{content: {document: Document}}} data
 	 */
-	execute(data) {
+	execute(data: {
+	  content: {document: Document}
+	}) {
 		const writer = new UpcastWriter( data.content.document );
 		/**
 		 * Creates a range that spans the entire pasted text. Used
 		 * for traversing.
-		 * @type {Range}
 		*/
 		// @ts-ignore: DefinitelyTyped mistypes the return values of UpcastWriter's range events
 		// as TypeScript Ranges, rather than CKEditor Ranges.
-		const documentRange = writer.createRangeIn(data.content);
+		const documentRange: Range = writer.createRangeIn(data.content);
 		const backLinks = this._getFootnoteBackLinks(documentRange);
 		const references = this._getFootnoteReferences(documentRange, backLinks);
 		this._preprocessFootnoteReferences(writer, references);
@@ -59,10 +57,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * Also generates a random alphanumeric footnote id for each, which facilitates
 	 * footnote reordering, undoing batch operations, and allowing multiple documents
 	 * to coexist on the same page without collisions (e.g. a post and its comments).
-	 * @param {Range} documentRange
-	 * @returns {Object.<string, {item: Element, id: string}>}
 	 */
-	_getFootnoteBackLinks(documentRange) {
+	_getFootnoteBackLinks(documentRange: Range): Record<string, {item: Element, id: string}> {
 		const idPattern = /^ftnt(\d+)$/;
 		const footnoteBackLinkMatcher = new Matcher({
 			name: 'a',
@@ -74,7 +70,7 @@ export default class GoogleDocsFootnotesNormalizer {
 			.reduce((acc, { item, type }) => {
 				if (
 					type === 'elementStart' &&
-					footnoteBackLinkMatcher.match(item)
+					footnoteBackLinkMatcher.match(item as AnyBecauseTodo)
 				) {
 					// @ts-ignore: matcher above eliminates the null / undefined cases here.
 					const index = item.getAttribute('id').match(idPattern)[1];
@@ -138,10 +134,9 @@ export default class GoogleDocsFootnotesNormalizer {
 			 * after the footnote content) are used to capture
 			 * all of the footnote except the backLink, which we
 			 * generate ourselves.
-			 * @type {Range}
 			*/
 			// @ts-ignore DefinitelyTyped mistyping of Range
-			const footnoteContentRange = writer.createRange(
+			const footnoteContentRange: Range = writer.createRange(
 				writer.createPositionAfter(item),
 				writer.createPositionAfter(footnoteContent),
 			);
@@ -189,11 +184,8 @@ export default class GoogleDocsFootnotesNormalizer {
 	 * created element. This clone-and-replace approach is necessary
 	 * because UpcastWriter doesn't have a method to wrap existing
 	 * content with a new element.
-	 * @param {UpcastWriter} writer
-	 * @param {Range} documentRange
-	 * @param {Object.<string, {item: Element, id: string}>} backLinks
 	 */
-	_preprocessFootnoteItems(writer, documentRange, backLinks) {
+	_preprocessFootnoteItems(writer: UpcastWriter, documentRange: Range, backLinks: Record<string, {item: Element, id: string}>) {
 		if(!Object.keys(backLinks).length) {
 			return;
 		}
@@ -211,17 +203,11 @@ export default class GoogleDocsFootnotesNormalizer {
 			return;
 		}
 		const firstFootnote = firstBackLink.parent.parent;
-		/**
-		 * @type {number}
-		*/
 		// @ts-ignore: null case only happens for unattached elements, which we know isn't true here.
-		const firstFootnoteIndex = firstFootnote.index;
+		const firstFootnoteIndex: number = firstFootnote.index;
 		const { previousSibling } = firstFootnote;
-		/**
-		 * @type {Range}
-		*/
 		// @ts-ignore DefinitelyTyped mistyping of Range
-		const footnoteSectionRange = writer.createRange(
+		const footnoteSectionRange: Range = writer.createRange(
  			writer.createPositionBefore(firstFootnote),
  			writer.createPositionAt(documentRange.end),
 		);

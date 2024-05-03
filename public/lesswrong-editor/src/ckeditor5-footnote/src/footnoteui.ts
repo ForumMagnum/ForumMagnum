@@ -53,14 +53,9 @@ export default class FootnoteUI extends Plugin {
 
 	}
 
-	/**
-	 * @returns {Collection<ListDropdownItemDefinition>}
-	 */
-	getDropdownItemsDefinitions() {
-		/** @type {Collection<ListDropdownItemDefinition>} */
-		const itemDefinitions = new Collection();
-		/** @type {ListDropdownItemDefinition} */
-		const defaultDef = {
+	getDropdownItemsDefinitions(): Collection<ListDropdownItemDefinition> {
+		const itemDefinitions = new Collection<ListDropdownItemDefinition>();
+		const defaultDef: ListDropdownItemDefinition = {
 			type: 'button',
 			model: new Model( {
 				commandParam: 0,
@@ -81,8 +76,7 @@ export default class FootnoteUI extends Plugin {
 			const footnoteItems = modelQueryElementsAll(this.editor, rootElement, element =>  element.is('element', ELEMENTS.footnoteItem));
 			footnoteItems.forEach((footnote) => {
 				const index = footnote.getAttribute(ATTRIBUTES.footnoteIndex);
-				/** @type {ListDropdownItemDefinition} */
-				const definition = {
+				const definition: ListDropdownItemDefinition = {
 					type: 'button',
 					model: new Model( {
 						commandParam: index,

@@ -1,8 +1,11 @@
-// @ts-check
-import { Command, Plugin } from '@ckeditor/ckeditor5-core';
+import { Command, Plugin, Editor } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
+import type { DowncastWriter, Element, Conversion, Model } from '@ckeditor/ckeditor5-engine';
+import type RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
+import type ContainerElement from '@ckeditor/ckeditor5-engine/src/view/containerelement';
+import type { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
 
 type DialoguesConfig = AnyBecauseTodo;
 
@@ -17,9 +20,6 @@ export default class DialogueCommentBox extends Plugin {
  */
 class SimpleBoxUI extends Plugin {
     init() {
-        /**
-         * @type {EditorWithUI}
-         */
         const editor = this.editor;
         const t = editor.t;
 
@@ -375,25 +375,7 @@ class SubmitDialogueMessageCommand extends Command {
     }
 }
 
-/**
- * @typedef {import('@ckeditor/ckeditor5-core/src/editor/editorwithui').EditorWithUI} EditorWithUI
- * @typedef {import('@ckeditor/ckeditor5-core/src/editor/editor').default} Editor
- * @typedef {import('@ckeditor/ckeditor5-engine').DowncastWriter} DowncastWriter
- * @typedef {import('@ckeditor/ckeditor5-engine/src/model/writer').default} ModelWriter
- * @typedef {Exclude<ReturnType<import('@ckeditor/ckeditor5-engine').Model['document']['getRoot']>, null>} RootElement
- * @typedef {import('@ckeditor/ckeditor5-engine').Element} Element
- * @typedef {import('@ckeditor/ckeditor5-engine/src/model/text').default} Text
- * @typedef {import('@ckeditor/ckeditor5-engine/src/view/containerelement').default} ContainerElement
- * @typedef {Exclude<Parameters<ReturnType<import('@ckeditor/ckeditor5-engine').Conversion['for']>['elementToElement']>[0], undefined>['view']} ViewElementDefinition
- * @typedef {Extract<ViewElementDefinition, (_0, _1) => ContainerElement>} ContainerElementDefinitionGenerator
- */
-
-/**
- * @param {DowncastWriter} viewWriter 
- * @param {Record<string, any>} buttonAttributes 
- * @param {Editor | EditorWithUI} editor 
- */
-function createButtonElement(viewWriter, buttonAttributes, editor) {
+function createButtonElement(viewWriter: DowncastWriter, buttonAttributes: Record<string,any>, editor: Editor) {
     return viewWriter.createUIElement('button', buttonAttributes, function (domDocument) {
         const domElement = this.toDomElement(domDocument);
         domElement.contentEditable = 'false';
@@ -404,13 +386,7 @@ function createButtonElement(viewWriter, buttonAttributes, editor) {
     });
 }
 
-/**
- * @param {DowncastWriter} viewWriter 
- * @param {string} elementName
- * @param {Record<string, any>} headerAttributes 
- * @param {string} userDisplayName 
- */
-function createHeaderElement(viewWriter, elementName, headerAttributes, userDisplayName) {
+function createHeaderElement(viewWriter: DowncastWriter, elementName: string, headerAttributes: Record<string,any>, userDisplayName: string) {
     return viewWriter.createUIElement(elementName, headerAttributes, function (domDocument) {
         const domElement = this.toDomElement(domDocument);
         domElement.contentEditable = 'false';
@@ -420,10 +396,7 @@ function createHeaderElement(viewWriter, elementName, headerAttributes, userDisp
     });
 }
 
-/**
- * @param {RootElement} root 
- */
-function findMessageInputs(root) {
+function findMessageInputs(root: RootElement) {
     const rootChildren = Array.from(root.getChildren());
     // For backwards compatibility, when we didn't have a wrapper around the message inputs
     const rootInputs = rootChildren.filter((child: AnyBecauseTodo) => child.is('element', 'dialogueMessageInput'));
@@ -435,23 +408,18 @@ function findMessageInputs(root) {
     return [...rootInputs, ...wrapperInputs];
 }
 
-/**
- * 
- * @param {string} className 
- * @param {string[]} attributeList
- * @returns {ContainerElementDefinitionGenerator}
- */
-function getDataDowncastViewGenerator(className, attributeList) {
+function getDataDowncastViewGenerator(className: string, attributeList: string[]) {
     return (modelElement, { writer: viewWriter }) => {
         const sectionAttributes = Object.fromEntries(attributeList.map(attribute => [attribute, modelElement.getAttribute(attribute)]));
         return viewWriter.createContainerElement('section', { class: className, ...sectionAttributes });
     };
 }
 
-/**
- * @type {ContainerElementDefinitionGenerator}
- */
-function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter }) {
+function inputEditingDowncastViewGenerator(
+	this: SimpleBoxEditing,
+	modelElement: Element,
+	{ writer: viewWriter }: DowncastConversionApi
+): ContainerElement {
     const editor = this.editor;
 
     const buttonAttributes = { type: 'button', class: 'CommentsNewForm-formButton MuiButton-root MuiButtonBase-root' };
@@ -464,7 +432,7 @@ function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter })
     const userOrder = getUserOrder(modelElement);
     const userId = modelElement.getAttribute('user-id');
     const sectionAttributes = { class: 'dialogue-message-input ContentStyles-debateResponseBody', 'user-order': userOrder, 'user-id': userId, 'display-name': userDisplayName };
-    const section = viewWriter.createContainerElement( 'section', sectionAttributes );
+    const section = viewWriter.createContainerElement( 'section', sectionAttributes ) as AnyBecauseTodo;
 
     viewWriter.insert(viewWriter.createPositionAt(section, 0), button);
     viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
@@ -472,10 +440,10 @@ function inputEditingDowncastViewGenerator(modelElement, { writer: viewWriter })
     return toWidgetEditable(section, viewWriter);
 }
 
-/**
- * @type {ContainerElementDefinitionGenerator}
- */
-function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter }) {
+function messageEditingDowncastViewGenerator(
+	modelElement: Element,
+	{ writer: viewWriter }: DowncastConversionApi
+) {
     const userOrder = getUserOrder(modelElement);
     const sectionAttributes = { class: 'dialogue-message ContentStyles-debateResponseBody', 'user-order': userOrder };
     const section = viewWriter.createContainerElement( 'section', sectionAttributes );
@@ -492,24 +460,18 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     return toWidget(section, viewWriter, { hasSelectionHandle: true });
 }
 
-/**
- * @type {ContainerElementDefinitionGenerator}
- */
-function messageContentDowncastViewGenerator(modelElement,  { writer: viewWriter }) {
+function messageContentDowncastViewGenerator(
+	modelElement: Element,
+	{ writer: viewWriter }: DowncastConversionApi
+) {
     const contentElement = viewWriter.createEditableElement('div', { class: 'dialogue-message-content' });
     return toWidgetEditable(contentElement, viewWriter);
 }
 
-/**
- * @param {Element} modelElement 
- */
-function getUserOrder(modelElement) {
+function getUserOrder(modelElement: Element) {
     return (modelElement.getAttribute('user-order') || '1').toString();
 }
 
-/**
- * @param {Element} modelElement 
- */
-function getUserDisplayName(modelElement) {
+function getUserDisplayName(modelElement: Element) {
     return (modelElement.getAttribute('display-name') || '').toString();
 }

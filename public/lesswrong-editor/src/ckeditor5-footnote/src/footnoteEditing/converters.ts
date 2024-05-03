@@ -10,10 +10,8 @@ import { ATTRIBUTES, CLASSES, ELEMENTS } from '../constants';
 
 /**
  * Defines methods for converting between model, data view, and editing view representations of each element type.
- * @param {Editor} editor
- * @returns {void}
- * */
-export const defineConverters = (editor) => {
+ */
+export const defineConverters = (editor: Editor): void => {
 	const conversion = editor.conversion;
 
 	/***********************************Attribute Conversion************************************/
@@ -237,11 +235,8 @@ export const defineConverters = (editor) => {
  * Creates and returns a view element for a footnote backlink,
  * which navigates back to the inline reference in the text. Used
  * for both data and editing downcasts.
- * @param {ModelElement} modelElement
- * @param {DowncastConversionApi} conversionApi
- * @returns {ContainerElement}
  */
-function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
+function createFootnoteBackLinkViewElement(modelElement: ModelElement, conversionApi: DowncastConversionApi): ContainerElement {
 	const viewWriter = conversionApi.writer;
 	const id = `${modelElement.getAttribute(ATTRIBUTES.footnoteId)}`;
 	if(id === undefined) {
@@ -269,11 +264,8 @@ function createFootnoteBackLinkViewElement(modelElement, conversionApi) {
 /**
  * Creates and returns a view element for an inline footnote reference. Used for both
  * data downcast and editing downcast conversions.
- * @param {ModelElement} modelElement
- * @param {DowncastConversionApi} conversionApi
- * @returns {ContainerElement}
  */
-function createFootnoteReferenceViewElement(modelElement, conversionApi) {
+function createFootnoteReferenceViewElement(modelElement: ModelElement, conversionApi: DowncastConversionApi): ContainerElement {
 	const viewWriter = conversionApi.writer;
 	const index = `${modelElement.getAttribute(ATTRIBUTES.footnoteIndex)}`;
 	const id = `${modelElement.getAttribute(ATTRIBUTES.footnoteId)}`;
@@ -306,11 +298,8 @@ function createFootnoteReferenceViewElement(modelElement, conversionApi) {
 /**
  * Creates and returns a view element for an inline footnote reference. Used for both
  * data downcast and editing downcast conversions.
- * @param {ModelElement} modelElement
- * @param {DowncastConversionApi} conversionApi
- * @returns {ContainerElement}
  */
-function createFootnoteItemViewElement(modelElement, conversionApi) {
+function createFootnoteItemViewElement(modelElement: ModelElement, conversionApi: DowncastConversionApi): ContainerElement {
 	const viewWriter = conversionApi.writer;
 	const index = modelElement.getAttribute(ATTRIBUTES.footnoteIndex);
 	const id = modelElement.getAttribute(ATTRIBUTES.footnoteId);
@@ -332,21 +321,18 @@ function createFootnoteItemViewElement(modelElement, conversionApi) {
 }
 
 /**
- * @typedef {Object} Data
- * @property {ModelElement} item
- * @property {string} attributeOldValue
- * @property {string} attributeNewValue
- */
-
-/**
  * Triggers when the index attribute of a footnote changes, and
  * updates the editor display of footnote references accordingly.
- * @param {Data} data
- * @param {DowncastConversionApi} conversionApi
- * @param {Editor} editor
- * @returns
  */
-function updateFootnoteReferenceView (data, conversionApi, editor) {
+function updateFootnoteReferenceView (
+	data: {
+	  item: ModelElement,
+	  attributeOldValue: string,
+	  attributeNewValue: string,
+	},
+	conversionApi: DowncastConversionApi,
+	editor: Editor
+) {
 	const { item, attributeNewValue: newIndex } = data;
 	if (!(item instanceof ModelElement) || !conversionApi.consumable.consume(item, `attribute:${ATTRIBUTES.footnoteIndex}:${ELEMENTS.footnoteReference}`)) {
 		return;

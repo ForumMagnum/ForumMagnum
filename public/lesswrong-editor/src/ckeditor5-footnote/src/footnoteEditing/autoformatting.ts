@@ -1,5 +1,3 @@
-// @ts-check (uses JSDoc types for type checking)
-
 import inlineAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/inlineautoformatediting';
 import { Editor } from '@ckeditor/ckeditor5-core';
 import Element from '@ckeditor/ckeditor5-engine/src/model/element';
@@ -8,19 +6,18 @@ import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
 import Range from '@ckeditor/ckeditor5-engine/src/view/range';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import { COMMANDS, ELEMENTS } from '../constants';
+import type Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 
 /**
  * Adds functionality to support creating footnotes using markdown syntax, e.g. `[^1]`.
- * @param {Editor} editor
- * @param {Element} rootElement
  */
-export const addFootnoteAutoformatting = (editor, rootElement) => {
+export const addFootnoteAutoformatting = (editor: Editor, rootElement: Element) => {
 	if(editor.plugins.has('Autoformat')) {
-		const autoformatPluginInstance = editor.plugins.get('Autoformat');
+		const autoformatPluginInstance = editor.plugins.get('Autoformat') as Autoformat;
 		inlineAutoformatEditing(editor, autoformatPluginInstance,
 			text => regexMatchCallback(editor, text),
 			// @ts-ignore Pretty sure definitely typed is wrong
-			(_, /**@type Range[]*/ ranges) => formatCallback(ranges, editor, rootElement)
+			(_, ranges: Range[]) => formatCallback(ranges, editor, rootElement)
 			);
 	}
 }
@@ -40,12 +37,11 @@ export const addFootnoteAutoformatting = (editor, rootElement) => {
  * matched text, while passing the range of the numeric text on to the formatting callback.
  *
  * If 0 or more than 1 match is found, it returns empty ranges for both format and remove, which is a no-op.
- *
- * @param {Editor} editor
- * @param {string} text
- * @returns {{remove: [number, number][], format: [number, number][]}}
  */
-const regexMatchCallback = (editor, text) => {
+const regexMatchCallback = (editor: Editor, text: string): {
+  remove: [number, number][],
+  format: [number, number][]
+} => {
 	const selectionStart = editor.model.document.selection.anchor;
 	// get the text node containing the cursor's position, or the one ending at `the cursor's position
 	const surroundingText = selectionStart && (selectionStart.textNode || selectionStart.getShiftedBy(-1).textNode);
@@ -87,13 +83,8 @@ const regexMatchCallback = (editor, text) => {
  *
  * Footnotes only get inserted if the matching range is an integer between 1
  * and the number of existing footnotes + 1.
- *
- * @param {Range[]} ranges
- * @param {Editor} editor
- * @param {Element} rootElement
- * @returns {boolean|void}
  */
-const formatCallback = (ranges, editor, rootElement) => {
+const formatCallback = (ranges: Range[], editor: Editor, rootElement: Element): boolean|undefined => {
 	const command = editor.commands.get(COMMANDS.insertFootnote);
 	if(!command || !command.isEnabled) {
 		return;
