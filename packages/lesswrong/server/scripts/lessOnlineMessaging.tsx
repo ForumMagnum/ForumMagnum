@@ -71,7 +71,7 @@ const LessOnlineEmail = () => {
       P.P.S. <b>Got questions?</b> You can’t reply to this email, but <b>comments and questions are welcome in <a href="https://www.lesswrong.com/posts/MmWziepD8DDauSide/lessonline-festival-updates-thread">this LW thread</a></b> and/or using <b>the intercom bubble</b> in the bottom right of the <a href="https://less.online/">less.online</a> or <a href="http://lesswrong.com">lesswrong.com</a> websites.
 
     </p>
-    <img src=""/>
+    <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1712166847/habryka_6_g84ubl.png"/>
   </div>
 }
 
