@@ -385,7 +385,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 </PostsList2> 
               </AnalyticsContext>}
               
-              {/* RECOMBEE RECOMMENDATIONS */}
+              {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
                 algorithm={'recombee-hybrid'} settings={{
@@ -394,7 +394,12 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 }} />
               </AnalyticsContext>}
 
-              {/* RECOMBEE RECOMMENDATIONS 2 */}
+              {/* JUST RECOMMENDATIONS */}
+              {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
+              </AnalyticsContext>}
+
+              {/* RECOMBEE HYBRID RECOMMENDATIONS 2 */}
               {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
                   ...scenarioConfig, 
