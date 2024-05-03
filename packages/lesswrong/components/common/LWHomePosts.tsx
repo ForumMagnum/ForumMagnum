@@ -388,12 +388,16 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
-                showRecommendationsIcon
-                algorithm={'recombee-hybrid'} 
-                settings={{
-                  ...scenarioConfig,
-                  hybridScenarios: {fixed: 'lesswrong-hacker-news', configurable: 'recombee-personal'}
-                }} />
+                  showRecommendationsIcon
+                  algorithm={'recombee-hybrid'} 
+                  settings={{
+                    ...scenarioConfig,
+                    hybridScenarios: {
+                      fixed: 'lesswrong-hacker-news', 
+                      configurable: 'recombee-lesswrong-custom'
+                    }
+                  }} 
+                />
               </AnalyticsContext>}
 
               {/* JUST RECOMMENDATIONS */}
@@ -401,15 +405,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
               </AnalyticsContext>}
 
-              {/* RECOMBEE HYBRID RECOMMENDATIONS 2 */}
-              {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
-                  ...scenarioConfig, 
-                  hybridScenarios: {fixed: 'lesswrong-hacker-news', configurable: 'recombee-lesswrong-custom'}
-                }} 
-                />
-              </AnalyticsContext>}
-
+              {/* VERTEX RECOMMENDATIONS */}
               {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
                 <VertexPostsList />  
               </AnalyticsContext>}
