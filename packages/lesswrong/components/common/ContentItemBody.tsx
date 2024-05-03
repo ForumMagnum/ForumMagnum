@@ -314,7 +314,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.replaceElement(linkTag, replacementElement);
     }
   }
-
+  
   markElicitBlocks = (element: HTMLElement) => {
     const elicitBlocks = this.getElementsByClassname(element, "elicit-binary-prediction");
     for (const elicitBlock of elicitBlocks) {
@@ -465,14 +465,18 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 }
 
-
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  hocs: [withTracking]
+  hocs: [withTracking],
+  areEqual: {
+    ref: "ignore",
+    "dangerouslySetInnerHTML": "deep",
+    replacedSubstrings: (before, after) => Object.keys(before).length===0 && Object.keys(after).length===0,
+  },
 });
 
 declare global {
