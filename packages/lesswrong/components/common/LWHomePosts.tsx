@@ -390,10 +390,11 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 <RecombeePostsList 
                 algorithm={'recombee-hybrid'} settings={{
                   ...scenarioConfig,
-                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
                 }} />
               </AnalyticsContext>}
 
+              {/* TODO: Remove once setting removed from instance settings for admins /*}
               {/* RECOMBEE RECOMMENDATIONS 2 */}
               {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-hybrid'} settings={{

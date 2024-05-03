@@ -42,7 +42,7 @@ const voteTypeRatingsMap: Partial<Record<string, number>> = {
 
 const HYBRID_SCENARIO_MAP = {
   fixed: 'recombee-emulate-hacker-news',
-  configurable: 'recombee-personal'
+  configurable: 'recombee-lesswrong-custom'
 };
 
 interface OnsitePostRecommendationsInfo {
