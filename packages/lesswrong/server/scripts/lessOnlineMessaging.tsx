@@ -8,32 +8,35 @@ const LessOnlineEmail = (user: DbUser) => {
   if (!user?.displayName) return
   return <div>
     <p>
-      tl;dr The LessWrong team is hosting LessOnline, a weekend festival celebrating truth-seeking and blogging, from May 31st to Sun June 2nd in Berkeley, California. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. We’re raising ticket prices from $400 to $500 on May 13th (as late bookings are more costly) and you can buy tickets at the website.
+    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline</a></b>, a weekend festival celebrating truth-seeking and blogging, <b>from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
     </p>
     <p>
       Hello there,
     </p>
     <p>
+      We're bringing people together for a weekend festival celebrating truth-seeking and blogging. It’s called <b><a href="https://less.online/">LessOnline: A Festival of Writers Who are Wrong on the Internet (But Striving To Be Less So)</a></b>. There are many people trying to understand the world and earnestly write up explanations of it, and this is to celebrate all such attempts.
+    </p>
+    <p>
       People have formed a lot of excellent relationships and birthed a lot of fascinating and useful ideas in the blogosphere, but to fully build those relationships I think having an in-person component is really valuable. I think LessOnline will be a place where you can have lots of high bandwidth, in person conversations with people and on topics that you couldn’t have anywhere else.
     </p>
     <p>
-      It's at the end of this month, May 31 — June 2, at the LessWrong team's home venue Lighthaven in Berkeley, CA. 
+      It's at the end of this month, May 31 — June 2, at the LessWrong team's home venue <b><a href="https://www.lighthaven.space/">Lighthaven</a></b> in Berkeley, CA. 
     </p>
     <p>
-      The tickets are $400 (minus your LW karma in cents) but the price will increase by $100 on Monday May 13th. You can get tickets at Less.Online.
+      <b>The tickets are $400 (minus your LW karma in cents) but the price will increase by $100 on Monday May 13th. You can get tickets at <a href="https://less.online/">Less.Online</a>.</b>
     </p>
     <p>
       Which folks are we bringing together?
     </p>
     <ul>
       <li>
-        Writers about the art of rationality — Eliezer Yudkowsky, Zvi Mowshowitz,Duncan Sabien, Nate Soares, Jacob Falkovich, Logan Strohl, Alkjash, and more.
+        <b>Writers about the art of rationality</b> — Eliezer Yudkowsky, Zvi Mowshowitz,Duncan Sabien, Nate Soares, Jacob Falkovich, Logan Strohl, Alkjash, and more.
       </li>
       <li>
-        Writers who try to understand and earnestly explain how the world works — Scott Alexander, Kevin Simler, Sarah Constantin, Crémieux Recueil, Alexey Guzey, Aella, Katja Grace, and more.
+        <b>Writers who try to understand and earnestly explain how the world works</b> — Scott Alexander, Kevin Simler, Sarah Constantin, Crémieux Recueil, Alexey Guzey, Aella, Katja Grace, and more.
       </li>
       <li>
-        Writers of rational fiction with intelligent characters and lawful universes — Alexander Wales, Alicorn, Daystar Eld, Jamie Wahls, and more.
+        <b>Writers of rational fiction with intelligent characters and lawful universes</b> — Alexander Wales, Alicorn, Daystar Eld, Jamie Wahls, and more.
       </li>
       <li>
         And anyone else who’s excited about these topics and wants to join!
@@ -44,22 +47,23 @@ const LessOnlineEmail = (user: DbUser) => {
     </p>
     <ul>
       <li>
-        The focus is on having fascinating conversations. We've optimized the venue for having lots of nooks, whiteboards, fun secrets, and a fractal layout that’s great for focused intellectual conversation even when there are 400 people nearby.</li>
+        <b>The focus is on having fascinating conversations.</b> We've optimized the venue for having lots of nooks, whiteboards, fun secrets, and a fractal layout that’s great for focused intellectual conversation even when there are 400 people nearby.</li>
       <li>
-        There will be a bunch of optional workshops, talks and panels. I’m especially excited about writing workshops by people like Sarah Constantin, Duncan Sabien and Alicorn, as well as talks and panels on subjects like Moloch, Shoggoths, Emotions, Genetic Enhancement, Error-Correcting Codes, Magic the Gathering, and more.
+       <b> There will be a bunch of optional workshops, talks and panels.</b> I’m especially excited about writing workshops by writers like Sarah Constantin, Duncan Sabien, and Alicorn, as well as talks and panels on subjects like Moloch, Shoggoths, Emotions, Genetic Enhancement, Error-Correcting Codes, Magic the Gathering, and more.
       </li>
       <li>
-        There’ll be optional entertainment including a weekend-long puzzle hunt throughout Lighthaven and also a rationalist dance party led by The Fooming Shoggoths (with many unreleased tracks being played).
+        <b>There’ll be optional entertainment</b> including a weekend-long puzzle hunt throughout <b><a href="https://www.lighthaven.space/">Lighthaven</a></b> and also a rationalist dance party led by <b><a href="https://www.lesswrong.com/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing">The Fooming Shoggoths</a></b> (with many unreleased tracks being played).
       </li>
       <li>
-        And anything else that attendees want to do! There’ll be a google sheet that anyone can edit to add activities or sessions.
+        <b>And anything else that attendees want to do!</b> There’ll be a google sheet that anyone can edit to add activities or sessions.
       </li>
     </ul>
     <p>
       Personally, I started working on LessWrong in 2017, and I’d love to meet more of you people who’ve read and contributed to the blogosphere and the broader scene. There’s 25,000 people getting this email (everyone active on LessWrong since January 2020), and I believe that some of the most interesting and thoughtful and disagreeable and characterful people alive are on this mailing list, and I hope many of you come :-)
+
     </p>
     <p>
-      — Ben Pace & the LessOnline Team
+      — Ben Pace & the <b><a href="https://less.online/"></a>LessOnline</b> Team
     </p>
     <p>
       P.S. This festival started as an idea when we were talking to the team behind the forecasting & prediction market festival Manifest. They ran a smash-hit event last year at Lighthaven, and this year they encouraged us to run our own event as part of a series. This means that the weekend right after LessOnline is Manifest, and we've teamed up to offer a discounted ticket to both. Already many people have made plans to come for both and will be staying at Lighthaven for the week in between!
@@ -96,15 +100,15 @@ const lessOnlineMessaging = async () => {
   //     body: LessOnlineEmail(raemon)
   //   });
   // }
-  for (const user of users) {
-    if (user.displayName === "Ben Pace") {
-      await wrapAndSendEmail({
-        user: user,
-        subject: "Less Online Messaging",
-        body: LessOnlineEmail(user)
-      });
-    }
-  }
+  // for (const user of users) {
+  //   if (user.displayName === "Ben Pace") {
+  //     await wrapAndSendEmail({
+  //       user: user,
+  //       subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
+  //       body: LessOnlineEmail(user)
+  //     });
+  //   }
+  // }
 }
 
 Globals.lessOnlineMessaging = lessOnlineMessaging
