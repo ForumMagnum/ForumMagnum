@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
-import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
+import { replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations, CommandLineArguments } from '../lib/executionEnvironment';
@@ -19,7 +19,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
-import { ensurePostgresViewsExist } from './postgresView';
+import { getAllPostgresViews } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
@@ -105,7 +105,9 @@ const initPostgres = async () => {
   if (migrating && migratingUp) return;
 
   try {
-    await ensurePostgresViewsExist(getSqlClientOrThrow(), addCronJob);
+    for (const view of getAllPostgresViews()) {
+      view.registerCronJob(addCronJob);
+    }
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error("Failed to ensure Postgres views exist:", e);
@@ -171,7 +173,7 @@ export const serverStartup = async () => {
       cluster.fork();
     }
 
-    cluster.on('exit', (worker, code, signal) => {
+    cluster.on('exit', (worker, _code, _signal) => {
       console.log(`Worker ${worker.process.pid} died`);
     });
   } else {

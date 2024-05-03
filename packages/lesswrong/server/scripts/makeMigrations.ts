@@ -17,6 +17,7 @@ import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
 import CreateIndexQuery from '../../lib/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '../../lib/sql/Type';
 import { expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import { getAllPostgresViews } from '../postgresView';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -95,12 +96,6 @@ const generateMigration = async ({
  * - `accepted_schema.sql`: This is a SQL view of the schema that has been accepted.
  * - `schema_to_accept.sql`: If the current schema is not accepted, this file will be generated to contain a SQL view of the "unaccepted" schema.
  *   This is useful for comparing against the accepted schema to see what changes need to be made in the migration that is generated. It is automatically deleted when the schema is accepted.
- *
- * @param {boolean} writeSchemaChangelog - If true, update the schema_changelog.json file before checking for changes
- * @param {boolean} writeAcceptedSchema - If true, update the `accepted_schema.sql` and `schema_to_accept.sql`
- * @param {boolean} generateMigrations - If true, generate a template migration file if the schema has changed
- * @param {boolean} rootPath - The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test.
- * @param {boolean} forumType - The optional forumType to switch to
  */
 export const makeMigrations = async ({
   writeSchemaChangelog=true,
@@ -110,10 +105,15 @@ export const makeMigrations = async ({
   forumType,
   silent=false,
 }: {
+  /** If true, update the schema_changelog.json file before checking for changes */
   writeSchemaChangelog: boolean,
+  /** If true, update the `accepted_schema.sql` and `schema_to_accept.sql` */
   writeAcceptedSchema: boolean,
+  /** If true, generate a template migration file if the schema has changed */
   generateMigrations: boolean,
+  /** The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test. */
   rootPath: string,
+  /** The optional forumType to switch to */
   forumType?: ForumTypeString,
   silent?: boolean,
 }) => {
@@ -193,6 +193,25 @@ export const makeMigrations = async ({
     currentHashes[func] = hash;
     schemaFileContents += `-- Function, hash: ${hash}\n`;
     schemaFileContents += func + ";\n\n";
+  }
+
+  for (const view of getAllPostgresViews()) {
+    const name = view.getName();
+    const query = view.getCreateViewQuery().trim();
+    const hasSemi = query[query.length - 1] === ";";
+    const hash = md5(query);
+    currentHashes[name] = hash;
+    schemaFileContents += `-- View "${name}", hash: ${hash}\n`;
+    schemaFileContents += format(query + (hasSemi ? "" : ";"));
+
+    for (const index of view.getCreateIndexQueries()) {
+      const indexQuery = index.trim();
+      const hasSemi = indexQuery[indexQuery.length - 1] === ";";
+      const indexHash = md5(indexQuery);
+      currentHashes[index] = hash;
+      schemaFileContents += `-- Index on view "${name}", hash: ${indexHash}\n`;
+      schemaFileContents += format(indexQuery + (hasSemi ? "" : ";"));
+    }
   }
 
   if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
