@@ -64,7 +64,7 @@ const LessOnlineEmail = () => {
     <p>
       — Ben Pace & the <b><a href="https://less.online/">LessOnline</a></b> Team
     </p>
-    <hr>
+    <hr/>
     <p>
       P.S. This festival started as an idea when we were talking to the team behind the forecasting & prediction market festival <b><a href="https://www.manifest.is/">Manifest</a></b>. They ran a smash-hit event last year at Lighthaven, and this year they encouraged us to run our own event as part of a series. This means that the weekend right after LessOnline is Manifest, and we've <b><a href="https://less.online/#tickets-section">teamed up to offer a discounted ticket to both</a></b>. Already many people have made plans to come for both and will be staying at Lighthaven for the week in between!
     </p>
@@ -97,9 +97,11 @@ const lessOnlineMessaging = async () => {
   const benito = await Users.findOne({displayName: "Ben Pace"})
   const habryka = await Users.findOne({displayName: "habryka"})
   const kave = await Users.findOne({displayName: "kave"})
+  const robert = await Users.findOne({displayName: "RobertM"})
   const users = [
     raemon, 
-    benito, 
+    // benito, 
+    robert
     // habryka, 
     // kave
   ]

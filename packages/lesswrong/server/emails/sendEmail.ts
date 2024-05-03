@@ -19,6 +19,7 @@ const getMailUrl = () => {
  * API descended from meteor
  */
 export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
+  console.log(email)
   if (email.user?.deleted) {
     // eslint-disable-next-line no-console
     console.error("Attempting to send an email to a deleted user");
