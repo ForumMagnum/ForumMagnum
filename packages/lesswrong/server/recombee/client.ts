@@ -482,7 +482,9 @@ const recombeeApi = {
       deferredPostsPromise
     ]);
 
-    const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + (orderedPosts.length - configurableArmCount));
+    console.log({ fixedArmCount, configurableArmCount, orderedPostsCount: orderedPosts.length });
+
+    const topDeferredPosts = deferredPosts.slice(0, fixedArmCount);
 
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recommendationIdTuples, stickiedPostIds, curatedPostIds }));
