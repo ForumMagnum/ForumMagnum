@@ -22,7 +22,7 @@ const LessOnlineEmail = () => {
       It's at the end of this month, May 31 — June 2, at the LessWrong team's home venue <b><a href="https://www.lighthaven.space/">Lighthaven</a></b> in Berkeley, CA. 
     </p>
     <p>
-      <b>The tickets are $400 (minus your LW karma in cents) but the price will increase by $100 on Monday May 13th. You can get tickets at <a href="https://less.online/">Less.Online</a>.</b>
+      <b>The tickets are $400 (minus your LW karma in cents) but the price will increase by $100 on Monday May 13th. You can get tickets at <a href="https://less.online/">less.online</a>.</b>
     </p>
     <p>
       Which folks are we bringing together?
