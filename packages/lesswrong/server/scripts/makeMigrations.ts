@@ -180,7 +180,7 @@ export const makeMigrations = async ({
   }
 
   for (const index of expectedCustomPgIndexes) {
-    const trimmed = index.trim();
+    const trimmed = index.trim().replace(/\s+CONCURRENTLY\s+/gi, " ");
     const hasSemi = trimmed[trimmed.length - 1] === ";";
     const indexHash = md5(trimmed);
     currentHashes[index] = indexHash;

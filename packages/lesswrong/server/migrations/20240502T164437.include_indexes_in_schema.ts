@@ -1,4 +1,4 @@
-export const acceptsSchemaHash = "30d84b9a54a96c833c08b9783ea18d26";
+export const acceptsSchemaHash = "490c611ceed26bbc76e0c25a702d7159";
 
 // This is a dummy migration - no action is needed
 

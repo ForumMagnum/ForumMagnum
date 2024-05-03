@@ -18,8 +18,12 @@ import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 import seedUsers from "../../../cypress/fixtures/users";
 
 const loadDbSchema = async (client: SqlClient) => {
-  const schema = await readFile("./schema/acceptedSchema");
-  await client.multi(schema.toString());
+  try {
+    const schema = await readFile("./schema/accepted_schema.sql");
+    await client.multi(schema.toString());
+  } catch (e) {
+    throw new Error("Failed to load db schema", {cause: e});
+  }
 }
 
 const makeDbName = (id?: string) => {
