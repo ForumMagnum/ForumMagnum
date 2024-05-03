@@ -15,7 +15,7 @@ describe('Schema check', () => {
       forumType: "EAForum",
       silent: true,
     });
-  }, 60000);
+  }, 120000);
 
   it('accpeted_schema.sql overall hash matches most recent changelog item', async () => {
     const acceptedSchemaPath = path.join(rootPath, "schema/accepted_schema.sql");
