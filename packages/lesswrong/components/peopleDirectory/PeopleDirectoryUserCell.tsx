@@ -38,7 +38,7 @@ export const PeopleDirectoryUserCell = ({user, classes}: {
       <div className={classes.name}>{user.displayName}</div>
       <InteractionWrapper>
         <LWTooltip title="Send message" placement="bottom">
-          <NewConversationButton currentUser={currentUser} user={user}>
+          <NewConversationButton currentUser={currentUser} user={user} from="people_directory">
             <ForumIcon icon="Envelope" className={classes.message} />
           </NewConversationButton>
         </LWTooltip>
