@@ -409,7 +409,8 @@ export const sanitize = function(s: string): string {
         'estimaker-preview',
         'viewpoints-preview',
         'ck-cta-button',
-        'ck-cta-button-centered'
+        'ck-cta-button-centered',
+        'calendly-preview',
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
