@@ -4,6 +4,15 @@ export {}
 
 declare global {
 
+// The version of the typescript lib we use is missing several of the valid
+// constructors for `Error`, so we add them here
+interface ErrorConstructor {
+    new(message?: string, options?: {cause?: Error}): Error;
+    new(message?: string, fileName?: string, lineNumber?: number): Error;
+    (message?: string, options?: {cause?: Error}): Error;
+    (message?: string, fileName?: string, lineNumber?: number): Error;
+}
+
 // Test whether T is type 'any'; if so evaluates to Y, otherwise to N. From
 // https://stackoverflow.com/questions/55541275/typescript-check-for-the-any-type
 type IfAny<T,Y,N> = 0 extends (1 & T) ? Y : N;
