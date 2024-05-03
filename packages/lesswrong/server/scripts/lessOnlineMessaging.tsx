@@ -82,28 +82,33 @@ const lessOnlineMessaging = async () => {
 
   // console.log(lwevents.length, Array.from(new Set(lwevents.map(event => event.userId))).length)
 
-  const users = await Users.find({
-    lastNotificationsCheck: {$gt: new Date("2020-01-01")},
-    $or: [{ banned: { $exists: false } }, { banned: { $lte: new Date() } }],
-    karma: {$gte: 0}
-  }).fetch()
+  // const users = await Users.find({
+  //   lastNotificationsCheck: {$gt: new Date("2020-01-01")},
+  //   $or: [{ banned: { $exists: false } }, { banned: { $lte: new Date() } }],
+  //   karma: {$gte: 0}
+  // }).fetch()
 
-  const ignoredDisplayNames = ['Elizabeth', 'Scott Alexander', 'Eliezer Yudkowsky', 'Tsvi Benson-Tilsen', 'TsviBT', '[DEACTIVATED] Duncan Sabien', 'Raelifin', 'PeterMcCluskey', 'Peter_McCluskey', 'ozymandias', 'Rob Bensinger', 'Ziz', 'Gwen_', 'ialdabaoth', 'Holly_Elmore', 'David_Gerard', 'sarahconstantin', 'Sarah Constantin', 'LoganStrohl', 'Malcolm Ocean', 'MalcolmOcean', 'johnswentworth', 'eukaryote', 'Eric Neyman', 'Eneasz Brodski', 'Eli Tyre', 'Malmesbury']
+  // const ignoredDisplayNames = ['Elizabeth', 'Scott Alexander', 'Eliezer Yudkowsky', 'Tsvi Benson-Tilsen', 'TsviBT', '[DEACTIVATED] Duncan Sabien', 'Raelifin', 'PeterMcCluskey', 'Peter_McCluskey', 'ozymandias', 'Rob Bensinger', 'Ziz', 'Gwen_', 'ialdabaoth', 'Holly_Elmore', 'David_Gerard', 'sarahconstantin', 'Sarah Constantin', 'LoganStrohl', 'Malcolm Ocean', 'MalcolmOcean', 'johnswentworth', 'eukaryote', 'Eric Neyman', 'Eneasz Brodski', 'Eli Tyre', 'Malmesbury']
 
   // const usersMinusLessOnline = users.filter(user => ignoredDisplayNames.includes(user.displayName))
   // console.log(users.length)
 
-  // const raemon = await Users.findOne({username: "Raemon"})
-  // const benito = await Users.findOne({displayName: "Ben Pace"})
-  // console.log(raemon)
-  // console.log(users)
-  // if (raemon) {
-  //   await wrapAndSendEmail({
-  //     user: raemon,
-  //     subject: "Less Online Messaging",
-  //     body: LessOnlineEmail(raemon)
-  //   });
-  // }
+  const raemon = await Users.findOne({username: "Raemon"})
+  const benito = await Users.findOne({displayName: "Ben Pace"})
+  if (raemon) {
+    await wrapAndSendEmail({
+      user: raemon,
+      subject: "Less Online Messaging",
+      body: LessOnlineEmail(raemon)
+    });
+  }
+  if (benito) {
+    await wrapAndSendEmail({
+      user: raemon,
+      subject: "Less Online Messaging",
+      body: LessOnlineEmail(benito)
+    });
+  }
   // for (const user of users) {
   //   if (user.displayName === "Ben Pace") {
   //     await wrapAndSendEmail({
