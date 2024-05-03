@@ -1,4 +1,4 @@
-import { ApiClient, RecommendationResponse, requests } from 'recombee-api-client';
+import { ApiClient, BatchResponse, RecommendationResponse, requests } from 'recombee-api-client';
 import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -12,6 +12,7 @@ import groupBy from 'lodash/groupBy';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../../lib/vulcan-core/default_resolvers';
+import { captureException } from '@sentry/core';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -189,6 +190,19 @@ const helpers = {
 
   getBatchRequest(requestBatch: requests.Request[]) {
     return new requests.Batch(requestBatch);
+  },
+
+  filterSuccessesFromBatchResponse(batchResponse: BatchResponse) {
+    return batchResponse.filter(({ json, code }) => {
+      if (code !== 200) {
+        // eslint-disable-next-line no-console
+        console.log(`Error when batch fetching Recombee recommendations with status code ${code}`, { err: json.error });
+        captureException(new Error(json.error));
+        return false;
+      }
+
+      return true;
+    });
   },
 
   async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext): Promise<OnsitePostRecommendationsInfo> {
@@ -417,6 +431,7 @@ const recombeeApi = {
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
 
     const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
@@ -428,23 +443,33 @@ const recombeeApi = {
       fixed: fixedArmCount,
     };
 
-    let deferredPostsPromise: Promise<DbPost[]> = Promise.resolve([]);
+    const initiateDeferredPostsPromise = () => helpers.getNativeLatestPostsPromise(lwAlgoSettings, modifiedCount, fixedArmCount, excludeFromLatestPostIds, context);
+
+    let deferredPostsPromise: Promise<DbPost[]> | undefined = undefined;
     let recombeeResponsesWithScenario;
     if (lwAlgoSettings.hybridScenarios.fixed === 'recombee-emulate-hacker-news') {
       // We shoot off the promise to get our own latest posts now but don't block on it
       // There are plenty of longer-running operations we need to wait on before we need these posts, so we can hold off on awaiting this until those are all done
-      const excludedPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
-      deferredPostsPromise = helpers.getNativeLatestPostsPromise(lwAlgoSettings, modifiedCount, fixedArmCount, excludedPostIds, context);
+      deferredPostsPromise = initiateDeferredPostsPromise();
       
       const recombeeRequestSettings = helpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
       const recombeeRequest = helpers.createRecommendationsForUserRequest(userId, configurableArmCount, recombeeRequestSettings);
 
-      const recombeeResponse = await wrapWithPerfMetric(
-        () => client.send(recombeeRequest) as Promise<RecommendationResponse>,
-        () => helpers.openRecombeeRecsPerfMetric(recombeeRequest)
-      );
+      let recombeeResponse;
+      try {
+        recombeeResponse = await wrapWithPerfMetric(
+          () => client.send(recombeeRequest) as Promise<RecommendationResponse>,
+          () => helpers.openRecombeeRecsPerfMetric(recombeeRequest)
+        );
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(`Error when fetching Recombee recommendations for scenario ${recombeeRequestSettings.scenario} and userId ${userId}`, { err });
+        captureException(err);
+      }
 
-      recombeeResponsesWithScenario = [{ ...recombeeResponse, scenario: lwAlgoSettings.hybridScenarios.configurable }];
+      recombeeResponsesWithScenario = recombeeResponse
+        ? [{ ...recombeeResponse, scenario: lwAlgoSettings.hybridScenarios.configurable }]
+        : [];
     } else {
       const [firstRequest, secondRequest] = (['configurable', 'fixed'] as const)
         .map(hybridArm => [hybridArm, helpers.convertHybridToRecombeeArgs(lwAlgoSettings, hybridArm, excludedPostFilter)] as const)
@@ -457,8 +482,12 @@ const recombeeApi = {
         () => helpers.openRecombeeBatchRecsPerfMetric(firstRequest, secondRequest)
       );
 
+      // When doing batch requests, recombee doesn't throw an error if any or all of the constituent requests return e.g. a 404
+      // It returns them in as { json, code } (whereas regular requests just return the object in the `json` field directly, and throw on errors instead)
+      const successResponses = helpers.filterSuccessesFromBatchResponse(batchResponse);
+
       // We need the type cast here because recombee's type definitions don't provide response types for batch requests
-      const recombeeResponses = batchResponse.map(({ json }) => json as RecommendationResponse);
+      const recombeeResponses = successResponses.map(({ json }) => json as RecommendationResponse);
       recombeeResponsesWithScenario = recombeeResponses.map((response, index) => ({
         ...response,
         scenario: index === 0
@@ -470,6 +499,8 @@ const recombeeApi = {
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
     const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const));
     const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
+    // The ordering of these post ids is actually important, since it's preserved through all subsequent filtering/mapping
+    // It ensures the "curated > stickied > everything else" ordering
     const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
     
     const [orderedPosts, deferredPosts] = await Promise.all([
@@ -479,10 +510,16 @@ const recombeeApi = {
         .then(filterNonnull),
       // Here is where we get the results of the non-awaited request for latest posts
       // Hopefully we don't actually need to wait at all, since the recombee call + fetching all the other posts from the DB should take longer than this request
-      deferredPostsPromise
+      // In the case we're making a batch request to recombee, we don't launch the request at the top, since we're only using it as a fallback in case recombee returns an error
+      // In those cases, I'd rather just eat the additional latency than be making totally pointless requests to fetch posts from the DB 99%+ of the time
+      deferredPostsPromise ?? initiateDeferredPostsPromise()
     ]);
 
-    const topDeferredPosts = deferredPosts.slice(0, fixedArmCount);
+    // We might not get enough posts back from recombee (most likely because of downtime or other request failure)
+    // In those cases, fall back to filling in from the latest posts (since we're fetching enough for the entire request, if necessary)
+    const intendedNonDeferredPostCount = configurableArmCount + curatedAndStickiedPostCount;
+    const missingPostCount = intendedNonDeferredPostCount - orderedPosts.length;
+    const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + missingPostCount);
 
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recommendationIdTuples, stickiedPostIds, curatedPostIds }));
