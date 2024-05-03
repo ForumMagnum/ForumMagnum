@@ -102,7 +102,20 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
   const postIds = results?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = results?.map(({post, scenario}) => ({postId: post._id, scenario: scenario ?? 'none'})) ?? [];
+  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
+    let loggedScenario = scenario;
+    if (!loggedScenario) {
+      if (curated) {
+        loggedScenario = 'curated';
+      } else if (stickied) {
+        loggedScenario = 'stickied';
+      } else {
+        loggedScenario = 'hacker-news';
+      }
+    }
+    
+    return { postId: post._id, scenario: loggedScenario };
+  }) ?? [];
 
   useOnMountTracking({
     eventType: "postList",
