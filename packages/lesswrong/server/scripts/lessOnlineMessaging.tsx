@@ -8,10 +8,10 @@ const LessOnlineEmail = (user: DbUser) => {
   if (!user?.displayName) return
   return <div>
     <p>
-    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline: a weekend festival celebrating truth-seeking and blogging</a>,from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
+    <i>tl;dr The LessWrong team is hosting <b><a href="https://less.online/">LessOnline, a weekend festival celebrating truth-seeking and blogging</a>,from May 31st to Sun June 2nd in Berkeley, California</b>. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase. <b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are more costly) and <b><a href="https://less.online/">you can buy tickets at the website</a></b>.</i>
     </p>
     <p>
-      Hello there,
+      Hello LessWrong reader,
     </p>
     <p>
       We're bringing people together for a weekend festival celebrating truth-seeking and blogging. It’s called <b><a href="https://less.online/">LessOnline: A Festival of Writers Who are Wrong on the Internet (But Striving To Be Less So)</a></b>. There are many people trying to understand the world and earnestly write up explanations of it, and this is to celebrate them and their attempts.
@@ -93,22 +93,17 @@ const lessOnlineMessaging = async () => {
   // const usersMinusLessOnline = users.filter(user => ignoredDisplayNames.includes(user.displayName))
   // console.log(users.length)
 
-  const raemon = await Users.findOne({username: "Raemon"})
-  const benito = await Users.findOne({displayName: "Ben Pace"})
-  if (raemon) {
-    await wrapAndSendEmail({
-      user: raemon,
-      subject: "Less Online Messaging",
-      body: LessOnlineEmail(raemon)
-    });
-  }
-  if (benito) {
-    await wrapAndSendEmail({
-      user: raemon,
-      subject: "Less Online Messaging",
-      body: LessOnlineEmail(benito)
-    });
-  }
+  // const raemon = await Users.findOne({username: "Raemon"})
+  // const benito = await Users.findOne({displayName: "Ben Pace"})
+  // console.log(raemon)
+  // console.log(users)
+  // if (raemon) {
+  //   await wrapAndSendEmail({
+  //     user: raemon,
+  //     subject: "Less Online Messaging",
+  //     body: LessOnlineEmail(raemon)
+  //   });
+  // }
   // for (const user of users) {
   //   if (user.displayName === "Ben Pace") {
   //     await wrapAndSendEmail({
