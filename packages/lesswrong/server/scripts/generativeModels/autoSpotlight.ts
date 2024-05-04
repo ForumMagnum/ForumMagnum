@@ -40,7 +40,7 @@ async function createArtDescription(post: DbPost) {
     Post Title: ${post.title}
   `
 
-  const response = await queryClaude(`${queryImageRoot}${post.contents.html}`)
+  const response = await queryClaude(`${queryImageRoot}${post.contents?.html}`)
   return `<p><b>Art Prompt:</b></p>${response}`
 }
 
@@ -58,10 +58,10 @@ function createSpotlightDescription(post: DbPost) {
     Pick the first paragraph from the essay that isn't some kind of metadata. (Just write paragraph, without any preamble)
   `
   return [
-    queryClaude(`${queryQuestionRoot}${post.contents.html}`),
-    queryClaude(`${queryBestQuestionParagraphRoot}${post.contents.html}`),
-    queryClaude(`${queryBestParagraphRoot}${post.contents.html}`),
-    queryClaude(`${queryFirstParagraphRoot}${post.contents.html}`),
+    queryClaude(`${queryQuestionRoot}${post.contents?.html}`),
+    queryClaude(`${queryBestQuestionParagraphRoot}${post.contents?.html}`),
+    queryClaude(`${queryBestParagraphRoot}${post.contents?.html}`),
+    queryClaude(`${queryFirstParagraphRoot}${post.contents?.html}`),
   ]
 }
 

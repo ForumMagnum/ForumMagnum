@@ -25,6 +25,7 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
         boxShadow={false}
         curatedIconLeft={true}
         showFinalBottomBorder
+        viewType="fromContext"
       />
     </AnalyticsContext>
   );

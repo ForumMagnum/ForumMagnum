@@ -66,8 +66,8 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
 }) => {
   const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
   return (
-    <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
-      <PostsTooltip post={post} clickable placement="left-start">
+    <PostsTooltip post={post} clickable={false} placement="bottom-start">
+      <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
         <div className={classes.post}>
           {!hideMeta &&
             <MetaInfo className={classes.karma}>
@@ -82,12 +82,12 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
           </Link>
           {!hideMeta && post.user &&
             <MetaInfo className={classes.author}>
-              <UsersName user={post.user} />
+              <UsersName user={post.user} nowrap={!wrap} />
             </MetaInfo>
           }
         </div>
-      </PostsTooltip>
-    </div>
+      </div>
+    </PostsTooltip>
   );
 }
 

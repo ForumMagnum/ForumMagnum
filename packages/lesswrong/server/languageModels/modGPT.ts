@@ -19,42 +19,49 @@ import { getAdminTeamAccount } from '../callbacks/commentCallbacks';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { createAdminContext } from "../vulcan-lib/query";
+import difference from 'lodash/difference';
+import { truncatise } from '../../lib/truncatise';
 
 
 export const modGPTPrompt = `
-  Example output:
-  Recommendation: Intervene
-  Assessment: Does not meet the norms
-  Flag: Unnecessary rudeness or offensiveness
-  
-  This comment contains strong language, personal attacks, and a confrontational tone, which violates the forum rules on unnecessary rudeness. The moderation team should consider reviewing this comment and may need to intervene to ensure that the discussion remains civil and respectful.
-  
-  Suggestions for improvement: The comment could be improved by focusing on specific points of disagreement and addressing those points in a more respectful and constructive manner. The user should avoid personal attacks and strong language, and instead engage in a productive conversation about their concerns with the response they received. Offering alternative perspectives or suggestions for improvement would be more helpful in fostering a healthy discussion.
-  
-  Prompt:
   You are an advisor to the moderation team for the EA Forum. Your job is to make recommendations to the moderation team about whether they should intervene and moderate a comment.
-  Review each comment you're given by making an overall assessment of how well the comment meets the norms. Then flag if the comment breaks any Forum rules. Conclude by making a recommendation as to whether the moderation team should intervene. Your options are:
-  Intervene
-  Consider reviewing
-  Don't intervene
-  
-  Finally make a suggestion of how the comment could be improved.
-  Treat each user input as a comment to assess.
-  
-  The norms are:
-  Be kind. Stay civil, at the minimum. Don't sneer or be snarky. In general, assume good faith. Substantive disagreements are fine and expected. Disagreements help us find the truth and are part of healthy communication.
-  Be honest. Don't mislead or manipulate. Communicate your uncertainty and the true reasons behind your beliefs as much as you can. Be willing to change your mind.
-  
-  These are against Forum rules. Moderators should intervene if the comment contains any of the following:
-  Unnecessary rudeness or offensiveness
-  Advocating major harm or illegal activities, or any content that may be easily perceived as such
-  Information hazards
-  Deliberate misinformation or manipulation
-  Spam and any commercial messaging not related to effective altruism
-  Deliberate flamebait or trolling
-  Hate speech or content that promotes hate based on identity
-  Revealing someone's real name if they are anonymous on the Forum or elsewhere on the internet
-  Misgendering deliberately and/or deadnaming gratuitously
+
+  The three primary norms on the Forum are:
+  * Be kind. Stay civil, at the minimum. Don't sneer or be snarky. In general, assume good faith. Substantive disagreements are fine and expected. Disagreements help us find the truth and are part of healthy communication.
+  * Stay on topic. No spam. The Forum is for discussions about improving the world, not the promotion of services. Don't derail conversations in irrelevant directions.
+  * Be honest. Don't mislead or manipulate. Communicate your uncertainty and the true reasons behind your beliefs as much as you can. Be willing to change your mind.
+
+  The following is a list of behaviors we discourage. Moderators should intervene if the comment contains any of these:
+  * Unnecessary rudeness or offensiveness
+  * Advocating major harm or illegal activities
+  * Information hazards
+  * Deliberate misinformation or manipulation
+  * Spam and any commercial messaging not related to effective altruism
+  * Deliberate flamebait or trolling
+  * Hate speech or content that promotes hate based on identity
+  * Harassment or threats of violence
+  * Misgendering deliberately and/or deadnaming gratuitously, although mistakes are expected and fine
+
+  The user input will include some previous text as context (with the post data inside of <post> tags and the parent comment inside of <parent> tags) and the comment to be reviewed (inside <comment> tags). Review the comment you're given by making an overall assessment of how well the comment meets the norms. Make a recommendation as to whether the moderation team should intervene. Flag if the comment contains any specific discouraged behaviors from the list above.
+
+  Your three recommendation options are:
+  * Intervene
+  * Consider reviewing
+  * Don't intervene
+
+  Please be generous to commenters and give them the benefit of the doubt, especially around topics related to harm or illegal actions. Remember to keep the context in mind, and do not select "Intervene" if the commenter is not the originator of the discouraged behavior. Only select "Intervene" if you are sure that the comment should be removed. If you are unsure, err on the side of selecting "Consider reviewing".  Explain your decision in 3 sentences or less.
+
+  Finally, make a suggestion of how the comment could be improved.
+
+  Here is an example response:
+  <example>
+  Recommendation: Intervene
+  Flag: Unnecessary rudeness or offensiveness
+
+  This comment contains strong language, personal attacks, and a confrontational tone, which violates the forum rules on unnecessary rudeness. The moderation team should consider reviewing this comment and may need to intervene to ensure that the discussion remains civil and respectful.
+
+  Suggestions for improvement: The comment could be improved by focusing on specific points of disagreement and addressing those points in a more respectful and constructive manner. The user should avoid personal attacks and strong language, and instead engage in a productive conversation about their concerns with the response they received.
+  </example>
   `
 
 const getModGPTAnalysis = async (api: OpenAI, text: string) => {
@@ -93,7 +100,7 @@ const getMessageToCommenter = (user: DbUser, commentLink: string, flag?: string)
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-async function checkModGPT(comment: DbComment): Promise<void> {
+async function checkModGPT(comment: DbComment, post: DbPost): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -111,12 +118,36 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     return
   }
 
-  const data = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, { sanitize: true })
-  const html = sanitizeHtml(data, {
-    allowedTags: sanitizeAllowedTags.filter(tag => !['img', 'iframe'].includes(tag)),
-    nonTextTags: ['img', 'style']
+  const commentText = sanitizeHtml(comment.contents?.html ?? "", {
+    allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
+    nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
   })
-  const text = htmlToText(html)
+  const postText = sanitizeHtml(post.contents?.html ?? "", {
+    allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
+    nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
+  })
+  const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})
+  
+  // Build the message that will be attributed to the user
+  let userText = `
+    <post>
+    Title: ${post.title}
+    Excerpt: ${postExcerpt}
+    </post>
+  `
+  if (comment.parentCommentId) {
+    // If this comment has a parent, include that as well
+    const parentComment = await Comments.findOne({_id: comment.parentCommentId})
+    if (parentComment) {
+      const parentCommentText = sanitizeHtml(parentComment.contents?.html ?? "", {
+        allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
+        nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
+      })
+      userText += `<parent>${parentCommentText}</parent>`
+    }
+  }
+
+  userText += `<comment>${commentText}</comment>`
   
   const analyticsData = {
     userId: comment.userId,
@@ -124,7 +155,7 @@ async function checkModGPT(comment: DbComment): Promise<void> {
   }
 
   try {
-    let response = await getModGPTAnalysis(api, text)
+    let response = await getModGPTAnalysis(api, userText)
     const topResult = response.choices[0].message?.content
     if (!topResult) return
     
@@ -141,7 +172,8 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     })
     captureEvent("modGPTResponse", {
       ...analyticsData,
-      comment: text,
+      comment: commentText,
+      fullMessage: userText,
       analysis: topResult,
       recommendation: rec
     })
@@ -237,19 +269,23 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
     newDocument.spam ||
     newDocument.retracted ||
     newDocument.shortform ||
-    !oldDocument.contents.originalContents?.data ||
-    !newDocument.contents.originalContents?.data
+    !oldDocument.contents?.originalContents?.data ||
+    !newDocument.contents?.originalContents?.data
   ) {
     return
   }
   
-  const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
+  const noChange = oldDocument.contents?.originalContents.data === newDocument.contents?.originalContents.data
   if (noChange) return
+
   // only have ModGPT check comments on posts tagged with "Community"
-  const postTags = (await Posts.findOne(newDocument.postId))?.tagRelevance
+  const post = await Posts.findOne(newDocument.postId)
+  if (!post) return
+  
+  const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(newDocument)
+  void checkModGPT(newDocument, post)
 })
 
 getCollectionHooks("Comments").createAsync.add(async ({document}) => {
@@ -264,9 +300,13 @@ getCollectionHooks("Comments").createAsync.add(async ({document}) => {
   ) {
     return
   }
+  
   // only have ModGPT check comments on posts tagged with "Community"
-  const postTags = (await Posts.findOne({_id: document.postId}))?.tagRelevance
+  const post = await Posts.findOne(document.postId)
+  if (!post) return
+  
+  const postTags = post.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
   
-  void checkModGPT(document)
+  void checkModGPT(document, post)
 })

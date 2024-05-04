@@ -6,10 +6,11 @@ import { loadByIds } from "../../lib/loaders";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
 import { getInstanceSettingsFilePath } from "../commandLine";
 import { vertexDocumentServiceParentPathSetting, vertexRecommendationServingConfigPathSetting, vertexUserEventServiceParentPathSetting } from "../databaseSettings";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { getConfirmedCoauthorIds, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import path from "path";
 import chunk from "lodash/chunk";
-import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocumentMetadataArgs, GoogleMediaDocumentMetadata, InViewEvent, FrontpageViewEvent } from "./types";
+import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocumentMetadataArgs, GoogleMediaDocumentMetadata, PostEvent, FrontpageViewEvent, ReadStatusWithPostId, SupportedPostEventTypes } from "./types";
+import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from "../perfMetrics";
 
 const { RecommendationServiceClient } = v1beta;
 
@@ -65,12 +66,20 @@ const clients = {
 };
 
 const helpers = {
-  createMediaDocument({ post, tags, authorIds }: CreateGoogleMediaDocumentMetadataArgs): protos.google.cloud.discoveryengine.v1.IDocument {
-    const tagIds = tags?.map(tag => tag._id) ?? [];
+  /**
+   * If we're going to be performing an update (which all of our individual document upserts are), then we need the parent path to construct the fully-qualified "name"
+   * 
+   * Implied by https://cloud.google.com/generative-ai-app-builder/docs/reference/rest/v1/projects.locations.dataStores.branches.documents/patch
+   * 
+   * More concretely confirmed by the (hidden!) docstring in DocumentServiceClient.updateDocument
+   */
+  createMediaDocument({ post, tags, authorIds }: Required<CreateGoogleMediaDocumentMetadataArgs>, parentPath?: string): protos.google.cloud.discoveryengine.v1.IDocument {
+    const tagIds = tags.map(tag => tag._id);
     if (tagIds.length === 0) {
       tagIds.push('none')
     }
-    const persons = authorIds?.map(authorId => ({ name: authorId, role: 'author' } as const));
+
+    const persons = authorIds.map(authorId => ({ name: authorId, role: 'author' } as const));
   
     const metadata: GoogleMediaDocumentMetadata = {
       title: post.title,
@@ -81,17 +90,19 @@ const helpers = {
       persons,
       media_type: 'articles',
     };
+
+    const nameForUpsert = parentPath ? { name: `${parentPath}/documents/${post._id}` } : {};
   
     return {
+      ...nameForUpsert,
       id: post._id,
       schemaId: 'default_schema',
       jsonData: JSON.stringify(metadata),
     };
   },
 
-  createViewItemEvent(eventType: 'view-item' | 'media-play', readStatus: DbReadStatus): protos.google.cloud.discoveryengine.v1.IUserEvent {
-    const { userId, postId, lastUpdated: timestamp } = readStatus;
-  
+  createBasePostEvent(eventType: SupportedPostEventTypes, eventInfo: PostEvent) {
+    const { userId, postId, timestamp, attributionId } = eventInfo;
     return {
       eventType,
       // TODO - this should maybe be clientId for logged out users if doing real stuff with it, but no logged out users for now
@@ -102,25 +113,26 @@ const helpers = {
       },
       userInfo: { userId },
       documents: [{ id: postId }],
+      attributionToken: attributionId
     };
   },
 
-  createMediaCompleteEvent(inViewEvent: InViewEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
-    const { userId, postId, timestamp } = inViewEvent;
-  
+  createViewItemEventFromReadStatus(eventType: 'view-item' | 'media-play', readStatus: ReadStatusWithPostId): protos.google.cloud.discoveryengine.v1.IUserEvent {
+    const { userId, postId, lastUpdated: timestamp } = readStatus;
+    return helpers.createViewItemEvent(eventType, { userId, postId, timestamp });
+  },
+
+  createViewItemEvent(eventType: 'view-item' | 'media-play', eventInfo: PostEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
+    return helpers.createBasePostEvent(eventType, eventInfo);
+  },
+
+  createMediaCompleteEvent(eventInfo: PostEvent): protos.google.cloud.discoveryengine.v1.IUserEvent {
+    const baseEvent = helpers.createBasePostEvent('media-complete', eventInfo);
     return {
-      eventType: 'media-complete',
-      // TODO - this should maybe be clientId for logged out users if doing real stuff with it, but no logged out users for now
-      userPseudoId: userId, 
-      eventTime: {
-        seconds: timestamp.getTime() / 1000,
-        nanos: 0
-      },
-      userInfo: { userId },
-      documents: [{ id: postId }],
+      ...baseEvent,
       mediaInfo: {
         mediaProgressPercentage: 1
-      }
+      },
     };
   },
 
@@ -137,18 +149,30 @@ const helpers = {
       },
       userInfo: { userId }
     };
-  }
+  },
+
+  openVertexRecommendationPerfMetric(servingConfigPath: string) {
+    const servingConfigName = servingConfigPath.split('/').slice(-1)[0] ?? 'unknown';
+    return openPerfMetric({
+      op_type: 'vertex',
+      op_name: servingConfigName,
+      ...getParentTraceId()
+    });
+  },
 };
 
 const googleVertexApi = {
   async getRecommendations(limit: number, context: ResolverContext) {
     const { client, settingValues: { vertexRecommendationServingConfigPath } } = clients.recommendations();
-    const [recommendationsResponse] = await client.recommend({
-      validateOnly: false,
-      servingConfig: vertexRecommendationServingConfigPath,
-      pageSize: limit,
-      userEvent: { eventType: 'view-home-page', userPseudoId: context.currentUser?._id },
-    });
+    const [recommendationsResponse] = await wrapWithPerfMetric(
+      () => client.recommend({
+        validateOnly: false,
+        servingConfig: vertexRecommendationServingConfigPath,
+        pageSize: limit,
+        userEvent: { eventType: 'view-home-page', userPseudoId: context.currentUser?._id },
+      }),
+      () => helpers.openVertexRecommendationPerfMetric(vertexRecommendationServingConfigPath)
+    );
     if (!recommendationsResponse.results) {
       // TODO: error?
       // eslint-disable-next-line no-console
@@ -166,10 +190,10 @@ const googleVertexApi = {
     return postsWithAttribution;
   },
 
-  async importPosts(postsWithMetadata: CreateGoogleMediaDocumentMetadataArgs[]) {
+  async importPosts(postsWithMetadata: Required<CreateGoogleMediaDocumentMetadataArgs>[]) {
     const { client, settingValues: { vertexDocumentServiceParentPath } } = clients.documents();
 
-    const googleMediaDocuments = postsWithMetadata.map(helpers.createMediaDocument);
+    const googleMediaDocuments = postsWithMetadata.map((postWithMetadata) => helpers.createMediaDocument(postWithMetadata));
 
     // Max batch size of 100 for media documents
     const chunkedDocuments = chunk(googleMediaDocuments, 100);
@@ -188,18 +212,41 @@ const googleVertexApi = {
   },
 
   async importUserEvents(userEvents: protos.google.cloud.discoveryengine.v1.IUserEvent[]) {
-    const { client: userEventClient, settingValues: { vertexUserEventServiceParentPath } } = clients.userEvents();
+    const { client, settingValues: { vertexUserEventServiceParentPath } } = clients.userEvents();
 
     // Max batch size of 100k for user events
     const chunkedUserEvents = chunk(userEvents, 90000);
     for (const chunk of chunkedUserEvents) {
-      const [importUserEventsOperation] = await userEventClient.importUserEvents({ inlineSource: { userEvents: chunk }, parent: vertexUserEventServiceParentPath });
+      const [importUserEventsOperation] = await client.importUserEvents({ inlineSource: { userEvents: chunk }, parent: vertexUserEventServiceParentPath });
       const [importUserEventsResponse] = await importUserEventsOperation.promise();
       if (importUserEventsResponse.errorSamples?.length) {
         // eslint-disable-next-line no-console
         console.log('Error importing user events', { error: importUserEventsResponse.errorSamples[0] });
       }
     }
+  },
+
+  async upsertPost(postWithMetadata: CreateGoogleMediaDocumentMetadataArgs, context: ResolverContext) {
+    const { client, settingValues: { vertexDocumentServiceParentPath } } = clients.documents();
+    let { post, tags, authorIds } = postWithMetadata;
+
+    if (!tags) {
+      const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId);
+      tags = filterNonnull(await loadByIds(context, 'Tags', tagIds));  
+    }
+
+    authorIds ??= [post.userId, ...getConfirmedCoauthorIds(post)];
+
+    const postWithHydratedMetadata = { post, tags, authorIds };
+    const googleMediaDocument = helpers.createMediaDocument(postWithHydratedMetadata, vertexDocumentServiceParentPath);
+
+    await client.updateDocument({ document: googleMediaDocument, allowMissing: true },);
+  },
+
+  async writeUserEvent(userEvent: protos.google.cloud.discoveryengine.v1.IUserEvent) {
+    const { client, settingValues: { vertexUserEventServiceParentPath } } = clients.userEvents();
+
+    await client.writeUserEvent({ userEvent, parent: vertexUserEventServiceParentPath });
   }
 };
 

@@ -22,6 +22,8 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
+import { gql, useMutation } from '@apollo/client';
+import { vertexEnabledSetting } from '../../lib/publicSettings';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -213,6 +215,14 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     skip: !currentUser?._id,
   });
 
+  const [sendVertexViewHomePageEvent] = useMutation(gql`
+    mutation sendVertexViewHomePageEventMutation {
+      sendVertexViewHomePageEvent
+    }
+  `, {
+    ignoreResults: true
+  });
+
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
 
   const enabledTabs = availableTabs
@@ -332,6 +342,14 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
     limit:limit
   };
 
+  useEffect(() => {
+    if (currentUser && vertexEnabledSetting.get()) {
+      void sendVertexViewHomePageEvent();
+    }
+    // We explicitly only want to send it once on page load, no matter what changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
@@ -372,10 +390,11 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 <RecombeePostsList 
                 algorithm={'recombee-hybrid'} settings={{
                   ...scenarioConfig,
-                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
+                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
                 }} />
               </AnalyticsContext>}
 
+              {/* TODO: Remove once setting removed from instance settings for admins /*}
               {/* RECOMBEE RECOMMENDATIONS 2 */}
               {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList algorithm={'recombee-hybrid'} settings={{

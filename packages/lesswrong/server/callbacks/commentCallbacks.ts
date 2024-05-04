@@ -359,7 +359,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
           <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
           <p>The contents of your message are here:</p>
           <blockquote>
-            ${comment.contents.html}
+            ${comment.contents?.html}
           </blockquote>
         </div>`
     if (comment.deletedReason && moderatingUser) {

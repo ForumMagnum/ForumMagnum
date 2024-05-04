@@ -23,6 +23,7 @@ import { ensurePostgresViewsExist } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
+import { addCronJob } from './cronUtil';
 
 const numCPUs = cpus().length;
 
@@ -104,7 +105,7 @@ const initPostgres = async () => {
   if (migrating && migratingUp) return;
 
   try {
-    await ensurePostgresViewsExist(getSqlClientOrThrow());
+    await ensurePostgresViewsExist(getSqlClientOrThrow(), addCronJob);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error("Failed to ensure Postgres views exist:", e);
