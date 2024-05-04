@@ -72,11 +72,11 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationsIcon = false, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationIcon: showRecommendationIcon = false, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
-  showRecommendationsIcon?: boolean,
+  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
@@ -102,7 +102,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
 
-  const recommId = uniq(results?.map(({recommId}) => recommId) ?? []).join('-');
   const postIds = results?.map(({post}) => post._id) ?? [];
   const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
     let loggedScenario = scenario;
@@ -122,7 +121,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
   useOnMountTracking({
     eventType: "postList",
     // TODO: Remove postIds which is redundant once analytics dashboard written to use postIdsWithScenario
-    eventProps: { postIds, postIdsWithScenario, algorithm, recommId },
+    eventProps: { postIds, postIdsWithScenario, algorithm },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
@@ -143,7 +142,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
         post={post} 
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
-        showRecommendationIcon={showRecommendationsIcon}
+        showRecommendationIcon={showRecommendationIcon}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>

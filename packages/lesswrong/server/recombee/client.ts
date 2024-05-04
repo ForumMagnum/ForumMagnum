@@ -447,7 +447,7 @@ const recombeeApi = {
 
     let deferredPostsPromise: Promise<DbPost[]> | undefined = undefined;
     let recombeeResponsesWithScenario;
-    if (lwAlgoSettings.hybridScenarios.fixed === 'lesswrong-hacker-news') {
+    if (lwAlgoSettings.hybridScenarios.fixed === 'forum-classic') {
       // We shoot off the promise to get our own latest posts now but don't block on it
       // There are plenty of longer-running operations we need to wait on before we need these posts, so we can hold off on awaiting this until those are all done
       deferredPostsPromise = initiateDeferredPostsPromise();

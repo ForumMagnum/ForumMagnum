@@ -388,12 +388,12 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
               {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
-                  showRecommendationsIcon
+                  showRecommendationIcon
                   algorithm={'recombee-hybrid'} 
                   settings={{
                     ...scenarioConfig,
                     hybridScenarios: {
-                      fixed: 'lesswrong-hacker-news', 
+                      fixed: 'forum-classic', 
                       configurable: 'recombee-lesswrong-custom'
                     }
                   }} 
@@ -402,7 +402,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationsIcon />
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationIcon />
               </AnalyticsContext>}
 
               {/* VERTEX RECOMMENDATIONS */}
