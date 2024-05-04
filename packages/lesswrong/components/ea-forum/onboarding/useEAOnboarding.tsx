@@ -7,7 +7,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 export type OnboardingStage = string
 
 type EAOnboardingContext = {
-  currentStage: OnboardingStage,
+  currentStage?: OnboardingStage,
   goToNextStage: () => Promise<void>,
   goToNextStageAfter: <T>(promise: Promise<T>) => Promise<void>,
   nextStageIsLoading: boolean,
@@ -19,7 +19,6 @@ type EAOnboardingContext = {
 }
 
 const eaOnboardingContext = createContext<EAOnboardingContext>({
-  currentStage: "",
   goToNextStage: async () => {},
   goToNextStageAfter: async () => {},
   nextStageIsLoading: false,
