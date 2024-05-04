@@ -101,6 +101,8 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
   });
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
+
+  const recommId = uniq(results?.map(({recommId}) => recommId) ?? []).join('-');
   const postIds = results?.map(({post}) => post._id) ?? [];
   const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
     let loggedScenario = scenario;
@@ -120,7 +122,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
   useOnMountTracking({
     eventType: "postList",
     // TODO: Remove postIds which is redundant once analytics dashboard written to use postIdsWithScenario
-    eventProps: { postIds, postIdsWithScenario, algorithm },
+    eventProps: { postIds, postIdsWithScenario, algorithm, recommId },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
