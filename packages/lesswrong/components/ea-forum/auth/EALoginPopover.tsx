@@ -7,8 +7,7 @@ import { FacebookIcon } from "../../icons/FacebookIcon";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
-import {forumShortTitleSetting} from '../../common/Header'
-import {forumTitleSetting, siteUrlSetting} from '../../../lib/instanceSettings'
+import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -345,7 +344,7 @@ export const EALoginPopover = ({open, setAction, isSignup, facebookEnabled = tru
   }, [open]);
 
   const title = isSignup
-    ? `Sign up to get more from the ${forumShortTitleSetting.get() || "forum"}`
+    ? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`
     : "Welcome back";
 
   const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
@@ -470,11 +469,7 @@ export const EALoginPopover = ({open, setAction, isSignup, facebookEnabled = tru
           }
         </div>
         {isSignup && <div className={classes.finePrint}>
-          By creating an{" "}
-          <Link to={siteUrlSetting.get()} target="_blank" rel="noopener noreferrer">
-            {forumTitleSetting.get()}
-          </Link>{" "}
-          account, you agree to the{" "}
+          By creating an{" " + forumTitleSetting.get() + " "}account, you agree to the{" "}
           <Link to={links.terms} target="_blank" rel="noopener noreferrer">
             Terms of Use
           </Link> and{" "}
