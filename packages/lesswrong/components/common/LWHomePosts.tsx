@@ -402,7 +402,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationsIcon />
               </AnalyticsContext>}
 
               {/* VERTEX RECOMMENDATIONS */}
