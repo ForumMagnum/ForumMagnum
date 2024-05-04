@@ -100,8 +100,6 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon, showR
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
 
-
-  
   return <span className={classes.iconSet}>
     {post.curatedDate && !hideCuratedIcon && <CuratedIcon/>}
     
