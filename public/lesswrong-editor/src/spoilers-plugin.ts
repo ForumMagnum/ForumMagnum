@@ -6,6 +6,8 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 import blockAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/blockautoformatediting';
 import first from '@ckeditor/ckeditor5-utils/src/first';
 import type { Element } from '@ckeditor/ckeditor5-engine';
+import type Writer from '@ckeditor/ckeditor5-engine/src/model/writer';
+import type Schema from '@ckeditor/ckeditor5-engine/src/model/schema';
 
 type SpoilerBlockCommandOptions = {
 	/**
@@ -202,9 +204,9 @@ class SpoilerBlockCommand extends Command {
 	 * @private
 	 * @param {module:engine/model/writer~Writer} writer
 	 */
-	_removeSpoiler(writer, blocks: Element[]) {
+	_removeSpoiler(writer: Writer, blocks: Element[]) {
 		// Unquote all groups of block. Iterate in the reverse order to not break following ranges.
-		getRangesOfBlockGroups( writer, blocks ).reverse().forEach( groupRange => {
+		getRangesOfBlockGroups( writer, blocks ).reverse().forEach( (groupRange: AnyBecauseTodo) => {
 			if ( groupRange.start.isAtStart && groupRange.end.isAtEnd ) {
 				writer.unwrap( groupRange.start.parent );
 
@@ -241,8 +243,8 @@ class SpoilerBlockCommand extends Command {
 	 * @param {module:engine/model/writer~Writer} writer
 	 * @param {Array.<module:engine/model/element~Element>} blocks
 	 */
-	_applySpoiler(writer, blocks: Element[]) {
-		const spoilersToMerge = [];
+	_applySpoiler(writer: Writer, blocks: Element[]) {
+		const spoilersToMerge: AnyBecauseTodo[] = [];
 
 		// Quote all groups of block. Iterate in the reverse order to not break following ranges.
 		getRangesOfBlockGroups( writer, blocks ).reverse().forEach( groupRange => {
@@ -273,7 +275,7 @@ class SpoilerBlockCommand extends Command {
 	}
 }
 
-function findSpoiler( elementOrPosition ) {
+function findSpoiler( elementOrPosition: AnyBecauseTodo ) {
 	return elementOrPosition.parent.name == 'spoiler' ? elementOrPosition.parent : null;
 }
 
@@ -285,7 +287,7 @@ function findSpoiler( elementOrPosition ) {
 //
 // @param {Array.<module:engine/model/element~Element>} blocks
 // @returns {Array.<module:engine/model/range~Range>}
-function getRangesOfBlockGroups(writer, blocks: Element[]) {
+function getRangesOfBlockGroups(writer: Writer, blocks: Element[]) {
 	let startPosition;
 	let i = 0;
 	const ranges = [];
@@ -310,7 +312,7 @@ function getRangesOfBlockGroups(writer, blocks: Element[]) {
 }
 
 // Checks whether <bQ> can wrap the block.
-function checkCanBeSpoiler( schema, block ) {
+function checkCanBeSpoiler( schema: Schema, block: AnyBecauseTodo ) {
 	// TMP will be replaced with schema.checkWrap().
 	const isBQAllowed = schema.checkChild( block.parent, 'spoiler' );
 	const isBlockAllowedInBQ = schema.checkChild( [ '$root', 'spoiler' ], block );

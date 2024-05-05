@@ -61,7 +61,7 @@ export default class MentionCommand extends Command {
 	 * Note that the replaced range might be shorter than the inserted text with the mention attribute.
 	 * @fires execute
 	 */
-	execute( options ) {
+	execute( options: AnyBecauseTodo ) {
 		const model = this.editor.model;
 		const document = model.document;
 		const selection = document.selection;

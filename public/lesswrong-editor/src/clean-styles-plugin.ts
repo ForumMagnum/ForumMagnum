@@ -1,7 +1,7 @@
 import type { Editor } from "@ckeditor/ckeditor5-core";
 /* eslint-disable no-tabs */
 
-export function SanitizeTags( editor ) {
+export function SanitizeTags(editor: Editor) {
 	editor.conversion.for( 'upcast' ).add( dispatcher => {
 		dispatcher.on( 'element:style', ( evt, data, conversionApi ) => {
 			const styleElement = data.viewItem;

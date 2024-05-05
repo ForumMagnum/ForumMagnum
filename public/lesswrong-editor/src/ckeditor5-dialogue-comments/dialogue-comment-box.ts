@@ -409,7 +409,7 @@ function findMessageInputs(root: RootElement) {
 }
 
 function getDataDowncastViewGenerator(className: string, attributeList: string[]) {
-    return (modelElement, { writer: viewWriter }) => {
+    return (modelElement: Element, { writer: viewWriter }: DowncastConversionApi) => {
         const sectionAttributes = Object.fromEntries(attributeList.map(attribute => [attribute, modelElement.getAttribute(attribute)]));
         return viewWriter.createContainerElement('section', { class: className, ...sectionAttributes });
     };

@@ -1,5 +1,6 @@
 --ignore-dir=.git
 --ignore-dir=build
+--ignore-dir=obj
 --ignore-dir=.circleci
 --ignore-dir=.github
 --ignore-dir=.meteor

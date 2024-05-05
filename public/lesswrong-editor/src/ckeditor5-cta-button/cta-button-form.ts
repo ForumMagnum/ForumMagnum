@@ -11,25 +11,31 @@ import KeystrokeHandler from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
 import FocusTracker from "@ckeditor/ckeditor5-utils/src/focustracker";
 import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
+import type { Editor } from "@ckeditor/ckeditor5-core";
+import type { Locale } from "@ckeditor/ckeditor5-utils";
+import type { Element } from "@ckeditor/ckeditor5-engine";
+import type { KeyEventData } from "@ckeditor/ckeditor5-engine/src/view/observer/keyobserver";
+import type Writer from "@ckeditor/ckeditor5-engine/src/model/writer";
+
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
 import './ctaform.css';
 import { validateUrl } from "../url-validator-utils";
 
 class MainFormView extends View {
-  editor: AnyBecauseTodo
+  editor: Editor
   selectedElement: AnyBecauseTodo
   buttonTextView: AnyBecauseTodo
   linkToView: AnyBecauseTodo
   previewEnabled: AnyBecauseTodo
   _focusables: AnyBecauseTodo
   focusTracker: AnyBecauseTodo
-  keystrokes: AnyBecauseTodo
-  _focusCycler: AnyBecauseTodo
+  keystrokes: KeystrokeHandler
+  _focusCycler: FocusCycler
   label: AnyBecauseTodo
-  locale: AnyBecauseTodo
+  locale: Locale
 
-  constructor(locale, editor) {
+  constructor(locale: Locale, editor: Editor) {
     super(locale);
 
     this.editor = editor;
@@ -167,7 +173,7 @@ class MainFormView extends View {
       const model = this.editor.model;
       const selectedElement = this.selectedElement;
 
-      model.change((writer) => {
+      model.change((writer: Writer) => {
         if (!selectedElement) return;
 
         const inputValue = buttonTextView.element.value.trim();
@@ -205,7 +211,7 @@ class MainFormView extends View {
       const model = this.editor.model;
       const selectedElement = this.selectedElement;
 
-      model.change((writer) => {
+      model.change((writer: Writer) => {
         if (!selectedElement) return;
 
         const inputValue = linkToView.element.value.trim();
@@ -263,7 +269,7 @@ export default class CTAButtonForm extends Plugin {
     this.formView.destroy();
   }
 
-  _showUI(selectedElement) {
+  _showUI(selectedElement: Element) {
     this._addFormView(selectedElement);
 
     this._balloon.showStack("main");
@@ -275,13 +281,13 @@ export default class CTAButtonForm extends Plugin {
     const formView = new MainFormView(editor.locale, editor);
 
     // Close plugin ui, if esc is pressed (while ui is focused)
-    formView.keystrokes.set("esc", (data, cancel) => {
+    formView.keystrokes.set("esc", (_, cancel: () => void) => {
       this.formView.fire("submit");
       this._closeFormView();
     });
 
     // Cycle to the next input on enter, unless this is the last input in which case close
-    formView.keystrokes.set("Enter", (data, cancel) => {
+    formView.keystrokes.set("Enter", (_, cancel: () => void) => {
       if (document.activeElement === formView.linkToView.element) {
         this.formView.fire("submit");
         this._closeFormView();
@@ -294,7 +300,7 @@ export default class CTAButtonForm extends Plugin {
     return formView;
   }
 
-  _addFormView(selectedElement) {
+  _addFormView(selectedElement: Element) {
     if (this._isFormInPanel) {
       return;
     }
@@ -309,7 +315,7 @@ export default class CTAButtonForm extends Plugin {
     this.formView.selectedElement = selectedElement;
 
     // Set buttonText to the text content of selectedElement
-    const buttonText = selectedElement.getChild(0).data;
+    const buttonText = (selectedElement.getChild(0) as AnyBecauseTodo).data;
     this.formView.buttonText = buttonText;
 
     // Set linkTo to the 'data-href' attribute of the selectedElement

@@ -1,17 +1,20 @@
 /* eslint-disable no-tabs */
 
+import type { DocumentSelection } from "@ckeditor/ckeditor5-engine";
+import type { MathConfig } from "./math";
+
 declare global {
 	let MathJax: AnyBecauseTodo
 }
 
-export const defaultConfig = {
+export const defaultConfig: MathConfig = {
 	engine: 'mathjax',
 	outputType: 'script',
 	forceOutputType: false,
 	enablePreview: true
 };
 
-export function getSelectedMathModelWidget( selection ) {
+export function getSelectedMathModelWidget(selection: DocumentSelection) {
 	const selectedElement = selection.getSelectedElement();
 	if ( selectedElement && ( selectedElement.is( 'element', 'mathtex' ) || selectedElement.is( 'element', 'mathtex-display' ) ) ) {
 		return selectedElement;
@@ -20,22 +23,22 @@ export function getSelectedMathModelWidget( selection ) {
 }
 
 // Simple MathJax 3 version check
-export function isMathJaxVersion3( version ) {
+export function isMathJaxVersion3(version: string) {
 	return version && typeof version === 'string' && version.split( '.' ).length === 3 && version.split( '.' )[ 0 ] === '3';
 }
 
 // Check if equation has delimiters
-export function hasDelimiters( text ) {
+export function hasDelimiters(text: string) {
 	return text.match( /^(\\\[.*?\\\]|\\\(.*?\\\))$/ );
 }
 
 // Find delimiters count
-export function delimitersCounts( text ) {
+export function delimitersCounts(text: string) {
 	return text.match( /(\\\[|\\\]|\\\(|\\\))/g ).length;
 }
 
 // Extract delimiters and figure display mode for the model
-export function extractDelimiters( equation ) {
+export function extractDelimiters(equation: string) {
 	equation = equation.trim();
 
 	// Remove delimiters (e.g. \( \) or \[ \])
@@ -51,15 +54,15 @@ export function extractDelimiters( equation ) {
 	};
 }
 
-async function wait( seconds ) {
-	return new Promise( resolve => {
-		setTimeout( resolve, seconds );
-	} );
+async function wait(milliseconds: number) {
+	return new Promise(resolve => {
+		setTimeout(resolve, milliseconds);
+	});
 }
 
 const MAX_MATHJAX_WAITING_PERIODS = 10;
 const MATHJAX_WAITING_PERIOD_LENGTH = 300;
-export async function renderEquation( equation, element, engine = 'mathjax', display = false, preview = false, previewUid = null, pastAttempts = 0 ) {
+export async function renderEquation(equation: string, element: HTMLElement, engine = 'mathjax', display = false, preview = false, previewUid: AnyBecauseTodo = null, pastAttempts = 0) {
 	if ( pastAttempts > MAX_MATHJAX_WAITING_PERIODS ) {
 		console.warn( `MathJax still not loaded, even after waiting ${ MATHJAX_WAITING_PERIOD_LENGTH }ms ${ MAX_MATHJAX_WAITING_PERIODS } times` );
 		return;
@@ -79,7 +82,7 @@ const replaceNodeDebounced = debounce( ( oldSheet, newSheet ) => {
 	document.head.appendChild( newSheet );
 }, 100 );
 
-async function renderMathJax3( equation, element, display, isolateStyles ) {
+async function renderMathJax3(equation: string, element: AnyBecauseTodo, display: AnyBecauseTodo, isolateStyles: boolean) {
 	let renderNode = element;
 	if ( isolateStyles ) {
 		if ( !element.attachShadow ) {
@@ -125,7 +128,7 @@ async function renderMathJax3( equation, element, display, isolateStyles ) {
 	}
 }
 
-function upsertNthChild( element, child, n ) {
+function upsertNthChild(element: Element, child: Node, n: number) {
 	if ( element.childNodes[ n ] ) {
 		element.replaceChild( child, element.childNodes[ n ] );
 	} else {
@@ -133,19 +136,21 @@ function upsertNthChild( element, child, n ) {
 	}
 }
 
-export function resizeInputElement( element ) {
-	const lines = element.value.split( /\n/ );
+export function resizeInputElement( element: AnyBecauseTodo ) {
+	const lines: string[] = element.value.split( /\n/ );
 	const maxLines = Math.max( ...lines.map( line => line.length ) );
 	element.cols = maxLines || 1;
 	element.rows = lines.length || 1;
 }
 
-export function debounce( fn, time ) {
-	let timeout;
+export function debounce<T extends (...args: any[]) => any>(this: any, fn: T, time: number) {
+	let timeout: ReturnType<typeof setTimeout>|null = null;
 
-	return function( ...args ) {
-		const functionCall = () => fn.apply( this, args );
-		clearTimeout( timeout );
+	return function(this: any, ...args: Parameters<T>) {
+		const functionCall = () => fn.apply(this, args);
+		if (timeout) {
+			clearTimeout( timeout );
+		}
 		timeout = setTimeout( functionCall, time );
 	};
 }

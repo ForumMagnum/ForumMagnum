@@ -9,6 +9,7 @@
 
 import { ListView } from 'ckeditor5/src/ui';
 import { Rect } from 'ckeditor5/src/utils';
+import type { Locale } from "@ckeditor/ckeditor5-utils";
 
 import '../../theme/mentionui.css';
 
@@ -21,11 +22,12 @@ export default class MentionsView extends ListView {
   selected: AnyBecauseTodo
   items: AnyBecauseTodo
   element: AnyBecauseTodo
+  position: AnyBecauseTodo
 
   /**
    * @inheritDoc
    */
-  constructor( locale ) {
+  constructor(locale: Locale) {
 	super( locale );
 
 	this.extendTemplate( {
@@ -119,7 +121,7 @@ export default class MentionsView extends ListView {
   // The item is considered visible when:
   // - its top boundary is inside the scrollable rect
   // - its bottom boundary is inside the scrollable rect (the whole item must be visible)
-  _isItemVisibleInScrolledArea( item ) {
+  _isItemVisibleInScrolledArea(item: AnyBecauseTodo) {
 	return new Rect( this.element ).contains( new Rect( item.element ) );
   }
 }

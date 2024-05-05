@@ -2,12 +2,7 @@
  * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
-
-/**
- * @module mention/mentionui
- */
-
-import { Plugin } from 'ckeditor5/src/core';
+import { Plugin, Editor } from '@ckeditor/ckeditor5-core';
 import { ButtonView, ContextualBalloon, clickOutsideHandler } from 'ckeditor5/src/ui';
 import { Collection, keyCodes, env, Rect, CKEditorError, logWarning } from 'ckeditor5/src/utils';
 import { TextWatcher } from 'ckeditor5/src/typing';
@@ -17,6 +12,8 @@ import { debounce } from 'lodash-es';
 import MentionsView from './ui/mentionsview';
 import DomWrapperView from './ui/domwrapperview';
 import MentionListItemView from './ui/mentionlistitemview';
+import type Position from '@ckeditor/ckeditor5-engine/src/model/position';
+import type { Marker } from '@ckeditor/ckeditor5-engine/src/model/markercollection';
 
 const VERTICAL_SPACING = 3;
 
@@ -37,16 +34,14 @@ const defaultCommitKeyCodes = [
 
 /**
  * The mention UI feature.
- *
- * @extends module:core/plugin~Plugin
  */
 export default class MentionUI extends Plugin {
-  _mentionsView: AnyBecauseTodo
-  _mentionsConfigurations: AnyBecauseTodo
-  _requestFeedDebounced: AnyBecauseTodo
-  _lastRequested: AnyBecauseTodo
-  _balloon: AnyBecauseTodo
-  _items: AnyBecauseTodo
+  _mentionsView: MentionsView
+  _mentionsConfigurations: Map<AnyBecauseTodo,AnyBecauseTodo>
+  _requestFeedDebounced: (marker: string, feedText: string) => void
+  _lastRequested: string
+  _balloon: ContextualBalloon
+  _items: Collection<AnyBecauseTodo>
 
   /**
    * @inheritDoc
@@ -65,8 +60,8 @@ export default class MentionUI extends Plugin {
   /**
    * @inheritDoc
    */
-  constructor( editor ) {
-	super( editor );
+  constructor(editor: Editor) {
+	super(editor);
 
 	/**
 	 * The mention view.
@@ -184,11 +179,8 @@ export default class MentionUI extends Plugin {
 	this.on( 'requestFeed:error', () => this._hideUIAndRemoveMarker() );
 
 	// Checks if a given key code is handled by the mention UI.
-	//
-	// @param {Number}
-	// @returns {Boolean}
-	function isHandledKey( keyCode ) {
-	  return handledKeyCodes.includes( keyCode );
+	function isHandledKey(keyCode: number): boolean {
+	  return handledKeyCodes.includes(keyCode);
 	}
   }
 
@@ -216,18 +208,16 @@ export default class MentionUI extends Plugin {
 
   /**
    * Creates the {@link #_mentionsView}.
-   *
    * @private
-   * @returns {module:mention/ui/mentionsview~MentionsView}
    */
-  _createMentionView() {
+  _createMentionView(): MentionsView {
 	const locale = this.editor.locale;
 
 	const mentionsView = new MentionsView( locale );
 
 	this._items = new Collection();
 
-	mentionsView.items.bindTo( this._items ).using( data => {
+	mentionsView.items.bindTo( this._items ).using( (data: AnyBecauseTodo) => {
 	  const { item, marker } = data;
 
 	  // Set to 10 by default for backwards compatibility. See: #10479
@@ -289,10 +279,9 @@ export default class MentionUI extends Plugin {
    * Returns item renderer for the marker.
    *
    * @private
-   * @param {String} marker
    * @returns {Function|null}
    */
-  _getItemRenderer( marker ) {
+  _getItemRenderer(marker: string) {
 	const { itemRenderer } = this._mentionsConfigurations.get( marker );
 
 	return itemRenderer;
@@ -305,10 +294,8 @@ export default class MentionUI extends Plugin {
    * @fires module:mention/mentionui~MentionUI#event:requestFeed:response
    * @fires module:mention/mentionui~MentionUI#event:requestFeed:discarded
    * @fires module:mention/mentionui~MentionUI#event:requestFeed:error
-   * @param {String} marker
-   * @param {String} feedText
    */
-  _requestFeed( marker, feedText ) {
+  _requestFeed(marker: string, feedText: string) {
 	// @if CK_DEBUG_MENTION // console.log( '%c[Feed]%c Requesting for', 'color: blue', 'color: black', `"${ feedText }"` );
 
 	// Store the last requested feed - it is used to discard any out-of order requests.
@@ -380,12 +367,9 @@ export default class MentionUI extends Plugin {
 
   /**
    * Registers a text watcher for the marker.
-   *
    * @private
-   * @param {Array.<Object>} feeds Feeds of mention plugin configured in editor
-   * @returns {module:typing/textwatcher~TextWatcher}
    */
-  _setupTextWatcher( feeds ) {
+  _setupTextWatcher(feeds: MentionConfigFeed[]): TextWatcher {
 	const editor = this.editor;
 
 	const feedsWithPattern = feeds.map( feed => ( {
@@ -456,11 +440,9 @@ export default class MentionUI extends Plugin {
 
   /**
    * Handles the feed response event data.
-   *
-   * @param data
    * @private
    */
-  _handleFeedResponse( data ) {
+  _handleFeedResponse(data: AnyBecauseTodo) {
 	const { feed, marker } = data;
 
 	// eslint-disable-next-line max-len
@@ -495,7 +477,7 @@ export default class MentionUI extends Plugin {
    *
    * @private
    */
-  _showOrUpdateUI( markerMarker ) {
+  _showOrUpdateUI( markerMarker: Marker ) {
 	if ( this._isUIVisible ) {
 	  // @if CK_DEBUG_MENTION // console.log( '%c[UI]%c Updating position.', 'color: green', 'color: black' );
 
@@ -544,11 +526,8 @@ export default class MentionUI extends Plugin {
    * Renders a single item in the autocomplete list.
    *
    * @private
-   * @param {module:mention/mention~MentionFeedItem} item
-   * @param {String} marker
-   * @returns {module:ui/button/buttonview~ButtonView|module:mention/ui/domwrapperview~DomWrapperView}
    */
-  _renderItem( item, marker ) {
+  _renderItem(item: AnyBecauseTodo, marker: string): DomWrapperView|ButtonView {
 	const editor = this.editor;
 
 	let view;
@@ -581,12 +560,10 @@ export default class MentionUI extends Plugin {
   /**
    * Creates a position options object used to position the balloon panel.
    *
-   * @param {module:engine/model/markercollection~Marker} mentionMarker
-   * @param {String|undefined} preferredPosition The name of the last matched position name.
    * @returns {module:utils/dom/position~Options}
    * @private
    */
-  _getBalloonPanelPositionData( mentionMarker, preferredPosition ) {
+  _getBalloonPanelPositionData(mentionMarker: Marker, preferredPosition: string): AnyBecauseTodo {
 	const editor = this.editor;
 	const editing = editor.editing;
 	const domConverter = editing.view.domConverter;
@@ -627,10 +604,10 @@ export default class MentionUI extends Plugin {
 //
 // @param {String} preferredPosition
 // @returns {Array.<module:utils/dom/position~Position>}
-function getBalloonPanelPositions( preferredPosition ) {
-  const positions = {
+function getBalloonPanelPositions(preferredPosition: string) {
+  const positions: AnyBecauseTodo = {
 	// Positions the panel to the southeast of the caret rectangle.
-	'caret_se': targetRect => {
+	'caret_se': (targetRect: Rect) => {
 	  return {
 		top: targetRect.bottom + VERTICAL_SPACING,
 		left: targetRect.right,
@@ -642,7 +619,7 @@ function getBalloonPanelPositions( preferredPosition ) {
 	},
 
 	// Positions the panel to the northeast of the caret rectangle.
-	'caret_ne': ( targetRect, balloonRect ) => {
+	'caret_ne': (targetRect: Rect, balloonRect: Rect) => {
 	  return {
 		top: targetRect.top - balloonRect.height - VERTICAL_SPACING,
 		left: targetRect.right,
@@ -654,7 +631,7 @@ function getBalloonPanelPositions( preferredPosition ) {
 	},
 
 	// Positions the panel to the southwest of the caret rectangle.
-	'caret_sw': ( targetRect, balloonRect ) => {
+	'caret_sw': (targetRect: Rect, balloonRect: Rect) => {
 	  return {
 		top: targetRect.bottom + VERTICAL_SPACING,
 		left: targetRect.right - balloonRect.width,
@@ -666,7 +643,7 @@ function getBalloonPanelPositions( preferredPosition ) {
 	},
 
 	// Positions the panel to the northwest of the caret rect.
-	'caret_nw': ( targetRect, balloonRect ) => {
+	'caret_nw': (targetRect: Rect, balloonRect: Rect) => {
 	  return {
 		top: targetRect.top - balloonRect.height - VERTICAL_SPACING,
 		left: targetRect.right - balloonRect.width,
@@ -708,7 +685,7 @@ function getBalloonPanelPositions( preferredPosition ) {
 // @param {Array.<Object>} feedsWithPattern Registered feeds in editor for mention plugin with created RegExp for matching marker.
 // @param {String} text String to find the marker in
 // @returns {Object} Matched marker's definition
-function getLastValidMarkerInText( feedsWithPattern, text ) {
+function getLastValidMarkerInText(feedsWithPattern: MentionConfigFeed[], text: string) {
   let lastValidMarker;
 
   for ( const feed of feedsWithPattern ) {
@@ -734,11 +711,7 @@ function getLastValidMarkerInText( feedsWithPattern, text ) {
 // Creates a RegExp pattern for the marker.
 //
 // Function has to be exported to achieve 100% code coverage.
-//
-// @param {String} marker
-// @param {Number} minimumCharacters
-// @returns {RegExp}
-export function createRegExp( marker, minimumCharacters ) {
+export function createRegExp(marker: string, minimumCharacters: number): RegExp {
 	// End after 20 characters, since it's horribly annoying otherwise.
   const numberOfCharacters = `{${ minimumCharacters },20}`;
 
@@ -757,11 +730,8 @@ export function createRegExp( marker, minimumCharacters ) {
 }
 
 // Creates a test callback for the marker to be used in the text watcher instance.
-//
-// @param {Array.<Object>} feedsWithPattern Feeds of mention plugin configured in editor with RegExp to match marker in text
-// @returns {Function}
-function createTestCallback( feedsWithPattern ) {
-  const textMatcher = text => {
+function createTestCallback(feedsWithPattern: AnyBecauseTodo[]): (text:string) => boolean {
+  const textMatcher = (text: string) => {
 	const markerDefinition = getLastValidMarkerInText( feedsWithPattern, text );
 
 	if ( !markerDefinition ) {
@@ -785,9 +755,8 @@ function createTestCallback( feedsWithPattern ) {
 // Creates a text matcher from the marker.
 //
 // @param {Object} markerDefinition
-// @param {String} text
 // @returns {Function}
-function requestFeedText( markerDefinition, text ) {
+function requestFeedText(markerDefinition: AnyBecauseTodo, text: string): AnyBecauseTodo {
   let splitStringFrom = 0;
 
   if ( markerDefinition.position !== 0 ) {
@@ -798,15 +767,15 @@ function requestFeedText( markerDefinition, text ) {
   const textToMatch = text.substring( splitStringFrom );
   const match = textToMatch.match( regExp );
 
-  return match[ 2 ];
+  return match[2];
 }
 
 // The default feed callback.
-function createFeedCallback( feedItems ) {
-  return feedText => {
+function createFeedCallback(feedItems: AnyBecauseTodo) {
+  return (feedText: AnyBecauseTodo) => {
 	const filteredItems = feedItems
 	  // Make the default mention feed case-insensitive.
-	  .filter( item => {
+	  .filter((item: AnyBecauseTodo) => {
 		// Item might be defined as object.
 		const itemId = typeof item == 'string' ? item : String( item.id );
 
@@ -817,8 +786,8 @@ function createFeedCallback( feedItems ) {
   };
 }
 
-function getNonWhitespaceNodeBefore(position) {
-  let nodeBefore = position.nodeBefore;
+function getNonWhitespaceNodeBefore(position: Position) {
+  let nodeBefore: AnyBecauseTodo = position.nodeBefore;
   while (
     nodeBefore &&
     typeof nodeBefore._data === "string" &&
@@ -829,7 +798,7 @@ function getNonWhitespaceNodeBefore(position) {
   return nodeBefore;
 }
 
-function nodeIsMention(node) {
+function nodeIsMention(node: AnyBecauseTodo): boolean {
   if (!node || !node.is("$text")) {
     return false
   }
@@ -855,7 +824,7 @@ function nodeIsMention(node) {
 //
 // @param {module:engine/model/position~Position} position.
 // @returns {Boolean}
-function isPositionInExistingMention( position ) {
+function isPositionInExistingMention(position: Position): boolean {
   // The text watcher listens only to changed range in selection - so the selection attributes are not yet available
   // and you cannot use selection.hasAttribute( 'mention' ) just yet.
   // See https://github.com/ckeditor/ckeditor5-engine/issues/1723.
@@ -870,26 +839,18 @@ function isPositionInExistingMention( position ) {
 // Checks if the closest marker offset is at the beginning of a mention.
 //
 // See https://github.com/ckeditor/ckeditor5/issues/11400.
-//
-// @param {module:engine/model/position~Position} markerPosition
-// @returns {Boolean}
-function isMarkerInExistingMention( markerPosition ) {
+function isMarkerInExistingMention(markerPosition: Position): boolean {
   const nodeAfter = markerPosition.nodeAfter;
 
-  return nodeAfter && nodeIsMention(nodeAfter);
+  return !!nodeAfter && nodeIsMention(nodeAfter);
 }
 
 // Checks if string is a valid mention marker.
-//
-// @param {String} marker
-// @returns {Boolean}
-function isValidMentionMarker( marker ) {
-  return marker && marker.length == 1;
+function isValidMentionMarker(marker: string): boolean {
+  return !!marker && marker.length == 1;
 }
 
 // Checks the mention plugins is in completion mode (e.g. when typing is after a valid mention string like @foo).
-//
-// @returns {Boolean}
-function checkIfStillInCompletionMode( editor ) {
+function checkIfStillInCompletionMode(editor: Editor): boolean {
   return editor.model.markers.has( 'mention' );
 }

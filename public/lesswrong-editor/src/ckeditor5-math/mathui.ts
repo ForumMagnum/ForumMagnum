@@ -21,8 +21,8 @@ const mathDisplayKeystroke = 'Ctrl+M';
 
 export default class MathUI extends Plugin {
 	_previewUid: string
-	formView: AnyBecauseTodo
-	_balloon: AnyBecauseTodo
+	formView: MainFormView
+	_balloon: ContextualBalloon
 
 	static get requires() {
 		return [ ContextualBalloon, MathEditing ];

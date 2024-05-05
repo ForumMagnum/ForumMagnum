@@ -1,4 +1,10 @@
+import type { Editor } from "@ckeditor/ckeditor5-core";
 import type { UploadAdapter, FileLoader, UploadResponse } from "@ckeditor/ckeditor5-upload";
+
+export type CloudinaryCkEditorPluginConfig = {
+  getCloudName: ()=>string,
+  getUploadPreset: ()=>string|null,
+}
 
 /**
  * CKEditor Upload Adapter for Cloudinary
@@ -12,11 +18,11 @@ import type { UploadAdapter, FileLoader, UploadResponse } from "@ckeditor/ckedit
 class CloudinaryAdapter implements UploadAdapter {
 	loader: FileLoader
 	getCloudId: ()=>string
-	getUploadPreset: ()=>string
+	getUploadPreset: ()=>string|null
 	controller: AbortController
 	signal: AbortSignal
 
-	constructor(loader: AnyBecauseTodo, getCloudId: ()=>string, getUploadPreset: ()=>string) {
+	constructor(loader: FileLoader, getCloudId: ()=>string, getUploadPreset: ()=>string|null) {
 		this.loader = loader
 		this.getCloudId = getCloudId
 		this.getUploadPreset = getUploadPreset
@@ -37,10 +43,10 @@ class CloudinaryAdapter implements UploadAdapter {
 		this.controller.abort()
 	}
 
-	async _sendRequest(file) {
+	async _sendRequest(file: AnyBecauseTodo) {
 		const data = new FormData()
 
-		data.append('upload_preset', this.getUploadPreset())
+		data.append('upload_preset', this.getUploadPreset()!)
 		data.append('file', file)
 
 		const response = await fetch(`https://api.cloudinary.com/v1_1/${this.getCloudId()}/auto/upload`, {
@@ -57,8 +63,8 @@ class CloudinaryAdapter implements UploadAdapter {
 	}
 }
 
-export function CloudinaryAdapterPlugin(editor) {
-	const options = editor.config.get('cloudinary')
+export function CloudinaryAdapterPlugin(editor: Editor) {
+	const options = editor.config.get('cloudinary') as CloudinaryCkEditorPluginConfig
 	editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
 		new CloudinaryAdapter(loader, options.getCloudName, options.getUploadPreset)
 }

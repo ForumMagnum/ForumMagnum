@@ -20,7 +20,8 @@ export default class InsertFootnoteCommand extends Command {
 				return;
 			}
 			const footnoteSection = this._getFootnoteSection(modelWriter, rootElement);
-			let index, id;
+			let index: string|undefined = undefined;
+			let id: string|undefined = undefined;
 			if(footnoteIndex === 0) {
 				index = `${footnoteSection.maxOffset + 1}`;
 				id = Math.random().toString(36).slice(2);
@@ -30,7 +31,9 @@ export default class InsertFootnoteCommand extends Command {
 					element.is('element', ELEMENTS.footnoteItem) &&
 					element.getAttribute(ATTRIBUTES.footnoteIndex) === index
 				);
-				id = matchingFootnote && matchingFootnote.getAttribute(ATTRIBUTES.footnoteId);
+				if (matchingFootnote) {
+					id = matchingFootnote.getAttribute(ATTRIBUTES.footnoteId) as string;
+				}
 			}
 			if(!id || !index) {
 				return;

@@ -4,8 +4,9 @@ import { getSelectedMathModelWidget } from './utils';
 
 export default class MathCommand extends Command {
 	display: AnyBecauseTodo
+	override value: AnyBecauseTodo
 
-	execute( equation, display, outputType, forceOutputType ) {
+	execute( equation: string, display: boolean, outputType: "span"|"style", forceOutputType: boolean) {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 		const selectedElement = selection.getSelectedElement();

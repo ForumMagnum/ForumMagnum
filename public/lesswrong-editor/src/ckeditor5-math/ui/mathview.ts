@@ -1,4 +1,5 @@
 import View from '@ckeditor/ckeditor5-ui/src/view';
+import type { Locale } from "@ckeditor/ckeditor5-utils";
 
 import { renderEquation } from '../utils';
 
@@ -8,7 +9,7 @@ export default class MathView extends View {
 	value: AnyBecauseTodo
 	display: AnyBecauseTodo
 
-	constructor( engine, locale, previewUid ) {
+	constructor(engine: AnyBecauseTodo, locale: Locale, previewUid: string|null) {
 		super( locale );
 
 		this.engine = engine;

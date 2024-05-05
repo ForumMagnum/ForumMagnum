@@ -1,3 +1,5 @@
+import type { MathConfig } from "./ckeditor5-math/math";
+import type MediaEmbedConfig from "@ckeditor/ckeditor5-media-embed/src/mediaembed";
 
 const headingOptions = {
 	options: [
@@ -8,14 +10,14 @@ const headingOptions = {
 	]
 };
 
-const mathConfig = {
+const mathConfig: MathConfig = {
 	engine: 'mathjax',
 	outputType: 'span',
 	forceOutputType: true,
 	enablePreview: true
 }
 
-const embedConfig = {
+const embedConfig: MediaEmbedConfig = {
 	toolbar: [ 'comment' ],
 	previewsInData: true,
 	removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
@@ -23,7 +25,7 @@ const embedConfig = {
 		{
 			name: 'Elicit',
 			url: /^(?:forecast.)?elicit.org\/binary\/questions\/([a-zA-Z0-9_-]+)/,
-			html: ([match, questionId]) => `
+			html: ([match, questionId]: RegExpMatchArray) => `
 				<div data-elicit-id="${questionId}" style="position:relative;height:50px;background-color: rgba(0,0,0,0.05);display: flex;justify-content: center;align-items: center;" class="elicit-binary-prediction">
 					<div style=>Elicit Prediction (<a href="${match}">${match}</a>)</div>
 				</div>
@@ -32,7 +34,7 @@ const embedConfig = {
 		{
 			name: 'Metaculus',
 			url: /^metaculus\.com\/questions\/([a-zA-Z0-9]{1,6})?/,
-			html: ([match, questionNumber]) => `
+			html: ([match, questionNumber]: RegExpMatchArray) => `
 				<div data-metaculus-id="${questionNumber}" style="background-color: #2c3947;" class="metaculus-preview">
 					<iframe style="height: 400px; width: 100%; border: none;" src="https://d3s0w6fek99l5b.cloudfront.net/s/1/questions/embed/${questionNumber}/?plot=pdf"/>
 				</div>
@@ -41,7 +43,7 @@ const embedConfig = {
 		{
 		  name: 'Thoughtsaver',
 		  url: /^app.thoughtsaver.com\/embed\/([a-zA-Z0-9?&_=-]*)/,
-		  html: ([match,urlParams]) => `
+		  html: ([match,urlParams]: RegExpMatchArray) => `
 		    <div class="thoughtSaverFrameWrapper">
 		      <iframe class="thoughtSaverFrame" title="Thought Saver flashcard quiz" src="https://app.thoughtsaver.com/embed/${urlParams}"></iframe>
 		    </div>
@@ -50,7 +52,7 @@ const embedConfig = {
 		{
 			name: "Manifold",
 			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
-			html: ([match, longslug]) => `
+			html: ([match, longslug]: RegExpMatchArray) => `
 				<div data-manifold-id="${longslug}" class="manifold-preview">
 					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://manifold.markets/embed/${longslug}"/>
 				</div>
@@ -59,7 +61,7 @@ const embedConfig = {
 		{
 			name: "StrawPoll",
 			url: /^https:\/\/strawpoll\.com\/polls\/([\w-]+)$/,
-			html: ([match, pollId]) => `
+			html: ([match, pollId]: RegExpMatchArray) => `
 				<div class="strawpoll-embed" id="strawpoll_${pollId}" style="height: 480px; max-width: 640px; width: 100%; margin: 0 auto; display: flex; flex-direction: column;">
 					<iframe title="StrawPoll Embed" id="strawpoll_iframe_${pollId}" src="https://strawpoll.com/embed/polls/${pollId}" style="position: static; visibility: visible; display: block; width: 100%; flex-grow: 1;" frameborder="0" allowfullscreen allowtransparency>Loading...</iframe>
 					<script async src="https://cdn.strawpoll.com/dist/widgets.js" charset="utf-8"></script>
@@ -69,7 +71,7 @@ const embedConfig = {
 		{
 			name: "Metaforecast",
 			url: /^metaforecast\.org\/questions\/([\w-]+)$/,
-			html: ([match, slug]) => `
+			html: ([match, slug]: RegExpMatchArray) => `
 				<div data-metaforecast-id="${slug}" class="metaforecast-preview">
 					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://metaforecast.org/questions/embed/${slug}"/>
 				</div>
@@ -78,7 +80,7 @@ const embedConfig = {
 		{
 			name: 'OWID',
 			url: /^ourworldindata\.org\/grapher\/([\w-]+).*/,
-			html: ([match, slug]) => {
+			html: ([match, slug]: RegExpMatchArray) => {
 				return `
 					<div data-owid-slug="${slug}" class="owid-preview">
 						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
@@ -89,7 +91,7 @@ const embedConfig = {
 		{
 			name: 'Estimaker',
 			url: /^estimaker\.app\/_\/([\w-]+).*/,
-			html: ([match]) => {
+			html: ([match]: RegExpMatchArray) => {
 				return `
 					<div class="estimaker-preview">
 						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
@@ -100,7 +102,7 @@ const embedConfig = {
 		{
 			name: 'Viewpoints',
 			url: /^viewpoints\.xyz\/polls\/([\w-]+)$/,
-			html: ([match, slug]) => {
+			html: ([match, slug]: RegExpMatchArray) => {
 				return `
 					<div data-viewpoints-slug="${slug}" class="viewpoints-preview">
 						<iframe style="height: 400px; width: 100%; border: none;" src="https://viewpoints.xyz/embed/polls/${slug}"/>
@@ -111,7 +113,7 @@ const embedConfig = {
 		{
 			name: 'Calendly',
 			url: /^calendly\.com\/[\w-]+(\/[\w-]+)?\/?$/,
-			html: ([match]) => {
+			html: ([match]: RegExpMatchArray) => {
 				return `
 					<div class="calendly-preview">
 						<iframe

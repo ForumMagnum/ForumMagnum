@@ -9,15 +9,16 @@ import type Document from "@ckeditor/ckeditor5-engine/src/model/document";
 export default class UrlValidator extends Plugin {
 	init() {
 		this.editor.model.document.on('change:data', (eventInfo) => {
-		  // JB: Downcast the event source to a document (which it should be). For
-		  // some reason my language server is able to figure out what type this is
-		  // from just the fact that it's the second argument of the .on(), but
-		  // when actually compiled with webpack it just comes out as "object".
+			// JB: Downcast the event source to a document (which it should be). For
+			// some reason my language server is able to figure out what type this is
+			// from just the fact that it's the second argument of the .on(), but
+			// when actually compiled with webpack it just comes out as "object".
 			const source: Document = eventInfo.source as Document;
 
 			for (const change of source?.differ?.getChanges()) {
 				if (change.type === "attribute") {
-					const { attributeKey: key, attributeNewValue: value } = change;
+					const key = change.attributeKey;
+					const value = change.attributeNewValue as string;
 					if (key === 'linkHref' && value) {
 						this._updateUrlIfInvalid(value);
 					}
@@ -26,7 +27,7 @@ export default class UrlValidator extends Plugin {
 		});
 	}
 
-	_updateUrlIfInvalid(url) {
+	_updateUrlIfInvalid(url: string) {
 		const newUrl = validateUrl(url);
 		if (newUrl !== url) {
 			this.editor.model.change((writer) => {

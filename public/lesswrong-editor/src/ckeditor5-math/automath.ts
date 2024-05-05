@@ -4,12 +4,14 @@ import Undo from '@ckeditor/ckeditor5-undo/src/undo';
 import LiveRange from '@ckeditor/ckeditor5-engine/src/model/liverange';
 import LivePosition from '@ckeditor/ckeditor5-engine/src/model/liveposition';
 import global from '@ckeditor/ckeditor5-utils/src/dom/global';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 
 import { defaultConfig, extractDelimiters, hasDelimiters, delimitersCounts } from './utils';
+import type MathCommand from './mathcommand';
 
 export default class AutoMath extends Plugin {
-	_timeoutId: AnyBecauseTodo
-	_positionToInsert: AnyBecauseTodo
+	_timeoutId: number|null
+	_positionToInsert: LivePosition|null
 
 	static get requires() {
 		return [ Clipboard, Undo ];
@@ -19,7 +21,7 @@ export default class AutoMath extends Plugin {
 		return 'AutoMath';
 	}
 
-	constructor( editor ) {
+	constructor( editor: Editor ) {
 		super( editor );
 
 		this._timeoutId = null;
@@ -59,7 +61,7 @@ export default class AutoMath extends Plugin {
 		}, { priority: 'high' } );
 	}
 
-	_mathBetweenPositions( leftPosition, rightPosition ) {
+	_mathBetweenPositions(leftPosition: LivePosition, rightPosition: LivePosition) {
 		const editor = this.editor;
 
 		const mathConfig = Object.assign( defaultConfig, this.editor.config.get( 'math' ) );
@@ -83,7 +85,7 @@ export default class AutoMath extends Plugin {
 			return;
 		}
 
-		const mathCommand = editor.commands.get( 'math' );
+		const mathCommand = editor.commands.get( 'math' ) as MathCommand;
 
 		// Do not anything if math element cannot be inserted at the current position
 		if ( !mathCommand.isEnabled ) {
@@ -99,7 +101,7 @@ export default class AutoMath extends Plugin {
 
 				writer.remove( equationRange );
 
-				let insertPosition;
+				let insertPosition: LivePosition|null = null;
 
 				// Check if position where the math element should be inserted is still valid.
 				if ( this._positionToInsert.root.rootName !== '$graveyard' ) {

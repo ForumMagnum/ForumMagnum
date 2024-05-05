@@ -7,6 +7,7 @@
  * @module mention/ui/domwrapperview
  */
 
+import type { Locale } from "@ckeditor/ckeditor5-utils";
 import { View } from 'ckeditor5/src/ui';
 
 /**
@@ -18,7 +19,10 @@ import { View } from 'ckeditor5/src/ui';
  */
 export default class DomWrapperView extends View {
   template: AnyBecauseTodo
-  domElement: AnyBecauseTodo
+  /**
+   * The DOM element for which wrapper was created.
+   */
+  domElement: HTMLElement
   isOn: boolean
 
   /**
@@ -29,17 +33,12 @@ export default class DomWrapperView extends View {
    * @param {module:utils/locale~Locale} [locale] The localization services instance.
    * @param {Element} domElement
    */
-  constructor( locale, domElement ) {
+  constructor(locale: Locale, domElement: HTMLElement) {
 	super( locale );
 
 	// Disable template rendering on this view.
 	this.template = false;
 
-	/**
-	 * The DOM element for which wrapper was created.
-	 *
-	 * @type {Element}
-	 */
 	this.domElement = domElement;
 
 	// Render dom wrapper as a button.

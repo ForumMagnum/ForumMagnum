@@ -28,7 +28,7 @@ export default class RemoveRedirect extends Plugin {
 		);
 	}
 
-	_getRedirectUrls( documentRange ) {
+	_getRedirectUrls(documentRange: AnyBecauseTodo) {
 		// Regex match examples:
 		// https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page&sa=D&source=editors&ust=1667922372715536&usg=AOvVaw2NyT5CZhfsrRY_zzMs2UUJ
 		//                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- first match group matches this, stopping at the first &

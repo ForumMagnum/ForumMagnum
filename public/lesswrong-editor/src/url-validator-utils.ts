@@ -13,7 +13,7 @@ const disallowedProtocols = [
  *
  * @returns {string} The original or fixed URL if validation succeeds, or throws an error.
  */
-export function validateUrl(url, strict=false) {
+export function validateUrl(url: string, strict=false) {
   try {
     const parsedUrl = new URL(url);
 
@@ -39,7 +39,7 @@ export function validateUrl(url, strict=false) {
   return url;
 }
 
-function tryToFixUrl(oldUrl, newUrl, strict=false) {
+function tryToFixUrl(oldUrl: string, newUrl: string, strict=false) {
   try {
     // Only return the edited version if this actually fixed the problem
     const parsedUrl = new URL(newUrl);

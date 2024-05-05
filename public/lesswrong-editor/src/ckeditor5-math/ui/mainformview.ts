@@ -2,6 +2,7 @@
 import View from '@ckeditor/ckeditor5-ui/src/view';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
 import InputTextView from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
+import type { Locale } from "@ckeditor/ckeditor5-utils";
 
 import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
 import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
@@ -16,15 +17,15 @@ import MathView from './mathview';
 import '../mathform.css';
 
 export default class MainFormView extends View {
-	mathInputView : AnyBecauseTodo
-	previewEnabled : AnyBecauseTodo
-	mathView : AnyBecauseTodo
-	focusTracker: AnyBecauseTodo
-	keystrokes: AnyBecauseTodo
+	mathInputView: InputTextView
+	previewEnabled: boolean
+	mathView: MathView
+	focusTracker: FocusTracker
+	keystrokes: KeystrokeHandler
 	_focusables: AnyBecauseTodo
-	_focusCycler: AnyBecauseTodo
+	_focusCycler: FocusCycler
 
-	constructor( locale, engine, previewEnabled, previewUid ) {
+	constructor(locale: Locale, engine: AnyBecauseTodo, previewEnabled: boolean, previewUid: string|null) {
 		super( locale );
 		// Create key event & focus trackers
 		this._createKeyAndFocusTrackers();
@@ -34,7 +35,7 @@ export default class MainFormView extends View {
 
 		this.previewEnabled = previewEnabled;
 
-		let children: AnyBecauseTodo[] = [];
+		let children: (InputTextView|MathView)[] = [];
 		if ( this.previewEnabled ) {
 			// Math element
 			this.mathView = new MathView( engine, locale, previewUid );

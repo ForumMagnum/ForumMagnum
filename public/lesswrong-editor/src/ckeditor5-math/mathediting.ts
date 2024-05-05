@@ -1,7 +1,11 @@
 /* eslint-disable no-tabs */
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import type { DowncastWriter, Element } from '@ckeditor/ckeditor5-engine';
+import type { DowncastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/downcastdispatcher';
+import type { UpcastConversionApi } from '@ckeditor/ckeditor5-engine/src/conversion/upcastdispatcher';
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
+import type { MathConfig } from './math';
 
 import MathCommand from './mathcommand';
 
@@ -43,7 +47,7 @@ export default class MathEditing extends Plugin {
 
 	_defineConverters() {
 		const conversion = this.editor.conversion;
-		const mathConfig = Object.assign( defaultConfig, this.editor.config.get( 'math' ) );
+		const mathConfig: MathConfig = Object.assign( defaultConfig, this.editor.config.get( 'math' ) );
 
 		// View -> Model
 		conversion.for( 'upcast' )
@@ -55,7 +59,7 @@ export default class MathEditing extends Plugin {
 						type: 'math/tex'
 					}
 				},
-				model: ( viewElement, { writer } ) => {
+				model: (viewElement, { writer }: UpcastConversionApi) => {
 					const equation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
 					return writer.createElement( 'mathtex', {
 						equation,
@@ -72,7 +76,7 @@ export default class MathEditing extends Plugin {
 						type: 'math/tex; mode=display'
 					}
 				},
-				model: ( viewElement, { writer } ) => {
+				model: (viewElement, { writer }: UpcastConversionApi) => {
 					const equation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
 					return writer.createElement( 'mathtex-display', {
 						equation,
@@ -87,7 +91,7 @@ export default class MathEditing extends Plugin {
 					name: 'span',
 					classes: [ 'math-tex' ]
 				},
-				model: ( viewElement, { writer } ) => {
+				model: (viewElement, { writer }: UpcastConversionApi) => {
 					const rawEquation = (viewElement.getChild(0) as AnyBecauseTodo).data.trim();
 					const { display, equation } = extractDelimiters( rawEquation );
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
@@ -104,7 +108,7 @@ export default class MathEditing extends Plugin {
 					name: 'span',
 					classes: [ 'mjx-chtml' ]
 				},
-				model: ( viewElement, { writer } ) => {
+				model: (viewElement, { writer }: UpcastConversionApi) => {
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
 					const firstChild: AnyBecauseTodo = viewElement.getChild(0);
 					const classes = Array.from( viewElement.getClassNames() );
@@ -126,7 +130,7 @@ export default class MathEditing extends Plugin {
 						'data-math-tex': true
 					}
 				},
-				model: ( viewElement, { writer } ) => {
+				model: (viewElement, { writer }: UpcastConversionApi) => {
 					const equation = viewElement.getAttribute( 'data-math-tex' );
 					const type = mathConfig.forceOutputType ? mathConfig.outputType : 'span';
 					return writer.createElement( 'mathtex', {
@@ -141,14 +145,14 @@ export default class MathEditing extends Plugin {
 		conversion.for( 'editingDowncast' )
 			.elementToElement( {
 				model: 'mathtex',
-				view: ( modelItem, { writer } ) => {
+				view: (modelItem, { writer }: DowncastConversionApi) => {
 					const widgetElement = createMathtexEditingView( modelItem, writer, false );
 					return toWidget( widgetElement, writer, {} );
 				}
 			} )
 			.elementToElement( {
 				model: 'mathtex-display',
-				view: ( modelItem, { writer } ) => {
+				view: (modelItem, { writer }: DowncastConversionApi) => {
 					const widgetElement = createMathtexEditingView( modelItem, writer, true );
 					return toWidget( widgetElement, writer, {} );
 				}
@@ -158,16 +162,16 @@ export default class MathEditing extends Plugin {
 		conversion.for( 'dataDowncast' )
 			.elementToElement( {
 				model: 'mathtex',
-				view: ( modelItem, { writer } ) => createMathtexView( modelItem, writer, false )
+				view: (modelItem, { writer }: DowncastConversionApi) => createMathtexView( modelItem, writer, false)
 			} )
 			.elementToElement( {
 				model: 'mathtex-display',
-				view: ( modelItem, { writer } ) => createMathtexView( modelItem, writer, true )
+				view: (modelItem, { writer }: DowncastConversionApi) => createMathtexView( modelItem, writer, true)
 			} );
 
 		// Create view for editor
-		function createMathtexEditingView( modelItem, writer, display ) {
-			const equation = modelItem.getAttribute( 'equation' );
+		function createMathtexEditingView(modelItem: Element, writer: DowncastWriter, display: boolean) {
+			const equation = modelItem.getAttribute('equation') as string;
 
 			const styles = 'user-select: none; ' + ( display ? '' : 'display: inline-block;' );
 			const classes = 'ck-math-tex ' + ( display ? 'ck-math-tex-display' : 'ck-math-tex-inline' );
@@ -182,7 +186,7 @@ export default class MathEditing extends Plugin {
 			} );
 
 			// Div is formatted as parent container
-			const uiElement = writer.createUIElement( 'div', null, function( domDocument ) {
+			const uiElement = writer.createUIElement('div', null, function(this: AnyBecauseTodo, domDocument) {
 				const domElement = this.toDomElement( domDocument );
 
 				renderEquation( equation, domElement, mathConfig.engine, display, false );
@@ -196,8 +200,8 @@ export default class MathEditing extends Plugin {
 		}
 
 		// Create view for data
-		function createMathtexView( modelItem, writer, display ) {
-			const equation = modelItem.getAttribute( 'equation' );
+		function createMathtexView(modelItem: Element, writer: DowncastWriter, display: boolean) {
+			const equation = modelItem.getAttribute('equation') as string;
 			const type = modelItem.getAttribute( 'type' );
 
 			if ( type === 'span' ) {
@@ -217,7 +221,7 @@ export default class MathEditing extends Plugin {
 					type: display ? 'math/tex; mode=display' : 'math/tex'
 				} );
 
-				writer.insert( writer.createPositionAt( mathtexView, 0 ), writer.createText( equation ) );
+				writer.insert(writer.createPositionAt(mathtexView, 0), writer.createText(equation));
 
 				return mathtexView;
 			}
