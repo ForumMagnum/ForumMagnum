@@ -8,7 +8,7 @@ import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 import { modelQueryElement, modelQueryElementsAll } from './utils';
 import { COMMANDS, ATTRIBUTES, ELEMENTS, TOOLBAR_COMPONENT_NAME } from './constants';
-import { ListDropdownItemDefinition } from '@ckeditor/ckeditor5-ui'
+import type { ListDropdownItemDefinition } from '@ckeditor/ckeditor5-ui'
 
 export default class FootnoteUI extends Plugin {
 	init() {

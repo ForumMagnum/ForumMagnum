@@ -1,9 +1,9 @@
 import inlineAutoformatEditing from '@ckeditor/ckeditor5-autoformat/src/inlineautoformatediting';
-import { Editor } from '@ckeditor/ckeditor5-core';
-import Element from '@ckeditor/ckeditor5-engine/src/model/element';
+import type { Editor } from '@ckeditor/ckeditor5-core';
+import type Element from '@ckeditor/ckeditor5-engine/src/model/element';
 import Text from '@ckeditor/ckeditor5-engine/src/model/text';
 import TextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
-import Range from '@ckeditor/ckeditor5-engine/src/view/range';
+import type Range from '@ckeditor/ckeditor5-engine/src/view/range';
 import { modelQueryElement, modelQueryElementsAll } from '../utils';
 import { COMMANDS, ELEMENTS } from '../constants';
 import type Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';

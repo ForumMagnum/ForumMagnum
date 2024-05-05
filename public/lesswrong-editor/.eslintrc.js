@@ -69,7 +69,6 @@ module.exports = {
     "no-unsafe-optional-chaining": 0,
     "padded-blocks": 0,
     "@typescript-eslint/array-type": 0,
-    "@typescript-eslint/consistent-type-imports": 0,
     "no-useless-escape": 0,
 
     // Our main project uses two-space indents, while CkEditor's convention is tabs (ts=4).

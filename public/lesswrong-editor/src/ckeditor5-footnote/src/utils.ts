@@ -4,7 +4,7 @@ import ModelTextProxy from '@ckeditor/ckeditor5-engine/src/model/textproxy';
 import ViewElement from '@ckeditor/ckeditor5-engine/src/view/element';
 import ViewText from '@ckeditor/ckeditor5-engine/src/view/text';
 import ViewTextProxy from '@ckeditor/ckeditor5-engine/src/view/textproxy';
-import { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 
 // There's ample DRY violation in this file; type checking
 // polymorphism without full typescript is just incredibly finicky.

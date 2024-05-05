@@ -2,7 +2,7 @@
  * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
  * For licensing, see LICENSE.md or https://ckeditor.com/legal/ckeditor-oss-license
  */
-import { Plugin, Editor } from '@ckeditor/ckeditor5-core';
+import { Plugin, type Editor } from '@ckeditor/ckeditor5-core';
 import { ButtonView, ContextualBalloon, clickOutsideHandler } from 'ckeditor5/src/ui';
 import { Collection, keyCodes, env, Rect, CKEditorError, logWarning } from 'ckeditor5/src/utils';
 import { TextWatcher } from 'ckeditor5/src/typing';

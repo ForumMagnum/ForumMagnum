@@ -65,6 +65,7 @@
     "@ckeditor/ckeditor5-track-changes": "^41.3.1",
     "@ckeditor/ckeditor5-ui": "^41.3.1",
     "@ckeditor/ckeditor5-watchdog": "^41.3.1",
+    "@types/lodash-es": "^4.17.12",
     "eslint": "^8.41.0",
     "eslint-config-ckeditor5": "^5.3.2",
     "lint-staged": "^10.0.7",

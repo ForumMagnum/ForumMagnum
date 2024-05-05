@@ -12,9 +12,9 @@ import InsertFootnoteCommand from '../insertfootnotecommand';
 import '../../theme/placeholder.css';
 import '../../theme/footnote.css';
 import ModelElement from '@ckeditor/ckeditor5-engine/src/model/element';
-import ModelWriter from '@ckeditor/ckeditor5-engine/src/model/writer';
-import Batch from '@ckeditor/ckeditor5-engine/src/model/batch';
-import RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
+import type ModelWriter from '@ckeditor/ckeditor5-engine/src/model/writer';
+import type Batch from '@ckeditor/ckeditor5-engine/src/model/batch';
+import type RootElement from '@ckeditor/ckeditor5-engine/src/model/rootelement';
 import { modelQueryElementsAll, modelQueryElement } from '../utils';
 import Autoformat from '@ckeditor/ckeditor5-autoformat/src/autoformat';
 

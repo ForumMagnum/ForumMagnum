@@ -1,4 +1,4 @@
-import { Command, Plugin, Editor } from '@ckeditor/ckeditor5-core';
+import { Command, Plugin, type Editor } from '@ckeditor/ckeditor5-core';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import { ELEMENTS as FOOTNOTE_ELEMENTS } from '../ckeditor5-footnote/src/constants';
