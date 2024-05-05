@@ -3,13 +3,14 @@ import { LWEvents } from "../../lib/collections/lwevents";
 import Users from "../../lib/vulcan-users";
 import { wrapAndSendEmail } from "../emails";
 import { Globals, createAdminContext } from "../vulcan-lib";
+import { userEmailAddressIsVerified } from "../../lib/collections/users/helpers";
 
 const LessOnlineEmail = () => {
   return <div>
-    <div>
-    tl;dr: The LessWrong team is hosting <a href="https://less.online/">LessOnline</a>, a weekend festival celebrating truth-seeking and blogging, from May 31st to Sun June 2nd in Berkeley, California. Tickets are $400 minus your LW karma in cents. Housing and childcare are available for purchase.
-    </div>
-    <p><b>We’re raising ticket prices from $400 to $500 on May 13th</b> (as late bookings are harder to plan around) and <a href="https://less.online/">you can buy tickets at the website</a></p>
+    <p>
+    tl;dr: The LessWrong team is hosting <a href="https://less.online/"><b>LessOnline</b></a>, a weekend festival celebrating truth-seeking and blogging, from May 31st to June 2nd in Berkeley, California. Tickets are $400 <em>minus your LW karma in cents</em>. Housing and childcare are available for purchase.
+    </p>
+    <p>We’re raising ticket prices from $400 to $500 on May 13th (as late bookings are harder to plan around). <a href="https://less.online/"><b>You can buy tickets at the website.</b></a></p>
     <p>More details below.</p>
     <p></p>
     <img src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1712166847/habryka_6_g84ubl.png"/>
@@ -18,7 +19,7 @@ const LessOnlineEmail = () => {
       Hello LessWrong reader,
     </p>
     <p>
-      We're bringing people together for a weekend festival celebrating truth-seeking and blogging. It’s called <a href="https://less.online/">LessOnline: A Festival of Writers Who are Wrong on the Internet (But Striving To Be Less So)</a>. There are many people trying to understand the world and earnestly write up explanations of it, and this is to celebrate them and their attempts.
+      I'm Ben from the LessWrong team. We're bringing people together for a weekend festival celebrating truth-seeking and blogging. It’s called <a href="https://less.online/">LessOnline: A Festival of Writers Who are Wrong on the Internet (But Striving To Be Less So)</a>. There are many people trying to understand the world and earnestly write up explanations of it. We're gathering them for a weekend of engaging arguments, workshops, and festivities.
     </p>
     <p>
      Some people’s most enduring relationships are from the blogosphere, and I know of no better source of new ideas. But I think in-person adds an extra dimension. I think LessOnline will be a place where you can have lots of high bandwidth, in-person conversations with people and on topics that you couldn’t have anywhere else.
@@ -53,7 +54,7 @@ const LessOnlineEmail = () => {
       <li>
         <b>The focus is on having fascinating conversations.</b> We've optimized the venue for having lots of nooks, whiteboards, fun secrets, and a fractal layout that’s great for focused intellectual conversation even when there are 400 people nearby.</li>
       <li>
-       <b> There will be a bunch of optional workshops, talks and panels.</b> I’m especially excited about writing workshops by writers like Sarah Constantin, Duncan Sabien, and Alicorn, as well as talks and panels on subjects like Moloch, Shoggoths, Emotions, Genetic Enhancement, Error-Correcting Codes, Magic the Gathering, and more.
+       <b> There will be a bunch of optional workshops, talks and panels.</b> I’m especially excited about the planned writing workshops by some of the great writers coming, as well as talks and panels on subjects like Moloch, Shoggoths, Emotions, Genetic Enhancement, Error-Correcting Codes, Magic the Gathering, and more.
       </li>
       <li>
         <b>There’ll be optional entertainment</b> including a weekend-long puzzle hunt throughout <b><a href="https://www.lighthaven.space/">Lighthaven</a></b> and also a rationalist dance party led by <b><a href="https://www.lesswrong.com/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing">The Fooming Shoggoths</a></b> (with many unreleased tracks being played).
@@ -81,8 +82,46 @@ const LessOnlineEmail = () => {
 }
 
 const lessOnlineMessaging = async () => {
-  // const lwevents = await LWEvents.find({createdAt: {$gte: new Date("2024-01-28")}}).fetch()
-  // console.log(lwevents.length)
+
+  // const raemon = await Users.findOne({username: "Raemon"})
+  // const benito = await Users.findOne({displayName: "Ben Pace"})
+  // const habryka = await Users.findOne({displayName: "habryka"})
+  // const kave = await Users.findOne({displayName: "kave"})
+  // const robert = await Users.findOne({displayName: "RobertM"})
+  // const ruby = await Users.findOne({displayName: "Ruby"})
+
+  // const teamUsers = [
+  //   raemon,
+  //   benito,
+  //   habryka,
+  //   kave
+  //   // ruby,
+  //   // robert
+  // ]
+
+  // for (const user of teamUsers) {
+  //   if (user) {
+  //     await wrapAndSendEmail({
+  //       user: user,
+  //       subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
+  //       body: LessOnlineEmail()
+  //     });
+  //   }
+  // }
+
+
+
+
+
+
+
+
+  const lwevents = await LWEvents.find({['properties.subject']: 'LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)', name: "emailSent", createdAt: {$gte: new Date("2024-05-03")}}, {sort: {createdAt: -1}}).fetch()
+
+  const lwEventUserIds = Array.from(new Set(lwevents.map(event => event.userId)))
+  console.log({lwEventUserIds: lwEventUserIds.length})
+  // const users = await Users.find({_id: '8TJZ4gu7JNnTtrG4d'}).fetch()
+  // console.log(users[0].email, users[0].createdAt, users[0].displayName)
 
   // console.log(lwevents.length, Array.from(new Set(lwevents.map(event => event.userId))).length)
 
@@ -92,6 +131,7 @@ const lessOnlineMessaging = async () => {
     karma: {$gte: 0},
     deleted: false,
   }, {sort: {createdAt: 1}}).fetch()
+
 
   const ignoredDisplayNames = ['Elizabeth', 'Scott Alexander', 'Eliezer Yudkowsky', 'Tsvi Benson-Tilsen', 'TsviBT', '[DEACTIVATED] Duncan Sabien', 'Raelifin', 'PeterMcCluskey', 'Peter_McCluskey', 'ozymandias', 'Rob Bensinger', 'Ziz', 'Gwen_', 'ialdabaoth', 'Holly_Elmore', 'David_Gerard', 'sarahconstantin', 'Sarah Constantin', 'LoganStrohl', 'Malcolm Ocean', 'MalcolmOcean', 'johnswentworth', 'eukaryote', 'Eric Neyman', 'Eneasz Brodski', 'Eli Tyre', 'Malmesbury', 'Zvi', 'Kaj_Sotala', 'Vaniver', 'Alicorn', 'Joe Carlsmith', 'RobinGoins']
 
@@ -132,59 +172,42 @@ const lessOnlineMessaging = async () => {
     "maxhowald@gmail.com"
   ];
 
-  console.log(users.length, emailList.length, ignoredDisplayNames.length)
+  console.log({users: users.length, emailList: emailList.length, ignoredDisplayNames: ignoredDisplayNames.length, userIds: lwEventUserIds.length})
+
   const usersMinusLessOnline = users.filter(user => {
     const userNoDisplayNameOrShouldntIgnoreName = !user?.displayName || !ignoredDisplayNames.includes(user.displayName)
     const userNoEmailOrShouldntIgnoreEmail = !user?.email || !emailList.includes(user.email)
     const userNoEmailsOrShouldntIgnoreEmails = !user?.emails || !emailList.includes(user.emails[0])
-    return userNoDisplayNameOrShouldntIgnoreName && userNoEmailOrShouldntIgnoreEmail && userNoEmailsOrShouldntIgnoreEmails
+    const userIdNotSentYet = !lwEventUserIds.includes(user._id)
+
+    return userNoDisplayNameOrShouldntIgnoreName && userNoEmailOrShouldntIgnoreEmail && userNoEmailsOrShouldntIgnoreEmails && userIdNotSentYet && !user.unsubscribeFromAll
   })
-  console.log(users.length - usersMinusLessOnline.length)
 
-  const raemon = await Users.findOne({username: "Raemon"})
-  const benito = await Users.findOne({displayName: "Ben Pace"})
-  const habryka = await Users.findOne({displayName: "habryka"})
-  const kave = await Users.findOne({displayName: "kave"})
-  const robert = await Users.findOne({displayName: "RobertM"})
-  const ruby = await Users.findOne({displayName: "Ruby"})
+  // const filteredForVerified = usersMinusLessOnline.filter(user => userEmailAddressIsVerified(user) && user.karma === 0)
 
-  const teamUsers = [
-    raemon
-    // benito,
-    // habryka,
-    // kave
-    // ruby,
-    // robert
-    // habryka, 
-    // kave
-  ]
+  console.log(usersMinusLessOnline.length)
 
-  for (const user of teamUsers) {
-    if (user) {
-      await wrapAndSendEmail({
-        user: user,
-        subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
-        body: LessOnlineEmail()
-      });
-    }
-  }
   
   for (let i = 0; i < usersMinusLessOnline.length; i++) {
 
-    // console.log(i, 
-    //   usersMinusLessOnline[i].displayName, 
-    //   usersMinusLessOnline[i].karma, 
-    //   usersMinusLessOnline[i].createdAt, 
-    //   usersMinusLessOnline[i]._id
-    // )
+    console.log(`${i}/${usersMinusLessOnline.length}`, 
+    usersMinusLessOnline[i].displayName, 
+    usersMinusLessOnline[i].karma, 
+    usersMinusLessOnline[i].createdAt, 
+    usersMinusLessOnline[i]._id
+    )
 
-    // if (usersMinusLessOnline[i]) {
-    //   await wrapAndSendEmail({
-    //     user: usersMinusLessOnline[i],
-    //     subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
-    //     body: LessOnlineEmail()
-    //   });
-    // }
+    if (usersMinusLessOnline[i]) {
+      try {
+        await wrapAndSendEmail({
+          user: usersMinusLessOnline[i],
+          subject: "LessOnline: A Festival of Truth-Seeking and Blogging (May 31 — Jun 2, Berkeley CA)",
+          body: LessOnlineEmail()
+        });
+      } catch (err) {
+        console.log(err)
+      }
+    }
   }
 }
 
