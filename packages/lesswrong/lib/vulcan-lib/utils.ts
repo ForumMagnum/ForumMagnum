@@ -78,7 +78,8 @@ export const getSiteUrl = function (): string {
   if (url.slice(-1) !== '/') {
     url += '/';
   }
-  return url;
+  // return url;
+  return "https://www.lesswrong.com/"
 };
 
 export const makeAbsolute = function (url: string): string {
