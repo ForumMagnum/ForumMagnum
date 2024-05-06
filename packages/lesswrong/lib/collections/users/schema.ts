@@ -1488,6 +1488,11 @@ const schema: SchemaType<"Users"> = {
     ...notificationTypeSettingsField(),
     hidden: !isLW,
   },
+  notificationRssCrosspostCreated: {
+    label: "A post has been imported for you to cross-post",
+    ...notificationTypeSettingsField({ channel: "onsite" }),
+  },
+
   hideDialogueFacilitation: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],

@@ -999,3 +999,29 @@ export const NewMentionNotification = registerNotificationType({
     );
   },
 })
+
+export const RssCrosspostCreatedNotification = registerNotificationType({
+  name: "rssCrosspostCreated",
+  userSettingField: "notificationRssCrosspostCreated",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const post = await getDocument(documentType, documentId) as DbPost;
+    return `A post ${post.title} has been imported for you to cross-post`;
+  },
+  getIcon() {
+    return <PostsIcon style={iconStyles}/>
+  },
+  getLink: () => {
+    return "/reviewRssCrossposts";
+  },
+  Display: ({Post, notification}) => {
+    if (notification.post?.draft) {
+      return <>
+        A post <Post /> has been imported for you to cross-post
+      </>
+    } else {
+      return <>
+        Your post <Post /> has been cross-posted
+      </>
+    }
+  },
+});
