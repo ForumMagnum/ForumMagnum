@@ -205,8 +205,8 @@ const helpers = {
     });
   },
 
-  async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext): Promise<OnsitePostRecommendationsInfo> {
-    if (lwAlgoSettings.loadMore) {
+  async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext, skipOnLoadMore = true): Promise<OnsitePostRecommendationsInfo> {
+    if (lwAlgoSettings.loadMore && skipOnLoadMore) {
       return {
         curatedPostIds: [],
         stickiedPostIds: [],
@@ -301,12 +301,15 @@ const helpers = {
 
   getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
     const loadMoreCount = hybridArgs.loadMore?.loadMoreCount;
+    const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
+    // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
+    const notPostIdsArg = excludedPostIds.length ? { notPostIds: excludedPostIds } : {};
     const postsTerms: PostsViewTerms = {
       view: "magic",
       forum: true,
       limit,
-      notPostIds: excludedPostIds,
-      ...(loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {}),
+      ...notPostIdsArg,
+      ...loadMoreCountArg,
     };
 
     const postsQuery = viewTermsToQuery('Posts', postsTerms, undefined, context);
@@ -427,13 +430,17 @@ const recombeeApi = {
   async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
-    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
+    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
+    // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
+    const includedCuratedAndStickiedPostIds = lwAlgoSettings.loadMore
+      ? []
+      : excludeFromLatestPostIds;
 
-    const curatedAndStickiedPostCount = includedCuratedPostIds.length + stickiedPostIds.length;
+    const curatedAndStickiedPostCount = includedCuratedAndStickiedPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
     const split = 0.5;
     const configurableArmCount = Math.floor(modifiedCount * split);
@@ -501,7 +508,7 @@ const recombeeApi = {
     const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
     // The ordering of these post ids is actually important, since it's preserved through all subsequent filtering/mapping
     // It ensures the "curated > stickied > everything else" ordering
-    const postIds = [...includedCuratedPostIds, ...stickiedPostIds, ...recommendedPostIds];
+    const postIds = [...includedCuratedAndStickiedPostIds, ...recommendedPostIds];
     
     const [orderedPosts, deferredPosts] = await Promise.all([
       loadByIds(context, 'Posts', postIds)
