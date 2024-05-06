@@ -629,6 +629,59 @@ const manifoldStyles = (theme: ThemeType): JssStyles => ({
   link: linkStyle(theme),
 });
 
+const fatebookStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+})
+
+const FatebookPreview = ({classes, href, id, children}: {
+  classes: ClassesType;
+  href: string;
+  id?: string;
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://manifold.markets/embed/[...]
+  const isEmbed = /^https?:\/\/fatebook\.io\/embed\/q\/[\w-]+$/.test(href);
+
+
+  const [, questionSlug] = href.match(/^https?:\/\/fatebook\.io\/q\/(.+)$/) || [];
+
+  if (!isEmbed && !questionSlug) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://fatebook.io/embed/q/${questionSlug  }`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const FatebookPreviewComponent = registerComponent('FatebookPreview', FatebookPreview, { styles: manifoldStyles })
+
+
 const ManifoldPreview = ({classes, href, id, children}: {
   classes: ClassesType;
   href: string;
@@ -945,6 +998,7 @@ declare global {
     PostLinkPreviewWithPost: typeof PostLinkPreviewWithPostComponent,
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
+    FatebookPreview: typeof FatebookPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
     ManifoldPreview: typeof ManifoldPreviewComponent,
     MetaforecastPreview: typeof MetaforecastPreviewComponent,
