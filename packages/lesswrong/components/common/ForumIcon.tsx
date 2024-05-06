@@ -128,6 +128,7 @@ import { VotedIcon } from "../icons/votedIcon";
 import { LightbulbChatIcon } from "../icons/lightbulbChatIcon";
 import { AddReactionIcon } from "../icons/AddReactionIcon";
 import { LabBeakerIcon } from "../icons/LabBeakerIcon";
+import { SparkleIcon } from "../icons/sparkleIcon";
 import { ListViewIcon } from "../icons/ListViewIcon";
 import { CardViewIcon } from "../icons/CardViewIcon";
 
@@ -229,7 +230,8 @@ export type ForumIconName =
   "VoteBallot" |
   "Import" |
   "AddReaction" |
-  "LabBeaker"
+  "LabBeaker" |
+  "Sparkle"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -326,6 +328,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
+    Sparkle: SparkleIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -420,6 +423,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
+    Sparkle: SparkleIcon,
   },
 };
 
