@@ -85,7 +85,7 @@ export default class AutoMath extends Plugin {
 			return;
 		}
 
-		const mathCommand = editor.commands.get( 'math' ) as MathCommand;
+		const mathCommand = editor.commands.get( 'math' );
 
 		// Do not anything if math element cannot be inserted at the current position
 		if ( !mathCommand.isEnabled ) {

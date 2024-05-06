@@ -6,7 +6,7 @@ export default class MathCommand extends Command {
 	display: AnyBecauseTodo
 	override value: AnyBecauseTodo
 
-	execute( equation: string, display: boolean, outputType: "span"|"style", forceOutputType: boolean) {
+	execute( equation: string, display: boolean, outputType: "span"|"script", forceOutputType: boolean) {
 		const model = this.editor.model;
 		const selection = model.document.selection;
 		const selectedElement = selection.getSelectedElement();

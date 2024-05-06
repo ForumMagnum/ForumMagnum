@@ -1,5 +1,4 @@
 import type { MathConfig } from "./ckeditor5-math/math";
-import type MediaEmbedConfig from "@ckeditor/ckeditor5-media-embed/src/mediaembed";
 
 const headingOptions = {
 	options: [
@@ -17,7 +16,7 @@ const mathConfig: MathConfig = {
 	enablePreview: true
 }
 
-const embedConfig: MediaEmbedConfig = {
+const embedConfig = {
 	toolbar: [ 'comment' ],
 	previewsInData: true,
 	removeProviders: [ 'instagram', 'twitter', 'googleMaps', 'flickr', 'facebook', 'spotify', 'vimeo', 'dailymotion'],
@@ -124,8 +123,8 @@ const embedConfig: MediaEmbedConfig = {
 				`
 			}
 		}
-	]
-}
+	],
+};
 
 export const postEditorConfig = {
 	blockToolbar: {
@@ -183,7 +182,7 @@ export const postEditorConfig = {
 		tableToolbar: [ 'comment' ]
 	},
 	math: mathConfig,
-	mediaEmbed: embedConfig,
+	...embedConfig,
 };
 
 export const commentEditorConfig = {

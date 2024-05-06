@@ -61,7 +61,7 @@ export default class MathUI extends Plugin {
 
 	_showUI() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get('math') as MathCommand;
+		const mathCommand = editor.commands.get('math');
 
 		if ( !mathCommand.isEnabled ) {
 			return;
@@ -84,7 +84,7 @@ export default class MathUI extends Plugin {
 
 	_createFormView() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get('math') as MathCommand;
+		const mathCommand = editor.commands.get('math');
 
 		const mathConfig = Object.assign( defaultConfig, this.editor.config.get( 'math' ) );
 
@@ -136,7 +136,7 @@ export default class MathUI extends Plugin {
 		}
 
 		const editor = this.editor;
-		const mathCommand = editor.commands.get('math') as MathCommand;
+		const mathCommand = editor.commands.get('math');
 
 		this._balloon.add( {
 			view: this.formView,
@@ -173,7 +173,7 @@ export default class MathUI extends Plugin {
 	}
 
 	_closeFormView() {
-		const mathCommand = this.editor.commands.get('math') as MathCommand;
+		const mathCommand = this.editor.commands.get('math');
 		if ( mathCommand.value !== undefined ) {
 			this._removeFormView();
 		} else {
@@ -204,7 +204,7 @@ export default class MathUI extends Plugin {
 
 	_createToolbarMathButton() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get('math') as MathCommand;
+		const mathCommand = editor.commands.get('math');
 		const t = editor.t;
 
 		// Handle the `Ctrl+4` keystroke and show the panel.
