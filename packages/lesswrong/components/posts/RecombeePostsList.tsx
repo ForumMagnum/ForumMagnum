@@ -72,10 +72,11 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationIcon: showRecommendationIcon = false, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
+  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
@@ -100,6 +101,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   });
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
+
   const postIds = results?.map(({post}) => post._id) ?? [];
   const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
     let loggedScenario = scenario;
@@ -140,6 +142,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
         post={post} 
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
+        showRecommendationIcon={showRecommendationIcon}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>
