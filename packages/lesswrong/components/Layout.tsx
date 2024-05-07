@@ -157,8 +157,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     right: 16,
     bottom: 140,
-    textShadow: `0 0 20px ${theme.palette.text.alwaysWhite}, 0 0 100px ${theme.palette.text.alwaysWhite}, 0 0 5px ${theme.palette.text.alwaysWhite}, 0 0 50px ${theme.palette.text.alwaysWhite}`,
-    color: theme.palette.text.alwaysBlack,
+    textShadow: `
+      0 0 20px ${theme.palette.background.pageActiveAreaBackground}, 
+      0 0 100px ${theme.palette.background.pageActiveAreaBackground}, 
+      0 0 5px ${theme.palette.background.pageActiveAreaBackground}, 
+      0 0 50px ${theme.palette.background.pageActiveAreaBackground}
+    `,
+    color: theme.palette.grey[900],
     textAlign: 'right',
     width: '300px',
     '& h2': {
@@ -540,11 +545,11 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="foomingShoggothsConcert2_uqxtyv" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="foomingShoggothsConcert2_uqxtyv" darkPublicId={"foomingShoggothsConcert2-darkmode_bafqw3"}/>
                       <div className={classes.bannerText}>
                         <h2><a href="http://less.online">Fooming Shoggoths Dance Concert</a></h2>
                         <h3>June 1st at LessOnline</h3>
-                        <p>After their debut album <Link to="/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing"><b>I Have Been A Good Bing</b></Link>, the Fooming Shoggoths are performing at the LessOnline festival. They'll be unveiling several previously unpublished tracks, such as<br/> "Nothing is Mere", feat. Richard Feyman.</p>
+                        <p>After their debut album <Link to="/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing"><b>I Have Been A Good Bing</b></Link>, the Fooming Shoggoths are performing at the LessOnline festival. They'll be unveiling several previously unpublished tracks, such as<br/> "Nothing is Mere", feat. Richard Feynman.</p>
                         <a href="http://less.online/#tickets-section"><button>Buy Ticket</button></a>
 
                         <div className={classes.ticketPricesRaise}>
