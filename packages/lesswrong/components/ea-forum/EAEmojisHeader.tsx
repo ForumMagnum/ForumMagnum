@@ -1,9 +1,14 @@
-import React, { FC, MouseEvent, useCallback, useRef, useState } from "react";
+import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { isClient } from "../../lib/executionEnvironment";
 import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
+
+if (isClient) {
+  require("emoji-picker-element");
+}
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,25 +96,50 @@ type BannerEmoji = {
   theta: number,
 }
 
+const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (ref.current && onChange) {
+      const handler = (ev: AnyBecauseTodo) => {
+        const emoji = ev?.detail?.unicode;
+        if (emoji && typeof emoji === "string") {
+          onChange(emoji);
+        }
+      }
+      ref.current.addEventListener("emoji-click", handler);
+      return () => ref.current?.removeEventListener("emoji-click", handler);
+    }
+  }, [ref, onChange]);
+  return (
+    // @ts-ignore
+    <emoji-picker ref={ref} />
+  );
+}
+
 const Emoji: FC<{
   emoji: BannerEmoji,
   currentUser: UsersCurrent | null,
+  setEmoji?: (value: string) => void,
   removeEmoji?: () => Promise<void>,
   classes: ClassesType<typeof styles>,
 }> = ({
   emoji: {userId, x, y, theta, emoji},
   currentUser,
+  setEmoji,
   removeEmoji,
   classes,
 }) => {
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
+
   const isCurrentUser = userId === currentUser?._id;
+
   const onClick = useCallback(() => {
     if (isCurrentUser) {
       void removeEmoji?.();
     }
   }, [isCurrentUser, removeEmoji]);
+
   const {
     LWTooltip, ForumIcon, SectionTitle, EAButton, EAOnboardingInput,
   } = Components;
@@ -128,7 +158,13 @@ const Emoji: FC<{
             <div className={classes.row}>
               <div>
                 <SectionTitle title="Emoji" />
-                <div className={classes.pickerButton}>{emoji || "👍"}</div>
+                <LWTooltip
+                  title={<EmojiPicker onChange={setEmoji} />}
+                  tooltip={false}
+                  clickable
+                >
+                  <div className={classes.pickerButton}>{emoji || "👍"}</div>
+                </LWTooltip>
               </div>
               <div>
                 <SectionTitle title="Link to" />
@@ -199,6 +235,7 @@ const EmojiPlaceholder: FC<{
 export const EAEmojisHeader = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const [emoji, setEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -271,8 +308,9 @@ export const EAEmojisHeader = ({classes}: {
               theta: 0,
               x: 0.5,
               y: 0.5,
-              emoji: "👍",
+              emoji,
             }}
+            setEmoji={setEmoji}
             currentUser={null}
             classes={classes}
           />
