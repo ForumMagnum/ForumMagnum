@@ -99,15 +99,16 @@ export type BannerEmoji = {
 const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
-    if (ref.current && onChange) {
+    const picker = ref.current;
+    if (picker && onChange) {
       const handler = (ev: AnyBecauseTodo) => {
         const emoji = ev?.detail?.unicode;
         if (emoji && typeof emoji === "string") {
           onChange(emoji);
         }
       }
-      ref.current.addEventListener("emoji-click", handler);
-      return () => ref.current?.removeEventListener("emoji-click", handler);
+      picker.addEventListener("emoji-click", handler);
+      return () => picker?.removeEventListener("emoji-click", handler);
     }
   }, [ref, onChange]);
   return (
