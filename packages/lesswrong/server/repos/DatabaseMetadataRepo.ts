@@ -2,7 +2,9 @@ import AbstractRepo from "./AbstractRepo";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
-import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import type { BannerEmoji } from "../../components/ea-forum/EAEmojisHeader";
+
+const BANNER_EMOJI_NAME = "banner-emojis-2024-05";
 
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
@@ -21,61 +23,51 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     );
   }
 
-  private electionNameToMetadataName(electionName: string): string {
-    return `${electionName}Hearts`;
-  }
-
-  async getGivingSeasonHearts(electionName: string): Promise<GivingSeasonHeart[]> {
-    const metadataName = this.electionNameToMetadataName(electionName);
+  async getBannerEmojis(): Promise<BannerEmoji[]> {
     const result = await this.getRawDb().oneOrNone(`
-      -- DatabaseMetadataRepo.getGivingSeasonHearts
+      -- DatabaseMetadataRepo.getBannerEmojis
       SELECT ARRAY_AGG(q."value" || JSONB_BUILD_OBJECT(
         'userId', u."_id",
         'displayName', u."displayName"
-      )) "hearts"
+      )) "emojis"
       FROM (
         SELECT (JSONB_EACH("value")).*
         FROM "DatabaseMetadata"
         WHERE "name" = $1
       ) q
       JOIN "Users" u ON q."key" = u."_id"
-    `, [metadataName]);
-    return result?.hearts ?? [];
+    `, [BANNER_EMOJI_NAME]);
+    return result?.emojis ?? [];
   }
 
-  async addGivingSeasonHeart(
-    electionName: string,
+  async addBannerEmoji(
+    emoji: string,
     userId: string,
     x: number,
     y: number,
     theta: number,
-  ): Promise<GivingSeasonHeart[]> {
-    const metadataName = this.electionNameToMetadataName(electionName);
+  ): Promise<BannerEmoji[]> {
     await this.none(`
-      -- DatabaseMetadataRepo.addGivingSeasonHeart
+      -- DatabaseMetadataRepo.addBannerEmoji
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
       VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
       ON CONFLICT ("name") DO UPDATE SET "value" = "DatabaseMetadata"."value" || $3
     `, [
       randomId(),
-      metadataName,
-      {[userId]: {x, y, theta}},
+      BANNER_EMOJI_NAME,
+      {[userId]: {emoji, x, y, theta}},
     ]);
-    return this.getGivingSeasonHearts(electionName);
+    return this.getBannerEmojis();
   }
 
-  async removeGivingSeasonHeart(
-    electionName: string,
-    userId: string,
-  ): Promise<GivingSeasonHeart[]> {
-    const metadataName = this.electionNameToMetadataName(electionName);
+  async removeBannerEmoji(userId: string): Promise<BannerEmoji[]> {
     await this.none(`
-      -- DatabaseMetadataRepo.removeGivingSeasonHeart
+      -- DatabaseMetadataRepo.removeBannerEmoji
       UPDATE "DatabaseMetadata"
       SET "value" = "value" - $1
       WHERE "name" = $2
-    `, [userId, metadataName]);
-    return this.getGivingSeasonHearts(electionName);
+    `, [userId, BANNER_EMOJI_NAME]);
+    return this.getBannerEmojis();
   }
 
   getServerSettings(): Promise<DbDatabaseMetadata | null> {

@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
 const isValidTarget = (e: EventTarget | null): e is HTMLDivElement =>
   !!e && "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
 
-type BannerEmoji = {
+export type BannerEmoji = {
   userId: string,
   displayName?: string,
   emoji?: string,
