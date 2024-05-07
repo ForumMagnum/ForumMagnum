@@ -247,6 +247,7 @@ export const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     lineHeight: "140%",
     marginLeft: 46,
+    marginTop: 20,
     "& a": {
       textDecoration: "underline",
       "&:hover": {
@@ -263,7 +264,7 @@ export const styles = (theme: ThemeType) => ({
     fontWeight: 700,
     lineHeight: "120%",
     letterSpacing: "-0.3px",
-    margin: "20px 0",
+    marginBottom: 20,
   },
 });
 
@@ -511,6 +512,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
+              {showEmojisHeader && <div style={{flexGrow: 2}} />}
               {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
