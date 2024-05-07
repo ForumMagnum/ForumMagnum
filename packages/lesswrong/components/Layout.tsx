@@ -127,10 +127,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   imageColumn: {
-    gridArea: 'imageGap',
-    position: 'relative',
+    position: 'absolute',
+    top: 0,
+    right: 0,
     height: "100vh",
-    ['@media(max-width: 1375px)']: {
+    ['@media(max-width: 1000px)']: {
       display: 'none'
     },
   },
@@ -138,7 +139,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-140px',
+    top: '-57px',
+    right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
@@ -150,19 +152,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: '79vh',
     objectFit: 'cover',
     transform: 'scaleX(-1)',
-    '-webkit-mask-image': `radial-gradient(ellipse at center center, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
+    '-webkit-mask-image': `radial-gradient(ellipse at center center, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
+    zIndex: -2,
+    position: 'relative',
   },
   bannerText: {
     ...theme.typography.postStyle,
+    ['@media(max-width: 1375px)']: {
+      width: 250
+    },
+    ['@media(max-width: 1325px)']: {
+      width: 200
+    },
+    ['@media(max-width: 1200px)']: {
+      display: "none"
+    },
     position: 'absolute',
     right: 16,
-    bottom: 140,
-    textShadow: `
-      0 0 20px ${theme.palette.background.pageActiveAreaBackground}, 
-      0 0 100px ${theme.palette.background.pageActiveAreaBackground}, 
-      0 0 5px ${theme.palette.background.pageActiveAreaBackground}, 
-      0 0 50px ${theme.palette.background.pageActiveAreaBackground}
-    `,
+    bottom: 79,
     color: theme.palette.grey[900],
     textAlign: 'right',
     width: '300px',
@@ -172,6 +179,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontWeight: 600,
       marginTop: 20,
       marginBottom: 10,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
       '& a:hover': {
         opacity: 1
       }
@@ -180,7 +193,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: '18px',
       margin: 0,
       lineHeight: '1.2',
-      marginBottom: 14
+      marginBottom: 14,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
     },
     '& button': {
       ...theme.typography.commentStyle,
@@ -211,6 +230,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& p': {
       margin: 4
     }
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: '100vh',
+    width: '50vw',
+    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
+    zIndex: -1,
   },
   lessOnlineBannerDateAndLocation: {
     ...theme.typography.commentStyle,
@@ -406,6 +434,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       EAOnboardingFlow,
+      BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -537,7 +566,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {children}
-                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
+                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
@@ -549,13 +578,14 @@ const Layout = ({currentUser, children, classes}: {
                       <div className={classes.bannerText}>
                         <h2><a href="http://less.online">Fooming Shoggoths Dance Concert</a></h2>
                         <h3>June 1st at LessOnline</h3>
-                        <p>After their debut album <Link to="/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing"><b>I Have Been A Good Bing</b></Link>, the Fooming Shoggoths are performing at the LessOnline festival. They'll be unveiling several previously unpublished tracks, such as<br/> "Nothing is Mere", feat. Richard Feynman.</p>
+                        <p>After their debut album <Link to="/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing"><b>I Have Been A Good Bing</b></Link>, the Fooming Shoggoths are performing at the LessOnline festival. They'll be unveiling several previously unpublished tracks, such as "Nothing is Mere", feat. Richard Feynman.</p>
                         <a href="http://less.online/#tickets-section"><button>Buy Ticket</button></a>
 
                         <div className={classes.ticketPricesRaise}>
                           Ticket prices raise $100 on May 13th                       
                         </div>
                       </div>
+                      <div className={classes.backgroundGradient}/>
                     </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
