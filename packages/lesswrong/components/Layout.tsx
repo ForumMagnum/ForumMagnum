@@ -545,7 +545,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="foomingShoggothsConcert2_uqxtyv" darkPublicId={"foomingShoggothsConcert2-darkmode_bafqw3"}/>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="foomingShoggothsConcert3_jdopwk" darkPublicId={"foomingShoggothsConcert2-darkmode_bafqw3"}/>
                       <div className={classes.bannerText}>
                         <h2><a href="http://less.online">Fooming Shoggoths Dance Concert</a></h2>
                         <h3>June 1st at LessOnline</h3>
