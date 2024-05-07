@@ -291,6 +291,10 @@ export const darkModeTheme: UserThemeSpecification = {
       panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
       postScoreArrow: '#BCBCBC',
     },
+    emojiHeader: {
+      background: "#00323B",
+      foreground: "#FFF",
+    },
     tab: {
       inactive: {
         text: shadePalette.grey[600]
