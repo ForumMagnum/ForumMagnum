@@ -140,6 +140,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '57vw',
     maxWidth: '1000px',
     top: '-57px',
+    right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
