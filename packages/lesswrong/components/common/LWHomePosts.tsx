@@ -24,6 +24,7 @@ import { RecombeeConfiguration } from '../../lib/collections/users/recommendatio
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
+import { commentBodyStyles } from '../../themes/stylePiping';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -111,6 +112,22 @@ const styles = (theme: ThemeType) => ({
   },
   tagFilterSettingsButton: {
   },
+  listTitle: {
+    opacity: 0.6,
+    display: "flex",
+    fontsize: "1rem",
+    ...commentBodyStyles(theme)
+  },
+  calendarIcon: {
+    width: 17,
+    height: 17,
+    marginRight: 8,
+  },
+  sparkleIcon: {
+    width: 18,
+    height: 18,
+    marginRight: 8,
+  }
 })
 
 export const filterSettingsToggleLabels =  {
@@ -194,7 +211,7 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
 const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem } = Components;
+    VertexPostsList, WelcomePostItem, ForumIcon } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -399,6 +416,33 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                   }} 
                 />
               </AnalyticsContext>}
+
+
+              {/* SPLIT ENRICHED */}
+              {selectedTab === 'split' && <AnalyticsContext feedType={selectedTab}>
+                
+
+                <div className={classes.listTitle}>
+                  <ForumIcon icon="Calendar" className={classes.calendarIcon} />
+                    Latest
+                </div>
+                <WelcomePostItem />
+                <CuratedPostsList overrideLimit={2}/>
+                <PostsList2 
+                  terms={{...recentPostsTerms, limit: 6}} 
+                  showLoadMore={false}
+                  hideHiddenFrontPagePosts
+                />
+                
+                <div className={classes.listTitle}>
+                  <ForumIcon icon="Sparkle" className={classes.sparkleIcon} />
+                    Recommended
+                </div>
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} limit={10} showRecommendationIcon />
+
+              </AnalyticsContext>}
+
+
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
