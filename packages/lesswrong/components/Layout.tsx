@@ -151,7 +151,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: '79vh',
     objectFit: 'cover',
     transform: 'scaleX(-1)',
-    '-webkit-mask-image': `radial-gradient(ellipse at center center, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
+    '-webkit-mask-image': `radial-gradient(ellipse at center center, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
+    zIndex: -2,
+    position: 'relative',
   },
   bannerText: {
     ...theme.typography.postStyle,
@@ -160,9 +162,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     ['@media(max-width: 1325px)']: {
       width: 200
-    },
-    ['@media(max-width: 1275px)']: {
-      width: 150
     },
     ['@media(max-width: 1200px)']: {
       display: "none"
@@ -193,7 +192,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: '18px',
       margin: 0,
       lineHeight: '1.2',
-      marginBottom: 14
+      marginBottom: 14,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
     },
     '& button': {
       ...theme.typography.commentStyle,
@@ -224,6 +229,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& p': {
       margin: 4
     }
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: '100vh',
+    width: '50vw',
+    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
+    zIndex: -1,
   },
   lessOnlineBannerDateAndLocation: {
     ...theme.typography.commentStyle,
@@ -569,6 +583,7 @@ const Layout = ({currentUser, children, classes}: {
                           Ticket prices raise $100 on May 13th                       
                         </div>
                       </div>
+                      <div className={classes.backgroundGradient}/>
                     </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
