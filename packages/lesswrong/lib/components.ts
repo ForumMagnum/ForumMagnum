@@ -91,6 +91,7 @@ importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/use
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
+importComponent("EAEmojisHeader", () => require('../components/ea-forum/EAEmojisHeader'))
 
 // Messaging
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));

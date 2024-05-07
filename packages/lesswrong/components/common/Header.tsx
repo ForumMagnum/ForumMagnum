@@ -226,6 +226,9 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.emojiHeader.foreground,
     backgroundColor: theme.palette.emojiHeader.background,
     height: EMOJIS_HEADER_HEIGHT,
+    "& .MuiToolbar-root > *": {
+      zIndex: 2,
+    },
     "& .Header-titleLink": {
       color: theme.palette.emojiHeader.foreground,
     },
@@ -237,6 +240,7 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   emojisContent: {
+    zIndex: 2,
     maxWidth: 295,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
@@ -297,7 +301,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton,
+    ActiveDialogues, SiteLogo, MessagesMenuButton, EAEmojisHeader,
   } = Components;
 
   useEffect(() => {
@@ -511,15 +515,18 @@ const Header = ({
               {rightHeaderItemsNode}
             </Toolbar>
             {showEmojisHeader &&
-              <div className={classes.emojisContent}>
-                <div className={classes.emojisTitle}>
-                  Ways the world is getting better
+              <>
+                <div className={classes.emojisContent}>
+                  <div className={classes.emojisTitle}>
+                    Ways the world is getting better
+                  </div>
+                  <div>
+                    Click the banner to add a piece of{" "}
+                    <Link to={emojisInfoLink}>good news</Link>
+                  </div>
                 </div>
-                <div>
-                  Click the banner to add a piece of{" "}
-                  <Link to={emojisInfoLink}>good news</Link>
-                </div>
-              </div>
+                <EAEmojisHeader />
+              </>
             }
           </header>
           {headerNavigationDrawer}
