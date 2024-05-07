@@ -4,7 +4,7 @@ import { useGlobalKeydown } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
-import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../lib/vulcan-users';
 import { userHasDarkModeHotkey } from '../../lib/betas';
 
 export const GlobalHotkeys = () => {
