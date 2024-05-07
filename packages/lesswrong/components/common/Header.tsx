@@ -22,6 +22,9 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
+export const EMOJIS_HEADER_HEIGHT = 236;
+
+const emojisInfoLink = "#"; // TODO
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -212,6 +215,52 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
+  emojisRoot: {
+    marginBottom: 170,
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: 0,
+    },
+  },
+  emojisAppBar: {
+    boxShadow: "none",
+    color: theme.palette.emojiHeader.foreground,
+    backgroundColor: theme.palette.emojiHeader.background,
+    height: EMOJIS_HEADER_HEIGHT,
+    "& .Header-titleLink": {
+      color: theme.palette.emojiHeader.foreground,
+    },
+    "& .ForumIcon-root": {
+      color: theme.palette.emojiHeader.foreground,
+    },
+    [theme.breakpoints.down("sm")]: {
+      height: HEADER_HEIGHT,
+    },
+  },
+  emojisContent: {
+    maxWidth: 295,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    fontWeight: 500,
+    lineHeight: "140%",
+    marginLeft: 46,
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+        opacity: 1,
+      },
+    },
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  emojisTitle: {
+    fontSize: 30,
+    fontWeight: 700,
+    lineHeight: "120%",
+    letterSpacing: "-0.3px",
+    margin: "20px 0",
+  },
 });
 
 const Header = ({
@@ -243,6 +292,7 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
+  const showEmojisHeader = isEAForum && pathname === "/";
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -418,19 +468,26 @@ const Header = ({
 
   return (
     <AnalyticsContext pageSectionContext="header">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, showEmojisHeader && classes.emojisRoot)}>
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={64}
+          height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop}
+          disable={stayAtTop || showEmojisHeader}
         >
-          <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
+          <header
+            className={classNames(
+              classes.appBar,
+              showEmojisHeader && classes.emojisAppBar,
+              !!backgroundColor && classes.appBarDarkBackground,
+            )}
+            style={backgroundColor ? {backgroundColor} : {}}
+          >
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
@@ -453,6 +510,17 @@ const Header = ({
               {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
+            {showEmojisHeader &&
+              <div className={classes.emojisContent}>
+                <div className={classes.emojisTitle}>
+                  Ways the world is getting better
+                </div>
+                <div>
+                  Click the banner to add a piece of{" "}
+                  <Link to={emojisInfoLink}>good news</Link>
+                </div>
+              </div>
+            }
           </header>
           {headerNavigationDrawer}
         </Headroom>
