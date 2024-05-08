@@ -14,8 +14,6 @@ import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMet
 import { performQueryFromViewParameters } from '../../lib/vulcan-core/default_resolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
-import { timedFunc } from '../../lib/helpers';
-import { inspect } from 'util';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -510,9 +508,9 @@ const recombeeApi = {
   async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
-    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await timedFunc('getOnsitePostInfo', () => helpers.getOnsitePostInfo(lwAlgoSettings, context, false));
+    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
-    const curatedPostReadStatuses = await timedFunc('getCuratedPostsReadStatuses', () => helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context));
+    const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
     // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
@@ -543,7 +541,7 @@ const recombeeApi = {
       const recombeeRequest = helpers.createRecommendationsForUserRequest(userId, configurableArmCount, recombeeRequestSettings);
 
       try {
-        recombeeResponsesWithScenario = await timedFunc('getCachedRecommendations', () => helpers.getCachedRecommendations(recombeeRequest, recombeeRequestSettings.scenario, context));
+        recombeeResponsesWithScenario = await helpers.getCachedRecommendations(recombeeRequest, recombeeRequestSettings.scenario, context);
       } catch (err) {
         recombeeResponsesWithScenario = [];
 
@@ -584,7 +582,7 @@ const recombeeApi = {
     // It ensures the "curated > stickied > everything else" ordering
     const postIds = [...includedCuratedAndStickiedPostIds, ...recommendedPostIds];
     
-    const [orderedPosts, deferredPosts] = await timedFunc('loadAllPosts', () => Promise.all([
+    const [orderedPosts, deferredPosts] = await Promise.all([
       loadByIds(context, 'Posts', postIds)
         .then(filterNonnull)
         .then(posts => postIds.map(id => posts.find(post => post._id === id)))
@@ -594,7 +592,7 @@ const recombeeApi = {
       // In the case we're making a batch request to recombee, we don't launch the request at the top, since we're only using it as a fallback in case recombee returns an error
       // In those cases, I'd rather just eat the additional latency than be making totally pointless requests to fetch posts from the DB 99%+ of the time
       deferredPostsPromise ?? initiateDeferredPostsPromise()
-    ]));
+    ]);
 
     // We might not get enough posts back from recombee (most likely because of downtime or other request failure)
     // In those cases, fall back to filling in from the latest posts (since we're fetching enough for the entire request, if necessary)
@@ -602,7 +600,7 @@ const recombeeApi = {
     const missingPostCount = intendedNonDeferredPostCount - orderedPosts.length;
     const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + missingPostCount);
 
-    const filteredPosts = await timedFunc('accessFilter', () => accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context));
+    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recommendationIdTuples, stickiedPostIds, curatedPostIds }));
 
     const curatedOrStickiedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.curated || result.stickied));
