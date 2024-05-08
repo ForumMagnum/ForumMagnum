@@ -29,6 +29,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   emojiTooltip: {
+    width: 320,
+    maxWidth: "100vw",
     padding: 12,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.dropdown.background,
@@ -58,6 +60,9 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     cursor: "pointer",
     userSelect: "none",
+  },
+  linkToSection: {
+    flexGrow: 1,
   },
   input: {
     minHeight: 40,
@@ -398,7 +403,7 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
                   <div className={classes.pickerButton}>{insertEmoji}</div>
                 </LWTooltip>
               </div>
-              <div>
+              <div className={classes.linkToSection}>
                 <SectionTitle title="Link to" />
                 <EAOnboardingInput
                   value={link}
