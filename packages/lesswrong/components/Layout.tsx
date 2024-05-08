@@ -158,6 +158,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bannerText: {
     ...theme.typography.postStyle,
+    ['@media(max-width: 1375px)']: {
+      width: 250
+    },
     ['@media(max-width: 1325px)']: {
       width: 200
     },
@@ -169,11 +172,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     bottom: 79,
     color: theme.palette.grey[900],
     textAlign: 'right',
-    width: 270,
+    width: 300,
     '& h2': {
       fontSize: '2.4rem',
       lineHeight: '2.6rem',
-      fontWeight: 600,
       marginTop: 20,
       marginBottom: 10,
       textShadow: `
@@ -390,6 +392,8 @@ const Layout = ({currentUser, children, classes}: {
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
   
+  const { captureEvent } = useTracking();
+  
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -477,7 +481,7 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
-    const { captureEvent } = useTracking();
+    
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -574,7 +578,7 @@ const Layout = ({currentUser, children, classes}: {
                         <CloudinaryImage2 className={classes.frontpageImage} publicId="summercamp_vylvob" darkPublicId={"summercamp_vylvob"}/>
                         <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
                           <div className={classes.bannerText}>
-                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline/Manifest<br/> Summer Camp</a></h2>
+                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline & Manifest Summer Camp</a></h2>
                             <h3>June 3rd to June 7th</h3>
                             <p>Between <a href="https://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageLessOnlineLinkClicked')}>LessOnline</a> and <a href="https://manifest.is/" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageManifestLinkClicked')}>Manifest</a>, stay for a week of experimental events, chill coworking, and cozy late night conversations.</p>
                             <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
