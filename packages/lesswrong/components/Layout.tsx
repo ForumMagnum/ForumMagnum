@@ -579,7 +579,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.frontpageImage} publicId="summercamp_vylvob" darkPublicId={"summercamp_vylvob"}/>
+                        <CloudinaryImage2 className={classes.frontpageImage} publicId="summercamp_i2lbn0" darkPublicId={"summercamp_i2lbn0"}/>
                         <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
                           <div className={classes.bannerText}>
                             <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline & Manifest Summer Camp</a></h2>
