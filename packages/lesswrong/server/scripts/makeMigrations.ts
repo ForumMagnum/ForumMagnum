@@ -11,9 +11,13 @@ import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
 import { ForumTypeString } from '../../lib/instanceSettings';
-import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
-import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
+import { postgresFunctions } from '../postgresFunctions';
+import { postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
+import CreateIndexQuery from '../../lib/sql/CreateIndexQuery';
+import { sqlInterpolateArgs } from '../../lib/sql/Type';
+import { expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import { getAllPostgresViews } from '../postgresView';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -52,18 +56,17 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 `
 
 const generateMigration = async ({
-  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath, forumType,
+  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath,
 }: {
   acceptedSchemaFile: string,
   toAcceptSchemaFile: string,
   toAcceptHash: string,
   rootPath: string,
-  forumType?: ForumTypeString,
 }) => {
   const execRun = (cmd: string) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // git diff exits with an error code if there are differences, ignore that and just always return stdout
-      exec(cmd, (error, stdout, stderr) => resolve(stdout))
+      exec(cmd, (_error, stdout, _stderr) => resolve(stdout))
     })
   }
 
@@ -83,29 +86,6 @@ const generateMigration = async ({
 }
 
 /**
- *
- * @param collectionName
- * @returns {string} The SQL required to create the table for this collection
- */
-const getCreateTableQueryForCollection = (collectionName: string, forumType?: ForumTypeString): string => {
-  const collection = getCollection(collectionName as any);
-  if (!collection) throw new Error(`Invalid collection: ${collectionName}`);
-  
-  const table = Table.fromCollection(collection, forumType);
-  const createTableQuery = new CreateTableQuery(table);
-  const compiled = createTableQuery.compile();
-
-  const sql = compiled.sql + ";";
-  const args = compiled.args;
-  
-  if (args.length) throw new Error(`Unexpected arguments: ${args}`);
-  
-  return sql;
-}
-
-type Artifact = CollectionNameString | PostgresExtension | PostgresFunction;
-
-/**
  * Update the `./schema/` files to match the current database schema, and generate a migration if there are changes which need to be accepted.
  *
  * Implementation details which may be useful to know:
@@ -116,12 +96,6 @@ type Artifact = CollectionNameString | PostgresExtension | PostgresFunction;
  * - `accepted_schema.sql`: This is a SQL view of the schema that has been accepted.
  * - `schema_to_accept.sql`: If the current schema is not accepted, this file will be generated to contain a SQL view of the "unaccepted" schema.
  *   This is useful for comparing against the accepted schema to see what changes need to be made in the migration that is generated. It is automatically deleted when the schema is accepted.
- *
- * @param {boolean} writeSchemaChangelog - If true, update the schema_changelog.json file before checking for changes
- * @param {boolean} writeAcceptedSchema - If true, update the `accepted_schema.sql` and `schema_to_accept.sql`
- * @param {boolean} generateMigrations - If true, generate a template migration file if the schema has changed
- * @param {boolean} rootPath - The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test.
- * @param {boolean} forumType - The optional forumType to switch to
  */
 export const makeMigrations = async ({
   writeSchemaChangelog=true,
@@ -131,20 +105,25 @@ export const makeMigrations = async ({
   forumType,
   silent=false,
 }: {
+  /** If true, update the schema_changelog.json file before checking for changes */
   writeSchemaChangelog: boolean,
+  /** If true, update the `accepted_schema.sql` and `schema_to_accept.sql` */
   writeAcceptedSchema: boolean,
+  /** If true, generate a template migration file if the schema has changed */
   generateMigrations: boolean,
+  /** The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test. */
   rootPath: string,
+  /** The optional forumType to switch to */
   forumType?: ForumTypeString,
   silent?: boolean,
 }) => {
-  const log = silent ? (...args: any[]) => {} : console.log;
+  const log = silent ? (..._args: any[]) => {} : console.log;
   log(`=== Checking for schema changes ===`);
   // Get the most recent accepted schema hash from `schema_changelog.json`
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
   log(`-- Using accepted hash ${acceptedHash}`);
 
-  const currentHashes: Partial<Record<Artifact, string>> = {};
+  const currentHashes: Record<string, string> = {};
   let schemaFileContents = "";
 
   for (const extensionName of postgresExtensions) {
@@ -161,14 +140,38 @@ export const makeMigrations = async ({
 
   for (const collectionName of collectionNames) {
     try {
-      const sql = getCreateTableQueryForCollection(collectionName, forumType);
+      const collection = getCollection(collectionName as any);
+      if (!collection) {
+        throw new Error(`Invalid collection: ${collectionName}`);
+      }
 
+      const table = Table.fromCollection(collection, forumType);
+      const createTableQuery = new CreateTableQuery(table);
+      const compiled = createTableQuery.compile();
+      if (compiled.args.length) {
+        throw new Error(`Unexpected arguments: ${compiled.args}`);
+      }
+
+      const sql = compiled.sql + ";";
       const hash = md5(sql);
       currentHashes[collectionName] = hash;
-      
+
       // Include the hash of every collection to make it easier to see what changed
-      schemaFileContents += `-- Schema for "${collectionName}", hash: ${hash}\n`
+      schemaFileContents += `-- Schema for "${collectionName}", hash: ${hash}\n`;
       schemaFileContents += `${format(sql)}`;
+
+      const indexes = table.getIndexes();
+      for (const index of indexes) {
+        const indexName = index.getName();
+        const indexQuery = new CreateIndexQuery(table, index);
+        const indexCompiled = indexQuery.compile();
+        const indexSql = sqlInterpolateArgs(indexCompiled.sql, indexCompiled.args) + ";";
+        const indexHash = md5(indexSql);
+        currentHashes[indexName] = indexHash;
+
+        schemaFileContents += `-- Index "${indexName}" ON "${collectionName}", hash: ${indexHash}\n`;
+        schemaFileContents += `${format(indexSql)}`;
+      }
     } catch (e) {
       console.error(`Failed to check schema for collection ${collectionName}`);
       failed.push(collectionName);
@@ -176,11 +179,39 @@ export const makeMigrations = async ({
     }
   }
 
+  for (const index of expectedCustomPgIndexes) {
+    const trimmed = index.trim().replace(/\s+CONCURRENTLY\s+/gi, " ");
+    const hasSemi = trimmed[trimmed.length - 1] === ";";
+    const indexHash = md5(trimmed);
+    currentHashes[index] = indexHash;
+    schemaFileContents += `-- Custom index, hash: ${indexHash}\n`;
+    schemaFileContents += format(trimmed + (hasSemi ? "" : ";"));
+  }
+
   for (const func of postgresFunctions) {
     const hash = md5(func);
     currentHashes[func] = hash;
     schemaFileContents += `-- Function, hash: ${hash}\n`;
     schemaFileContents += func + ";\n\n";
+  }
+
+  for (const view of getAllPostgresViews()) {
+    const name = view.getName();
+    const query = view.getCreateViewQuery().trim();
+    const hasSemi = query[query.length - 1] === ";";
+    const hash = md5(query);
+    currentHashes[name] = hash;
+    schemaFileContents += `-- View "${name}", hash: ${hash}\n`;
+    schemaFileContents += format(query + (hasSemi ? "" : ";"));
+
+    for (const index of view.getCreateIndexQueries()) {
+      const indexQuery = index.trim();
+      const hasSemi = indexQuery[indexQuery.length - 1] === ";";
+      const indexHash = md5(indexQuery);
+      currentHashes[index] = hash;
+      schemaFileContents += `-- Index on view "${name}", hash: ${indexHash}\n`;
+      schemaFileContents += format(indexQuery + (hasSemi ? "" : ";"));
+    }
   }
 
   if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
@@ -196,7 +227,7 @@ export const makeMigrations = async ({
       await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
     }
     if (generateMigrations) {
-      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath, forumType});
+      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }
