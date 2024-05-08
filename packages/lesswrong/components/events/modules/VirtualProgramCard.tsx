@@ -1,4 +1,4 @@
-import { registerComponent, } from '../../../lib/vulcan-lib';
+import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
@@ -6,6 +6,8 @@ import Card from '@material-ui/core/Card';
 import classNames from 'classnames';
 import moment from 'moment';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
+import { useTimezone } from '../../common/withTimezone';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCard: {
@@ -106,14 +108,16 @@ const VirtualProgramCard = ({program, classes}: {
   program: string,
   classes: ClassesType,
 }) => {
-  const { captureEvent } = useTracking()
+  const { captureEvent } = useTracking();
+  const { timezone } = useTimezone();
+  const { FormatDate } = Components;
   
   // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
   // (though it will sometimes move to the 3rd or 5th Sunday - this is not accounted for in the code).
   // This defaults to the Sunday in the week of the 28th day of this month.
   // NOTE: I changed it to the 1st Sunday since that's what they used for Apr 2024, but that might change back later.
-  const now = moment()
-  let deadline = moment(now).date(7).day(0)
+  const now = useCurrentTime()
+  let deadline = moment(now).tz(timezone).date(7).day(0).endOf('day')
   // If that Sunday is in the past, use next month's 4th Sunday.
   if (deadline.isBefore(now)) {
     deadline = moment(now).add(1, 'months').date(7).day(0)
@@ -132,7 +136,7 @@ const VirtualProgramCard = ({program, classes}: {
     >
       <Card className={classNames(classes.eventCard, classes.introVPCard)}>
         <div className={classes.eventCardTime}>
-          {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+          <FormatDate date={startOfVp.toISOString()} format={"MMMM D"} granularity='date' /> – <FormatDate date={endOfVp.toISOString()} format={"MMMM D"} granularity='date' />
         </div>
         <div className={classes.eventCardTitle}>
           Introductory EA Program
@@ -141,7 +145,7 @@ const VirtualProgramCard = ({program, classes}: {
         <div className={classes.eventCardDescription}>
           Explore key ideas in effective altruism through short readings and weekly discussions
         </div>
-        <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+        <div className={classes.eventCardDeadline}>Apply by <FormatDate date={deadline.toISOString()} format={"dddd, MMMM D"} granularity='date' /></div>
       </Card>
     </a>
   }
@@ -171,7 +175,7 @@ const VirtualProgramCard = ({program, classes}: {
       >
         <div>
           <div className={classes.eventCardTime}>
-            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+            <FormatDate date={startOfVp.toISOString()} format={"MMMM D"} granularity='date' /> – <FormatDate date={endOfVp.toISOString()} format={"MMMM D"} granularity='date' />
           </div>
           <div className={classes.eventCardTitle}>
             In-Depth EA Program
@@ -179,7 +183,7 @@ const VirtualProgramCard = ({program, classes}: {
           <div className={classes.eventCardDescription}>
             Dive deeper into more complex EA ideas and examine your key uncertainties
           </div>
-          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+          <div className={classes.eventCardDeadline}>Apply by <FormatDate date={deadline.toISOString()} format={"dddd, MMMM D"} granularity='date' /></div>
         </div>
       </a>
       <a
@@ -189,7 +193,7 @@ const VirtualProgramCard = ({program, classes}: {
       >
         <div>
           <div className={classes.eventCardTime}>
-            {startOfPrecipice.format('MMMM D')} - {endOfPrecipice.format('MMMM D')}
+            <FormatDate date={startOfPrecipice.toISOString()} format={"MMMM D"} granularity='date' /> – <FormatDate date={endOfPrecipice.toISOString()} format={"MMMM D"} granularity='date' />
           </div>
           <div className={classes.eventCardTitle}>
             <em>The Precipice</em> Reading Group
@@ -197,7 +201,7 @@ const VirtualProgramCard = ({program, classes}: {
           <div className={classes.eventCardDescription}>
             Join weekly discussions about existential risks and safeguarding the future of humanity
           </div>
-          <div className={classes.eventCardDeadline}>Apply by Sunday, {precipiceDeadline.format('MMMM D')}</div>
+          <div className={classes.eventCardDeadline}>Apply by <FormatDate date={precipiceDeadline.toISOString()} format={"dddd, MMMM D"} granularity='date' /></div>
         </div>
       </a>
     </Card>

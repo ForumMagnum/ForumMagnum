@@ -142,7 +142,7 @@ const EALargePostsItem = ({
   const description = postContents?.plaintextDescription ??
     post?.contents?.plaintextDescription;
 
-  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading} = Components;
+  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading, TimeTag} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div
@@ -174,8 +174,10 @@ const EALargePostsItem = ({
               </InteractionWrapper>
             </div>
             &nbsp;·&nbsp;
-            {timeFromNow}
-            {ago}
+            <TimeTag dateTime={post.postedAt}>
+              {timeFromNow}
+              {ago}
+            </TimeTag>
             &nbsp;·&nbsp;
             {post.readTimeMinutes}m read
             <div>
