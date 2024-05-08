@@ -126,14 +126,6 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
 
 const AppComponent = registerComponent<ExternalProps>('App', App, {
   hocs: [withRouter],
-  areEqual: {
-    timeOverride: (oldValue: TimeOverride | null, newValue: TimeOverride | null) => {
-      // Only trigger a re-render if the cache-friendliness has changed, otherwise just
-      // pick up the new values whenever the next render happens
-      if (oldValue?.cacheFriendly !== newValue?.cacheFriendly) return false;
-      return true;
-    }
-  }
 });
 
 declare global {
