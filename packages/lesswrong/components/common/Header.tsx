@@ -22,7 +22,7 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
-export const EMOJIS_HEADER_HEIGHT = 236;
+export const EMOJIS_HEADER_HEIGHT = 196;
 
 const emojisInfoLink = "#"; // TODO
 
@@ -216,7 +216,7 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   emojisRoot: {
-    marginBottom: 170,
+    marginBottom: EMOJIS_HEADER_HEIGHT - 70,
     [theme.breakpoints.down("sm")]: {
       marginBottom: 0,
     },
@@ -241,13 +241,12 @@ export const styles = (theme: ThemeType) => ({
   },
   emojisContent: {
     zIndex: 2,
-    maxWidth: 295,
+    maxWidth: 310,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 500,
     lineHeight: "140%",
     marginLeft: 46,
-    marginTop: 20,
     "& a": {
       textDecoration: "underline",
       "&:hover": {
@@ -260,11 +259,11 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   emojisTitle: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 700,
     lineHeight: "120%",
     letterSpacing: "-0.3px",
-    marginBottom: 20,
+    marginBottom: 10,
   },
 });
 
