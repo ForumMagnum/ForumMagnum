@@ -58,7 +58,7 @@ export const PeopleDirectoryResultRow = ({result, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {onClick} = useClickableCell({
-    href: result ? userGetProfileUrl(result) : "#",
+    href: result ? `${userGetProfileUrl(result)}?from=people_directory` : "#",
     ignoreLinks: true,
     openInNewTab: true,
   });

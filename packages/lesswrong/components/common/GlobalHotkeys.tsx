@@ -4,7 +4,7 @@ import { useGlobalKeydown } from './withGlobalKeydown';
 import { useSetTheme, useConcreteThemeOptions } from '../themes/useTheme';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from './withUser';
-import { userIsAdmin } from '../../lib/vulcan-users';
+import { userIsAdminOrMod } from '../../lib/vulcan-users';
 import { userHasDarkModeHotkey } from '../../lib/betas';
 
 export const GlobalHotkeys = () => {
@@ -25,11 +25,11 @@ export const GlobalHotkeys = () => {
 
     // Toggle Sunshine Sidebar Visibility (admin-only)
     // option+shift+s (mac) / alt+shift+s (everyone else)
-    if (userIsAdmin(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 83) {
+    if (userIsAdminOrMod(currentUser) && e.altKey && e.shiftKey && !e.ctrlKey && !e.metaKey && e.keyCode === 83) {
       e.preventDefault();
 
       void updateCurrentUser({
-        hideSunshineSidebar: !currentUser.hideSunshineSidebar
+        hideSunshineSidebar: !currentUser?.hideSunshineSidebar
       });
     }
   });

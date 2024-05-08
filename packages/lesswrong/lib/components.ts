@@ -449,6 +449,7 @@ importComponent("PostsSingleSlug", () => require('../components/posts/PostsSingl
 importComponent("PostsSingleSlugRedirect", () => require('../components/posts/PostsSingleSlugRedirect'));
 importComponent("PostsSingleRoute", () => require('../components/posts/PostsSingleRoute'));
 importComponent("PostsList2", () => require('../components/posts/PostsList2'));
+importComponent("PostsListViewToggle", () => require('../components/posts/PostsListViewToggle'));
 importComponent("ResolverPostsList", () => require('../components/posts/ResolverPostsList'));
 importComponent("PostsByVote", () => require('../components/posts/PostsByVote'));
 importComponent("PostsByVoteWrapper", () => require('../components/posts/PostsByVoteWrapper'));
@@ -1139,3 +1140,6 @@ importComponent("PeopleDirectorySocialMediaCell", () => require('../components/p
 importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));
 importComponent("PeopleDirectorySkeletonUserCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonUserCell'));
 importComponent("PeopleDirectorySkeletonTextCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonTextCell'));
+
+importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
+importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
