@@ -4,6 +4,7 @@ import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "../../lib/reactRouterWrapper";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -129,7 +130,11 @@ const styles = (theme: ThemeType) => ({
 
 export const MAX_THETA = 25;
 
-const isValidTarget = (e: EventTarget | null): e is HTMLDivElement => {
+const isValidTarget = (
+  e: EventTarget | null,
+  clientX: number,
+  clientY: number,
+): e is HTMLDivElement => {
   if (!e) {
     return false;
   }
@@ -139,6 +144,23 @@ const isValidTarget = (e: EventTarget | null): e is HTMLDivElement => {
   if (e.tagName !== "DIV" && e.tagName !== "HEADER") {
     return false;
   }
+
+  clientX += window.scrollX;
+  clientY += window.scrollY;
+
+  const startPadding = 25;
+  if (clientX < startPadding || clientY < startPadding) {
+    return false;
+  }
+
+  const endPadding = 6;
+  if (
+    clientX + endPadding >= window.innerWidth ||
+    clientY + endPadding >= EMOJIS_HEADER_HEIGHT
+  ) {
+    return false;
+  }
+
   return !!(e as HTMLElement).closest?.(".EAEmojisHeader-root");
 }
 
@@ -530,7 +552,7 @@ export const EAEmojisHeader = ({classes}: {
   }, [rawRemoveEmoji, refetch]);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
-    if (isValidTarget(target)) {
+    if (isValidTarget(target, clientX, clientY)) {
       setHoverPos(normalizeCoords(clientX, clientY));
     } else {
       setHoverPos(null);
@@ -549,7 +571,7 @@ export const EAEmojisHeader = ({classes}: {
       onLogin();
       return;
     }
-    if (isValidTarget(target)) {
+    if (isValidTarget(target, clientX, clientY)) {
       const coords = normalizeCoords(clientX, clientY);
       if (coords) {
         setInsertPos(coords);
