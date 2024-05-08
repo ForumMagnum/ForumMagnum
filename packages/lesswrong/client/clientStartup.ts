@@ -22,6 +22,7 @@ function ensureIdentifiers() {
   }
 }
 
+// Needs to run before importing '../client' so `tabId` is picked up correctly
 ensureIdentifiers();
 
 // Imports required for the whole app:
@@ -39,8 +40,6 @@ async function clientStartup() {
   require('../deferred-client-scripts.js');
   await runStartupFunctions();
 }
-
-
 
 // Starting up too early is known to compete for resources with rendering the page, causing the
 // time to first meaningful paint to be delayed. This function waits until one frame has been rendered

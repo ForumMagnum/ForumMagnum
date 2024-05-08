@@ -16,8 +16,7 @@ export type MeanPostKarma = {
  */
 type SanitizedRenderResult = Omit<RenderResult, Exclude<keyof RenderResult, undefined>>;
 
-// TODO revert
-export const maxCacheAgeMs = 1*1000;
+export const maxCacheAgeMs = 90*1000;
 
 class PageCacheRepo extends AbstractRepo<"PageCache"> {
   constructor() {

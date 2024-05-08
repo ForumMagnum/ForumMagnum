@@ -18,7 +18,6 @@ import Head from './components/Head';
 import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
-import { randomId } from '../../../lib/random';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
