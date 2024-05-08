@@ -48,6 +48,7 @@ export const EAOnboardingInput = ({
   return (
     <As
       value={value}
+      type={As === "input" ? "type" : undefined}
       onChange={onChange}
       placeholder={placeholder}
       rows={rows}
