@@ -4,6 +4,8 @@ import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
+import { use } from 'chai';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -70,6 +72,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     };
   }
 
+  const now = useCurrentTime();
   const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
 
   if (post.isEvent && post.startTime) {
@@ -123,7 +126,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     </LWTooltip>
   }
 
-  const isEmphasized = emphasizeIfNew && moment().diff(post.postedAt, 'days') < 2;
+  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'days') < 2;
 
   return <LWTooltip
     placement="right"
