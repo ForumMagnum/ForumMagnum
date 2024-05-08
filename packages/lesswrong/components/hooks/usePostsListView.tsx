@@ -3,6 +3,7 @@ import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import { useCookiesWithConsent } from "./useCookiesWithConsent";
 import { POSTS_LIST_VIEW_TYPE_COOKIE } from "../../lib/cookies/cookies";
 import { useCurrentUser } from "../common/withUser";
+import {postsListViewTypeSetting} from '../../lib/publicSettings'
 
 const postsListViewTypes = new TupleSet(["list", "card"] as const);
 
@@ -16,8 +17,11 @@ type PostsListViewContext = {
   setView: (view: PostsListViewType) => void,
 }
 
+const defaultViewSetting = postsListViewTypeSetting.get()
+const defaultView: PostsListViewType = isPostsListViewType(defaultViewSetting) ? defaultViewSetting : "list"
+
 const postsListViewContext = createContext<PostsListViewContext>({
-  view: "list",
+  view: defaultView,
   // eslint-disable-next-line no-console
   setView: () => console.error("Can't set view outside of PostsListViewProvider"),
 });
@@ -34,7 +38,7 @@ const useCookieValue = (): {
 
   // TODO: We currently need to disable persisting the card view for logged out
   // users because it plays really badly with the page cache
-  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : "list";
+  const value = currentUser ? cookies[POSTS_LIST_VIEW_TYPE_COOKIE] : defaultView;
   return {
     cookieValue: isPostsListViewType(value) ? value : null,
     setCookieValue,
@@ -43,7 +47,7 @@ const useCookieValue = (): {
 
 export const PostsListViewProvider: FC<{children: ReactNode}> = ({children}) => {
   const {cookieValue, setCookieValue} = useCookieValue();
-  const [view, setView_] = useState<PostsListViewType>(cookieValue ?? "list");
+  const [view, setView_] = useState<PostsListViewType>(cookieValue ?? defaultView);
 
   const setView = useCallback((newValue: PostsListViewType) => {
     setView_(newValue);
