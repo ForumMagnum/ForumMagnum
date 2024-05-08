@@ -6,6 +6,8 @@ addGraphQLSchema(`
     userId: String!
     displayName: String!
     emoji: String!
+    link: String!
+    description: String!
     x: Float!
     y: Float!
     theta: Float!
@@ -25,8 +27,10 @@ const bannerEmojiResolvers = {
   Mutation: {
     AddBannerEmoji: async (
       _root: void,
-      {emoji, x, y, theta}: {
+      {emoji, link, description, x, y, theta}: {
         emoji: string,
+        link: string,
+        description: string,
         x: number,
         y: number,
         theta: number,
@@ -38,15 +42,20 @@ const bannerEmojiResolvers = {
       }
       if (
         !/^\p{Extended_Pictographic}$/u.test(emoji) ||
+        !link || typeof link !== "string" ||
+        !description || typeof description !== "string" ||
         typeof x !== "number" || x < 0 || x > 1 ||
         typeof y !== "number" || y < 0 || y > 1 ||
         typeof theta !== "number" || theta < -25 || theta > 25
       ) {
-        throw new Error(`Invalid parameters: ${{emoji, x, y, theta}}`);
+        const params = {emoji, link, description, x, y, theta};
+        throw new Error(`Invalid parameters: ${params}`);
       }
       return context.repos.databaseMetadata.addBannerEmoji(
         context.currentUser._id,
         emoji,
+        link,
+        description,
         x,
         y,
         theta,
@@ -74,6 +83,8 @@ addGraphQLQuery(`
 addGraphQLMutation(`
   AddBannerEmoji(
     emoji: String!,
+    link: String!,
+    description: String!,
     x: Float!,
     y: Float!,
     theta: Float!

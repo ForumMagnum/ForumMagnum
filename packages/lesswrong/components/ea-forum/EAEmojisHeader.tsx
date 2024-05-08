@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
 const isValidTarget = (e: EventTarget | null): e is HTMLDivElement =>
   !!e && "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
 
-// const MAX_THETA = 25;
+const MAX_THETA = 25;
 
 const emojisQuery = gql`
   query BannerEmojis {
@@ -95,6 +95,8 @@ const emojisQuery = gql`
       userId
       displayName
       emoji
+      link
+      description
       x
       y
       theta
@@ -105,12 +107,16 @@ const emojisQuery = gql`
 const addEmojiMutation = gql`
   mutation AddBannerEmoji(
     $emoji: String!,
+    $link: String!,
+    $description: String!,
     $x: Float!,
     $y: Float!,
     $theta: Float!
   ) {
     AddBannerEmoji(
       emoji: $emoji,
+      link: $link,
+      description: $description,
       x: $x,
       y: $y,
       theta: $theta
@@ -131,6 +137,8 @@ const removeEmojiMutation = gql`
       userId
       displayName
       emoji
+      link
+      description
       x
       y
       theta
@@ -140,15 +148,26 @@ const removeEmojiMutation = gql`
 
 export type BannerEmoji = {
   userId: string,
-  displayName?: string,
-  emoji?: string,
+  displayName: string,
+  emoji: string,
   x: number,
   y: number,
   theta: number,
+  link: string,
+  description: string,
 }
 
 const emojiContext = createContext<{
   currentUser: UsersCurrent | null,
+  setEmojis: (emojis: BannerEmoji[]) => void,
+  addEmoji: (
+    emoji: string,
+    link: string,
+    description: string,
+    x: number,
+    y: number,
+    theta: number,
+  ) => Promise<{data?: {AddBannerEmoji: BannerEmoji[]}}>,
   removeEmoji: () => Promise<void>,
   insertEmoji: string,
   setInsertEmoji: (value: string) => void,
@@ -188,10 +207,7 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
 const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
-}> = ({
-  emoji: {userId, x, y, theta, emoji},
-  children,
-}) => {
+}> = ({emoji: {userId, x, y, theta, emoji}, children}) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
   const isCurrentUser = userId === currentUser?._id;
 
@@ -226,16 +242,36 @@ const EmojiPlaceholder: FC<{hoverPos: Point}> = ({hoverPos}) => {
       userId: "",
       theta: 0,
       emoji: "",
+      link: "",
+      description: "",
       ...hoverPos
     }} />
   );
 }
 
 const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
-  const {insertEmoji, setInsertEmoji, onCancelInsert, classes} = useEmojiContext();
+  const {
+    setEmojis,
+    addEmoji,
+    insertEmoji,
+    setInsertEmoji,
+    onCancelInsert,
+    classes,
+  } = useEmojiContext();
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
+
+  const onInsert = useCallback(async () => {
+    const {x, y} = insertPos;
+    const theta = Math.round((Math.random() * MAX_THETA * 2) - MAX_THETA);
+    const result = await addEmoji(insertEmoji, link, description, x, y, theta);
+    const newEmojis = result.data?.AddBannerEmoji;
+    if (Array.isArray(newEmojis)) {
+      setEmojis(newEmojis);
+    }
+    onCancelInsert();
+  }, [insertPos, link, description, addEmoji, insertEmoji, setEmojis, onCancelInsert]);
 
   const {LWPopper, LWTooltip, SectionTitle, EAButton, EAOnboardingInput} = Components;
   return (
@@ -288,7 +324,7 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
             >
               Cancel
             </EAButton>
-            <EAButton className={classes.button}>
+            <EAButton onClick={onInsert} className={classes.button}>
               Add good news
             </EAButton>
           </div>
@@ -299,6 +335,8 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
         userId: "",
         theta: 0,
         emoji: insertEmoji,
+        link: "",
+        description: "",
         ...insertPos
       }} >
         <div ref={setAnchorElement} />
@@ -356,11 +394,15 @@ export const EAEmojisHeader = ({classes}: {
 
   const addEmoji = useCallback(async (
     emoji: string,
+    link: string,
+    description: string,
     x: number,
     y: number,
     theta: number,
   ) => {
-    const result = await rawAddEmoji({variables: {emoji, x, y, theta}});
+    const result = await rawAddEmoji({
+      variables: {emoji, link, description, x, y, theta},
+    });
     void refetch();
     return result;
   }, [rawAddEmoji, refetch]);
@@ -388,16 +430,6 @@ export const EAEmojisHeader = ({classes}: {
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
-      // const coords = normalizeCoords(clientX, clientY);
-      // if (coords) {
-        // const theta = Math.round((Math.random() * MAX_THETA * 2) - MAX_THETA);
-        // const result = await addEmoji(emoji, coords.x, coords.y, theta);
-        // const newHearts = result.data?.AddGivingSeasonHeart;
-        // if (Array.isArray(newHearts)) {
-          // setEmojis(newHearts);
-        // }
-        // setHoverPos(null);
-      // }
       const coords = normalizeCoords(clientX, clientY);
       if (coords) {
         setInsertPos(coords);
@@ -415,6 +447,8 @@ export const EAEmojisHeader = ({classes}: {
       <AnalyticsContext pageSectionContext="ea-emoji-banner">
         <emojiContext.Provider value={{
           currentUser,
+          setEmojis,
+          addEmoji,
           removeEmoji,
           insertEmoji,
           setInsertEmoji,

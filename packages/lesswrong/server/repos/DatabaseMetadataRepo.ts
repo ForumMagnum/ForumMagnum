@@ -99,12 +99,15 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
   }
 
   async addBannerEmoji(
-    emoji: string,
     userId: string,
+    emoji: string,
+    link: string,
+    description: string,
     x: number,
     y: number,
     theta: number,
   ): Promise<BannerEmoji[]> {
+    const t = new Date().toISOString();
     await this.none(`
       -- DatabaseMetadataRepo.addBannerEmoji
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
@@ -113,7 +116,7 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     `, [
       randomId(),
       BANNER_EMOJI_NAME,
-      {[userId]: {emoji, x, y, theta}},
+      {[userId]: {emoji, link, description, x, y, theta, t}},
     ]);
     return this.getBannerEmojis();
   }
