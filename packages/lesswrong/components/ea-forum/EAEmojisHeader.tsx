@@ -402,7 +402,7 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
               <EAOnboardingInput
                 value={description}
                 setValue={setDescription}
-                placeholder="Show when you hover the emoji"
+                placeholder="Shows when you hover the emoji"
                 As="textarea"
                 rows={3}
                 className={classNames(classes.input, classes.textArea)}
