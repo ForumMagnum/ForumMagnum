@@ -122,8 +122,18 @@ const styles = (theme: ThemeType) => ({
 
 export const MAX_THETA = 25;
 
-const isValidTarget = (e: EventTarget | null): e is HTMLDivElement =>
-  !!e && "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
+const isValidTarget = (e: EventTarget | null): e is HTMLDivElement => {
+  if (!e) {
+    return false;
+  }
+  if (!("tagName" in e)) {
+    return false;
+  }
+  if (e.tagName !== "DIV" && e.tagName !== "HEADER") {
+    return false;
+  }
+  return !!(e as HTMLElement).closest?.(".EAEmojisHeader-root");
+}
 
 const emojisQuery = gql`
   query BannerEmojis {
