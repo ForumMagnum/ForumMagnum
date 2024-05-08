@@ -32,6 +32,7 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+import { useTracking } from "../lib/analyticsEvents";
 
 import { Link } from '../lib/reactRouterWrapper';
 
@@ -147,20 +148,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       right: '0px',
     }
   },
-  votingImage: {
-    right: '-180px',
+  frontpageImage: {
+    right: -50,
     height: '79vh',
     objectFit: 'cover',
-    transform: 'scaleX(-1)',
-    '-webkit-mask-image': `radial-gradient(ellipse at center center, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
+    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
     zIndex: -2,
     position: 'relative',
   },
   bannerText: {
     ...theme.typography.postStyle,
-    ['@media(max-width: 1375px)']: {
-      width: 250
-    },
     ['@media(max-width: 1325px)']: {
       width: 200
     },
@@ -172,7 +169,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     bottom: 79,
     color: theme.palette.grey[900],
     textAlign: 'right',
-    width: '300px',
+    width: 270,
     '& h2': {
       fontSize: '2.4rem',
       lineHeight: '2.6rem',
@@ -480,7 +477,7 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
-
+    const { captureEvent } = useTracking();
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
@@ -573,20 +570,22 @@ const Layout = ({currentUser, children, classes}: {
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                    <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="foomingShoggothsConcert3_jdopwk" darkPublicId={"foomingShoggothsConcert2-darkmode_bafqw3"}/>
-                      <div className={classes.bannerText}>
-                        <h2><a href="http://less.online">Fooming Shoggoths Dance Concert</a></h2>
-                        <h3>June 1st at LessOnline</h3>
-                        <p>After their debut album <Link to="/posts/YMo5PuXnZDwRjhHhE/lesswrong-s-first-album-i-have-been-a-good-bing"><b>I Have Been A Good Bing</b></Link>, the Fooming Shoggoths are performing at the LessOnline festival. They'll be unveiling several previously unpublished tracks, such as "Nothing is Mere", feat. Richard Feynman.</p>
-                        <a href="http://less.online/#tickets-section"><button>Buy Ticket</button></a>
+                      <div className={classes.imageColumn}>
+                        <CloudinaryImage2 className={classes.frontpageImage} publicId="summercamp_vylvob" darkPublicId={"summercamp_vylvob"}/>
+                        <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
+                          <div className={classes.bannerText}>
+                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline/Manifest<br/> Summer Camp</a></h2>
+                            <h3>June 3rd to June 7th</h3>
+                            <p>Between <a href="https://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageLessOnlineLinkClicked')}>LessOnline</a> and <a href="https://manifest.is/" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageManifestLinkClicked')}>Manifest</a>, stay for a week of experimental events, chill coworking, and cozy late night conversations.</p>
+                            <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
 
-                        <div className={classes.ticketPricesRaise}>
-                          Ticket prices raise $100 on May 13th                       
-                        </div>
-                      </div>
-                      <div className={classes.backgroundGradient}/>
-                    </div> 
+                            <div className={classes.ticketPricesRaise}>
+                              Prices raise $100 on May 13th                       
+                            </div>
+                          </div>
+                        </AnalyticsContext>
+                        <div className={classes.backgroundGradient}/>
+                      </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
