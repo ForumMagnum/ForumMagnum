@@ -578,6 +578,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     background: "#DCE7E9",
     foreground: "#046A7C",
     placeholder: "#9BC4CC",
+    removeButton: "#2F2F2F",
   },
   dialogueMatching: {
     checkedNotMatched: "#ADD8E6",

@@ -529,6 +529,7 @@ declare global {
       background: ColorString,
       foreground: ColorString,
       placeholder: ColorString,
+      removeButton: ColorString,
     },
     dialogueMatching: {
       checkedNotMatched: ColorString,

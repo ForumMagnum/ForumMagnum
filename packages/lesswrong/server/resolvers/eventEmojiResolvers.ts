@@ -63,15 +63,13 @@ const bannerEmojiResolvers = {
     },
     RemoveBannerEmoji: (
       _root: void,
-      _: {},
-      context: ResolverContext,
+      {userId}: {userId: string},
+      {currentUser, repos}: ResolverContext,
     ) => {
-      if (!context.currentUser) {
+      if (!currentUser || !(currentUser.isAdmin || currentUser._id === userId)) {
         throw new Error("Permission denied");
       }
-      return context.repos.databaseMetadata.removeBannerEmoji(
-        context.currentUser._id,
-      );
+      return repos.databaseMetadata.removeBannerEmoji(userId);
     },
   },
 };
@@ -91,5 +89,5 @@ addGraphQLMutation(`
   ): [BannerEmoji!]!
 `);
 addGraphQLMutation(`
-  RemoveBannerEmoji: [BannerEmoji!]!
+  RemoveBannerEmoji(userId: String!): [BannerEmoji!]!
 `);

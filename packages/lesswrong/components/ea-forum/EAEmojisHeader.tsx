@@ -26,15 +26,6 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-  emoji: {
-    padding: 6,
-    userSelect: "none",
-    position: "absolute",
-    zIndex: 3,
-    marginLeft: -28,
-    marginTop: -32,
-    fontSize: 24,
-  },
   emojiTooltip: {
     padding: 12,
     borderRadius: theme.borderRadius.default,
@@ -83,6 +74,18 @@ const styles = (theme: ThemeType) => ({
     gap: "12px",
     width: "100%",
   },
+  emoji: {
+    padding: 6,
+    userSelect: "none",
+    position: "absolute",
+    zIndex: 3,
+    marginLeft: -28,
+    marginTop: -32,
+    fontSize: 24,
+    "&:hover $removeButton": {
+      display: "block",
+    },
+  },
   goodNews: {
     padding: 12,
     borderRadius: theme.borderRadius.default,
@@ -95,6 +98,21 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
       transform: "scale(1.1)",
       textShadow: `1px 1px 2px ${theme.palette.text.alwaysBlack}`,
+    },
+  },
+  removeButton: {
+    display: "none",
+    color: `${theme.palette.text.alwaysWhite} !important`,
+    background: theme.palette.emojiHeader.removeButton,
+    padding: 2,
+    borderRadius: "50%",
+    fontSize: 18,
+    cursor: "pointer",
+    position: "absolute",
+    top: 0,
+    right: -10,
+    "&:hover": {
+      transform: "scale(1.2)",
     },
   },
 });
@@ -147,8 +165,8 @@ const addEmojiMutation = gql`
 `;
 
 const removeEmojiMutation = gql`
-  mutation RemoveBannerEmoji {
-    RemoveBannerEmoji {
+  mutation RemoveBannerEmoji($userId: String!) {
+    RemoveBannerEmoji(userId: $userId) {
       userId
       displayName
       emoji
@@ -183,7 +201,7 @@ const emojiContext = createContext<{
     y: number,
     theta: number,
   ) => Promise<{data?: {AddBannerEmoji: BannerEmoji[]}}>,
-  removeEmoji: () => Promise<void>,
+  removeEmoji: (userId: string) => Promise<void>,
   insertEmoji: string,
   setInsertEmoji: (value: string) => void,
   onCancelInsert: () => void,
@@ -222,15 +240,19 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
 const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
-}> = ({emoji: {userId, link, description, x, y, theta, emoji}, children}) => {
+}> = ({
+  emoji: {userId, displayName, link, description, x, y, theta, emoji},
+  children,
+}) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
   const isCurrentUser = userId === currentUser?._id;
+  const canRemove = !!((isCurrentUser || currentUser?.isAdmin) && displayName);
 
-  const onClick = useCallback(() => {
-    if (isCurrentUser) {
-      void removeEmoji?.();
+  const onRemove = useCallback(() => {
+    if (canRemove) {
+      void removeEmoji?.(userId);
     }
-  }, [isCurrentUser, removeEmoji]);
+  }, [canRemove, userId, removeEmoji]);
 
   const {LWTooltip, ForumIcon} = Components;
   return (
@@ -239,7 +261,6 @@ const Emoji: FC<{
       style={{
         left: `${x * window.innerWidth}px`,
         top: `${y * EMOJIS_HEADER_HEIGHT}px`,
-        transform: `rotate(${theta}deg)`,
       }}
     >
       <LWTooltip
@@ -247,24 +268,33 @@ const Emoji: FC<{
         placement="bottom"
         popperClassName={classes.goodNews}
       >
-        {emoji
-          ? (
-            link
-              ? (
-                <Link
-                  to={link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={classes.emojiLink}
-                >
-                  {emoji}
-                </Link>
-              )
-              : emoji
-          )
-          : <ForumIcon icon="AddEmoji" onClick={onClick} />
-        }
+        <div style={{transform: `rotate(${theta}deg)`}}>
+          {emoji
+            ? (
+              link
+                ? (
+                  <Link
+                    to={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={classes.emojiLink}
+                  >
+                    {emoji}
+                  </Link>
+                )
+                : emoji
+            )
+            : <ForumIcon icon="AddEmoji" />
+          }
+        </div>
       </LWTooltip>
+      {canRemove &&
+        <ForumIcon
+          icon="Close"
+          onClick={onRemove}
+          className={classes.removeButton}
+        />
+      }
       {children}
     </figure>
   );
@@ -444,8 +474,8 @@ export const EAEmojisHeader = ({classes}: {
     return result;
   }, [rawAddEmoji, refetch]);
 
-  const removeEmoji = useCallback(async () => {
-    const result = await rawRemoveEmoji();
+  const removeEmoji = useCallback(async (userId: string) => {
+    const result = await rawRemoveEmoji({variables: {userId}});
     const newEmojis = result.data?.RemoveBannerEmoji;
     if (Array.isArray(newEmojis)) {
       setEmojis(newEmojis);
