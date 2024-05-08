@@ -392,7 +392,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                     ...scenarioConfig,
                     hybridScenarios: {
                       fixed: 'forum-classic', 
-                      configurable: 'recombee-personal'
+                      configurable: 'recombee-lesswrong-custom'
                     }
                   }} 
                 />
