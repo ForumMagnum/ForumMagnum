@@ -1,5 +1,11 @@
-import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
-import type { BannerEmoji } from "../../components/ea-forum/EAEmojisHeader";
+import {
+  addGraphQLMutation,
+  addGraphQLQuery,
+  addGraphQLResolvers,
+  addGraphQLSchema,
+} from "../vulcan-lib";
+import { BannerEmoji, MAX_THETA } from "../../components/ea-forum/EAEmojisHeader";
+import { userIsAdminOrMod } from "../../lib/vulcan-users";
 
 addGraphQLSchema(`
   type BannerEmoji {
@@ -19,10 +25,8 @@ const bannerEmojiResolvers = {
     BannerEmojis: async (
       _root: void,
       _: {},
-      context: ResolverContext,
-    ): Promise<BannerEmoji[]> => {
-      return context.repos.databaseMetadata.getBannerEmojis();
-    },
+      {repos}: ResolverContext,
+    ): Promise<BannerEmoji[]> => repos.databaseMetadata.getBannerEmojis(),
   },
   Mutation: {
     AddBannerEmoji: async (
@@ -35,9 +39,9 @@ const bannerEmojiResolvers = {
         y: number,
         theta: number,
       },
-      context: ResolverContext,
+      {currentUser, repos}: ResolverContext,
     ): Promise<BannerEmoji[]> => {
-      if (!context.currentUser) {
+      if (!currentUser) {
         throw new Error("Permission denied");
       }
       if (
@@ -46,13 +50,13 @@ const bannerEmojiResolvers = {
         !description || typeof description !== "string" ||
         typeof x !== "number" || x < 0 || x > 1 ||
         typeof y !== "number" || y < 0 || y > 1 ||
-        typeof theta !== "number" || theta < -25 || theta > 25
+        typeof theta !== "number" || theta < -MAX_THETA || theta > MAX_THETA
       ) {
         const params = {emoji, link, description, x, y, theta};
         throw new Error(`Invalid parameters: ${params}`);
       }
-      return context.repos.databaseMetadata.addBannerEmoji(
-        context.currentUser._id,
+      return repos.databaseMetadata.addBannerEmoji(
+        currentUser._id,
         emoji,
         link,
         description,
@@ -66,7 +70,10 @@ const bannerEmojiResolvers = {
       {userId}: {userId: string},
       {currentUser, repos}: ResolverContext,
     ) => {
-      if (!currentUser || !(currentUser.isAdmin || currentUser._id === userId)) {
+      if (!currentUser) {
+        throw new Error("Not logged in");
+      }
+      if (currentUser._id !== userId && !userIsAdminOrMod(currentUser)) {
         throw new Error("Permission denied");
       }
       return repos.databaseMetadata.removeBannerEmoji(userId);

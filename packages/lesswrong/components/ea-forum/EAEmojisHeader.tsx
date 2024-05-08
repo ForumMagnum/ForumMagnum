@@ -8,6 +8,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
+import { userIsAdminOrMod } from "../../lib/vulcan-users";
 
 if (isClient) {
   require("emoji-picker-element");
@@ -117,10 +118,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export const MAX_THETA = 25;
+
 const isValidTarget = (e: EventTarget | null): e is HTMLDivElement =>
   !!e && "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
-
-const MAX_THETA = 25;
 
 const emojisQuery = gql`
   query BannerEmojis {
@@ -246,7 +247,9 @@ const Emoji: FC<{
 }) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
   const isCurrentUser = userId === currentUser?._id;
-  const canRemove = !!((isCurrentUser || currentUser?.isAdmin) && displayName);
+  const canModerate = isCurrentUser || userIsAdminOrMod(currentUser);
+  const isPlaceholder = !displayName;
+  const canRemove = canModerate && !isPlaceholder;
 
   const onRemove = useCallback(() => {
     if (canRemove) {
