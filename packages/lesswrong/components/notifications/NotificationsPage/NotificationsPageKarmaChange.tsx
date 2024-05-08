@@ -53,7 +53,6 @@ type AddedReactions = {
   tooltip?: string,
 }
 
-// Helper function to create a Link component for a user
 const userLink = (user: {displayName: string, slug: string}) => (
   <Link to={userGetProfileUrlFromSlug(user.slug)}>{user.displayName}</Link>
 );
