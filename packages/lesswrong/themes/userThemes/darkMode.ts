@@ -292,7 +292,7 @@ export const darkModeTheme: UserThemeSpecification = {
       postScoreArrow: '#BCBCBC',
     },
     emojiHeader: {
-      background: "#00323B",
+      background: "#024c59",
       foreground: "#FFF",
     },
     tab: {
