@@ -19,6 +19,10 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
   format?: string,
   includeAgo?: boolean,
   tooltip?: boolean,
+  /**
+   * For the machine-readable (but not visible) datetime attribute that is set
+   * on the <time> tag, whether to render as a full datetime or just a date
+   * */
   granularity?: "date" | "datetime",
   className?: string
 }) => {
