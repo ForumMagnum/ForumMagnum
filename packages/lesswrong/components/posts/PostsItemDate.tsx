@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -27,6 +28,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     }
   },
+  isNew: {
+    '&&': {
+      fontWeight: 400
+    }
+  },
   startTime: {
     '&&': {
       cursor: "pointer",
@@ -49,11 +55,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
   useCuratedDate?: boolean,
+  emphasizeIfNew?: boolean,
   classes: ClassesType,
 }) => {
   if (noStyles) {
@@ -116,11 +123,13 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
     </LWTooltip>
   }
 
+  const isEmphasized = emphasizeIfNew && moment().diff(post.postedAt, 'days') < 2;
+
   return <LWTooltip
     placement="right"
     title={<ExpandedDate date={post.postedAt}/>}
   >
-    <PostsItem2MetaInfo className={classes.postedAt}>
+    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
       {timeFromNow}
       {ago}
     </PostsItem2MetaInfo>

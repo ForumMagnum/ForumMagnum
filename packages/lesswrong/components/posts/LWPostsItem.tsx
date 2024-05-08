@@ -392,6 +392,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     bookmark,
     isRecommendation,
     showRecommendationIcon,
+    emphasizeIfNew,
     className,
   } = usePostsItem(props);
 
@@ -503,7 +504,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               </div>
             </PostsItem2MetaInfo>}
 
-            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} />}
+            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} emphasizeIfNew={emphasizeIfNew} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 

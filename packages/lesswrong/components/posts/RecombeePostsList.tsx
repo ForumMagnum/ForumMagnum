@@ -143,6 +143,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
         showRecommendationIcon={showRecommendationIcon}
+        emphasizeIfNew={true}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>
