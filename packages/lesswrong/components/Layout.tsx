@@ -171,7 +171,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 16,
     bottom: 79,
     color: theme.palette.grey[900],
-    textAlign: 'right',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    textAlign: "right",
     width: 300,
     '& h2': {
       fontSize: '2.4rem',
@@ -192,7 +195,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: '18px',
       margin: 0,
       lineHeight: '1.2',
-      marginBottom: 14,
+      marginBottom: 6,
       textShadow: `
         0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
         0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
@@ -216,6 +219,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& p': {
       ...commentBodyStyles(theme),
       fontSize: '14px',
+      maxWidth: 260,
     },
     '& p a': {
       color: theme.palette.primary.main,
