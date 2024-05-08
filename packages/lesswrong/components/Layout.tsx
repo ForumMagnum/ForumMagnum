@@ -4,7 +4,7 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents'
+import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
@@ -32,7 +32,6 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import { useTracking } from "../lib/analyticsEvents";
 
 import { Link } from '../lib/reactRouterWrapper';
 
