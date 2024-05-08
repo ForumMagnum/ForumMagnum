@@ -311,7 +311,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     const {publicEmojis, privateEmojis} = getEAEmojisForKarmaChanges(showNegative);
     const publicSelectors = publicEmojis.map((emoji) =>
       `'${emoji}', ARRAY_AGG(
-        DISTINCT JSONB_BUILD_OBJECT('_id', v."userId", 'displayName', u."displayName")
+        DISTINCT JSONB_BUILD_OBJECT('_id', v."userId", 'displayName', u."displayName", 'slug', u."slug")
       ) FILTER (WHERE
         v."cancelled" IS NOT TRUE AND
         v."isUnvote" IS NOT TRUE AND
