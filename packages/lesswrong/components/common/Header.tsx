@@ -24,7 +24,7 @@ export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 export const EMOJIS_HEADER_HEIGHT = 196;
 
-const emojisInfoLink = "#"; // TODO
+const emojisInfoLink = "/posts/HhCxpbfT3wXGyvspt/tobytrem-s-quick-takes?commentId=rzakXXrfWkBuJGiYX";
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
