@@ -6,7 +6,7 @@ const schema: SchemaType<"RecommendationsCaches"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["members"],
+    canCreate: ["admins"],
     canUpdate: ["admins"],
   },
   postId: {
@@ -14,7 +14,7 @@ const schema: SchemaType<"RecommendationsCaches"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["members"],
+    canCreate: ["admins"],
     canUpdate: ["admins"],
   },
   source: {
@@ -23,7 +23,7 @@ const schema: SchemaType<"RecommendationsCaches"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["members"],
+    canCreate: ["admins"],
     canUpdate: ["admins"],
   },
   scenario: {
@@ -31,7 +31,7 @@ const schema: SchemaType<"RecommendationsCaches"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["members"],
+    canCreate: ["admins"],
     canUpdate: ["admins"],
   },
   attributionId: {
@@ -39,7 +39,7 @@ const schema: SchemaType<"RecommendationsCaches"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["members"],
+    canCreate: ["admins"],
     canUpdate: ["admins"],
   },
   ttlMs: {
@@ -47,7 +47,7 @@ const schema: SchemaType<"RecommendationsCaches"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["members"],
+    canCreate: ["admins"],
     canUpdate: ["admins"],
   },
 };
