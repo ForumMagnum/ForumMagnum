@@ -222,27 +222,26 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   emojisAppBar: {
-    boxShadow: "none",
-    color: theme.palette.emojiHeader.foreground,
-    backgroundColor: theme.palette.emojiHeader.background,
-    height: EMOJIS_HEADER_HEIGHT,
-    "& .MuiToolbar-root > *": {
-      zIndex: 2,
-    },
-    "& .EAButton-greyContained": {
-      backgroundColor: `${theme.palette.grey[320]} !important`,
-      "&:hover": {
-        backgroundColor: `${theme.palette.grey[340]} !important`,
-      }
-    },
-    "& .Header-titleLink": {
+    [theme.breakpoints.up("md")]: {
+      boxShadow: "none",
       color: theme.palette.emojiHeader.foreground,
-    },
-    "& .ForumIcon-root": {
-      color: theme.palette.emojiHeader.foreground,
-    },
-    [theme.breakpoints.down("sm")]: {
-      height: "unset",
+      backgroundColor: theme.palette.emojiHeader.background,
+      height: EMOJIS_HEADER_HEIGHT,
+      "& .MuiToolbar-root > *": {
+        zIndex: 2,
+      },
+      "& .EAButton-greyContained": {
+        backgroundColor: `${theme.palette.grey[320]} !important`,
+        "&:hover": {
+          backgroundColor: `${theme.palette.grey[340]} !important`,
+        }
+      },
+      "& .Header-titleLink": {
+        color: theme.palette.emojiHeader.foreground,
+      },
+      "& .ForumIcon-root": {
+        color: theme.palette.emojiHeader.foreground,
+      },
     },
   },
   emojisContent: {
