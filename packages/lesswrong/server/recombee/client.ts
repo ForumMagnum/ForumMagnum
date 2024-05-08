@@ -5,7 +5,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
-import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
+import { recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../../lib/instanceSettings';
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
@@ -13,6 +13,9 @@ import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publ
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../../lib/vulcan-core/default_resolvers';
 import { captureException } from '@sentry/core';
+import { randomId } from '../../lib/random';
+import { timedFunc } from '../../lib/helpers';
+import { inspect } from 'util';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -86,6 +89,11 @@ interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostField
 
 type RecRequest = requests.RecommendNextItems | requests.RecommendItemsToUser;
 
+/**
+ * If we're getting cached recommendations, we'll have a cached scenario.
+ */
+type RecResponse = RecommendationResponse & { scenario: string };
+
 interface AssignRecommendationResultMetadataArgs {
   post: Partial<DbPost>,
   recommendationIdTuples: Array<(readonly [string, string, string])>,
@@ -136,7 +144,7 @@ const helpers = {
       booster: settings.booster || undefined,
       rotationTime: rotationTimeSeconds,
       cascadeCreate: true
-    });
+    }) as requests.RecommendItemsToUser & { scenario: string };
   },
 
   createUpsertPostRequest<Fields extends ReadonlyArray<RecombeePostFields>>(
@@ -214,7 +222,7 @@ const helpers = {
       };
     }
 
-    const postPromises =  [curatedPostTerms, stickiedPostTerms]
+    const postPromises = [curatedPostTerms, stickiedPostTerms]
       .map(terms => viewTermsToQuery("Posts", terms, undefined, context))
       .map(postsQuery => context.Posts.find(postsQuery.selector, postsQuery.options, { _id: 1 }).fetch());
 
@@ -342,6 +350,76 @@ const helpers = {
     }
   },
 
+  sendRecRequestWithPerfMetrics<T extends RecRequest>(recRequest: T, backfill = false) {
+    const client = getRecombeeClientOrThrow();
+    
+    return wrapWithPerfMetric(
+      () => client.send(recRequest),
+      () => helpers.openRecombeeRecsPerfMetric(recRequest, backfill)
+    );
+  },
+
+  backfillRecommendationsCache(userId: string, scenario: string, recResponse: RecommendationResponse, context: ResolverContext) {
+    const createdAt = new Date();
+    const attributionId = recResponse.recommId;
+    const ttlMs = recombeeCacheTtlMsSetting.get();
+
+    const recsToInsert: MongoBulkWriteOperations<DbRecommendationsCache> = recResponse.recomms.map((rec) => ({
+      insertOne: {
+        document: {
+          _id: randomId(),
+          userId,
+          postId: rec.id,
+          source: 'recombee',
+          scenario,
+          attributionId,
+          ttlMs,
+          createdAt,
+          schemaVersion: 1,
+          legacyData: null,
+        }
+      }
+    }));
+
+    void context.RecommendationsCaches.rawCollection().bulkWrite(recsToInsert);
+  },
+
+  async getCachedRecommendations(recRequest: RecRequest, scenario: string, context: ResolverContext): Promise<RecResponse[]> {
+    if (recRequest instanceof requests.RecommendNextItems) {
+      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest);
+      return [{ ...recResponse, scenario }];
+    }
+
+    const { userId } = recRequest;
+
+    const cachedRecommendations = await context.repos.recommendationsCaches.getUserRecommendationsFromSource(userId, 'recombee', scenario);
+
+    const currentTimestampMs = (new Date()).getTime();
+    const unexpiredRecommendations = cachedRecommendations.filter(rec => currentTimestampMs < (rec.createdAt.getTime() + rec.ttlMs));
+
+    let formattedRecommendations: RecResponse[]; 
+    if (unexpiredRecommendations.length < recRequest.count) {
+      const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest);
+      formattedRecommendations = [{ ...recResponse, scenario }];
+    } else {
+      // Unless/until we go back to doing recombee batch requests, we shouldn't have multiple attributionIds, especially within a single scenario
+      // But this is robust to that changing, so may as well
+      formattedRecommendations = Object
+        .entries(groupBy(unexpiredRecommendations, (rec) => rec.attributionId))
+        .map(([attributionId, recs]) => ({
+          recommId: attributionId,
+          recomms: recs.map(rec => ({ id: rec.postId })),
+          scenario: recs[0].scenario
+        }));
+    }
+
+    void helpers
+      .sendRecRequestWithPerfMetrics(recRequest, true)
+      .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context));
+
+    return formattedRecommendations;
+  },
+
   openRecombeeBatchRecsPerfMetric<T extends RecRequest>(firstRequest: T, secondRequest: T) {
     const firstRequestType = firstRequest.constructor.name;
 
@@ -356,12 +434,14 @@ const helpers = {
     });
   },
 
-  openRecombeeRecsPerfMetric(recombeeRequest: RecRequest) {
+  openRecombeeRecsPerfMetric(recombeeRequest: RecRequest, backfill: boolean) {
     const requestType = recombeeRequest.constructor.name;
 
+    const backfillPrefix = backfill ? 'backfill_' : '';
+
     const opName = recombeeRequest instanceof requests.RecommendNextItems
-      ? `batch_${requestType}`
-      : `batch_${requestType}_${recombeeRequest.bodyParameters().scenario ?? 'unknown'}`;
+      ? `${backfillPrefix}batch_${requestType}`
+      : `${backfillPrefix}batch_${requestType}_${recombeeRequest.bodyParameters().scenario ?? 'unknown'}`;
 
     return openPerfMetric({
       op_type: 'recombee',
@@ -430,9 +510,9 @@ const recombeeApi = {
   async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
-    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
+    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await timedFunc('getOnsitePostInfo', () => helpers.getOnsitePostInfo(lwAlgoSettings, context, false));
 
-    const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
+    const curatedPostReadStatuses = await timedFunc('getCuratedPostsReadStatuses', () => helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context));
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
     // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
@@ -453,7 +533,7 @@ const recombeeApi = {
     const initiateDeferredPostsPromise = () => helpers.getNativeLatestPostsPromise(lwAlgoSettings, modifiedCount, fixedArmCount, excludeFromLatestPostIds, context);
 
     let deferredPostsPromise: Promise<DbPost[]> | undefined = undefined;
-    let recombeeResponsesWithScenario;
+    let recombeeResponsesWithScenario: RecResponse[];
     if (lwAlgoSettings.hybridScenarios.fixed === 'forum-classic') {
       // We shoot off the promise to get our own latest posts now but don't block on it
       // There are plenty of longer-running operations we need to wait on before we need these posts, so we can hold off on awaiting this until those are all done
@@ -462,21 +542,15 @@ const recombeeApi = {
       const recombeeRequestSettings = helpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
       const recombeeRequest = helpers.createRecommendationsForUserRequest(userId, configurableArmCount, recombeeRequestSettings);
 
-      let recombeeResponse;
       try {
-        recombeeResponse = await wrapWithPerfMetric(
-          () => client.send(recombeeRequest) as Promise<RecommendationResponse>,
-          () => helpers.openRecombeeRecsPerfMetric(recombeeRequest)
-        );
+        recombeeResponsesWithScenario = await timedFunc('getCachedRecommendations', () => helpers.getCachedRecommendations(recombeeRequest, recombeeRequestSettings.scenario, context));
       } catch (err) {
+        recombeeResponsesWithScenario = [];
+
         // eslint-disable-next-line no-console
         console.log(`Error when fetching Recombee recommendations for scenario ${recombeeRequestSettings.scenario} and userId ${userId}`, { err });
         captureException(err);
       }
-
-      recombeeResponsesWithScenario = recombeeResponse
-        ? [{ ...recombeeResponse, scenario: lwAlgoSettings.hybridScenarios.configurable }]
-        : [];
     } else {
       const [firstRequest, secondRequest] = (['configurable', 'fixed'] as const)
         .map(hybridArm => [hybridArm, helpers.convertHybridToRecombeeArgs(lwAlgoSettings, hybridArm, excludedPostFilter)] as const)
@@ -510,7 +584,7 @@ const recombeeApi = {
     // It ensures the "curated > stickied > everything else" ordering
     const postIds = [...includedCuratedAndStickiedPostIds, ...recommendedPostIds];
     
-    const [orderedPosts, deferredPosts] = await Promise.all([
+    const [orderedPosts, deferredPosts] = await timedFunc('loadAllPosts', () => Promise.all([
       loadByIds(context, 'Posts', postIds)
         .then(filterNonnull)
         .then(posts => postIds.map(id => posts.find(post => post._id === id)))
@@ -520,7 +594,7 @@ const recombeeApi = {
       // In the case we're making a batch request to recombee, we don't launch the request at the top, since we're only using it as a fallback in case recombee returns an error
       // In those cases, I'd rather just eat the additional latency than be making totally pointless requests to fetch posts from the DB 99%+ of the time
       deferredPostsPromise ?? initiateDeferredPostsPromise()
-    ]);
+    ]));
 
     // We might not get enough posts back from recombee (most likely because of downtime or other request failure)
     // In those cases, fall back to filling in from the latest posts (since we're fetching enough for the entire request, if necessary)
@@ -528,7 +602,7 @@ const recombeeApi = {
     const missingPostCount = intendedNonDeferredPostCount - orderedPosts.length;
     const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + missingPostCount);
 
-    const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
+    const filteredPosts = await timedFunc('accessFilter', () => accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context));
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recommendationIdTuples, stickiedPostIds, curatedPostIds }));
 
     const curatedOrStickiedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.curated || result.stickied));
