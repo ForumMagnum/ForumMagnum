@@ -340,6 +340,8 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
     onCancelInsert();
   }, [insertPos, link, description, addEmoji, insertEmoji, setEmojis, onCancelInsert]);
 
+  const canAdd = !!(insertEmoji && link && description);
+
   const {LWPopper, LWTooltip, SectionTitle, EAButton, EAOnboardingInput} = Components;
   return (
     <>
@@ -391,7 +393,11 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
             >
               Cancel
             </EAButton>
-            <EAButton onClick={onInsert} className={classes.button}>
+            <EAButton
+              onClick={onInsert}
+              disabled={!canAdd}
+              className={classes.button}
+            >
               Add good news
             </EAButton>
           </div>
