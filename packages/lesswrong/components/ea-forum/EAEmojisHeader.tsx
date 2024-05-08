@@ -545,6 +545,9 @@ export const EAEmojisHeader = ({classes}: {
   }, []);
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
+    if ("tagName" in target && target.tagName === "A") {
+      return;
+    }
     if (!currentUser) {
       onLogin();
       return;
