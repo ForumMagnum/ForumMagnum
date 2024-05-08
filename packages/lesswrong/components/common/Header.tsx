@@ -297,7 +297,11 @@ const Header = ({
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
-  const showEmojisHeader = isEAForum && pathname === "/";
+
+  const showEmojisHeader =
+    isEAForum &&
+    pathname === "/" &&
+    !currentUser?.usernameUnset;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
