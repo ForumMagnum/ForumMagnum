@@ -371,7 +371,7 @@ export function startWebserver() {
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
 
     // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable. If the response is cacheable (may same html may be used
+    // it into a global variable. If the response is cacheable (same html may be used
     // by multiple tabs), this is generated in `clientStartup.ts` instead.
     const tabId = responseIsCacheable(response) ? null : randomId();
     

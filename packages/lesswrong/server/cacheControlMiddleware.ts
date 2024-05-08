@@ -3,7 +3,14 @@ import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
+import { DatabaseServerSetting } from './databaseSettings';
 
+const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching', false)
+
+/**
+ * Returns whether the Cache-Control header indicates that this response may be cached by a shared
+ * proxy (CDN)
+ */
 export const responseIsCacheable = (res: express.Response) => {
   const cacheControlHeader = res.get('Cache-Control')?.toLowerCase() || '';
   const highestMaxAge = Math.max(0, ...[...cacheControlHeader.matchAll(/max-age=(\d+)/g)].map(match => parseInt(match[1], 10)))
@@ -21,6 +28,11 @@ const swrCacheHeader = "max-age=1, s-max-age=1, stale-while-revalidate=86400"
 
 export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
   addMiddleware((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (!swrCachingEnabledSetting.get()) {
+      next();
+      return;
+    }
+
     const parsedRoute = parseRoute({
       location: parsePath(req.url)
     });
