@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, MouseEvent, ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
@@ -147,6 +147,23 @@ export type BannerEmoji = {
   theta: number,
 }
 
+const emojiContext = createContext<{
+  currentUser: UsersCurrent | null,
+  removeEmoji: () => Promise<void>,
+  insertEmoji: string,
+  setInsertEmoji: (value: string) => void,
+  onCancelInsert: () => void,
+  classes: ClassesType<typeof styles>,
+} | null>(null);
+
+const useEmojiContext = () => {
+  const value = useContext(emojiContext);
+  if (!value) {
+    throw new Error("No emoji context provider");
+  }
+  return value;
+}
+
 const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -170,17 +187,12 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
 
 const Emoji: FC<{
   emoji: BannerEmoji,
-  currentUser: UsersCurrent | null,
-  removeEmoji?: () => Promise<void>,
   children?: ReactNode,
-  classes: ClassesType<typeof styles>,
 }> = ({
   emoji: {userId, x, y, theta, emoji},
-  currentUser,
-  removeEmoji,
   children,
-  classes,
 }) => {
+  const {currentUser, removeEmoji, classes} = useEmojiContext();
   const isCurrentUser = userId === currentUser?._id;
 
   const onClick = useCallback(() => {
@@ -207,26 +219,20 @@ const Emoji: FC<{
 
 type Point = {x: number, y: number};
 
-const EmojiPlaceholder: FC<{
-  hoverPos: Point,
-  classes: ClassesType<typeof styles>,
-}> = ({hoverPos, classes}) => {
+const EmojiPlaceholder: FC<{hoverPos: Point}> = ({hoverPos}) => {
   return (
-    <Emoji
-      emoji={{displayName: "", userId: "", theta: 0, emoji: "", ...hoverPos}}
-      currentUser={null}
-      classes={classes}
-    />
+    <Emoji emoji={{
+      displayName: "",
+      userId: "",
+      theta: 0,
+      emoji: "",
+      ...hoverPos
+    }} />
   );
 }
 
-const AddEmoji: FC<{
-  emoji: string,
-  setEmoji?: (value: string) => void,
-  insertPos: Point,
-  onCancel?: () => void,
-  classes: ClassesType<typeof styles>,
-}> = ({emoji, setEmoji, insertPos, onCancel, classes}) => {
+const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
+  const {insertEmoji, setInsertEmoji, onCancelInsert, classes} = useEmojiContext();
   const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
   const [link, setLink] = useState("");
   const [description, setDescription] = useState("");
@@ -246,11 +252,11 @@ const AddEmoji: FC<{
             <div>
               <SectionTitle title="Emoji" />
               <LWTooltip
-                title={<EmojiPicker onChange={setEmoji} />}
+                title={<EmojiPicker onChange={setInsertEmoji} />}
                 tooltip={false}
                 clickable
               >
-                <div className={classes.pickerButton}>{emoji}</div>
+                <div className={classes.pickerButton}>{insertEmoji}</div>
               </LWTooltip>
             </div>
             <div>
@@ -275,7 +281,11 @@ const AddEmoji: FC<{
             />
           </div>
           <div className={classes.row}>
-            <EAButton style="grey" className={classes.button} onClick={onCancel}>
+            <EAButton
+              onClick={onCancelInsert}
+              style="grey"
+              className={classes.button}
+            >
               Cancel
             </EAButton>
             <EAButton className={classes.button}>
@@ -284,11 +294,13 @@ const AddEmoji: FC<{
           </div>
         </div>
       </LWPopper>
-      <Emoji
-        emoji={{displayName: "", userId: "", theta: 0, emoji, ...insertPos}}
-        currentUser={null}
-        classes={classes}
-      >
+      <Emoji emoji={{
+        displayName: "",
+        userId: "",
+        theta: 0,
+        emoji: insertEmoji,
+        ...insertPos
+      }} >
         <div ref={setAnchorElement} />
       </Emoji>
     </>
@@ -299,7 +311,7 @@ export const EAEmojisHeader = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const [emoji, setEmoji] = useState("👍");
+  const [insertEmoji, setInsertEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
   const [insertPos, setInsertPos] = useState<Point | null>(null);
   const ref = useRef<HTMLDivElement>(null);
@@ -374,8 +386,6 @@ export const EAEmojisHeader = ({classes}: {
     setHoverPos(null);
   }, []);
 
-  const onCancelInsert = useCallback(() => setInsertPos(null), []);
-
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
       // const coords = normalizeCoords(clientX, clientY);
@@ -396,38 +406,31 @@ export const EAEmojisHeader = ({classes}: {
     }
   }, [normalizeCoords]);
 
+  const onCancelInsert = useCallback(() => setInsertPos(null), []);
+
   const canAddEmoji = !!currentUser && !isAddingEmoji;
 
   return (
     <ForumNoSSR>
       <AnalyticsContext pageSectionContext="ea-emoji-banner">
-        <div
-          {...(canAddEmoji ? {onMouseMove, onMouseOut, onClick} : {})}
-          className={classes.root}
-          ref={ref}
-        >
-          {emojis.map((emoji) => (
-            <Emoji
-              key={emoji.userId}
-              emoji={emoji}
-              currentUser={currentUser}
-              removeEmoji={removeEmoji}
-              classes={classes}
-            />
-          ))}
-          {hoverPos &&
-            <EmojiPlaceholder hoverPos={hoverPos} classes={classes} />
-          }
-          {insertPos &&
-            <AddEmoji
-              emoji={emoji}
-              setEmoji={setEmoji}
-              insertPos={insertPos}
-              onCancel={onCancelInsert}
-              classes={classes}
-            />
-          }
-        </div>
+        <emojiContext.Provider value={{
+          currentUser,
+          removeEmoji,
+          insertEmoji,
+          setInsertEmoji,
+          onCancelInsert,
+          classes,
+        }}>
+          <div
+            {...(canAddEmoji ? {onMouseMove, onMouseOut, onClick} : {})}
+            className={classes.root}
+            ref={ref}
+          >
+            {emojis.map((emoji) => <Emoji key={emoji.userId} emoji={emoji} />)}
+            {hoverPos && <EmojiPlaceholder hoverPos={hoverPos} />}
+            {insertPos && <AddEmoji insertPos={insertPos} />}
+          </div>
+        </emojiContext.Provider>
       </AnalyticsContext>
     </ForumNoSSR>
   );
