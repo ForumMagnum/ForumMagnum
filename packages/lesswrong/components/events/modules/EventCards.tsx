@@ -5,7 +5,6 @@ import { createStyles } from '@material-ui/core/styles';
 import * as _ from 'underscore';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
-import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { getDefaultEventImg } from './HighlightedEventCard';
@@ -137,7 +136,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { AddToCalendarButton, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard } = Components
+  const { AddToCalendarButton, PostsItemTooltipWrapper, CloudinaryImage2, VirtualProgramCard, PrettyEventDateTime } = Components
   
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
@@ -159,7 +158,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
       <CardContent className={classes.eventCardContent}>
         <div className={classes.eventCardTime}>
           {event.eventType === 'course' && <span className={classes.eventCardTimeApply}>Apply by</span>}
-          {prettyEventDateTimes(event, timezone, true)}
+          <PrettyEventDateTime post={event} timezone={timezone} dense={true} />
         </div>
         <PostsItemTooltipWrapper post={event}>
           <div className={classes.eventCardTitle}>
