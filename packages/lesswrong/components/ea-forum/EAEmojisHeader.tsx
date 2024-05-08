@@ -1,15 +1,15 @@
 import React, { FC, MouseEvent, ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent, validateUrl } from "../../lib/vulcan-lib";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
+import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "../../lib/reactRouterWrapper";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
-import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 if (isClient) {
   require("emoji-picker-element");
@@ -516,6 +516,7 @@ export const EAEmojisHeader = ({classes}: {
     y: number,
     theta: number,
   ) => {
+    link = validateUrl(link);
     const result = await rawAddEmoji({
       variables: {emoji, link, description, x, y, theta},
     });
