@@ -15,7 +15,6 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
-import { isCypress } from '../../lib/executionEnvironment';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -299,17 +298,10 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
 
-  // Only show the emoji header on the EA forum homepage, and not when setting
-  // the username in the onboarding flow or in cypress. It actually works in
-  // Cypress locally but not in the github action - I'm just disabing it for now
-  // as the cypress github action has always been janky, we don't really have
-  // time to debug it fully, it's only temporary, and cypress will be replaced
-  // soon anyway.
   const showEmojisHeader =
     isEAForum &&
     pathname === "/" &&
-    !currentUser?.usernameUnset &&
-    !isCypress;
+    !currentUser?.usernameUnset;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
