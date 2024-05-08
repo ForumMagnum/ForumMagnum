@@ -203,6 +203,27 @@ export const postgresFunctions = [
       RETURN false;
     END;
   $$`,
+  // Fetches user by hashed login token. First attempts to read from the cached
+  // version in the `UserLoginTokens` materialized view, otherwise falls back
+  // to reading directly from the user object (which is slower).
+  `CREATE OR REPLACE FUNCTION fm_get_user_by_login_token(hashed_token TEXT)
+    RETURNS SETOF "Users" LANGUAGE plpgsql AS $$
+    DECLARE
+    BEGIN
+      RETURN QUERY
+        SELECT u.*
+        FROM "Users" u
+        JOIN "UserLoginTokens" lt ON lt."userId" = u."_id"
+        WHERE lt."hashedToken" = hashed_token;
+      IF (FOUND = FALSE) THEN
+        RETURN QUERY
+          SELECT *
+          FROM "Users"
+          WHERE "services"->'resume'->'loginTokens' @>
+            ('[{"hashedToken": "' || hashed_token || '"}]')::JSONB;
+      END IF;
+    END
+  $$`,
   // Calculate the last date user updated their profile. This is very slow - you
   // should generally use the denormalized value in the user's `profileUpdatedAt`
   // field. This function is just used for updating that value.

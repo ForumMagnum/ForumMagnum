@@ -58,7 +58,7 @@ import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
 import './server/scripts/convertAllPostsToEAEmojis';
-
+import './server/scripts/reindexDeletedUserContent';
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
@@ -186,6 +186,8 @@ import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
+import './server/resolvers/googleVertexResolvers';
+import './server/resolvers/eventEmojiResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -218,3 +220,4 @@ import './server/search/facetFieldSearch';
 // Incremental views
 import './server/analytics/analyticsCron';
 import './server/conversationUnreadMessages';
+import './server/userLoginTokens';

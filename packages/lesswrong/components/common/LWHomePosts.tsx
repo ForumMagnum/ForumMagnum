@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
@@ -22,6 +21,8 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
+import { gql, useMutation } from '@apollo/client';
+import { vertexEnabledSetting } from '../../lib/publicSettings';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -202,7 +203,6 @@ const LWHomePosts = ({children, classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { query } = useLocation();
-  const { timezone } = useTimezone();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading()
 
@@ -214,6 +214,14 @@ const LWHomePosts = ({children, classes}: {
     fragmentName: "PostsListWithVotes",
     fetchPolicy: "cache-and-network",
     skip: !currentUser?._id,
+  });
+
+  const [sendVertexViewHomePageEvent] = useMutation(gql`
+    mutation sendVertexViewHomePageEventMutation {
+      sendVertexViewHomePageEvent
+    }
+  `, {
+    ignoreResults: true
   });
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
@@ -324,7 +332,7 @@ const LWHomePosts = ({children, classes}: {
   }
 
   const limit = parseInt(query.limit) || defaultLimit;
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString();
 
   const recentPostsTerms = {
     ...query,
@@ -334,6 +342,14 @@ const LWHomePosts = ({children, classes}: {
     forum: true,
     limit:limit
   };
+
+  useEffect(() => {
+    if (currentUser && vertexEnabledSetting.get()) {
+      void sendVertexViewHomePageEvent();
+    }
+    // We explicitly only want to send it once on page load, no matter what changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     // TODO: do we need capturePostItemOnMount here?
@@ -370,24 +386,27 @@ const LWHomePosts = ({children, classes}: {
                 </PostsList2> 
               </AnalyticsContext>}
               
-              {/* RECOMBEE RECOMMENDATIONS */}
+              {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
-                algorithm={'recombee-hybrid'} settings={{
-                  ...scenarioConfig,
-                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-personal'}
-                }} />
-              </AnalyticsContext>}
-
-              {/* RECOMBEE RECOMMENDATIONS 2 */}
-              {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
-                  ...scenarioConfig, 
-                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
-                }} 
+                  showRecommendationIcon
+                  algorithm={'recombee-hybrid'} 
+                  settings={{
+                    ...scenarioConfig,
+                    hybridScenarios: {
+                      fixed: 'forum-classic', 
+                      configurable: 'recombee-lesswrong-custom'
+                    }
+                  }} 
                 />
               </AnalyticsContext>}
 
+              {/* JUST RECOMMENDATIONS */}
+              {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationIcon />
+              </AnalyticsContext>}
+
+              {/* VERTEX RECOMMENDATIONS */}
               {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
                 <VertexPostsList />  
               </AnalyticsContext>}

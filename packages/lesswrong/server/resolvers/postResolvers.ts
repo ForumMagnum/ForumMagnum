@@ -44,7 +44,7 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
 
   // fetch remote document from storage / fetch latest revision / post latest contents
   const latestRevision = await getLatestRev(post._id, "contents")
-  const html = latestRevision?.html ?? post.contents.html ?? ""
+  const html = latestRevision?.html ?? post.contents?.html ?? ""
 
   const $ = cheerioParse(html)
   const message = $(`[message-id="${messageId}"]`);
@@ -166,7 +166,7 @@ augmentFieldsDict(Posts, {
             : sqlFetchedPost.sideCommentsCache;
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
-        const editedAt = new Date(post.contents?.editedAt);
+        const editedAt = new Date(post.contents?.editedAt ?? 0);
 
         const cacheIsValid = cache
           && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt)
@@ -208,7 +208,7 @@ augmentFieldsDict(Posts, {
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
           const sideCommentMatches = matchSideComments({
-            html: html,
+            html: html ?? "",
             comments: comments.map(comment => ({
               _id: comment._id,
               html: comment.contents?.html ?? "",
@@ -304,7 +304,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader);
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context));
         return market?.probability
       }
     }
@@ -316,7 +316,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return false;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.isResolved
       }
     }
@@ -328,7 +328,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader(context))
         return market?.year
       }
     }
@@ -343,7 +343,7 @@ augmentFieldsDict(Posts, {
           "https://youtube.com",
           "https://youtu.be",
         ];
-        const $ = cheerioParse(post.contents?.html);
+        const $ = cheerioParse(post.contents?.html ?? "");
         const iframes = $("iframe").toArray();
         for (const iframe of iframes) {
           if ("attribs" in iframe) {
@@ -731,8 +731,8 @@ createPaginatedResolver({
   ): Promise<VertexRecommendedPost[]> => {
     const { currentUser } = context;
 
-    if (!userIsAdmin(currentUser)) {
-      throw new Error(`You must be an admin to use Google recommendations right now`);
+    if (!currentUser) {
+      throw new Error(`You must logged in to use Google Vertex recommendations right now`);
     }
 
     return await googleVertexApi.getRecommendations(limit, context);

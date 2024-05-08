@@ -574,6 +574,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
   },
+  emojiHeader: {
+    background: "#daebef",
+    foreground: "#046A7C",
+    placeholder: "#9BC4CC",
+    removeButton: "#2F2F2F",
+    tooltipShadow: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
+    emojiShadow: "1px 1px 2px rgba(0,0,0,0.2)",
+  },
   dialogueMatching: {
     checkedNotMatched: "#ADD8E6",
     checkedMatched: "#00000038",

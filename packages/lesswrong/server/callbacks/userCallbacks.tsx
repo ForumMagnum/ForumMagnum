@@ -442,7 +442,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
   
   const subjectLine = welcomePost.title;
-  const welcomeMessageBody = welcomePost.contents.html;
+  const welcomeMessageBody = welcomePost.contents?.html ?? "";
   
   const conversationData = {
     participantIds: [user._id, adminsAccount._id],
@@ -515,7 +515,7 @@ getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier,
     }
   }
   for (const field of editableUserProfileFields) {
-    if (field in modifier.$set && modifier.$set[field].html !== user[field].html) {
+    if (field in modifier.$set && modifier.$set[field]?.html !== user[field]?.html) {
       modifier.$set.profileUpdatedAt = new Date();
       return modifier;
     }

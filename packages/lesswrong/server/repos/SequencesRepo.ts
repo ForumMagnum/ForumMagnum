@@ -24,9 +24,18 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         COALESCE(s."hidden", FALSE) AS "hidden",
         COALESCE(s."af", FALSE) AS "af",
         s."bannerImageId",
-        author."displayName" AS "authorDisplayName",
-        author."username" AS "authorUserName",
-        author."slug" AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."username"
+        END AS "authorUserName",
         s."contents"->>'html' AS "plaintextDescription",
         NOW() AS "exportedAt"
       FROM "Sequences" s

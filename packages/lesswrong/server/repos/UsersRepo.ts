@@ -5,6 +5,7 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
+import { getPostgresViewByName } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 
 const GET_USERS_BY_EMAIL_QUERY = `
@@ -51,12 +52,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
   getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
     return this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
-      SELECT *
-      FROM "Users"
-      WHERE "services"->'resume'->'loginTokens' @> ('[{"hashedToken": "' || $1 || '"}]')::JSONB
+      SELECT * FROM fm_get_user_by_login_token($1)
     `, [hashedToken]);
   }
-  
+
   getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
     // the notification radius is in miles, so we convert the EARTH_DISTANCE from meters to miles
     return this.any(`
@@ -91,8 +90,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
-  clearLoginTokens(userId: string): Promise<null> {
-    return this.none(`
+  async clearLoginTokens(userId: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.clearLoginTokens
       UPDATE "Users"
       SET services = jsonb_set(
@@ -103,10 +102,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId]);
+    await this.refreshUserLoginTokens();
   }
 
-  resetPassword(userId: string, hashedPassword: string): Promise<null> {
-    return this.none(`
+  async resetPassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.resetPassword
       UPDATE "Users"
       SET services = jsonb_set(
@@ -131,6 +131,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId, hashedPassword]);
+    await this.refreshUserLoginTokens();
+  }
+
+  private async refreshUserLoginTokens() {
+    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
@@ -692,6 +697,26 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `);
 
     return userIdRecords.map(({ _id }) => _id);
+  }
+  async getAllUserPostIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Posts" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserCommentIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Comments" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserSequenceIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Sequences" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
   }
 
   async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {

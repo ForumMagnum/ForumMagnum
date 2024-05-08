@@ -77,8 +77,8 @@ export function addServerSentEventsEndpoint(app: Express) {
   });
   
   setInterval(checkForNotifications, 1000);
-  setInterval(checkForTypingIndicators, 1000);
   if (!isEAForum) {
+    setInterval(checkForTypingIndicators, 1000);
     setInterval(checkForActiveDialoguePartners, 1000);
   }
 }

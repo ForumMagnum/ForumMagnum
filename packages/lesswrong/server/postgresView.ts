@@ -1,32 +1,46 @@
 import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import { addCronJob } from "./cronUtil";
+import type { CronJobSpec } from "./cronUtil";
+
+type PostgresViewRefreshSpec = {
+  interval: string,
+  query: string,
+}
 
 class PostgresView {
   constructor(
+    private name: string,
     private createViewQuery: string,
     private createIndexQueries: string[] = [],
-    private refreshQuery?: string,
+    private refreshSpec?: PostgresViewRefreshSpec,
     private queryTimeout = 60,
   ) {}
+
+  getName(): string {
+    return this.name;
+  }
 
   getCreateViewQuery() {
     return this.createViewQuery;
   }
 
-  async createView(db: SqlClient) {
-    await queryWithLock(db, this.createViewQuery, this.queryTimeout);
-  }
-
-  async createIndexes(db: SqlClient) {
-    await Promise.all(this.createIndexQueries.map((index) =>
-      queryWithLock(db, index, this.queryTimeout),
-    ));
+  getCreateIndexQueries() {
+    return this.createIndexQueries;
   }
 
   async refresh(db: SqlClient) {
-    if (this.refreshQuery) {
-      await queryWithLock(db, this.refreshQuery, this.queryTimeout);
+    if (this.refreshSpec) {
+      await queryWithLock(db, this.refreshSpec.query, this.queryTimeout);
+    }
+  }
+
+  registerCronJob(addCronJob: (options: CronJobSpec) => void) {
+    if (this.refreshSpec) {
+      addCronJob({
+        name: `refreshPostgresView-${this.name}`,
+        interval: this.refreshSpec.interval,
+        job: () => this.refresh(getSqlClientOrThrow()),
+      });
     }
   }
 }
@@ -34,9 +48,10 @@ class PostgresView {
 const postgresViews: PostgresView[] = [];
 
 export const createPostgresView = (
+  name: string,
   createViewQuery: string,
   createIndexQueries: string[] = [],
-  refreshQuery?: string,
+  refreshSpec?: PostgresViewRefreshSpec,
 ) => {
   for (const view of postgresViews) {
     if (view.getCreateViewQuery() === createViewQuery) {
@@ -44,25 +59,20 @@ export const createPostgresView = (
     }
   }
   const view = new PostgresView(
+    name,
     createViewQuery,
     createIndexQueries,
-    refreshQuery,
+    refreshSpec,
   );
   postgresViews.push(view);
 }
 
-export const ensurePostgresViewsExist = async (db = getSqlClientOrThrow()) => {
-  await Promise.all(postgresViews.map((view) => view.createView(db)));
-  await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
+export const getPostgresViewByName = (name: string): PostgresView => {
+  const view = postgresViews.find((view) => view.getName() === name);
+  if (!view) {
+    throw new Error(`Postgres view not found: ${name}`);
+  }
+  return view;
 }
 
-addCronJob({
-  name: "refreshPostgresViews",
-  interval: "every 1 hour",
-  job: async () => {
-    // Run these in series as they're potentially expensive
-    for (const view of postgresViews) {
-      await view.refresh(getSqlClientOrThrow());
-    }
-  },
-});
+export const getAllPostgresViews = (): PostgresView[] => postgresViews;

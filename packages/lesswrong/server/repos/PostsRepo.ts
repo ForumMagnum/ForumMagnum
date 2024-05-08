@@ -41,6 +41,26 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }
+  
+  moveCoauthorshipToNewUser(oldUserId: string, newUserId: string): Promise<null> {
+    return this.none(`
+      -- PostsRepo.moveCoauthorshipToNewUser
+      UPDATE "Posts"
+      SET "coauthorStatuses" = array(
+        SELECT
+          CASE
+            WHEN (jsonb_elem->>'userId') = $1
+            THEN jsonb_set(jsonb_elem, '{userId}', to_jsonb($2::text), false)
+            ELSE jsonb_elem
+          END
+          FROM unnest("coauthorStatuses") AS t(jsonb_elem)
+      )
+      WHERE EXISTS (
+        SELECT 1 FROM unnest("coauthorStatuses") AS sub(jsonb_sub)
+        WHERE jsonb_sub->>'userId' = $1
+      );
+    `, [oldUserId, newUserId]);
+  }
 
   async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
     const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
@@ -372,9 +392,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         COALESCE(p."draft", FALSE) AS "draft",
         COALESCE(p."af", FALSE) AS "af",
         fm_post_tag_ids(p."_id") AS "tags",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."fullName" AS "authorFullName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."fullName"
+        END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
         p."contents"->>'html' AS "body",
