@@ -1,8 +1,10 @@
-import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
 import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
+import { useCurrentUser } from "../common/withUser";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
 
@@ -41,8 +43,6 @@ const styles = (theme: ThemeType) => ({
       marginTop: 0,
       paddingBottom: 4,
     },
-  },
-  emojiTooltipContent: {
     display: "flex",
     flexDirection: "column",
     gap: "12px",
@@ -87,6 +87,57 @@ const styles = (theme: ThemeType) => ({
 const isValidTarget = (e: EventTarget | null): e is HTMLDivElement =>
   !!e && "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
 
+// const MAX_THETA = 25;
+
+const emojisQuery = gql`
+  query BannerEmojis {
+    BannerEmojis {
+      userId
+      displayName
+      emoji
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const addEmojiMutation = gql`
+  mutation AddBannerEmoji(
+    $emoji: String!,
+    $x: Float!,
+    $y: Float!,
+    $theta: Float!
+  ) {
+    AddBannerEmoji(
+      emoji: $emoji,
+      x: $x,
+      y: $y,
+      theta: $theta
+    ) {
+      userId
+      displayName
+      emoji
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const removeEmojiMutation = gql`
+  mutation RemoveBannerEmoji {
+    RemoveBannerEmoji {
+      userId
+      displayName
+      emoji
+      x
+      y
+      theta
+    }
+  }
+`;
+
 export type BannerEmoji = {
   userId: string,
   displayName?: string,
@@ -120,19 +171,16 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
 const Emoji: FC<{
   emoji: BannerEmoji,
   currentUser: UsersCurrent | null,
-  setEmoji?: (value: string) => void,
   removeEmoji?: () => Promise<void>,
+  children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }> = ({
   emoji: {userId, x, y, theta, emoji},
   currentUser,
-  setEmoji,
   removeEmoji,
+  children,
   classes,
 }) => {
-  const [link, setLink] = useState("");
-  const [description, setDescription] = useState("");
-
   const isCurrentUser = userId === currentUser?._id;
 
   const onClick = useCallback(() => {
@@ -141,9 +189,7 @@ const Emoji: FC<{
     }
   }, [isCurrentUser, removeEmoji]);
 
-  const {
-    LWTooltip, ForumIcon, SectionTitle, EAButton, EAOnboardingInput,
-  } = Components;
+  const {ForumIcon} = Components;
   return (
     <figure
       className={classNames(classes.emoji, !emoji && classes.emojiCursor)}
@@ -153,57 +199,8 @@ const Emoji: FC<{
         transform: `rotate(${theta}deg)`,
       }}
     >
-      <LWTooltip
-        title={
-          <div className={classes.emojiTooltipContent}>
-            <div className={classes.row}>
-              <div>
-                <SectionTitle title="Emoji" />
-                <LWTooltip
-                  title={<EmojiPicker onChange={setEmoji} />}
-                  tooltip={false}
-                  clickable
-                >
-                  <div className={classes.pickerButton}>{emoji || "👍"}</div>
-                </LWTooltip>
-              </div>
-              <div>
-                <SectionTitle title="Link to" />
-                <EAOnboardingInput
-                  value={link}
-                  setValue={setLink}
-                  placeholder="https://example.com"
-                  className={classes.input}
-                />
-              </div>
-            </div>
-            <div>
-              <SectionTitle title="The good news" />
-              <EAOnboardingInput
-                value={description}
-                setValue={setDescription}
-                placeholder="Show when you hover the emoji"
-                As="textarea"
-                rows={3}
-                className={classNames(classes.input, classes.textArea)}
-              />
-            </div>
-            <div className={classes.row}>
-              <EAButton style="grey" className={classes.button}>
-                Cancel
-              </EAButton>
-              <EAButton className={classes.button}>
-                Add good news
-              </EAButton>
-            </div>
-          </div>
-        }
-        placement="bottom-start"
-        clickable
-        popperClassName={classes.emojiTooltip}
-      >
-        {emoji || <ForumIcon icon="AddEmoji" onClick={onClick} />}
-      </LWTooltip>
+      {emoji || <ForumIcon icon="AddEmoji" onClick={onClick} />}
+      {children}
     </figure>
   );
 }
@@ -213,32 +210,117 @@ type Point = {x: number, y: number};
 const EmojiPlaceholder: FC<{
   hoverPos: Point,
   classes: ClassesType<typeof styles>,
-}> = ({hoverPos: pos, classes}) => {
-  // const [insertPos, setInsertPos] = useState<Point | null>(null);
-
-  // if (insertPos) {
-    // return (
-      // <div>
-        // K
-      // </div>
-    // );
-  // }
-
+}> = ({hoverPos, classes}) => {
   return (
     <Emoji
-      emoji={{displayName: "", userId: "", theta: 0, emoji: "", ...pos}}
+      emoji={{displayName: "", userId: "", theta: 0, emoji: "", ...hoverPos}}
       currentUser={null}
       classes={classes}
     />
   );
 }
 
+const AddEmoji: FC<{
+  emoji: string,
+  setEmoji?: (value: string) => void,
+  insertPos: Point,
+  onCancel?: () => void,
+  classes: ClassesType<typeof styles>,
+}> = ({emoji, setEmoji, insertPos, onCancel, classes}) => {
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const [link, setLink] = useState("");
+  const [description, setDescription] = useState("");
+
+  const {LWPopper, LWTooltip, SectionTitle, EAButton, EAOnboardingInput} = Components;
+  return (
+    <>
+      <LWPopper
+        open
+        clickable
+        placement="bottom-start"
+        anchorEl={anchorElement}
+        key={`${insertPos.x},${insertPos.y}`}
+      >
+        <div className={classes.emojiTooltip}>
+          <div className={classes.row}>
+            <div>
+              <SectionTitle title="Emoji" />
+              <LWTooltip
+                title={<EmojiPicker onChange={setEmoji} />}
+                tooltip={false}
+                clickable
+              >
+                <div className={classes.pickerButton}>{emoji}</div>
+              </LWTooltip>
+            </div>
+            <div>
+              <SectionTitle title="Link to" />
+              <EAOnboardingInput
+                value={link}
+                setValue={setLink}
+                placeholder="https://example.com"
+                className={classes.input}
+              />
+            </div>
+          </div>
+          <div>
+            <SectionTitle title="The good news" />
+            <EAOnboardingInput
+              value={description}
+              setValue={setDescription}
+              placeholder="Show when you hover the emoji"
+              As="textarea"
+              rows={3}
+              className={classNames(classes.input, classes.textArea)}
+            />
+          </div>
+          <div className={classes.row}>
+            <EAButton style="grey" className={classes.button} onClick={onCancel}>
+              Cancel
+            </EAButton>
+            <EAButton className={classes.button}>
+              Add good news
+            </EAButton>
+          </div>
+        </div>
+      </LWPopper>
+      <Emoji
+        emoji={{displayName: "", userId: "", theta: 0, emoji, ...insertPos}}
+        currentUser={null}
+        classes={classes}
+      >
+        <div ref={setAnchorElement} />
+      </Emoji>
+    </>
+  );
+}
+
 export const EAEmojisHeader = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
   const [emoji, setEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
+  const [insertPos, setInsertPos] = useState<Point | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+
+  const {data, refetch} = useQuery(emojisQuery);
+  const [emojis, setEmojis] = useState<BannerEmoji[]>(data?.BannerEmojis ?? []);
+
+  useEffect(() => {
+    setEmojis(data?.BannerEmojis ?? []);
+  }, [data?.BannerEmojis]);
+
+  const [rawAddEmoji, {loading: isAddingEmoji}] = useMutation(
+    addEmojiMutation,
+    {errorPolicy: "all"},
+  );
+
+  // const [rawRemoveEmoji, {loading: isRemovingEmoji}] = useMutation(
+  const [rawRemoveEmoji] = useMutation(
+    removeEmojiMutation,
+    {errorPolicy: "all"},
+  );
 
   const normalizeCoords = useCallback((clientX: number, clientY: number) => {
     if (ref.current) {
@@ -260,6 +342,26 @@ export const EAEmojisHeader = ({classes}: {
     return null;
   }, [ref]);
 
+  const addEmoji = useCallback(async (
+    emoji: string,
+    x: number,
+    y: number,
+    theta: number,
+  ) => {
+    const result = await rawAddEmoji({variables: {emoji, x, y, theta}});
+    void refetch();
+    return result;
+  }, [rawAddEmoji, refetch]);
+
+  const removeEmoji = useCallback(async () => {
+    const result = await rawRemoveEmoji();
+    const newEmojis = result.data?.RemoveBannerEmoji;
+    if (Array.isArray(newEmojis)) {
+      setEmojis(newEmojis);
+    }
+    await refetch();
+  }, [rawRemoveEmoji, refetch]);
+
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
       setHoverPos(normalizeCoords(clientX, clientY));
@@ -272,49 +374,59 @@ export const EAEmojisHeader = ({classes}: {
     setHoverPos(null);
   }, []);
 
-  const onClick = useCallback(() => {
-  }, []);
+  const onCancelInsert = useCallback(() => setInsertPos(null), []);
 
-  // const removeEmoji = useCallback(async () => {
-    // const result = await rawRemoveHeart({
-      // variables: {
-        // electionName: eaGivingSeason23ElectionName,
-      // },
-    // });
-    // const newHearts = result.data?.RemoveGivingSeasonHeart;
-    // if (Array.isArray(newHearts)) {
-      // setHearts(newHearts);
-    // }
-    // await refetch();
-  // }, [rawRemoveHeart, refetch]);
-  // }, []);
+  const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
+    if (isValidTarget(target)) {
+      // const coords = normalizeCoords(clientX, clientY);
+      // if (coords) {
+        // const theta = Math.round((Math.random() * MAX_THETA * 2) - MAX_THETA);
+        // const result = await addEmoji(emoji, coords.x, coords.y, theta);
+        // const newHearts = result.data?.AddGivingSeasonHeart;
+        // if (Array.isArray(newHearts)) {
+          // setEmojis(newHearts);
+        // }
+        // setHoverPos(null);
+      // }
+      const coords = normalizeCoords(clientX, clientY);
+      if (coords) {
+        setInsertPos(coords);
+        setHoverPos(null);
+      }
+    }
+  }, [normalizeCoords]);
+
+  const canAddEmoji = !!currentUser && !isAddingEmoji;
 
   return (
     <ForumNoSSR>
       <AnalyticsContext pageSectionContext="ea-emoji-banner">
         <div
-          onClick={onClick}
-          onMouseMove={onMouseMove}
-          onMouseOut={onMouseOut}
+          {...(canAddEmoji ? {onMouseMove, onMouseOut, onClick} : {})}
           className={classes.root}
           ref={ref}
         >
+          {emojis.map((emoji) => (
+            <Emoji
+              key={emoji.userId}
+              emoji={emoji}
+              currentUser={currentUser}
+              removeEmoji={removeEmoji}
+              classes={classes}
+            />
+          ))}
           {hoverPos &&
             <EmojiPlaceholder hoverPos={hoverPos} classes={classes} />
           }
-          <Emoji
-            emoji={{
-              displayName: "",
-              userId: "",
-              theta: 0,
-              x: 0.5,
-              y: 0.5,
-              emoji,
-            }}
-            setEmoji={setEmoji}
-            currentUser={null}
-            classes={classes}
-          />
+          {insertPos &&
+            <AddEmoji
+              emoji={emoji}
+              setEmoji={setEmoji}
+              insertPos={insertPos}
+              onCancel={onCancelInsert}
+              classes={classes}
+            />
+          }
         </div>
       </AnalyticsContext>
     </ForumNoSSR>
