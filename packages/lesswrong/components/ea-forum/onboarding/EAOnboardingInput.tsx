@@ -1,5 +1,6 @@
 import React, { useCallback, ChangeEvent, RefObject } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
+import classNames from "classnames";
 
 // These styles are also used by `EAOnboardingSelect`
 export const styles = (theme: ThemeType) => ({
@@ -24,26 +25,35 @@ export const EAOnboardingInput = ({
   value,
   setValue,
   placeholder,
+  As="input",
+  rows,
   inputRef,
+  className,
   classes,
 }: {
   value: string,
   setValue: (value: string) => void,
   placeholder: string,
-  inputRef?: RefObject<HTMLInputElement>,
+  As?: "input" | "textarea",
+  rows?: number,
+  inputRef?: RefObject<HTMLInputElement> | RefObject<HTMLTextAreaElement>,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const onChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
+  const onChange = useCallback((
+    ev: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>,
+  ) => {
     setValue(ev.target.value ?? "");
   }, [setValue]);
   return (
-    <input
-      type="text"
+    <As
       value={value}
+      type={As === "input" ? "text" : undefined}
       onChange={onChange}
       placeholder={placeholder}
-      ref={inputRef}
-      className={classes.root}
+      rows={rows}
+      ref={inputRef as AnyBecauseHard}
+      className={classNames(classes.root, className)}
     />
   );
 }
@@ -51,7 +61,7 @@ export const EAOnboardingInput = ({
 const EAOnboardingInputComponent = registerComponent(
   "EAOnboardingInput",
   EAOnboardingInput,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

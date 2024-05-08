@@ -24,14 +24,8 @@ class PostgresView {
     return this.createViewQuery;
   }
 
-  async createView(db: SqlClient) {
-    await queryWithLock(db, this.createViewQuery, this.queryTimeout);
-  }
-
-  async createIndexes(db: SqlClient) {
-    await Promise.all(this.createIndexQueries.map((index) =>
-      queryWithLock(db, index, this.queryTimeout),
-    ));
+  getCreateIndexQueries() {
+    return this.createIndexQueries;
   }
 
   async refresh(db: SqlClient) {
@@ -73,20 +67,6 @@ export const createPostgresView = (
   postgresViews.push(view);
 }
 
-export const ensurePostgresViewsExist = async (
-  db = getSqlClientOrThrow(),
-  /** Dependency injected to avoid cycle. Should always be passed in unless in testing. */
-  addCronJob?: (options: CronJobSpec) => void,
-) => {
-  await Promise.all(postgresViews.map((view) => view.createView(db)));
-  await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
-  if (addCronJob) {
-    for (const view of postgresViews) {
-      view.registerCronJob(addCronJob);
-    }
-  }
-}
-
 export const getPostgresViewByName = (name: string): PostgresView => {
   const view = postgresViews.find((view) => view.getName() === name);
   if (!view) {
@@ -94,3 +74,5 @@ export const getPostgresViewByName = (name: string): PostgresView => {
   }
   return view;
 }
+
+export const getAllPostgresViews = (): PostgresView[] => postgresViews;
