@@ -390,6 +390,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     curatedIconLeft,
     strikethroughTitle,
     bookmark,
+    isRecommendation,
+    showRecommendationIcon,
     className,
   } = usePostsItem(props);
 
@@ -464,6 +466,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                   {...(showPersonalIcon ? {showPersonalIcon} : {})}
                   curatedIconLeft={curatedIconLeft}
                   strikethroughTitle={strikethroughTitle}
+                  showRecommendationIcon={isRecommendation && showRecommendationIcon}
                 />
               </AnalyticsTracker>
             </span>
