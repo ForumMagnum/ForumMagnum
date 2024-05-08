@@ -4,7 +4,6 @@ import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "../../lib/reactRouterWrapper";
 import { gql, useMutation, useQuery } from "@apollo/client";
@@ -290,10 +289,7 @@ const Emoji: FC<{
   return (
     <figure
       className={classNames(classes.emoji, !emoji && classes.emojiCursor)}
-      style={{
-        left: `${x * window.innerWidth}px`,
-        top: `${y * EMOJIS_HEADER_HEIGHT}px`,
-      }}
+      style={{left: `${x * 100}%`, top: `${y * 100}%`}}
     >
       <LWTooltip
         title={description}

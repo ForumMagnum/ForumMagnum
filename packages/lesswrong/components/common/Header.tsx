@@ -22,7 +22,7 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
-export const EMOJIS_HEADER_HEIGHT = 196;
+const EMOJIS_HEADER_HEIGHT = 196;
 
 const emojisInfoLink = "#"; // TODO
 
