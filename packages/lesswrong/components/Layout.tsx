@@ -34,6 +34,7 @@ export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.before
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 import { Link } from '../lib/reactRouterWrapper';
+import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -458,6 +459,7 @@ const Layout = ({currentUser, children, classes}: {
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
+      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
@@ -588,6 +590,7 @@ const Layout = ({currentUser, children, classes}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>
+      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>

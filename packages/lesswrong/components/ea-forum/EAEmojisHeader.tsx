@@ -9,6 +9,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 if (isClient) {
   require("emoji-picker-element");
@@ -425,6 +426,7 @@ export const EAEmojisHeader = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const {onLogin} = useLoginPopoverContext();
   const [insertEmoji, setInsertEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
   const [insertPos, setInsertPos] = useState<Point | null>(null);
@@ -505,6 +507,10 @@ export const EAEmojisHeader = ({classes}: {
   }, []);
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
+    if (!currentUser) {
+      onLogin();
+      return;
+    }
     if (isValidTarget(target)) {
       const coords = normalizeCoords(clientX, clientY);
       if (coords) {
@@ -512,11 +518,11 @@ export const EAEmojisHeader = ({classes}: {
         setHoverPos(null);
       }
     }
-  }, [normalizeCoords]);
+  }, [currentUser, onLogin, normalizeCoords]);
 
   const onCancelInsert = useCallback(() => setInsertPos(null), []);
 
-  const canAddEmoji = !!currentUser && !isAddingEmoji;
+  const canAddEmoji = !isAddingEmoji;
 
   return (
     <ForumNoSSR>
