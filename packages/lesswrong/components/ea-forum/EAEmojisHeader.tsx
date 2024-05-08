@@ -36,8 +36,11 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.dropdown.background,
     border: `1px solid ${theme.palette.dropdown.border}`,
     "& .SectionTitle-root": {
-      marginTop: 0,
+      marginTop: -1,
       paddingBottom: 4,
+    },
+    "& .SectionTitle-title": {
+      fontSize: 12,
     },
     display: "flex",
     flexDirection: "column",
