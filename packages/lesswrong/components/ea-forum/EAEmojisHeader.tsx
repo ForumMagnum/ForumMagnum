@@ -344,9 +344,18 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
     onCancelInsert();
   }, [insertPos, link, description, addEmoji, insertEmoji, setEmojis, onCancelInsert]);
 
+  const onClickAway = useCallback(() => {
+    if (!link && !description) {
+      onCancelInsert();
+    }
+  }, [onCancelInsert, link, description]);
+
   const canAdd = !!(insertEmoji && link && description);
 
-  const {LWPopper, LWTooltip, SectionTitle, EAButton, EAOnboardingInput} = Components;
+  const {
+    LWPopper, LWTooltip, SectionTitle, EAButton, EAOnboardingInput,
+    LWClickAwayListener,
+  } = Components;
   return (
     <>
       <LWPopper
@@ -356,56 +365,58 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
         anchorEl={anchorElement}
         key={`${insertPos.x},${insertPos.y}`}
       >
-        <div className={classes.emojiTooltip}>
-          <div className={classes.row}>
-            <div>
-              <SectionTitle title="Emoji" />
-              <LWTooltip
-                title={<EmojiPicker onChange={setInsertEmoji} />}
-                tooltip={false}
-                clickable
-              >
-                <div className={classes.pickerButton}>{insertEmoji}</div>
-              </LWTooltip>
+        <LWClickAwayListener onClickAway={onClickAway}>
+          <div className={classes.emojiTooltip}>
+            <div className={classes.row}>
+              <div>
+                <SectionTitle title="Emoji" />
+                <LWTooltip
+                  title={<EmojiPicker onChange={setInsertEmoji} />}
+                  tooltip={false}
+                  clickable
+                >
+                  <div className={classes.pickerButton}>{insertEmoji}</div>
+                </LWTooltip>
+              </div>
+              <div>
+                <SectionTitle title="Link to" />
+                <EAOnboardingInput
+                  value={link}
+                  setValue={setLink}
+                  placeholder="https://example.com"
+                  className={classes.input}
+                />
+              </div>
             </div>
             <div>
-              <SectionTitle title="Link to" />
+              <SectionTitle title="The good news" />
               <EAOnboardingInput
-                value={link}
-                setValue={setLink}
-                placeholder="https://example.com"
-                className={classes.input}
+                value={description}
+                setValue={setDescription}
+                placeholder="Show when you hover the emoji"
+                As="textarea"
+                rows={3}
+                className={classNames(classes.input, classes.textArea)}
               />
             </div>
+            <div className={classes.row}>
+              <EAButton
+                onClick={onCancelInsert}
+                style="grey"
+                className={classes.button}
+              >
+                Cancel
+              </EAButton>
+              <EAButton
+                onClick={onInsert}
+                disabled={!canAdd}
+                className={classes.button}
+              >
+                Add good news
+              </EAButton>
+            </div>
           </div>
-          <div>
-            <SectionTitle title="The good news" />
-            <EAOnboardingInput
-              value={description}
-              setValue={setDescription}
-              placeholder="Show when you hover the emoji"
-              As="textarea"
-              rows={3}
-              className={classNames(classes.input, classes.textArea)}
-            />
-          </div>
-          <div className={classes.row}>
-            <EAButton
-              onClick={onCancelInsert}
-              style="grey"
-              className={classes.button}
-            >
-              Cancel
-            </EAButton>
-            <EAButton
-              onClick={onInsert}
-              disabled={!canAdd}
-              className={classes.button}
-            >
-              Add good news
-            </EAButton>
-          </div>
-        </div>
+        </LWClickAwayListener>
       </LWPopper>
       <Emoji emoji={{
         displayName: "",
@@ -444,7 +455,6 @@ export const EAEmojisHeader = ({classes}: {
     {errorPolicy: "all"},
   );
 
-  // const [rawRemoveEmoji, {loading: isRemovingEmoji}] = useMutation(
   const [rawRemoveEmoji] = useMutation(
     removeEmojiMutation,
     {errorPolicy: "all"},
