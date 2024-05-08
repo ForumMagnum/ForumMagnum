@@ -93,6 +93,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.dropdown.background,
     border: `1px solid ${theme.palette.dropdown.border}`,
+    color: theme.palette.grey[1000],
   },
   emojiLink: {
     display: "block",
