@@ -9,7 +9,7 @@ import { useTimezone } from '../common/withTimezone';
  * more normal date (in locale format) if more than a week away.
  */
 const CalendarDate = ({date}: {
-  date: Date,
+  date: Date | string,
 }) => {
   const { TimeTag } = Components;
 
