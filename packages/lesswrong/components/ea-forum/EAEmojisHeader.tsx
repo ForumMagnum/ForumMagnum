@@ -552,7 +552,7 @@ export const EAEmojisHeader = ({classes}: {
     theta: number,
   ) => {
     link = validateUrl(link);
-    captureEvent("emojiAdd", {emoji, link, description, x, y, theta});
+    captureEvent("emojiBannerAdd", {emoji, link, description, x, y, theta});
     const result = await rawAddEmoji({
       variables: {emoji, link, description, x, y, theta},
     });
@@ -561,7 +561,7 @@ export const EAEmojisHeader = ({classes}: {
   }, [captureEvent, rawAddEmoji, refetch]);
 
   const removeEmoji = useCallback(async (userId: string) => {
-    captureEvent("emojiRemove", {userId});
+    captureEvent("emojiBannerRemove", {userId});
     const result = await rawRemoveEmoji({variables: {userId}});
     const newEmojis = result.data?.RemoveBannerEmoji;
     if (Array.isArray(newEmojis)) {
