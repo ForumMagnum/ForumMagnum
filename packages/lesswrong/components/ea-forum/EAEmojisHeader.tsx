@@ -105,7 +105,7 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 1,
       transform: "scale(1.1)",
-      textShadow: `1px 1px 2px ${theme.palette.text.alwaysBlack}`,
+      textShadow: theme.palette.emojiHeader.emojiShadow,
     },
   },
   removeButton: {

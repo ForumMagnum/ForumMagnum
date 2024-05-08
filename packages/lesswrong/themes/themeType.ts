@@ -530,6 +530,7 @@ declare global {
       foreground: ColorString,
       placeholder: ColorString,
       removeButton: ColorString,
+      emojiShadow: string,
     },
     dialogueMatching: {
       checkedNotMatched: ColorString,

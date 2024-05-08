@@ -579,6 +579,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     foreground: "#046A7C",
     placeholder: "#9BC4CC",
     removeButton: "#2F2F2F",
+    emojiShadow: "1px 1px 2px rgba(0,0,0,0.2)",
   },
   dialogueMatching: {
     checkedNotMatched: "#ADD8E6",
