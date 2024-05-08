@@ -628,7 +628,7 @@ export const EAEmojisHeader = ({classes}: {
             className={classes.root}
             ref={ref}
           >
-            {emojis.map((emoji) => <Emoji key={emoji.userId} emoji={emoji} />)}
+            {emojis.map((emoji) => <Emoji key={emoji.id} emoji={emoji} />)}
             {hoverPos && <EmojiPlaceholder hoverPos={hoverPos} />}
             {insertPos && <AddEmoji insertPos={insertPos} />}
           </div>
