@@ -1,7 +1,7 @@
 import React, { FC, MouseEvent, ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Components, registerComponent, validateUrl } from "../../lib/vulcan-lib";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
@@ -503,6 +503,7 @@ export const EAEmojisHeader = ({classes}: {
   const [insertEmoji, setInsertEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
   const [insertPos, setInsertPos] = useState<Point | null>(null);
+  const {captureEvent} = useTracking();
   const ref = useRef<HTMLDivElement>(null);
 
   const {data, refetch} = useQuery(emojisQuery);
@@ -551,21 +552,23 @@ export const EAEmojisHeader = ({classes}: {
     theta: number,
   ) => {
     link = validateUrl(link);
+    captureEvent("emojiAdd", {emoji, link, description, x, y, theta});
     const result = await rawAddEmoji({
       variables: {emoji, link, description, x, y, theta},
     });
     void refetch();
     return result;
-  }, [rawAddEmoji, refetch]);
+  }, [captureEvent, rawAddEmoji, refetch]);
 
   const removeEmoji = useCallback(async (userId: string) => {
+    captureEvent("emojiRemove", {userId});
     const result = await rawRemoveEmoji({variables: {userId}});
     const newEmojis = result.data?.RemoveBannerEmoji;
     if (Array.isArray(newEmojis)) {
       setEmojis(newEmojis);
     }
     await refetch();
-  }, [rawRemoveEmoji, refetch]);
+  }, [captureEvent, rawRemoveEmoji, refetch]);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target, clientX, clientY)) {
@@ -580,6 +583,7 @@ export const EAEmojisHeader = ({classes}: {
   }, []);
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
+    captureEvent("emojiBannerClick", {clientX, clientY});
     if ("tagName" in target && target.tagName === "A") {
       return;
     }
@@ -594,7 +598,7 @@ export const EAEmojisHeader = ({classes}: {
         setHoverPos(null);
       }
     }
-  }, [currentUser, onLogin, normalizeCoords]);
+  }, [captureEvent, currentUser, onLogin, normalizeCoords]);
 
   const onCancelInsert = useCallback(() => setInsertPos(null), []);
 
