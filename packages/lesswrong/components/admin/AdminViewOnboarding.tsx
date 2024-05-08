@@ -22,15 +22,20 @@ const AdminViewOnboarding = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   
-  const { SingleColumnSection, EAOnboardingFlow, Error404 } = Components;
+  const { 
+    SingleColumnSection, 
+    EAOnboardingFlow,
+    BasicOnboardingFlow,
+    Error404 ,
+  } = Components;
   
-  if (!currentUser?.isAdmin || !isEAForum) {
+  if (!currentUser?.isAdmin) {
     return <Error404 />
   }
 
   return <SingleColumnSection>
     <Link to="/admin" className={classes.link}>Back to Admin Home</Link>
-    <EAOnboardingFlow viewAsAdmin />
+    {isEAForum ? <EAOnboardingFlow viewAsAdmin /> : <BasicOnboardingFlow viewAsAdmin />}
   </SingleColumnSection>
 }
 

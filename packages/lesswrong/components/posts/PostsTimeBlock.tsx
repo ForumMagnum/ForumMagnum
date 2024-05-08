@@ -2,8 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import moment, { Moment } from '../../lib/moment-timezone';
-import { timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
-import { useTimezone } from '../common/withTimezone';
+import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import type { ContentTypeString } from './PostsPage/ContentType';
 import filter from 'lodash/filter';
@@ -113,7 +112,6 @@ const PostsTimeBlock = ({
 }) => {
   const [noShortform, setNoShortform] = useState(false);
   const [noTags, setNoTags] = useState(false);
-  const { timezone } = useTimezone();
 
   const [tagFilter, setTagFilter] = useState<string|null>(null)
   const {query} = useLocation()
