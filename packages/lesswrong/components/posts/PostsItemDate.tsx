@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -25,6 +26,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       [theme.breakpoints.down('xs')]: {
         width: "auto",
       }
+    }
+  },
+  isNew: {
+    '&&': {
+      color: theme.palette.primary.main,
     }
   },
   startTime: {
@@ -116,11 +122,14 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
     </LWTooltip>
   }
 
+  const isNew = moment().diff(dateToDisplay, 'days') < 2;
+  // console.log("isNew", isNew, post.postedAt, moment().diff(dateToDisplay, 'days'))
+
   return <LWTooltip
     placement="right"
     title={<ExpandedDate date={post.postedAt}/>}
   >
-    <PostsItem2MetaInfo className={classes.postedAt}>
+    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isNew })}>
       {timeFromNow}
       {ago}
     </PostsItem2MetaInfo>

@@ -404,7 +404,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
     BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
     AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
-    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
+    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons, NewPostStripe
   } = Components;
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
@@ -412,6 +412,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   return (
     <AnalyticsContext {...analyticsProps}>
       <div className={classes.row}>
+        <NewPostStripe post={post} />
         {showReadCheckbox && <div className={classes.checkbox}>
           <PostReadCheckbox post={post} width={14} />
         </div>}
