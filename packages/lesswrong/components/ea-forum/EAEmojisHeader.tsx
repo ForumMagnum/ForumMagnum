@@ -222,15 +222,24 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const picker = ref.current;
-    if (picker && onChange) {
-      const handler = (ev: AnyBecauseTodo) => {
+    if (picker) {
+      const styleId = "fm-emoji-style";
+      const styleElem = picker.shadowRoot?.getElementById(styleId);
+      if (!styleElem) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `input{font-family:"Inter";}`;
+        picker.shadowRoot?.appendChild(style);
+      }
+
+      const onChangeHandler = (ev: AnyBecauseTodo) => {
         const emoji = ev?.detail?.unicode;
         if (emoji && typeof emoji === "string") {
-          onChange(emoji);
+          onChange?.(emoji);
         }
       }
-      picker.addEventListener("emoji-click", handler);
-      return () => picker?.removeEventListener("emoji-click", handler);
+      picker.addEventListener("emoji-click", onChangeHandler);
+      return () => picker?.removeEventListener("emoji-click", onChangeHandler);
     }
   }, [ref, onChange]);
   return (
