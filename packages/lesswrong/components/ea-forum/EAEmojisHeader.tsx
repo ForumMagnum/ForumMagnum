@@ -4,6 +4,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isClient } from "../../lib/executionEnvironment";
 import { EMOJIS_HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
+import { Link } from "../../lib/reactRouterWrapper";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
@@ -81,6 +82,20 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     gap: "12px",
     width: "100%",
+  },
+  goodNews: {
+    padding: 12,
+    borderRadius: theme.borderRadius.default,
+    backgroundColor: theme.palette.dropdown.background,
+    border: `1px solid ${theme.palette.dropdown.border}`,
+  },
+  emojiLink: {
+    display: "block",
+    "&:hover": {
+      opacity: 1,
+      transform: "scale(1.1)",
+      textShadow: `1px 1px 2px ${theme.palette.text.alwaysBlack}`,
+    },
   },
 });
 
@@ -207,7 +222,7 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
 const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
-}> = ({emoji: {userId, x, y, theta, emoji}, children}) => {
+}> = ({emoji: {userId, link, description, x, y, theta, emoji}, children}) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
   const isCurrentUser = userId === currentUser?._id;
 
@@ -217,7 +232,7 @@ const Emoji: FC<{
     }
   }, [isCurrentUser, removeEmoji]);
 
-  const {ForumIcon} = Components;
+  const {LWTooltip, ForumIcon} = Components;
   return (
     <figure
       className={classNames(classes.emoji, !emoji && classes.emojiCursor)}
@@ -227,7 +242,29 @@ const Emoji: FC<{
         transform: `rotate(${theta}deg)`,
       }}
     >
-      {emoji || <ForumIcon icon="AddEmoji" onClick={onClick} />}
+      <LWTooltip
+        title={description}
+        placement="bottom"
+        popperClassName={classes.goodNews}
+      >
+        {emoji
+          ? (
+            link
+              ? (
+                <Link
+                  to={link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={classes.emojiLink}
+                >
+                  {emoji}
+                </Link>
+              )
+              : emoji
+          )
+          : <ForumIcon icon="AddEmoji" onClick={onClick} />
+        }
+      </LWTooltip>
       {children}
     </figure>
   );
