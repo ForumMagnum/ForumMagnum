@@ -9,6 +9,7 @@ import { userIsAdminOrMod } from "../../lib/vulcan-users";
 
 addGraphQLSchema(`
   type BannerEmoji {
+    id: String!
     userId: String!
     displayName: String!
     emoji: String!
@@ -25,7 +26,7 @@ const emojiRegex = new RegExp(`$${emojiPattern}^`, "gu");
 
 const bannerEmojiResolvers = {
   Query: {
-    BannerEmojis: async (
+    BannerEmojis: (
       _root: void,
       _: {},
       {repos}: ResolverContext,
@@ -75,18 +76,24 @@ const bannerEmojiResolvers = {
         theta,
       );
     },
-    RemoveBannerEmoji: (
+    RemoveBannerEmoji: async (
       _root: void,
-      {userId}: {userId: string},
+      {id}: {id: string},
       {currentUser, repos}: ResolverContext,
     ) => {
       if (!currentUser) {
         throw new Error("Not logged in");
       }
-      if (currentUser._id !== userId && !userIsAdminOrMod(currentUser)) {
-        throw new Error("Permission denied");
+      if (!userIsAdminOrMod(currentUser)) {
+        const emoji = await repos.databaseMetadata.getBannerEmojiRaw(id);
+        if (!emoji) {
+          throw new Error("Emoji not found");
+        }
+        if (emoji.userId !== currentUser._id) {
+          throw new Error("Permission denied");
+        }
       }
-      return repos.databaseMetadata.removeBannerEmoji(userId);
+      return repos.databaseMetadata.removeBannerEmoji(id);
     },
   },
 };
@@ -106,5 +113,5 @@ addGraphQLMutation(`
   ): [BannerEmoji!]!
 `);
 addGraphQLMutation(`
-  RemoveBannerEmoji(userId: String!): [BannerEmoji!]!
+  RemoveBannerEmoji(id: String!): [BannerEmoji!]!
 `);

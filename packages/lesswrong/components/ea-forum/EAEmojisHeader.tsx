@@ -169,6 +169,7 @@ const isValidTarget = (
 const emojisQuery = gql`
   query BannerEmojis {
     BannerEmojis {
+      id
       userId
       displayName
       emoji
@@ -198,6 +199,7 @@ const addEmojiMutation = gql`
       y: $y,
       theta: $theta
     ) {
+      id
       userId
       displayName
       emoji
@@ -209,8 +211,9 @@ const addEmojiMutation = gql`
 `;
 
 const removeEmojiMutation = gql`
-  mutation RemoveBannerEmoji($userId: String!) {
-    RemoveBannerEmoji(userId: $userId) {
+  mutation RemoveBannerEmoji($id: String!) {
+    RemoveBannerEmoji(id: $id) {
+      id
       userId
       displayName
       emoji
@@ -224,6 +227,7 @@ const removeEmojiMutation = gql`
 `;
 
 export type BannerEmoji = {
+  id: string,
   userId: string,
   displayName: string,
   emoji: string,
@@ -245,7 +249,7 @@ const emojiContext = createContext<{
     y: number,
     theta: number,
   ) => Promise<{data?: {AddBannerEmoji: BannerEmoji[]}}>,
-  removeEmoji: (userId: string) => Promise<void>,
+  removeEmoji: (id: string) => Promise<void>,
   insertEmoji: string,
   setInsertEmoji: (value: string) => void,
   onCancelInsert: () => void,
@@ -308,7 +312,7 @@ const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
 }> = ({
-  emoji: {userId, displayName, link, description, x, y, theta, emoji},
+  emoji: {id, userId, displayName, link, description, x, y, theta, emoji},
   children,
 }) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
@@ -319,9 +323,9 @@ const Emoji: FC<{
 
   const onRemove = useCallback(() => {
     if (canRemove) {
-      void removeEmoji?.(userId);
+      void removeEmoji?.(id);
     }
-  }, [canRemove, userId, removeEmoji]);
+  }, [canRemove, id, removeEmoji]);
 
   const {LWTooltip, ForumIcon} = Components;
   return (
@@ -371,6 +375,7 @@ type Point = {x: number, y: number};
 const EmojiPlaceholder: FC<{hoverPos: Point}> = ({hoverPos}) => {
   return (
     <Emoji emoji={{
+      id: "",
       displayName: "",
       userId: "",
       theta: 0,
@@ -481,6 +486,7 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
         </LWClickAwayListener>
       </LWPopper>
       <Emoji emoji={{
+        id: "",
         displayName: "",
         userId: "",
         theta: 0,
@@ -560,9 +566,9 @@ export const EAEmojisHeader = ({classes}: {
     return result;
   }, [captureEvent, rawAddEmoji, refetch]);
 
-  const removeEmoji = useCallback(async (userId: string) => {
-    captureEvent("emojiBannerRemove", {userId});
-    const result = await rawRemoveEmoji({variables: {userId}});
+  const removeEmoji = useCallback(async (id: string) => {
+    captureEvent("emojiBannerRemove", {id});
+    const result = await rawRemoveEmoji({variables: {id}});
     const newEmojis = result.data?.RemoveBannerEmoji;
     if (Array.isArray(newEmojis)) {
       setEmojis(newEmojis);

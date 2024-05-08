@@ -86,16 +86,27 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       -- DatabaseMetadataRepo.getBannerEmojis
       SELECT ARRAY_AGG(q."value" || JSONB_BUILD_OBJECT(
         'userId', u."_id",
-        'displayName', u."displayName"
+        'displayName', u."displayName",
+        'id', q."key"
       )) "emojis"
       FROM (
         SELECT (JSONB_EACH("value")).*
         FROM "DatabaseMetadata"
         WHERE "name" = $1
       ) q
-      JOIN "Users" u ON q."key" = u."_id"
+      JOIN "Users" u ON q."value"->>'userId' = u."_id"
     `, [BANNER_EMOJI_NAME]);
     return result?.emojis ?? [];
+  }
+
+  async getBannerEmojiRaw(id: string): Promise<Partial<BannerEmoji> | null> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- DatabaseMetadataRepo.getBannerEmoji
+      SELECT "value"->$2 "emoji"
+      FROM "DatabaseMetadata"
+      WHERE "name" = $1
+    `, [BANNER_EMOJI_NAME, id]);
+    return result?.emoji ?? null;
   }
 
   async addBannerEmoji(
@@ -116,18 +127,18 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     `, [
       randomId(),
       BANNER_EMOJI_NAME,
-      {[userId]: {emoji, link, description, x, y, theta, t}},
+      {[randomId()]: {userId, emoji, link, description, x, y, theta, t}},
     ]);
     return this.getBannerEmojis();
   }
 
-  async removeBannerEmoji(userId: string): Promise<BannerEmoji[]> {
+  async removeBannerEmoji(id: string): Promise<BannerEmoji[]> {
     await this.none(`
       -- DatabaseMetadataRepo.removeBannerEmoji
       UPDATE "DatabaseMetadata"
       SET "value" = "value" - $1
       WHERE "name" = $2
-    `, [userId, BANNER_EMOJI_NAME]);
+    `, [id, BANNER_EMOJI_NAME]);
     return this.getBannerEmojis();
   }
 
