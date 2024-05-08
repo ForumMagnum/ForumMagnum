@@ -4,7 +4,7 @@
 --
 -- Overall schema hash: 224c974d441de3727845f2dec5ba8aac
 
--- Accepted on 2024-05-08T21:38:14.000Z by 20240508T213814.add_RecommendationsCaches_table.ts
+-- Accepted on 2024-05-08T22:08:21.000Z by 20240508T220821.add_RecommendationsCaches_table.ts
 
 -- Extension "btree_gin", hash: 8833dd03dc128e186d2c560d248354fb
 CREATE EXTENSION IF NOT EXISTS "btree_gin" CASCADE;
@@ -2526,64 +2526,6 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_cancelled_isUnvote_v
 -- Index "idx_Votes_documentId" ON "Votes", hash: 46b6273811ae4b1aa155447cec6f8651
 CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
 
--- Custom index, hash: 285491f99ba96895e0240f3dbb5121e3
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public. "DatabaseMetadata" USING btree (name);
-
--- Custom index, hash: 635b040ef20149755985c607b7225f9a
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON public. "DebouncerEvents" USING btree (dispatched, af, key, name)
-WHERE (dispatched IS FALSE);
-
--- Custom index, hash: 15a2130dd3573fdfb01313fa47e011fe
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public. "PageCache" USING btree (path, "abTestGroups", "bundleHash");
-
--- Custom index, hash: 7940ec7f3b1c0c61640593a8b967b11a
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public. "ReadStatuses" USING btree (COALESCE("userId", ''::character varying), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
-
--- Custom index, hash: c3f68f7dcf187a6ba539c6be362c99e1
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_jobTitle" ON "Users" (TO_TSVECTOR('english', "jobTitle"))
-WHERE
-    "jobTitle" IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
-
--- Custom index, hash: d653b1858ed7e8e0507c8e653989b089
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_organization" ON "Users" (TO_TSVECTOR('english', "organization"))
-WHERE
-    "organization" IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
-
--- Custom index, hash: 4cc064bb1373509253221ee460b211cf
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_mapLocationAddress" ON "Users" (TO_TSVECTOR('english', "mapLocation" ->> 'formatted_address'))
-WHERE
-    "mapLocation" ->> 'formatted_address' IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
-
--- Custom index, hash: a9db8a3bab744e9c97e5bf159225360b
-CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
-WHERE
-    "promotedAt" IS NOT NULL;
-
--- Custom index, hash: 73d35bda4c7346b2794c27dedcc915ad
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
-
--- Custom index, hash: 9d6cc0dcc2fa817f1269426b61160ed5
-CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
-WHERE ("baseScore" >= 15);
-
--- Custom index, hash: 3b6615bd79e98985c2b702e87f7a14b5
-CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
-
--- Custom index, hash: 4338faf7463bec37539a3135a1e9910f
-CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueResponseDate" ON "Posts" (GREATEST ("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
-WHERE
-    "collabEditorDialogue" IS TRUE;
-
--- Custom index, hash: 603f80dc36b22b97c313af3eb0f9d568
-CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated_verified" ON "Users" USING btree ("emailSubscribedToCurated", "unsubscribeFromAll", "deleted", "email", fm_has_verified_email (emails), "_id")
-WHERE
-    "emailSubscribedToCurated" IS TRUE AND "unsubscribeFromAll" IS NOT TRUE AND "deleted" IS NOT TRUE AND "email" IS NOT NULL AND fm_has_verified_email (emails);
-
--- Custom index, hash: 480ced786a330b105dfacf424868d573
-CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated" ON "Users" USING btree ("emailSubscribedToCurated", "unsubscribeFromAll", "deleted", "email", "_id")
-WHERE
-    "emailSubscribedToCurated" IS TRUE AND "unsubscribeFromAll" IS NOT TRUE AND "deleted" IS NOT TRUE AND "email" IS NOT NULL;
-
 -- Function, hash: b46d62a3f1df590b2b32db6f51aa876d
 CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
     target_path TEXT[],
@@ -2818,6 +2760,64 @@ CREATE OR REPLACE FUNCTION fm_get_user_profile_updated_at(userid TEXT)
         TO_TIMESTAMP(0)
       )
   $$;
+
+-- Custom index, hash: 285491f99ba96895e0240f3dbb5121e3
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public. "DatabaseMetadata" USING btree (name);
+
+-- Custom index, hash: 635b040ef20149755985c607b7225f9a
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON public. "DebouncerEvents" USING btree (dispatched, af, key, name)
+WHERE (dispatched IS FALSE);
+
+-- Custom index, hash: 15a2130dd3573fdfb01313fa47e011fe
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public. "PageCache" USING btree (path, "abTestGroups", "bundleHash");
+
+-- Custom index, hash: 7940ec7f3b1c0c61640593a8b967b11a
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public. "ReadStatuses" USING btree (COALESCE("userId", ''::character varying), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
+
+-- Custom index, hash: c3f68f7dcf187a6ba539c6be362c99e1
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_jobTitle" ON "Users" (TO_TSVECTOR('english', "jobTitle"))
+WHERE
+    "jobTitle" IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
+
+-- Custom index, hash: d653b1858ed7e8e0507c8e653989b089
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_organization" ON "Users" (TO_TSVECTOR('english', "organization"))
+WHERE
+    "organization" IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
+
+-- Custom index, hash: 4cc064bb1373509253221ee460b211cf
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_mapLocationAddress" ON "Users" (TO_TSVECTOR('english', "mapLocation" ->> 'formatted_address'))
+WHERE
+    "mapLocation" ->> 'formatted_address' IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
+
+-- Custom index, hash: a9db8a3bab744e9c97e5bf159225360b
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
+WHERE
+    "promotedAt" IS NOT NULL;
+
+-- Custom index, hash: 73d35bda4c7346b2794c27dedcc915ad
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
+
+-- Custom index, hash: 9d6cc0dcc2fa817f1269426b61160ed5
+CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
+WHERE ("baseScore" >= 15);
+
+-- Custom index, hash: 3b6615bd79e98985c2b702e87f7a14b5
+CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
+
+-- Custom index, hash: 4338faf7463bec37539a3135a1e9910f
+CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueResponseDate" ON "Posts" (GREATEST ("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
+WHERE
+    "collabEditorDialogue" IS TRUE;
+
+-- Custom index, hash: 603f80dc36b22b97c313af3eb0f9d568
+CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated_verified" ON "Users" USING btree ("emailSubscribedToCurated", "unsubscribeFromAll", "deleted", "email", fm_has_verified_email (emails), "_id")
+WHERE
+    "emailSubscribedToCurated" IS TRUE AND "unsubscribeFromAll" IS NOT TRUE AND "deleted" IS NOT TRUE AND "email" IS NOT NULL AND fm_has_verified_email (emails);
+
+-- Custom index, hash: 480ced786a330b105dfacf424868d573
+CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated" ON "Users" USING btree ("emailSubscribedToCurated", "unsubscribeFromAll", "deleted", "email", "_id")
+WHERE
+    "emailSubscribedToCurated" IS TRUE AND "unsubscribeFromAll" IS NOT TRUE AND "deleted" IS NOT TRUE AND "email" IS NOT NULL;
 
 -- View "UniquePostUpvoters", hash: ccef8ea6186b1b367d13b83c0be667ff
 CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
