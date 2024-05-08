@@ -294,6 +294,7 @@ export const darkModeTheme: UserThemeSpecification = {
     emojiHeader: {
       background: "#024c59",
       foreground: "#FFF",
+      tooltipShadow: "none",
     },
     tab: {
       inactive: {
