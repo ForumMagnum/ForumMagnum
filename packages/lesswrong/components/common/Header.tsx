@@ -242,7 +242,7 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.emojiHeader.foreground,
     },
     [theme.breakpoints.down("sm")]: {
-      height: HEADER_HEIGHT,
+      height: "unset",
     },
   },
   emojisContent: {
