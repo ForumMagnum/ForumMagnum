@@ -258,6 +258,20 @@ const useEmojiContext = () => {
   return value;
 }
 
+const pickerStyles = `
+  input.search {
+    font-family: "Inter";
+    border-radius: 4px;
+    padding: 3px 5px;
+    border-color: #ddd;
+  }
+  @media (prefers-color-scheme: dark) {
+    input.search {
+      border-color: #444;
+    }
+  }
+`;
+
 const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
   const ref = useRef<HTMLElement | null>(null);
   useEffect(() => {
@@ -268,7 +282,7 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
       if (!styleElem) {
         const style = document.createElement("style");
         style.id = styleId;
-        style.textContent = `input{font-family:"Inter";}`;
+        style.textContent = pickerStyles;
         picker.shadowRoot?.appendChild(style);
       }
 
