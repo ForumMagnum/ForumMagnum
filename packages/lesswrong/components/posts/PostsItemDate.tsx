@@ -4,7 +4,6 @@ import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import { use } from 'chai';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 export const POSTED_AT_WIDTH = 38
@@ -65,6 +64,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   emphasizeIfNew?: boolean,
   classes: ClassesType,
 }) => {
+
   if (noStyles) {
     classes = {
       tooltipSmallText: classes.tooltipSmallText,
@@ -73,7 +73,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   }
 
   const now = useCurrentTime();
-  const { PostsItem2MetaInfo, FormatDate, LWTooltip } = Components;
+  const { PostsItem2MetaInfo, FormatDate, LWTooltip, TimeTag } = Components;
 
   if (post.isEvent && post.startTime) {
     return <LWTooltip
@@ -84,7 +84,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
       </span>}
     >
       <PostsItem2MetaInfo className={classes.startTime}>
-        {moment(post.startTime).format("YYYY")===moment().format("YYYY")
+        {moment(post.startTime).format("YYYY")===moment(now).format("YYYY")
           ? <FormatDate date={post.startTime} format={"MMM Do"} tooltip={false}/>
           : <FormatDate date={post.startTime} format={"YYYY MMM Do"} tooltip={false}/>
         }
@@ -111,6 +111,15 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
+  const dateElement = (
+    <PostsItem2MetaInfo className={classes.postedAt}>
+      <TimeTag dateTime={dateToDisplay}>
+        {timeFromNow}
+        {ago}
+      </TimeTag>
+    </PostsItem2MetaInfo>
+  );
+
   if (post.curatedDate) {
     return <LWTooltip
       placement="right"
@@ -119,10 +128,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
         <div>Posted on <ExpandedDate date={post.postedAt}/></div>
       </div>}
     >
-      <PostsItem2MetaInfo className={classes.postedAt}>
-        {timeFromNow}
-        {ago}
-      </PostsItem2MetaInfo>
+      {dateElement}
     </LWTooltip>
   }
 
@@ -133,8 +139,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     title={<ExpandedDate date={post.postedAt}/>}
   >
     <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
-      {timeFromNow}
-      {ago}
+      {dateElement}
     </PostsItem2MetaInfo>
   </LWTooltip>
 }
