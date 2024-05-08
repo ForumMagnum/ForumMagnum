@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { ExpandedDate } from '../../common/FormatDate';
 import moment from 'moment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   date: {
@@ -22,6 +23,7 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   hasMajorRevision: boolean,
   classes: ClassesType,
 }) => {
+  const now = moment(useCurrentTime())
   const { FormatDate, PostsRevisionSelector, LWTooltip } = Components;
   
   const tooltip = (<div>
@@ -44,7 +46,6 @@ const PostsPageDate = ({ post, hasMajorRevision, classes }: {
   if (isFriendlyUI) {
     format = "MMM D YYYY"
     // hide the year if it's this year
-    const now = moment()
     if (now.isSame(moment(post.postedAt), 'year')) {
       format = "MMM D"
     }
