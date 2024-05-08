@@ -229,6 +229,12 @@ export const styles = (theme: ThemeType) => ({
     "& .MuiToolbar-root > *": {
       zIndex: 2,
     },
+    "& .EAButton-greyContained": {
+      backgroundColor: `${theme.palette.grey[320]} !important`,
+      "&:hover": {
+        backgroundColor: `${theme.palette.grey[340]} !important`,
+      }
+    },
     "& .Header-titleLink": {
       color: theme.palette.emojiHeader.foreground,
     },
