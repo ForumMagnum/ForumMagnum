@@ -247,9 +247,9 @@ export const styles = (theme: ThemeType) => ({
   },
   emojisContent: {
     zIndex: 2,
-    maxWidth: 310,
+    maxWidth: 300,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 500,
     lineHeight: "140%",
     marginLeft: 46,
@@ -265,11 +265,12 @@ export const styles = (theme: ThemeType) => ({
     },
   },
   emojisTitle: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: 700,
     lineHeight: "120%",
     letterSpacing: "-0.3px",
     marginBottom: 10,
+    marginTop: 2,
   },
 });
 
