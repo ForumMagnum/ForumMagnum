@@ -640,8 +640,13 @@
     "timestamp": "2024-04-29T15:57:12.000Z"
   },
   {
-    "acceptsSchemaHash": "c5afce1efd609ee5b52a294b0eaa32fc",
-    "acceptedByMigration": "20240508T182757.add_RecommendationsCaches_table.ts",
-    "timestamp": "2024-05-08T18:27:57.000Z"
+    "acceptsSchemaHash": "5f15590a8aa900ee210026b863dde23e",
+    "acceptedByMigration": "20240502T164437.include_indexes_and_views_in_schema.ts",
+    "timestamp": "2024-05-02T16:44:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "224c974d441de3727845f2dec5ba8aac",
+    "acceptedByMigration": "20240508T213814.add_RecommendationsCaches_table.ts",
+    "timestamp": "2024-05-08T21:38:14.000Z"
   }
 ]
