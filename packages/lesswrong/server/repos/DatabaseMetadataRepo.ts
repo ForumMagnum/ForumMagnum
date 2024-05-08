@@ -2,7 +2,10 @@ import AbstractRepo from "./AbstractRepo";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
-import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import type { BannerEmoji } from "../../components/ea-forum/EAEmojisHeader";
+
+const BANNER_EMOJI_NAME = "banner-emojis-2024-05";
 
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
@@ -76,6 +79,67 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
       WHERE "name" = $2
     `, [userId, metadataName]);
     return this.getGivingSeasonHearts(electionName);
+  }
+
+  async getBannerEmojis(): Promise<BannerEmoji[]> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- DatabaseMetadataRepo.getBannerEmojis
+      SELECT ARRAY_AGG(q."value" || JSONB_BUILD_OBJECT(
+        'userId', u."_id",
+        'displayName', u."displayName",
+        'id', q."key"
+      )) "emojis"
+      FROM (
+        SELECT (JSONB_EACH("value")).*
+        FROM "DatabaseMetadata"
+        WHERE "name" = $1
+      ) q
+      JOIN "Users" u ON q."value"->>'userId' = u."_id"
+    `, [BANNER_EMOJI_NAME]);
+    return result?.emojis ?? [];
+  }
+
+  async getBannerEmojiRaw(id: string): Promise<Partial<BannerEmoji> | null> {
+    const result = await this.getRawDb().oneOrNone(`
+      -- DatabaseMetadataRepo.getBannerEmoji
+      SELECT "value"->$2 "emoji"
+      FROM "DatabaseMetadata"
+      WHERE "name" = $1
+    `, [BANNER_EMOJI_NAME, id]);
+    return result?.emoji ?? null;
+  }
+
+  async addBannerEmoji(
+    userId: string,
+    emoji: string,
+    link: string,
+    description: string,
+    x: number,
+    y: number,
+    theta: number,
+  ): Promise<BannerEmoji[]> {
+    const t = new Date().toISOString();
+    await this.none(`
+      -- DatabaseMetadataRepo.addBannerEmoji
+      INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
+      ON CONFLICT ("name") DO UPDATE SET "value" = "DatabaseMetadata"."value" || $3
+    `, [
+      randomId(),
+      BANNER_EMOJI_NAME,
+      {[randomId()]: {userId, emoji, link, description, x, y, theta, t}},
+    ]);
+    return this.getBannerEmojis();
+  }
+
+  async removeBannerEmoji(id: string): Promise<BannerEmoji[]> {
+    await this.none(`
+      -- DatabaseMetadataRepo.removeBannerEmoji
+      UPDATE "DatabaseMetadata"
+      SET "value" = "value" - $1
+      WHERE "name" = $2
+    `, [id, BANNER_EMOJI_NAME]);
+    return this.getBannerEmojis();
   }
 
   getServerSettings(): Promise<DbDatabaseMetadata | null> {
