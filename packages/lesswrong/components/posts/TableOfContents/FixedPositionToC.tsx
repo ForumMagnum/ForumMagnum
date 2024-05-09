@@ -169,7 +169,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext();
-  const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
+  const disableProgressBar = (!postContext || isServer || postContext.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
@@ -279,12 +279,12 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       title
       fullHeight
     >
-      <div className={classes.tocTitle}>
+      {/* <div className={classes.tocTitle}>
         {title?.trim()}
       </div>
       {postedAt && <div className={classes.tocPostedAt}>
         {moment(new Date(postedAt)).tz(timezone).format("Do MMM YYYY")}
-      </div>}
+      </div>} */}
     </TableOfContentsRow>
   );
 
@@ -331,7 +331,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         {rows}
       </div>
     </div>
-    {commentsRow}
+    {/* {commentsRow} */}
   </div>
 }
 

@@ -10,7 +10,7 @@ export const AUTHOR_MARKER_STYLES = {
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontFamily: theme.typography.uiSecondary.fontFamily,
+    // fontFamily: theme.typography.uiSecondary.fontFamily,
     textAlign: 'left',
     display: 'inline',
   },

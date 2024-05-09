@@ -67,6 +67,12 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
+  noBackground: {
+    '&&&': {
+      backgroundColor: 'transparent',
+      border: 'none',
+    }
+  },
   card: {
     padding: 16,
     ...(isFriendlyUI
@@ -121,7 +127,8 @@ const FooterTagList = ({
   appendElement,
   annualReviewMarketInfo,
   classes,
-  align = "left"
+  align = "left",
+  noBackground = false
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -138,6 +145,7 @@ const FooterTagList = ({
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
+  noBackground?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -269,6 +277,7 @@ const FooterTagList = ({
       >
         <div className={classNames(classes.frontpageOrPersonal, {
           [classes.smallText]: smallText,
+          [classes.noBackground]: noBackground,
         })}>
           {label}
         </div>
@@ -321,6 +330,7 @@ const FooterTagList = ({
               smallText={smallText}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
               link={link}
+              noBackground={noBackground}
             />
           )
       )}
@@ -330,7 +340,7 @@ const FooterTagList = ({
       )}
       {currentUser && !hideAddTag && (
         <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
+          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, {[classes.noBackground]: noBackground})}>+</span>}
         </AddTagButton>
       )}
       {isAwaiting && <Loading />}

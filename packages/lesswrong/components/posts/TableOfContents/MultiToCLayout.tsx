@@ -21,10 +21,10 @@ const styles = (theme: ThemeType) => ({
     gridTemplateColumns: `
       ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-      minmax(0px, ${FULL_HEIGHT_TOC_LEFT_MARGIN})
+      minmax(50px, ${FULL_HEIGHT_TOC_LEFT_MARGIN})
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN})
-      min-content
+      minmax(300px, ${DEFAULT_TOC_MARGIN})
+      minmax(min-content, 300px)
       10px
       ${RIGHT_COLUMN_WIDTH}
     `,

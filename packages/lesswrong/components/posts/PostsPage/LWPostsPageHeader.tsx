@@ -13,6 +13,7 @@ import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import CommentsIcon from '@material-ui/icons/ModeComment';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -26,6 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: isFriendlyUI ? 20 : theme.spacing.unit*2,
+    paddingTop: 75
   },
   headerLeft: {
     width: "100%"
@@ -125,6 +127,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: SECONDARY_SPACING,
   },
   authors: {
+    ...theme.typography.commentStyle,
     fontSize: theme.typography.body1.fontSize,
   },
   feedName: {
@@ -165,17 +168,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 16,
   },
   tagSection: {
-    height: "100%",
     position: 'absolute',
     right: 8, 
-    top: -42
+    top: -42,
+    display: 'flex'
   },
   rightHeaderVote: {
     display: 'flex',
     flexDirection: 'row-reverse',
-    paddingLeft: 8,
-    paddingRight: 8,
-    paddingBottom: 8,
+    padding: 4
+  },
+  postActionsButton: {
+    display: 'flex',
+    alignItems: 'center',
+    opacity: 0.3
+  },
+  commentsCount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    display: 'flex', 
+    alignItems: 'center',
+    margin: '0px 8px 0px 3px'
+  },
+  commentsIcon: {
+    fontSize: 12,
+    marginLeft: 4,
+    color: theme.palette.grey[300]
   }
 });
 
@@ -344,17 +362,14 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
 
   const secondaryInfoNode = <div className={classes.secondaryInfo}>
     <div className={classes.secondaryInfoLeft}>
-      {crosspostNode}
-      {readingTimeNode}
-      {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+      {/* {crosspostNode}
+      {readingTimeNode} */}
+      {/* {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />} */}
       {post.isEvent && <GroupLinks document={post} noMargin />}
-      {answersNode}
-      <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-        {postGetCommentCountStr(post, commentCount)}
-      </CommentsLink>
+      {/* {answersNode}
       {audioNode}
       {addToCalendarNode}
-      {tripleDotMenuNode}
+      {tripleDotMenuNode} */}
     </div>
   </div>
   
@@ -371,12 +386,15 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
     </AnalyticsContext>
     {!post.shortform && !post.isEvent && !hideTags && <div className={classes.tagSection}>
       <AnalyticsContext pageSectionContext="tagHeader">
-        <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} align="right" />
+        <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground />
       </AnalyticsContext>
       <div className={classes.rightHeaderVote}>
         <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
       </div>
-      
+      <CommentsLink anchor="#comments" className={classes.commentsCount}>
+        {commentCount} <CommentsIcon className={classes.commentsIcon} />
+      </CommentsLink>
+      {postActionsButton}
     </div>}
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
@@ -385,6 +403,8 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
           <div className={classes.authorInfo}>
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
+              {" | "}
+              <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
             </div>
             {rssFeedSource && rssFeedSource.user &&
               <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>

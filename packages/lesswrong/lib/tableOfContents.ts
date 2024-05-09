@@ -221,8 +221,8 @@ export function shouldShowTableOfContents({
   sections: ToCSection[];
   post?: { question: boolean } | null;
 }): boolean {
-  // Always show the ToC for questions, to avoid layout shift when the answers load
-  return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
+  // With the new full-height ToC we always show the ToC
+  return true; 
 }
 
 /**

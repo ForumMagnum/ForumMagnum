@@ -111,6 +111,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 4,
     },
   },
+  noBackground: {
+    backgroundColor: "transparent",
+    border: 'none'
+  }
 });
 
 const FooterTag = ({
@@ -125,6 +129,7 @@ const FooterTag = ({
   hideRelatedTags,
   className,
   classes,
+  noBackground = false, 
 }: {
   tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
@@ -137,6 +142,7 @@ const FooterTag = ({
   hideRelatedTags?: boolean,
   className?: string,
   classes: ClassesType,
+  noBackground?: boolean
 }) => {
   const currentUser = useCurrentUser();
 
@@ -167,6 +173,7 @@ const FooterTag = ({
         <span className={classNames(classes.root, className, {
           [classes.core]: !neverCoreStyling && tag.core,
           [classes.smallText]: smallText,
+          [classes.noBackground]: noBackground,
         })}>
           {link ? <Link to={tagGetUrl(tag)}>
             {renderedTag}

@@ -19,12 +19,16 @@ const styles = (theme: ThemeType) => ({
   },
   upvoteHorizontal: {
     paddingRight: 6,
+    paddingBottom: 2,
+    fontSize: 18,
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
     paddingLeft: 6,
+    paddingBottom: 2,
+    fontSize: 18,
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
