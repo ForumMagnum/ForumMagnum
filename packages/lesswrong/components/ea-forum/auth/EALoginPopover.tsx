@@ -7,6 +7,7 @@ import { FacebookIcon } from "../../icons/FacebookIcon";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
+import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -216,12 +217,18 @@ const links = {
   privacy: "https://ev.org/ops/about/privacy-policy",
 } as const;
 
-export const EALoginPopover = ({open, setAction, isSignup, classes}: {
-  open: boolean,
-  setAction: (action: "login" | "signup" | null) => void,
-  isSignup: boolean,
+export const EALoginPopover = ({action: action_, setAction: setAction_, classes}: {
+  action?: LoginAction | null,
+  setAction?: (action: LoginAction | null) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {loginAction, setLoginAction} = useLoginPopoverContext();
+  const action = action_ ?? loginAction;
+  const setAction = setAction_ ?? setLoginAction;
+
+  const open = !!action;
+  const isSignup = action === "signup";
+
   const client = useAuth0Client();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

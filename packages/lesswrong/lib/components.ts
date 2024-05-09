@@ -91,6 +91,7 @@ importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/use
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
+importComponent("EAEmojisHeader", () => require('../components/ea-forum/EAEmojisHeader'))
 
 // Messaging
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -229,6 +230,7 @@ importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
 importComponent("ContentStyles", () => require('../components/common/ContentStyles'));
 importComponent("FormatDate", () => require('../components/common/FormatDate'));
+importComponent("TimeTag", () => require('../components/common/TimeTag'));
 importComponent("BetaTag", () => require('../components/common/BetaTag'));
 importComponent("FlashMessages", () => require('../components/common/FlashMessages'));
 importComponent("Header", () => require('../components/common/Header'));
@@ -553,6 +555,7 @@ importComponent("EventsUpcoming", () => require('../components/posts/EventsUpcom
 importComponent("EventsHome", () => require('../components/events/EventsHome'));
 importComponent("HighlightedEventCard", () => require('../components/events/modules/HighlightedEventCard'));
 importComponent("EventCards", () => require('../components/events/modules/EventCards'));
+importComponent("PrettyEventDateTime", () => require('../components/events/modules/PrettyEventDateTime'));
 importComponent("VirtualProgramCard", () => require('../components/events/modules/VirtualProgramCard'));
 // this is the new Community page, used by the EA Forum
 importComponent("Community", () => require('../components/community/Community'));
@@ -1138,3 +1141,6 @@ importComponent("PeopleDirectorySocialMediaCell", () => require('../components/p
 importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));
 importComponent("PeopleDirectorySkeletonUserCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonUserCell'));
 importComponent("PeopleDirectorySkeletonTextCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonTextCell'));
+
+importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
+importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));

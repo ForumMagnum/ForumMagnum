@@ -10,6 +10,7 @@ import { getConfirmedCoauthorIds, postGetPageUrl } from "../../lib/collections/p
 import path from "path";
 import chunk from "lodash/chunk";
 import type { ClientSettingDependencies, ClientSettings, CreateGoogleMediaDocumentMetadataArgs, GoogleMediaDocumentMetadata, PostEvent, FrontpageViewEvent, ReadStatusWithPostId, SupportedPostEventTypes } from "./types";
+import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from "../perfMetrics";
 
 const { RecommendationServiceClient } = v1beta;
 
@@ -148,18 +149,30 @@ const helpers = {
       },
       userInfo: { userId }
     };
-  }
+  },
+
+  openVertexRecommendationPerfMetric(servingConfigPath: string) {
+    const servingConfigName = servingConfigPath.split('/').slice(-1)[0] ?? 'unknown';
+    return openPerfMetric({
+      op_type: 'vertex',
+      op_name: servingConfigName,
+      ...getParentTraceId()
+    });
+  },
 };
 
 const googleVertexApi = {
   async getRecommendations(limit: number, context: ResolverContext) {
     const { client, settingValues: { vertexRecommendationServingConfigPath } } = clients.recommendations();
-    const [recommendationsResponse] = await client.recommend({
-      validateOnly: false,
-      servingConfig: vertexRecommendationServingConfigPath,
-      pageSize: limit,
-      userEvent: { eventType: 'view-home-page', userPseudoId: context.currentUser?._id },
-    });
+    const [recommendationsResponse] = await wrapWithPerfMetric(
+      () => client.recommend({
+        validateOnly: false,
+        servingConfig: vertexRecommendationServingConfigPath,
+        pageSize: limit,
+        userEvent: { eventType: 'view-home-page', userPseudoId: context.currentUser?._id },
+      }),
+      () => helpers.openVertexRecommendationPerfMetric(vertexRecommendationServingConfigPath)
+    );
     if (!recommendationsResponse.results) {
       // TODO: error?
       // eslint-disable-next-line no-console

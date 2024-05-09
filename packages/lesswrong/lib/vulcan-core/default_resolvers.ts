@@ -286,7 +286,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
   };
 }
 
-const performQueryFromViewParameters = async <N extends CollectionNameString>(
+export const performQueryFromViewParameters = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   terms: ViewTermsBase,
   parameters: AnyBecauseTodo,

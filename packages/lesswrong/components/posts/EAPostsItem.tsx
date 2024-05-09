@@ -7,6 +7,8 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
+import { usePostContents } from "../hooks/useForeignCrosspost";
 
 const KARMA_WIDTH = 50;
 
@@ -220,6 +222,11 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
+const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
+
+const formatImageUrl = (url: string) =>
+  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
+
 export type EAPostsItemProps = PostsItemConfig & {
   hideSecondaryInfo?: boolean,
   classes: ClassesType<typeof styles>,
@@ -264,6 +271,11 @@ const EAPostsItem = ({
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
   const cardView = viewType === "card";
+  const {postContents} = usePostContents({
+    post,
+    fragmentName: "PostsList",
+    skip: !cardView,
+  });
 
   if (isRepeated) {
     return null;
@@ -317,7 +329,11 @@ const EAPostsItem = ({
     </PostsItemTooltipWrapper>
   );
 
-  const hasBody = (post.contents?.plaintextDescription ?? "").trim().length > 0;
+  const body =
+    postContents?.plaintextDescription ||
+    post.contents?.plaintextDescription ||
+    "";
+  const hasBody = body.trim().length > 0;
   const hasImage = !!post.socialPreviewData.imageUrl;
 
   return (
@@ -412,11 +428,11 @@ const EAPostsItem = ({
                 hasImage && classes.cardTextWithImage,
                 !hasImage && classes.cardTextNoImage,
               )}>
-                {post.contents?.plaintextDescription}
+                {body}
               </div>
               {hasImage &&
                 <img
-                  src={post.socialPreviewData.imageUrl}
+                  src={formatImageUrl(post.socialPreviewData.imageUrl)}
                   alt={post.title}
                   className={classes.cardImage}
                 />

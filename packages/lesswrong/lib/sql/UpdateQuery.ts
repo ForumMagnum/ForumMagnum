@@ -167,18 +167,31 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     value: any,
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
-    try {
-      // If we're updating the value of a JSON blob without totally replacing
-      // it then we need to wrap the update in a call to `JSONB_SET`.
-      if (field.includes(".")) {
-        const updateValue = this.compileUpdateExpression(value, { skipTypeHint: true });
-        const {column, path} = this.buildJsonUpdatePath(field);
-        return format(
-          column,
-          ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
-        );
+    // If we're updating the value of a JSON blob without totally replacing
+    // it then we need to wrap the update in a call to `JSONB_SET`.
+    if (field.includes(".")) {
+      const updateValue = this.compileUpdateExpression(value);
+      const {column, path} = this.buildJsonUpdatePath(field);
+      // Check if we're trying to unset the field (currently you can only unset fields in the first level)
+      if (value === null) {
+        const fieldTokens = field.split(".")
+        if (fieldTokens.length === 2) {
+          return format(
+            column,
+            [column, ` - '${fieldTokens[1]}'`],
+          );
+        } else {
+          throw new Error(`Unsetting a field past the first level of a JSON blob is not yet supported`)
+        }
       }
-  
+      
+      return format(
+        column,
+        ["JSONB_SET(", column, ",", path, "::TEXT[], TO_JSONB(", ...updateValue, "), TRUE)"],
+      );
+    }
+    
+    try {
       const fieldType = this.getField(field);
       const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
       const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
@@ -186,7 +199,6 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // @ts-ignore
       throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }

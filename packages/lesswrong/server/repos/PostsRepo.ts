@@ -34,6 +34,26 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }
+  
+  moveCoauthorshipToNewUser(oldUserId: string, newUserId: string): Promise<null> {
+    return this.none(`
+      -- PostsRepo.moveCoauthorshipToNewUser
+      UPDATE "Posts"
+      SET "coauthorStatuses" = array(
+        SELECT
+          CASE
+            WHEN (jsonb_elem->>'userId') = $1
+            THEN jsonb_set(jsonb_elem, '{userId}', to_jsonb($2::text), false)
+            ELSE jsonb_elem
+          END
+          FROM unnest("coauthorStatuses") AS t(jsonb_elem)
+      )
+      WHERE EXISTS (
+        SELECT 1 FROM unnest("coauthorStatuses") AS sub(jsonb_sub)
+        WHERE jsonb_sub->>'userId' = $1
+      );
+    `, [oldUserId, newUserId]);
+  }
 
   async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
     const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
