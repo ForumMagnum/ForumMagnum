@@ -55,6 +55,21 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 --
 `
 
+/**
+ * - Generate a hash from the raw SQL
+ * - Add a semi-colon if missing
+ * - Remove CONCURRENTLY from the query, so the entire accepted_schema.sql file can be applied in a transaction
+ */
+const hashAndSanitizeIndex = (indexSql: string) => {
+  let indexSanitizedSql = indexSql.trim();
+  if (!indexSanitizedSql.endsWith(';')) {
+    indexSanitizedSql += ';';
+  }
+  const indexHash = md5(indexSanitizedSql);
+  indexSanitizedSql = indexSanitizedSql.replace(/CONCURRENTLY/g, ' ');
+  return { indexHash, indexSanitizedSql };
+}
+
 const generateMigration = async ({
   acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath,
 }: {
@@ -166,11 +181,11 @@ export const makeMigrations = async ({
         const indexQuery = new CreateIndexQuery(table, index);
         const indexCompiled = indexQuery.compile();
         const indexSql = sqlInterpolateArgs(indexCompiled.sql, indexCompiled.args) + ";";
-        const indexHash = md5(indexSql);
+        const { indexHash, indexSanitizedSql } = hashAndSanitizeIndex(indexSql);
         currentHashes[indexName] = indexHash;
 
         schemaFileContents += `-- Index "${indexName}" ON "${collectionName}", hash: ${indexHash}\n`;
-        schemaFileContents += `${format(indexSql)}`;
+        schemaFileContents += `${format(indexSanitizedSql)}`;
       }
     } catch (e) {
       console.error(`Failed to check schema for collection ${collectionName}`);
@@ -187,12 +202,10 @@ export const makeMigrations = async ({
   }
 
   for (const index of expectedCustomPgIndexes) {
-    const trimmed = index.trim().replace(/\s+CONCURRENTLY\s+/gi, " ");
-    const hasSemi = trimmed[trimmed.length - 1] === ";";
-    const indexHash = md5(trimmed);
+    const { indexHash, indexSanitizedSql } = hashAndSanitizeIndex(index);
     currentHashes[index] = indexHash;
     schemaFileContents += `-- Custom index, hash: ${indexHash}\n`;
-    schemaFileContents += format(trimmed + (hasSemi ? "" : ";"));
+    schemaFileContents += format(indexSanitizedSql);
   }
 
   for (const view of getAllPostgresViews()) {
@@ -205,12 +218,10 @@ export const makeMigrations = async ({
     schemaFileContents += format(query + (hasSemi ? "" : ";"));
 
     for (const index of view.getCreateIndexQueries()) {
-      const indexQuery = index.trim();
-      const hasSemi = indexQuery[indexQuery.length - 1] === ";";
-      const indexHash = md5(indexQuery);
+      const { indexHash, indexSanitizedSql } = hashAndSanitizeIndex(index)
       currentHashes[index] = hash;
       schemaFileContents += `-- Index on view "${name}", hash: ${indexHash}\n`;
-      schemaFileContents += format(indexQuery + (hasSemi ? "" : ";"));
+      schemaFileContents += format(indexSanitizedSql);
     }
   }
 
