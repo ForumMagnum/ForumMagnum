@@ -7,7 +7,7 @@ type PostgresViewRefreshSpec = {
   query: string,
 }
 
-class PostgresView {
+export class PostgresView {
   constructor(
     private name: string,
     private createViewQuery: string,

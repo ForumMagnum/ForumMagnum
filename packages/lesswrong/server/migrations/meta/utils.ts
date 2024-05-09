@@ -165,8 +165,8 @@ export const installExtensions = async (db: SqlClientOrTx) => {
 }
 
 export const updateFunctions = async (db: SqlClientOrTx) => {
-  for (const query of postgresFunctions) {
-    await db.none(query);
+  for (const func of postgresFunctions) {
+    await db.none(func.source);
   }
 }
 

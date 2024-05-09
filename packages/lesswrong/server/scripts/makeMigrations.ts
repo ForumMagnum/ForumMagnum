@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { format as sqlFormatter } from 'sql-formatter';
 import { Vulcan, getCollection } from "../vulcan-lib";
-import { getAllCollections } from "../../lib/vulcan-lib/getCollection";
+import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "../../lib/sql/Table";
 import CreateTableQuery from "../../lib/sql/CreateTableQuery";
 import md5 from 'md5';
@@ -10,14 +10,15 @@ import path from 'path';
 import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
-import { ForumTypeString } from '../../lib/instanceSettings';
-import { postgresFunctions } from '../postgresFunctions';
-import { postgresExtensions } from '../postgresExtensions';
+import { ForumTypeString, forumTypeSetting } from '../../lib/instanceSettings';
+import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
+import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
 import CreateIndexQuery from '../../lib/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '../../lib/sql/Type';
 import { expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
-import { getAllPostgresViews } from '../postgresView';
+import { PostgresView, getAllPostgresViews } from '../postgresView';
+import TableIndex from '../../lib/sql/TableIndex';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -55,7 +56,207 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 --
 `
 
+declare global {
+  type SchemaDependency =
+    {type: "extension", name: PostgresExtension} |
+    {type: "collection", name: CollectionNameString} |
+    {type: "function", name: string} |
+    {type: "view", name: string};
+}
+
 const format = (sql: string) => sqlFormatter(sql, {language: "postgresql"});
+
+abstract class Node {
+  protected dependencies: SchemaDependency[] = [];
+
+  addDependency(dependency: SchemaDependency) {
+    this.dependencies.push(dependency);
+  }
+
+  abstract getName(): string;
+  abstract getQuery(): {compile(): {sql: string, args: any[]}};
+
+  getHeader(): string {
+    return `-- ${this.constructor.name} "${this.getName()}", hash ${this.getHash()}`;
+  }
+
+  getSource(): string {
+    const {sql, args} = this.getQuery().compile();
+    return sqlInterpolateArgs(sql, args).trim();
+  }
+
+  getAnnotatedSource(): string {
+    const source = this.getSource();
+    const hasSemi = source[source.length - 1] === ";";
+    return `${this.getHeader()}\n${source}${hasSemi ? "" : ";"}\n`;
+  }
+
+  getHash(): string {
+    return md5(this.getSource());
+  }
+}
+
+class ExtensionNode extends Node {
+  constructor(private extension: PostgresExtension) {
+    super();
+  }
+
+  getName() {
+    return this.extension;
+  }
+
+  getQuery() {
+    return new CreateExtensionQuery(this.extension);
+  }
+}
+
+class TableNode extends Node {
+  constructor(private table: Table<DbObject>) {
+    super();
+  }
+
+  getName() {
+    return this.table.getName();
+  }
+
+  getQuery() {
+    return new CreateTableQuery(this.table);
+  }
+}
+
+class IndexNode extends Node {
+  constructor(
+    private table: Table<DbObject>,
+    private index: TableIndex<DbObject>,
+  ) {
+    super();
+    this.addDependency({
+      type: "collection",
+      name: table.getName() as CollectionNameString,
+    });
+  }
+
+  getName() {
+    return this.index.getName();
+  }
+
+  getQuery() {
+    return new CreateIndexQuery(this.table, this.index);
+  }
+}
+
+class CustomIndexNode extends Node {
+  private static nameRegex = /^\s*CREATE\s+(UNIQUE\s+)?INDEX\s+(CONCURRENTLY\s+)?(IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z0-9_]+)/i;
+  private static targetRegex = /.*ON\s+(public\.)?"([A-Za-z0-9_]+)"/i;
+  private static concurrentRegex = /\s+CONCURRENTLY\s+/gi;
+
+  private name: string;
+
+  constructor(private source: string) {
+    super();
+    const name = source.match(CustomIndexNode.nameRegex)?.[4];
+    if (!name) {
+      throw new Error(`Can't parse name for custom index: ${source}`);
+    }
+    this.name = name;
+
+    const target = source.match(CustomIndexNode.targetRegex)?.[2];
+    if (!target) {
+      throw new Error(`Can't parse target for custom index "${name}"`);
+    }
+    const dependency: SchemaDependency = isValidCollectionName(target)
+      ? {type: "collection", name: target}
+      : {type: "view", name: target};
+    this.addDependency(dependency);
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.source.trim().replace(CustomIndexNode.concurrentRegex, " "),
+        args: [],
+      }),
+    };
+  }
+}
+
+class FunctionNode extends Node {
+  private static nameRegex = /^\s*CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+([a-zA-Z0-9_]+)/i;
+
+  private name: string;
+
+  constructor(private func: PostgresFunction) {
+    super();
+    const name = func.source.match(FunctionNode.nameRegex)?.[2];
+    if (!name) {
+      throw new Error(`Can't find name for function: ${func.source}`);
+    }
+    const overload = func.overload ? `_${func.overload}` : "";
+    this.name = name + overload;
+    this.dependencies = this.dependencies.concat(func.dependencies ?? []);
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.func.source.trim(),
+        args: [],
+      }),
+    };
+  }
+}
+
+class ViewNode extends Node {
+  constructor(private view: PostgresView) {
+    super();
+  }
+
+  getName() {
+    return this.view.getName();
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.view.getCreateViewQuery().trim(),
+        args: [],
+      }),
+    };
+  }
+}
+
+class Graph {
+  private nodes: Record<string, Node> = {};
+
+  addNode(node: Node) {
+    const name = node.getName();
+    if (this.nodes[name]) {
+      console.log("MARK", this.nodes[name], node);
+      throw new Error(`Duplicate node names: "${name}"`);
+    }
+    this.nodes[name] = node;
+  }
+
+  addNodes(nodes: Node[]) {
+    for (const node of nodes) {
+      this.addNode(node);
+    }
+  }
+
+  linearize(): Node[] {
+    // TODO
+    return Object.values(this.nodes);
+  }
+}
+
 
 const generateMigration = async ({
   acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath,
@@ -125,6 +326,47 @@ export const makeMigrations = async ({
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
   log(`-- Using accepted hash ${acceptedHash}`);
 
+  const graph = new Graph();
+  graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
+  graph.addNodes(getAllCollections().flatMap((collection) => {
+    const table = Table.fromCollection(collection, forumType);
+    const indexes: Node[] = table.getIndexes().map((i) => new IndexNode(table, i));
+    return indexes.concat(new TableNode(table));
+  }));
+  graph.addNodes(expectedCustomPgIndexes.map((i) => new CustomIndexNode(i)));
+  graph.addNodes(postgresFunctions.map((f) => new FunctionNode(f)));
+  graph.addNodes(getAllPostgresViews().flatMap((view) => {
+    const indexQueries = view.getCreateIndexQueries();
+    const indexes: Node[] = indexQueries.map((i) => new CustomIndexNode(i));
+    return indexes.concat(new ViewNode(view));
+  }));
+
+  console.log("graph", graph);
+
+  // const nodes = graph.linearize();
+
+  // const result = sqlFormatter(nodes.map((n) => n.getAnnotatedSource()).join("\n"), {
+    // language: "postgresql",
+    // linesBetweenQueries: 1,
+    // tabWidth: 2,
+    // useTabs: false,
+    // keywordCase: "upper",
+    // dataTypeCase: "upper",
+    // functionCase: "upper",
+    // identifierCase: "lower",
+    // logicalOperatorNewline: "after",
+    // paramTypes: {
+      // positional: false,
+      // numbered: [],
+      // named: [],
+      // quoted: [],
+      // custom: [],
+    // },
+  // });
+  // console.log("result", result);
+
+
+
   const currentHashes: Record<string, string> = {};
   let schemaFileContents = "";
 
@@ -182,8 +424,8 @@ export const makeMigrations = async ({
   }
 
   for (const func of postgresFunctions) {
-    const hash = md5(func);
-    currentHashes[func] = hash;
+    const hash = md5(func.source);
+    currentHashes[func.source] = hash;
     schemaFileContents += `-- Function, hash: ${hash}\n`;
     schemaFileContents += func + ";\n\n";
   }
@@ -226,20 +468,20 @@ export const makeMigrations = async ({
 
   if (overallHash !== acceptedHash) {
     if (writeAcceptedSchema) {
-      await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
+      // await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
     }
     if (generateMigrations) {
-      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
+      // await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }
 
   if (writeAcceptedSchema) {
     schemaFileHeader += `-- Accepted on ${timestamp}${acceptedByMigration ? " by " + acceptedByMigration : ''}\n\n`;
-    await writeFile(acceptedSchemaFile, schemaFileHeader + schemaFileContents);
-    if (existsSync(toAcceptSchemaFile)) {
-      await unlink(toAcceptSchemaFile);
-    }
+    // await writeFile(acceptedSchemaFile, schemaFileHeader + schemaFileContents);
+    // if (existsSync(toAcceptSchemaFile)) {
+      // await unlink(toAcceptSchemaFile);
+    // }
   }
 
   log("=== Done ===");
