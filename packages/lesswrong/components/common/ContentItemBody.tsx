@@ -472,9 +472,17 @@ const addNofollowToHTML = (html: string): string => {
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   hocs: [withTracking],
+  
+  // Memoization options. If this spuriously rerenders, then voting on a comment
+  // that contains a YouTube embed causes that embed to visually flash and lose
+  // its place.
   areEqual: {
     ref: "ignore",
     "dangerouslySetInnerHTML": "deep",
+    
+    // `replacedSubstrings` can't be deep-compared because it contains callback
+    // unstable references to callback functions, but we can having it cause
+    // rerenders in the specific case where it's an empty array.
     replacedSubstrings: (before, after) =>
       before===after
       || (before && after && Object.keys(before).length===0 && Object.keys(after).length===0),
