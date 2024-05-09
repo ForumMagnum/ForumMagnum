@@ -377,7 +377,7 @@ export const makeMigrations = async ({
     keywordCase: "upper",
     dataTypeCase: "upper",
     functionCase: "upper",
-    identifierCase: "lower",
+    identifierCase: "preserve",
     logicalOperatorNewline: "after",
     paramTypes: {
       positional: false,
@@ -386,7 +386,7 @@ export const makeMigrations = async ({
       quoted: [],
       custom: [],
     },
-  });
+  }) + "\n";
 
   const overallHash = graph.getOverallHash();
 
