@@ -987,6 +987,20 @@ interface DbReadStatus extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type RecommendationsCachesCollection = CollectionBase<"RecommendationsCaches">;
+
+interface DbRecommendationsCache extends DbObject {
+  __collectionName?: "RecommendationsCaches"
+  userId: string
+  postId: string
+  source: "recombee" | "vertex"
+  scenario: string
+  attributionId: string
+  ttlMs: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type ReportsCollection = CollectionBase<"Reports">;
 
 interface DbReport extends DbObject {
@@ -1184,7 +1198,7 @@ interface DbSubscription extends DbObject {
   documentId: string | null
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1868,6 +1882,7 @@ interface CollectionsByName {
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
+  RecommendationsCaches: RecommendationsCachesCollection
   Reports: ReportsCollection
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
@@ -1944,6 +1959,7 @@ interface ObjectsByCollectionName {
   Posts: DbPost
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
+  RecommendationsCaches: DbRecommendationsCache
   Reports: DbReport
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
@@ -2020,6 +2036,7 @@ interface ObjectsByTypeName {
   Post: DbPost
   RSSFeed: DbRSSFeed
   ReadStatus: DbReadStatus
+  RecommendationsCache: DbRecommendationsCache
   Report: DbReport
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt

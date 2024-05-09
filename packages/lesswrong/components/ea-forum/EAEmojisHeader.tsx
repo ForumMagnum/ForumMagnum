@@ -10,6 +10,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
+import { siteUrlSetting } from "../../lib/instanceSettings";
 
 if (isClient) {
   require("emoji-picker-element");
@@ -308,6 +309,15 @@ const EmojiPicker = ({onChange}: {onChange?: (value: string) => void}) => {
   );
 }
 
+/**
+ * The `Link` component in `react-router-dom` insists on prepending the site
+ * URL to onsite links, even if they already include it. Remove it explicitely
+ * here to avoid this.
+ */
+const onsiteLinkRegex = new RegExp(`^(http(s)?://)?${siteUrlSetting.get()}(.*)`);
+const formatOnsiteLink = (link: string) =>
+  link.match(onsiteLinkRegex)?.[3] ?? link;
+
 const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
@@ -344,7 +354,7 @@ const Emoji: FC<{
               link
                 ? (
                   <Link
-                    to={link}
+                    to={formatOnsiteLink(link)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={classes.emojiLink}
