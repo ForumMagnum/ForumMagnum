@@ -241,7 +241,6 @@ class Graph {
   addNode(node: Node) {
     const name = node.getName();
     if (this.nodes[name]) {
-      console.log("MARK", this.nodes[name], node);
       throw new Error(`Duplicate node names: "${name}"`);
     }
     this.nodes[name] = node;
@@ -284,7 +283,6 @@ class Graph {
     return stack;
   }
 }
-
 
 const generateMigration = async ({
   acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath,
