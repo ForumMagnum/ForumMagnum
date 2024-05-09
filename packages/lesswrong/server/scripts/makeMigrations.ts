@@ -260,7 +260,11 @@ class Graph {
     const stack: Node[] = [];
     const unvisited = new Set<string>(Object.keys(this.nodes));
 
-    const depthFirstSearch = (nodeName: string) => {
+    const depthFirstSearch = (nodeName: string, parents: string[]) => {
+      if (parents.includes(nodeName)) {
+        throw new Error(`Dependency cycle detected for ${nodeName} via ${parents}`);
+      }
+
       const node = this.nodes[nodeName];
       if (!node) {
         throw new Error(`Invalid node: "${nodeName}"`);
@@ -272,13 +276,13 @@ class Graph {
       unvisited.delete(nodeName);
 
       for (const dependency of node.dependencies) {
-        depthFirstSearch(dependency.name);
+        depthFirstSearch(dependency.name, [...parents, nodeName]);
       }
 
       stack.push(node);
     }
 
-    unvisited.forEach(depthFirstSearch);
+    unvisited.forEach((node) => depthFirstSearch(node, []));
 
     return stack;
   }
