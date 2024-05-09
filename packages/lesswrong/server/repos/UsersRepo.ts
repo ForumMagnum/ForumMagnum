@@ -725,10 +725,9 @@ class UsersRepo extends AbstractRepo<"Users"> {
         SELECT DISTINCT 
           "documentId" AS "userId"
         FROM "Subscriptions" s
-        WHERE state = 'subscribed'
-          AND s.deleted IS NOT TRUE
+        WHERE s.deleted IS NOT TRUE
           AND "collectionName" = 'Users'
-          AND "type" IN ('newUserComments', 'newPosts')
+          AND "type" = 'newActivityForFeed'
           AND "userId" = $1
       ),
       votes AS (
@@ -818,7 +817,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         activity_scores AS (
           SELECT
             *,
-            COALESCE(num_posts_written, 0) *5 + COALESCE(num_comments_written, 0) AS "activity_score"
+            COALESCE(num_posts_written, 0) * 5 + COALESCE(num_comments_written, 0) AS "activity_score"
           FROM most_active_posters
           FULL OUTER JOIN most_active_commenters USING ("authorId")
         )
@@ -833,7 +832,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
             (u.banned IS NULL OR u.banned < current_date)
             AND "authorId" != $1
             AND es."userId" IS NULL
-        ORDER BY (COALESCE(summed_power*3,0) + COALESCE(posts_read*2,0)) * (activity_score) DESC NULLS LAST
+            AND activity_score >= 5
+        ORDER BY (
+          COALESCE(summed_power*3,0) + COALESCE(posts_read*2, 0)
+        ) DESC NULLS LAST
         LIMIT $2
     `, [userId, limit]);
   }

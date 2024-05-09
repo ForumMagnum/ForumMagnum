@@ -4,6 +4,7 @@ import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
+import { isAdmin } from "../../../lib/vulcan-users";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -29,6 +30,14 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
     unsubscribeMessage: `Unsubscribe from ${post.title}`,
     title: `New quick takes from ${userGetDisplayName(post.user)}`,
     subscriptionType: subscriptionTypes.newShortform,
+  },
+  {
+    document: post.user,
+    enabled: !!post.user && post.user._id !== currentUser?._id && isAdmin(currentUser),
+    subscribeMessage: `Subscribe to ${userGetDisplayName(post.user)} in your feed`,
+    unsubscribeMessage: `Unsubscribe from ${userGetDisplayName(post.user)} in your feed`,
+    title: `New activity by ${userGetDisplayName(post.user)}`,
+    subscriptionType: subscriptionTypes.newActivityForFeed,
   },
   {
     document: post.user,

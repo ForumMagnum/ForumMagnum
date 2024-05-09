@@ -33,7 +33,7 @@ defineFeedResolver<Date>({
     const currentUser = context.currentUser;
     if (!currentUser) throw new Error("Must be logged in");
 
-    const postsAndCommentsAll = await new PostsRepo().getPostsAndCommentsFromSubscriptions(currentUser._id, 90);
+    const postsAndCommentsAll = await new PostsRepo().getPostsAndCommentsFromSubscriptions(currentUser._id, 30);
     const postsAndComments = postsAndCommentsAll.slice(offset, (offset??0)+limit);
     const isLastPage = postsAndComments.length < limit;
     

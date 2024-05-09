@@ -794,7 +794,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WHERE state = 'subscribed'
         AND s.deleted IS NOT TRUE
         AND "collectionName" = 'Users'
-        AND "type" IN ('newUserComments', 'newPosts')
+        AND "type" = 'newActivityForFeed'
         AND "userId" = $1
       ),
       posts_by_subscribees AS (
@@ -805,7 +805,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
            FROM "Posts" p
                     JOIN user_subscriptions us USING ("userId")
            WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
-             AND type = 'newPosts'
            ORDER BY p."postedAt" DESC
        ),
       posts_with_comments_from_subscribees AS (
@@ -817,7 +816,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           FROM "Comments" c
                JOIN user_subscriptions us USING ("userId")
                JOIN "Revisions" r ON c.contents_latest = r._id
-          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2 AND us.type = 'newUserComments'
+          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
           AND (c."baseScore" >= 5 OR r."wordCount" >= 200)
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE

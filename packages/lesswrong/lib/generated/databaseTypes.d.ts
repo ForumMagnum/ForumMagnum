@@ -1184,7 +1184,7 @@ interface DbSubscription extends DbObject {
   documentId: string | null
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
