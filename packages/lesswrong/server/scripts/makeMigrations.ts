@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { format as sqlFormatter } from 'sql-formatter';
-import { Vulcan, getCollection } from "../vulcan-lib";
+import { Vulcan } from "../vulcan-lib";
 import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "../../lib/sql/Table";
 import CreateTableQuery from "../../lib/sql/CreateTableQuery";
@@ -10,7 +10,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
-import { ForumTypeString, forumTypeSetting } from '../../lib/instanceSettings';
+import { ForumTypeString } from '../../lib/instanceSettings';
 import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
 import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
@@ -63,8 +63,6 @@ declare global {
     {type: "function", name: string} |
     {type: "view", name: string};
 }
-
-const format = (sql: string) => sqlFormatter(sql, {language: "postgresql"});
 
 abstract class Node {
   public dependencies: SchemaDependency[] = [];
@@ -252,6 +250,10 @@ class Graph {
     }
   }
 
+  getOverallHash() {
+    return md5(Object.values(this.nodes).map((n) => n.getHash()).sort().join());
+  }
+
   linearize(): Node[] {
     const stack: Node[] = [];
     const unvisited = new Set<string>(Object.keys(this.nodes));
@@ -365,7 +367,8 @@ export const makeMigrations = async ({
   }));
 
   const nodes = graph.linearize();
-  const result = sqlFormatter(nodes.map((n) => n.getAnnotatedSource()).join("\n"), {
+  const rawSchema = nodes.map((n) => n.getAnnotatedSource()).join("\n");
+  const schemaFileContents = sqlFormatter(rawSchema, {
     language: "postgresql",
     linesBetweenQueries: 1,
     tabWidth: 2,
@@ -383,125 +386,30 @@ export const makeMigrations = async ({
       custom: [],
     },
   });
-  console.log("result", result);
 
+  const overallHash = graph.getOverallHash();
 
-
-  const currentHashes: Record<string, string> = {};
-  let schemaFileContents = "";
-
-  for (const extensionName of postgresExtensions) {
-    const extensionHash = md5(extensionName);
-    currentHashes[extensionName] = extensionHash;
-    const query = new CreateExtensionQuery(extensionName);
-    schemaFileContents += `-- Extension "${extensionName}", hash: ${extensionHash}\n`;
-    schemaFileContents += query.compile().sql + ";\n\n";
-  }
-
-  // Sort collections by name, so that the order of the output is deterministic
-  const collectionNames: CollectionNameString[] = getAllCollections().map(c => c.collectionName).sort();
-  let failed: string[] = [];
-
-  for (const collectionName of collectionNames) {
-    try {
-      const collection = getCollection(collectionName as any);
-      if (!collection) {
-        throw new Error(`Invalid collection: ${collectionName}`);
-      }
-
-      const table = Table.fromCollection(collection, forumType);
-      const createTableQuery = new CreateTableQuery(table);
-      const compiled = createTableQuery.compile();
-      if (compiled.args.length) {
-        throw new Error(`Unexpected arguments: ${compiled.args}`);
-      }
-
-      const sql = compiled.sql + ";";
-      const hash = md5(sql);
-      currentHashes[collectionName] = hash;
-
-      // Include the hash of every collection to make it easier to see what changed
-      schemaFileContents += `-- Schema for "${collectionName}", hash: ${hash}\n`;
-      schemaFileContents += `${format(sql)}`;
-
-      const indexes = table.getIndexes();
-      for (const index of indexes) {
-        const indexName = index.getName();
-        const indexQuery = new CreateIndexQuery(table, index);
-        const indexCompiled = indexQuery.compile();
-        const indexSql = sqlInterpolateArgs(indexCompiled.sql, indexCompiled.args) + ";";
-        const indexHash = md5(indexSql);
-        currentHashes[indexName] = indexHash;
-
-        schemaFileContents += `-- Index "${indexName}" ON "${collectionName}", hash: ${indexHash}\n`;
-        schemaFileContents += `${format(indexSql)}`;
-      }
-    } catch (e) {
-      console.error(`Failed to check schema for collection ${collectionName}`);
-      failed.push(collectionName);
-      console.error(e);
-    }
-  }
-
-  for (const func of postgresFunctions) {
-    const hash = md5(func.source);
-    currentHashes[func.source] = hash;
-    schemaFileContents += `-- Function, hash: ${hash}\n`;
-    schemaFileContents += func + ";\n\n";
-  }
-
-  for (const index of expectedCustomPgIndexes) {
-    const trimmed = index.trim().replace(/\s+CONCURRENTLY\s+/gi, " ");
-    const hasSemi = trimmed[trimmed.length - 1] === ";";
-    const indexHash = md5(trimmed);
-    currentHashes[index] = indexHash;
-    schemaFileContents += `-- Custom index, hash: ${indexHash}\n`;
-    schemaFileContents += format(trimmed + (hasSemi ? "" : ";"));
-  }
-
-  for (const view of getAllPostgresViews()) {
-    const name = view.getName();
-    const query = view.getCreateViewQuery().trim();
-    const hasSemi = query[query.length - 1] === ";";
-    const hash = md5(query);
-    currentHashes[name] = hash;
-    schemaFileContents += `-- View "${name}", hash: ${hash}\n`;
-    schemaFileContents += format(query + (hasSemi ? "" : ";"));
-
-    for (const index of view.getCreateIndexQueries()) {
-      const indexQuery = index.trim();
-      const hasSemi = indexQuery[indexQuery.length - 1] === ";";
-      const indexHash = md5(indexQuery);
-      currentHashes[index] = hash;
-      schemaFileContents += `-- Index on view "${name}", hash: ${indexHash}\n`;
-      schemaFileContents += format(indexQuery + (hasSemi ? "" : ";"));
-    }
-  }
-
-  if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
-  
-  const overallHash = md5(Object.values(currentHashes).sort().join());
   let schemaFileHeader = schemaFileHeaderTemplate + `-- Overall schema hash: ${overallHash}\n\n`;
-  
+
   const toAcceptSchemaFile = schemaToAcceptPath(rootPath);
   const acceptedSchemaFile = acceptedSchemePath(rootPath);
 
   if (overallHash !== acceptedHash) {
     if (writeAcceptedSchema) {
-      // await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
+      await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
     }
     if (generateMigrations) {
-      // await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
+      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }
 
   if (writeAcceptedSchema) {
     schemaFileHeader += `-- Accepted on ${timestamp}${acceptedByMigration ? " by " + acceptedByMigration : ''}\n\n`;
-    // await writeFile(acceptedSchemaFile, schemaFileHeader + schemaFileContents);
-    // if (existsSync(toAcceptSchemaFile)) {
-      // await unlink(toAcceptSchemaFile);
-    // }
+    await writeFile(acceptedSchemaFile, schemaFileHeader + schemaFileContents);
+    if (existsSync(toAcceptSchemaFile)) {
+      await unlink(toAcceptSchemaFile);
+    }
   }
 
   log("=== Done ===");
