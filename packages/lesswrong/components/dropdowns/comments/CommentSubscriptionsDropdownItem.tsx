@@ -38,7 +38,7 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
   },
   {
     document: comment.user,
-    enabled: userHasSubscribeTabFeed(currentUser) && enableSubscribeToCommentUser && isAdmin(currentUser),
+    enabled: userHasSubscribeTabFeed(currentUser) && enableSubscribeToCommentUser,
     subscribeMessage: `Subscribe to ${userGetDisplayName(comment.user)} in your feed`,
     unsubscribeMessage: `Unsubscribe from ${userGetDisplayName(comment.user)} in your feed`,
     title: `New posts by ${userGetDisplayName(comment.user)}`,
