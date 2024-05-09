@@ -11,6 +11,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
 import { siteUrlSetting } from "../../lib/instanceSettings";
+import { useMessages } from "../common/withMessages";
 
 if (isClient) {
   require("emoji-picker-element");
@@ -519,6 +520,7 @@ export const EAEmojisHeader = ({classes}: {
   const [insertEmoji, setInsertEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
   const [insertPos, setInsertPos] = useState<Point | null>(null);
+  const {flash} = useMessages();
   const {captureEvent} = useTracking();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -607,6 +609,10 @@ export const EAEmojisHeader = ({classes}: {
       onLogin();
       return;
     }
+    if (currentUser.banned || !currentUser.reviewedByUserId) {
+      flash("Only approved users can add emojis to the banner");
+      return;
+    }
     if (isValidTarget(target, clientX, clientY)) {
       const coords = normalizeCoords(clientX, clientY);
       if (coords) {
@@ -614,7 +620,7 @@ export const EAEmojisHeader = ({classes}: {
         setHoverPos(null);
       }
     }
-  }, [captureEvent, currentUser, onLogin, normalizeCoords]);
+  }, [captureEvent, flash, currentUser, onLogin, normalizeCoords]);
 
   const onCancelInsert = useCallback(() => setInsertPos(null), []);
 

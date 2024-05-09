@@ -46,7 +46,7 @@ const bannerEmojiResolvers = {
       },
       {currentUser, repos}: ResolverContext,
     ): Promise<BannerEmoji[]> => {
-      if (!currentUser) {
+      if (!currentUser || currentUser.banned || !currentUser.reviewedByUserId) {
         throw new Error("Permission denied");
       }
       if (!simpleEmojiRegex.test(emoji) && !complexEmojiRegex.test(emoji)) {
