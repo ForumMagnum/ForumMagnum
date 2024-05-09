@@ -475,7 +475,9 @@ const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBo
   areEqual: {
     ref: "ignore",
     "dangerouslySetInnerHTML": "deep",
-    replacedSubstrings: (before, after) => Object.keys(before).length===0 && Object.keys(after).length===0,
+    replacedSubstrings: (before, after) =>
+      before===after
+      || (before && after && Object.keys(before).length===0 && Object.keys(after).length===0),
   },
 });
 
