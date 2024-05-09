@@ -67,7 +67,7 @@ declare global {
 const format = (sql: string) => sqlFormatter(sql, {language: "postgresql"});
 
 abstract class Node {
-  protected dependencies: SchemaDependency[] = [];
+  public dependencies: SchemaDependency[] = [];
 
   addDependency(dependency: SchemaDependency) {
     this.dependencies.push(dependency);
@@ -77,7 +77,8 @@ abstract class Node {
   abstract getQuery(): {compile(): {sql: string, args: any[]}};
 
   getHeader(): string {
-    return `-- ${this.constructor.name} "${this.getName()}", hash ${this.getHash()}`;
+    const type = this.constructor.name.replace(/_/g, "");
+    return `-- ${type} "${this.getName()}", hash ${this.getHash()}`;
   }
 
   getSource(): string {
@@ -252,8 +253,30 @@ class Graph {
   }
 
   linearize(): Node[] {
-    // TODO
-    return Object.values(this.nodes);
+    const stack: Node[] = [];
+    const unvisited = new Set<string>(Object.keys(this.nodes));
+
+    const depthFirstSearch = (nodeName: string) => {
+      const node = this.nodes[nodeName];
+      if (!node) {
+        throw new Error(`Invalid node: "${nodeName}"`);
+      }
+
+      if (!unvisited.has(nodeName)) {
+        return;
+      }
+      unvisited.delete(nodeName);
+
+      for (const dependency of node.dependencies) {
+        depthFirstSearch(dependency.name);
+      }
+
+      stack.push(node);
+    }
+
+    unvisited.forEach(depthFirstSearch);
+
+    return stack;
   }
 }
 
@@ -341,29 +364,26 @@ export const makeMigrations = async ({
     return indexes.concat(new ViewNode(view));
   }));
 
-  console.log("graph", graph);
-
-  // const nodes = graph.linearize();
-
-  // const result = sqlFormatter(nodes.map((n) => n.getAnnotatedSource()).join("\n"), {
-    // language: "postgresql",
-    // linesBetweenQueries: 1,
-    // tabWidth: 2,
-    // useTabs: false,
-    // keywordCase: "upper",
-    // dataTypeCase: "upper",
-    // functionCase: "upper",
-    // identifierCase: "lower",
-    // logicalOperatorNewline: "after",
-    // paramTypes: {
-      // positional: false,
-      // numbered: [],
-      // named: [],
-      // quoted: [],
-      // custom: [],
-    // },
-  // });
-  // console.log("result", result);
+  const nodes = graph.linearize();
+  const result = sqlFormatter(nodes.map((n) => n.getAnnotatedSource()).join("\n"), {
+    language: "postgresql",
+    linesBetweenQueries: 1,
+    tabWidth: 2,
+    useTabs: false,
+    keywordCase: "upper",
+    dataTypeCase: "upper",
+    functionCase: "upper",
+    identifierCase: "lower",
+    logicalOperatorNewline: "after",
+    paramTypes: {
+      positional: false,
+      numbered: [],
+      named: [],
+      quoted: [],
+      custom: [],
+    },
+  });
+  console.log("result", result);
 
 
 
