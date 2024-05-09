@@ -14,6 +14,7 @@ export const subscriptionTypes = {
   newDebateComments: 'newDebateComments',
   newDialogueMessages: 'newDialogueMessages',
   newPublishedDialogueMessages: 'newPublishedDialogueMessages',
+  newActivityForFeed: 'newActivityForFeed', //unclear if this the best way to do this since this subscription isn't for triggering notifications
 } as const
 
 export type SubscriptionType = typeof subscriptionTypes[keyof typeof subscriptionTypes];

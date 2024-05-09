@@ -168,8 +168,10 @@ export interface TabRecord {
   label: string,
   description?: string,
   disabled?: boolean,
+  isAdminOnly?: boolean,
   showLabsIcon?: boolean,
   showSparkleIcon?: boolean,
+  isInfiniteScroll?: boolean,
 }
 
 /**
