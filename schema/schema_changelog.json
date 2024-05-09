@@ -648,5 +648,10 @@
     "acceptsSchemaHash": "224c974d441de3727845f2dec5ba8aac",
     "acceptedByMigration": "20240508T220821.add_RecommendationsCaches_table.ts",
     "timestamp": "2024-05-08T22:08:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "08f3f1875cc1bc68a6fdd52845584509",
+    "acceptedByMigration": "20240509T160927.dag_schema_dependencies.ts",
+    "timestamp": "2024-05-09T16:09:27.000Z"
   }
 ]
