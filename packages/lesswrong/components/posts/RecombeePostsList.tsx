@@ -91,7 +91,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
 
   const query = getRecombeePostsQuery(resolverName);
   const { data, loading, fetchMore, networkStatus } = useQuery(query, {
-    ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
@@ -143,6 +142,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
         showRecommendationIcon={showRecommendationIcon}
+        emphasizeIfNew={true}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>

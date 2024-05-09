@@ -14,6 +14,12 @@ import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { Type } from "../../../lib/sql/Type";
 import LogTableQuery from "../../../lib/sql/LogTableQuery";
+import {
+  expectedIndexes,
+  expectedCustomPgIndexes,
+} from "../../../lib/collectionIndexUtils";
+import { getPostgresViewByName } from "../../postgresView";
+import { sleep } from "../../../lib/utils/asyncUtils";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -162,5 +168,32 @@ export const installExtensions = async (db: SqlClientOrTx) => {
 export const updateFunctions = async (db: SqlClientOrTx) => {
   for (const query of postgresFunctions) {
     await db.none(query);
+  }
+}
+
+export const updateIndexes = async <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+): Promise<void> => {
+  for (const index of expectedIndexes[collection.collectionName] ?? []) {
+    collection._ensureIndex(index.key, index);
+    await sleep(100);
+  }
+}
+
+export const updateCustomIndexes = async (db: SqlClientOrTx) => {
+  for (const index of expectedCustomPgIndexes) {
+    await db.none(index);
+    await sleep(100);
+  }
+}
+
+export const updateView = async (db: SqlClientOrTx, name: string) => {
+  const view = getPostgresViewByName(name);
+  const query = view.getCreateViewQuery();
+  await db.none(query);
+  await sleep(100);
+  for (const index of view.getCreateIndexQueries()) {
+    await db.none(index);
+    await sleep(100);
   }
 }

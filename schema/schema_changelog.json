@@ -640,8 +640,18 @@
     "timestamp": "2024-04-29T15:57:12.000Z"
   },
   {
-    "acceptsSchemaHash": "5cfcede474784a16b714db78a9f550d0",
-    "acceptedByMigration": "20240501T135758.set_not_null_clientId.ts",
-    "timestamp": "2024-05-01T13:57:58.000Z"
+    "acceptsSchemaHash": "5f15590a8aa900ee210026b863dde23e",
+    "acceptedByMigration": "20240502T164437.include_indexes_and_views_in_schema.ts",
+    "timestamp": "2024-05-02T16:44:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "224c974d441de3727845f2dec5ba8aac",
+    "acceptedByMigration": "20240508T220821.add_RecommendationsCaches_table.ts",
+    "timestamp": "2024-05-08T22:08:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c48644210bc21cad0c73a5a309d4d8c7",
+    "acceptedByMigration": "20240509T093725.set_not_null_clientId.ts",
+    "timestamp": "2024-05-09T09:37:25.000Z"
   }
 ]

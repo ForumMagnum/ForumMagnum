@@ -86,7 +86,7 @@ export type ReactionChange = {
   userId?: string
 }
 
-export type EAReactionChange = number | {_id: string, displayName: string}[];
+export type EAReactionChange = number | {_id: string, displayName: string, slug: string}[];
 
 export type EAReactionChanges = Record<string, EAReactionChange>;
 
