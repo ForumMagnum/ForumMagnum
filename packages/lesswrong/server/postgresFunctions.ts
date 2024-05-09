@@ -1,8 +1,21 @@
 import { allUserProfileFields } from "./userProfileUpdates";
 
 export type PostgresFunction = {
+  /**
+   * The SQL source of the function.
+   */
   source: string,
+  /**
+   * Postgres supports function overloading, but we need unique names to
+   * identify each function in the schema (including overloads). The `overload`
+   * field can be used to add an overload-specific suffix for overloaded
+   * functions, preventing naming collisions.
+   */
   overload?: string,
+  /**
+   * List of dependencies that must be declared in the schema before this
+   * function.
+   */
   dependencies?: SchemaDependency[],
 }
 
