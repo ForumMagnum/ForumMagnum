@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments } from '../../lib/betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, userHasSubscribeTabFeed } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW } from '../../lib/instanceSettings';
 
@@ -128,7 +128,7 @@ const ViewSubscriptionsPage = ({classes}: {
   }
   
   return <SingleColumnSection>
-    {isLW && <SubscriptionsList
+    {userHasSubscribeTabFeed(currentUser) && <SubscriptionsList
       title="Subscribed to Users for Susbscribed Activity Feed"
       collectionName="Users"
       subscriptionType="newActivityForFeed"

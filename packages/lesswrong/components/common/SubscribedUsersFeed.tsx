@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
 })
 
 const SubscribedUsersFeed = ({classes}: {

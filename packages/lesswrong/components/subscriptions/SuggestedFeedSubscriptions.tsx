@@ -115,7 +115,6 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, classes}: {
     </div>
 
     <span className={classes.buttonDisplayName} >
-      {/* {overlyLongName ? truncatedName.slice(0,17) + '...': truncatedName} */}
       <UsersName user={user} />
     </span>
 

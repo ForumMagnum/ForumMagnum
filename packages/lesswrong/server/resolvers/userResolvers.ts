@@ -347,7 +347,6 @@ defineQuery({
 createPaginatedResolver({
   name: "SuggestedFeedSubscriptionUsers",
   graphQLType: "User",
-  args: { limit: "Int" },
   callback: async (
     context: ResolverContext,
     limit: number,

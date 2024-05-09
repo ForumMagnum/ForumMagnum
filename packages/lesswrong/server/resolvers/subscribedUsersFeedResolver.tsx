@@ -61,11 +61,3 @@ defineFeedResolver<Date>({
     };
   }
 });
-
-async function getSubscribedUserIds(currentUser: DbUser): Promise<DbSubscription[]> {
-  const subscriptions = await Subscriptions.find({
-    userId: currentUser._id,
-    collectionName: "Users",
-  }).fetch();
-  return subscriptions;
-}
