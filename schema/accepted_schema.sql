@@ -23,2510 +23,2589 @@ CREATE EXTENSION IF NOT EXISTS "pg_trgm" CASCADE;
 
 -- Schema for "AdvisorRequests", hash: 28f1a9cb1b451a35a76287eda09a292a
 CREATE TABLE "AdvisorRequests" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "interestedInMetaculus" bool NOT NULL DEFAULT false,
-    "jobAds" jsonb,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_AdvisorRequests_schemaVersion" ON "AdvisorRequests", hash: f978938dde5e346b09c0d66e3ac4d71b
-CREATE INDEX IF NOT EXISTS "idx_AdvisorRequests_schemaVersion" ON "AdvisorRequests" USING btree ("schemaVersion");
-
--- Index "idx_AdvisorRequests_userId" ON "AdvisorRequests", hash: ac5f2a8a3ca22126a224b6fee172c246
-CREATE INDEX IF NOT EXISTS "idx_AdvisorRequests_userId" ON "AdvisorRequests" USING btree ("userId");
-
--- Schema for "ArbitalCaches", hash: 1a82bece3c7ebfc2c84dc38779fcdbfd
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "interestedInMetaculus" BOOL NOT NULL DEFAULT false,
+  "jobAds" JSONB,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_AdvisorRequests_schemaVersion" ON "AdvisorRequests", hash: f978938dde5e346b09c0d66e3ac4d71b
+CREATE INDEX IF NOT EXISTS "idx_AdvisorRequests_schemaVersion" ON "AdvisorRequests" USING btree ("schemaVersion");-- Index "idx_AdvisorRequests_userId" ON "AdvisorRequests", hash: ac5f2a8a3ca22126a224b6fee172c246
+CREATE INDEX IF NOT EXISTS "idx_AdvisorRequests_userId" ON "AdvisorRequests" USING btree ("userId");-- Schema for "ArbitalCaches", hash: 1a82bece3c7ebfc2c84dc38779fcdbfd
 CREATE TABLE "ArbitalCaches" (
-    _id varchar(27) PRIMARY KEY,
-    "pageAlias" text NOT NULL,
-    "title" text NOT NULL,
-    "fetchedAt" timestamptz NOT NULL,
-    "sanitizedHtml" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ArbitalCaches_schemaVersion" ON "ArbitalCaches", hash: e29a6ae8cb6614cf2ddbb0d961cccf29
-CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_schemaVersion" ON "ArbitalCaches" USING btree ("schemaVersion");
-
--- Index "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches", hash: aa48a7a19f192703f0cfcd3241a7640f
-CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches" USING btree ("pageAlias");
-
--- Index "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches", hash: 0e6a82a391db70fb06a8b7ac4a92e484
-CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USING btree ("fetchedAt");
-
--- Schema for "Bans", hash: 85e3d29ad4d1fe9da07e91ac13e29cff
+  _id VARCHAR(27) PRIMARY KEY,
+  "pageAlias" TEXT NOT NULL,
+  "title" TEXT NOT NULL,
+  "fetchedAt" TIMESTAMPTZ NOT NULL,
+  "sanitizedHtml" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ArbitalCaches_schemaVersion" ON "ArbitalCaches", hash: e29a6ae8cb6614cf2ddbb0d961cccf29
+CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_schemaVersion" ON "ArbitalCaches" USING btree ("schemaVersion");-- Index "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches", hash: aa48a7a19f192703f0cfcd3241a7640f
+CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_pageAlias" ON "ArbitalCaches" USING btree ("pageAlias");-- Index "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches", hash: 0e6a82a391db70fb06a8b7ac4a92e484
+CREATE INDEX IF NOT EXISTS "idx_ArbitalCaches_fetchedAt" ON "ArbitalCaches" USING btree ("fetchedAt");-- Schema for "Bans", hash: 85e3d29ad4d1fe9da07e91ac13e29cff
 CREATE TABLE "Bans" (
-    _id varchar(27) PRIMARY KEY,
-    "expirationDate" timestamptz NOT NULL,
-    "userId" varchar(27) NOT NULL,
-    "ip" text,
-    "reason" text,
-    "comment" text NOT NULL DEFAULT '',
-    "properties" jsonb,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Bans_schemaVersion" ON "Bans", hash: 510446b70d490b14ad1df070a527d39b
-CREATE INDEX IF NOT EXISTS "idx_Bans_schemaVersion" ON "Bans" USING btree ("schemaVersion");
-
--- Index "idx_Bans_ip" ON "Bans", hash: 752dddb0318fc79c4862039d00d05a21
-CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");
-
--- Schema for "Books", hash: 49673aac473c2ee6ee2e49eb14db92b4
+  _id VARCHAR(27) PRIMARY KEY,
+  "expirationDate" TIMESTAMPTZ NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "ip" TEXT,
+  "reason" TEXT,
+  "comment" TEXT NOT NULL DEFAULT '',
+  "properties" JSONB,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Bans_schemaVersion" ON "Bans", hash: 510446b70d490b14ad1df070a527d39b
+CREATE INDEX IF NOT EXISTS "idx_Bans_schemaVersion" ON "Bans" USING btree ("schemaVersion");-- Index "idx_Bans_ip" ON "Bans", hash: 752dddb0318fc79c4862039d00d05a21
+CREATE INDEX IF NOT EXISTS "idx_Bans_ip" ON "Bans" USING btree ("ip");-- Schema for "Books", hash: 49673aac473c2ee6ee2e49eb14db92b4
 CREATE TABLE "Books" (
-    _id varchar(27) PRIMARY KEY,
-    "postedAt" timestamptz,
-    "title" text,
-    "subtitle" text,
-    "tocTitle" text,
-    "collectionId" varchar(27) NOT NULL,
-    "number" double precision,
-    "postIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "sequenceIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "displaySequencesAsGrid" bool,
-    "hideProgressBar" bool,
-    "showChapters" bool,
-    "contents" jsonb,
-    "contents_latest" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Books_schemaVersion" ON "Books", hash: 168eb3eeaf22411939b053e1383d634c
-CREATE INDEX IF NOT EXISTS "idx_Books_schemaVersion" ON "Books" USING btree ("schemaVersion");
-
--- Index "idx_Books_collectionId" ON "Books", hash: bc011c390a815694611f20dd1a34c6a3
-CREATE INDEX IF NOT EXISTS "idx_Books_collectionId" ON "Books" USING btree ("collectionId");
-
--- Schema for "Chapters", hash: 9b6328bd8bd27eb48a781e1b561b38c4
+  _id VARCHAR(27) PRIMARY KEY,
+  "postedAt" TIMESTAMPTZ,
+  "title" TEXT,
+  "subtitle" TEXT,
+  "tocTitle" TEXT,
+  "collectionId" VARCHAR(27) NOT NULL,
+  "number" DOUBLE PRECISION,
+  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "sequenceIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "displaySequencesAsGrid" BOOL,
+  "hideProgressBar" BOOL,
+  "showChapters" BOOL,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Books_schemaVersion" ON "Books", hash: 168eb3eeaf22411939b053e1383d634c
+CREATE INDEX IF NOT EXISTS "idx_Books_schemaVersion" ON "Books" USING btree ("schemaVersion");-- Index "idx_Books_collectionId" ON "Books", hash: bc011c390a815694611f20dd1a34c6a3
+CREATE INDEX IF NOT EXISTS "idx_Books_collectionId" ON "Books" USING btree ("collectionId");-- Schema for "Chapters", hash: 9b6328bd8bd27eb48a781e1b561b38c4
 CREATE TABLE "Chapters" (
-    _id varchar(27) PRIMARY KEY,
-    "title" text,
-    "subtitle" text,
-    "number" double precision,
-    "sequenceId" varchar(27),
-    "postIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "contents" jsonb,
-    "contents_latest" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Chapters_schemaVersion" ON "Chapters", hash: 98cc6a43e3f1e47de957d395eb18cd15
-CREATE INDEX IF NOT EXISTS "idx_Chapters_schemaVersion" ON "Chapters" USING btree ("schemaVersion");
-
--- Index "idx_Chapters_sequenceId_number" ON "Chapters", hash: f6f32d6765f8dd60f6ed389cc52b3a67
-CREATE INDEX IF NOT EXISTS "idx_Chapters_sequenceId_number" ON "Chapters" USING btree ("sequenceId", "number");
-
--- Schema for "CkEditorUserSessions", hash: c2661309fbf1ff8da6742725ec19ffdc
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT,
+  "subtitle" TEXT,
+  "number" DOUBLE PRECISION,
+  "sequenceId" VARCHAR(27),
+  "postIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Chapters_schemaVersion" ON "Chapters", hash: 98cc6a43e3f1e47de957d395eb18cd15
+CREATE INDEX IF NOT EXISTS "idx_Chapters_schemaVersion" ON "Chapters" USING btree ("schemaVersion");-- Index "idx_Chapters_sequenceId_number" ON "Chapters", hash: f6f32d6765f8dd60f6ed389cc52b3a67
+CREATE INDEX IF NOT EXISTS "idx_Chapters_sequenceId_number" ON "Chapters" USING btree ("sequenceId", "number");-- Schema for "CkEditorUserSessions", hash: c2661309fbf1ff8da6742725ec19ffdc
 CREATE TABLE "CkEditorUserSessions" (
-    _id varchar(27) PRIMARY KEY,
-    "documentId" text NOT NULL,
-    "userId" text NOT NULL,
-    "endedAt" timestamptz,
-    "endedBy" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_CkEditorUserSessions_schemaVersion" ON "CkEditorUserSessions", hash: 27cfc9b2a1862c792b429e065e014689
-CREATE INDEX IF NOT EXISTS "idx_CkEditorUserSessions_schemaVersion" ON "CkEditorUserSessions" USING btree ("schemaVersion");
-
--- Index "idx_CkEditorUserSessions_documentId_userId" ON "CkEditorUserSessions", hash: b67d3bb04da17493f444376549bd1657
-CREATE INDEX IF NOT EXISTS "idx_CkEditorUserSessions_documentId_userId" ON "CkEditorUserSessions" USING btree ("documentId", "userId");
-
--- Schema for "ClientIds", hash: dfb103acdd47efe3095b6b37647334f8
+  _id VARCHAR(27) PRIMARY KEY,
+  "documentId" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "endedAt" TIMESTAMPTZ,
+  "endedBy" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_CkEditorUserSessions_schemaVersion" ON "CkEditorUserSessions", hash: 27cfc9b2a1862c792b429e065e014689
+CREATE INDEX IF NOT EXISTS "idx_CkEditorUserSessions_schemaVersion" ON "CkEditorUserSessions" USING btree ("schemaVersion");-- Index "idx_CkEditorUserSessions_documentId_userId" ON "CkEditorUserSessions", hash: b67d3bb04da17493f444376549bd1657
+CREATE INDEX IF NOT EXISTS "idx_CkEditorUserSessions_documentId_userId" ON "CkEditorUserSessions" USING btree ("documentId", "userId");-- Schema for "ClientIds", hash: dfb103acdd47efe3095b6b37647334f8
 CREATE TABLE "ClientIds" (
-    _id varchar(27) PRIMARY KEY,
-    "clientId" text,
-    "firstSeenReferrer" text,
-    "firstSeenLandingPage" text,
-    "userIds" text[] DEFAULT '{}' ::text[],
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ClientIds_schemaVersion" ON "ClientIds", hash: ec6b84a52c243854cac9404c21e54f56
-CREATE INDEX IF NOT EXISTS "idx_ClientIds_schemaVersion" ON "ClientIds" USING btree ("schemaVersion");
-
--- Index "idx_ClientIds_clientId" ON "ClientIds", hash: b8febff6f23392c9ca4946ad2e3d7710
-CREATE INDEX IF NOT EXISTS "idx_ClientIds_clientId" ON "ClientIds" USING btree ("clientId");
-
--- Index "idx_ClientIds_userIds" ON "ClientIds", hash: ef1bfb0e99bbe2dc92a9593ba8c004dc
-CREATE INDEX IF NOT EXISTS "idx_ClientIds_userIds" ON "ClientIds" USING gin ("userIds");
-
--- Schema for "Collections", hash: f127f65905091d6c4376a8a2fe8bfea5
+  _id VARCHAR(27) PRIMARY KEY,
+  "clientId" TEXT,
+  "firstSeenReferrer" TEXT,
+  "firstSeenLandingPage" TEXT,
+  "userIds" TEXT[] DEFAULT '{}'::TEXT[],
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ClientIds_schemaVersion" ON "ClientIds", hash: ec6b84a52c243854cac9404c21e54f56
+CREATE INDEX IF NOT EXISTS "idx_ClientIds_schemaVersion" ON "ClientIds" USING btree ("schemaVersion");-- Index "idx_ClientIds_clientId" ON "ClientIds", hash: b8febff6f23392c9ca4946ad2e3d7710
+CREATE INDEX IF NOT EXISTS "idx_ClientIds_clientId" ON "ClientIds" USING btree ("clientId");-- Index "idx_ClientIds_userIds" ON "ClientIds", hash: ef1bfb0e99bbe2dc92a9593ba8c004dc
+CREATE INDEX IF NOT EXISTS "idx_ClientIds_userIds" ON "ClientIds" USING gin ("userIds");-- Schema for "Collections", hash: f127f65905091d6c4376a8a2fe8bfea5
 CREATE TABLE "Collections" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "title" text NOT NULL,
-    "slug" text NOT NULL,
-    "gridImageId" text,
-    "firstPageLink" text NOT NULL,
-    "hideStartReadingButton" bool,
-    "noindex" bool NOT NULL DEFAULT false,
-    "contents" jsonb,
-    "contents_latest" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Collections_schemaVersion" ON "Collections", hash: 99c76055edde96d898ca7f4781c44900
-CREATE INDEX IF NOT EXISTS "idx_Collections_schemaVersion" ON "Collections" USING btree ("schemaVersion");
-
--- Index "idx_Collections_slug" ON "Collections", hash: bb78fbee6465362adba785ccce1ac0fb
-CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree ("slug");
-
--- Schema for "CommentModeratorActions", hash: 02f4c2dd160c574aab5750d3833539ce
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "title" TEXT NOT NULL,
+  "slug" TEXT NOT NULL,
+  "gridImageId" TEXT,
+  "firstPageLink" TEXT NOT NULL,
+  "hideStartReadingButton" BOOL,
+  "noindex" BOOL NOT NULL DEFAULT false,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Collections_schemaVersion" ON "Collections", hash: 99c76055edde96d898ca7f4781c44900
+CREATE INDEX IF NOT EXISTS "idx_Collections_schemaVersion" ON "Collections" USING btree ("schemaVersion");-- Index "idx_Collections_slug" ON "Collections", hash: bb78fbee6465362adba785ccce1ac0fb
+CREATE INDEX IF NOT EXISTS "idx_Collections_slug" ON "Collections" USING btree ("slug");-- Schema for "CommentModeratorActions", hash: 02f4c2dd160c574aab5750d3833539ce
 CREATE TABLE "CommentModeratorActions" (
-    _id varchar(27) PRIMARY KEY,
-    "commentId" varchar(27) NOT NULL,
-    "type" text NOT NULL,
-    "endedAt" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_CommentModeratorActions_schemaVersion" ON "CommentModeratorActions", hash: 152b63b0be0fdeefabadc248d33a86c1
-CREATE INDEX IF NOT EXISTS "idx_CommentModeratorActions_schemaVersion" ON "CommentModeratorActions" USING btree ("schemaVersion");
-
--- Index "idx_CommentModeratorActions_commentId_createdAt" ON "CommentModeratorActions", hash: 90b4836f861899f792c1923c8993a11f
-CREATE INDEX IF NOT EXISTS "idx_CommentModeratorActions_commentId_createdAt" ON "CommentModeratorActions" USING btree ("commentId", "createdAt");
-
--- Schema for "Comments", hash: b8e76d060b0ec5872def4f32de88c399
+  _id VARCHAR(27) PRIMARY KEY,
+  "commentId" VARCHAR(27) NOT NULL,
+  "type" TEXT NOT NULL,
+  "endedAt" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_CommentModeratorActions_schemaVersion" ON "CommentModeratorActions", hash: 152b63b0be0fdeefabadc248d33a86c1
+CREATE INDEX IF NOT EXISTS "idx_CommentModeratorActions_schemaVersion" ON "CommentModeratorActions" USING btree ("schemaVersion");-- Index "idx_CommentModeratorActions_commentId_createdAt" ON "CommentModeratorActions", hash: 90b4836f861899f792c1923c8993a11f
+CREATE INDEX IF NOT EXISTS "idx_CommentModeratorActions_commentId_createdAt" ON "CommentModeratorActions" USING btree ("commentId", "createdAt");-- Schema for "Comments", hash: b8e76d060b0ec5872def4f32de88c399
 CREATE TABLE "Comments" (
-    _id varchar(27) PRIMARY KEY,
-    "parentCommentId" varchar(27),
-    "topLevelCommentId" varchar(27),
-    "postedAt" timestamptz NOT NULL,
-    "author" text,
-    "postId" varchar(27),
-    "tagId" varchar(27),
-    "tagCommentType" text NOT NULL DEFAULT 'DISCUSSION',
-    "subforumStickyPriority" double precision,
-    "userId" varchar(27) NOT NULL,
-    "userIP" text,
-    "userAgent" text,
-    "referrer" text,
-    "authorIsUnreviewed" bool NOT NULL DEFAULT false,
-    "answer" bool NOT NULL DEFAULT false,
-    "parentAnswerId" varchar(27),
-    "directChildrenCount" double precision NOT NULL DEFAULT 0,
-    "descendentCount" double precision NOT NULL DEFAULT 0,
-    "shortform" bool,
-    "shortformFrontpage" bool NOT NULL DEFAULT true,
-    "nominatedForReview" text,
-    "reviewingForReview" text,
-    "lastSubthreadActivity" timestamptz,
-    "postVersion" text,
-    "promoted" bool,
-    "promotedByUserId" varchar(27),
-    "promotedAt" timestamptz,
-    "hideKarma" bool,
-    "legacy" bool NOT NULL DEFAULT false,
-    "legacyId" text,
-    "legacyPoll" bool NOT NULL DEFAULT false,
-    "legacyParentId" text,
-    "retracted" bool NOT NULL DEFAULT false,
-    "deleted" bool NOT NULL DEFAULT false,
-    "deletedPublic" bool NOT NULL DEFAULT false,
-    "deletedReason" text,
-    "deletedDate" timestamptz,
-    "deletedByUserId" varchar(27),
-    "spam" bool NOT NULL DEFAULT false,
-    "repliesBlockedUntil" timestamptz,
-    "needsReview" bool,
-    "reviewedByUserId" varchar(27),
-    "hideAuthor" bool NOT NULL DEFAULT false,
-    "moderatorHat" bool NOT NULL DEFAULT false,
-    "hideModeratorHat" bool,
-    "isPinnedOnProfile" bool NOT NULL DEFAULT false,
-    "title" varchar(500),
-    "relevantTagIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "debateResponse" bool,
-    "rejected" bool NOT NULL DEFAULT false,
-    "modGPTAnalysis" text,
-    "modGPTRecommendation" text,
-    "rejectedReason" text,
-    "rejectedByUserId" varchar(27),
-    "af" bool NOT NULL DEFAULT false,
-    "suggestForAlignmentUserIds" text[] NOT NULL DEFAULT '{}',
-    "reviewForAlignmentUserId" text,
-    "afDate" timestamptz,
-    "moveToAlignmentUserId" varchar(27),
-    "agentFoundationsId" text,
-    "originalDialogueId" varchar(27),
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "contents" jsonb,
-    "contents_latest" text,
-    "pingbacks" jsonb,
-    "voteCount" double precision NOT NULL DEFAULT 0,
-    "baseScore" double precision NOT NULL DEFAULT 0,
-    "extendedScore" jsonb,
-    "score" double precision NOT NULL DEFAULT 0,
-    "inactive" bool NOT NULL DEFAULT false,
-    "afBaseScore" double precision,
-    "afExtendedScore" jsonb,
-    "afVoteCount" double precision
-);
-
--- Index "idx_Comments_schemaVersion" ON "Comments", hash: 7395debf6ba070d4804fda84e3c25d27
-CREATE INDEX IF NOT EXISTS "idx_Comments_schemaVersion" ON "Comments" USING btree ("schemaVersion");
-
--- Index "idx_Comments_postId" ON "Comments", hash: bdf84ab77c048b9d2768bf338bf1d59d
-CREATE INDEX IF NOT EXISTS "idx_Comments_postId" ON "Comments" USING btree ("postId");
-
--- Index "idx_Comments_userId_postedAt" ON "Comments", hash: 4c9d24e6cb4ce5c15448885a32777017
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postedAt" ON "Comments" USING btree ("userId", "postedAt");
-
--- Index "idx_Comments_parentCommentId" ON "Comments", hash: a596ad7d421b46d06d5c3c7ffcffbc36
-CREATE INDEX IF NOT EXISTS "idx_Comments_parentCommentId" ON "Comments" USING btree ("parentCommentId");
-
--- Index "idx_comments_top_comments" ON "Comments", hash: 10cfa9fb0886fead918c710e0498857c
-CREATE INDEX IF NOT EXISTS "idx_comments_top_comments" ON "Comments" USING btree ("postId", "parentAnswerId", "answer", "deleted", "baseScore", "postedAt", "authorIsUnreviewed", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_comments_recent_replies" ON "Comments", hash: 5309979fbda1eee378faa4543966419a
-CREATE INDEX IF NOT EXISTS "idx_comments_recent_replies" ON "Comments" USING btree ("postId", "parentAnswerId", "answer", "deleted", "lastSubthreadActivity", "baseScore", "postedAt", "authorIsUnreviewed", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_comments_magic_comments" ON "Comments", hash: b20ecf32c93ee168a36402d668b7f40b
-CREATE INDEX IF NOT EXISTS "idx_comments_magic_comments" ON "Comments" USING btree ("postId", "parentAnswerId", "answer", "deleted", "score", "postedAt", "authorIsUnreviewed", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_comments_af_top_comments" ON "Comments", hash: 00f3a72b97aa5fa670232229f8431b9d
-CREATE INDEX IF NOT EXISTS "idx_comments_af_top_comments" ON "Comments" USING btree ("postId", "parentAnswerId", "answer", "deleted", "afBaseScore", "postedAt", "authorIsUnreviewed", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_comments_new_comments" ON "Comments", hash: cd31c78c8109d0d7cc56ad81254282bc
-CREATE INDEX IF NOT EXISTS "idx_comments_new_comments" ON "Comments" USING btree ("postId", "parentAnswerId", "answer", "deleted", "postedAt", "authorIsUnreviewed", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_Comments_userId_isPinnedOnProfile_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments", hash: 062915f782535972a18c99578ef49cdb
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_isPinnedOnProfile_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree ("userId", "isPinnedOnProfile", "postedAt", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "af", "debateResponse");
-
--- Index "idx_Comments_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments", hash: 4626500714ba84e998f31f1016d5b997
-CREATE INDEX IF NOT EXISTS "idx_Comments_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments" USING btree ("postedAt", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_Comments_rejected_authorIsUnreviewed_postedAt_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments", hash: f00b4a6f2148b6bd35bdba48ef3df624
-CREATE INDEX IF NOT EXISTS "idx_Comments_rejected_authorIsUnreviewed_postedAt_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments" USING btree ("rejected", "authorIsUnreviewed", "postedAt", "deleted", "deletedPublic", "hideAuthor", "userId", "af", "debateResponse");
-
--- Index "idx_Comments_legacyId" ON "Comments", hash: 341a41e5f2ac4266bf144244225f6c47
-CREATE INDEX IF NOT EXISTS "idx_Comments_legacyId" ON "Comments" USING btree ("legacyId");
-
--- Index "idx_Comments_inactive_postedAt" ON "Comments", hash: f76706b8c9bf7389729977a08e16e354
-CREATE INDEX IF NOT EXISTS "idx_Comments_inactive_postedAt" ON "Comments" USING btree ("inactive", "postedAt");
-
--- Index "idx_Comments_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments", hash: 55834f2d338541632da2fd20960a9fee
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree ("userId", "postedAt", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "af", "debateResponse");
-
--- Index "idx_Comments_parentAnswerId_baseScore_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments", hash: 2012db0fb07bde7aa2dcb1ef50b24a7a
-CREATE INDEX IF NOT EXISTS "idx_Comments_parentAnswerId_baseScore_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments" USING btree ("parentAnswerId", "baseScore", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "userId", "af", "postedAt", "debateResponse");
-
--- Index "idx_Comments_topLevelCommentId" ON "Comments", hash: 60ec2c5df8acd0df50873775e086d92a
-CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId" ON "Comments" USING btree ("topLevelCommentId");
-
--- Index "idx_Comments_agentFoundationsId" ON "Comments", hash: eec3cb1e3075a04f3a294f1870b9f7bd
-CREATE INDEX IF NOT EXISTS "idx_Comments_agentFoundationsId" ON "Comments" USING btree ("agentFoundationsId");
-
--- Index "idx_Comments_shortform_topLevelCommentId_lastSubthreadActivity_postedAt_baseScore" ON "Comments", hash: 611a973d554d2c955c2db6832412fc44
-CREATE INDEX IF NOT EXISTS "idx_Comments_shortform_topLevelCommentId_lastSubthreadActivity_postedAt_baseScore" ON "Comments" USING btree ("shortform", "topLevelCommentId", "lastSubthreadActivity", "postedAt", "baseScore");
-
--- Index "idx_Comments_topLevelCommentId_postedAt_baseScore" ON "Comments", hash: 8abc2ebd37797cdec03109861d55c252
-CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId_postedAt_baseScore" ON "Comments" USING btree ("topLevelCommentId", "postedAt", "baseScore");
-
--- Index "idx_comments_nominations2018" ON "Comments", hash: d50e40100287b0ee86a26cc349cd15bc
-CREATE INDEX IF NOT EXISTS "idx_comments_nominations2018" ON "Comments" USING btree ("nominatedForReview", "userId", "postId", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "af", "postedAt", "debateResponse");
-
--- Index "idx_comments_reviews2018" ON "Comments", hash: a83f44fa31c243bf86beca7058e9b177
-CREATE INDEX IF NOT EXISTS "idx_comments_reviews2018" ON "Comments" USING btree ("reviewingForReview", "userId", "postId", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "af", "postedAt", "debateResponse");
-
--- Index "idx_comments_tagId" ON "Comments", hash: 94f87c55e362c2dbf02bd641a9ed09a0
-CREATE INDEX IF NOT EXISTS "idx_comments_tagId" ON "Comments" USING btree ("tagId", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "userId", "af", "postedAt", "debateResponse");
-
--- Index "idx_Comments_topLevelCommentId_tagCommentType_tagId_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments", hash: c4091abecaf3c6b730d99224da7ef038
-CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId_tagCommentType_tagId_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments" USING btree ("topLevelCommentId", "tagCommentType", "tagId", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "userId", "af", "postedAt", "debateResponse");
-
--- Index "idx_comments_moderatorHat" ON "Comments", hash: f081f91306430c47ed92b709368b42bd
-CREATE INDEX IF NOT EXISTS "idx_comments_moderatorHat" ON "Comments" USING btree ("moderatorHat", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "userId", "af", "postedAt", "debateResponse");
-
--- Index "idx_comments_alignmentSuggestedComments" ON "Comments", hash: d74517a1eb943d32534739baff3e7afe
-CREATE INDEX IF NOT EXISTS "idx_comments_alignmentSuggestedComments" ON "Comments" USING gin ("reviewForAlignmentUserId", "af", "suggestForAlignmentUserIds", "postedAt", "authorIsUnreviewed", "deleted", "deletedPublic", "hideAuthor", "userId", "debateResponse")
-WHERE ("suggestForAlignmentUserIds"[0]) IS NOT NULL;
-
--- Index "idx_Comments_userId_createdAt" ON "Comments", hash: 95ec73b4092b8bd37b84d0fa6a905882
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");
-
--- Schema for "Conversations", hash: 235fa40149b25ef7e02405925f8ae22e
+  _id VARCHAR(27) PRIMARY KEY,
+  "parentCommentId" VARCHAR(27),
+  "topLevelCommentId" VARCHAR(27),
+  "postedAt" TIMESTAMPTZ NOT NULL,
+  "author" TEXT,
+  "postId" VARCHAR(27),
+  "tagId" VARCHAR(27),
+  "tagCommentType" TEXT NOT NULL DEFAULT 'DISCUSSION',
+  "subforumStickyPriority" DOUBLE PRECISION,
+  "userId" VARCHAR(27) NOT NULL,
+  "userIP" TEXT,
+  "userAgent" TEXT,
+  "referrer" TEXT,
+  "authorIsUnreviewed" BOOL NOT NULL DEFAULT false,
+  "answer" BOOL NOT NULL DEFAULT false,
+  "parentAnswerId" VARCHAR(27),
+  "directChildrenCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "descendentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "shortform" BOOL,
+  "shortformFrontpage" BOOL NOT NULL DEFAULT true,
+  "nominatedForReview" TEXT,
+  "reviewingForReview" TEXT,
+  "lastSubthreadActivity" TIMESTAMPTZ,
+  "postVersion" TEXT,
+  "promoted" BOOL,
+  "promotedByUserId" VARCHAR(27),
+  "promotedAt" TIMESTAMPTZ,
+  "hideKarma" BOOL,
+  "legacy" BOOL NOT NULL DEFAULT false,
+  "legacyId" TEXT,
+  "legacyPoll" BOOL NOT NULL DEFAULT false,
+  "legacyParentId" TEXT,
+  "retracted" BOOL NOT NULL DEFAULT false,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "deletedPublic" BOOL NOT NULL DEFAULT false,
+  "deletedReason" TEXT,
+  "deletedDate" TIMESTAMPTZ,
+  "deletedByUserId" VARCHAR(27),
+  "spam" BOOL NOT NULL DEFAULT false,
+  "repliesBlockedUntil" TIMESTAMPTZ,
+  "needsReview" BOOL,
+  "reviewedByUserId" VARCHAR(27),
+  "hideAuthor" BOOL NOT NULL DEFAULT false,
+  "moderatorHat" BOOL NOT NULL DEFAULT false,
+  "hideModeratorHat" BOOL,
+  "isPinnedOnProfile" BOOL NOT NULL DEFAULT false,
+  "title" VARCHAR(500),
+  "relevantTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "debateResponse" BOOL,
+  "rejected" BOOL NOT NULL DEFAULT false,
+  "modGPTAnalysis" TEXT,
+  "modGPTRecommendation" TEXT,
+  "rejectedReason" TEXT,
+  "rejectedByUserId" VARCHAR(27),
+  "af" BOOL NOT NULL DEFAULT false,
+  "suggestForAlignmentUserIds" TEXT[] NOT NULL DEFAULT '{}',
+  "reviewForAlignmentUserId" TEXT,
+  "afDate" TIMESTAMPTZ,
+  "moveToAlignmentUserId" VARCHAR(27),
+  "agentFoundationsId" TEXT,
+  "originalDialogueId" VARCHAR(27),
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT false,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
+);-- Index "idx_Comments_schemaVersion" ON "Comments", hash: 7395debf6ba070d4804fda84e3c25d27
+CREATE INDEX IF NOT EXISTS "idx_Comments_schemaVersion" ON "Comments" USING btree ("schemaVersion");-- Index "idx_Comments_postId" ON "Comments", hash: bdf84ab77c048b9d2768bf338bf1d59d
+CREATE INDEX IF NOT EXISTS "idx_Comments_postId" ON "Comments" USING btree ("postId");-- Index "idx_Comments_userId_postedAt" ON "Comments", hash: 4c9d24e6cb4ce5c15448885a32777017
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postedAt" ON "Comments" USING btree ("userId", "postedAt");-- Index "idx_Comments_parentCommentId" ON "Comments", hash: a596ad7d421b46d06d5c3c7ffcffbc36
+CREATE INDEX IF NOT EXISTS "idx_Comments_parentCommentId" ON "Comments" USING btree ("parentCommentId");-- Index "idx_comments_top_comments" ON "Comments", hash: 10cfa9fb0886fead918c710e0498857c
+CREATE INDEX IF NOT EXISTS "idx_comments_top_comments" ON "Comments" USING btree (
+  "postId",
+  "parentAnswerId",
+  "answer",
+  "deleted",
+  "baseScore",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_comments_recent_replies" ON "Comments", hash: 5309979fbda1eee378faa4543966419a
+CREATE INDEX IF NOT EXISTS "idx_comments_recent_replies" ON "Comments" USING btree (
+  "postId",
+  "parentAnswerId",
+  "answer",
+  "deleted",
+  "lastSubthreadActivity",
+  "baseScore",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_comments_magic_comments" ON "Comments", hash: b20ecf32c93ee168a36402d668b7f40b
+CREATE INDEX IF NOT EXISTS "idx_comments_magic_comments" ON "Comments" USING btree (
+  "postId",
+  "parentAnswerId",
+  "answer",
+  "deleted",
+  "score",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_comments_af_top_comments" ON "Comments", hash: 00f3a72b97aa5fa670232229f8431b9d
+CREATE INDEX IF NOT EXISTS "idx_comments_af_top_comments" ON "Comments" USING btree (
+  "postId",
+  "parentAnswerId",
+  "answer",
+  "deleted",
+  "afBaseScore",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_comments_new_comments" ON "Comments", hash: cd31c78c8109d0d7cc56ad81254282bc
+CREATE INDEX IF NOT EXISTS "idx_comments_new_comments" ON "Comments" USING btree (
+  "postId",
+  "parentAnswerId",
+  "answer",
+  "deleted",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_Comments_userId_isPinnedOnProfile_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments", hash: 062915f782535972a18c99578ef49cdb
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_isPinnedOnProfile_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree (
+  "userId",
+  "isPinnedOnProfile",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "af",
+  "debateResponse"
+);-- Index "idx_Comments_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments", hash: 4626500714ba84e998f31f1016d5b997
+CREATE INDEX IF NOT EXISTS "idx_Comments_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments" USING btree (
+  "postedAt",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_Comments_rejected_authorIsUnreviewed_postedAt_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments", hash: f00b4a6f2148b6bd35bdba48ef3df624
+CREATE INDEX IF NOT EXISTS "idx_Comments_rejected_authorIsUnreviewed_postedAt_deleted_deletedPublic_hideAuthor_userId_af_debateResponse" ON "Comments" USING btree (
+  "rejected",
+  "authorIsUnreviewed",
+  "postedAt",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "debateResponse"
+);-- Index "idx_Comments_legacyId" ON "Comments", hash: 341a41e5f2ac4266bf144244225f6c47
+CREATE INDEX IF NOT EXISTS "idx_Comments_legacyId" ON "Comments" USING btree ("legacyId");-- Index "idx_Comments_inactive_postedAt" ON "Comments", hash: f76706b8c9bf7389729977a08e16e354
+CREATE INDEX IF NOT EXISTS "idx_Comments_inactive_postedAt" ON "Comments" USING btree ("inactive", "postedAt");-- Index "idx_Comments_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments", hash: 55834f2d338541632da2fd20960a9fee
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postedAt_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_af_debateResponse" ON "Comments" USING btree (
+  "userId",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "af",
+  "debateResponse"
+);-- Index "idx_Comments_parentAnswerId_baseScore_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments", hash: 2012db0fb07bde7aa2dcb1ef50b24a7a
+CREATE INDEX IF NOT EXISTS "idx_Comments_parentAnswerId_baseScore_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments" USING btree (
+  "parentAnswerId",
+  "baseScore",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "postedAt",
+  "debateResponse"
+);-- Index "idx_Comments_topLevelCommentId" ON "Comments", hash: 60ec2c5df8acd0df50873775e086d92a
+CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId" ON "Comments" USING btree ("topLevelCommentId");-- Index "idx_Comments_agentFoundationsId" ON "Comments", hash: eec3cb1e3075a04f3a294f1870b9f7bd
+CREATE INDEX IF NOT EXISTS "idx_Comments_agentFoundationsId" ON "Comments" USING btree ("agentFoundationsId");-- Index "idx_Comments_shortform_topLevelCommentId_lastSubthreadActivity_postedAt_baseScore" ON "Comments", hash: 611a973d554d2c955c2db6832412fc44
+CREATE INDEX IF NOT EXISTS "idx_Comments_shortform_topLevelCommentId_lastSubthreadActivity_postedAt_baseScore" ON "Comments" USING btree (
+  "shortform",
+  "topLevelCommentId",
+  "lastSubthreadActivity",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_Comments_topLevelCommentId_postedAt_baseScore" ON "Comments", hash: 8abc2ebd37797cdec03109861d55c252
+CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId_postedAt_baseScore" ON "Comments" USING btree ("topLevelCommentId", "postedAt", "baseScore");-- Index "idx_comments_nominations2018" ON "Comments", hash: d50e40100287b0ee86a26cc349cd15bc
+CREATE INDEX IF NOT EXISTS "idx_comments_nominations2018" ON "Comments" USING btree (
+  "nominatedForReview",
+  "userId",
+  "postId",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "af",
+  "postedAt",
+  "debateResponse"
+);-- Index "idx_comments_reviews2018" ON "Comments", hash: a83f44fa31c243bf86beca7058e9b177
+CREATE INDEX IF NOT EXISTS "idx_comments_reviews2018" ON "Comments" USING btree (
+  "reviewingForReview",
+  "userId",
+  "postId",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "af",
+  "postedAt",
+  "debateResponse"
+);-- Index "idx_comments_tagId" ON "Comments", hash: 94f87c55e362c2dbf02bd641a9ed09a0
+CREATE INDEX IF NOT EXISTS "idx_comments_tagId" ON "Comments" USING btree (
+  "tagId",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "postedAt",
+  "debateResponse"
+);-- Index "idx_Comments_topLevelCommentId_tagCommentType_tagId_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments", hash: c4091abecaf3c6b730d99224da7ef038
+CREATE INDEX IF NOT EXISTS "idx_Comments_topLevelCommentId_tagCommentType_tagId_authorIsUnreviewed_deleted_deletedPublic_hideAuthor_userId_af_postedAt_debateResponse" ON "Comments" USING btree (
+  "topLevelCommentId",
+  "tagCommentType",
+  "tagId",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "postedAt",
+  "debateResponse"
+);-- Index "idx_comments_moderatorHat" ON "Comments", hash: f081f91306430c47ed92b709368b42bd
+CREATE INDEX IF NOT EXISTS "idx_comments_moderatorHat" ON "Comments" USING btree (
+  "moderatorHat",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "postedAt",
+  "debateResponse"
+);-- Index "idx_comments_alignmentSuggestedComments" ON "Comments", hash: d74517a1eb943d32534739baff3e7afe
+CREATE INDEX IF NOT EXISTS "idx_comments_alignmentSuggestedComments" ON "Comments" USING gin (
+  "reviewForAlignmentUserId",
+  "af",
+  "suggestForAlignmentUserIds",
+  "postedAt",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "debateResponse"
+)
+WHERE
+  ("suggestForAlignmentUserIds" [0]) IS NOT NULL;-- Index "idx_Comments_userId_createdAt" ON "Comments", hash: 95ec73b4092b8bd37b84d0fa6a905882
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_createdAt" ON "Comments" USING btree ("userId", "createdAt");-- Schema for "Conversations", hash: 235fa40149b25ef7e02405925f8ae22e
 CREATE TABLE "Conversations" (
-    _id varchar(27) PRIMARY KEY,
-    "title" text,
-    "participantIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "latestActivity" timestamptz,
-    "af" bool,
-    "messageCount" double precision NOT NULL DEFAULT 0,
-    "moderator" bool,
-    "archivedByIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Conversations_schemaVersion" ON "Conversations", hash: 3f49b30d6d0f491eb2c5ea197da08fa4
-CREATE INDEX IF NOT EXISTS "idx_Conversations_schemaVersion" ON "Conversations" USING btree ("schemaVersion");
-
--- Index "idx_Conversations_moderator_messageCount_latestActivity_participantIds" ON "Conversations", hash: 9a99909c2ad1880f4ce178855212fd31
-CREATE INDEX IF NOT EXISTS "idx_Conversations_moderator_messageCount_latestActivity_participantIds" ON "Conversations" USING gin ("moderator", "messageCount", "latestActivity", "participantIds");
-
--- Index "idx_Conversations_participantIds_messageCount_latestActivity" ON "Conversations", hash: 1aff4f75981365fcef018d3abc813202
-CREATE INDEX IF NOT EXISTS "idx_Conversations_participantIds_messageCount_latestActivity" ON "Conversations" USING gin ("participantIds", "messageCount", "latestActivity");
-
--- Index "idx_Conversations_participantIds_title" ON "Conversations", hash: 49649a806339d1129b1bae4f89dbe6b4
-CREATE INDEX IF NOT EXISTS "idx_Conversations_participantIds_title" ON "Conversations" USING gin ("participantIds", "title");
-
--- Schema for "CronHistories", hash: ba2f120c4f44559c4e5f0f1853bf52df
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT,
+  "participantIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "latestActivity" TIMESTAMPTZ,
+  "af" BOOL,
+  "messageCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "moderator" BOOL,
+  "archivedByIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Conversations_schemaVersion" ON "Conversations", hash: 3f49b30d6d0f491eb2c5ea197da08fa4
+CREATE INDEX IF NOT EXISTS "idx_Conversations_schemaVersion" ON "Conversations" USING btree ("schemaVersion");-- Index "idx_Conversations_moderator_messageCount_latestActivity_participantIds" ON "Conversations", hash: 9a99909c2ad1880f4ce178855212fd31
+CREATE INDEX IF NOT EXISTS "idx_Conversations_moderator_messageCount_latestActivity_participantIds" ON "Conversations" USING gin (
+  "moderator",
+  "messageCount",
+  "latestActivity",
+  "participantIds"
+);-- Index "idx_Conversations_participantIds_messageCount_latestActivity" ON "Conversations", hash: 1aff4f75981365fcef018d3abc813202
+CREATE INDEX IF NOT EXISTS "idx_Conversations_participantIds_messageCount_latestActivity" ON "Conversations" USING gin (
+  "participantIds",
+  "messageCount",
+  "latestActivity"
+);-- Index "idx_Conversations_participantIds_title" ON "Conversations", hash: 49649a806339d1129b1bae4f89dbe6b4
+CREATE INDEX IF NOT EXISTS "idx_Conversations_participantIds_title" ON "Conversations" USING gin ("participantIds", "title");-- Schema for "CronHistories", hash: ba2f120c4f44559c4e5f0f1853bf52df
 CREATE TABLE "CronHistories" (
-    _id varchar(27) PRIMARY KEY,
-    "intendedAt" timestamptz NOT NULL,
-    "name" text NOT NULL,
-    "startedAt" timestamptz NOT NULL,
-    "finishedAt" timestamptz,
-    "result" jsonb
-);
-
--- Index "idx_CronHistories_startedAt" ON "CronHistories", hash: ffc10a86aad9a69b830afe14227069bb
-CREATE INDEX IF NOT EXISTS "idx_CronHistories_startedAt" ON "CronHistories" USING btree ("startedAt");
-
--- Index "idx_CronHistories_intendedAt_name" ON "CronHistories", hash: 2bffa13d7e2ea4452e23b24ae558f67b
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_CronHistories_intendedAt_name" ON "CronHistories" USING btree ("intendedAt", "name");
-
--- Schema for "CurationEmails", hash: 2b0de558a2fbb70cb5713fa5b7076862
+  _id VARCHAR(27) PRIMARY KEY,
+  "intendedAt" TIMESTAMPTZ NOT NULL,
+  "name" TEXT NOT NULL,
+  "startedAt" TIMESTAMPTZ NOT NULL,
+  "finishedAt" TIMESTAMPTZ,
+  "result" JSONB
+);-- Index "idx_CronHistories_startedAt" ON "CronHistories", hash: ffc10a86aad9a69b830afe14227069bb
+CREATE INDEX IF NOT EXISTS "idx_CronHistories_startedAt" ON "CronHistories" USING btree ("startedAt");-- Index "idx_CronHistories_intendedAt_name" ON "CronHistories", hash: 2bffa13d7e2ea4452e23b24ae558f67b
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_CronHistories_intendedAt_name" ON "CronHistories" USING btree ("intendedAt", "name");-- Schema for "CurationEmails", hash: 2b0de558a2fbb70cb5713fa5b7076862
 CREATE TABLE "CurationEmails" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" text NOT NULL,
-    "postId" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_CurationEmails_schemaVersion" ON "CurationEmails", hash: e6997f3838e8a9f1e20f5583b1124d9b
-CREATE INDEX IF NOT EXISTS "idx_CurationEmails_schemaVersion" ON "CurationEmails" USING btree ("schemaVersion");
-
--- Index "idx_CurationEmails_userId" ON "CurationEmails", hash: 700925a42b0f92f3efeed2daa1cc93a3
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_CurationEmails_userId" ON "CurationEmails" USING btree ("userId");
-
--- Schema for "DatabaseMetadata", hash: d05d205da4249541e524b7d8879c6e1c
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "postId" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_CurationEmails_schemaVersion" ON "CurationEmails", hash: e6997f3838e8a9f1e20f5583b1124d9b
+CREATE INDEX IF NOT EXISTS "idx_CurationEmails_schemaVersion" ON "CurationEmails" USING btree ("schemaVersion");-- Index "idx_CurationEmails_userId" ON "CurationEmails", hash: 700925a42b0f92f3efeed2daa1cc93a3
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_CurationEmails_userId" ON "CurationEmails" USING btree ("userId");-- Schema for "DatabaseMetadata", hash: d05d205da4249541e524b7d8879c6e1c
 CREATE TABLE "DatabaseMetadata" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text NOT NULL,
-    "value" jsonb NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_DatabaseMetadata_schemaVersion" ON "DatabaseMetadata", hash: c50878c447fe228a60a7cef024080138
-CREATE INDEX IF NOT EXISTS "idx_DatabaseMetadata_schemaVersion" ON "DatabaseMetadata" USING btree ("schemaVersion");
-
--- Index "idx_DatabaseMetadata_name" ON "DatabaseMetadata", hash: 867d8a012c7643282b7d6c2538c87513
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON "DatabaseMetadata" USING btree ("name");
-
--- Schema for "DebouncerEvents", hash: 5fa52cbe3e39427682167dea58b35f9c
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "value" JSONB NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_DatabaseMetadata_schemaVersion" ON "DatabaseMetadata", hash: c50878c447fe228a60a7cef024080138
+CREATE INDEX IF NOT EXISTS "idx_DatabaseMetadata_schemaVersion" ON "DatabaseMetadata" USING btree ("schemaVersion");-- Index "idx_DatabaseMetadata_name" ON "DatabaseMetadata", hash: 867d8a012c7643282b7d6c2538c87513
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON "DatabaseMetadata" USING btree ("name");-- Schema for "DebouncerEvents", hash: 5fa52cbe3e39427682167dea58b35f9c
 CREATE TABLE "DebouncerEvents" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text NOT NULL,
-    "af" bool,
-    "dispatched" bool NOT NULL,
-    "failed" bool,
-    "delayTime" timestamptz NOT NULL,
-    "upperBoundTime" timestamptz NOT NULL,
-    "key" text NOT NULL,
-    "pendingEvents" text[],
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_DebouncerEvents_schemaVersion" ON "DebouncerEvents", hash: be5fa9a196adfcd1a366f3c956cd2765
-CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_schemaVersion" ON "DebouncerEvents" USING btree ("schemaVersion");
-
--- Index "idx_DebouncerEvents_dispatched_af_delayTime" ON "DebouncerEvents", hash: 2d24f53fdafd14ee56eb92e9f5e04ca1
-CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_delayTime" ON "DebouncerEvents" USING btree ("dispatched", "af", "delayTime");
-
--- Index "idx_DebouncerEvents_dispatched_af_upperBoundTime" ON "DebouncerEvents", hash: b37222152fcf646b2e60544be39240cb
-CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_upperBoundTime" ON "DebouncerEvents" USING btree ("dispatched", "af", "upperBoundTime");
-
--- Schema for "DialogueChecks", hash: b4cbc025d993f2677e6bb1176ff20787
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "af" BOOL,
+  "dispatched" BOOL NOT NULL,
+  "failed" BOOL,
+  "delayTime" TIMESTAMPTZ NOT NULL,
+  "upperBoundTime" TIMESTAMPTZ NOT NULL,
+  "key" TEXT NOT NULL,
+  "pendingEvents" TEXT[],
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_DebouncerEvents_schemaVersion" ON "DebouncerEvents", hash: be5fa9a196adfcd1a366f3c956cd2765
+CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_schemaVersion" ON "DebouncerEvents" USING btree ("schemaVersion");-- Index "idx_DebouncerEvents_dispatched_af_delayTime" ON "DebouncerEvents", hash: 2d24f53fdafd14ee56eb92e9f5e04ca1
+CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_delayTime" ON "DebouncerEvents" USING btree ("dispatched", "af", "delayTime");-- Index "idx_DebouncerEvents_dispatched_af_upperBoundTime" ON "DebouncerEvents", hash: b37222152fcf646b2e60544be39240cb
+CREATE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_upperBoundTime" ON "DebouncerEvents" USING btree ("dispatched", "af", "upperBoundTime");-- Schema for "DialogueChecks", hash: b4cbc025d993f2677e6bb1176ff20787
 CREATE TABLE "DialogueChecks" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" text NOT NULL,
-    "targetUserId" text NOT NULL,
-    "checked" bool NOT NULL DEFAULT false,
-    "checkedAt" timestamptz NOT NULL,
-    "hideInRecommendations" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_DialogueChecks_schemaVersion" ON "DialogueChecks", hash: 2bbed1b1455a27515906e555d7e2220b
-CREATE INDEX IF NOT EXISTS "idx_DialogueChecks_schemaVersion" ON "DialogueChecks" USING btree ("schemaVersion");
-
--- Index "idx_DialogueChecks_userId_targetUserId" ON "DialogueChecks", hash: aa4c207586409241383082b13b909cbf
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DialogueChecks_userId_targetUserId" ON "DialogueChecks" USING btree ("userId", "targetUserId");
-
--- Schema for "DialogueMatchPreferences", hash: 76d8a80190a5d81b2ccef5cd69ebcabf
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "targetUserId" TEXT NOT NULL,
+  "checked" BOOL NOT NULL DEFAULT false,
+  "checkedAt" TIMESTAMPTZ NOT NULL,
+  "hideInRecommendations" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_DialogueChecks_schemaVersion" ON "DialogueChecks", hash: 2bbed1b1455a27515906e555d7e2220b
+CREATE INDEX IF NOT EXISTS "idx_DialogueChecks_schemaVersion" ON "DialogueChecks" USING btree ("schemaVersion");-- Index "idx_DialogueChecks_userId_targetUserId" ON "DialogueChecks", hash: aa4c207586409241383082b13b909cbf
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DialogueChecks_userId_targetUserId" ON "DialogueChecks" USING btree ("userId", "targetUserId");-- Schema for "DialogueMatchPreferences", hash: 76d8a80190a5d81b2ccef5cd69ebcabf
 CREATE TABLE "DialogueMatchPreferences" (
-    _id varchar(27) PRIMARY KEY,
-    "dialogueCheckId" varchar(27) NOT NULL,
-    "topicPreferences" jsonb[] NOT NULL DEFAULT '{}',
-    "topicNotes" text NOT NULL DEFAULT '',
-    "syncPreference" text NOT NULL,
-    "asyncPreference" text NOT NULL,
-    "formatNotes" text NOT NULL DEFAULT '',
-    "calendlyLink" text,
-    "generatedDialogueId" text,
-    "deleted" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_DialogueMatchPreferences_schemaVersion" ON "DialogueMatchPreferences", hash: b74c93c9c8a7a9a5bde9dd1c00633c66
-CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_schemaVersion" ON "DialogueMatchPreferences" USING btree ("schemaVersion");
-
--- Index "idx_DialogueMatchPreferences_dialogueCheckId" ON "DialogueMatchPreferences", hash: 4b66cba00b9a94b19c8dc3f222cbc24c
-CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_dialogueCheckId" ON "DialogueMatchPreferences" USING btree ("dialogueCheckId");
-
--- Schema for "DigestPosts", hash: d4ea5b051e8d8e6350508c1886a45dab
+  _id VARCHAR(27) PRIMARY KEY,
+  "dialogueCheckId" VARCHAR(27) NOT NULL,
+  "topicPreferences" JSONB[] NOT NULL DEFAULT '{}',
+  "topicNotes" TEXT NOT NULL DEFAULT '',
+  "syncPreference" TEXT NOT NULL,
+  "asyncPreference" TEXT NOT NULL,
+  "formatNotes" TEXT NOT NULL DEFAULT '',
+  "calendlyLink" TEXT,
+  "generatedDialogueId" TEXT,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_DialogueMatchPreferences_schemaVersion" ON "DialogueMatchPreferences", hash: b74c93c9c8a7a9a5bde9dd1c00633c66
+CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_schemaVersion" ON "DialogueMatchPreferences" USING btree ("schemaVersion");-- Index "idx_DialogueMatchPreferences_dialogueCheckId" ON "DialogueMatchPreferences", hash: 4b66cba00b9a94b19c8dc3f222cbc24c
+CREATE INDEX IF NOT EXISTS "idx_DialogueMatchPreferences_dialogueCheckId" ON "DialogueMatchPreferences" USING btree ("dialogueCheckId");-- Schema for "DigestPosts", hash: d4ea5b051e8d8e6350508c1886a45dab
 CREATE TABLE "DigestPosts" (
-    _id varchar(27) PRIMARY KEY,
-    "digestId" varchar(27) NOT NULL,
-    "postId" varchar(27) NOT NULL,
-    "emailDigestStatus" text,
-    "onsiteDigestStatus" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_DigestPosts_schemaVersion" ON "DigestPosts", hash: 54fc0bb0ee685e8caf8fbae297cda433
-CREATE INDEX IF NOT EXISTS "idx_DigestPosts_schemaVersion" ON "DigestPosts" USING btree ("schemaVersion");
-
--- Index "idx_DigestPosts_digestId" ON "DigestPosts", hash: fe43aad62cc4b89f94cd887077da4c27
-CREATE INDEX IF NOT EXISTS "idx_DigestPosts_digestId" ON "DigestPosts" USING btree ("digestId");
-
--- Schema for "Digests", hash: 2e37e27ed282ffb5516ea605c8854c14
+  _id VARCHAR(27) PRIMARY KEY,
+  "digestId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "emailDigestStatus" TEXT,
+  "onsiteDigestStatus" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_DigestPosts_schemaVersion" ON "DigestPosts", hash: 54fc0bb0ee685e8caf8fbae297cda433
+CREATE INDEX IF NOT EXISTS "idx_DigestPosts_schemaVersion" ON "DigestPosts" USING btree ("schemaVersion");-- Index "idx_DigestPosts_digestId" ON "DigestPosts", hash: fe43aad62cc4b89f94cd887077da4c27
+CREATE INDEX IF NOT EXISTS "idx_DigestPosts_digestId" ON "DigestPosts" USING btree ("digestId");-- Schema for "Digests", hash: 2e37e27ed282ffb5516ea605c8854c14
 CREATE TABLE "Digests" (
-    _id varchar(27) PRIMARY KEY,
-    "num" double precision NOT NULL,
-    "startDate" timestamptz NOT NULL,
-    "endDate" timestamptz,
-    "publishedDate" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Digests_schemaVersion" ON "Digests", hash: 5be2e5c79771c5115e3d9d509392bd9c
-CREATE INDEX IF NOT EXISTS "idx_Digests_schemaVersion" ON "Digests" USING btree ("schemaVersion");
-
--- Index "idx_Digests_num" ON "Digests", hash: 9df796626937baf782a5129c76801f85
-CREATE INDEX IF NOT EXISTS "idx_Digests_num" ON "Digests" USING btree ("num");
-
--- Schema for "ElectionCandidates", hash: 1b533f6c9b9e108983ecd89527670e48
+  _id VARCHAR(27) PRIMARY KEY,
+  "num" DOUBLE PRECISION NOT NULL,
+  "startDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ,
+  "publishedDate" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Digests_schemaVersion" ON "Digests", hash: 5be2e5c79771c5115e3d9d509392bd9c
+CREATE INDEX IF NOT EXISTS "idx_Digests_schemaVersion" ON "Digests" USING btree ("schemaVersion");-- Index "idx_Digests_num" ON "Digests", hash: 9df796626937baf782a5129c76801f85
+CREATE INDEX IF NOT EXISTS "idx_Digests_num" ON "Digests" USING btree ("num");-- Schema for "ElectionCandidates", hash: 1b533f6c9b9e108983ecd89527670e48
 CREATE TABLE "ElectionCandidates" (
-    _id varchar(27) PRIMARY KEY,
-    "electionName" text NOT NULL,
-    "name" text NOT NULL,
-    "logoSrc" text NOT NULL,
-    "href" text NOT NULL,
-    "fundraiserLink" text,
-    "gwwcLink" text,
-    "gwwcId" text,
-    "description" text NOT NULL,
-    "userId" varchar(27) NOT NULL,
-    "postCount" double precision NOT NULL DEFAULT 0,
-    "tagId" varchar(27) NOT NULL,
-    "isElectionFundraiser" bool NOT NULL DEFAULT false,
-    "amountRaised" double precision,
-    "targetAmount" double precision,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "voteCount" double precision NOT NULL DEFAULT 0,
-    "baseScore" double precision NOT NULL DEFAULT 0,
-    "extendedScore" jsonb,
-    "score" double precision NOT NULL DEFAULT 0,
-    "inactive" bool NOT NULL DEFAULT false,
-    "afBaseScore" double precision,
-    "afExtendedScore" jsonb,
-    "afVoteCount" double precision
-);
-
--- Index "idx_ElectionCandidates_schemaVersion" ON "ElectionCandidates", hash: e074fbc5848440bf40529b2e9053e025
-CREATE INDEX IF NOT EXISTS "idx_ElectionCandidates_schemaVersion" ON "ElectionCandidates" USING btree ("schemaVersion");
-
--- Index "idx_ElectionCandidates_electionName" ON "ElectionCandidates", hash: daa3cc73905ef99ff2438d163bd7ff4b
-CREATE INDEX IF NOT EXISTS "idx_ElectionCandidates_electionName" ON "ElectionCandidates" USING btree ("electionName");
-
--- Schema for "ElectionVotes", hash: 88e737a38086b5458d00a97107df3159
+  _id VARCHAR(27) PRIMARY KEY,
+  "electionName" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "logoSrc" TEXT NOT NULL,
+  "href" TEXT NOT NULL,
+  "fundraiserLink" TEXT,
+  "gwwcLink" TEXT,
+  "gwwcId" TEXT,
+  "description" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "tagId" VARCHAR(27) NOT NULL,
+  "isElectionFundraiser" BOOL NOT NULL DEFAULT false,
+  "amountRaised" DOUBLE PRECISION,
+  "targetAmount" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT false,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
+);-- Index "idx_ElectionCandidates_schemaVersion" ON "ElectionCandidates", hash: e074fbc5848440bf40529b2e9053e025
+CREATE INDEX IF NOT EXISTS "idx_ElectionCandidates_schemaVersion" ON "ElectionCandidates" USING btree ("schemaVersion");-- Index "idx_ElectionCandidates_electionName" ON "ElectionCandidates", hash: daa3cc73905ef99ff2438d163bd7ff4b
+CREATE INDEX IF NOT EXISTS "idx_ElectionCandidates_electionName" ON "ElectionCandidates" USING btree ("electionName");-- Schema for "ElectionVotes", hash: 88e737a38086b5458d00a97107df3159
 CREATE TABLE "ElectionVotes" (
-    _id varchar(27) PRIMARY KEY,
-    "electionName" text NOT NULL,
-    "userId" varchar(27),
-    "compareState" jsonb,
-    "vote" jsonb,
-    "submittedAt" timestamptz,
-    "submissionComments" jsonb,
-    "userExplanation" text,
-    "userOtherComments" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ElectionVotes_schemaVersion" ON "ElectionVotes", hash: 35d4cfc8261239a635cff6dfde8a96c9
-CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_schemaVersion" ON "ElectionVotes" USING btree ("schemaVersion");
-
--- Index "idx_ElectionVotes_electionName_userId" ON "ElectionVotes", hash: f4261b349d91d31c645f9b39f2623ec2
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName_userId" ON "ElectionVotes" USING btree ("electionName", COALESCE("userId", ''));
-
--- Index "idx_ElectionVotes_electionName" ON "ElectionVotes", hash: f935653c41c1fa69d8a0487ef182b63d
-CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" USING btree ("electionName");
-
--- Schema for "ElicitQuestionPredictions", hash: d88e9edfd51ca83ad514a77d69a6779b
+  _id VARCHAR(27) PRIMARY KEY,
+  "electionName" TEXT NOT NULL,
+  "userId" VARCHAR(27),
+  "compareState" JSONB,
+  "vote" JSONB,
+  "submittedAt" TIMESTAMPTZ,
+  "submissionComments" JSONB,
+  "userExplanation" TEXT,
+  "userOtherComments" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ElectionVotes_schemaVersion" ON "ElectionVotes", hash: 35d4cfc8261239a635cff6dfde8a96c9
+CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_schemaVersion" ON "ElectionVotes" USING btree ("schemaVersion");-- Index "idx_ElectionVotes_electionName_userId" ON "ElectionVotes", hash: f4261b349d91d31c645f9b39f2623ec2
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName_userId" ON "ElectionVotes" USING btree ("electionName", COALESCE("userId", ''));-- Index "idx_ElectionVotes_electionName" ON "ElectionVotes", hash: f935653c41c1fa69d8a0487ef182b63d
+CREATE INDEX IF NOT EXISTS "idx_ElectionVotes_electionName" ON "ElectionVotes" USING btree ("electionName");-- Schema for "ElicitQuestionPredictions", hash: d88e9edfd51ca83ad514a77d69a6779b
 CREATE TABLE "ElicitQuestionPredictions" (
-    _id varchar(27) PRIMARY KEY,
-    "prediction" double precision NOT NULL,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "notes" text,
-    "creator" jsonb NOT NULL,
-    "userId" varchar(27),
-    "sourceUrl" text,
-    "sourceId" text,
-    "binaryQuestionId" varchar(27) NOT NULL
-);
-
--- Schema for "ElicitQuestions", hash: 1c37033b645209525d192fa053e13dbb
+  _id VARCHAR(27) PRIMARY KEY,
+  "prediction" DOUBLE PRECISION NOT NULL,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "notes" TEXT,
+  "creator" JSONB NOT NULL,
+  "userId" VARCHAR(27),
+  "sourceUrl" TEXT,
+  "sourceId" TEXT,
+  "binaryQuestionId" VARCHAR(27) NOT NULL
+);-- Schema for "ElicitQuestions", hash: 1c37033b645209525d192fa053e13dbb
 CREATE TABLE "ElicitQuestions" (
-    _id varchar(27) PRIMARY KEY,
-    "title" text NOT NULL,
-    "notes" text,
-    "resolution" text,
-    "resolvesBy" timestamptz NOT NULL,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL
-);
-
--- Schema for "EmailTokens", hash: 9ef4475447998d791c9f90c0f1d73831
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "notes" TEXT,
+  "resolution" TEXT,
+  "resolvesBy" TIMESTAMPTZ NOT NULL,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);-- Schema for "EmailTokens", hash: 9ef4475447998d791c9f90c0f1d73831
 CREATE TABLE "EmailTokens" (
-    _id varchar(27) PRIMARY KEY,
-    "token" text NOT NULL,
-    "tokenType" text NOT NULL,
-    "userId" varchar(27) NOT NULL,
-    "usedAt" timestamptz,
-    "params" jsonb,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_EmailTokens_schemaVersion" ON "EmailTokens", hash: 82df997391fa09079f8f5c80d422471e
-CREATE INDEX IF NOT EXISTS "idx_EmailTokens_schemaVersion" ON "EmailTokens" USING btree ("schemaVersion");
-
--- Index "idx_EmailTokens_token" ON "EmailTokens", hash: 5589dff898cf669ead10fef9e5928354
-CREATE INDEX IF NOT EXISTS "idx_EmailTokens_token" ON "EmailTokens" USING btree ("token");
-
--- Schema for "FeaturedResources", hash: 3205dcf11d62c7bedff2bdf75956dc17
+  _id VARCHAR(27) PRIMARY KEY,
+  "token" TEXT NOT NULL,
+  "tokenType" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "usedAt" TIMESTAMPTZ,
+  "params" JSONB,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_EmailTokens_schemaVersion" ON "EmailTokens", hash: 82df997391fa09079f8f5c80d422471e
+CREATE INDEX IF NOT EXISTS "idx_EmailTokens_schemaVersion" ON "EmailTokens" USING btree ("schemaVersion");-- Index "idx_EmailTokens_token" ON "EmailTokens", hash: 5589dff898cf669ead10fef9e5928354
+CREATE INDEX IF NOT EXISTS "idx_EmailTokens_token" ON "EmailTokens" USING btree ("token");-- Schema for "FeaturedResources", hash: 3205dcf11d62c7bedff2bdf75956dc17
 CREATE TABLE "FeaturedResources" (
-    _id varchar(27) PRIMARY KEY,
-    "title" text NOT NULL,
-    "body" text,
-    "ctaText" text NOT NULL,
-    "ctaUrl" text NOT NULL,
-    "expiresAt" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_FeaturedResources_schemaVersion" ON "FeaturedResources", hash: aec350a12bb7e5434d2f9fbd6c5f8ddd
-CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedResources" USING btree ("schemaVersion");
-
--- Schema for "ForumEvents", hash: e431338f81d2c401939803539afa724a
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "body" TEXT,
+  "ctaText" TEXT NOT NULL,
+  "ctaUrl" TEXT NOT NULL,
+  "expiresAt" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_FeaturedResources_schemaVersion" ON "FeaturedResources", hash: aec350a12bb7e5434d2f9fbd6c5f8ddd
+CREATE INDEX IF NOT EXISTS "idx_FeaturedResources_schemaVersion" ON "FeaturedResources" USING btree ("schemaVersion");-- Schema for "ForumEvents", hash: e431338f81d2c401939803539afa724a
 CREATE TABLE "ForumEvents" (
-    _id varchar(27) PRIMARY KEY,
-    "title" text NOT NULL,
-    "startDate" timestamptz NOT NULL,
-    "endDate" timestamptz NOT NULL,
-    "darkColor" text NOT NULL,
-    "lightColor" text NOT NULL,
-    "tagId" varchar(27) NOT NULL,
-    "bannerImageId" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "frontpageDescription" jsonb,
-    "frontpageDescription_latest" text,
-    "postPageDescription" jsonb,
-    "postPageDescription_latest" text
-);
-
--- Index "idx_ForumEvents_schemaVersion" ON "ForumEvents", hash: 8a5a2d6600c9b43c85502d9037858d9a
-CREATE INDEX IF NOT EXISTS "idx_ForumEvents_schemaVersion" ON "ForumEvents" USING btree ("schemaVersion");
-
--- Index "idx_ForumEvents_endDate" ON "ForumEvents", hash: ff71cf2bce8bf622d85eee6c3fba91bb
-CREATE INDEX IF NOT EXISTS "idx_ForumEvents_endDate" ON "ForumEvents" USING btree ("endDate");
-
--- Schema for "GardenCodes", hash: d4e29cd2b216e0c69f701bf437e6ddfe
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "startDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ NOT NULL,
+  "darkColor" TEXT NOT NULL,
+  "lightColor" TEXT NOT NULL,
+  "tagId" VARCHAR(27) NOT NULL,
+  "bannerImageId" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "frontpageDescription" JSONB,
+  "frontpageDescription_latest" TEXT,
+  "postPageDescription" JSONB,
+  "postPageDescription_latest" TEXT
+);-- Index "idx_ForumEvents_schemaVersion" ON "ForumEvents", hash: 8a5a2d6600c9b43c85502d9037858d9a
+CREATE INDEX IF NOT EXISTS "idx_ForumEvents_schemaVersion" ON "ForumEvents" USING btree ("schemaVersion");-- Index "idx_ForumEvents_endDate" ON "ForumEvents", hash: ff71cf2bce8bf622d85eee6c3fba91bb
+CREATE INDEX IF NOT EXISTS "idx_ForumEvents_endDate" ON "ForumEvents" USING btree ("endDate");-- Schema for "GardenCodes", hash: d4e29cd2b216e0c69f701bf437e6ddfe
 CREATE TABLE "GardenCodes" (
-    _id varchar(27) PRIMARY KEY,
-    "code" text NOT NULL,
-    "title" text NOT NULL DEFAULT 'Guest Day Pass',
-    "userId" varchar(27) NOT NULL,
-    "slug" text NOT NULL,
-    "startTime" timestamptz,
-    "endTime" timestamptz NOT NULL,
-    "fbLink" text,
-    "type" text NOT NULL DEFAULT 'public',
-    "hidden" bool NOT NULL DEFAULT false,
-    "deleted" bool NOT NULL DEFAULT false,
-    "afOnly" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "contents" jsonb,
-    "contents_latest" text,
-    "pingbacks" jsonb
-);
-
--- Index "idx_GardenCodes_schemaVersion" ON "GardenCodes", hash: ddccf59df7d77502b4504e06c58ed009
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_schemaVersion" ON "GardenCodes" USING btree ("schemaVersion");
-
--- Index "idx_GardenCodes_code_deleted" ON "GardenCodes", hash: 2939c496e6a68466fa28d9cca0b307a2
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted" ON "GardenCodes" USING btree ("code", "deleted");
-
--- Index "idx_GardenCodes_userId_deleted" ON "GardenCodes", hash: e598f8023c1f8f1cc2ffeaea42d650a4
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_userId_deleted" ON "GardenCodes" USING btree ("userId", "deleted");
-
--- Index "idx_GardenCodes_code_deleted_userId" ON "GardenCodes", hash: e599850fe92807b37ffe53bee83776d3
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted_userId" ON "GardenCodes" USING btree ("code", "deleted", "userId");
-
--- Index "idx_GardenCodes_code_deleted_userId" ON "GardenCodes", hash: e599850fe92807b37ffe53bee83776d3
-CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted_userId" ON "GardenCodes" USING btree ("code", "deleted", "userId");
-
--- Schema for "GoogleServiceAccountSessions", hash: b47eaaf54c33aad397389d07418d24be
+  _id VARCHAR(27) PRIMARY KEY,
+  "code" TEXT NOT NULL,
+  "title" TEXT NOT NULL DEFAULT 'Guest Day Pass',
+  "userId" VARCHAR(27) NOT NULL,
+  "slug" TEXT NOT NULL,
+  "startTime" TIMESTAMPTZ,
+  "endTime" TIMESTAMPTZ NOT NULL,
+  "fbLink" TEXT,
+  "type" TEXT NOT NULL DEFAULT 'public',
+  "hidden" BOOL NOT NULL DEFAULT false,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "afOnly" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB
+);-- Index "idx_GardenCodes_schemaVersion" ON "GardenCodes", hash: ddccf59df7d77502b4504e06c58ed009
+CREATE INDEX IF NOT EXISTS "idx_GardenCodes_schemaVersion" ON "GardenCodes" USING btree ("schemaVersion");-- Index "idx_GardenCodes_code_deleted" ON "GardenCodes", hash: 2939c496e6a68466fa28d9cca0b307a2
+CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted" ON "GardenCodes" USING btree ("code", "deleted");-- Index "idx_GardenCodes_userId_deleted" ON "GardenCodes", hash: e598f8023c1f8f1cc2ffeaea42d650a4
+CREATE INDEX IF NOT EXISTS "idx_GardenCodes_userId_deleted" ON "GardenCodes" USING btree ("userId", "deleted");-- Index "idx_GardenCodes_code_deleted_userId" ON "GardenCodes", hash: e599850fe92807b37ffe53bee83776d3
+CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted_userId" ON "GardenCodes" USING btree ("code", "deleted", "userId");-- Index "idx_GardenCodes_code_deleted_userId" ON "GardenCodes", hash: e599850fe92807b37ffe53bee83776d3
+CREATE INDEX IF NOT EXISTS "idx_GardenCodes_code_deleted_userId" ON "GardenCodes" USING btree ("code", "deleted", "userId");-- Schema for "GoogleServiceAccountSessions", hash: b47eaaf54c33aad397389d07418d24be
 CREATE TABLE "GoogleServiceAccountSessions" (
-    _id varchar(27) PRIMARY KEY,
-    "email" text NOT NULL,
-    "refreshToken" text NOT NULL,
-    "estimatedExpiry" timestamptz NOT NULL,
-    "active" bool NOT NULL,
-    "revoked" bool NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_GoogleServiceAccountSessions_schemaVersion" ON "GoogleServiceAccountSessions", hash: 08a66d389aac362ff946e7a3fc590dd0
-CREATE INDEX IF NOT EXISTS "idx_GoogleServiceAccountSessions_schemaVersion" ON "GoogleServiceAccountSessions" USING btree ("schemaVersion");
-
--- Schema for "Images", hash: bbf198b9bbb4d2fb0c64374400bd287b
+  _id VARCHAR(27) PRIMARY KEY,
+  "email" TEXT NOT NULL,
+  "refreshToken" TEXT NOT NULL,
+  "estimatedExpiry" TIMESTAMPTZ NOT NULL,
+  "active" BOOL NOT NULL,
+  "revoked" BOOL NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_GoogleServiceAccountSessions_schemaVersion" ON "GoogleServiceAccountSessions", hash: 08a66d389aac362ff946e7a3fc590dd0
+CREATE INDEX IF NOT EXISTS "idx_GoogleServiceAccountSessions_schemaVersion" ON "GoogleServiceAccountSessions" USING btree ("schemaVersion");-- Schema for "Images", hash: bbf198b9bbb4d2fb0c64374400bd287b
 CREATE TABLE "Images" (
-    _id varchar(27) PRIMARY KEY,
-    "originalUrl" text NOT NULL,
-    "cdnHostedUrl" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Images_schemaVersion" ON "Images", hash: f06f8d7054cf50032def7ead6d81d74b
-CREATE INDEX IF NOT EXISTS "idx_Images_schemaVersion" ON "Images" USING btree ("schemaVersion");
-
--- Index "idx_Images_originalUrl" ON "Images", hash: 050dc519aa08ced0b275ac766995cca6
-CREATE INDEX IF NOT EXISTS "idx_Images_originalUrl" ON "Images" USING btree ("originalUrl");
-
--- Index "idx_Images_cdnHostedUrl" ON "Images", hash: 9cf5752b7fe2ee4e330a38929118de0f
-CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("cdnHostedUrl");
-
--- Schema for "LWEvents", hash: adb2087d1af7b8d13a346a6fb236aee0
+  _id VARCHAR(27) PRIMARY KEY,
+  "originalUrl" TEXT NOT NULL,
+  "cdnHostedUrl" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Images_schemaVersion" ON "Images", hash: f06f8d7054cf50032def7ead6d81d74b
+CREATE INDEX IF NOT EXISTS "idx_Images_schemaVersion" ON "Images" USING btree ("schemaVersion");-- Index "idx_Images_originalUrl" ON "Images", hash: 050dc519aa08ced0b275ac766995cca6
+CREATE INDEX IF NOT EXISTS "idx_Images_originalUrl" ON "Images" USING btree ("originalUrl");-- Index "idx_Images_cdnHostedUrl" ON "Images", hash: 9cf5752b7fe2ee4e330a38929118de0f
+CREATE INDEX IF NOT EXISTS "idx_Images_cdnHostedUrl" ON "Images" USING btree ("cdnHostedUrl");-- Schema for "LWEvents", hash: adb2087d1af7b8d13a346a6fb236aee0
 CREATE TABLE "LWEvents" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27),
-    "name" text,
-    "documentId" text,
-    "important" bool,
-    "properties" jsonb,
-    "intercom" bool,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_LWEvents_schemaVersion" ON "LWEvents", hash: ed989c5f678cdf8085a16f1f76fb9b10
-CREATE INDEX IF NOT EXISTS "idx_LWEvents_schemaVersion" ON "LWEvents" USING btree ("schemaVersion");
-
--- Index "idx_LWEvents_name_createdAt" ON "LWEvents", hash: 2a795cc922ec01df961e3521cf77d8f4
-CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_createdAt" ON "LWEvents" USING btree ("name", "createdAt");
-
--- Index "idx_LWEvents_name_userId_documentId_createdAt" ON "LWEvents", hash: 77eac3daad31c32acca2a76b792df680
-CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_userId_documentId_createdAt" ON "LWEvents" USING btree ("name", "userId", "documentId", "createdAt");
-
--- Index "idx_LWEvents_name_userId_createdAt" ON "LWEvents", hash: 95c03216128012a720ac3a2a41a0b7cf
-CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_userId_createdAt" ON "LWEvents" USING btree ("name", "userId", "createdAt");
-
--- Index "idx_LWEvents_name_properties__ip_createdAt_userId" ON "LWEvents", hash: a9037c853cac0431fb00c5d5aa691d7c
-CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_properties__ip_createdAt_userId" ON "LWEvents" USING gin ("name", ("properties" -> 'ip'), "createdAt", "userId");
-
--- Schema for "LegacyData", hash: 09f9f15c04e48704458423398a7cc39c
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27),
+  "name" TEXT,
+  "documentId" TEXT,
+  "important" BOOL,
+  "properties" JSONB,
+  "intercom" BOOL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_LWEvents_schemaVersion" ON "LWEvents", hash: ed989c5f678cdf8085a16f1f76fb9b10
+CREATE INDEX IF NOT EXISTS "idx_LWEvents_schemaVersion" ON "LWEvents" USING btree ("schemaVersion");-- Index "idx_LWEvents_name_createdAt" ON "LWEvents", hash: 2a795cc922ec01df961e3521cf77d8f4
+CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_createdAt" ON "LWEvents" USING btree ("name", "createdAt");-- Index "idx_LWEvents_name_userId_documentId_createdAt" ON "LWEvents", hash: 77eac3daad31c32acca2a76b792df680
+CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_userId_documentId_createdAt" ON "LWEvents" USING btree ("name", "userId", "documentId", "createdAt");-- Index "idx_LWEvents_name_userId_createdAt" ON "LWEvents", hash: 95c03216128012a720ac3a2a41a0b7cf
+CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_userId_createdAt" ON "LWEvents" USING btree ("name", "userId", "createdAt");-- Index "idx_LWEvents_name_properties__ip_createdAt_userId" ON "LWEvents", hash: a9037c853cac0431fb00c5d5aa691d7c
+CREATE INDEX IF NOT EXISTS "idx_LWEvents_name_properties__ip_createdAt_userId" ON "LWEvents" USING gin (
+  "name",
+  ("properties" -> 'ip'),
+  "createdAt",
+  "userId"
+);-- Schema for "LegacyData", hash: 09f9f15c04e48704458423398a7cc39c
 CREATE TABLE "LegacyData" (
-    _id varchar(27) PRIMARY KEY,
-    "objectId" text NOT NULL,
-    "collectionName" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_LegacyData_schemaVersion" ON "LegacyData", hash: 1658b7951a2df34c4d578dd97ee1376a
-CREATE INDEX IF NOT EXISTS "idx_LegacyData_schemaVersion" ON "LegacyData" USING btree ("schemaVersion");
-
--- Index "idx_LegacyData_objectId" ON "LegacyData", hash: 869a3223730c02c12192ebe813566af1
-CREATE INDEX IF NOT EXISTS "idx_LegacyData_objectId" ON "LegacyData" USING btree ("objectId");
-
--- Schema for "Localgroups", hash: 512ae416c7e245cc7c80cbbbb5bce9bf
+  _id VARCHAR(27) PRIMARY KEY,
+  "objectId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_LegacyData_schemaVersion" ON "LegacyData", hash: 1658b7951a2df34c4d578dd97ee1376a
+CREATE INDEX IF NOT EXISTS "idx_LegacyData_schemaVersion" ON "LegacyData" USING btree ("schemaVersion");-- Index "idx_LegacyData_objectId" ON "LegacyData", hash: 869a3223730c02c12192ebe813566af1
+CREATE INDEX IF NOT EXISTS "idx_LegacyData_objectId" ON "LegacyData" USING btree ("objectId");-- Schema for "Localgroups", hash: 512ae416c7e245cc7c80cbbbb5bce9bf
 CREATE TABLE "Localgroups" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text,
-    "nameInAnotherLanguage" text,
-    "organizerIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "lastActivity" timestamptz,
-    "types" text[] NOT NULL DEFAULT '{''LW''}',
-    "categories" text[],
-    "isOnline" bool NOT NULL DEFAULT false,
-    "mongoLocation" jsonb,
-    "googleLocation" jsonb,
-    "location" text,
-    "contactInfo" text,
-    "facebookLink" text,
-    "facebookPageLink" text,
-    "meetupLink" text,
-    "slackLink" text,
-    "website" text,
-    "bannerImageId" text,
-    "inactive" bool NOT NULL DEFAULT false,
-    "deleted" bool NOT NULL DEFAULT false,
-    "salesforceId" text,
-    "contents" jsonb,
-    "contents_latest" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Localgroups_schemaVersion" ON "Localgroups", hash: 705767de6630d1500878ca047288b47e
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_schemaVersion" ON "Localgroups" USING btree ("schemaVersion");
-
--- Index "idx_Localgroups_organizerIds_deleted_name" ON "Localgroups", hash: 39efdfbdd387b50287c09b5a1cb6f05d
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_organizerIds_deleted_name" ON "Localgroups" USING gin ("organizerIds", "deleted", "name");
-
--- Index "idx_Localgroups_organizerIds_inactive_deleted_name" ON "Localgroups", hash: 9306dd49bbfef3ee0df715e29a1390b0
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_organizerIds_inactive_deleted_name" ON "Localgroups" USING gin ("organizerIds", "inactive", "deleted", "name");
-
--- Index "idx_Localgroups_organizerIds_inactive_deleted" ON "Localgroups", hash: be69364b13f2f306cc32c6ea974899b8
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_organizerIds_inactive_deleted" ON "Localgroups" USING gin ("organizerIds", "inactive", "deleted");
-
--- Index "idx_Localgroups_inactive_deleted_name" ON "Localgroups", hash: d8a100621555fb9b9ab98cdb65d13191
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_inactive_deleted_name" ON "Localgroups" USING btree ("inactive", "deleted", "name");
-
--- Index "idx_Localgroups_mongoLocation_isOnline_inactive_deleted" ON "Localgroups", hash: 9fd78371afb1c161cfd96fe02e21a930
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_mongoLocation_isOnline_inactive_deleted" ON "Localgroups" USING btree ("mongoLocation", "isOnline", "inactive", "deleted");
-
--- Index "idx_Localgroups_isOnline_inactive_deleted_name" ON "Localgroups", hash: 4fd70e6db4d468e41556e576f59b1236
-CREATE INDEX IF NOT EXISTS "idx_Localgroups_isOnline_inactive_deleted_name" ON "Localgroups" USING btree ("isOnline", "inactive", "deleted", "name");
-
--- Schema for "ManifoldProbabilitiesCaches", hash: 0b639089fbfb43a8e5d6b1bb8a7366af
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT,
+  "nameInAnotherLanguage" TEXT,
+  "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "lastActivity" TIMESTAMPTZ,
+  "types" TEXT[] NOT NULL DEFAULT '{''LW''}',
+  "categories" TEXT[],
+  "isOnline" BOOL NOT NULL DEFAULT false,
+  "mongoLocation" JSONB,
+  "googleLocation" JSONB,
+  "location" TEXT,
+  "contactInfo" TEXT,
+  "facebookLink" TEXT,
+  "facebookPageLink" TEXT,
+  "meetupLink" TEXT,
+  "slackLink" TEXT,
+  "website" TEXT,
+  "bannerImageId" TEXT,
+  "inactive" BOOL NOT NULL DEFAULT false,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "salesforceId" TEXT,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Localgroups_schemaVersion" ON "Localgroups", hash: 705767de6630d1500878ca047288b47e
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_schemaVersion" ON "Localgroups" USING btree ("schemaVersion");-- Index "idx_Localgroups_organizerIds_deleted_name" ON "Localgroups", hash: 39efdfbdd387b50287c09b5a1cb6f05d
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_organizerIds_deleted_name" ON "Localgroups" USING gin ("organizerIds", "deleted", "name");-- Index "idx_Localgroups_organizerIds_inactive_deleted_name" ON "Localgroups", hash: 9306dd49bbfef3ee0df715e29a1390b0
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_organizerIds_inactive_deleted_name" ON "Localgroups" USING gin ("organizerIds", "inactive", "deleted", "name");-- Index "idx_Localgroups_organizerIds_inactive_deleted" ON "Localgroups", hash: be69364b13f2f306cc32c6ea974899b8
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_organizerIds_inactive_deleted" ON "Localgroups" USING gin ("organizerIds", "inactive", "deleted");-- Index "idx_Localgroups_inactive_deleted_name" ON "Localgroups", hash: d8a100621555fb9b9ab98cdb65d13191
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_inactive_deleted_name" ON "Localgroups" USING btree ("inactive", "deleted", "name");-- Index "idx_Localgroups_mongoLocation_isOnline_inactive_deleted" ON "Localgroups", hash: 9fd78371afb1c161cfd96fe02e21a930
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_mongoLocation_isOnline_inactive_deleted" ON "Localgroups" USING btree (
+  "mongoLocation",
+  "isOnline",
+  "inactive",
+  "deleted"
+);-- Index "idx_Localgroups_isOnline_inactive_deleted_name" ON "Localgroups", hash: 4fd70e6db4d468e41556e576f59b1236
+CREATE INDEX IF NOT EXISTS "idx_Localgroups_isOnline_inactive_deleted_name" ON "Localgroups" USING btree ("isOnline", "inactive", "deleted", "name");-- Schema for "ManifoldProbabilitiesCaches", hash: 0b639089fbfb43a8e5d6b1bb8a7366af
 CREATE UNLOGGED TABLE "ManifoldProbabilitiesCaches" (
-    _id varchar(27) PRIMARY KEY,
-    "marketId" text NOT NULL,
-    "probability" double precision NOT NULL,
-    "isResolved" bool NOT NULL,
-    "year" double precision NOT NULL,
-    "lastUpdated" timestamptz NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ManifoldProbabilitiesCaches_schemaVersion" ON "ManifoldProbabilitiesCaches", hash: 757ad9500fa1b47bb83eeef79ea0a5e5
-CREATE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_schemaVersion" ON "ManifoldProbabilitiesCaches" USING btree ("schemaVersion");
-
--- Index "idx_ManifoldProbabilitiesCaches_marketId" ON "ManifoldProbabilitiesCaches", hash: ae7812c3a67f47fe6b46d92043a4aa5a
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_marketId" ON "ManifoldProbabilitiesCaches" USING btree ("marketId");
-
--- Schema for "Messages", hash: 272735d2d8d946c22c6c5d573731f84c
+  _id VARCHAR(27) PRIMARY KEY,
+  "marketId" TEXT NOT NULL,
+  "probability" DOUBLE PRECISION NOT NULL,
+  "isResolved" BOOL NOT NULL,
+  "year" DOUBLE PRECISION NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ManifoldProbabilitiesCaches_schemaVersion" ON "ManifoldProbabilitiesCaches", hash: 757ad9500fa1b47bb83eeef79ea0a5e5
+CREATE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_schemaVersion" ON "ManifoldProbabilitiesCaches" USING btree ("schemaVersion");-- Index "idx_ManifoldProbabilitiesCaches_marketId" ON "ManifoldProbabilitiesCaches", hash: ae7812c3a67f47fe6b46d92043a4aa5a
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_marketId" ON "ManifoldProbabilitiesCaches" USING btree ("marketId");-- Schema for "Messages", hash: 272735d2d8d946c22c6c5d573731f84c
 CREATE TABLE "Messages" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "conversationId" varchar(27) NOT NULL,
-    "noEmail" bool NOT NULL DEFAULT false,
-    "contents" jsonb,
-    "contents_latest" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Messages_schemaVersion" ON "Messages", hash: d0df7521eb12734a337a16ad2ac7709d
-CREATE INDEX IF NOT EXISTS "idx_Messages_schemaVersion" ON "Messages" USING btree ("schemaVersion");
-
--- Index "idx_Messages_conversationId_createdAt" ON "Messages", hash: 2da2fdb213eefc3b0d32799b1ed61c58
-CREATE INDEX IF NOT EXISTS "idx_Messages_conversationId_createdAt" ON "Messages" USING btree ("conversationId", "createdAt");
-
--- Schema for "Migrations", hash: 0692e548892f8bbd8bd771b3397af621
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "conversationId" VARCHAR(27) NOT NULL,
+  "noEmail" BOOL NOT NULL DEFAULT false,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Messages_schemaVersion" ON "Messages", hash: d0df7521eb12734a337a16ad2ac7709d
+CREATE INDEX IF NOT EXISTS "idx_Messages_schemaVersion" ON "Messages" USING btree ("schemaVersion");-- Index "idx_Messages_conversationId_createdAt" ON "Messages", hash: 2da2fdb213eefc3b0d32799b1ed61c58
+CREATE INDEX IF NOT EXISTS "idx_Messages_conversationId_createdAt" ON "Messages" USING btree ("conversationId", "createdAt");-- Schema for "Migrations", hash: 0692e548892f8bbd8bd771b3397af621
 CREATE TABLE "Migrations" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text NOT NULL,
-    "started" timestamptz NOT NULL,
-    "finished" bool NOT NULL DEFAULT false,
-    "succeeded" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Migrations_schemaVersion" ON "Migrations", hash: 35d4f0d698e45b668e269f19c29b83e1
-CREATE INDEX IF NOT EXISTS "idx_Migrations_schemaVersion" ON "Migrations" USING btree ("schemaVersion");
-
--- Schema for "ModerationTemplates", hash: 885e0bfa8035eb6b3a7543ea423fb7ff
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "started" TIMESTAMPTZ NOT NULL,
+  "finished" BOOL NOT NULL DEFAULT false,
+  "succeeded" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Migrations_schemaVersion" ON "Migrations", hash: 35d4f0d698e45b668e269f19c29b83e1
+CREATE INDEX IF NOT EXISTS "idx_Migrations_schemaVersion" ON "Migrations" USING btree ("schemaVersion");-- Schema for "ModerationTemplates", hash: 885e0bfa8035eb6b3a7543ea423fb7ff
 CREATE TABLE "ModerationTemplates" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text NOT NULL,
-    "collectionName" text NOT NULL,
-    "order" double precision NOT NULL DEFAULT 10,
-    "deleted" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "contents" jsonb,
-    "contents_latest" text
-);
-
--- Index "idx_ModerationTemplates_schemaVersion" ON "ModerationTemplates", hash: 461711d25f9a09a450c743f10e1cdb54
-CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_schemaVersion" ON "ModerationTemplates" USING btree ("schemaVersion");
-
--- Index "idx_ModerationTemplates_deleted_order" ON "ModerationTemplates", hash: 51f6cbdd470c3c37e3ff43d3ccfa3e6d
-CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_deleted_order" ON "ModerationTemplates" USING btree ("deleted", "order");
-
--- Index "idx_ModerationTemplates_collectionName_deleted_order" ON "ModerationTemplates", hash: 041034680d9d2a73a753af39ed94c078
-CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_collectionName_deleted_order" ON "ModerationTemplates" USING btree ("collectionName", "deleted", "order");
-
--- Schema for "ModeratorActions", hash: 8cb31ea9bc6b488fad7271702e35537d
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "order" DOUBLE PRECISION NOT NULL DEFAULT 10,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT
+);-- Index "idx_ModerationTemplates_schemaVersion" ON "ModerationTemplates", hash: 461711d25f9a09a450c743f10e1cdb54
+CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_schemaVersion" ON "ModerationTemplates" USING btree ("schemaVersion");-- Index "idx_ModerationTemplates_deleted_order" ON "ModerationTemplates", hash: 51f6cbdd470c3c37e3ff43d3ccfa3e6d
+CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_deleted_order" ON "ModerationTemplates" USING btree ("deleted", "order");-- Index "idx_ModerationTemplates_collectionName_deleted_order" ON "ModerationTemplates", hash: 041034680d9d2a73a753af39ed94c078
+CREATE INDEX IF NOT EXISTS "idx_ModerationTemplates_collectionName_deleted_order" ON "ModerationTemplates" USING btree ("collectionName", "deleted", "order");-- Schema for "ModeratorActions", hash: 8cb31ea9bc6b488fad7271702e35537d
 CREATE TABLE "ModeratorActions" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "type" text NOT NULL,
-    "endedAt" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ModeratorActions_schemaVersion" ON "ModeratorActions", hash: b3c3b4504c8d9582ac079c1ea8403b62
-CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_schemaVersion" ON "ModeratorActions" USING btree ("schemaVersion");
-
--- Index "idx_ModeratorActions_userId_createdAt" ON "ModeratorActions", hash: 61a946b0c14066b3b1352bb17e00d890
-CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_userId_createdAt" ON "ModeratorActions" USING btree ("userId", "createdAt");
-
--- Index "idx_ModeratorActions_type_createdAt_endedAt" ON "ModeratorActions", hash: a7f3d759980ed17647071cc7f5a9d88f
-CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "ModeratorActions" USING btree ("type", "createdAt", "endedAt");
-
--- Schema for "Notifications", hash: 480d42502183c2278c75be153269d286
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "type" TEXT NOT NULL,
+  "endedAt" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ModeratorActions_schemaVersion" ON "ModeratorActions", hash: b3c3b4504c8d9582ac079c1ea8403b62
+CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_schemaVersion" ON "ModeratorActions" USING btree ("schemaVersion");-- Index "idx_ModeratorActions_userId_createdAt" ON "ModeratorActions", hash: 61a946b0c14066b3b1352bb17e00d890
+CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_userId_createdAt" ON "ModeratorActions" USING btree ("userId", "createdAt");-- Index "idx_ModeratorActions_type_createdAt_endedAt" ON "ModeratorActions", hash: a7f3d759980ed17647071cc7f5a9d88f
+CREATE INDEX IF NOT EXISTS "idx_ModeratorActions_type_createdAt_endedAt" ON "ModeratorActions" USING btree ("type", "createdAt", "endedAt");-- Schema for "Notifications", hash: 480d42502183c2278c75be153269d286
 CREATE TABLE "Notifications" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "documentId" text,
-    "documentType" text,
-    "extraData" jsonb,
-    "link" text,
-    "title" text,
-    "message" text NOT NULL,
-    "type" text NOT NULL,
-    "deleted" bool NOT NULL DEFAULT false,
-    "viewed" bool NOT NULL DEFAULT false,
-    "emailed" bool NOT NULL DEFAULT false,
-    "waitingForBatch" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Notifications_schemaVersion" ON "Notifications", hash: 9d396e75a861c6050f1877a8a817641f
-CREATE INDEX IF NOT EXISTS "idx_Notifications_schemaVersion" ON "Notifications" USING btree ("schemaVersion");
-
--- Index "idx_Notifications_userId_emailed_waitingForBatch_createdAt_type" ON "Notifications", hash: 25b9701ef5636c338d19d0e17e71f417
-CREATE INDEX IF NOT EXISTS "idx_Notifications_userId_emailed_waitingForBatch_createdAt_type" ON "Notifications" USING btree ("userId", "emailed", "waitingForBatch", "createdAt", "type");
-
--- Index "idx_Notifications_userId_type_createdAt" ON "Notifications", hash: 5a09b1ceedc9f12005de36eaa3ae6ad4
-CREATE INDEX IF NOT EXISTS "idx_Notifications_userId_type_createdAt" ON "Notifications" USING btree ("userId", "type", "createdAt");
-
--- Index "idx_Notifications_documentId" ON "Notifications", hash: a831803d5699d71c73798ca38bbfaeca
-CREATE INDEX IF NOT EXISTS "idx_Notifications_documentId" ON "Notifications" USING btree ("documentId");
-
--- Index "idx_Notifications_createdAt" ON "Notifications", hash: e3cebde2aaa4f2cc81a02817022a64e0
-CREATE INDEX IF NOT EXISTS "idx_Notifications_createdAt" ON "Notifications" USING btree ("createdAt");
-
--- Schema for "PageCache", hash: e912e37a4191e1dd2ccbc2360a06acf7
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "documentId" TEXT,
+  "documentType" TEXT,
+  "extraData" JSONB,
+  "link" TEXT,
+  "title" TEXT,
+  "message" TEXT NOT NULL,
+  "type" TEXT NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "viewed" BOOL NOT NULL DEFAULT false,
+  "emailed" BOOL NOT NULL DEFAULT false,
+  "waitingForBatch" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Notifications_schemaVersion" ON "Notifications", hash: 9d396e75a861c6050f1877a8a817641f
+CREATE INDEX IF NOT EXISTS "idx_Notifications_schemaVersion" ON "Notifications" USING btree ("schemaVersion");-- Index "idx_Notifications_userId_emailed_waitingForBatch_createdAt_type" ON "Notifications", hash: 25b9701ef5636c338d19d0e17e71f417
+CREATE INDEX IF NOT EXISTS "idx_Notifications_userId_emailed_waitingForBatch_createdAt_type" ON "Notifications" USING btree (
+  "userId",
+  "emailed",
+  "waitingForBatch",
+  "createdAt",
+  "type"
+);-- Index "idx_Notifications_userId_type_createdAt" ON "Notifications", hash: 5a09b1ceedc9f12005de36eaa3ae6ad4
+CREATE INDEX IF NOT EXISTS "idx_Notifications_userId_type_createdAt" ON "Notifications" USING btree ("userId", "type", "createdAt");-- Index "idx_Notifications_documentId" ON "Notifications", hash: a831803d5699d71c73798ca38bbfaeca
+CREATE INDEX IF NOT EXISTS "idx_Notifications_documentId" ON "Notifications" USING btree ("documentId");-- Index "idx_Notifications_createdAt" ON "Notifications", hash: e3cebde2aaa4f2cc81a02817022a64e0
+CREATE INDEX IF NOT EXISTS "idx_Notifications_createdAt" ON "Notifications" USING btree ("createdAt");-- Schema for "PageCache", hash: e912e37a4191e1dd2ccbc2360a06acf7
 CREATE UNLOGGED TABLE "PageCache" (
-    _id varchar(27) PRIMARY KEY,
-    "path" text NOT NULL,
-    "abTestGroups" jsonb NOT NULL,
-    "bundleHash" text NOT NULL,
-    "renderedAt" timestamptz NOT NULL,
-    "expiresAt" timestamptz NOT NULL,
-    "ttlMs" double precision NOT NULL,
-    "renderResult" jsonb NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PageCache_schemaVersion" ON "PageCache", hash: 1662c11e2990c9d0842a3e400a188ce4
-CREATE INDEX IF NOT EXISTS "idx_PageCache_schemaVersion" ON "PageCache" USING btree ("schemaVersion");
-
--- Index "idx_PageCache_path_bundleHash_expiresAt" ON "PageCache", hash: 8d8ff7ac552d9f1e35fe89ab5a7ce261
-CREATE INDEX IF NOT EXISTS "idx_PageCache_path_bundleHash_expiresAt" ON "PageCache" USING btree ("path", "bundleHash", "expiresAt");
-
--- Schema for "PetrovDayLaunchs", hash: 4e622c02165e976b730cdcb6e8c8a004
+  _id VARCHAR(27) PRIMARY KEY,
+  "path" TEXT NOT NULL,
+  "abTestGroups" JSONB NOT NULL,
+  "bundleHash" TEXT NOT NULL,
+  "renderedAt" TIMESTAMPTZ NOT NULL,
+  "expiresAt" TIMESTAMPTZ NOT NULL,
+  "ttlMs" DOUBLE PRECISION NOT NULL,
+  "renderResult" JSONB NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PageCache_schemaVersion" ON "PageCache", hash: 1662c11e2990c9d0842a3e400a188ce4
+CREATE INDEX IF NOT EXISTS "idx_PageCache_schemaVersion" ON "PageCache" USING btree ("schemaVersion");-- Index "idx_PageCache_path_bundleHash_expiresAt" ON "PageCache", hash: 8d8ff7ac552d9f1e35fe89ab5a7ce261
+CREATE INDEX IF NOT EXISTS "idx_PageCache_path_bundleHash_expiresAt" ON "PageCache" USING btree ("path", "bundleHash", "expiresAt");-- Schema for "PetrovDayLaunchs", hash: 4e622c02165e976b730cdcb6e8c8a004
 CREATE TABLE "PetrovDayLaunchs" (
-    _id varchar(27) PRIMARY KEY,
-    "launchCode" text NOT NULL,
-    "hashedLaunchCode" text,
-    "userId" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PetrovDayLaunchs_schemaVersion" ON "PetrovDayLaunchs", hash: a442a95f02ec94f6b7e2032e40e5b4d5
-CREATE INDEX IF NOT EXISTS "idx_PetrovDayLaunchs_schemaVersion" ON "PetrovDayLaunchs" USING btree ("schemaVersion");
-
--- Schema for "PodcastEpisodes", hash: 802f1e5cf6bf9cf5bc182062a92085b5
+  _id VARCHAR(27) PRIMARY KEY,
+  "launchCode" TEXT NOT NULL,
+  "hashedLaunchCode" TEXT,
+  "userId" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PetrovDayLaunchs_schemaVersion" ON "PetrovDayLaunchs", hash: a442a95f02ec94f6b7e2032e40e5b4d5
+CREATE INDEX IF NOT EXISTS "idx_PetrovDayLaunchs_schemaVersion" ON "PetrovDayLaunchs" USING btree ("schemaVersion");-- Schema for "PodcastEpisodes", hash: 802f1e5cf6bf9cf5bc182062a92085b5
 CREATE TABLE "PodcastEpisodes" (
-    _id varchar(27) PRIMARY KEY,
-    "podcastId" varchar(27) NOT NULL,
-    "title" text NOT NULL,
-    "episodeLink" text NOT NULL,
-    "externalEpisodeId" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PodcastEpisodes_schemaVersion" ON "PodcastEpisodes", hash: 3c6a9f4487bcdfbe7f5f20705cb65530
-CREATE INDEX IF NOT EXISTS "idx_PodcastEpisodes_schemaVersion" ON "PodcastEpisodes" USING btree ("schemaVersion");
-
--- Index "idx_PodcastEpisodes_externalEpisodeId" ON "PodcastEpisodes", hash: d408955d845e431820b549f8ca4dfdf9
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PodcastEpisodes_externalEpisodeId" ON "PodcastEpisodes" USING btree ("externalEpisodeId");
-
--- Schema for "Podcasts", hash: 26767dab74bb5ddd35562ce9d50a974d
+  _id VARCHAR(27) PRIMARY KEY,
+  "podcastId" VARCHAR(27) NOT NULL,
+  "title" TEXT NOT NULL,
+  "episodeLink" TEXT NOT NULL,
+  "externalEpisodeId" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PodcastEpisodes_schemaVersion" ON "PodcastEpisodes", hash: 3c6a9f4487bcdfbe7f5f20705cb65530
+CREATE INDEX IF NOT EXISTS "idx_PodcastEpisodes_schemaVersion" ON "PodcastEpisodes" USING btree ("schemaVersion");-- Index "idx_PodcastEpisodes_externalEpisodeId" ON "PodcastEpisodes", hash: d408955d845e431820b549f8ca4dfdf9
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PodcastEpisodes_externalEpisodeId" ON "PodcastEpisodes" USING btree ("externalEpisodeId");-- Schema for "Podcasts", hash: 26767dab74bb5ddd35562ce9d50a974d
 CREATE TABLE "Podcasts" (
-    _id varchar(27) PRIMARY KEY,
-    "title" text NOT NULL,
-    "applePodcastLink" text,
-    "spotifyPodcastLink" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Podcasts_schemaVersion" ON "Podcasts", hash: 92e9eefbaf7a1b82cba3219313559eca
-CREATE INDEX IF NOT EXISTS "idx_Podcasts_schemaVersion" ON "Podcasts" USING btree ("schemaVersion");
-
--- Schema for "PostEmbeddings", hash: edbf15a9de4051e2dc80bf4f1bdff717
+  _id VARCHAR(27) PRIMARY KEY,
+  "title" TEXT NOT NULL,
+  "applePodcastLink" TEXT,
+  "spotifyPodcastLink" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Podcasts_schemaVersion" ON "Podcasts", hash: 92e9eefbaf7a1b82cba3219313559eca
+CREATE INDEX IF NOT EXISTS "idx_Podcasts_schemaVersion" ON "Podcasts" USING btree ("schemaVersion");-- Schema for "PostEmbeddings", hash: edbf15a9de4051e2dc80bf4f1bdff717
 CREATE TABLE "PostEmbeddings" (
-    _id varchar(27) PRIMARY KEY,
-    "postId" varchar(27) NOT NULL,
-    "postHash" text NOT NULL,
-    "lastGeneratedAt" timestamptz NOT NULL,
-    "model" text NOT NULL,
-    "embeddings" VECTOR (1536) NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PostEmbeddings_schemaVersion" ON "PostEmbeddings", hash: ea64294c858b0f12709f81afe0d6ca8d
-CREATE INDEX IF NOT EXISTS "idx_PostEmbeddings_schemaVersion" ON "PostEmbeddings" USING btree ("schemaVersion");
-
--- Index "idx_PostEmbeddings_postId_model" ON "PostEmbeddings", hash: b01e42638620157b772f5660105fd166
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbeddings" USING btree ("postId", "model");
-
--- Schema for "PostRecommendations", hash: 698269dfbf3300345faddc25362d0e10
+  _id VARCHAR(27) PRIMARY KEY,
+  "postId" VARCHAR(27) NOT NULL,
+  "postHash" TEXT NOT NULL,
+  "lastGeneratedAt" TIMESTAMPTZ NOT NULL,
+  "model" TEXT NOT NULL,
+  "embeddings" VECTOR (1536) NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PostEmbeddings_schemaVersion" ON "PostEmbeddings", hash: ea64294c858b0f12709f81afe0d6ca8d
+CREATE INDEX IF NOT EXISTS "idx_PostEmbeddings_schemaVersion" ON "PostEmbeddings" USING btree ("schemaVersion");-- Index "idx_PostEmbeddings_postId_model" ON "PostEmbeddings", hash: b01e42638620157b772f5660105fd166
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostEmbeddings_postId_model" ON "PostEmbeddings" USING btree ("postId", "model");-- Schema for "PostRecommendations", hash: 698269dfbf3300345faddc25362d0e10
 CREATE TABLE "PostRecommendations" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27),
-    "clientId" text,
-    "postId" varchar(27) NOT NULL,
-    "strategyName" text NOT NULL,
-    "strategySettings" jsonb,
-    "recommendationCount" integer NOT NULL DEFAULT 0,
-    "lastRecommendedAt" timestamptz NOT NULL,
-    "clickedAt" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PostRecommendations_schemaVersion" ON "PostRecommendations", hash: 2dfe7f5ecdd502c72fa8244a6286ead5
-CREATE INDEX IF NOT EXISTS "idx_PostRecommendations_schemaVersion" ON "PostRecommendations" USING btree ("schemaVersion");
-
--- Index "idx_PostRecommendations_userId_clientId_postId" ON "PostRecommendations", hash: ae874d23560b9de0c4fb637517401c62
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostRecommendations_userId_clientId_postId" ON "PostRecommendations" USING btree (COALESCE("userId", ''), COALESCE("clientId", ''), "postId");
-
--- Schema for "PostRelations", hash: 7d9b544a9813a794777812e9b4071c85
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27),
+  "clientId" TEXT,
+  "postId" VARCHAR(27) NOT NULL,
+  "strategyName" TEXT NOT NULL,
+  "strategySettings" JSONB,
+  "recommendationCount" INTEGER NOT NULL DEFAULT 0,
+  "lastRecommendedAt" TIMESTAMPTZ NOT NULL,
+  "clickedAt" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PostRecommendations_schemaVersion" ON "PostRecommendations", hash: 2dfe7f5ecdd502c72fa8244a6286ead5
+CREATE INDEX IF NOT EXISTS "idx_PostRecommendations_schemaVersion" ON "PostRecommendations" USING btree ("schemaVersion");-- Index "idx_PostRecommendations_userId_clientId_postId" ON "PostRecommendations", hash: ae874d23560b9de0c4fb637517401c62
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostRecommendations_userId_clientId_postId" ON "PostRecommendations" USING btree (
+  COALESCE("userId", ''),
+  COALESCE("clientId", ''),
+  "postId"
+);-- Schema for "PostRelations", hash: 7d9b544a9813a794777812e9b4071c85
 CREATE TABLE "PostRelations" (
-    _id varchar(27) PRIMARY KEY,
-    "type" text NOT NULL,
-    "sourcePostId" varchar(27) NOT NULL,
-    "targetPostId" varchar(27) NOT NULL,
-    "order" double precision,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PostRelations_schemaVersion" ON "PostRelations", hash: b2e29a7b547b514bc396f607884e31a3
-CREATE INDEX IF NOT EXISTS "idx_PostRelations_schemaVersion" ON "PostRelations" USING btree ("schemaVersion");
-
--- Index "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations", hash: 83575e987813218e79a25ac434ba3799
-CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations" USING btree ("sourcePostId", "order", "createdAt");
-
--- Schema for "PostViewTimes", hash: 2c58fd4bb62a2a83b5371207a868b468
+  _id VARCHAR(27) PRIMARY KEY,
+  "type" TEXT NOT NULL,
+  "sourcePostId" VARCHAR(27) NOT NULL,
+  "targetPostId" VARCHAR(27) NOT NULL,
+  "order" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PostRelations_schemaVersion" ON "PostRelations", hash: b2e29a7b547b514bc396f607884e31a3
+CREATE INDEX IF NOT EXISTS "idx_PostRelations_schemaVersion" ON "PostRelations" USING btree ("schemaVersion");-- Index "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations", hash: 83575e987813218e79a25ac434ba3799
+CREATE INDEX IF NOT EXISTS "idx_PostRelations_sourcePostId_order_createdAt" ON "PostRelations" USING btree ("sourcePostId", "order", "createdAt");-- Schema for "PostViewTimes", hash: 2c58fd4bb62a2a83b5371207a868b468
 CREATE TABLE "PostViewTimes" (
-    _id varchar(27) PRIMARY KEY,
-    "updatedAt" timestamptz NOT NULL,
-    "windowStart" timestamptz NOT NULL,
-    "windowEnd" timestamptz NOT NULL,
-    "clientId" varchar(27) NOT NULL,
-    "postId" varchar(27) NOT NULL,
-    "totalSeconds" double precision NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PostViewTimes_schemaVersion" ON "PostViewTimes", hash: 0fa90fa147845e0e30064e180347a195
-CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_schemaVersion" ON "PostViewTimes" USING btree ("schemaVersion");
-
--- Index "idx_PostViewTimes_clientId_postId_windowStart_windowEnd" ON "PostViewTimes", hash: 955a1c2a3a53c418df93151919487a0b
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostViewTimes_clientId_postId_windowStart_windowEnd" ON "PostViewTimes" USING btree ("clientId", "postId", "windowStart", "windowEnd");
-
--- Index "idx_PostViewTimes_postId" ON "PostViewTimes", hash: 9ff8a9cb1c7ee22b330db906a7272b45
-CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_postId" ON "PostViewTimes" USING btree ("postId");
-
--- Index "idx_PostViewTimes_windowEnd" ON "PostViewTimes", hash: f3db27357dd1590bc7177460e290f49c
-CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_windowEnd" ON "PostViewTimes" USING btree ("windowEnd");
-
--- Index "idx_PostViewTimes_windowStart" ON "PostViewTimes", hash: c6db92933fef6e9284194a64d9012784
-CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_windowStart" ON "PostViewTimes" USING btree ("windowStart");
-
--- Schema for "PostViews", hash: 7a1aa629a1dd352e19287a2f51fd37cc
+  _id VARCHAR(27) PRIMARY KEY,
+  "updatedAt" TIMESTAMPTZ NOT NULL,
+  "windowStart" TIMESTAMPTZ NOT NULL,
+  "windowEnd" TIMESTAMPTZ NOT NULL,
+  "clientId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "totalSeconds" DOUBLE PRECISION NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PostViewTimes_schemaVersion" ON "PostViewTimes", hash: 0fa90fa147845e0e30064e180347a195
+CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_schemaVersion" ON "PostViewTimes" USING btree ("schemaVersion");-- Index "idx_PostViewTimes_clientId_postId_windowStart_windowEnd" ON "PostViewTimes", hash: 955a1c2a3a53c418df93151919487a0b
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostViewTimes_clientId_postId_windowStart_windowEnd" ON "PostViewTimes" USING btree ("clientId", "postId", "windowStart", "windowEnd");-- Index "idx_PostViewTimes_postId" ON "PostViewTimes", hash: 9ff8a9cb1c7ee22b330db906a7272b45
+CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_postId" ON "PostViewTimes" USING btree ("postId");-- Index "idx_PostViewTimes_windowEnd" ON "PostViewTimes", hash: f3db27357dd1590bc7177460e290f49c
+CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_windowEnd" ON "PostViewTimes" USING btree ("windowEnd");-- Index "idx_PostViewTimes_windowStart" ON "PostViewTimes", hash: c6db92933fef6e9284194a64d9012784
+CREATE INDEX IF NOT EXISTS "idx_PostViewTimes_windowStart" ON "PostViewTimes" USING btree ("windowStart");-- Schema for "PostViews", hash: 7a1aa629a1dd352e19287a2f51fd37cc
 CREATE TABLE "PostViews" (
-    _id varchar(27) PRIMARY KEY,
-    "updatedAt" timestamptz NOT NULL,
-    "windowStart" timestamptz NOT NULL,
-    "windowEnd" timestamptz NOT NULL,
-    "postId" varchar(27) NOT NULL,
-    "viewCount" double precision NOT NULL,
-    "uniqueViewCount" double precision NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_PostViews_schemaVersion" ON "PostViews", hash: 15a68b4f37fdd286401f7bc263853029
-CREATE INDEX IF NOT EXISTS "idx_PostViews_schemaVersion" ON "PostViews" USING btree ("schemaVersion");
-
--- Index "idx_PostViews_postId_windowStart_windowEnd" ON "PostViews", hash: 08f3c55be0d0e09a49b818b3bbc42325
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostViews_postId_windowStart_windowEnd" ON "PostViews" USING btree ("postId", "windowStart", "windowEnd");
-
--- Index "idx_PostViews_postId" ON "PostViews", hash: 3728b1b1ddad22e19e4ffb670957eddc
-CREATE INDEX IF NOT EXISTS "idx_PostViews_postId" ON "PostViews" USING btree ("postId");
-
--- Index "idx_PostViews_windowEnd" ON "PostViews", hash: d906177ba699ebac9dd0bba31f6944eb
-CREATE INDEX IF NOT EXISTS "idx_PostViews_windowEnd" ON "PostViews" USING btree ("windowEnd");
-
--- Index "idx_PostViews_windowStart" ON "PostViews", hash: 165d806ccb1926c776bbc036e57c4cac
-CREATE INDEX IF NOT EXISTS "idx_PostViews_windowStart" ON "PostViews" USING btree ("windowStart");
-
--- Schema for "Posts", hash: 684ee7b6197d186baa38b4ea81b728c2
+  _id VARCHAR(27) PRIMARY KEY,
+  "updatedAt" TIMESTAMPTZ NOT NULL,
+  "windowStart" TIMESTAMPTZ NOT NULL,
+  "windowEnd" TIMESTAMPTZ NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "viewCount" DOUBLE PRECISION NOT NULL,
+  "uniqueViewCount" DOUBLE PRECISION NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_PostViews_schemaVersion" ON "PostViews", hash: 15a68b4f37fdd286401f7bc263853029
+CREATE INDEX IF NOT EXISTS "idx_PostViews_schemaVersion" ON "PostViews" USING btree ("schemaVersion");-- Index "idx_PostViews_postId_windowStart_windowEnd" ON "PostViews", hash: 08f3c55be0d0e09a49b818b3bbc42325
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PostViews_postId_windowStart_windowEnd" ON "PostViews" USING btree ("postId", "windowStart", "windowEnd");-- Index "idx_PostViews_postId" ON "PostViews", hash: 3728b1b1ddad22e19e4ffb670957eddc
+CREATE INDEX IF NOT EXISTS "idx_PostViews_postId" ON "PostViews" USING btree ("postId");-- Index "idx_PostViews_windowEnd" ON "PostViews", hash: d906177ba699ebac9dd0bba31f6944eb
+CREATE INDEX IF NOT EXISTS "idx_PostViews_windowEnd" ON "PostViews" USING btree ("windowEnd");-- Index "idx_PostViews_windowStart" ON "PostViews", hash: 165d806ccb1926c776bbc036e57c4cac
+CREATE INDEX IF NOT EXISTS "idx_PostViews_windowStart" ON "PostViews" USING btree ("windowStart");-- Schema for "Posts", hash: 684ee7b6197d186baa38b4ea81b728c2
 CREATE TABLE "Posts" (
-    _id varchar(27) PRIMARY KEY,
-    "postedAt" timestamptz NOT NULL,
-    "modifiedAt" timestamptz,
-    "url" varchar(500),
-    "postCategory" text NOT NULL DEFAULT 'post',
-    "title" varchar(500) NOT NULL,
-    "slug" text NOT NULL,
-    "viewCount" double precision NOT NULL DEFAULT 0,
-    "lastCommentedAt" timestamptz,
-    "clickCount" double precision NOT NULL DEFAULT 0,
-    "deletedDraft" bool NOT NULL DEFAULT false,
-    "status" double precision NOT NULL,
-    "isFuture" bool NOT NULL,
-    "sticky" bool NOT NULL DEFAULT false,
-    "stickyPriority" integer NOT NULL DEFAULT 2,
-    "userIP" text,
-    "userAgent" text,
-    "referrer" text,
-    "author" text,
-    "userId" varchar(27) NOT NULL,
-    "question" bool NOT NULL DEFAULT false,
-    "authorIsUnreviewed" bool NOT NULL DEFAULT false,
-    "readTimeMinutesOverride" double precision,
-    "submitToFrontpage" bool NOT NULL DEFAULT true,
-    "hiddenRelatedQuestion" bool NOT NULL DEFAULT false,
-    "originalPostRelationSourceId" text,
-    "shortform" bool NOT NULL DEFAULT false,
-    "canonicalSource" text,
-    "nominationCount2018" double precision NOT NULL DEFAULT 0,
-    "nominationCount2019" double precision NOT NULL DEFAULT 0,
-    "reviewCount2018" double precision NOT NULL DEFAULT 0,
-    "reviewCount2019" double precision NOT NULL DEFAULT 0,
-    "reviewCount" double precision NOT NULL DEFAULT 0,
-    "reviewVoteCount" double precision NOT NULL DEFAULT 0,
-    "positiveReviewVoteCount" double precision NOT NULL DEFAULT 0,
-    "manifoldReviewMarketId" text,
-    "annualReviewMarketCommentId" varchar(27),
-    "reviewVoteScoreAF" double precision NOT NULL DEFAULT 0,
-    "reviewVotesAF" double precision[] NOT NULL DEFAULT '{}',
-    "reviewVoteScoreHighKarma" double precision NOT NULL DEFAULT 0,
-    "reviewVotesHighKarma" double precision[] NOT NULL DEFAULT '{}',
-    "reviewVoteScoreAllKarma" double precision NOT NULL DEFAULT 0,
-    "reviewVotesAllKarma" double precision[] NOT NULL DEFAULT '{}',
-    "finalReviewVoteScoreHighKarma" double precision NOT NULL DEFAULT 0,
-    "finalReviewVotesHighKarma" double precision[] NOT NULL DEFAULT '{}',
-    "finalReviewVoteScoreAllKarma" double precision NOT NULL DEFAULT 0,
-    "finalReviewVotesAllKarma" double precision[] NOT NULL DEFAULT '{}',
-    "finalReviewVoteScoreAF" double precision NOT NULL DEFAULT 0,
-    "finalReviewVotesAF" double precision[] NOT NULL DEFAULT '{}',
-    "lastCommentPromotedAt" timestamptz,
-    "tagRelevance" jsonb,
-    "noIndex" bool NOT NULL DEFAULT false,
-    "rsvps" jsonb[],
-    "activateRSVPs" bool,
-    "nextDayReminderSent" bool NOT NULL DEFAULT false,
-    "onlyVisibleToLoggedIn" bool NOT NULL DEFAULT false,
-    "onlyVisibleToEstablishedAccounts" bool NOT NULL DEFAULT false,
-    "hideFromRecentDiscussions" bool NOT NULL DEFAULT false,
-    "votingSystem" text DEFAULT 'twoAxis',
-    "podcastEpisodeId" varchar(27),
-    "forceAllowType3Audio" bool NOT NULL DEFAULT false,
-    "legacy" bool NOT NULL DEFAULT false,
-    "legacyId" text,
-    "legacySpam" bool NOT NULL DEFAULT false,
-    "feedId" varchar(27),
-    "feedLink" text,
-    "curatedDate" timestamptz,
-    "metaDate" timestamptz,
-    "suggestForCuratedUserIds" varchar(27)[],
-    "frontpageDate" timestamptz,
-    "collectionTitle" text,
-    "coauthorStatuses" jsonb[],
-    "hasCoauthorPermission" bool NOT NULL DEFAULT true,
-    "socialPreviewImageId" text,
-    "socialPreviewImageAutoUrl" text,
-    "socialPreview" jsonb,
-    "fmCrosspost" jsonb NOT NULL DEFAULT '{"isCrosspost":false}' ::jsonb,
-    "canonicalSequenceId" varchar(27),
-    "canonicalCollectionSlug" text,
-    "canonicalBookId" varchar(27),
-    "canonicalNextPostSlug" text,
-    "canonicalPrevPostSlug" text,
-    "unlisted" bool NOT NULL DEFAULT false,
-    "disableRecommendation" bool NOT NULL DEFAULT false,
-    "defaultRecommendation" bool NOT NULL DEFAULT false,
-    "hideFromPopularComments" bool NOT NULL DEFAULT false,
-    "draft" bool NOT NULL DEFAULT false,
-    "wasEverUndrafted" bool NOT NULL DEFAULT false,
-    "meta" bool NOT NULL DEFAULT false,
-    "hideFrontpageComments" bool NOT NULL DEFAULT false,
-    "maxBaseScore" double precision NOT NULL,
-    "scoreExceeded2Date" timestamptz,
-    "scoreExceeded30Date" timestamptz,
-    "scoreExceeded45Date" timestamptz,
-    "scoreExceeded75Date" timestamptz,
-    "scoreExceeded125Date" timestamptz,
-    "scoreExceeded200Date" timestamptz,
-    "bannedUserIds" varchar(27)[],
-    "commentsLocked" bool,
-    "commentsLockedToAccountsCreatedAfter" timestamptz,
-    "organizerIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "groupId" varchar(27),
-    "eventType" text,
-    "isEvent" bool NOT NULL DEFAULT false,
-    "reviewedByUserId" varchar(27),
-    "reviewForCuratedUserId" varchar(27),
-    "startTime" timestamptz,
-    "localStartTime" timestamptz,
-    "endTime" timestamptz,
-    "localEndTime" timestamptz,
-    "eventRegistrationLink" text,
-    "joinEventLink" text,
-    "onlineEvent" bool NOT NULL DEFAULT false,
-    "globalEvent" bool NOT NULL DEFAULT false,
-    "mongoLocation" jsonb,
-    "googleLocation" jsonb,
-    "location" text,
-    "contactInfo" text,
-    "facebookLink" text,
-    "meetupLink" text,
-    "website" text,
-    "eventImageId" text,
-    "types" text[],
-    "metaSticky" bool NOT NULL DEFAULT false,
-    "sharingSettings" jsonb,
-    "shareWithUsers" varchar(27)[] NOT NULL DEFAULT '{}',
-    "linkSharingKey" text,
-    "linkSharingKeyUsedBy" varchar(27)[],
-    "commentSortOrder" text,
-    "hideAuthor" bool NOT NULL DEFAULT false,
-    "sideCommentVisibility" text,
-    "moderationStyle" text,
-    "ignoreRateLimits" bool,
-    "hideCommentKarma" bool NOT NULL DEFAULT false,
-    "commentCount" double precision NOT NULL DEFAULT 0,
-    "topLevelCommentCount" double precision NOT NULL DEFAULT 0,
-    "criticismTipsDismissed" bool,
-    "debate" bool NOT NULL DEFAULT false,
-    "collabEditorDialogue" bool NOT NULL DEFAULT false,
-    "mostRecentPublishedDialogueResponseDate" timestamptz,
-    "rejected" bool NOT NULL DEFAULT false,
-    "rejectedReason" text,
-    "rejectedByUserId" varchar(27),
-    "subforumTagId" varchar(27),
-    "af" bool NOT NULL DEFAULT false,
-    "afDate" timestamptz,
-    "afCommentCount" double precision NOT NULL DEFAULT 0,
-    "afLastCommentedAt" timestamptz,
-    "afSticky" bool NOT NULL DEFAULT false,
-    "suggestForAlignmentUserIds" text[] NOT NULL DEFAULT '{}',
-    "reviewForAlignmentUserId" text,
-    "agentFoundationsId" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "contents" jsonb,
-    "contents_latest" text,
-    "pingbacks" jsonb,
-    "moderationGuidelines" jsonb,
-    "moderationGuidelines_latest" text,
-    "customHighlight" jsonb,
-    "customHighlight_latest" text,
-    "voteCount" double precision NOT NULL DEFAULT 0,
-    "baseScore" double precision NOT NULL DEFAULT 0,
-    "extendedScore" jsonb,
-    "score" double precision NOT NULL DEFAULT 0,
-    "inactive" bool NOT NULL DEFAULT false,
-    "afBaseScore" double precision,
-    "afExtendedScore" jsonb,
-    "afVoteCount" double precision
-);
-
--- Index "idx_Posts_schemaVersion" ON "Posts", hash: f833a220df8a26e14272a45a0e8ba6cc
-CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");
-
--- Index "idx_posts_coauthorStatuses_postedAt" ON "Posts", hash: 99b64cf3c3c46affe596f1e6518a43fd
-CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USING gin ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "coauthorStatuses", "userId", "postedAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "baseScore");
-
--- Index "idx_posts_score" ON "Posts", hash: 1fe1d5a0840c57116f067cacfbd50303
-CREATE INDEX IF NOT EXISTS "idx_posts_score" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "score", "isEvent", "_id", "meta", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_Posts_tagRelevance__$**" ON "Posts", hash: e992c13a69a9e5acc7775b12a85011a3
-CREATE INDEX IF NOT EXISTS "idx_Posts_tagRelevance__$**" ON "Posts" USING gin (("tagRelevance" -> '$**'));
-
--- Index "idx_posts_sort_by_topAdjusted" ON "Posts", hash: f97f91289507dc39e0f57c0bba5ebb4e
-CREATE INDEX IF NOT EXISTS "idx_posts_sort_by_topAdjusted" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "postedAt", "baseScore", "maxBaseScore", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate")
-WHERE ("status" = 2 AND "draft" IS FALSE AND "unlisted" IS FALSE AND "isFuture" IS FALSE AND "shortform" IS FALSE AND "authorIsUnreviewed" IS FALSE AND "hiddenRelatedQuestion" IS FALSE AND "isEvent" IS FALSE);
-
--- Index "idx_posts_postedAt_baseScore" ON "Posts", hash: 6476e6824473093721ba1b326cba5344
-CREATE INDEX IF NOT EXISTS "idx_posts_postedAt_baseScore" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "postedAt", "baseScore", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate");
-
--- Index "idx_posts_postedAt_baseScore" ON "Posts", hash: 6476e6824473093721ba1b326cba5344
-CREATE INDEX IF NOT EXISTS "idx_posts_postedAt_baseScore" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "postedAt", "baseScore", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate");
-
--- Index "idx_posts_frontpage" ON "Posts", hash: 8328cc8f49056393f026386388007bac
-CREATE INDEX IF NOT EXISTS "idx_posts_frontpage" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "sticky", "stickyPriority", "score", "frontpageDate", "_id", "meta", "isEvent", "af", "curatedDate", "postedAt", "baseScore")
+  _id VARCHAR(27) PRIMARY KEY,
+  "postedAt" TIMESTAMPTZ NOT NULL,
+  "modifiedAt" TIMESTAMPTZ,
+  "url" VARCHAR(500),
+  "postCategory" TEXT NOT NULL DEFAULT 'post',
+  "title" VARCHAR(500) NOT NULL,
+  "slug" TEXT NOT NULL,
+  "viewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "lastCommentedAt" TIMESTAMPTZ,
+  "clickCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "deletedDraft" BOOL NOT NULL DEFAULT false,
+  "status" DOUBLE PRECISION NOT NULL,
+  "isFuture" BOOL NOT NULL,
+  "sticky" BOOL NOT NULL DEFAULT false,
+  "stickyPriority" INTEGER NOT NULL DEFAULT 2,
+  "userIP" TEXT,
+  "userAgent" TEXT,
+  "referrer" TEXT,
+  "author" TEXT,
+  "userId" VARCHAR(27) NOT NULL,
+  "question" BOOL NOT NULL DEFAULT false,
+  "authorIsUnreviewed" BOOL NOT NULL DEFAULT false,
+  "readTimeMinutesOverride" DOUBLE PRECISION,
+  "submitToFrontpage" BOOL NOT NULL DEFAULT true,
+  "hiddenRelatedQuestion" BOOL NOT NULL DEFAULT false,
+  "originalPostRelationSourceId" TEXT,
+  "shortform" BOOL NOT NULL DEFAULT false,
+  "canonicalSource" TEXT,
+  "nominationCount2018" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "nominationCount2019" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewCount2018" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewCount2019" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewVoteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "positiveReviewVoteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "manifoldReviewMarketId" TEXT,
+  "annualReviewMarketCommentId" VARCHAR(27),
+  "reviewVoteScoreAF" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewVotesAF" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',
+  "reviewVoteScoreHighKarma" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewVotesHighKarma" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',
+  "reviewVoteScoreAllKarma" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewVotesAllKarma" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',
+  "finalReviewVoteScoreHighKarma" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "finalReviewVotesHighKarma" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',
+  "finalReviewVoteScoreAllKarma" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "finalReviewVotesAllKarma" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',
+  "finalReviewVoteScoreAF" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "finalReviewVotesAF" DOUBLE PRECISION[] NOT NULL DEFAULT '{}',
+  "lastCommentPromotedAt" TIMESTAMPTZ,
+  "tagRelevance" JSONB,
+  "noIndex" BOOL NOT NULL DEFAULT false,
+  "rsvps" JSONB[],
+  "activateRSVPs" BOOL,
+  "nextDayReminderSent" BOOL NOT NULL DEFAULT false,
+  "onlyVisibleToLoggedIn" BOOL NOT NULL DEFAULT false,
+  "onlyVisibleToEstablishedAccounts" BOOL NOT NULL DEFAULT false,
+  "hideFromRecentDiscussions" BOOL NOT NULL DEFAULT false,
+  "votingSystem" TEXT DEFAULT 'twoAxis',
+  "podcastEpisodeId" VARCHAR(27),
+  "forceAllowType3Audio" BOOL NOT NULL DEFAULT false,
+  "legacy" BOOL NOT NULL DEFAULT false,
+  "legacyId" TEXT,
+  "legacySpam" BOOL NOT NULL DEFAULT false,
+  "feedId" VARCHAR(27),
+  "feedLink" TEXT,
+  "curatedDate" TIMESTAMPTZ,
+  "metaDate" TIMESTAMPTZ,
+  "suggestForCuratedUserIds" VARCHAR(27) [],
+  "frontpageDate" TIMESTAMPTZ,
+  "collectionTitle" TEXT,
+  "coauthorStatuses" JSONB[],
+  "hasCoauthorPermission" BOOL NOT NULL DEFAULT true,
+  "socialPreviewImageId" TEXT,
+  "socialPreviewImageAutoUrl" TEXT,
+  "socialPreview" JSONB,
+  "fmCrosspost" JSONB NOT NULL DEFAULT '{"isCrosspost":false}'::JSONB,
+  "canonicalSequenceId" VARCHAR(27),
+  "canonicalCollectionSlug" TEXT,
+  "canonicalBookId" VARCHAR(27),
+  "canonicalNextPostSlug" TEXT,
+  "canonicalPrevPostSlug" TEXT,
+  "unlisted" BOOL NOT NULL DEFAULT false,
+  "disableRecommendation" BOOL NOT NULL DEFAULT false,
+  "defaultRecommendation" BOOL NOT NULL DEFAULT false,
+  "hideFromPopularComments" BOOL NOT NULL DEFAULT false,
+  "draft" BOOL NOT NULL DEFAULT false,
+  "wasEverUndrafted" BOOL NOT NULL DEFAULT false,
+  "meta" BOOL NOT NULL DEFAULT false,
+  "hideFrontpageComments" BOOL NOT NULL DEFAULT false,
+  "maxBaseScore" DOUBLE PRECISION NOT NULL,
+  "scoreExceeded2Date" TIMESTAMPTZ,
+  "scoreExceeded30Date" TIMESTAMPTZ,
+  "scoreExceeded45Date" TIMESTAMPTZ,
+  "scoreExceeded75Date" TIMESTAMPTZ,
+  "scoreExceeded125Date" TIMESTAMPTZ,
+  "scoreExceeded200Date" TIMESTAMPTZ,
+  "bannedUserIds" VARCHAR(27) [],
+  "commentsLocked" BOOL,
+  "commentsLockedToAccountsCreatedAfter" TIMESTAMPTZ,
+  "organizerIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "groupId" VARCHAR(27),
+  "eventType" TEXT,
+  "isEvent" BOOL NOT NULL DEFAULT false,
+  "reviewedByUserId" VARCHAR(27),
+  "reviewForCuratedUserId" VARCHAR(27),
+  "startTime" TIMESTAMPTZ,
+  "localStartTime" TIMESTAMPTZ,
+  "endTime" TIMESTAMPTZ,
+  "localEndTime" TIMESTAMPTZ,
+  "eventRegistrationLink" TEXT,
+  "joinEventLink" TEXT,
+  "onlineEvent" BOOL NOT NULL DEFAULT false,
+  "globalEvent" BOOL NOT NULL DEFAULT false,
+  "mongoLocation" JSONB,
+  "googleLocation" JSONB,
+  "location" TEXT,
+  "contactInfo" TEXT,
+  "facebookLink" TEXT,
+  "meetupLink" TEXT,
+  "website" TEXT,
+  "eventImageId" TEXT,
+  "types" TEXT[],
+  "metaSticky" BOOL NOT NULL DEFAULT false,
+  "sharingSettings" JSONB,
+  "shareWithUsers" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "linkSharingKey" TEXT,
+  "linkSharingKeyUsedBy" VARCHAR(27) [],
+  "commentSortOrder" TEXT,
+  "hideAuthor" BOOL NOT NULL DEFAULT false,
+  "sideCommentVisibility" TEXT,
+  "moderationStyle" TEXT,
+  "ignoreRateLimits" BOOL,
+  "hideCommentKarma" BOOL NOT NULL DEFAULT false,
+  "commentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "topLevelCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "criticismTipsDismissed" BOOL,
+  "debate" BOOL NOT NULL DEFAULT false,
+  "collabEditorDialogue" BOOL NOT NULL DEFAULT false,
+  "mostRecentPublishedDialogueResponseDate" TIMESTAMPTZ,
+  "rejected" BOOL NOT NULL DEFAULT false,
+  "rejectedReason" TEXT,
+  "rejectedByUserId" VARCHAR(27),
+  "subforumTagId" VARCHAR(27),
+  "af" BOOL NOT NULL DEFAULT false,
+  "afDate" TIMESTAMPTZ,
+  "afCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afLastCommentedAt" TIMESTAMPTZ,
+  "afSticky" BOOL NOT NULL DEFAULT false,
+  "suggestForAlignmentUserIds" TEXT[] NOT NULL DEFAULT '{}',
+  "reviewForAlignmentUserId" TEXT,
+  "agentFoundationsId" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "pingbacks" JSONB,
+  "moderationGuidelines" JSONB,
+  "moderationGuidelines_latest" TEXT,
+  "customHighlight" JSONB,
+  "customHighlight_latest" TEXT,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT false,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
+);-- Index "idx_Posts_schemaVersion" ON "Posts", hash: f833a220df8a26e14272a45a0e8ba6cc
+CREATE INDEX IF NOT EXISTS "idx_Posts_schemaVersion" ON "Posts" USING btree ("schemaVersion");-- Index "idx_posts_coauthorStatuses_postedAt" ON "Posts", hash: 99b64cf3c3c46affe596f1e6518a43fd
+CREATE INDEX IF NOT EXISTS "idx_posts_coauthorStatuses_postedAt" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "coauthorStatuses",
+  "userId",
+  "postedAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "baseScore"
+);-- Index "idx_posts_score" ON "Posts", hash: 1fe1d5a0840c57116f067cacfbd50303
+CREATE INDEX IF NOT EXISTS "idx_posts_score" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "score",
+  "isEvent",
+  "_id",
+  "meta",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_Posts_tagRelevance__$**" ON "Posts", hash: e992c13a69a9e5acc7775b12a85011a3
+CREATE INDEX IF NOT EXISTS "idx_Posts_tagRelevance__$**" ON "Posts" USING gin (("tagRelevance" -> '$**'));-- Index "idx_posts_sort_by_topAdjusted" ON "Posts", hash: f97f91289507dc39e0f57c0bba5ebb4e
+CREATE INDEX IF NOT EXISTS "idx_posts_sort_by_topAdjusted" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "postedAt",
+  "baseScore",
+  "maxBaseScore",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate"
+)
 WHERE
-    "frontpageDate" > '1970-01-01T00:00:00.000Z';
-
--- Index "idx_posts_curated" ON "Posts", hash: 2f8df5eb54c0a8fb7c9105fa820c068b
-CREATE INDEX IF NOT EXISTS "idx_posts_curated" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "sticky", "curatedDate", "postedAt", "_id", "meta", "isEvent", "af", "frontpageDate", "baseScore")
+  (
+    "status" = 2
+    AND "draft" IS FALSE
+    AND "unlisted" IS FALSE
+    AND "isFuture" IS FALSE
+    AND "shortform" IS FALSE
+    AND "authorIsUnreviewed" IS FALSE
+    AND "hiddenRelatedQuestion" IS FALSE
+    AND "isEvent" IS FALSE
+  );-- Index "idx_posts_postedAt_baseScore" ON "Posts", hash: 6476e6824473093721ba1b326cba5344
+CREATE INDEX IF NOT EXISTS "idx_posts_postedAt_baseScore" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "postedAt",
+  "baseScore",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate"
+);-- Index "idx_posts_postedAt_baseScore" ON "Posts", hash: 6476e6824473093721ba1b326cba5344
+CREATE INDEX IF NOT EXISTS "idx_posts_postedAt_baseScore" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "postedAt",
+  "baseScore",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate"
+);-- Index "idx_posts_frontpage" ON "Posts", hash: 8328cc8f49056393f026386388007bac
+CREATE INDEX IF NOT EXISTS "idx_posts_frontpage" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "sticky",
+  "stickyPriority",
+  "score",
+  "frontpageDate",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+)
 WHERE
-    "curatedDate" > '1970-01-01T00:00:00.000Z';
-
--- Index "idx_posts_community" ON "Posts", hash: 88eea93982991173bb9385b134ffd354
-CREATE INDEX IF NOT EXISTS "idx_posts_community" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "sticky", "score", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_topQuestions" ON "Posts", hash: cd9e2db01ad3d8210364d58ad6a2821c
-CREATE INDEX IF NOT EXISTS "idx_posts_topQuestions" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "question", "lastCommentedAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_Posts_status_isFuture_draft_unlisted_shortform_hiddenRelatedQuestion_authorIsUnreviewed_groupId_rejected_postedAt__id_meta_isEvent_af_frontpageDate_curatedDate_baseScore" ON "Posts", hash: 8d2eaeaf27c165e12f006772e3d5da88
-CREATE INDEX IF NOT EXISTS "idx_Posts_status_isFuture_draft_unlisted_shortform_hiddenRelatedQuestion_authorIsUnreviewed_groupId_rejected_postedAt__id_meta_isEvent_af_frontpageDate_curatedDate_baseScore" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "rejected", "postedAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "baseScore");
-
--- Index "idx_posts_userId_createdAt" ON "Posts", hash: 2fc96322f62782fd1f39cb75d84c84a0
-CREATE INDEX IF NOT EXISTS "idx_posts_userId_createdAt" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "userId", "hideAuthor", "deletedDraft", "modifiedAt", "createdAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_userId_shareWithUsers" ON "Posts", hash: 0bd2d1673ebdb1d33a5d31b57f055426
-CREATE INDEX IF NOT EXISTS "idx_posts_userId_shareWithUsers" ON "Posts" USING gin ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "shareWithUsers", "deletedDraft", "modifiedAt", "createdAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_Posts_slug" ON "Posts", hash: 9d2f28b1502e08e02677318a16b67d4c
-CREATE INDEX IF NOT EXISTS "idx_Posts_slug" ON "Posts" USING btree ("slug");
-
--- Index "idx_Posts_legacyId" ON "Posts", hash: dfadcd8cce2d9d23e63cbad9ee8fd459
-CREATE INDEX IF NOT EXISTS "idx_Posts_legacyId" ON "Posts" USING btree ("legacyId");
-
--- Index "idx_Posts_status_isFuture_draft_unlisted_authorIsUnreviewed_hideFrontpageComments_lastCommentedAt__id_baseScore_af_isEvent_globalEvent_commentCount" ON "Posts", hash: eedd8f37e39eb16ab433cbfece761749
-CREATE INDEX IF NOT EXISTS "idx_Posts_status_isFuture_draft_unlisted_authorIsUnreviewed_hideFrontpageComments_lastCommentedAt__id_baseScore_af_isEvent_globalEvent_commentCount" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "authorIsUnreviewed", "hideFrontpageComments", "lastCommentedAt", "_id", "baseScore", "af", "isEvent", "globalEvent", "commentCount");
-
--- Index "idx_posts_recentDiscussionThreadsList" ON "Posts", hash: dc2fea7c9f8cafe248d70416e1e7ad86
-CREATE INDEX IF NOT EXISTS "idx_posts_recentDiscussionThreadsList" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "lastCommentedAt", "baseScore", "hideFrontpageComments", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt");
-
--- Index "idx_posts_globalEvents" ON "Posts", hash: 475a1cdd60e9134fb2036c2a1b23151e
-CREATE INDEX IF NOT EXISTS "idx_posts_globalEvents" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "globalEvent", "eventType", "startTime", "endTime", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_2dsphere" ON "Posts", hash: 16cdbf0b4ee4fd36f6e3819b43b5daf1
-CREATE INDEX IF NOT EXISTS "idx_posts_2dsphere" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "mongoLocation", "eventType", "startTime", "endTime", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_events" ON "Posts", hash: 4086eb4768f7c1e724c983874af2e770
-CREATE INDEX IF NOT EXISTS "idx_posts_events" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "globalEvent", "onlineEvent", "startTime", "endTime", "createdAt", "baseScore", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt");
-
--- Index "idx_posts_postsWithBannedUsers" ON "Posts", hash: 53d5899273e307f894ae486ed8c0cbd3
-CREATE INDEX IF NOT EXISTS "idx_posts_postsWithBannedUsers" ON "Posts" USING gin ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "bannedUserIds", "createdAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_sunshineNewPosts" ON "Posts", hash: 16c33ea93357373b689aec4d4f4b7b9a
-CREATE INDEX IF NOT EXISTS "idx_posts_sunshineNewPosts" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "reviewedByUserId", "frontpageDate", "meta", "_id", "isEvent", "af", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_sunshineNewUsersPosts" ON "Posts", hash: 0f84bd8f06b9cd2093fa5bf4b8b4cbfa
-CREATE INDEX IF NOT EXISTS "idx_posts_sunshineNewUsersPosts" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "userId", "hideAuthor", "reviewedByUserId", "frontpageDate", "createdAt", "_id", "meta", "isEvent", "af", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_sunshineCuratedSuggestions" ON "Posts", hash: e787ef99e6994447472c7058acc277c2
-CREATE INDEX IF NOT EXISTS "idx_posts_sunshineCuratedSuggestions" ON "Posts" USING gin ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "postedAt", "reviewForCuratedUserId", "suggestForCuratedUserIds", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "baseScore")
+  "frontpageDate" > '1970-01-01T00:00:00.000Z';-- Index "idx_posts_curated" ON "Posts", hash: 2f8df5eb54c0a8fb7c9105fa820c068b
+CREATE INDEX IF NOT EXISTS "idx_posts_curated" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "sticky",
+  "curatedDate",
+  "postedAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "baseScore"
+)
 WHERE
-    "suggestForCuratedUserIds" IS NOT NULL;
-
--- Index "idx_Posts_userId_createdAt" ON "Posts", hash: d91371c544f00dde3a9bad615ed4fee6
-CREATE INDEX IF NOT EXISTS "idx_Posts_userId_createdAt" ON "Posts" USING btree ("userId", "createdAt");
-
--- Index "idx_Posts_agentFoundationsId" ON "Posts", hash: 34422420c02d01bd06708e1236ed92e9
-CREATE INDEX IF NOT EXISTS "idx_Posts_agentFoundationsId" ON "Posts" USING btree ("agentFoundationsId");
-
--- Index "idx_Posts_isFuture_postedAt" ON "Posts", hash: 8f5331846da2fe75200cda19f6c2d7db
-CREATE INDEX IF NOT EXISTS "idx_Posts_isFuture_postedAt" ON "Posts" USING btree ("isFuture", "postedAt");
-
--- Index "idx_Posts_inactive_postedAt" ON "Posts", hash: 6331b607f191f46e605ef4469aec117b
-CREATE INDEX IF NOT EXISTS "idx_Posts_inactive_postedAt" ON "Posts" USING btree ("inactive", "postedAt");
-
--- Index "idx_posts_recommendable" ON "Posts", hash: 1da7d74305d16c833c8569db7d358391
-CREATE INDEX IF NOT EXISTS "idx_posts_recommendable" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "meta", "disableRecommendation", "baseScore", "curatedDate", "frontpageDate", "_id", "isEvent", "af", "postedAt");
-
--- Index "idx_posts_pingbackPosts" ON "Posts", hash: e311b296ef5ad0d3c9bce896f4d99d59
-CREATE INDEX IF NOT EXISTS "idx_posts_pingbackPosts" ON "Posts" USING gin ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", ("pingbacks" -> 'Posts'), "baseScore", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt");
-
--- Index "idx_posts_nominatablePostsByVote" ON "Posts", hash: eead1783a59713fa19796a2f229b6722
-CREATE INDEX IF NOT EXISTS "idx_posts_nominatablePostsByVote" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "_id", "userId", "isEvent", "baseScore", "meta", "af", "frontpageDate", "curatedDate", "postedAt");
-
--- Index "idx_posts_positiveReviewVoteCount" ON "Posts", hash: 0f342ff967301959c3b0b5eb97f1dd0f
-CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCount" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "positiveReviewVoteCount", "createdAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_positiveReviewVoteCountReviewCount" ON "Posts", hash: 6a7b63f9d30a4ea215e8fe842501b5a3
-CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCountReviewCount" ON "Posts" USING btree ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "positiveReviewVoteCount", "reviewCount", "createdAt", "_id", "meta", "isEvent", "af", "frontpageDate", "curatedDate", "postedAt", "baseScore");
-
--- Index "idx_posts_alignmentSuggestedPosts" ON "Posts", hash: aa778072dca1ff9446780fd87e5da537
-CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING gin ("status", "isFuture", "draft", "unlisted", "shortform", "hiddenRelatedQuestion", "authorIsUnreviewed", "groupId", "reviewForAlignmentUserId", "af", "suggestForAlignmentUserIds", "createdAt", "_id", "meta", "isEvent", "frontpageDate", "curatedDate", "postedAt", "baseScore")
-WHERE ("suggestForAlignmentUserIds"[0]) IS NOT NULL;
-
--- Index "idx_Posts_url_postedAt" ON "Posts", hash: b1f95935b8c0d6a9fc667759724e9ffd
-CREATE INDEX IF NOT EXISTS "idx_Posts_url_postedAt" ON "Posts" USING btree ("url", "postedAt");
-
--- Index "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts", hash: e9c32d3841ae58629b48f1248e1594c3
-CREATE INDEX IF NOT EXISTS "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts" USING gin (("fmCrosspost" -> 'foreignPostId'), "postedAt");
-
--- Index "idx_Posts_defaultRecommendation" ON "Posts", hash: 32bdefb19a3fb4ce88081409f784df8c
-CREATE INDEX IF NOT EXISTS "idx_Posts_defaultRecommendation" ON "Posts" USING btree ("defaultRecommendation");
-
--- Schema for "RSSFeeds", hash: d85ac49ef29ce80baf1a7f7f00eb9fba
+  "curatedDate" > '1970-01-01T00:00:00.000Z';-- Index "idx_posts_community" ON "Posts", hash: 88eea93982991173bb9385b134ffd354
+CREATE INDEX IF NOT EXISTS "idx_posts_community" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "sticky",
+  "score",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_topQuestions" ON "Posts", hash: cd9e2db01ad3d8210364d58ad6a2821c
+CREATE INDEX IF NOT EXISTS "idx_posts_topQuestions" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "question",
+  "lastCommentedAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_Posts_status_isFuture_draft_unlisted_shortform_hiddenRelatedQuestion_authorIsUnreviewed_groupId_rejected_postedAt__id_meta_isEvent_af_frontpageDate_curatedDate_baseScore" ON "Posts", hash: 8d2eaeaf27c165e12f006772e3d5da88
+CREATE INDEX IF NOT EXISTS "idx_Posts_status_isFuture_draft_unlisted_shortform_hiddenRelatedQuestion_authorIsUnreviewed_groupId_rejected_postedAt__id_meta_isEvent_af_frontpageDate_curatedDate_baseScore" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "rejected",
+  "postedAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "baseScore"
+);-- Index "idx_posts_userId_createdAt" ON "Posts", hash: 2fc96322f62782fd1f39cb75d84c84a0
+CREATE INDEX IF NOT EXISTS "idx_posts_userId_createdAt" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "userId",
+  "hideAuthor",
+  "deletedDraft",
+  "modifiedAt",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_userId_shareWithUsers" ON "Posts", hash: 0bd2d1673ebdb1d33a5d31b57f055426
+CREATE INDEX IF NOT EXISTS "idx_posts_userId_shareWithUsers" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "shareWithUsers",
+  "deletedDraft",
+  "modifiedAt",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_Posts_slug" ON "Posts", hash: 9d2f28b1502e08e02677318a16b67d4c
+CREATE INDEX IF NOT EXISTS "idx_Posts_slug" ON "Posts" USING btree ("slug");-- Index "idx_Posts_legacyId" ON "Posts", hash: dfadcd8cce2d9d23e63cbad9ee8fd459
+CREATE INDEX IF NOT EXISTS "idx_Posts_legacyId" ON "Posts" USING btree ("legacyId");-- Index "idx_Posts_status_isFuture_draft_unlisted_authorIsUnreviewed_hideFrontpageComments_lastCommentedAt__id_baseScore_af_isEvent_globalEvent_commentCount" ON "Posts", hash: eedd8f37e39eb16ab433cbfece761749
+CREATE INDEX IF NOT EXISTS "idx_Posts_status_isFuture_draft_unlisted_authorIsUnreviewed_hideFrontpageComments_lastCommentedAt__id_baseScore_af_isEvent_globalEvent_commentCount" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "authorIsUnreviewed",
+  "hideFrontpageComments",
+  "lastCommentedAt",
+  "_id",
+  "baseScore",
+  "af",
+  "isEvent",
+  "globalEvent",
+  "commentCount"
+);-- Index "idx_posts_recentDiscussionThreadsList" ON "Posts", hash: dc2fea7c9f8cafe248d70416e1e7ad86
+CREATE INDEX IF NOT EXISTS "idx_posts_recentDiscussionThreadsList" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "lastCommentedAt",
+  "baseScore",
+  "hideFrontpageComments",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt"
+);-- Index "idx_posts_globalEvents" ON "Posts", hash: 475a1cdd60e9134fb2036c2a1b23151e
+CREATE INDEX IF NOT EXISTS "idx_posts_globalEvents" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "globalEvent",
+  "eventType",
+  "startTime",
+  "endTime",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_2dsphere" ON "Posts", hash: 16cdbf0b4ee4fd36f6e3819b43b5daf1
+CREATE INDEX IF NOT EXISTS "idx_posts_2dsphere" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "mongoLocation",
+  "eventType",
+  "startTime",
+  "endTime",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_events" ON "Posts", hash: 4086eb4768f7c1e724c983874af2e770
+CREATE INDEX IF NOT EXISTS "idx_posts_events" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "globalEvent",
+  "onlineEvent",
+  "startTime",
+  "endTime",
+  "createdAt",
+  "baseScore",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt"
+);-- Index "idx_posts_postsWithBannedUsers" ON "Posts", hash: 53d5899273e307f894ae486ed8c0cbd3
+CREATE INDEX IF NOT EXISTS "idx_posts_postsWithBannedUsers" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "bannedUserIds",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_sunshineNewPosts" ON "Posts", hash: 16c33ea93357373b689aec4d4f4b7b9a
+CREATE INDEX IF NOT EXISTS "idx_posts_sunshineNewPosts" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "reviewedByUserId",
+  "frontpageDate",
+  "meta",
+  "_id",
+  "isEvent",
+  "af",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_sunshineNewUsersPosts" ON "Posts", hash: 0f84bd8f06b9cd2093fa5bf4b8b4cbfa
+CREATE INDEX IF NOT EXISTS "idx_posts_sunshineNewUsersPosts" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "userId",
+  "hideAuthor",
+  "reviewedByUserId",
+  "frontpageDate",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_sunshineCuratedSuggestions" ON "Posts", hash: e787ef99e6994447472c7058acc277c2
+CREATE INDEX IF NOT EXISTS "idx_posts_sunshineCuratedSuggestions" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "postedAt",
+  "reviewForCuratedUserId",
+  "suggestForCuratedUserIds",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "baseScore"
+)
+WHERE
+  "suggestForCuratedUserIds" IS NOT NULL;-- Index "idx_Posts_userId_createdAt" ON "Posts", hash: d91371c544f00dde3a9bad615ed4fee6
+CREATE INDEX IF NOT EXISTS "idx_Posts_userId_createdAt" ON "Posts" USING btree ("userId", "createdAt");-- Index "idx_Posts_agentFoundationsId" ON "Posts", hash: 34422420c02d01bd06708e1236ed92e9
+CREATE INDEX IF NOT EXISTS "idx_Posts_agentFoundationsId" ON "Posts" USING btree ("agentFoundationsId");-- Index "idx_Posts_isFuture_postedAt" ON "Posts", hash: 8f5331846da2fe75200cda19f6c2d7db
+CREATE INDEX IF NOT EXISTS "idx_Posts_isFuture_postedAt" ON "Posts" USING btree ("isFuture", "postedAt");-- Index "idx_Posts_inactive_postedAt" ON "Posts", hash: 6331b607f191f46e605ef4469aec117b
+CREATE INDEX IF NOT EXISTS "idx_Posts_inactive_postedAt" ON "Posts" USING btree ("inactive", "postedAt");-- Index "idx_posts_recommendable" ON "Posts", hash: 1da7d74305d16c833c8569db7d358391
+CREATE INDEX IF NOT EXISTS "idx_posts_recommendable" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "meta",
+  "disableRecommendation",
+  "baseScore",
+  "curatedDate",
+  "frontpageDate",
+  "_id",
+  "isEvent",
+  "af",
+  "postedAt"
+);-- Index "idx_posts_pingbackPosts" ON "Posts", hash: e311b296ef5ad0d3c9bce896f4d99d59
+CREATE INDEX IF NOT EXISTS "idx_posts_pingbackPosts" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  ("pingbacks" -> 'Posts'),
+  "baseScore",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt"
+);-- Index "idx_posts_nominatablePostsByVote" ON "Posts", hash: eead1783a59713fa19796a2f229b6722
+CREATE INDEX IF NOT EXISTS "idx_posts_nominatablePostsByVote" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "_id",
+  "userId",
+  "isEvent",
+  "baseScore",
+  "meta",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt"
+);-- Index "idx_posts_positiveReviewVoteCount" ON "Posts", hash: 0f342ff967301959c3b0b5eb97f1dd0f
+CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCount" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "positiveReviewVoteCount",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_positiveReviewVoteCountReviewCount" ON "Posts", hash: 6a7b63f9d30a4ea215e8fe842501b5a3
+CREATE INDEX IF NOT EXISTS "idx_posts_positiveReviewVoteCountReviewCount" ON "Posts" USING btree (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "positiveReviewVoteCount",
+  "reviewCount",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+);-- Index "idx_posts_alignmentSuggestedPosts" ON "Posts", hash: aa778072dca1ff9446780fd87e5da537
+CREATE INDEX IF NOT EXISTS "idx_posts_alignmentSuggestedPosts" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  "reviewForAlignmentUserId",
+  "af",
+  "suggestForAlignmentUserIds",
+  "createdAt",
+  "_id",
+  "meta",
+  "isEvent",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt",
+  "baseScore"
+)
+WHERE
+  ("suggestForAlignmentUserIds" [0]) IS NOT NULL;-- Index "idx_Posts_url_postedAt" ON "Posts", hash: b1f95935b8c0d6a9fc667759724e9ffd
+CREATE INDEX IF NOT EXISTS "idx_Posts_url_postedAt" ON "Posts" USING btree ("url", "postedAt");-- Index "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts", hash: e9c32d3841ae58629b48f1248e1594c3
+CREATE INDEX IF NOT EXISTS "idx_Posts_fmCrosspost__foreignPostId_postedAt" ON "Posts" USING gin (("fmCrosspost" -> 'foreignPostId'), "postedAt");-- Index "idx_Posts_defaultRecommendation" ON "Posts", hash: 32bdefb19a3fb4ce88081409f784df8c
+CREATE INDEX IF NOT EXISTS "idx_Posts_defaultRecommendation" ON "Posts" USING btree ("defaultRecommendation");-- Schema for "RSSFeeds", hash: d85ac49ef29ce80baf1a7f7f00eb9fba
 CREATE TABLE "RSSFeeds" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "ownedByUser" bool NOT NULL DEFAULT false,
-    "displayFullContent" bool NOT NULL DEFAULT false,
-    "nickname" text NOT NULL,
-    "url" text NOT NULL,
-    "status" text,
-    "rawFeed" jsonb NOT NULL,
-    "setCanonicalUrl" bool NOT NULL DEFAULT false,
-    "importAsDraft" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_RSSFeeds_schemaVersion" ON "RSSFeeds", hash: a56fb5924b49dfd4b581fe924bdef175
-CREATE INDEX IF NOT EXISTS "idx_RSSFeeds_schemaVersion" ON "RSSFeeds" USING btree ("schemaVersion");
-
--- Index "idx_RSSFeeds_userId_createdAt" ON "RSSFeeds", hash: 6e2ed0a366f32d633ed15e4d4d6cea85
-CREATE INDEX IF NOT EXISTS "idx_RSSFeeds_userId_createdAt" ON "RSSFeeds" USING btree ("userId", "createdAt");
-
--- Schema for "ReadStatuses", hash: 30df5bf336f128f058200182d52f6fa4
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "ownedByUser" BOOL NOT NULL DEFAULT false,
+  "displayFullContent" BOOL NOT NULL DEFAULT false,
+  "nickname" TEXT NOT NULL,
+  "url" TEXT NOT NULL,
+  "status" TEXT,
+  "rawFeed" JSONB NOT NULL,
+  "setCanonicalUrl" BOOL NOT NULL DEFAULT false,
+  "importAsDraft" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_RSSFeeds_schemaVersion" ON "RSSFeeds", hash: a56fb5924b49dfd4b581fe924bdef175
+CREATE INDEX IF NOT EXISTS "idx_RSSFeeds_schemaVersion" ON "RSSFeeds" USING btree ("schemaVersion");-- Index "idx_RSSFeeds_userId_createdAt" ON "RSSFeeds", hash: 6e2ed0a366f32d633ed15e4d4d6cea85
+CREATE INDEX IF NOT EXISTS "idx_RSSFeeds_userId_createdAt" ON "RSSFeeds" USING btree ("userId", "createdAt");-- Schema for "ReadStatuses", hash: 30df5bf336f128f058200182d52f6fa4
 CREATE TABLE "ReadStatuses" (
-    _id varchar(27) PRIMARY KEY,
-    "postId" varchar(27),
-    "tagId" varchar(27),
-    "userId" varchar(27) NOT NULL,
-    "isRead" bool NOT NULL,
-    "lastUpdated" timestamptz NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ReadStatuses_schemaVersion" ON "ReadStatuses", hash: 43cc30380f7c62ffb8d6c658174229e2
-CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_schemaVersion" ON "ReadStatuses" USING btree ("schemaVersion");
-
--- Index "idx_ReadStatuses_userId_postId_isRead_lastUpdated" ON "ReadStatuses", hash: 9c85a88adcfb31dfc91b4fd2cfd17ec3
-CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_isRead_lastUpdated" ON "ReadStatuses" USING btree ("userId", "postId", "isRead", "lastUpdated");
-
--- Index "idx_ReadStatuses_userId_tagId_isRead_lastUpdated" ON "ReadStatuses", hash: eb2b2a9a2974e105f721e4c7e7b31879
-CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_tagId_isRead_lastUpdated" ON "ReadStatuses" USING btree ("userId", "tagId", "isRead", "lastUpdated");
-
--- Schema for "RecommendationsCaches", hash: 9aad06802a8fe4af47e99405d85df8ea
+  _id VARCHAR(27) PRIMARY KEY,
+  "postId" VARCHAR(27),
+  "tagId" VARCHAR(27),
+  "userId" VARCHAR(27) NOT NULL,
+  "isRead" BOOL NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ReadStatuses_schemaVersion" ON "ReadStatuses", hash: 43cc30380f7c62ffb8d6c658174229e2
+CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_schemaVersion" ON "ReadStatuses" USING btree ("schemaVersion");-- Index "idx_ReadStatuses_userId_postId_isRead_lastUpdated" ON "ReadStatuses", hash: 9c85a88adcfb31dfc91b4fd2cfd17ec3
+CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_isRead_lastUpdated" ON "ReadStatuses" USING btree ("userId", "postId", "isRead", "lastUpdated");-- Index "idx_ReadStatuses_userId_tagId_isRead_lastUpdated" ON "ReadStatuses", hash: eb2b2a9a2974e105f721e4c7e7b31879
+CREATE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_tagId_isRead_lastUpdated" ON "ReadStatuses" USING btree ("userId", "tagId", "isRead", "lastUpdated");-- Schema for "RecommendationsCaches", hash: 9aad06802a8fe4af47e99405d85df8ea
 CREATE TABLE "RecommendationsCaches" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" text NOT NULL,
-    "postId" text NOT NULL,
-    "source" text NOT NULL,
-    "scenario" text NOT NULL,
-    "attributionId" text NOT NULL,
-    "ttlMs" double precision NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_RecommendationsCaches_schemaVersion" ON "RecommendationsCaches", hash: 724af3924bb835f78015c2cdeafb185c
-CREATE INDEX IF NOT EXISTS "idx_RecommendationsCaches_schemaVersion" ON "RecommendationsCaches" USING btree ("schemaVersion");
-
--- Index "idx_RecommendationsCaches_userId_postId_source_scenario" ON "RecommendationsCaches", hash: 8d5452d78b768d6154f784fffe33344f
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_RecommendationsCaches_userId_postId_source_scenario" ON "RecommendationsCaches" USING btree ("userId", "postId", "source", "scenario");
-
--- Schema for "Reports", hash: 530b39ba4f9ee042c04e475212d19312
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "postId" TEXT NOT NULL,
+  "source" TEXT NOT NULL,
+  "scenario" TEXT NOT NULL,
+  "attributionId" TEXT NOT NULL,
+  "ttlMs" DOUBLE PRECISION NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_RecommendationsCaches_schemaVersion" ON "RecommendationsCaches", hash: 724af3924bb835f78015c2cdeafb185c
+CREATE INDEX IF NOT EXISTS "idx_RecommendationsCaches_schemaVersion" ON "RecommendationsCaches" USING btree ("schemaVersion");-- Index "idx_RecommendationsCaches_userId_postId_source_scenario" ON "RecommendationsCaches", hash: 8d5452d78b768d6154f784fffe33344f
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_RecommendationsCaches_userId_postId_source_scenario" ON "RecommendationsCaches" USING btree ("userId", "postId", "source", "scenario");-- Schema for "Reports", hash: 530b39ba4f9ee042c04e475212d19312
 CREATE TABLE "Reports" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "reportedUserId" varchar(27),
-    "commentId" varchar(27),
-    "postId" varchar(27),
-    "link" text NOT NULL,
-    "claimedUserId" varchar(27),
-    "description" text,
-    "closedAt" timestamptz,
-    "markedAsSpam" bool,
-    "reportedAsSpam" bool,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Reports_schemaVersion" ON "Reports", hash: 61888e8892fc1d5063d3fd2961c004ae
-CREATE INDEX IF NOT EXISTS "idx_Reports_schemaVersion" ON "Reports" USING btree ("schemaVersion");
-
--- Index "idx_Reports_createdAt" ON "Reports", hash: c32ae8144357356e36ead7d5dc7dcc45
-CREATE INDEX IF NOT EXISTS "idx_Reports_createdAt" ON "Reports" USING btree ("createdAt");
-
--- Index "idx_Reports_claimedUserId_createdAt" ON "Reports", hash: b11684971e792bf65f0012ab1d963db3
-CREATE INDEX IF NOT EXISTS "idx_Reports_claimedUserId_createdAt" ON "Reports" USING btree ("claimedUserId", "createdAt");
-
--- Index "idx_Reports_closedAt_createdAt" ON "Reports", hash: fb1fb5d0663e672f25b630af830dbbbc
-CREATE INDEX IF NOT EXISTS "idx_Reports_closedAt_createdAt" ON "Reports" USING btree ("closedAt", "createdAt");
-
--- Schema for "ReviewVotes", hash: f3d38f96a07674cbbcf72dd23497f6cc
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "reportedUserId" VARCHAR(27),
+  "commentId" VARCHAR(27),
+  "postId" VARCHAR(27),
+  "link" TEXT NOT NULL,
+  "claimedUserId" VARCHAR(27),
+  "description" TEXT,
+  "closedAt" TIMESTAMPTZ,
+  "markedAsSpam" BOOL,
+  "reportedAsSpam" BOOL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Reports_schemaVersion" ON "Reports", hash: 61888e8892fc1d5063d3fd2961c004ae
+CREATE INDEX IF NOT EXISTS "idx_Reports_schemaVersion" ON "Reports" USING btree ("schemaVersion");-- Index "idx_Reports_createdAt" ON "Reports", hash: c32ae8144357356e36ead7d5dc7dcc45
+CREATE INDEX IF NOT EXISTS "idx_Reports_createdAt" ON "Reports" USING btree ("createdAt");-- Index "idx_Reports_claimedUserId_createdAt" ON "Reports", hash: b11684971e792bf65f0012ab1d963db3
+CREATE INDEX IF NOT EXISTS "idx_Reports_claimedUserId_createdAt" ON "Reports" USING btree ("claimedUserId", "createdAt");-- Index "idx_Reports_closedAt_createdAt" ON "Reports", hash: fb1fb5d0663e672f25b630af830dbbbc
+CREATE INDEX IF NOT EXISTS "idx_Reports_closedAt_createdAt" ON "Reports" USING btree ("closedAt", "createdAt");-- Schema for "ReviewVotes", hash: f3d38f96a07674cbbcf72dd23497f6cc
 CREATE TABLE "ReviewVotes" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "postId" varchar(27) NOT NULL,
-    "qualitativeScore" integer NOT NULL DEFAULT 4,
-    "quadraticScore" integer NOT NULL DEFAULT 0,
-    "comment" text,
-    "year" text NOT NULL DEFAULT '2018',
-    "dummy" bool NOT NULL DEFAULT false,
-    "reactions" text[],
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ReviewVotes_schemaVersion" ON "ReviewVotes", hash: ec912545051f86553faa749e37718070
-CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_schemaVersion" ON "ReviewVotes" USING btree ("schemaVersion");
-
--- Index "idx_ReviewVotes_year_userId_dummy" ON "ReviewVotes", hash: ec4b2469d53695693cc2cb5e4c65aa0f
-CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_year_userId_dummy" ON "ReviewVotes" USING btree ("year", "userId", "dummy");
-
--- Index "idx_ReviewVotes_postId" ON "ReviewVotes", hash: 500d82a2c87f05e53f5c66c31e0ac63b
-CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_postId" ON "ReviewVotes" USING btree ("postId");
-
--- Index "idx_ReviewVotes_postId_userId" ON "ReviewVotes", hash: fedcfeec6a6e9b2b8e5c97a94e919333
-CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_postId_userId" ON "ReviewVotes" USING btree ("postId", "userId");
-
--- Index "idx_ReviewVotes_year_dummy_createdAt" ON "ReviewVotes", hash: ef23a98e8d6db4142320c237cab97f0e
-CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_year_dummy_createdAt" ON "ReviewVotes" USING btree ("year", "dummy", "createdAt");
-
--- Schema for "ReviewWinnerArts", hash: cf5627337e282ca622a5f1870187c3a1
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "qualitativeScore" INTEGER NOT NULL DEFAULT 4,
+  "quadraticScore" INTEGER NOT NULL DEFAULT 0,
+  "comment" TEXT,
+  "year" TEXT NOT NULL DEFAULT '2018',
+  "dummy" BOOL NOT NULL DEFAULT false,
+  "reactions" TEXT[],
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ReviewVotes_schemaVersion" ON "ReviewVotes", hash: ec912545051f86553faa749e37718070
+CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_schemaVersion" ON "ReviewVotes" USING btree ("schemaVersion");-- Index "idx_ReviewVotes_year_userId_dummy" ON "ReviewVotes", hash: ec4b2469d53695693cc2cb5e4c65aa0f
+CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_year_userId_dummy" ON "ReviewVotes" USING btree ("year", "userId", "dummy");-- Index "idx_ReviewVotes_postId" ON "ReviewVotes", hash: 500d82a2c87f05e53f5c66c31e0ac63b
+CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_postId" ON "ReviewVotes" USING btree ("postId");-- Index "idx_ReviewVotes_postId_userId" ON "ReviewVotes", hash: fedcfeec6a6e9b2b8e5c97a94e919333
+CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_postId_userId" ON "ReviewVotes" USING btree ("postId", "userId");-- Index "idx_ReviewVotes_year_dummy_createdAt" ON "ReviewVotes", hash: ef23a98e8d6db4142320c237cab97f0e
+CREATE INDEX IF NOT EXISTS "idx_ReviewVotes_year_dummy_createdAt" ON "ReviewVotes" USING btree ("year", "dummy", "createdAt");-- Schema for "ReviewWinnerArts", hash: cf5627337e282ca622a5f1870187c3a1
 CREATE TABLE "ReviewWinnerArts" (
-    _id varchar(27) PRIMARY KEY,
-    "postId" text NOT NULL,
-    "splashArtImagePrompt" text NOT NULL,
-    "splashArtImageUrl" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ReviewWinnerArts_schemaVersion" ON "ReviewWinnerArts", hash: a034ccaecf65a33dba61620968de1b6b
-CREATE INDEX IF NOT EXISTS "idx_ReviewWinnerArts_schemaVersion" ON "ReviewWinnerArts" USING btree ("schemaVersion");
-
--- Index "idx_ReviewWinnerArts_postId" ON "ReviewWinnerArts", hash: 2c7e2fff581a7ded61ec6dc6299a4be6
-CREATE INDEX IF NOT EXISTS "idx_ReviewWinnerArts_postId" ON "ReviewWinnerArts" USING btree ("postId");
-
--- Schema for "ReviewWinners", hash: 82046a28a746508a4dfd061d2a2da06c
+  _id VARCHAR(27) PRIMARY KEY,
+  "postId" TEXT NOT NULL,
+  "splashArtImagePrompt" TEXT NOT NULL,
+  "splashArtImageUrl" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ReviewWinnerArts_schemaVersion" ON "ReviewWinnerArts", hash: a034ccaecf65a33dba61620968de1b6b
+CREATE INDEX IF NOT EXISTS "idx_ReviewWinnerArts_schemaVersion" ON "ReviewWinnerArts" USING btree ("schemaVersion");-- Index "idx_ReviewWinnerArts_postId" ON "ReviewWinnerArts", hash: 2c7e2fff581a7ded61ec6dc6299a4be6
+CREATE INDEX IF NOT EXISTS "idx_ReviewWinnerArts_postId" ON "ReviewWinnerArts" USING btree ("postId");-- Schema for "ReviewWinners", hash: 82046a28a746508a4dfd061d2a2da06c
 CREATE TABLE "ReviewWinners" (
-    _id varchar(27) PRIMARY KEY,
-    "postId" varchar(27) NOT NULL,
-    "reviewYear" double precision NOT NULL,
-    "category" text NOT NULL DEFAULT 'misc',
-    "curatedOrder" double precision NOT NULL,
-    "reviewRanking" double precision NOT NULL,
-    "isAI" bool NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_ReviewWinners_schemaVersion" ON "ReviewWinners", hash: 6c06a971dd5610f3df857d0011a2ab5f
-CREATE INDEX IF NOT EXISTS "idx_ReviewWinners_schemaVersion" ON "ReviewWinners" USING btree ("schemaVersion");
-
--- Index "idx_ReviewWinners_postId" ON "ReviewWinners", hash: 3fe3ed32f04c1b9171e22b7b0f7873b3
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_postId" ON "ReviewWinners" USING btree ("postId");
-
--- Index "idx_ReviewWinners_curatedOrder_category" ON "ReviewWinners", hash: ea8f2723bb5152bb12a04decee40640c
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_curatedOrder_category" ON "ReviewWinners" USING btree ("curatedOrder", "category");
-
--- Index "idx_ReviewWinners_reviewYear_reviewRanking" ON "ReviewWinners", hash: 85646a4acfa53c79eb5d52683822c963
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_reviewYear_reviewRanking" ON "ReviewWinners" USING btree ("reviewYear", "reviewRanking");
-
--- Schema for "Revisions", hash: 4df2b8cb0da0ae648eea256d967099c8
+  _id VARCHAR(27) PRIMARY KEY,
+  "postId" VARCHAR(27) NOT NULL,
+  "reviewYear" DOUBLE PRECISION NOT NULL,
+  "category" TEXT NOT NULL DEFAULT 'misc',
+  "curatedOrder" DOUBLE PRECISION NOT NULL,
+  "reviewRanking" DOUBLE PRECISION NOT NULL,
+  "isAI" BOOL NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_ReviewWinners_schemaVersion" ON "ReviewWinners", hash: 6c06a971dd5610f3df857d0011a2ab5f
+CREATE INDEX IF NOT EXISTS "idx_ReviewWinners_schemaVersion" ON "ReviewWinners" USING btree ("schemaVersion");-- Index "idx_ReviewWinners_postId" ON "ReviewWinners", hash: 3fe3ed32f04c1b9171e22b7b0f7873b3
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_postId" ON "ReviewWinners" USING btree ("postId");-- Index "idx_ReviewWinners_curatedOrder_category" ON "ReviewWinners", hash: ea8f2723bb5152bb12a04decee40640c
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_curatedOrder_category" ON "ReviewWinners" USING btree ("curatedOrder", "category");-- Index "idx_ReviewWinners_reviewYear_reviewRanking" ON "ReviewWinners", hash: 85646a4acfa53c79eb5d52683822c963
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_reviewYear_reviewRanking" ON "ReviewWinners" USING btree ("reviewYear", "reviewRanking");-- Schema for "Revisions", hash: 4df2b8cb0da0ae648eea256d967099c8
 CREATE TABLE "Revisions" (
-    _id varchar(27) PRIMARY KEY,
-    "documentId" text,
-    "collectionName" text,
-    "fieldName" text,
-    "editedAt" timestamptz,
-    "autosaveTimeoutStart" timestamptz,
-    "updateType" text,
-    "version" text NOT NULL,
-    "commitMessage" text,
-    "userId" varchar(27),
-    "draft" bool,
-    "originalContents" jsonb,
-    "html" text,
-    "wordCount" double precision,
-    "changeMetrics" jsonb NOT NULL,
-    "googleDocMetadata" jsonb,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "voteCount" double precision NOT NULL DEFAULT 0,
-    "baseScore" double precision NOT NULL DEFAULT 0,
-    "extendedScore" jsonb,
-    "score" double precision NOT NULL DEFAULT 0,
-    "inactive" bool NOT NULL DEFAULT false,
-    "afBaseScore" double precision,
-    "afExtendedScore" jsonb,
-    "afVoteCount" double precision
-);
-
--- Index "idx_Revisions_schemaVersion" ON "Revisions", hash: 1269a5cf7531c5b5133c5519857e4478
-CREATE INDEX IF NOT EXISTS "idx_Revisions_schemaVersion" ON "Revisions" USING btree ("schemaVersion");
-
--- Index "idx_Revisions_userId_collectionName_editedAt" ON "Revisions", hash: 3d232bda798812ff36712da08174d202
-CREATE INDEX IF NOT EXISTS "idx_Revisions_userId_collectionName_editedAt" ON "Revisions" USING btree ("userId", "collectionName", "editedAt");
-
--- Index "idx_Revisions_collectionName_fieldName_editedAt__id_changeMetrics" ON "Revisions", hash: 163d394e73ea1772386c6bb981698ec3
-CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_changeMetrics" ON "Revisions" USING btree ("collectionName", "fieldName", "editedAt", "_id", "changeMetrics");
-
--- Index "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions", hash: 1b776119c220492020635f0b86cfe60d
-CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");
-
--- Schema for "Sequences", hash: 5005c2911b5dba8ccfdb87c459edbec4
+  _id VARCHAR(27) PRIMARY KEY,
+  "documentId" TEXT,
+  "collectionName" TEXT,
+  "fieldName" TEXT,
+  "editedAt" TIMESTAMPTZ,
+  "autosaveTimeoutStart" TIMESTAMPTZ,
+  "updateType" TEXT,
+  "version" TEXT NOT NULL,
+  "commitMessage" TEXT,
+  "userId" VARCHAR(27),
+  "draft" BOOL,
+  "originalContents" JSONB,
+  "html" TEXT,
+  "wordCount" DOUBLE PRECISION,
+  "changeMetrics" JSONB NOT NULL,
+  "googleDocMetadata" JSONB,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT false,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
+);-- Index "idx_Revisions_schemaVersion" ON "Revisions", hash: 1269a5cf7531c5b5133c5519857e4478
+CREATE INDEX IF NOT EXISTS "idx_Revisions_schemaVersion" ON "Revisions" USING btree ("schemaVersion");-- Index "idx_Revisions_userId_collectionName_editedAt" ON "Revisions", hash: 3d232bda798812ff36712da08174d202
+CREATE INDEX IF NOT EXISTS "idx_Revisions_userId_collectionName_editedAt" ON "Revisions" USING btree ("userId", "collectionName", "editedAt");-- Index "idx_Revisions_collectionName_fieldName_editedAt__id_changeMetrics" ON "Revisions", hash: 163d394e73ea1772386c6bb981698ec3
+CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_changeMetrics" ON "Revisions" USING btree (
+  "collectionName",
+  "fieldName",
+  "editedAt",
+  "_id",
+  "changeMetrics"
+);-- Index "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions", hash: 1b776119c220492020635f0b86cfe60d
+CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");-- Schema for "Sequences", hash: 5005c2911b5dba8ccfdb87c459edbec4
 CREATE TABLE "Sequences" (
-    _id varchar(27) PRIMARY KEY,
-    "lastUpdated" timestamptz NOT NULL,
-    "userId" varchar(27) NOT NULL,
-    "title" text NOT NULL,
-    "bannerImageId" text,
-    "gridImageId" text,
-    "hideFromAuthorPage" bool NOT NULL DEFAULT false,
-    "draft" bool NOT NULL DEFAULT false,
-    "isDeleted" bool NOT NULL DEFAULT false,
-    "curatedOrder" double precision,
-    "userProfileOrder" double precision,
-    "canonicalCollectionSlug" text,
-    "hidden" bool NOT NULL DEFAULT false,
-    "noindex" bool NOT NULL DEFAULT false,
-    "af" bool NOT NULL DEFAULT false,
-    "contents" jsonb,
-    "contents_latest" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Sequences_schemaVersion" ON "Sequences", hash: 40522c6801e2ac636e839661e3a095da
-CREATE INDEX IF NOT EXISTS "idx_Sequences_schemaVersion" ON "Sequences" USING btree ("schemaVersion");
-
--- Index "idx_Sequences_hidden_af_isDeleted_userId_userProfileOrder" ON "Sequences", hash: 917ac7d45124531750f9e93c8cb23883
-CREATE INDEX IF NOT EXISTS "idx_Sequences_hidden_af_isDeleted_userId_userProfileOrder" ON "Sequences" USING btree ("hidden", "af", "isDeleted", "userId", "userProfileOrder");
-
--- Index "idx_Sequences_hidden_af_isDeleted_userId_draft_hideFromAuthorPage_userProfileOrder" ON "Sequences", hash: 63c99dd7b3da615eedc0d4b756c23e78
-CREATE INDEX IF NOT EXISTS "idx_Sequences_hidden_af_isDeleted_userId_draft_hideFromAuthorPage_userProfileOrder" ON "Sequences" USING btree ("hidden", "af", "isDeleted", "userId", "draft", "hideFromAuthorPage", "userProfileOrder");
-
--- Index "idx_Sequences_hidden_af_isDeleted_curatedOrder" ON "Sequences", hash: 2139ddd2e3dc1a2d97fbaad62cefc91e
-CREATE INDEX IF NOT EXISTS "idx_Sequences_hidden_af_isDeleted_curatedOrder" ON "Sequences" USING btree ("hidden", "af", "isDeleted", "curatedOrder");
-
--- Schema for "Sessions", hash: bece207584ea30ad0d7f16387a144498
+  _id VARCHAR(27) PRIMARY KEY,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "title" TEXT NOT NULL,
+  "bannerImageId" TEXT,
+  "gridImageId" TEXT,
+  "hideFromAuthorPage" BOOL NOT NULL DEFAULT false,
+  "draft" BOOL NOT NULL DEFAULT false,
+  "isDeleted" BOOL NOT NULL DEFAULT false,
+  "curatedOrder" DOUBLE PRECISION,
+  "userProfileOrder" DOUBLE PRECISION,
+  "canonicalCollectionSlug" TEXT,
+  "hidden" BOOL NOT NULL DEFAULT false,
+  "noindex" BOOL NOT NULL DEFAULT false,
+  "af" BOOL NOT NULL DEFAULT false,
+  "contents" JSONB,
+  "contents_latest" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Sequences_schemaVersion" ON "Sequences", hash: 40522c6801e2ac636e839661e3a095da
+CREATE INDEX IF NOT EXISTS "idx_Sequences_schemaVersion" ON "Sequences" USING btree ("schemaVersion");-- Index "idx_Sequences_hidden_af_isDeleted_userId_userProfileOrder" ON "Sequences", hash: 917ac7d45124531750f9e93c8cb23883
+CREATE INDEX IF NOT EXISTS "idx_Sequences_hidden_af_isDeleted_userId_userProfileOrder" ON "Sequences" USING btree (
+  "hidden",
+  "af",
+  "isDeleted",
+  "userId",
+  "userProfileOrder"
+);-- Index "idx_Sequences_hidden_af_isDeleted_userId_draft_hideFromAuthorPage_userProfileOrder" ON "Sequences", hash: 63c99dd7b3da615eedc0d4b756c23e78
+CREATE INDEX IF NOT EXISTS "idx_Sequences_hidden_af_isDeleted_userId_draft_hideFromAuthorPage_userProfileOrder" ON "Sequences" USING btree (
+  "hidden",
+  "af",
+  "isDeleted",
+  "userId",
+  "draft",
+  "hideFromAuthorPage",
+  "userProfileOrder"
+);-- Index "idx_Sequences_hidden_af_isDeleted_curatedOrder" ON "Sequences", hash: 2139ddd2e3dc1a2d97fbaad62cefc91e
+CREATE INDEX IF NOT EXISTS "idx_Sequences_hidden_af_isDeleted_curatedOrder" ON "Sequences" USING btree ("hidden", "af", "isDeleted", "curatedOrder");-- Schema for "Sessions", hash: bece207584ea30ad0d7f16387a144498
 CREATE TABLE "Sessions" (
-    _id text NOT NULL PRIMARY KEY,
-    "session" jsonb,
-    "expires" timestamptz,
-    "lastModified" timestamptz
-);
-
--- Index "idx_Sessions__id_expires" ON "Sessions", hash: 8fe173c0cd4a71e87d14e60842b78776
-CREATE INDEX IF NOT EXISTS "idx_Sessions__id_expires" ON "Sessions" USING btree ("_id", "expires");
-
--- Index "idx_Sessions_expires" ON "Sessions", hash: 5bf1bb0807d773d1a85088aeb41dcfb8
-CREATE INDEX IF NOT EXISTS "idx_Sessions_expires" ON "Sessions" USING btree ("expires");
-
--- Schema for "SideCommentCaches", hash: a6da20cabf744bd2c20f2b9273476ca6
+  _id TEXT NOT NULL PRIMARY KEY,
+  "session" JSONB,
+  "expires" TIMESTAMPTZ,
+  "lastModified" TIMESTAMPTZ
+);-- Index "idx_Sessions__id_expires" ON "Sessions", hash: 8fe173c0cd4a71e87d14e60842b78776
+CREATE INDEX IF NOT EXISTS "idx_Sessions__id_expires" ON "Sessions" USING btree ("_id", "expires");-- Index "idx_Sessions_expires" ON "Sessions", hash: 5bf1bb0807d773d1a85088aeb41dcfb8
+CREATE INDEX IF NOT EXISTS "idx_Sessions_expires" ON "Sessions" USING btree ("expires");-- Schema for "SideCommentCaches", hash: a6da20cabf744bd2c20f2b9273476ca6
 CREATE TABLE "SideCommentCaches" (
-    _id varchar(27) PRIMARY KEY,
-    "postId" varchar(27) NOT NULL,
-    "annotatedHtml" text NOT NULL,
-    "commentsByBlock" jsonb NOT NULL,
-    "version" double precision NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_SideCommentCaches_schemaVersion" ON "SideCommentCaches", hash: f2e0dd8bc01c314e42ad2f1b3ea30d67
-CREATE INDEX IF NOT EXISTS "idx_SideCommentCaches_schemaVersion" ON "SideCommentCaches" USING btree ("schemaVersion");
-
--- Index "idx_SideCommentCaches_postId" ON "SideCommentCaches", hash: 9d3a99485720b552b381b986ce7ec460
-CREATE INDEX IF NOT EXISTS "idx_SideCommentCaches_postId" ON "SideCommentCaches" USING btree ("postId");
-
--- Index "idx_SideCommentCaches_postId_version" ON "SideCommentCaches", hash: 1f2b8c3d5235f33fc6aca162f6aaaa60
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_SideCommentCaches_postId_version" ON "SideCommentCaches" USING btree ("postId", "version");
-
--- Schema for "SplashArtCoordinates", hash: 8cbcba418d9e63485f0dd54cdf68751f
+  _id VARCHAR(27) PRIMARY KEY,
+  "postId" VARCHAR(27) NOT NULL,
+  "annotatedHtml" TEXT NOT NULL,
+  "commentsByBlock" JSONB NOT NULL,
+  "version" DOUBLE PRECISION NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_SideCommentCaches_schemaVersion" ON "SideCommentCaches", hash: f2e0dd8bc01c314e42ad2f1b3ea30d67
+CREATE INDEX IF NOT EXISTS "idx_SideCommentCaches_schemaVersion" ON "SideCommentCaches" USING btree ("schemaVersion");-- Index "idx_SideCommentCaches_postId" ON "SideCommentCaches", hash: 9d3a99485720b552b381b986ce7ec460
+CREATE INDEX IF NOT EXISTS "idx_SideCommentCaches_postId" ON "SideCommentCaches" USING btree ("postId");-- Index "idx_SideCommentCaches_postId_version" ON "SideCommentCaches", hash: 1f2b8c3d5235f33fc6aca162f6aaaa60
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_SideCommentCaches_postId_version" ON "SideCommentCaches" USING btree ("postId", "version");-- Schema for "SplashArtCoordinates", hash: 8cbcba418d9e63485f0dd54cdf68751f
 CREATE TABLE "SplashArtCoordinates" (
-    _id varchar(27) PRIMARY KEY,
-    "reviewWinnerArtId" varchar(27) NOT NULL,
-    "leftXPct" double precision NOT NULL,
-    "leftYPct" double precision NOT NULL,
-    "leftHeightPct" double precision NOT NULL,
-    "leftWidthPct" double precision NOT NULL,
-    "leftFlipped" bool NOT NULL DEFAULT false,
-    "middleXPct" double precision NOT NULL,
-    "middleYPct" double precision NOT NULL,
-    "middleHeightPct" double precision NOT NULL,
-    "middleWidthPct" double precision NOT NULL,
-    "middleFlipped" bool NOT NULL DEFAULT false,
-    "rightXPct" double precision NOT NULL,
-    "rightYPct" double precision NOT NULL,
-    "rightHeightPct" double precision NOT NULL,
-    "rightWidthPct" double precision NOT NULL,
-    "rightFlipped" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_SplashArtCoordinates_schemaVersion" ON "SplashArtCoordinates", hash: 6fdb09a27f88e3f98ee1c48c9a998c19
-CREATE INDEX IF NOT EXISTS "idx_SplashArtCoordinates_schemaVersion" ON "SplashArtCoordinates" USING btree ("schemaVersion");
-
--- Index "idx_SplashArtCoordinates_reviewWinnerArtId_createdAt" ON "SplashArtCoordinates", hash: 3856ad8cd32c54037980449387ab4fb2
-CREATE INDEX IF NOT EXISTS "idx_SplashArtCoordinates_reviewWinnerArtId_createdAt" ON "SplashArtCoordinates" USING btree ("reviewWinnerArtId", "createdAt");
-
--- Schema for "Spotlights", hash: 7d1b610711e6861727fe22df979a9c60
+  _id VARCHAR(27) PRIMARY KEY,
+  "reviewWinnerArtId" VARCHAR(27) NOT NULL,
+  "leftXPct" DOUBLE PRECISION NOT NULL,
+  "leftYPct" DOUBLE PRECISION NOT NULL,
+  "leftHeightPct" DOUBLE PRECISION NOT NULL,
+  "leftWidthPct" DOUBLE PRECISION NOT NULL,
+  "leftFlipped" BOOL NOT NULL DEFAULT false,
+  "middleXPct" DOUBLE PRECISION NOT NULL,
+  "middleYPct" DOUBLE PRECISION NOT NULL,
+  "middleHeightPct" DOUBLE PRECISION NOT NULL,
+  "middleWidthPct" DOUBLE PRECISION NOT NULL,
+  "middleFlipped" BOOL NOT NULL DEFAULT false,
+  "rightXPct" DOUBLE PRECISION NOT NULL,
+  "rightYPct" DOUBLE PRECISION NOT NULL,
+  "rightHeightPct" DOUBLE PRECISION NOT NULL,
+  "rightWidthPct" DOUBLE PRECISION NOT NULL,
+  "rightFlipped" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_SplashArtCoordinates_schemaVersion" ON "SplashArtCoordinates", hash: 6fdb09a27f88e3f98ee1c48c9a998c19
+CREATE INDEX IF NOT EXISTS "idx_SplashArtCoordinates_schemaVersion" ON "SplashArtCoordinates" USING btree ("schemaVersion");-- Index "idx_SplashArtCoordinates_reviewWinnerArtId_createdAt" ON "SplashArtCoordinates", hash: 3856ad8cd32c54037980449387ab4fb2
+CREATE INDEX IF NOT EXISTS "idx_SplashArtCoordinates_reviewWinnerArtId_createdAt" ON "SplashArtCoordinates" USING btree ("reviewWinnerArtId", "createdAt");-- Schema for "Spotlights", hash: 7d1b610711e6861727fe22df979a9c60
 CREATE TABLE "Spotlights" (
-    _id varchar(27) PRIMARY KEY,
-    "documentId" text NOT NULL,
-    "documentType" text NOT NULL DEFAULT 'Sequence',
-    "position" double precision NOT NULL,
-    "duration" double precision NOT NULL DEFAULT 3,
-    "customTitle" text,
-    "customSubtitle" text,
-    "headerTitle" text,
-    "headerTitleLeftColor" text,
-    "headerTitleRightColor" text,
-    "lastPromotedAt" timestamptz NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
-    "draft" bool NOT NULL DEFAULT true,
-    "showAuthor" bool NOT NULL DEFAULT false,
-    "imageFade" bool NOT NULL DEFAULT true,
-    "imageFadeColor" text,
-    "spotlightImageId" text,
-    "spotlightDarkImageId" text,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "description" jsonb,
-    "description_latest" text
-);
-
--- Index "idx_Spotlights_schemaVersion" ON "Spotlights", hash: dc6af3f3b56bd6d52f5cac8dd86aa04c
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_schemaVersion" ON "Spotlights" USING btree ("schemaVersion");
-
--- Index "idx_Spotlights_lastPromotedAt" ON "Spotlights", hash: 59317470550e5c9d616d3f3d6ffec444
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_lastPromotedAt" ON "Spotlights" USING btree ("lastPromotedAt");
-
--- Index "idx_Spotlights_position" ON "Spotlights", hash: 337161767919065ff85e9ed907b4e244
-CREATE INDEX IF NOT EXISTS "idx_Spotlights_position" ON "Spotlights" USING btree ("position");
-
--- Schema for "Subscriptions", hash: 9d366df63df609f8135b9b4702bf908e
+  _id VARCHAR(27) PRIMARY KEY,
+  "documentId" TEXT NOT NULL,
+  "documentType" TEXT NOT NULL DEFAULT 'Sequence',
+  "position" DOUBLE PRECISION NOT NULL,
+  "duration" DOUBLE PRECISION NOT NULL DEFAULT 3,
+  "customTitle" TEXT,
+  "customSubtitle" TEXT,
+  "headerTitle" TEXT,
+  "headerTitleLeftColor" TEXT,
+  "headerTitleRightColor" TEXT,
+  "lastPromotedAt" TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
+  "draft" BOOL NOT NULL DEFAULT true,
+  "showAuthor" BOOL NOT NULL DEFAULT false,
+  "imageFade" BOOL NOT NULL DEFAULT true,
+  "imageFadeColor" TEXT,
+  "spotlightImageId" TEXT,
+  "spotlightDarkImageId" TEXT,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "description" JSONB,
+  "description_latest" TEXT
+);-- Index "idx_Spotlights_schemaVersion" ON "Spotlights", hash: dc6af3f3b56bd6d52f5cac8dd86aa04c
+CREATE INDEX IF NOT EXISTS "idx_Spotlights_schemaVersion" ON "Spotlights" USING btree ("schemaVersion");-- Index "idx_Spotlights_lastPromotedAt" ON "Spotlights", hash: 59317470550e5c9d616d3f3d6ffec444
+CREATE INDEX IF NOT EXISTS "idx_Spotlights_lastPromotedAt" ON "Spotlights" USING btree ("lastPromotedAt");-- Index "idx_Spotlights_position" ON "Spotlights", hash: 337161767919065ff85e9ed907b4e244
+CREATE INDEX IF NOT EXISTS "idx_Spotlights_position" ON "Spotlights" USING btree ("position");-- Schema for "Subscriptions", hash: 9d366df63df609f8135b9b4702bf908e
 CREATE TABLE "Subscriptions" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "state" text NOT NULL,
-    "documentId" text,
-    "collectionName" text NOT NULL,
-    "deleted" bool NOT NULL DEFAULT false,
-    "type" text NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Subscriptions_schemaVersion" ON "Subscriptions", hash: 61496907092c6cdcb685541601d44a2b
-CREATE INDEX IF NOT EXISTS "idx_Subscriptions_schemaVersion" ON "Subscriptions" USING btree ("schemaVersion");
-
--- Index "idx_Subscriptions_userId_documentId_collectionName_type_createdAt" ON "Subscriptions", hash: be5026c4f54acc5d26b1f8d557ee6d75
-CREATE INDEX IF NOT EXISTS "idx_Subscriptions_userId_documentId_collectionName_type_createdAt" ON "Subscriptions" USING btree ("userId", "documentId", "collectionName", "type", "createdAt");
-
--- Schema for "TagFlags", hash: db416de7450c134910cbd9327467cf19
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "state" TEXT NOT NULL,
+  "documentId" TEXT,
+  "collectionName" TEXT NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "type" TEXT NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Subscriptions_schemaVersion" ON "Subscriptions", hash: 61496907092c6cdcb685541601d44a2b
+CREATE INDEX IF NOT EXISTS "idx_Subscriptions_schemaVersion" ON "Subscriptions" USING btree ("schemaVersion");-- Index "idx_Subscriptions_userId_documentId_collectionName_type_createdAt" ON "Subscriptions", hash: be5026c4f54acc5d26b1f8d557ee6d75
+CREATE INDEX IF NOT EXISTS "idx_Subscriptions_userId_documentId_collectionName_type_createdAt" ON "Subscriptions" USING btree (
+  "userId",
+  "documentId",
+  "collectionName",
+  "type",
+  "createdAt"
+);-- Schema for "TagFlags", hash: db416de7450c134910cbd9327467cf19
 CREATE TABLE "TagFlags" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text NOT NULL,
-    "deleted" bool NOT NULL DEFAULT false,
-    "slug" text NOT NULL,
-    "order" double precision,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "contents" jsonb,
-    "contents_latest" text
-);
-
--- Index "idx_TagFlags_schemaVersion" ON "TagFlags", hash: 39bc375f149aee81025689cef780c64a
-CREATE INDEX IF NOT EXISTS "idx_TagFlags_schemaVersion" ON "TagFlags" USING btree ("schemaVersion");
-
--- Index "idx_TagFlags_deleted_order_name" ON "TagFlags", hash: 1c2d685166ae6918098084c955d7eee4
-CREATE INDEX IF NOT EXISTS "idx_TagFlags_deleted_order_name" ON "TagFlags" USING btree ("deleted", "order", "name");
-
--- Schema for "TagRels", hash: 850a66087d23d980b0742d7f44752a25
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "slug" TEXT NOT NULL,
+  "order" DOUBLE PRECISION,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "contents" JSONB,
+  "contents_latest" TEXT
+);-- Index "idx_TagFlags_schemaVersion" ON "TagFlags", hash: 39bc375f149aee81025689cef780c64a
+CREATE INDEX IF NOT EXISTS "idx_TagFlags_schemaVersion" ON "TagFlags" USING btree ("schemaVersion");-- Index "idx_TagFlags_deleted_order_name" ON "TagFlags", hash: 1c2d685166ae6918098084c955d7eee4
+CREATE INDEX IF NOT EXISTS "idx_TagFlags_deleted_order_name" ON "TagFlags" USING btree ("deleted", "order", "name");-- Schema for "TagRels", hash: 850a66087d23d980b0742d7f44752a25
 CREATE TABLE "TagRels" (
-    _id varchar(27) PRIMARY KEY,
-    "tagId" varchar(27) NOT NULL,
-    "postId" varchar(27) NOT NULL,
-    "deleted" bool NOT NULL DEFAULT false,
-    "userId" varchar(27),
-    "backfilled" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "voteCount" double precision NOT NULL DEFAULT 0,
-    "baseScore" double precision NOT NULL DEFAULT 0,
-    "extendedScore" jsonb,
-    "score" double precision NOT NULL DEFAULT 0,
-    "inactive" bool NOT NULL DEFAULT false,
-    "afBaseScore" double precision,
-    "afExtendedScore" jsonb,
-    "afVoteCount" double precision
-);
-
--- Index "idx_TagRels_schemaVersion" ON "TagRels", hash: 8af9d1f652bb169a2943838c31f73c27
-CREATE INDEX IF NOT EXISTS "idx_TagRels_schemaVersion" ON "TagRels" USING btree ("schemaVersion");
-
--- Index "idx_TagRels_postId" ON "TagRels", hash: a19e39af9d4570ed2a0666a22265dd24
-CREATE INDEX IF NOT EXISTS "idx_TagRels_postId" ON "TagRels" USING btree ("postId");
-
--- Index "idx_TagRels_tagId" ON "TagRels", hash: 7c1e13953f71f5933d49d95cc45e6538
-CREATE INDEX IF NOT EXISTS "idx_TagRels_tagId" ON "TagRels" USING btree ("tagId");
-
--- Schema for "Tags", hash: 5a527ea1f50fe2afe8a11f3e403e583d
+  _id VARCHAR(27) PRIMARY KEY,
+  "tagId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "userId" VARCHAR(27),
+  "backfilled" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "voteCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "baseScore" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "extendedScore" JSONB,
+  "score" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "inactive" BOOL NOT NULL DEFAULT false,
+  "afBaseScore" DOUBLE PRECISION,
+  "afExtendedScore" JSONB,
+  "afVoteCount" DOUBLE PRECISION
+);-- Index "idx_TagRels_schemaVersion" ON "TagRels", hash: 8af9d1f652bb169a2943838c31f73c27
+CREATE INDEX IF NOT EXISTS "idx_TagRels_schemaVersion" ON "TagRels" USING btree ("schemaVersion");-- Index "idx_TagRels_postId" ON "TagRels", hash: a19e39af9d4570ed2a0666a22265dd24
+CREATE INDEX IF NOT EXISTS "idx_TagRels_postId" ON "TagRels" USING btree ("postId");-- Index "idx_TagRels_tagId" ON "TagRels", hash: 7c1e13953f71f5933d49d95cc45e6538
+CREATE INDEX IF NOT EXISTS "idx_TagRels_tagId" ON "TagRels" USING btree ("tagId");-- Schema for "Tags", hash: 5a527ea1f50fe2afe8a11f3e403e583d
 CREATE TABLE "Tags" (
-    _id varchar(27) PRIMARY KEY,
-    "name" text NOT NULL,
-    "shortName" text,
-    "subtitle" text,
-    "slug" text NOT NULL,
-    "oldSlugs" text[],
-    "core" bool NOT NULL DEFAULT false,
-    "isPostType" bool NOT NULL DEFAULT false,
-    "suggestedAsFilter" bool NOT NULL DEFAULT false,
-    "defaultOrder" double precision NOT NULL DEFAULT 0,
-    "descriptionTruncationCount" double precision NOT NULL DEFAULT 0,
-    "postCount" double precision NOT NULL DEFAULT 0,
-    "userId" varchar(27),
-    "adminOnly" bool NOT NULL DEFAULT false,
-    "canEditUserIds" varchar(27)[],
-    "charsAdded" double precision,
-    "charsRemoved" double precision,
-    "deleted" bool NOT NULL DEFAULT false,
-    "lastCommentedAt" timestamptz,
-    "lastSubforumCommentAt" timestamptz,
-    "needsReview" bool NOT NULL DEFAULT true,
-    "reviewedByUserId" varchar(27),
-    "wikiGrade" integer NOT NULL DEFAULT 2,
-    "wikiOnly" bool NOT NULL DEFAULT false,
-    "bannerImageId" text,
-    "squareImageId" text,
-    "tagFlagsIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "lesswrongWikiImportRevision" text,
-    "lesswrongWikiImportSlug" text,
-    "lesswrongWikiImportCompleted" bool,
-    "htmlWithContributorAnnotations" text,
-    "contributionStats" jsonb,
-    "introSequenceId" varchar(27),
-    "postsDefaultSortOrder" text,
-    "canVoteOnRels" text[],
-    "isSubforum" bool NOT NULL DEFAULT false,
-    "subforumModeratorIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "subforumIntroPostId" varchar(27),
-    "parentTagId" varchar(27),
-    "subTagIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "autoTagModel" text,
-    "autoTagPrompt" text,
-    "noindex" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "description" jsonb,
-    "description_latest" text,
-    "subforumWelcomeText" jsonb,
-    "subforumWelcomeText_latest" text,
-    "moderationGuidelines" jsonb,
-    "moderationGuidelines_latest" text
-);
-
--- Index "idx_Tags_schemaVersion" ON "Tags", hash: 854bfd1fc39072f80817835ceaefa4ec
-CREATE INDEX IF NOT EXISTS "idx_Tags_schemaVersion" ON "Tags" USING btree ("schemaVersion");
-
--- Index "idx_Tags_deleted_adminOnly" ON "Tags", hash: cf4a00eee5471e4caac9861b9969ef48
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly" ON "Tags" USING btree ("deleted", "adminOnly");
-
--- Index "idx_Tags_deleted_adminOnly_name" ON "Tags", hash: 13f0b97d4fc604af8af07db4287470cd
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_name" ON "Tags" USING btree ("deleted", "adminOnly", "name");
-
--- Index "idx_Tags_deleted_userId_createdAt" ON "Tags", hash: b607d7f46c0cb747fa196de23ad24bd3
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_userId_createdAt" ON "Tags" USING btree ("deleted", "userId", "createdAt");
-
--- Index "idx_Tags_deleted_adminOnly_wikiOnly_createdAt" ON "Tags", hash: 1d5f1c0c7f20f92ca323096ebd6e34d4
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_wikiOnly_createdAt" ON "Tags" USING btree ("deleted", "adminOnly", "wikiOnly", "createdAt");
-
--- Index "idx_Tags_deleted_adminOnly_wikiGrade_defaultOrder_postCount_name" ON "Tags", hash: 7d101e516f5d8ebaad9c386dc1926f54
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_wikiGrade_defaultOrder_postCount_name" ON "Tags" USING btree ("deleted", "adminOnly", "wikiGrade", "defaultOrder", "postCount", "name");
-
--- Index "idx_Tags_deleted_slug_oldSlugs" ON "Tags", hash: 2d0dade1ae66d6d1c37039f4fbba2d08
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_slug_oldSlugs" ON "Tags" USING gin ("deleted", "slug", "oldSlugs");
-
--- Index "idx_Tags_deleted_core_name" ON "Tags", hash: 7230bf7754792496e078bad5d3e5f4e9
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_core_name" ON "Tags" USING btree ("deleted", "core", "name");
-
--- Index "idx_Tags_deleted_isPostType_name" ON "Tags", hash: 3cbf94ead6ea99777049c07010a80079
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_isPostType_name" ON "Tags" USING btree ("deleted", "isPostType", "name");
-
--- Index "idx_Tags_deleted_core_name" ON "Tags", hash: 7230bf7754792496e078bad5d3e5f4e9
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_core_name" ON "Tags" USING btree ("deleted", "core", "name");
-
--- Index "idx_Tags_deleted_createdAt" ON "Tags", hash: edc88d986395011054c8bd05711e9ffd
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_createdAt" ON "Tags" USING btree ("deleted", "createdAt");
-
--- Index "idx_Tags_deleted_needsReview_createdAt" ON "Tags", hash: 0af37a5289b200a7987ece98414e913f
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_needsReview_createdAt" ON "Tags" USING btree ("deleted", "needsReview", "createdAt");
-
--- Index "idx_Tags_deleted_adminOnly_suggestedAsFilter_defaultOrder_name" ON "Tags", hash: b2a0d809744cdaf65ec5fd9512aee9fa
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_suggestedAsFilter_defaultOrder_name" ON "Tags" USING btree ("deleted", "adminOnly", "suggestedAsFilter", "defaultOrder", "name");
-
--- Index "idx_Tags_deleted_adminOnly_lesswrongWikiImportSlug" ON "Tags", hash: 6175e742f5ac3d31f1d6c81c7fc828a4
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_lesswrongWikiImportSlug" ON "Tags" USING btree ("deleted", "adminOnly", "lesswrongWikiImportSlug");
-
--- Index "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags", hash: 7988317e29b4fa5d37c927347737efa6
-CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags" USING gin ("deleted", "adminOnly", "tagFlagsIds");
-
--- Index "idx_Tags_name" ON "Tags", hash: b486e4e1e4a649c4f6a84a391cd2cf54
-CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
-
--- Index "idx_Tags_parentTagId" ON "Tags", hash: f93120eff91fc3c8f5f23d5c73b4f330
-CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
-
--- Schema for "TypingIndicators", hash: 7b02f9b1b853157f44db7c9ef57dceaf
+  _id VARCHAR(27) PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "shortName" TEXT,
+  "subtitle" TEXT,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[],
+  "core" BOOL NOT NULL DEFAULT false,
+  "isPostType" BOOL NOT NULL DEFAULT false,
+  "suggestedAsFilter" BOOL NOT NULL DEFAULT false,
+  "defaultOrder" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "descriptionTruncationCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "userId" VARCHAR(27),
+  "adminOnly" BOOL NOT NULL DEFAULT false,
+  "canEditUserIds" VARCHAR(27) [],
+  "charsAdded" DOUBLE PRECISION,
+  "charsRemoved" DOUBLE PRECISION,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "lastCommentedAt" TIMESTAMPTZ,
+  "lastSubforumCommentAt" TIMESTAMPTZ,
+  "needsReview" BOOL NOT NULL DEFAULT true,
+  "reviewedByUserId" VARCHAR(27),
+  "wikiGrade" INTEGER NOT NULL DEFAULT 2,
+  "wikiOnly" BOOL NOT NULL DEFAULT false,
+  "bannerImageId" TEXT,
+  "squareImageId" TEXT,
+  "tagFlagsIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "lesswrongWikiImportRevision" TEXT,
+  "lesswrongWikiImportSlug" TEXT,
+  "lesswrongWikiImportCompleted" BOOL,
+  "htmlWithContributorAnnotations" TEXT,
+  "contributionStats" JSONB,
+  "introSequenceId" VARCHAR(27),
+  "postsDefaultSortOrder" TEXT,
+  "canVoteOnRels" TEXT[],
+  "isSubforum" BOOL NOT NULL DEFAULT false,
+  "subforumModeratorIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "subforumIntroPostId" VARCHAR(27),
+  "parentTagId" VARCHAR(27),
+  "subTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "autoTagModel" TEXT,
+  "autoTagPrompt" TEXT,
+  "noindex" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "description" JSONB,
+  "description_latest" TEXT,
+  "subforumWelcomeText" JSONB,
+  "subforumWelcomeText_latest" TEXT,
+  "moderationGuidelines" JSONB,
+  "moderationGuidelines_latest" TEXT
+);-- Index "idx_Tags_schemaVersion" ON "Tags", hash: 854bfd1fc39072f80817835ceaefa4ec
+CREATE INDEX IF NOT EXISTS "idx_Tags_schemaVersion" ON "Tags" USING btree ("schemaVersion");-- Index "idx_Tags_deleted_adminOnly" ON "Tags", hash: cf4a00eee5471e4caac9861b9969ef48
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly" ON "Tags" USING btree ("deleted", "adminOnly");-- Index "idx_Tags_deleted_adminOnly_name" ON "Tags", hash: 13f0b97d4fc604af8af07db4287470cd
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_name" ON "Tags" USING btree ("deleted", "adminOnly", "name");-- Index "idx_Tags_deleted_userId_createdAt" ON "Tags", hash: b607d7f46c0cb747fa196de23ad24bd3
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_userId_createdAt" ON "Tags" USING btree ("deleted", "userId", "createdAt");-- Index "idx_Tags_deleted_adminOnly_wikiOnly_createdAt" ON "Tags", hash: 1d5f1c0c7f20f92ca323096ebd6e34d4
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_wikiOnly_createdAt" ON "Tags" USING btree ("deleted", "adminOnly", "wikiOnly", "createdAt");-- Index "idx_Tags_deleted_adminOnly_wikiGrade_defaultOrder_postCount_name" ON "Tags", hash: 7d101e516f5d8ebaad9c386dc1926f54
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_wikiGrade_defaultOrder_postCount_name" ON "Tags" USING btree (
+  "deleted",
+  "adminOnly",
+  "wikiGrade",
+  "defaultOrder",
+  "postCount",
+  "name"
+);-- Index "idx_Tags_deleted_slug_oldSlugs" ON "Tags", hash: 2d0dade1ae66d6d1c37039f4fbba2d08
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_slug_oldSlugs" ON "Tags" USING gin ("deleted", "slug", "oldSlugs");-- Index "idx_Tags_deleted_core_name" ON "Tags", hash: 7230bf7754792496e078bad5d3e5f4e9
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_core_name" ON "Tags" USING btree ("deleted", "core", "name");-- Index "idx_Tags_deleted_isPostType_name" ON "Tags", hash: 3cbf94ead6ea99777049c07010a80079
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_isPostType_name" ON "Tags" USING btree ("deleted", "isPostType", "name");-- Index "idx_Tags_deleted_core_name" ON "Tags", hash: 7230bf7754792496e078bad5d3e5f4e9
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_core_name" ON "Tags" USING btree ("deleted", "core", "name");-- Index "idx_Tags_deleted_createdAt" ON "Tags", hash: edc88d986395011054c8bd05711e9ffd
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_createdAt" ON "Tags" USING btree ("deleted", "createdAt");-- Index "idx_Tags_deleted_needsReview_createdAt" ON "Tags", hash: 0af37a5289b200a7987ece98414e913f
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_needsReview_createdAt" ON "Tags" USING btree ("deleted", "needsReview", "createdAt");-- Index "idx_Tags_deleted_adminOnly_suggestedAsFilter_defaultOrder_name" ON "Tags", hash: b2a0d809744cdaf65ec5fd9512aee9fa
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_suggestedAsFilter_defaultOrder_name" ON "Tags" USING btree (
+  "deleted",
+  "adminOnly",
+  "suggestedAsFilter",
+  "defaultOrder",
+  "name"
+);-- Index "idx_Tags_deleted_adminOnly_lesswrongWikiImportSlug" ON "Tags", hash: 6175e742f5ac3d31f1d6c81c7fc828a4
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_lesswrongWikiImportSlug" ON "Tags" USING btree ("deleted", "adminOnly", "lesswrongWikiImportSlug");-- Index "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags", hash: 7988317e29b4fa5d37c927347737efa6
+CREATE INDEX IF NOT EXISTS "idx_Tags_deleted_adminOnly_tagFlagsIds" ON "Tags" USING gin ("deleted", "adminOnly", "tagFlagsIds");-- Index "idx_Tags_name" ON "Tags", hash: b486e4e1e4a649c4f6a84a391cd2cf54
+CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");-- Index "idx_Tags_parentTagId" ON "Tags", hash: f93120eff91fc3c8f5f23d5c73b4f330
+CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");-- Schema for "TypingIndicators", hash: 7b02f9b1b853157f44db7c9ef57dceaf
 CREATE TABLE "TypingIndicators" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" text NOT NULL,
-    "documentId" text NOT NULL,
-    "lastUpdated" timestamptz NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_TypingIndicators_schemaVersion" ON "TypingIndicators", hash: fcbdec1b563723f846e881d4640bbe3c
-CREATE INDEX IF NOT EXISTS "idx_TypingIndicators_schemaVersion" ON "TypingIndicators" USING btree ("schemaVersion");
-
--- Index "idx_TypingIndicators_documentId_userId" ON "TypingIndicators", hash: f4ab8d30df84d669898f41a3e0f75fd4
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
-
--- Schema for "UserActivities", hash: 8eaf4aa8172146392ea7072190373473
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "documentId" TEXT NOT NULL,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_TypingIndicators_schemaVersion" ON "TypingIndicators", hash: fcbdec1b563723f846e881d4640bbe3c
+CREATE INDEX IF NOT EXISTS "idx_TypingIndicators_schemaVersion" ON "TypingIndicators" USING btree ("schemaVersion");-- Index "idx_TypingIndicators_documentId_userId" ON "TypingIndicators", hash: f4ab8d30df84d669898f41a3e0f75fd4
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");-- Schema for "UserActivities", hash: 8eaf4aa8172146392ea7072190373473
 CREATE TABLE "UserActivities" (
-    _id varchar(27) PRIMARY KEY,
-    "visitorId" text NOT NULL,
-    "type" text NOT NULL,
-    "startDate" timestamptz NOT NULL,
-    "endDate" timestamptz NOT NULL,
-    "activityArray" double precision[] NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_UserActivities_schemaVersion" ON "UserActivities", hash: bd47c797b1caa087b663f0ab2f25e069
-CREATE INDEX IF NOT EXISTS "idx_UserActivities_schemaVersion" ON "UserActivities" USING btree ("schemaVersion");
-
--- Index "idx_UserActivities_visitorId_type" ON "UserActivities", hash: 5f6cc376cbe504a2639cecbb90d4676c
-CREATE INDEX IF NOT EXISTS "idx_UserActivities_visitorId_type" ON "UserActivities" USING btree ("visitorId", "type");
-
--- Schema for "UserEAGDetails", hash: ec7725c3606058c6d76c36742c0ed260
+  _id VARCHAR(27) PRIMARY KEY,
+  "visitorId" TEXT NOT NULL,
+  "type" TEXT NOT NULL,
+  "startDate" TIMESTAMPTZ NOT NULL,
+  "endDate" TIMESTAMPTZ NOT NULL,
+  "activityArray" DOUBLE PRECISION[] NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_UserActivities_schemaVersion" ON "UserActivities", hash: bd47c797b1caa087b663f0ab2f25e069
+CREATE INDEX IF NOT EXISTS "idx_UserActivities_schemaVersion" ON "UserActivities" USING btree ("schemaVersion");-- Index "idx_UserActivities_visitorId_type" ON "UserActivities", hash: 5f6cc376cbe504a2639cecbb90d4676c
+CREATE INDEX IF NOT EXISTS "idx_UserActivities_visitorId_type" ON "UserActivities" USING btree ("visitorId", "type");-- Schema for "UserEAGDetails", hash: ec7725c3606058c6d76c36742c0ed260
 CREATE TABLE "UserEAGDetails" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "careerStage" text[],
-    "countryOrRegion" text,
-    "nearestCity" text,
-    "willingnessToRelocate" jsonb,
-    "experiencedIn" text[],
-    "interestedIn" text[],
-    "lastUpdated" timestamptz NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_UserEAGDetails_schemaVersion" ON "UserEAGDetails", hash: e3f1a1f6c43bf57f72d2fff90d614762
-CREATE INDEX IF NOT EXISTS "idx_UserEAGDetails_schemaVersion" ON "UserEAGDetails" USING btree ("schemaVersion");
-
--- Index "idx_UserEAGDetails_userId" ON "UserEAGDetails", hash: a43f80369a620d14d61015b19ad5e54d
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserEAGDetails_userId" ON "UserEAGDetails" USING btree ("userId");
-
--- Schema for "UserJobAds", hash: b09353ff904809046fe0ea0a6c7fe8a9
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "careerStage" TEXT[],
+  "countryOrRegion" TEXT,
+  "nearestCity" TEXT,
+  "willingnessToRelocate" JSONB,
+  "experiencedIn" TEXT[],
+  "interestedIn" TEXT[],
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_UserEAGDetails_schemaVersion" ON "UserEAGDetails", hash: e3f1a1f6c43bf57f72d2fff90d614762
+CREATE INDEX IF NOT EXISTS "idx_UserEAGDetails_schemaVersion" ON "UserEAGDetails" USING btree ("schemaVersion");-- Index "idx_UserEAGDetails_userId" ON "UserEAGDetails", hash: a43f80369a620d14d61015b19ad5e54d
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserEAGDetails_userId" ON "UserEAGDetails" USING btree ("userId");-- Schema for "UserJobAds", hash: b09353ff904809046fe0ea0a6c7fe8a9
 CREATE TABLE "UserJobAds" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "jobName" text NOT NULL,
-    "adState" text NOT NULL,
-    "reminderSetAt" timestamptz,
-    "lastUpdated" timestamptz NOT NULL,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_UserJobAds_userId_jobName" ON "UserJobAds", hash: 2dd8cbf7aa19704b8782874c9eb55590
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserJobAds_userId_jobName" ON "UserJobAds" USING btree ("userId", "jobName");
-
--- Index "idx_UserJobAds_schemaVersion" ON "UserJobAds", hash: f9511680ff6e572c410394763096bf3a
-CREATE INDEX IF NOT EXISTS "idx_UserJobAds_schemaVersion" ON "UserJobAds" USING btree ("schemaVersion");
-
--- Index "idx_UserJobAds_userId" ON "UserJobAds", hash: 054140819f1b18401e43de4088b8aad7
-CREATE INDEX IF NOT EXISTS "idx_UserJobAds_userId" ON "UserJobAds" USING btree ("userId");
-
--- Index "idx_UserJobAds_jobName_adState" ON "UserJobAds", hash: 9e7d9482ac1a91b90ddb12dbe17cde80
-CREATE INDEX IF NOT EXISTS "idx_UserJobAds_jobName_adState" ON "UserJobAds" USING btree ("jobName", "adState");
-
--- Schema for "UserMostValuablePosts", hash: 314072c60ce5974fbc8467eaae30699f
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "jobName" TEXT NOT NULL,
+  "adState" TEXT NOT NULL,
+  "reminderSetAt" TIMESTAMPTZ,
+  "lastUpdated" TIMESTAMPTZ NOT NULL,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_UserJobAds_userId_jobName" ON "UserJobAds", hash: 2dd8cbf7aa19704b8782874c9eb55590
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserJobAds_userId_jobName" ON "UserJobAds" USING btree ("userId", "jobName");-- Index "idx_UserJobAds_schemaVersion" ON "UserJobAds", hash: f9511680ff6e572c410394763096bf3a
+CREATE INDEX IF NOT EXISTS "idx_UserJobAds_schemaVersion" ON "UserJobAds" USING btree ("schemaVersion");-- Index "idx_UserJobAds_userId" ON "UserJobAds", hash: 054140819f1b18401e43de4088b8aad7
+CREATE INDEX IF NOT EXISTS "idx_UserJobAds_userId" ON "UserJobAds" USING btree ("userId");-- Index "idx_UserJobAds_jobName_adState" ON "UserJobAds", hash: 9e7d9482ac1a91b90ddb12dbe17cde80
+CREATE INDEX IF NOT EXISTS "idx_UserJobAds_jobName_adState" ON "UserJobAds" USING btree ("jobName", "adState");-- Schema for "UserMostValuablePosts", hash: 314072c60ce5974fbc8467eaae30699f
 CREATE TABLE "UserMostValuablePosts" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "postId" varchar(27) NOT NULL,
-    "deleted" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_UserMostValuablePosts_schemaVersion" ON "UserMostValuablePosts", hash: c9edaf63aa73b1a4ffd12876eadba921
-CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_schemaVersion" ON "UserMostValuablePosts" USING btree ("schemaVersion");
-
--- Index "idx_UserMostValuablePosts_userId" ON "UserMostValuablePosts", hash: 2e2f2fd2b7e9ebbdf11ea4600f52886d
-CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_userId" ON "UserMostValuablePosts" USING btree ("userId");
-
--- Index "idx_UserMostValuablePosts_userId_postId" ON "UserMostValuablePosts", hash: ecda496d18bbaea0d3a5d33b3735a947
-CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_userId_postId" ON "UserMostValuablePosts" USING btree ("userId", "postId");
-
--- Schema for "UserRateLimits", hash: 5e7476d2c3fb8dfe96f0ebefed01b139
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "postId" VARCHAR(27) NOT NULL,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_UserMostValuablePosts_schemaVersion" ON "UserMostValuablePosts", hash: c9edaf63aa73b1a4ffd12876eadba921
+CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_schemaVersion" ON "UserMostValuablePosts" USING btree ("schemaVersion");-- Index "idx_UserMostValuablePosts_userId" ON "UserMostValuablePosts", hash: 2e2f2fd2b7e9ebbdf11ea4600f52886d
+CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_userId" ON "UserMostValuablePosts" USING btree ("userId");-- Index "idx_UserMostValuablePosts_userId_postId" ON "UserMostValuablePosts", hash: ecda496d18bbaea0d3a5d33b3735a947
+CREATE INDEX IF NOT EXISTS "idx_UserMostValuablePosts_userId_postId" ON "UserMostValuablePosts" USING btree ("userId", "postId");-- Schema for "UserRateLimits", hash: 5e7476d2c3fb8dfe96f0ebefed01b139
 CREATE TABLE "UserRateLimits" (
-    _id varchar(27) PRIMARY KEY,
-    "userId" varchar(27) NOT NULL,
-    "type" text NOT NULL,
-    "intervalUnit" text NOT NULL,
-    "intervalLength" double precision NOT NULL,
-    "actionsPerInterval" double precision NOT NULL,
-    "endedAt" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_UserRateLimits_schemaVersion" ON "UserRateLimits", hash: ddcf6b7177fd1dbb97d8a07c606ffd9f
-CREATE INDEX IF NOT EXISTS "idx_UserRateLimits_schemaVersion" ON "UserRateLimits" USING btree ("schemaVersion");
-
--- Index "idx_UserRateLimits_userId_createdAt_endedAt" ON "UserRateLimits", hash: a5e5c40a3511f62179244c3765fd539d
-CREATE INDEX IF NOT EXISTS "idx_UserRateLimits_userId_createdAt_endedAt" ON "UserRateLimits" USING btree ("userId", "createdAt", "endedAt");
-
--- Schema for "UserTagRels", hash: 9c1940fc89cb2135903d55b376d7b118
+  _id VARCHAR(27) PRIMARY KEY,
+  "userId" VARCHAR(27) NOT NULL,
+  "type" TEXT NOT NULL,
+  "intervalUnit" TEXT NOT NULL,
+  "intervalLength" DOUBLE PRECISION NOT NULL,
+  "actionsPerInterval" DOUBLE PRECISION NOT NULL,
+  "endedAt" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_UserRateLimits_schemaVersion" ON "UserRateLimits", hash: ddcf6b7177fd1dbb97d8a07c606ffd9f
+CREATE INDEX IF NOT EXISTS "idx_UserRateLimits_schemaVersion" ON "UserRateLimits" USING btree ("schemaVersion");-- Index "idx_UserRateLimits_userId_createdAt_endedAt" ON "UserRateLimits", hash: a5e5c40a3511f62179244c3765fd539d
+CREATE INDEX IF NOT EXISTS "idx_UserRateLimits_userId_createdAt_endedAt" ON "UserRateLimits" USING btree ("userId", "createdAt", "endedAt");-- Schema for "UserTagRels", hash: 9c1940fc89cb2135903d55b376d7b118
 CREATE TABLE "UserTagRels" (
-    _id varchar(27) PRIMARY KEY,
-    "tagId" varchar(27),
-    "userId" varchar(27) NOT NULL,
-    "subforumLastVisitedAt" timestamptz,
-    "subforumShowUnreadInSidebar" bool NOT NULL DEFAULT true,
-    "subforumEmailNotifications" bool NOT NULL DEFAULT false,
-    "subforumHideIntroPost" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_UserTagRels_schemaVersion" ON "UserTagRels", hash: 95b1acc633040169849c01fd24a5486b
-CREATE INDEX IF NOT EXISTS "idx_UserTagRels_schemaVersion" ON "UserTagRels" USING btree ("schemaVersion");
-
--- Index "idx_UserTagRels_tagId_userId" ON "UserTagRels", hash: 85956859d1d9ff8d28edc4251eaf0024
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree (COALESCE("tagId", ''), "userId");
-
--- Schema for "Users", hash: 20c57044088f779a4667f0ef064ad255
+  _id VARCHAR(27) PRIMARY KEY,
+  "tagId" VARCHAR(27),
+  "userId" VARCHAR(27) NOT NULL,
+  "subforumLastVisitedAt" TIMESTAMPTZ,
+  "subforumShowUnreadInSidebar" BOOL NOT NULL DEFAULT true,
+  "subforumEmailNotifications" BOOL NOT NULL DEFAULT false,
+  "subforumHideIntroPost" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_UserTagRels_schemaVersion" ON "UserTagRels", hash: 95b1acc633040169849c01fd24a5486b
+CREATE INDEX IF NOT EXISTS "idx_UserTagRels_schemaVersion" ON "UserTagRels" USING btree ("schemaVersion");-- Index "idx_UserTagRels_tagId_userId" ON "UserTagRels", hash: 85956859d1d9ff8d28edc4251eaf0024
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserTagRels_tagId_userId" ON "UserTagRels" USING btree (COALESCE("tagId", ''), "userId");-- Schema for "Users", hash: 20c57044088f779a4667f0ef064ad255
 CREATE TABLE "Users" (
-    _id varchar(27) PRIMARY KEY,
-    "username" text,
-    "emails" jsonb[],
-    "isAdmin" bool NOT NULL DEFAULT false,
-    "profile" jsonb,
-    "services" jsonb,
-    "displayName" text,
-    "previousDisplayName" text,
-    "email" text,
-    "slug" text,
-    "noindex" bool NOT NULL DEFAULT false,
-    "groups" text[],
-    "lwWikiImport" bool,
-    "theme" jsonb NOT NULL DEFAULT '{"name":"auto"}' ::jsonb,
-    "lastUsedTimezone" text,
-    "whenConfirmationEmailSent" timestamptz,
-    "legacy" bool NOT NULL DEFAULT false,
-    "commentSorting" text,
-    "sortDraftsBy" text,
-    "reactPaletteStyle" text NOT NULL DEFAULT 'listView',
-    "noKibitz" bool,
-    "showHideKarmaOption" bool,
-    "showPostAuthorCard" bool,
-    "hideIntercom" bool NOT NULL DEFAULT false,
-    "markDownPostEditor" bool NOT NULL DEFAULT false,
-    "hideElicitPredictions" bool NOT NULL DEFAULT false,
-    "hideAFNonMemberInitialWarning" bool NOT NULL DEFAULT false,
-    "noSingleLineComments" bool NOT NULL DEFAULT false,
-    "noCollapseCommentsPosts" bool NOT NULL DEFAULT false,
-    "noCollapseCommentsFrontpage" bool NOT NULL DEFAULT false,
-    "hideCommunitySection" bool NOT NULL DEFAULT false,
-    "expandedFrontpageSections" jsonb,
-    "showCommunityInRecentDiscussion" bool NOT NULL DEFAULT false,
-    "hidePostsRecommendations" bool NOT NULL DEFAULT false,
-    "petrovOptOut" bool NOT NULL DEFAULT false,
-    "acceptedTos" bool NOT NULL DEFAULT false,
-    "hideNavigationSidebar" bool,
-    "currentFrontpageFilter" text,
-    "frontpageSelectedTab" text,
-    "frontpageFilterSettings" jsonb,
-    "hideFrontpageFilterSettingsDesktop" bool,
-    "allPostsTimeframe" text,
-    "allPostsFilter" text,
-    "allPostsSorting" text,
-    "allPostsShowLowKarma" bool,
-    "allPostsIncludeEvents" bool,
-    "allPostsHideCommunity" bool,
-    "allPostsOpenSettings" bool,
-    "draftsListSorting" text,
-    "draftsListShowArchived" bool,
-    "draftsListShowShared" bool,
-    "lastNotificationsCheck" timestamptz,
-    "karma" double precision NOT NULL DEFAULT 0,
-    "goodHeartTokens" double precision,
-    "moderationStyle" text,
-    "moderatorAssistance" bool,
-    "collapseModerationGuidelines" bool,
-    "bannedUserIds" varchar(27)[],
-    "bannedPersonalUserIds" varchar(27)[],
-    "bookmarkedPostsMetadata" jsonb[] NOT NULL DEFAULT '{}',
-    "hiddenPostsMetadata" jsonb[] NOT NULL DEFAULT '{}',
-    "legacyId" text,
-    "deleted" bool NOT NULL DEFAULT false,
-    "voteBanned" bool,
-    "nullifyVotes" bool,
-    "deleteContent" bool,
-    "banned" timestamptz,
-    "auto_subscribe_to_my_posts" bool NOT NULL DEFAULT true,
-    "auto_subscribe_to_my_comments" bool NOT NULL DEFAULT true,
-    "autoSubscribeAsOrganizer" bool NOT NULL DEFAULT true,
-    "notificationCommentsOnSubscribedPost" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationShortformContent" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationRepliesToMyComments" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationRepliesToSubscribedComments" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationSubscribedUserPost" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationSubscribedUserComment" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationPostsInGroups" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationSubscribedTagPost" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationSubscribedSequencePost" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationPrivateMessage" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationSharedWithMe" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationAlignmentSubmissionApproved" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationEventInRadius" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationKarmaPowersGained" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationRSVPs" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationGroupAdministration" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationCommentsOnDraft" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationPostsNominatedReview" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationSubforumUnread" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationNewMention" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationDialogueMessages" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationPublishedDialogueMessages" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationAddedAsCoauthor" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationDebateCommentsOnSubscribedPost" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationDebateReplies" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationDialogueMatch" jsonb NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationNewDialogueChecks" jsonb NOT NULL DEFAULT '{"channel":"none","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "notificationYourTurnMatchForm" jsonb NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
-    "hideDialogueFacilitation" bool NOT NULL DEFAULT false,
-    "revealChecksToAdmins" bool NOT NULL DEFAULT false,
-    "optedInToDialogueFacilitation" bool NOT NULL DEFAULT false,
-    "showDialoguesList" bool NOT NULL DEFAULT true,
-    "showMyDialogues" bool NOT NULL DEFAULT true,
-    "showMatches" bool NOT NULL DEFAULT true,
-    "showRecommendedPartners" bool NOT NULL DEFAULT true,
-    "hideActiveDialogueUsers" bool NOT NULL DEFAULT false,
-    "karmaChangeNotifierSettings" jsonb NOT NULL DEFAULT '{"updateFrequency":"daily","timeOfDayGMT":11,"dayOfWeekGMT":"Saturday","showNegativeKarma":false}' ::jsonb,
-    "karmaChangeLastOpened" timestamptz,
-    "karmaChangeBatchStart" timestamptz,
-    "emailSubscribedToCurated" bool,
-    "subscribedToDigest" bool NOT NULL DEFAULT false,
-    "unsubscribeFromAll" bool,
-    "hideSubscribePoke" bool NOT NULL DEFAULT false,
-    "hideMeetupsPoke" bool NOT NULL DEFAULT false,
-    "hideHomeRHS" bool NOT NULL DEFAULT false,
-    "frontpagePostCount" double precision NOT NULL DEFAULT 0,
-    "sequenceCount" double precision NOT NULL DEFAULT 0,
-    "sequenceDraftCount" double precision NOT NULL DEFAULT 0,
-    "mongoLocation" jsonb,
-    "googleLocation" jsonb,
-    "location" text,
-    "mapLocation" jsonb,
-    "mapLocationSet" bool,
-    "mapMarkerText" text,
-    "htmlMapMarkerText" text,
-    "nearbyEventsNotifications" bool NOT NULL DEFAULT false,
-    "nearbyEventsNotificationsLocation" jsonb,
-    "nearbyEventsNotificationsMongoLocation" jsonb,
-    "nearbyEventsNotificationsRadius" double precision,
-    "nearbyPeopleNotificationThreshold" double precision,
-    "hideFrontpageMap" bool,
-    "hideTaggingProgressBar" bool,
-    "hideFrontpageBookAd" bool,
-    "hideFrontpageBook2019Ad" bool,
-    "hideFrontpageBook2020Ad" bool,
-    "sunshineNotes" text NOT NULL DEFAULT '',
-    "sunshineFlagged" bool NOT NULL DEFAULT false,
-    "needsReview" bool NOT NULL DEFAULT false,
-    "sunshineSnoozed" bool NOT NULL DEFAULT false,
-    "snoozedUntilContentCount" double precision,
-    "reviewedByUserId" varchar(27),
-    "reviewedAt" timestamptz,
-    "afKarma" double precision NOT NULL DEFAULT 0,
-    "voteCount" double precision,
-    "smallUpvoteCount" double precision,
-    "smallDownvoteCount" double precision,
-    "bigUpvoteCount" double precision,
-    "bigDownvoteCount" double precision,
-    "voteReceivedCount" double precision,
-    "smallUpvoteReceivedCount" double precision,
-    "smallDownvoteReceivedCount" double precision,
-    "bigUpvoteReceivedCount" double precision,
-    "bigDownvoteReceivedCount" double precision,
-    "usersContactedBeforeReview" text[],
-    "fullName" text,
-    "shortformFeedId" varchar(27),
-    "viewUnreviewedComments" bool,
-    "partiallyReadSequences" jsonb[],
-    "beta" bool,
-    "reviewVotesQuadratic" bool,
-    "reviewVotesQuadratic2019" bool,
-    "reviewVotesQuadratic2020" bool,
-    "petrovPressedButtonDate" timestamptz,
-    "petrovLaunchCodeDate" timestamptz,
-    "defaultToCKEditor" bool,
-    "signUpReCaptchaRating" double precision,
-    "oldSlugs" text[],
-    "noExpandUnreadCommentsReview" bool NOT NULL DEFAULT false,
-    "postCount" double precision NOT NULL DEFAULT 0,
-    "maxPostCount" double precision NOT NULL DEFAULT 0,
-    "commentCount" double precision NOT NULL DEFAULT 0,
-    "maxCommentCount" double precision NOT NULL DEFAULT 0,
-    "tagRevisionCount" double precision NOT NULL DEFAULT 0,
-    "abTestKey" text NOT NULL,
-    "abTestOverrides" jsonb,
-    "reenableDraftJs" bool,
-    "walledGardenInvite" bool,
-    "hideWalledGardenUI" bool,
-    "walledGardenPortalOnboarded" bool,
-    "taggingDashboardCollapsed" bool,
-    "usernameUnset" bool NOT NULL DEFAULT false,
-    "paymentEmail" text,
-    "paymentInfo" text,
-    "profileUpdatedAt" timestamptz NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
-    "profileImageId" text,
-    "jobTitle" text,
-    "organization" text,
-    "careerStage" text[],
-    "website" text,
-    "fmCrosspostUserId" text,
-    "linkedinProfileURL" text,
-    "facebookProfileURL" text,
-    "twitterProfileURL" text,
-    "githubProfileURL" text,
-    "profileTagIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "organizerOfGroupIds" varchar(27)[] NOT NULL DEFAULT '{}',
-    "programParticipation" text[],
-    "postingDisabled" bool,
-    "allCommentingDisabled" bool,
-    "commentingOnOtherUsersDisabled" bool,
-    "conversationsDisabled" bool,
-    "acknowledgedNewUserGuidelines" bool,
-    "subforumPreferredLayout" text,
-    "hideJobAdUntil" timestamptz,
-    "hideFromPeopleDirectory" bool NOT NULL DEFAULT false,
-    "allowDatadogSessionReplay" bool NOT NULL DEFAULT false,
-    "afPostCount" double precision NOT NULL DEFAULT 0,
-    "afCommentCount" double precision NOT NULL DEFAULT 0,
-    "afSequenceCount" double precision NOT NULL DEFAULT 0,
-    "afSequenceDraftCount" double precision NOT NULL DEFAULT 0,
-    "reviewForAlignmentForumUserId" text,
-    "afApplicationText" text,
-    "afSubmittedApplication" bool,
-    "hideSunshineSidebar" bool NOT NULL DEFAULT false,
-    "inactiveSurveyEmailSentAt" timestamptz,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb,
-    "moderationGuidelines" jsonb,
-    "moderationGuidelines_latest" text,
-    "howOthersCanHelpMe" jsonb,
-    "howOthersCanHelpMe_latest" text,
-    "howICanHelpOthers" jsonb,
-    "howICanHelpOthers_latest" text,
-    "biography" jsonb,
-    "biography_latest" text,
-    "recommendationSettings" jsonb
-);
-
--- Index "idx_Users_schemaVersion" ON "Users", hash: f333625f5a4aa62fc6adbbcb4912d81c
-CREATE INDEX IF NOT EXISTS "idx_Users_schemaVersion" ON "Users" USING btree ("schemaVersion");
-
--- Index "idx_Users_username" ON "Users", hash: b86e9345d4db1854f0a254817d2d44c3
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_Users_username" ON "Users" USING btree (COALESCE("username", ''));
-
--- Index "idx_Users_email" ON "Users", hash: 29d893f6e9ba3c65d672d59068d2b7cb
-CREATE INDEX IF NOT EXISTS "idx_Users_email" ON "Users" USING btree ("email");
-
--- Index "idx_Users_emails__address" ON "Users", hash: cfbbeb7d4ce44025ca3baea58b09bc7f
-CREATE INDEX IF NOT EXISTS "idx_Users_emails__address" ON "Users" USING gin ("emails");
-
--- Index "idx_Users_services__resume__loginTokens__hashedToken" ON "Users", hash: cf946d8f5b7dce5e3d99a725b43e1745
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__hashedToken" ON "Users" USING gin (("services" -> 'resume' -> 'loginTokens' -> 'hashedToken'));
-
--- Index "idx_Users_services__resume__loginTokens__token" ON "Users", hash: 94b33c26588bf17cb1bf8b1bc35caf85
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__token" ON "Users" USING gin (("services" -> 'resume' -> 'loginTokens' -> 'token'));
-
--- Index "idx_Users_services__resume__haveLoginTokensToDelete" ON "Users", hash: 7b9283a2e3572df9bb691c50ecd7336c
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__haveLoginTokensToDelete" ON "Users" USING gin (("services" -> 'resume' -> 'haveLoginTokensToDelete'));
-
--- Index "idx_Users_services__resume__loginTokens__when" ON "Users", hash: 11fd1ea80ef0dfea3bd6c580cb034518
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__when" ON "Users" USING gin (("services" -> 'resume' -> 'loginTokens' -> 'when'));
-
--- Index "idx_Users_services__email__verificationTokens__token" ON "Users", hash: 07631a7eb90183d140c045c674a327bf
-CREATE INDEX IF NOT EXISTS "idx_Users_services__email__verificationTokens__token" ON "Users" USING gin (("services" -> 'email' -> 'verificationTokens' -> 'token'));
-
--- Index "idx_Users_services__password__reset__token" ON "Users", hash: 8f7ae57fabc1db8ba3f89192191025b6
-CREATE INDEX IF NOT EXISTS "idx_Users_services__password__reset__token" ON "Users" USING gin (("services" -> 'password' -> 'reset' -> 'token'));
-
--- Index "idx_Users_services__password__reset__when" ON "Users", hash: 7bc82b615ad6f7b39aaec771407f7637
-CREATE INDEX IF NOT EXISTS "idx_Users_services__password__reset__when" ON "Users" USING gin (("services" -> 'password' -> 'reset' -> 'when'));
-
--- Index "idx_Users_services__twitter__id" ON "Users", hash: d8a8c88562428e46164476cabf5747c9
-CREATE INDEX IF NOT EXISTS "idx_Users_services__twitter__id" ON "Users" USING gin (("services" -> 'twitter' -> 'id'));
-
--- Index "idx_Users_services__facebook__id" ON "Users", hash: 52df77b04ea8dcc56d371a28c9fd069f
-CREATE INDEX IF NOT EXISTS "idx_Users_services__facebook__id" ON "Users" USING gin (("services" -> 'facebook' -> 'id'));
-
--- Index "idx_Users_services__google__id" ON "Users", hash: 06edb44e7db77cd36fbe9f980ea3d7be
-CREATE INDEX IF NOT EXISTS "idx_Users_services__google__id" ON "Users" USING gin (("services" -> 'google' -> 'id'));
-
--- Index "idx_Users_karma__id" ON "Users", hash: 654a1eae47626bdd1854835ec5d688ca
-CREATE INDEX IF NOT EXISTS "idx_Users_karma__id" ON "Users" USING btree ("karma", "_id");
-
--- Index "idx_Users_slug" ON "Users", hash: 02847f6fe37031522d000a439c69782c
-CREATE INDEX IF NOT EXISTS "idx_Users_slug" ON "Users" USING btree ("slug");
-
--- Index "idx_Users_isAdmin" ON "Users", hash: e4f24aff92c47b227f496b5c84a23fba
-CREATE INDEX IF NOT EXISTS "idx_Users_isAdmin" ON "Users" USING btree ("isAdmin");
-
--- Index "idx_Users_services__github__id" ON "Users", hash: 141fc8fc0ff788ec1a3ed1cf07412d91
-CREATE INDEX IF NOT EXISTS "idx_Users_services__github__id" ON "Users" USING gin (("services" -> 'github' -> 'id'));
-
--- Index "idx_Users_createdAt__id" ON "Users", hash: 148534e9632f6f9fc89c3b16680f16d4
-CREATE INDEX IF NOT EXISTS "idx_Users_createdAt__id" ON "Users" USING btree ("createdAt", "_id");
-
--- Index "idx_Users_services__resume__loginTokens" ON "Users", hash: 4be2e157006ec61b70282e3ab7b78e97
-CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens" ON "Users" USING gin (("services" -> 'resume' -> 'loginTokens'));
-
--- Index "idx_Users_email_ci" ON "Users", hash: 61108a65c0f78d2b4e045311eedd6c25
-CREATE INDEX IF NOT EXISTS "idx_Users_email_ci" ON "Users" USING btree (LOWER("email"));
-
--- Index "idx_Users_emails__address_ci" ON "Users", hash: 64fcfb3ef240d6388fe4a4b9c9585864
-CREATE INDEX IF NOT EXISTS "idx_Users_emails__address_ci" ON "Users" USING gin ("emails");
-
--- Index "idx_Users_email" ON "Users", hash: 29d893f6e9ba3c65d672d59068d2b7cb
-CREATE INDEX IF NOT EXISTS "idx_Users_email" ON "Users" USING btree ("email");
-
--- Index "idx_Users_oldSlugs" ON "Users", hash: f81777ac0707aaad3800351991897fb8
-CREATE INDEX IF NOT EXISTS "idx_Users_oldSlugs" ON "Users" USING gin ("oldSlugs");
-
--- Index "idx_Users_bannedPersonalUserIds_createdAt" ON "Users", hash: e3a74364a14476c5903b29eb3a273e1b
-CREATE INDEX IF NOT EXISTS "idx_Users_bannedPersonalUserIds_createdAt" ON "Users" USING gin ("bannedPersonalUserIds", "createdAt");
-
--- Index "idx_Users_bannedUserIds_createdAt" ON "Users", hash: 6ebaed678ff5a61a088c0ca193231218
-CREATE INDEX IF NOT EXISTS "idx_Users_bannedUserIds_createdAt" ON "Users" USING gin ("bannedUserIds", "createdAt");
-
--- Index "idx_Users_needsReview_signUpReCaptchaRating_createdAt" ON "Users", hash: b80a778cce8d6d08cb1e185ed3cede43
-CREATE INDEX IF NOT EXISTS "idx_Users_needsReview_signUpReCaptchaRating_createdAt" ON "Users" USING btree ("needsReview", "signUpReCaptchaRating", "createdAt");
-
--- Index "idx_Users_banned_postCount_commentCount_lastNotificationsCheck" ON "Users", hash: 78aacb7c79da96874c901a8846bbc4ed
-CREATE INDEX IF NOT EXISTS "idx_Users_banned_postCount_commentCount_lastNotificationsCheck" ON "Users" USING btree ("banned", "postCount", "commentCount", "lastNotificationsCheck");
-
--- Index "idx_Users_reviewedAt_createdAt" ON "Users", hash: 14f5e2d495e0f6e5a87280a16208d952
-CREATE INDEX IF NOT EXISTS "idx_Users_reviewedAt_createdAt" ON "Users" USING btree ("reviewedAt", "createdAt");
-
--- Index "idx_Users_mapLocationSet" ON "Users", hash: 3bd82e8d6fb57fbfd53fbb746ee4275a
-CREATE INDEX IF NOT EXISTS "idx_Users_mapLocationSet" ON "Users" USING btree ("mapLocationSet");
-
--- Index "idx_Users_profileTagIds_deleted_deleteContent_karma" ON "Users", hash: ff1b3c349b703f30cf736548c5db24ba
-CREATE INDEX IF NOT EXISTS "idx_Users_profileTagIds_deleted_deleteContent_karma" ON "Users" USING gin ("profileTagIds", "deleted", "deleteContent", "karma");
-
--- Index "idx_Users_walledGardenInvite" ON "Users", hash: 424b12463ab825a566370a3c13f812a0
-CREATE INDEX IF NOT EXISTS "idx_Users_walledGardenInvite" ON "Users" USING btree ("walledGardenInvite");
-
--- Index "idx_Users_optedInToDialogueFacilitation_karma" ON "Users", hash: 771c21303194e90dfdc23dae551e92fe
-CREATE INDEX IF NOT EXISTS "idx_Users_optedInToDialogueFacilitation_karma" ON "Users" USING btree ("optedInToDialogueFacilitation", "karma");
-
--- Index "idx_Users_afKarma_reviewForAlignmentForumUserId_groups_createdAt" ON "Users", hash: 1b4927584a9b529bf9b9fa70d670c127
-CREATE INDEX IF NOT EXISTS "idx_Users_afKarma_reviewForAlignmentForumUserId_groups_createdAt" ON "Users" USING gin ("afKarma", "reviewForAlignmentForumUserId", "groups", "createdAt");
-
--- Index "idx_Users_afSubmittedApplication_reviewForAlignmentForumUserId_groups_createdAt" ON "Users", hash: 9d9128d3ae592d6083710630e99d3c08
-CREATE INDEX IF NOT EXISTS "idx_Users_afSubmittedApplication_reviewForAlignmentForumUserId_groups_createdAt" ON "Users" USING gin ("afSubmittedApplication", "reviewForAlignmentForumUserId", "groups", "createdAt");
-
--- Index "idx_users_nearbyEventsNotifications" ON "Users", hash: 5367c92012b49c37009f50847e520091
-CREATE INDEX IF NOT EXISTS "idx_users_nearbyEventsNotifications" ON "Users" USING btree ("nearbyEventsNotificationsMongoLocation");
-
--- Schema for "Votes", hash: e1e8f13079fb68146227f867b36a96ab
+  _id VARCHAR(27) PRIMARY KEY,
+  "username" TEXT,
+  "emails" JSONB[],
+  "isAdmin" BOOL NOT NULL DEFAULT false,
+  "profile" JSONB,
+  "services" JSONB,
+  "displayName" TEXT,
+  "previousDisplayName" TEXT,
+  "email" TEXT,
+  "slug" TEXT,
+  "noindex" BOOL NOT NULL DEFAULT false,
+  "groups" TEXT[],
+  "lwWikiImport" BOOL,
+  "theme" JSONB NOT NULL DEFAULT '{"name":"auto"}'::JSONB,
+  "lastUsedTimezone" TEXT,
+  "whenConfirmationEmailSent" TIMESTAMPTZ,
+  "legacy" BOOL NOT NULL DEFAULT false,
+  "commentSorting" TEXT,
+  "sortDraftsBy" TEXT,
+  "reactPaletteStyle" TEXT NOT NULL DEFAULT 'listView',
+  "noKibitz" BOOL,
+  "showHideKarmaOption" BOOL,
+  "showPostAuthorCard" BOOL,
+  "hideIntercom" BOOL NOT NULL DEFAULT false,
+  "markDownPostEditor" BOOL NOT NULL DEFAULT false,
+  "hideElicitPredictions" BOOL NOT NULL DEFAULT false,
+  "hideAFNonMemberInitialWarning" BOOL NOT NULL DEFAULT false,
+  "noSingleLineComments" BOOL NOT NULL DEFAULT false,
+  "noCollapseCommentsPosts" BOOL NOT NULL DEFAULT false,
+  "noCollapseCommentsFrontpage" BOOL NOT NULL DEFAULT false,
+  "hideCommunitySection" BOOL NOT NULL DEFAULT false,
+  "expandedFrontpageSections" JSONB,
+  "showCommunityInRecentDiscussion" BOOL NOT NULL DEFAULT false,
+  "hidePostsRecommendations" BOOL NOT NULL DEFAULT false,
+  "petrovOptOut" BOOL NOT NULL DEFAULT false,
+  "acceptedTos" BOOL NOT NULL DEFAULT false,
+  "hideNavigationSidebar" BOOL,
+  "currentFrontpageFilter" TEXT,
+  "frontpageSelectedTab" TEXT,
+  "frontpageFilterSettings" JSONB,
+  "hideFrontpageFilterSettingsDesktop" BOOL,
+  "allPostsTimeframe" TEXT,
+  "allPostsFilter" TEXT,
+  "allPostsSorting" TEXT,
+  "allPostsShowLowKarma" BOOL,
+  "allPostsIncludeEvents" BOOL,
+  "allPostsHideCommunity" BOOL,
+  "allPostsOpenSettings" BOOL,
+  "draftsListSorting" TEXT,
+  "draftsListShowArchived" BOOL,
+  "draftsListShowShared" BOOL,
+  "lastNotificationsCheck" TIMESTAMPTZ,
+  "karma" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "goodHeartTokens" DOUBLE PRECISION,
+  "moderationStyle" TEXT,
+  "moderatorAssistance" BOOL,
+  "collapseModerationGuidelines" BOOL,
+  "bannedUserIds" VARCHAR(27) [],
+  "bannedPersonalUserIds" VARCHAR(27) [],
+  "bookmarkedPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
+  "hiddenPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
+  "legacyId" TEXT,
+  "deleted" BOOL NOT NULL DEFAULT false,
+  "voteBanned" BOOL,
+  "nullifyVotes" BOOL,
+  "deleteContent" BOOL,
+  "banned" TIMESTAMPTZ,
+  "auto_subscribe_to_my_posts" BOOL NOT NULL DEFAULT true,
+  "auto_subscribe_to_my_comments" BOOL NOT NULL DEFAULT true,
+  "autoSubscribeAsOrganizer" BOOL NOT NULL DEFAULT true,
+  "notificationCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationShortformContent" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationRepliesToMyComments" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationRepliesToSubscribedComments" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationSubscribedUserPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationSubscribedUserComment" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationPostsInGroups" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationSubscribedTagPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationSubscribedSequencePost" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationPrivateMessage" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationSharedWithMe" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationAlignmentSubmissionApproved" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationEventInRadius" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationKarmaPowersGained" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationRSVPs" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationGroupAdministration" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationCommentsOnDraft" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationPostsNominatedReview" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationNewMention" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationDebateReplies" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationDialogueMatch" JSONB NOT NULL DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationNewDialogueChecks" JSONB NOT NULL DEFAULT '{"channel":"none","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "notificationYourTurnMatchForm" JSONB NOT NULL DEFAULT '{"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}'::JSONB,
+  "hideDialogueFacilitation" BOOL NOT NULL DEFAULT false,
+  "revealChecksToAdmins" BOOL NOT NULL DEFAULT false,
+  "optedInToDialogueFacilitation" BOOL NOT NULL DEFAULT false,
+  "showDialoguesList" BOOL NOT NULL DEFAULT true,
+  "showMyDialogues" BOOL NOT NULL DEFAULT true,
+  "showMatches" BOOL NOT NULL DEFAULT true,
+  "showRecommendedPartners" BOOL NOT NULL DEFAULT true,
+  "hideActiveDialogueUsers" BOOL NOT NULL DEFAULT false,
+  "karmaChangeNotifierSettings" JSONB NOT NULL DEFAULT '{"updateFrequency":"daily","timeOfDayGMT":11,"dayOfWeekGMT":"Saturday","showNegativeKarma":false}'::JSONB,
+  "karmaChangeLastOpened" TIMESTAMPTZ,
+  "karmaChangeBatchStart" TIMESTAMPTZ,
+  "emailSubscribedToCurated" BOOL,
+  "subscribedToDigest" BOOL NOT NULL DEFAULT false,
+  "unsubscribeFromAll" BOOL,
+  "hideSubscribePoke" BOOL NOT NULL DEFAULT false,
+  "hideMeetupsPoke" BOOL NOT NULL DEFAULT false,
+  "hideHomeRHS" BOOL NOT NULL DEFAULT false,
+  "frontpagePostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "sequenceCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "sequenceDraftCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "mongoLocation" JSONB,
+  "googleLocation" JSONB,
+  "location" TEXT,
+  "mapLocation" JSONB,
+  "mapLocationSet" BOOL,
+  "mapMarkerText" TEXT,
+  "htmlMapMarkerText" TEXT,
+  "nearbyEventsNotifications" BOOL NOT NULL DEFAULT false,
+  "nearbyEventsNotificationsLocation" JSONB,
+  "nearbyEventsNotificationsMongoLocation" JSONB,
+  "nearbyEventsNotificationsRadius" DOUBLE PRECISION,
+  "nearbyPeopleNotificationThreshold" DOUBLE PRECISION,
+  "hideFrontpageMap" BOOL,
+  "hideTaggingProgressBar" BOOL,
+  "hideFrontpageBookAd" BOOL,
+  "hideFrontpageBook2019Ad" BOOL,
+  "hideFrontpageBook2020Ad" BOOL,
+  "sunshineNotes" TEXT NOT NULL DEFAULT '',
+  "sunshineFlagged" BOOL NOT NULL DEFAULT false,
+  "needsReview" BOOL NOT NULL DEFAULT false,
+  "sunshineSnoozed" BOOL NOT NULL DEFAULT false,
+  "snoozedUntilContentCount" DOUBLE PRECISION,
+  "reviewedByUserId" VARCHAR(27),
+  "reviewedAt" TIMESTAMPTZ,
+  "afKarma" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "voteCount" DOUBLE PRECISION,
+  "smallUpvoteCount" DOUBLE PRECISION,
+  "smallDownvoteCount" DOUBLE PRECISION,
+  "bigUpvoteCount" DOUBLE PRECISION,
+  "bigDownvoteCount" DOUBLE PRECISION,
+  "voteReceivedCount" DOUBLE PRECISION,
+  "smallUpvoteReceivedCount" DOUBLE PRECISION,
+  "smallDownvoteReceivedCount" DOUBLE PRECISION,
+  "bigUpvoteReceivedCount" DOUBLE PRECISION,
+  "bigDownvoteReceivedCount" DOUBLE PRECISION,
+  "usersContactedBeforeReview" TEXT[],
+  "fullName" TEXT,
+  "shortformFeedId" VARCHAR(27),
+  "viewUnreviewedComments" BOOL,
+  "partiallyReadSequences" JSONB[],
+  "beta" BOOL,
+  "reviewVotesQuadratic" BOOL,
+  "reviewVotesQuadratic2019" BOOL,
+  "reviewVotesQuadratic2020" BOOL,
+  "petrovPressedButtonDate" TIMESTAMPTZ,
+  "petrovLaunchCodeDate" TIMESTAMPTZ,
+  "defaultToCKEditor" BOOL,
+  "signUpReCaptchaRating" DOUBLE PRECISION,
+  "oldSlugs" TEXT[],
+  "noExpandUnreadCommentsReview" BOOL NOT NULL DEFAULT false,
+  "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "maxPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "commentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "maxCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "tagRevisionCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "abTestKey" TEXT NOT NULL,
+  "abTestOverrides" JSONB,
+  "reenableDraftJs" BOOL,
+  "walledGardenInvite" BOOL,
+  "hideWalledGardenUI" BOOL,
+  "walledGardenPortalOnboarded" BOOL,
+  "taggingDashboardCollapsed" BOOL,
+  "usernameUnset" BOOL NOT NULL DEFAULT false,
+  "paymentEmail" TEXT,
+  "paymentInfo" TEXT,
+  "profileUpdatedAt" TIMESTAMPTZ NOT NULL DEFAULT '1970-01-01T00:00:00.000Z',
+  "profileImageId" TEXT,
+  "jobTitle" TEXT,
+  "organization" TEXT,
+  "careerStage" TEXT[],
+  "website" TEXT,
+  "fmCrosspostUserId" TEXT,
+  "linkedinProfileURL" TEXT,
+  "facebookProfileURL" TEXT,
+  "twitterProfileURL" TEXT,
+  "githubProfileURL" TEXT,
+  "profileTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "organizerOfGroupIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
+  "programParticipation" TEXT[],
+  "postingDisabled" BOOL,
+  "allCommentingDisabled" BOOL,
+  "commentingOnOtherUsersDisabled" BOOL,
+  "conversationsDisabled" BOOL,
+  "acknowledgedNewUserGuidelines" BOOL,
+  "subforumPreferredLayout" TEXT,
+  "hideJobAdUntil" TIMESTAMPTZ,
+  "hideFromPeopleDirectory" BOOL NOT NULL DEFAULT false,
+  "allowDatadogSessionReplay" BOOL NOT NULL DEFAULT false,
+  "afPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afSequenceCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "afSequenceDraftCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "reviewForAlignmentForumUserId" TEXT,
+  "afApplicationText" TEXT,
+  "afSubmittedApplication" BOOL,
+  "hideSunshineSidebar" BOOL NOT NULL DEFAULT false,
+  "inactiveSurveyEmailSentAt" TIMESTAMPTZ,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "moderationGuidelines" JSONB,
+  "moderationGuidelines_latest" TEXT,
+  "howOthersCanHelpMe" JSONB,
+  "howOthersCanHelpMe_latest" TEXT,
+  "howICanHelpOthers" JSONB,
+  "howICanHelpOthers_latest" TEXT,
+  "biography" JSONB,
+  "biography_latest" TEXT,
+  "recommendationSettings" JSONB
+);-- Index "idx_Users_schemaVersion" ON "Users", hash: f333625f5a4aa62fc6adbbcb4912d81c
+CREATE INDEX IF NOT EXISTS "idx_Users_schemaVersion" ON "Users" USING btree ("schemaVersion");-- Index "idx_Users_username" ON "Users", hash: b86e9345d4db1854f0a254817d2d44c3
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_Users_username" ON "Users" USING btree (COALESCE("username", ''));-- Index "idx_Users_email" ON "Users", hash: 29d893f6e9ba3c65d672d59068d2b7cb
+CREATE INDEX IF NOT EXISTS "idx_Users_email" ON "Users" USING btree ("email");-- Index "idx_Users_emails__address" ON "Users", hash: cfbbeb7d4ce44025ca3baea58b09bc7f
+CREATE INDEX IF NOT EXISTS "idx_Users_emails__address" ON "Users" USING gin ("emails");-- Index "idx_Users_services__resume__loginTokens__hashedToken" ON "Users", hash: cf946d8f5b7dce5e3d99a725b43e1745
+CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__hashedToken" ON "Users" USING gin (
+  (
+    "services" -> 'resume' -> 'loginTokens' -> 'hashedToken'
+  )
+);-- Index "idx_Users_services__resume__loginTokens__token" ON "Users", hash: 94b33c26588bf17cb1bf8b1bc35caf85
+CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__token" ON "Users" USING gin (
+  (
+    "services" -> 'resume' -> 'loginTokens' -> 'token'
+  )
+);-- Index "idx_Users_services__resume__haveLoginTokensToDelete" ON "Users", hash: 7b9283a2e3572df9bb691c50ecd7336c
+CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__haveLoginTokensToDelete" ON "Users" USING gin (
+  (
+    "services" -> 'resume' -> 'haveLoginTokensToDelete'
+  )
+);-- Index "idx_Users_services__resume__loginTokens__when" ON "Users", hash: 11fd1ea80ef0dfea3bd6c580cb034518
+CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens__when" ON "Users" USING gin (
+  ("services" -> 'resume' -> 'loginTokens' -> 'when')
+);-- Index "idx_Users_services__email__verificationTokens__token" ON "Users", hash: 07631a7eb90183d140c045c674a327bf
+CREATE INDEX IF NOT EXISTS "idx_Users_services__email__verificationTokens__token" ON "Users" USING gin (
+  (
+    "services" -> 'email' -> 'verificationTokens' -> 'token'
+  )
+);-- Index "idx_Users_services__password__reset__token" ON "Users", hash: 8f7ae57fabc1db8ba3f89192191025b6
+CREATE INDEX IF NOT EXISTS "idx_Users_services__password__reset__token" ON "Users" USING gin (("services" -> 'password' -> 'reset' -> 'token'));-- Index "idx_Users_services__password__reset__when" ON "Users", hash: 7bc82b615ad6f7b39aaec771407f7637
+CREATE INDEX IF NOT EXISTS "idx_Users_services__password__reset__when" ON "Users" USING gin (("services" -> 'password' -> 'reset' -> 'when'));-- Index "idx_Users_services__twitter__id" ON "Users", hash: d8a8c88562428e46164476cabf5747c9
+CREATE INDEX IF NOT EXISTS "idx_Users_services__twitter__id" ON "Users" USING gin (("services" -> 'twitter' -> 'id'));-- Index "idx_Users_services__facebook__id" ON "Users", hash: 52df77b04ea8dcc56d371a28c9fd069f
+CREATE INDEX IF NOT EXISTS "idx_Users_services__facebook__id" ON "Users" USING gin (("services" -> 'facebook' -> 'id'));-- Index "idx_Users_services__google__id" ON "Users", hash: 06edb44e7db77cd36fbe9f980ea3d7be
+CREATE INDEX IF NOT EXISTS "idx_Users_services__google__id" ON "Users" USING gin (("services" -> 'google' -> 'id'));-- Index "idx_Users_karma__id" ON "Users", hash: 654a1eae47626bdd1854835ec5d688ca
+CREATE INDEX IF NOT EXISTS "idx_Users_karma__id" ON "Users" USING btree ("karma", "_id");-- Index "idx_Users_slug" ON "Users", hash: 02847f6fe37031522d000a439c69782c
+CREATE INDEX IF NOT EXISTS "idx_Users_slug" ON "Users" USING btree ("slug");-- Index "idx_Users_isAdmin" ON "Users", hash: e4f24aff92c47b227f496b5c84a23fba
+CREATE INDEX IF NOT EXISTS "idx_Users_isAdmin" ON "Users" USING btree ("isAdmin");-- Index "idx_Users_services__github__id" ON "Users", hash: 141fc8fc0ff788ec1a3ed1cf07412d91
+CREATE INDEX IF NOT EXISTS "idx_Users_services__github__id" ON "Users" USING gin (("services" -> 'github' -> 'id'));-- Index "idx_Users_createdAt__id" ON "Users", hash: 148534e9632f6f9fc89c3b16680f16d4
+CREATE INDEX IF NOT EXISTS "idx_Users_createdAt__id" ON "Users" USING btree ("createdAt", "_id");-- Index "idx_Users_services__resume__loginTokens" ON "Users", hash: 4be2e157006ec61b70282e3ab7b78e97
+CREATE INDEX IF NOT EXISTS "idx_Users_services__resume__loginTokens" ON "Users" USING gin (("services" -> 'resume' -> 'loginTokens'));-- Index "idx_Users_email_ci" ON "Users", hash: 61108a65c0f78d2b4e045311eedd6c25
+CREATE INDEX IF NOT EXISTS "idx_Users_email_ci" ON "Users" USING btree (LOWER("email"));-- Index "idx_Users_emails__address_ci" ON "Users", hash: 64fcfb3ef240d6388fe4a4b9c9585864
+CREATE INDEX IF NOT EXISTS "idx_Users_emails__address_ci" ON "Users" USING gin ("emails");-- Index "idx_Users_email" ON "Users", hash: 29d893f6e9ba3c65d672d59068d2b7cb
+CREATE INDEX IF NOT EXISTS "idx_Users_email" ON "Users" USING btree ("email");-- Index "idx_Users_oldSlugs" ON "Users", hash: f81777ac0707aaad3800351991897fb8
+CREATE INDEX IF NOT EXISTS "idx_Users_oldSlugs" ON "Users" USING gin ("oldSlugs");-- Index "idx_Users_bannedPersonalUserIds_createdAt" ON "Users", hash: e3a74364a14476c5903b29eb3a273e1b
+CREATE INDEX IF NOT EXISTS "idx_Users_bannedPersonalUserIds_createdAt" ON "Users" USING gin ("bannedPersonalUserIds", "createdAt");-- Index "idx_Users_bannedUserIds_createdAt" ON "Users", hash: 6ebaed678ff5a61a088c0ca193231218
+CREATE INDEX IF NOT EXISTS "idx_Users_bannedUserIds_createdAt" ON "Users" USING gin ("bannedUserIds", "createdAt");-- Index "idx_Users_needsReview_signUpReCaptchaRating_createdAt" ON "Users", hash: b80a778cce8d6d08cb1e185ed3cede43
+CREATE INDEX IF NOT EXISTS "idx_Users_needsReview_signUpReCaptchaRating_createdAt" ON "Users" USING btree (
+  "needsReview",
+  "signUpReCaptchaRating",
+  "createdAt"
+);-- Index "idx_Users_banned_postCount_commentCount_lastNotificationsCheck" ON "Users", hash: 78aacb7c79da96874c901a8846bbc4ed
+CREATE INDEX IF NOT EXISTS "idx_Users_banned_postCount_commentCount_lastNotificationsCheck" ON "Users" USING btree (
+  "banned",
+  "postCount",
+  "commentCount",
+  "lastNotificationsCheck"
+);-- Index "idx_Users_reviewedAt_createdAt" ON "Users", hash: 14f5e2d495e0f6e5a87280a16208d952
+CREATE INDEX IF NOT EXISTS "idx_Users_reviewedAt_createdAt" ON "Users" USING btree ("reviewedAt", "createdAt");-- Index "idx_Users_mapLocationSet" ON "Users", hash: 3bd82e8d6fb57fbfd53fbb746ee4275a
+CREATE INDEX IF NOT EXISTS "idx_Users_mapLocationSet" ON "Users" USING btree ("mapLocationSet");-- Index "idx_Users_profileTagIds_deleted_deleteContent_karma" ON "Users", hash: ff1b3c349b703f30cf736548c5db24ba
+CREATE INDEX IF NOT EXISTS "idx_Users_profileTagIds_deleted_deleteContent_karma" ON "Users" USING gin (
+  "profileTagIds",
+  "deleted",
+  "deleteContent",
+  "karma"
+);-- Index "idx_Users_walledGardenInvite" ON "Users", hash: 424b12463ab825a566370a3c13f812a0
+CREATE INDEX IF NOT EXISTS "idx_Users_walledGardenInvite" ON "Users" USING btree ("walledGardenInvite");-- Index "idx_Users_optedInToDialogueFacilitation_karma" ON "Users", hash: 771c21303194e90dfdc23dae551e92fe
+CREATE INDEX IF NOT EXISTS "idx_Users_optedInToDialogueFacilitation_karma" ON "Users" USING btree ("optedInToDialogueFacilitation", "karma");-- Index "idx_Users_afKarma_reviewForAlignmentForumUserId_groups_createdAt" ON "Users", hash: 1b4927584a9b529bf9b9fa70d670c127
+CREATE INDEX IF NOT EXISTS "idx_Users_afKarma_reviewForAlignmentForumUserId_groups_createdAt" ON "Users" USING gin (
+  "afKarma",
+  "reviewForAlignmentForumUserId",
+  "groups",
+  "createdAt"
+);-- Index "idx_Users_afSubmittedApplication_reviewForAlignmentForumUserId_groups_createdAt" ON "Users", hash: 9d9128d3ae592d6083710630e99d3c08
+CREATE INDEX IF NOT EXISTS "idx_Users_afSubmittedApplication_reviewForAlignmentForumUserId_groups_createdAt" ON "Users" USING gin (
+  "afSubmittedApplication",
+  "reviewForAlignmentForumUserId",
+  "groups",
+  "createdAt"
+);-- Index "idx_users_nearbyEventsNotifications" ON "Users", hash: 5367c92012b49c37009f50847e520091
+CREATE INDEX IF NOT EXISTS "idx_users_nearbyEventsNotifications" ON "Users" USING btree ("nearbyEventsNotificationsMongoLocation");-- Schema for "Votes", hash: e1e8f13079fb68146227f867b36a96ab
 CREATE TABLE "Votes" (
-    _id varchar(27) PRIMARY KEY,
-    "documentId" text NOT NULL,
-    "collectionName" text NOT NULL,
-    "userId" varchar(27) NOT NULL,
-    "authorIds" varchar(27)[],
-    "voteType" text NOT NULL,
-    "extendedVoteType" jsonb,
-    "power" double precision NOT NULL,
-    "afPower" double precision,
-    "cancelled" bool NOT NULL DEFAULT false,
-    "isUnvote" bool NOT NULL DEFAULT false,
-    "votedAt" timestamptz NOT NULL,
-    "documentIsAf" bool NOT NULL DEFAULT false,
-    "silenceNotification" bool NOT NULL DEFAULT false,
-    "schemaVersion" double precision NOT NULL DEFAULT 1,
-    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    "legacyData" jsonb
-);
-
--- Index "idx_Votes_schemaVersion" ON "Votes", hash: 33eb8ac809b70a378474b4d5cff7c95d
-CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");
-
--- Index "idx_Votes_cancelled_userId_documentId" ON "Votes", hash: a982cdd89f38a05fa2968ab74e5b5a9f
-CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_userId_documentId" ON "Votes" USING btree ("cancelled", "userId", "documentId");
-
--- Index "idx_Votes_cancelled_documentId" ON "Votes", hash: cb646c5336606dead3612c465cc4817e
-CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_documentId" ON "Votes" USING btree ("cancelled", "documentId");
-
--- Index "idx_Votes_cancelled_userId_votedAt" ON "Votes", hash: e9c226b5c0f03ba8709d0580d1d858a5
-CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_userId_votedAt" ON "Votes" USING btree ("cancelled", "userId", "votedAt");
-
--- Index "idx_Votes_authorIds" ON "Votes", hash: d8936541eed088b6166a79fa0f8a1fdc
-CREATE INDEX IF NOT EXISTS "idx_Votes_authorIds" ON "Votes" USING gin ("authorIds");
-
--- Index "idx_Votes_userId_cancelled_votedAt" ON "Votes", hash: b8e42449b3570d900a49cb32bc268cea
-CREATE INDEX IF NOT EXISTS "idx_Votes_userId_cancelled_votedAt" ON "Votes" USING btree ("userId", "cancelled", "votedAt");
-
--- Index "idx_Votes_collectionName_votedAt" ON "Votes", hash: dffc0493d883bfeb8c133047cea01f79
-CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_votedAt" ON "Votes" USING btree ("collectionName", "votedAt");
-
--- Index "idx_Votes_collectionName_userId_voteType_cancelled_isUnvote_votedAt" ON "Votes", hash: 2449408f9aab89a0243a8d820462611f
-CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_isUnvote_votedAt" ON "Votes" USING btree ("collectionName", "userId", "voteType", "cancelled", "isUnvote", "votedAt");
-
--- Index "idx_Votes_collectionName_userId_cancelled_isUnvote_voteType_extendedVoteType_votedAt" ON "Votes", hash: 8b8a7d51df707ba9b2e8c40d2223ac85
-CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_cancelled_isUnvote_voteType_extendedVoteType_votedAt" ON "Votes" USING btree ("collectionName", "userId", "cancelled", "isUnvote", "voteType", "extendedVoteType", "votedAt");
-
--- Index "idx_Votes_documentId" ON "Votes", hash: 46b6273811ae4b1aa155447cec6f8651
-CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");
-
--- Function, hash: b46d62a3f1df590b2b32db6f51aa876d
+  _id VARCHAR(27) PRIMARY KEY,
+  "documentId" TEXT NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "authorIds" VARCHAR(27) [],
+  "voteType" TEXT NOT NULL,
+  "extendedVoteType" JSONB,
+  "power" DOUBLE PRECISION NOT NULL,
+  "afPower" DOUBLE PRECISION,
+  "cancelled" BOOL NOT NULL DEFAULT false,
+  "isUnvote" BOOL NOT NULL DEFAULT false,
+  "votedAt" TIMESTAMPTZ NOT NULL,
+  "documentIsAf" BOOL NOT NULL DEFAULT false,
+  "silenceNotification" BOOL NOT NULL DEFAULT false,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB
+);-- Index "idx_Votes_schemaVersion" ON "Votes", hash: 33eb8ac809b70a378474b4d5cff7c95d
+CREATE INDEX IF NOT EXISTS "idx_Votes_schemaVersion" ON "Votes" USING btree ("schemaVersion");-- Index "idx_Votes_cancelled_userId_documentId" ON "Votes", hash: a982cdd89f38a05fa2968ab74e5b5a9f
+CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_userId_documentId" ON "Votes" USING btree ("cancelled", "userId", "documentId");-- Index "idx_Votes_cancelled_documentId" ON "Votes", hash: cb646c5336606dead3612c465cc4817e
+CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_documentId" ON "Votes" USING btree ("cancelled", "documentId");-- Index "idx_Votes_cancelled_userId_votedAt" ON "Votes", hash: e9c226b5c0f03ba8709d0580d1d858a5
+CREATE INDEX IF NOT EXISTS "idx_Votes_cancelled_userId_votedAt" ON "Votes" USING btree ("cancelled", "userId", "votedAt");-- Index "idx_Votes_authorIds" ON "Votes", hash: d8936541eed088b6166a79fa0f8a1fdc
+CREATE INDEX IF NOT EXISTS "idx_Votes_authorIds" ON "Votes" USING gin ("authorIds");-- Index "idx_Votes_userId_cancelled_votedAt" ON "Votes", hash: b8e42449b3570d900a49cb32bc268cea
+CREATE INDEX IF NOT EXISTS "idx_Votes_userId_cancelled_votedAt" ON "Votes" USING btree ("userId", "cancelled", "votedAt");-- Index "idx_Votes_collectionName_votedAt" ON "Votes", hash: dffc0493d883bfeb8c133047cea01f79
+CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_votedAt" ON "Votes" USING btree ("collectionName", "votedAt");-- Index "idx_Votes_collectionName_userId_voteType_cancelled_isUnvote_votedAt" ON "Votes", hash: 2449408f9aab89a0243a8d820462611f
+CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_voteType_cancelled_isUnvote_votedAt" ON "Votes" USING btree (
+  "collectionName",
+  "userId",
+  "voteType",
+  "cancelled",
+  "isUnvote",
+  "votedAt"
+);-- Index "idx_Votes_collectionName_userId_cancelled_isUnvote_voteType_extendedVoteType_votedAt" ON "Votes", hash: 8b8a7d51df707ba9b2e8c40d2223ac85
+CREATE INDEX IF NOT EXISTS "idx_Votes_collectionName_userId_cancelled_isUnvote_voteType_extendedVoteType_votedAt" ON "Votes" USING btree (
+  "collectionName",
+  "userId",
+  "cancelled",
+  "isUnvote",
+  "voteType",
+  "extendedVoteType",
+  "votedAt"
+);-- Index "idx_Votes_documentId" ON "Votes", hash: 46b6273811ae4b1aa155447cec6f8651
+CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("documentId");-- Function, hash: b46d62a3f1df590b2b32db6f51aa876d
 CREATE OR REPLACE FUNCTION fm_build_nested_jsonb(
     target_path TEXT[],
     terminal_element JSONB
@@ -2762,116 +2841,138 @@ CREATE OR REPLACE FUNCTION fm_get_user_profile_updated_at(userid TEXT)
   $$;
 
 -- Custom index, hash: 285491f99ba96895e0240f3dbb5121e3
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public. "DatabaseMetadata" USING btree (name);
-
--- Custom index, hash: 635b040ef20149755985c607b7225f9a
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON public. "DebouncerEvents" USING btree (dispatched, af, key, name)
-WHERE (dispatched IS FALSE);
-
--- Custom index, hash: 15a2130dd3573fdfb01313fa47e011fe
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public. "PageCache" USING btree (path, "abTestGroups", "bundleHash");
-
--- Custom index, hash: 7940ec7f3b1c0c61640593a8b967b11a
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public. "ReadStatuses" USING btree (COALESCE("userId", ''::character varying), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
-
--- Custom index, hash: c3f68f7dcf187a6ba539c6be362c99e1
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name" ON public."DatabaseMetadata" USING btree (name);-- Custom index, hash: 635b040ef20149755985c607b7225f9a
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered" ON public."DebouncerEvents" USING btree (dispatched, af, key, name)
+WHERE
+  (dispatched IS FALSE);-- Custom index, hash: 15a2130dd3573fdfb01313fa47e011fe
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash" ON public."PageCache" USING btree (path, "abTestGroups", "bundleHash");-- Custom index, hash: 7940ec7f3b1c0c61640593a8b967b11a
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON public."ReadStatuses" USING btree (
+  COALESCE("userId", ''::character varying),
+  COALESCE("postId", ''::character varying),
+  COALESCE("tagId", ''::character varying)
+);-- Custom index, hash: c3f68f7dcf187a6ba539c6be362c99e1
 CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_jobTitle" ON "Users" (TO_TSVECTOR('english', "jobTitle"))
 WHERE
-    "jobTitle" IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
-
--- Custom index, hash: d653b1858ed7e8e0507c8e653989b089
+  "jobTitle" IS NOT NULL
+  AND "noindex" IS NOT TRUE
+  AND "hideFromPeopleDirectory" IS NOT TRUE
+  AND "deleted" IS NOT TRUE
+  AND "voteBanned" IS NOT TRUE
+  AND "deleteContent" IS NOT TRUE
+  AND "nullifyVotes" IS NOT TRUE
+  AND "banned" IS NULL;-- Custom index, hash: d653b1858ed7e8e0507c8e653989b089
 CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_organization" ON "Users" (TO_TSVECTOR('english', "organization"))
 WHERE
-    "organization" IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
-
--- Custom index, hash: 4cc064bb1373509253221ee460b211cf
-CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_mapLocationAddress" ON "Users" (TO_TSVECTOR('english', "mapLocation" ->> 'formatted_address'))
+  "organization" IS NOT NULL
+  AND "noindex" IS NOT TRUE
+  AND "hideFromPeopleDirectory" IS NOT TRUE
+  AND "deleted" IS NOT TRUE
+  AND "voteBanned" IS NOT TRUE
+  AND "deleteContent" IS NOT TRUE
+  AND "nullifyVotes" IS NOT TRUE
+  AND "banned" IS NULL;-- Custom index, hash: 4cc064bb1373509253221ee460b211cf
+CREATE INDEX IF NOT EXISTS "idx_Users_tsvector_mapLocationAddress" ON "Users" (
+  TO_TSVECTOR('english', "mapLocation" ->> 'formatted_address')
+)
 WHERE
-    "mapLocation" ->> 'formatted_address' IS NOT NULL AND "noindex" IS NOT TRUE AND "hideFromPeopleDirectory" IS NOT TRUE AND "deleted" IS NOT TRUE AND "voteBanned" IS NOT TRUE AND "deleteContent" IS NOT TRUE AND "nullifyVotes" IS NOT TRUE AND "banned" IS NULL;
-
--- Custom index, hash: a9db8a3bab744e9c97e5bf159225360b
+  "mapLocation" ->> 'formatted_address' IS NOT NULL
+  AND "noindex" IS NOT TRUE
+  AND "hideFromPeopleDirectory" IS NOT TRUE
+  AND "deleted" IS NOT TRUE
+  AND "voteBanned" IS NOT TRUE
+  AND "deleteContent" IS NOT TRUE
+  AND "nullifyVotes" IS NOT TRUE
+  AND "banned" IS NULL;-- Custom index, hash: a9db8a3bab744e9c97e5bf159225360b
 CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")
 WHERE
-    "promotedAt" IS NOT NULL;
-
--- Custom index, hash: 73d35bda4c7346b2794c27dedcc915ad
-CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");
-
--- Custom index, hash: 9d6cc0dcc2fa817f1269426b61160ed5
+  "promotedAt" IS NOT NULL;-- Custom index, hash: 73d35bda4c7346b2794c27dedcc915ad
+CREATE INDEX IF NOT EXISTS "idx_Comments_userId_postId_postedAt" ON "Comments" ("userId", "postId", "postedAt");-- Custom index, hash: 9d6cc0dcc2fa817f1269426b61160ed5
 CREATE INDEX IF NOT EXISTS idx_comments_popular_comments ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
-WHERE ("baseScore" >= 15);
-
--- Custom index, hash: 3b6615bd79e98985c2b702e87f7a14b5
-CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);
-
--- Custom index, hash: 4338faf7463bec37539a3135a1e9910f
-CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueResponseDate" ON "Posts" (GREATEST ("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
 WHERE
-    "collabEditorDialogue" IS TRUE;
-
--- Custom index, hash: 603f80dc36b22b97c313af3eb0f9d568
-CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated_verified" ON "Users" USING btree ("emailSubscribedToCurated", "unsubscribeFromAll", "deleted", "email", fm_has_verified_email (emails), "_id")
+  ("baseScore" >= 15);-- Custom index, hash: 3b6615bd79e98985c2b702e87f7a14b5
+CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin (pingbacks);-- Custom index, hash: 4338faf7463bec37539a3135a1e9910f
+CREATE INDEX IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueResponseDate" ON "Posts" (
+  GREATEST(
+    "postedAt",
+    "mostRecentPublishedDialogueResponseDate"
+  ) DESC
+)
 WHERE
-    "emailSubscribedToCurated" IS TRUE AND "unsubscribeFromAll" IS NOT TRUE AND "deleted" IS NOT TRUE AND "email" IS NOT NULL AND fm_has_verified_email (emails);
-
--- Custom index, hash: 480ced786a330b105dfacf424868d573
-CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated" ON "Users" USING btree ("emailSubscribedToCurated", "unsubscribeFromAll", "deleted", "email", "_id")
+  "collabEditorDialogue" IS TRUE;-- Custom index, hash: 603f80dc36b22b97c313af3eb0f9d568
+CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated_verified" ON "Users" USING btree (
+  "emailSubscribedToCurated",
+  "unsubscribeFromAll",
+  "deleted",
+  "email",
+  fm_has_verified_email (emails),
+  "_id"
+)
 WHERE
-    "emailSubscribedToCurated" IS TRUE AND "unsubscribeFromAll" IS NOT TRUE AND "deleted" IS NOT TRUE AND "email" IS NOT NULL;
-
--- View "UniquePostUpvoters", hash: ccef8ea6186b1b367d13b83c0be667ff
+  "emailSubscribedToCurated" IS TRUE
+  AND "unsubscribeFromAll" IS NOT TRUE
+  AND "deleted" IS NOT TRUE
+  AND "email" IS NOT NULL
+  AND fm_has_verified_email (emails);-- Custom index, hash: 480ced786a330b105dfacf424868d573
+CREATE INDEX IF NOT EXISTS "idx_Users_subscribed_to_curated" ON "Users" USING btree (
+  "emailSubscribedToCurated",
+  "unsubscribeFromAll",
+  "deleted",
+  "email",
+  "_id"
+)
+WHERE
+  "emailSubscribedToCurated" IS TRUE
+  AND "unsubscribeFromAll" IS NOT TRUE
+  AND "deleted" IS NOT TRUE
+  AND "email" IS NOT NULL;-- View "UniquePostUpvoters", hash: ccef8ea6186b1b367d13b83c0be667ff
 CREATE MATERIALIZED VIEW IF NOT EXISTS "UniquePostUpvoters" AS
 SELECT
-    p. "_id" AS "postId",
-    ARRAY_AGG(DISTINCT ('x' || SUBSTR(MD5(v. "userId"), 1, 8))::bit(32)::integer) AS "voters"
+  p."_id" AS "postId",
+  ARRAY_AGG(
+    DISTINCT ('x' || SUBSTR(MD5(v."userId"), 1, 8))::BIT(32)::INTEGER
+  ) AS "voters"
 FROM
-    "Posts" p
-    INNER JOIN "Votes" v ON p. "_id" = v. "documentId"
-        AND v. "collectionName" = 'Posts'
-        AND v. "cancelled" IS NOT TRUE
-        AND v. "isUnvote" IS NOT TRUE
-        AND v. "voteType" IN ('smallUpvote', 'bigUpvote')
+  "Posts" p
+  INNER JOIN "Votes" v ON p."_id" = v."documentId"
+  AND v."collectionName" = 'Posts'
+  AND v."cancelled" IS NOT TRUE
+  AND v."isUnvote" IS NOT TRUE
+  AND v."voteType" IN ('smallUpvote', 'bigUpvote')
 GROUP BY
-    p. "_id";
-
--- Index on view "UniquePostUpvoters", hash: 977bcfb6d4daa6c56eb313bfb58a4b29
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_UniquePostUpvoters_postId" ON "UniquePostUpvoters" ("postId");
-
--- View "ConversationUnreadMessages", hash: 35ca2ef862ebcbc4f3c38b89783f438e
+  p."_id";-- Index on view "UniquePostUpvoters", hash: 977bcfb6d4daa6c56eb313bfb58a4b29
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UniquePostUpvoters_postId" ON "UniquePostUpvoters" ("postId");-- View "ConversationUnreadMessages", hash: 35ca2ef862ebcbc4f3c38b89783f438e
 CREATE OR REPLACE VIEW "ConversationUnreadMessages" AS
 SELECT
-    q. "conversationId",
-    q. "userId",
-    EXISTS (
-        SELECT
-            *
-        FROM
-            "Notifications" n
-            INNER JOIN "Messages" m ON n. "userId" = q. "userId"
-                AND n. "documentId" = m. "_id"
-                AND n. "documentType" = 'message'
-                AND n. "emailed" IS NOT TRUE
-                AND n. "waitingForBatch" IS NOT TRUE
-                AND n. "deleted" IS NOT TRUE
-                AND n. "viewed" IS NOT TRUE
-                AND m. "conversationId" = q. "conversationId") "hasUnreadMessages"
-FROM (
+  q."conversationId",
+  q."userId",
+  EXISTS (
     SELECT
-        "_id" "conversationId",
-        UNNEST("participantIds") "userId"
+      *
     FROM
-        "Conversations") q;
-
--- View "UserLoginTokens", hash: bbf5be24ecfcfd052d7a674a7127ecb5
+      "Notifications" n
+      INNER JOIN "Messages" m ON n."userId" = q."userId"
+      AND n."documentId" = m."_id"
+      AND n."documentType" = 'message'
+      AND n."emailed" IS NOT TRUE
+      AND n."waitingForBatch" IS NOT TRUE
+      AND n."deleted" IS NOT TRUE
+      AND n."viewed" IS NOT TRUE
+      AND m."conversationId" = q."conversationId"
+  ) "hasUnreadMessages"
+FROM
+  (
+    SELECT
+      "_id" "conversationId",
+      UNNEST("participantIds") "userId"
+    FROM
+      "Conversations"
+  ) q;-- View "UserLoginTokens", hash: bbf5be24ecfcfd052d7a674a7127ecb5
 CREATE MATERIALIZED VIEW IF NOT EXISTS "UserLoginTokens" AS
 SELECT
-    JSONB_ARRAY_ELEMENTS("services" -> 'resume' -> 'loginTokens') ->> 'hashedToken' "hashedToken",
-    "_id" "userId"
+  JSONB_ARRAY_ELEMENTS("services" -> 'resume' -> 'loginTokens') ->> 'hashedToken' "hashedToken",
+  "_id" "userId"
 FROM
-    "Users"
+  "Users"
 WHERE
-    JSONB_TYPEOF("services" -> 'resume' -> 'loginTokens') = 'array';
-
--- Index on view "UserLoginTokens", hash: 408438b72d331ec71af1108193b3f1d9
+  JSONB_TYPEOF("services" -> 'resume' -> 'loginTokens') = 'array';-- Index on view "UserLoginTokens", hash: 408438b72d331ec71af1108193b3f1d9
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_login_tokens_hashed_token ON "UserLoginTokens" USING BTREE ("hashedToken");
-

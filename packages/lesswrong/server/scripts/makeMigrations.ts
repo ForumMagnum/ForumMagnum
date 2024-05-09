@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { format } from 'pg-formatter'; // FIXME this requires perl to be installed, make sure it's installed in CI
+import { format as sqlFormatter } from 'sql-formatter';
 import { Vulcan, getCollection } from "../vulcan-lib";
 import { getAllCollections } from "../../lib/vulcan-lib/getCollection";
 import Table from "../../lib/sql/Table";
@@ -54,6 +54,8 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 -- as described in the README. This file should nevertheless be checked in to version control.
 --
 `
+
+const format = (sql: string) => sqlFormatter(sql, {language: "postgresql"});
 
 const generateMigration = async ({
   acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath,
