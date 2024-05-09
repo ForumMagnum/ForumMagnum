@@ -155,7 +155,6 @@ export const SuggestedFeedSubscriptions = ({classes}: {
   });
 
   useEffect(() => {
-    console.log("in useEffect", {availableUsers, suggestedUsers, results})
     setSuggestedUsers(results);
   }, [results]);
 
@@ -177,8 +176,6 @@ export const SuggestedFeedSubscriptions = ({classes}: {
       const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
       flash({messageString: successMessage});
 
-      console.log("Subscribed to user", user._id, "with state", newSubscription.state)
-      console.log("in subscribeToUser", {availableUsers, suggestedUsers, results})
       setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
   }
 
