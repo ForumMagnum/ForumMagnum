@@ -172,7 +172,7 @@ const emojisQuery = gql`
   query BannerEmojis {
     BannerEmojis {
       id
-      userId
+      isCurrentUser
       displayName
       emoji
       link
@@ -202,7 +202,7 @@ const addEmojiMutation = gql`
       theta: $theta
     ) {
       id
-      userId
+      isCurrentUser
       displayName
       emoji
       x
@@ -216,7 +216,7 @@ const removeEmojiMutation = gql`
   mutation RemoveBannerEmoji($id: String!) {
     RemoveBannerEmoji(id: $id) {
       id
-      userId
+      isCurrentUser
       displayName
       emoji
       link
@@ -230,8 +230,8 @@ const removeEmojiMutation = gql`
 
 export type BannerEmoji = {
   id: string,
-  userId: string,
   displayName: string,
+  isCurrentUser: boolean,
   emoji: string,
   x: number,
   y: number,
@@ -323,11 +323,10 @@ const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
 }> = ({
-  emoji: {id, userId, displayName, link, description, x, y, theta, emoji},
+  emoji: {id, isCurrentUser, displayName, link, description, x, y, theta, emoji},
   children,
 }) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
-  const isCurrentUser = userId === currentUser?._id;
   const canModerate = isCurrentUser || userIsAdminOrMod(currentUser);
   const isPlaceholder = !displayName;
   const canRemove = canModerate && !isPlaceholder;
@@ -388,7 +387,7 @@ const EmojiPlaceholder: FC<{hoverPos: Point}> = ({hoverPos}) => {
     <Emoji emoji={{
       id: "",
       displayName: "",
-      userId: "",
+      isCurrentUser: false,
       theta: 0,
       emoji: "",
       link: "",
@@ -499,7 +498,7 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
       <Emoji emoji={{
         id: "",
         displayName: "",
-        userId: "",
+        isCurrentUser: false,
         theta: 0,
         emoji: insertEmoji,
         link: "",
