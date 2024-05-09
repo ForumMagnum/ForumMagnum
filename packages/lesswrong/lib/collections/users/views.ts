@@ -302,7 +302,11 @@ void ensureCustomPgIndex(`
     AND "deleted" IS NOT TRUE
     AND "email" IS NOT NULL
     AND fm_has_verified_email(emails);
-`);
+`, {
+  dependencies: [
+    {type: "function", name: "fm_has_verified_email"}
+  ],
+});
 
 void ensureCustomPgIndex(`
   CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated"

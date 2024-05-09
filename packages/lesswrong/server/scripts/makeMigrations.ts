@@ -16,7 +16,7 @@ import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
 import CreateIndexQuery from '../../lib/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '../../lib/sql/Type';
-import { expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
 import TableIndex from '../../lib/sql/TableIndex';
 
@@ -151,8 +151,9 @@ class CustomIndexNode extends Node {
 
   private name: string;
 
-  constructor(private source: string) {
+  constructor(private index: CustomPgIndex) {
     super();
+    const {source, options} = index;
     const name = source.match(CustomIndexNode.nameRegex)?.[4];
     if (!name) {
       throw new Error(`Can't parse name for custom index: ${source}`);
@@ -167,6 +168,8 @@ class CustomIndexNode extends Node {
       ? {type: "collection", name: target}
       : {type: "view", name: target};
     this.addDependency(dependency);
+
+    this.dependencies = this.dependencies.concat(options?.dependencies ?? []);
   }
 
   getName() {
@@ -176,7 +179,7 @@ class CustomIndexNode extends Node {
   getQuery() {
     return {
       compile: () => ({
-        sql: this.source.trim().replace(CustomIndexNode.concurrentRegex, " "),
+        sql: this.index.source.trim().replace(CustomIndexNode.concurrentRegex, " "),
         args: [],
       }),
     };
@@ -362,7 +365,7 @@ export const makeMigrations = async ({
   graph.addNodes(postgresFunctions.map((f) => new FunctionNode(f)));
   graph.addNodes(getAllPostgresViews().flatMap((view) => {
     const indexQueries = view.getCreateIndexQueries();
-    const indexes: Node[] = indexQueries.map((i) => new CustomIndexNode(i));
+    const indexes: Node[] = indexQueries.map((source) => new CustomIndexNode({source}));
     return indexes.concat(new ViewNode(view));
   }));
 

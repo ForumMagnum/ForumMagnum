@@ -13,6 +13,7 @@ export class PostgresView {
     private createViewQuery: string,
     private createIndexQueries: string[] = [],
     private refreshSpec?: PostgresViewRefreshSpec,
+    private dependencies?: SchemaDependency[],
     private queryTimeout = 60,
   ) {}
 
@@ -26,6 +27,10 @@ export class PostgresView {
 
   getCreateIndexQueries() {
     return this.createIndexQueries;
+  }
+
+  getDependencies() {
+    return this.dependencies;
   }
 
   async refresh(db: SqlClient) {
@@ -52,6 +57,7 @@ export const createPostgresView = (
   createViewQuery: string,
   createIndexQueries: string[] = [],
   refreshSpec?: PostgresViewRefreshSpec,
+  dependencies?: SchemaDependency[],
 ) => {
   for (const view of postgresViews) {
     if (view.getCreateViewQuery() === createViewQuery) {
@@ -63,6 +69,7 @@ export const createPostgresView = (
     createViewQuery,
     createIndexQueries,
     refreshSpec,
+    dependencies,
   );
   postgresViews.push(view);
 }

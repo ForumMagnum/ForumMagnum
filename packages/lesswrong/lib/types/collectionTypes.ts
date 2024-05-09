@@ -118,7 +118,8 @@ type CollectionOptions<N extends CollectionNameString> = {
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
-  writeAheadLogged?: boolean
+  writeAheadLogged?: boolean,
+  dependencies?: SchemaDependency[],
 };
 
 interface FindResult<T> {
