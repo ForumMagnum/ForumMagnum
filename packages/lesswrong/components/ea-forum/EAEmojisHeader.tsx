@@ -17,13 +17,15 @@ if (isClient) {
   require("emoji-picker-element");
 }
 
+const LEFT_MARGIN = 350;
+
 const styles = (theme: ThemeType) => ({
   root: {
     zIndex: 1,
     position: "absolute",
-    left: 0,
+    left: LEFT_MARGIN,
     right: 0,
-    width: "100%",
+    width: `calc(100% - ${LEFT_MARGIN}px)`,
     height: "100%",
     overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
@@ -149,7 +151,7 @@ const isValidTarget = (
     return false;
   }
 
-  clientX += window.scrollX;
+  clientX += window.scrollX - LEFT_MARGIN;
   clientY += window.scrollY;
 
   const startPadding = 25;
@@ -552,7 +554,7 @@ export const EAEmojisHeader = ({classes}: {
         clientY < bounds.bottom
       ) {
         return {
-          x: clientX / bounds.width,
+          x: (clientX - LEFT_MARGIN) / bounds.width,
           y: clientY / bounds.height,
         };
       }
@@ -600,10 +602,10 @@ export const EAEmojisHeader = ({classes}: {
   }, []);
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
-    captureEvent("emojiBannerClick", {clientX, clientY});
     if ("tagName" in target && target.tagName === "A") {
       return;
     }
+    captureEvent("emojiBannerClick", {clientX, clientY});
     if (!currentUser) {
       onLogin();
       return;
