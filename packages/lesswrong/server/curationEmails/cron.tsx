@@ -73,6 +73,7 @@ export async function hydrateCurationEmailsQueue(postId: string) {
         createdAt: now,
         _id: randomId(),
         schemaVersion: 1,
+        legacyData: null,
       }
     }
   }));

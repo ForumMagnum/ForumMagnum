@@ -292,7 +292,7 @@ class PgCollection<
   rawCollection = () => ({
     bulkWrite: async (
       operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>,
-      options: MongoBulkWriteOptions,
+      options?: MongoBulkWriteOptions,
     ) => {
       executingQueries++;
       let result: BulkWriterResult;

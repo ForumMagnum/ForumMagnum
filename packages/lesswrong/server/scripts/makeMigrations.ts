@@ -179,6 +179,13 @@ export const makeMigrations = async ({
     }
   }
 
+  for (const func of postgresFunctions) {
+    const hash = md5(func);
+    currentHashes[func] = hash;
+    schemaFileContents += `-- Function, hash: ${hash}\n`;
+    schemaFileContents += func + ";\n\n";
+  }
+
   for (const index of expectedCustomPgIndexes) {
     const trimmed = index.trim().replace(/\s+CONCURRENTLY\s+/gi, " ");
     const hasSemi = trimmed[trimmed.length - 1] === ";";
@@ -186,13 +193,6 @@ export const makeMigrations = async ({
     currentHashes[index] = indexHash;
     schemaFileContents += `-- Custom index, hash: ${indexHash}\n`;
     schemaFileContents += format(trimmed + (hasSemi ? "" : ";"));
-  }
-
-  for (const func of postgresFunctions) {
-    const hash = md5(func);
-    currentHashes[func] = hash;
-    schemaFileContents += `-- Function, hash: ${hash}\n`;
-    schemaFileContents += func + ";\n\n";
   }
 
   for (const view of getAllPostgresViews()) {
