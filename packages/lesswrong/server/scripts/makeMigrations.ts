@@ -75,7 +75,7 @@ abstract class Node {
   abstract getQuery(): {compile(): {sql: string, args: any[]}};
 
   getHeader(): string {
-    const type = this.constructor.name.replace(/_/g, "");
+    const type = this.constructor.name.replace(/(_|Node)/g, "");
     return `-- ${type} "${this.getName()}", hash ${this.getHash()}`;
   }
 
