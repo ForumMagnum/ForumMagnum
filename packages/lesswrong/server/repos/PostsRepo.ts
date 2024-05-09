@@ -801,7 +801,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
            SELECT
               p._id AS "postId",
               "postedAt",
-              TRUE as "subscribedPosts" --,
+              TRUE as "subscribedPosts"
            FROM "Posts" p
                     JOIN user_subscriptions us USING ("userId")
            WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
@@ -815,9 +815,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
             TRUE as "subscribedComments"
           FROM "Comments" c
                JOIN user_subscriptions us USING ("userId")
-               JOIN "Revisions" r ON c.contents_latest = r._id
           WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
-          AND (c."baseScore" >= 5 OR r."wordCount" >= 200)
+          AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE

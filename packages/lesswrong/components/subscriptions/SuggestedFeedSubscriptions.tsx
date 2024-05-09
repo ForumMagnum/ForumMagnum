@@ -5,10 +5,8 @@ import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { useMessages } from '../common/withMessages';
 import { useCreate } from '../../lib/crud/withCreate';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
-import { userGetDisplayNameById } from '../../lib/vulcan-users';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useEAOnboarding } from '../ea-forum/onboarding/useEAOnboarding';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -22,14 +20,12 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 16,
     paddingBottom: 12,
     borderRadius: 3,
-
   },
   titleRow: {
     display: "flex",
     flexDirection: "row-reverse",
     justifyContent: "space-between",
     alignItems: "flex-start",
-
   },
   titleAndManageLink: {
     display: "flex",
@@ -50,7 +46,6 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     opacity: 0.7,
     '&:hover': {
-      backgroundColor: theme.palette.grey[200],
       opacity: 1.0,
     }
   },
@@ -136,7 +131,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
 
-  const [ widgetOpen, setWidgetOpen ] = useState(true);
+  const [widgetOpen, setWidgetOpen] = useState(true);
 
   const { results, refetch } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
@@ -161,7 +156,6 @@ export const SuggestedFeedSubscriptions = ({classes}: {
   const availableUsers = suggestedUsers ?? results ?? [];
 
   const subscribeToUser = async (user: UsersMinimumInfo, dismiss=false) => {
-
       const newSubscription = {
         state: dismiss ? 'suppressed' : 'subscribed',
         documentId: user._id,

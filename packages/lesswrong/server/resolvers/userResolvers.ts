@@ -359,6 +359,5 @@ createPaginatedResolver({
     }
 
     return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
-
   }
 });

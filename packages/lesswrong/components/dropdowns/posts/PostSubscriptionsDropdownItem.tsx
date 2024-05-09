@@ -5,6 +5,7 @@ import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
 import { isAdmin } from "../../../lib/vulcan-users";
+import { isLW } from "../../../lib/instanceSettings";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -33,7 +34,7 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
   },
   {
     document: post.user,
-    enabled: !!post.user && post.user._id !== currentUser?._id && isAdmin(currentUser),
+    enabled: isLW && !!post.user && post.user._id !== currentUser?._id && isAdmin(currentUser),
     subscribeMessage: `Subscribe to ${userGetDisplayName(post.user)} in your feed`,
     unsubscribeMessage: `Unsubscribe from ${userGetDisplayName(post.user)} in your feed`,
     title: `New activity by ${userGetDisplayName(post.user)}`,

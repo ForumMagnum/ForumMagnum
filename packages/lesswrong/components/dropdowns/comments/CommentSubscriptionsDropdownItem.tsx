@@ -5,6 +5,7 @@ import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments } from "../../../lib/betas";
 import { isAdmin } from "../../../lib/vulcan-users";
+import { isLW } from "../../../lib/instanceSettings";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -38,7 +39,7 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
   },
   {
     document: comment.user,
-    enabled: enableSubscribeToCommentUser && isAdmin(currentUser),
+    enabled: isLW && enableSubscribeToCommentUser && isAdmin(currentUser),
     subscribeMessage: `Subscribe to ${userGetDisplayName(comment.user)} in your feed`,
     unsubscribeMessage: `Unsubscribe from ${userGetDisplayName(comment.user)} in your feed`,
     title: `New posts by ${userGetDisplayName(comment.user)}`,

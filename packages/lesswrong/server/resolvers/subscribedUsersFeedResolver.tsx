@@ -1,10 +1,7 @@
-import { Posts } from "../../lib/collections/posts";
 import { Subscriptions } from "../../lib/collections/subscriptions";
 import { defineFeedResolver } from "../utils/feedUtil";
 import { addGraphQLSchema } from "../vulcan-lib";
-import { Comments } from "../../lib/collections/comments";
 import keyBy from "lodash/keyBy";
-import { PostsRepo } from "../repos";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
@@ -33,7 +30,7 @@ defineFeedResolver<Date>({
     const currentUser = context.currentUser;
     if (!currentUser) throw new Error("Must be logged in");
 
-    const postsAndCommentsAll = await new PostsRepo().getPostsAndCommentsFromSubscriptions(currentUser._id, 30);
+    const postsAndCommentsAll = await context.repos.posts.getPostsAndCommentsFromSubscriptions(currentUser._id, 30);
     const postsAndComments = postsAndCommentsAll.slice(offset, (offset??0)+limit);
     const isLastPage = postsAndComments.length < limit;
     
@@ -41,12 +38,8 @@ defineFeedResolver<Date>({
     const commentIds: string[] = postsAndComments.flatMap(row => row.commentIds ?? []);
     
     const [posts, comments] = await Promise.all([
-      (async () =>
-        accessFilterMultiple(currentUser, Posts,    await loadByIds(context, "Posts",    postIds),    context)
-      )(),
-      (async () =>
-        accessFilterMultiple(currentUser, Comments, await loadByIds(context, "Comments", commentIds), context)
-      )()
+      loadByIds(context, "Posts", postIds).then(posts => accessFilterMultiple(currentUser, context.Posts, posts, context)),
+      loadByIds(context, "Comments", commentIds).then(comments => accessFilterMultiple(currentUser, context.Comments, comments, context)),
     ]);
     const postsById = keyBy(filterNonnull(posts), p=>p._id);
     const commentsById = keyBy(filterNonnull(comments), c=>c._id);

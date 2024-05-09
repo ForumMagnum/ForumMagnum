@@ -8,12 +8,6 @@ const SubscribedUsersFeed = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
-  /*return <ResolverPostsList
-    resolverName="PostsBySubscribedAuthors"
-    limit={13}
-    fallbackText="Visits users' profile pages to subscribe to their posts and comments."
-    showLoadMore
-  />*/
   
   return <div>
     <SuggestedFeedSubscriptions />

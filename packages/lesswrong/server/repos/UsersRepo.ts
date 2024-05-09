@@ -762,7 +762,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
           WHERE 
             rs."userId" = $1
             AND "isRead" = TRUE
-          --     AND "lastUpdated" > current_date - INTERVAL '2 years'
         ),
         most_read_authors AS (
           SELECT
