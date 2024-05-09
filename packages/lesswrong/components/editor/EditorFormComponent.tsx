@@ -21,6 +21,7 @@ import isEqual from 'lodash/isEqual';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useCallbackDebugRerenders } from '../hooks/useCallbackDebugRerenders';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
+import { useMessages } from '../common/withMessages';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -63,6 +64,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
   const { updateCurrentValues, submitForm } = context;
+  const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
@@ -339,8 +341,13 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   }, [fieldName, hasUnsavedDataRef]);
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
-    wrappedSetContents({contents: newState, autosave: false});
-    // TODO: Focus editor
+    if (isCollabEditor) {
+      // If in collab editing mode, we can't edit the editor contents.
+      flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
+    } else {
+      wrappedSetContents({contents: newState, autosave: false});
+      // TODO: Focus editor
+    }
   }, [wrappedSetContents]);
   
   useEffect(() => {
