@@ -54,7 +54,6 @@ const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
     ? alwaysShownUserIds.filter(userId => !connectedUsersById[userId])
     : [];
 
-  console.log(`connectedUsers: ${JSON.stringify(connectedUsers)}`)
   return <div>
     {connectedUsers.map(u => <PresenceListUser
       key={u._id}
