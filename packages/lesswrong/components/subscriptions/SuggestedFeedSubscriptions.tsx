@@ -139,7 +139,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
     itemsPerPage: 10,
   });
 
-  const [ suggestedUsers, setSuggestedUsers ] = useState<UsersMinimumInfo[]>();
+  const [suggestedUsers, setSuggestedUsers] = useState<UsersMinimumInfo[]>();
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
