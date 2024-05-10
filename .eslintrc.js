@@ -15,7 +15,6 @@ const restrictedImportsPaths = [
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
   { name: "react-no-ssr", message: "Don't import react-no-ssr, use ForumNoSSR" },
-  { name: "@material-ui/core/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
@@ -146,6 +145,7 @@ module.exports = {
         "@material-ui/core/colors/*"
       ]
     }],
+    
 
     // Warn on missing await
     // The ignoreVoid option makes it so that

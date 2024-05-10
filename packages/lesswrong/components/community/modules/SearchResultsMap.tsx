@@ -5,7 +5,7 @@ import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
-import type { Hit } from 'react-instantsearch-core';
+import { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';

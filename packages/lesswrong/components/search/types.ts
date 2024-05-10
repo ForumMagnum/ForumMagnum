@@ -1,4 +1,4 @@
-import type { Hit } from "react-instantsearch-core"
+import { Hit } from "react-instantsearch-core"
 
 export type SearchHitComponentProps = {
   hit: Hit<AnyBecauseTodo>,

@@ -4,8 +4,8 @@ import { useHover } from "../common/withHover";
 import { useSingle } from '../../lib/crud/withSingle';
 import { useTheme } from '../themes/useTheme';
 import { SidebarsContext } from '../common/SidebarsWrapper';
-import type { ClickAwayEvent } from '../../lib/vendor/react-click-away-listener';
 import CommentIcon from '@material-ui/icons/ModeComment';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import classNames from 'classnames';
 import Badge from '@material-ui/core/Badge';
 import some from 'lodash/some';
@@ -95,7 +95,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType
 }) => {
-  const {LWPopper, LWClickAwayListener, SideCommentHover} = Components;
+  const {LWPopper, SideCommentHover} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
   const {sideCommentsActive, setSideCommentsActive} = useContext(SidebarsContext)!;
   
@@ -117,11 +117,9 @@ const SideCommentIcon = ({commentIds, post, classes}: {
     if (pinned==="closed")
       setPinned("auto");
   }
-  const onClickAway = (ev: ClickAwayEvent) => {
-    const isClickOnIcon = some(
-      ev.composedPath(),
-      (element: Element) => element.classList.contains(classes.sideCommentIcon)
-    );
+  const onClickAway = (ev: AnyBecauseTodo) => {
+    // FIXME: ev.path is somehow browser specific
+    const isClickOnIcon = some(ev.composedPath(), e=>e.hasClass(classes.sideCommentIcon));
     if (!isClickOnIcon) {
       setPinned("auto");
     }
@@ -144,7 +142,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       </span>}
       {isOpen && <span className={classes.extendHoverTarget}/>}
     </span>
-    {isOpen && <LWClickAwayListener onClickAway={onClickAway}>
+    {isOpen && <ClickAwayListener onClickAway={onClickAway}>
       <LWPopper
         open={isOpen} anchorEl={anchorEl}
         className={classes.popper}
@@ -154,7 +152,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       >
         <SideCommentHover post={post} commentIds={commentIds}/>
       </LWPopper>
-    </LWClickAwayListener>}
+    </ClickAwayListener>}
   </div>
 }
 

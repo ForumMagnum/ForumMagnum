@@ -51,12 +51,7 @@ export const DialogManager = ({children}: {
   const { LWClickAwayListener } = Components
 
   const modal = (ModalComponent && isOpen) && <ModalComponent {...componentNameWithProps?.componentProps} onClose={closeDialog} />
-  const withClickaway = isOpen && (noClickawayCancel
-    ? modal
-    : <LWClickAwayListener onClickAway={closeDialog}>
-        <>{modal}</>
-      </LWClickAwayListener>
-  );
+  const withClickaway = isOpen && (noClickawayCancel ? modal : <LWClickAwayListener onClickAway={closeDialog}>{modal}</LWClickAwayListener>);
   return (
     <OpenDialogContext.Provider value={providedContext}>
       {children}
