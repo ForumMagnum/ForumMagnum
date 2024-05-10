@@ -175,7 +175,7 @@ export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
   for (const index of expectedIndexes[collection.collectionName] ?? []) {
-    collection._ensureIndex(index.key, index);
+    await collection._ensureIndex(index.key, index);
     await sleep(100);
   }
 }

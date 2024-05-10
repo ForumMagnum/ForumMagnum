@@ -101,7 +101,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
    * wraps this. */
   rawInsert: (data: any, options?: any) => Promise<string>
   aggregate: (aggregationPipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: any) => any
-  _ensureIndex: any
+  _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
 type CollectionOptions<N extends CollectionNameString> = {

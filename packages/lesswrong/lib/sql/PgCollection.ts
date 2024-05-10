@@ -15,7 +15,7 @@ let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
 
-export type DbTarget = "read" | "write";
+export type DbTarget = "read" | "write" | "noTransaction";
 
 type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
@@ -262,7 +262,9 @@ class PgCollection<
       : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
-    await this.executeWriteQuery(query, {fieldOrSpec, options})
+    const target = options?.concurrently ? "noTransaction" : "write";
+
+    await this.executeQuery(query, {fieldOrSpec, options}, target)
   }
 
   aggregate = (
