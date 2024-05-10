@@ -10,7 +10,7 @@ import { userIsAdminOrMod } from "../../lib/vulcan-users";
 addGraphQLSchema(`
   type BannerEmoji {
     id: String!
-    userId: String!
+    isCurrentUser: Boolean!
     displayName: String!
     emoji: String!
     link: String!
@@ -30,8 +30,9 @@ const bannerEmojiResolvers = {
     BannerEmojis: (
       _root: void,
       _: {},
-      {repos}: ResolverContext,
-    ): Promise<BannerEmoji[]> => repos.databaseMetadata.getBannerEmojis(),
+      {repos, currentUser}: ResolverContext,
+    ): Promise<BannerEmoji[]> =>
+      repos.databaseMetadata.getBannerEmojis(currentUser?._id),
   },
   Mutation: {
     AddBannerEmoji: async (
@@ -46,7 +47,7 @@ const bannerEmojiResolvers = {
       },
       {currentUser, repos}: ResolverContext,
     ): Promise<BannerEmoji[]> => {
-      if (!currentUser) {
+      if (!currentUser || currentUser.banned || !currentUser.reviewedByUserId) {
         throw new Error("Permission denied");
       }
       if (!simpleEmojiRegex.test(emoji) && !complexEmojiRegex.test(emoji)) {
