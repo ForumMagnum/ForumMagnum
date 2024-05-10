@@ -280,7 +280,7 @@ export const createDummyLocalgroup = async (data?: any) => {
   return groupResponse.data
 }
 
-const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
+const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>): DbVote => {
   const defaultData = {
     _id: randomId(),
     documentId: randomId(),
@@ -293,6 +293,12 @@ const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
     isUnvote: false,
     votedAt: new Date(),
     silenceNotification: false,
+    documentIsAf: false,
+    createdAt: new Date(),
+    schemaVersion: 1,
+    extendedVoteType: null,
+    afPower: null,
+    legacyData: null,
   };
   return {...defaultData, ...data};
 }

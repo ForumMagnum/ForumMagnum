@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
@@ -191,17 +190,19 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
-const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
-  const { SingleColumnSection, PostsList2, TagFilterSettings, StickiedPosts, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, SettingsButton, TabPicker, ResolverPostsList, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem } = Components;
+const LWHomePosts = ({children, classes}: {
+  children: React.ReactNode,
+  classes: ClassesType<typeof styles>}
+) => {
+  const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
+    RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
+    VertexPostsList, WelcomePostItem, SubscribedUsersFeed } = Components;
 
   const { captureEvent } = useTracking() 
 
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { query } = useLocation();
-  const { timezone } = useTimezone();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading()
 
@@ -224,15 +225,15 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   });
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
-
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
-      && !(feed.adminOnly && !userIsAdmin(currentUser))
-      && !(feed.name.includes('recombee') && !currentUser)
+      && (!feed.adminOnly || (userIsAdmin(currentUser) || query.experimentalTabs === 'true')) 
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
+
   const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
+  const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
   const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
 
@@ -331,7 +332,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   }
 
   const limit = parseInt(query.limit) || defaultLimit;
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString();
 
   const recentPostsTerms = {
     ...query,
@@ -385,25 +386,27 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
                 </PostsList2> 
               </AnalyticsContext>}
               
-              {/* RECOMBEE RECOMMENDATIONS */}
+              {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
-                algorithm={'recombee-hybrid'} settings={{
-                  ...scenarioConfig,
-                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
-                }} />
-              </AnalyticsContext>}
-
-              {/* TODO: Remove once setting removed from instance settings for admins /*}
-              {/* RECOMBEE RECOMMENDATIONS 2 */}
-              {selectedTab === 'recombee-hybrid-2' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-hybrid'} settings={{
-                  ...scenarioConfig, 
-                  hybridScenarios: {fixed: 'recombee-emulate-hacker-news', configurable: 'recombee-lesswrong-custom'}
-                }} 
+                  showRecommendationIcon
+                  algorithm={'recombee-hybrid'} 
+                  settings={{
+                    ...scenarioConfig,
+                    hybridScenarios: {
+                      fixed: 'forum-classic', 
+                      configurable: 'recombee-lesswrong-custom'
+                    }
+                  }} 
                 />
               </AnalyticsContext>}
 
+              {/* JUST RECOMMENDATIONS */}
+              {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationIcon />
+              </AnalyticsContext>}
+
+              {/* VERTEX RECOMMENDATIONS */}
               {selectedTab.startsWith('vertex-') && <AnalyticsContext feedType={selectedTab}>
                 <VertexPostsList />  
               </AnalyticsContext>}
@@ -420,12 +423,7 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
               {/* SUBSCRIBED */}
               {(selectedTab === 'forum-subscribed-authors') && <AnalyticsContext feedType={selectedTab}>
-                <ResolverPostsList
-                  resolverName="PostsBySubscribedAuthors"
-                  limit={13}
-                  fallbackText="Visits users' profile pages to subscribe to their posts and comments."
-                  showLoadMore
-                />
+                <SubscribedUsersFeed />
                </AnalyticsContext>}
 
               {/* CHRONOLIGCAL FEED */}
@@ -441,6 +439,10 @@ const LWHomePosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
 
             </AllowHidingFrontPagePostsContext.Provider>
         </HideRepeatedPostsProvider>
+        
+        {!selectedTabSettings.isInfiniteScroll && <>
+          {children}
+        </>}
       </SingleColumnSection>
     </AnalyticsContext>
   )

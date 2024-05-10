@@ -199,7 +199,6 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // @ts-ignore
       throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }

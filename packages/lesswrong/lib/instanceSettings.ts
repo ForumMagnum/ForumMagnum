@@ -232,6 +232,7 @@ export type PostFeedDetails = {
   disabled?: boolean,
   adminOnly?: boolean,
   showLabsIcon?: boolean,
+  isInfiniteScroll?: boolean,
   slug?: string
 }
 
@@ -261,3 +262,5 @@ export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>
  * See full explanation in `google-vertex/client.ts`
  */
 export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
+
+export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");

@@ -261,9 +261,8 @@ const LoginFormEA = ({
 
   return (
     <Components.EALoginPopover
-      open={!!action}
+      action={action}
       setAction={wrappedSetAction}
-      isSignup={action === "signup"}
     />
   );
 }

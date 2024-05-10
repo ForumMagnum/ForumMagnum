@@ -87,6 +87,9 @@ export type PostsItemConfig = {
   isVoteable?: boolean,
   recombeeRecommId?: string,
   vertexAttributionId?: string,
+  showRecommendationIcon?: boolean,
+  /** Whether or not to make new post items have bold post item dates */
+  emphasizeIfNew?: boolean,
   className?: string,
 }
 
@@ -134,6 +137,8 @@ export const usePostsItem = ({
   isVoteable = false,
   recombeeRecommId,
   vertexAttributionId,
+  showRecommendationIcon = false,
+  emphasizeIfNew = false,
   className,
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
@@ -225,6 +230,8 @@ export const usePostsItem = ({
       <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
     </Link>
 
+  const isRecommendation = !!recombeeRecommId || !!vertexAttributionId;
+
   return {
     post,
     postLink,
@@ -272,6 +279,9 @@ export const usePostsItem = ({
     viewType,
     bookmark,
     isVoteable,
+    isRecommendation,
+    showRecommendationIcon,
+    emphasizeIfNew,
     className,
   };
 }
