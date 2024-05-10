@@ -3,11 +3,9 @@ import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
-import { DatabaseServerSetting } from './databaseSettings';
 import { RouterLocation } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts';
-
-export const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching', false)
+import { swrCachingEnabledSetting } from './cache/swr';
 
 /**
  * Whether stale-while-revalidate caching is enabled on this specific route. To be removed once
