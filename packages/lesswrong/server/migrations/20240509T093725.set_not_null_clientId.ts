@@ -34,7 +34,7 @@ import { updateIndexes } from "./meta/utils";
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "c48644210bc21cad0c73a5a309d4d8c7";
+export const acceptsSchemaHash = "4d21d3ccc260a536fc4df5c23028310e";
 
 export const up = async ({db}: MigrationContext) => {
   await db.none(`ALTER TABLE "ClientIds" ALTER COLUMN "clientId" SET NOT NULL;`)

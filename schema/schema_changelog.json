@@ -650,7 +650,7 @@
     "timestamp": "2024-05-08T22:08:21.000Z"
   },
   {
-    "acceptsSchemaHash": "c48644210bc21cad0c73a5a309d4d8c7",
+    "acceptsSchemaHash": "4d21d3ccc260a536fc4df5c23028310e",
     "acceptedByMigration": "20240509T093725.set_not_null_clientId.ts",
     "timestamp": "2024-05-09T09:37:25.000Z"
   }
