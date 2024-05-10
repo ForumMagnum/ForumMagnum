@@ -6,8 +6,9 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments } from '../../lib/betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, userHasSubscribeTabFeed } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { isLW } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
@@ -127,6 +128,14 @@ const ViewSubscriptionsPage = ({classes}: {
   }
   
   return <SingleColumnSection>
+    {userHasSubscribeTabFeed(currentUser) && <SubscriptionsList
+      title="Subscribed to Users for Susbscribed Activity Feed"
+      collectionName="Users"
+      subscriptionType="newActivityForFeed"
+      fragmentName="UsersMinimumInfo"
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+      noSubscriptionsMessage="You are not subscribed to any users' on your Subscribed Feed."
+    />}
     <SubscriptionsList
       title="Subscribed to Posts By Users"
       collectionName="Users"
@@ -171,14 +180,14 @@ const ViewSubscriptionsPage = ({classes}: {
       noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
     />
   
-    <SubscriptionsList
+    {isLW && <SubscriptionsList
       title="Subscribed to Old-Style Dialogues (as a reader)"
       collectionName="Posts"
       subscriptionType="newDebateComments"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
       noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
-    />
+    />}
   
     <SubscriptionsList
       title="Subscribed to Old-Style dialogues (as a participant)"

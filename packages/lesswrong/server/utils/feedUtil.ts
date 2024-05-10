@@ -101,8 +101,8 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   addGraphQLQuery(`${name}(
     limit: Int,
     cutoff: ${cutoffTypeGraphQL},
-    offset: Int,
-    ${isNonEmptyObject(args)?", ":""}${args}
+    offset: Int
+    ${(args && args.length>0) ? ", " : ""}${args}
   ): ${name}QueryResults!`);
   
   addGraphQLResolvers({

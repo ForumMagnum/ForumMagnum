@@ -36,6 +36,8 @@ const backfillParentTags = async (parentTagSlug: string) => {
           inactive: false,
           schemaVersion: 1,
           backfilled: true,
+          userId: null,
+          legacyData: null,
         }
       }
     })));

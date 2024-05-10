@@ -111,8 +111,10 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
+  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'days') < 2;
+
   const dateElement = (
-    <PostsItem2MetaInfo className={classes.postedAt}>
+    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
       <TimeTag dateTime={dateToDisplay}>
         {timeFromNow}
         {ago}
@@ -132,15 +134,11 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     </LWTooltip>
   }
 
-  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'days') < 2;
-
   return <LWTooltip
     placement="right"
     title={<ExpandedDate date={post.postedAt}/>}
   >
-    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
-      {dateElement}
-    </PostsItem2MetaInfo>
+    {dateElement}
   </LWTooltip>
 }
 
