@@ -7,7 +7,7 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { RouterLocation } from './vulcan-lib';
 import { Posts } from '../lib/collections/posts';
 
-const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching', false)
+const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
 
 /**
  * Whether stale-while-revalidate caching is enabled on this specific route. To be removed once
