@@ -32,6 +32,7 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+import moment from 'moment';
 
 import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
@@ -150,7 +151,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   frontpageImage: {
     right: -50,
-    height: '79vh',
+    height: '82vh',
     objectFit: 'cover',
     '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
     zIndex: -2,
@@ -192,7 +193,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     },
     '& h3': {
-      fontSize: '18px',
+      fontSize: '20px',
       margin: 0,
       lineHeight: '1.2',
       marginBottom: 6,
@@ -219,7 +220,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& p': {
       ...commentBodyStyles(theme),
       fontSize: '14px',
-      maxWidth: 260,
+      marginBottom: 10,
+      maxWidth: 165,
     },
     '& p a': {
       color: theme.palette.primary.main,
@@ -485,6 +487,12 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
+
+    const saleEndDate = new Date(2024, 4, 14); // Assuming sale ends on December 25, 2023
+    const currentDate = new Date();
+    const timeDifference = saleEndDate.getTime() - currentDate.getTime();
+    const daysUntilSaleEnds = Math.ceil(timeDifference / (1000 * 3600 * 24));
+    const daysUntilSaleEndsLabel = daysUntilSaleEnds === 1 ? "1 day" : `${daysUntilSaleEnds} days`
     
     return (
       <AnalyticsContext path={pathname}>
@@ -580,20 +588,16 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.frontpageImage} publicId="summercamp_i2lbn0" darkPublicId={"summercamp_i2lbn0"}/>
+                        <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
                         <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
                           <div className={classes.bannerText}>
-                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline & Manifest Summer Camp</a></h2>
-                            <h3>June 3rd to June 7th</h3>
-                            <p>Between <a href="https://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageLessOnlineLinkClicked')}>LessOnline</a> and <a href="https://manifest.is/" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageManifestLinkClicked')}>Manifest</a>, stay for a week of experimental events, chill coworking, and cozy late night conversations.</p>
+                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
+                            <h3>Ticket prices increase in {daysUntilSaleEndsLabel}</h3>
+                            <p>Join us May 31st to June 2nd, at <a href="https://lighthaven.space" target="_blank">Lighthaven</a>, Berkeley CA</p>
                             <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
-
-                            <div className={classes.ticketPricesRaise}>
-                              Prices raise $100 on May 13th                       
-                            </div>
                           </div>
                         </AnalyticsContext>
-                        <div className={classes.backgroundGradient}/>
+                        {/* <div className={classes.backgroundGradient}/> */}
                       </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
