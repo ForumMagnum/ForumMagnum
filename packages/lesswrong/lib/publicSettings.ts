@@ -1,16 +1,13 @@
-import type { FilterTag } from './filterSettings';
-import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
+import type {FilterTag} from './filterSettings'
+import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
+import {forumSelect} from './forumTypeUtils'
+import {isEAForum} from './instanceSettings'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
-
-export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
-  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
-  registeredSettings[settingName] = settingType
-}
 
 /* 
   A setting which is stored in the database in the "databasemedata" collection, in a record with the `name` field set to "publicSettings" 
@@ -174,6 +171,11 @@ export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number
 
 export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
 
+export const showSubscribeReminderInFeed = new DatabasePublicSetting<boolean>(
+  'feed.showSubscribeReminder', 
+  forumSelect({EAForum: true, LWAF: true, default: false})
+);
+
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
 
 
@@ -181,5 +183,7 @@ export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recomb
 export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
 
 export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+
+export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)
 
 export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
