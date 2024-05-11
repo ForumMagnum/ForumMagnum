@@ -488,11 +488,11 @@ const Layout = ({currentUser, children, classes}: {
         && currentTime < afterTime
     }
 
-    const saleEndDate = new Date(2024, 4, 14); // Assuming sale ends on December 25, 2023
-    const currentDate = new Date();
-    const timeDifference = saleEndDate.getTime() - currentDate.getTime();
-    const daysUntilSaleEnds = Math.ceil(timeDifference / (1000 * 3600 * 24));
-    const daysUntilSaleEndsLabel = daysUntilSaleEnds === 1 ? "1 day" : `${daysUntilSaleEnds} days`
+    const saleEndDate = moment.utc("2024-05-15")
+    const currentDate = moment.utc()
+
+    const dateDifference = saleEndDate.diff(currentDate, 'days');
+    const dateDifferenceLabel = dateDifference > 1 ? `${dateDifference} days` : `${dateDifference} day`
     
     return (
       <AnalyticsContext path={pathname}>
@@ -592,8 +592,8 @@ const Layout = ({currentUser, children, classes}: {
                         <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
                           <div className={classes.bannerText}>
                             <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
-                            <h3>Ticket prices increase in {daysUntilSaleEndsLabel}</h3>
-                            <p>Join us May 31st to June 2nd, at <a href="https://lighthaven.space" target="_blank">Lighthaven</a>, Berkeley CA</p>
+                            <h3>Ticket prices increase in {dateDifferenceLabel}</h3>
+                            <p>Join us May 31st to June 2nd, at <a href="https://lighthaven.space" target="_blank" rel="noreferrer" onClick={() => captureEvent('lighthavenLinkClicked')}>Lighthaven</a>, Berkeley CA</p>
                             <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
                           </div>
                         </AnalyticsContext>
