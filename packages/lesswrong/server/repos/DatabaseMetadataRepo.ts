@@ -7,6 +7,11 @@ import type { BannerEmoji } from "../../components/ea-forum/EAEmojisHeader";
 
 const BANNER_EMOJI_NAME = "banner-emojis-2024-05";
 
+type RawBannerEmoji = {
+  userId: string,
+  t: string,
+} & Pick<BannerEmoji, "emoji" | "link" | "description" | "x" | "y">;
+
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
     super(DatabaseMetadata);
@@ -81,27 +86,27 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     return this.getGivingSeasonHearts(electionName);
   }
 
-  async getBannerEmojis(): Promise<BannerEmoji[]> {
+  async getBannerEmojis(currentUserId?: string): Promise<BannerEmoji[]> {
     const result = await this.getRawDb().oneOrNone(`
       -- DatabaseMetadataRepo.getBannerEmojis
       SELECT ARRAY_AGG(q."value" || JSONB_BUILD_OBJECT(
-        'userId', u."_id",
-        'displayName', u."displayName",
-        'id', q."key"
+        'displayName', 'a',
+        'id', q."key",
+        'userId', '',
+        'isCurrentUser', q."value"->>'userId' = $2
       )) "emojis"
       FROM (
         SELECT (JSONB_EACH("value")).*
         FROM "DatabaseMetadata"
         WHERE "name" = $1
       ) q
-      JOIN "Users" u ON q."value"->>'userId' = u."_id"
-    `, [BANNER_EMOJI_NAME]);
+    `, [BANNER_EMOJI_NAME, currentUserId ?? ""]);
     return result?.emojis ?? [];
   }
 
-  async getBannerEmojiRaw(id: string): Promise<Partial<BannerEmoji> | null> {
+  async getBannerEmojiRaw(id: string): Promise<Partial<RawBannerEmoji> | null> {
     const result = await this.getRawDb().oneOrNone(`
-      -- DatabaseMetadataRepo.getBannerEmoji
+      -- DatabaseMetadataRepo.getBannerEmojiRaw
       SELECT "value"->$2 "emoji"
       FROM "DatabaseMetadata"
       WHERE "name" = $1

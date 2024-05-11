@@ -11,18 +11,21 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import ForumNoSSR from "../common/ForumNoSSR";
 import classNames from "classnames";
 import { siteUrlSetting } from "../../lib/instanceSettings";
+import { useMessages } from "../common/withMessages";
 
 if (isClient) {
   require("emoji-picker-element");
 }
 
+const LEFT_MARGIN = 350;
+
 const styles = (theme: ThemeType) => ({
   root: {
     zIndex: 1,
     position: "absolute",
-    left: 0,
+    left: LEFT_MARGIN,
     right: 0,
-    width: "100%",
+    width: `calc(100% - ${LEFT_MARGIN}px)`,
     height: "100%",
     overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
@@ -148,7 +151,7 @@ const isValidTarget = (
     return false;
   }
 
-  clientX += window.scrollX;
+  clientX += window.scrollX - LEFT_MARGIN;
   clientY += window.scrollY;
 
   const startPadding = 25;
@@ -171,7 +174,7 @@ const emojisQuery = gql`
   query BannerEmojis {
     BannerEmojis {
       id
-      userId
+      isCurrentUser
       displayName
       emoji
       link
@@ -201,7 +204,7 @@ const addEmojiMutation = gql`
       theta: $theta
     ) {
       id
-      userId
+      isCurrentUser
       displayName
       emoji
       x
@@ -215,7 +218,7 @@ const removeEmojiMutation = gql`
   mutation RemoveBannerEmoji($id: String!) {
     RemoveBannerEmoji(id: $id) {
       id
-      userId
+      isCurrentUser
       displayName
       emoji
       link
@@ -229,8 +232,8 @@ const removeEmojiMutation = gql`
 
 export type BannerEmoji = {
   id: string,
-  userId: string,
   displayName: string,
+  isCurrentUser: boolean,
   emoji: string,
   x: number,
   y: number,
@@ -322,11 +325,10 @@ const Emoji: FC<{
   emoji: BannerEmoji,
   children?: ReactNode,
 }> = ({
-  emoji: {id, userId, displayName, link, description, x, y, theta, emoji},
+  emoji: {id, isCurrentUser, displayName, link, description, x, y, theta, emoji},
   children,
 }) => {
   const {currentUser, removeEmoji, classes} = useEmojiContext();
-  const isCurrentUser = userId === currentUser?._id;
   const canModerate = isCurrentUser || userIsAdminOrMod(currentUser);
   const isPlaceholder = !displayName;
   const canRemove = canModerate && !isPlaceholder;
@@ -387,7 +389,7 @@ const EmojiPlaceholder: FC<{hoverPos: Point}> = ({hoverPos}) => {
     <Emoji emoji={{
       id: "",
       displayName: "",
-      userId: "",
+      isCurrentUser: false,
       theta: 0,
       emoji: "",
       link: "",
@@ -498,7 +500,7 @@ const AddEmoji: FC<{insertPos: Point}> = ({insertPos}) => {
       <Emoji emoji={{
         id: "",
         displayName: "",
-        userId: "",
+        isCurrentUser: false,
         theta: 0,
         emoji: insertEmoji,
         link: "",
@@ -519,6 +521,7 @@ export const EAEmojisHeader = ({classes}: {
   const [insertEmoji, setInsertEmoji] = useState("👍");
   const [hoverPos, setHoverPos] = useState<Point | null>(null);
   const [insertPos, setInsertPos] = useState<Point | null>(null);
+  const {flash} = useMessages();
   const {captureEvent} = useTracking();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -551,7 +554,7 @@ export const EAEmojisHeader = ({classes}: {
         clientY < bounds.bottom
       ) {
         return {
-          x: clientX / bounds.width,
+          x: (clientX - LEFT_MARGIN) / bounds.width,
           y: clientY / bounds.height,
         };
       }
@@ -599,12 +602,16 @@ export const EAEmojisHeader = ({classes}: {
   }, []);
 
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
-    captureEvent("emojiBannerClick", {clientX, clientY});
     if ("tagName" in target && target.tagName === "A") {
       return;
     }
+    captureEvent("emojiBannerClick", {clientX, clientY});
     if (!currentUser) {
       onLogin();
+      return;
+    }
+    if (currentUser.banned || !currentUser.reviewedByUserId) {
+      flash("Only approved users can add emojis to the banner");
       return;
     }
     if (isValidTarget(target, clientX, clientY)) {
@@ -614,7 +621,7 @@ export const EAEmojisHeader = ({classes}: {
         setHoverPos(null);
       }
     }
-  }, [captureEvent, currentUser, onLogin, normalizeCoords]);
+  }, [captureEvent, flash, currentUser, onLogin, normalizeCoords]);
 
   const onCancelInsert = useCallback(() => setInsertPos(null), []);
 
