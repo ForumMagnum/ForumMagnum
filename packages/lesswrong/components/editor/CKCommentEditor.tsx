@@ -1,7 +1,7 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { ckEditorBundleVersion, getCkCommentEditor } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
 import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting } from '../../lib/instanceSettings';
@@ -31,9 +31,10 @@ const CKCommentEditor = ({
   onInit?: any,
   placeholder?: string,
 }) => {
+  console.log("CKCommentEditor.render");
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
-  const { CommentEditor } = getCkEditor(forumTypeSetting.get());
+  const CommentEditor = getCkCommentEditor(forumTypeSetting.get());
 
   return <div>
     <CKEditor
@@ -73,7 +74,9 @@ const CKCommentEditor = ({
   </div>
 }
 
-const CKCommentEditorComponent = registerComponent("CKCommentEditor", CKCommentEditor);
+const CKCommentEditorComponent = registerComponent("CKCommentEditor", CKCommentEditor, {
+  debugRerenders: true
+});
 declare global {
   interface ComponentTypes {
     CKCommentEditor: typeof CKCommentEditorComponent
