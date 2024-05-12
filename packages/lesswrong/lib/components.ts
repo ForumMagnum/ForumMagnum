@@ -245,6 +245,7 @@ importComponent("CitationTags", () => require('../components/common/CitationTags
 importComponent("LWHome", () => require('../components/common/LWHome'));
 importComponent("LWHomePosts", () => require('../components/common/LWHomePosts'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
+importComponent("EmptyPageComponent", () => require('../components/common/EmptyPageComponent'));
 importComponent(["MenuItem","MenuItemLink"], () => require('../components/common/Menus'));
 importComponent("CommentsListCondensed", () => require('../components/common/CommentsListCondensed'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker'));
@@ -608,8 +609,8 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 
 // comments
 
-importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
-importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
+importComponent("CommentsItem", () => require('@/components/comments/CommentsItem/CommentsItem'));
+importComponent("CommentsItemMeta", () => require('@/components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));

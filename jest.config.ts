@@ -193,6 +193,11 @@ export default {
     ],
   },
 
+  // Should match "paths" in tsconfig.json
+  moduleNameMapper: {
+    "@/(.*)": "<rootDir>/packages/lesswrong/$1",
+  },
+
   // react-instantsearch contains a file (connectors.js) that requires
   // compilation, which is technically not kosher for things that live in
   // node_modules. By default, jest will not compile it and try to use it
