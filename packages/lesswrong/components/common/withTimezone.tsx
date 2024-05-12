@@ -39,7 +39,7 @@ export const TimezoneWrapper = ({children}: {
   
   useEffect(() => {
     const newTimezone = moment.tz.guess();
-    if(timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
+    if(timezone !== newTimezone || (currentUser && currentUser.lastUsedTimezone !== newTimezone)) {
       setCookie(TIMEZONE_COOKIE, newTimezone, {path: "/"});
       if (currentUser) {
         void updateUser({ lastUsedTimezone: newTimezone, })
