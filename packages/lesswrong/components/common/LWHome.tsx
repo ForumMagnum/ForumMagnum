@@ -11,17 +11,11 @@ import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget, 
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection, LWHomePosts } = Components
-  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
-
-  useEffect(() => {
-    if (visitorGetsDynamicFrontpage(null)) {
-      setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
-    }
-  }, [setCookie])
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+          <UpdateLastVisitCookie />
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
@@ -50,6 +44,18 @@ const LWHome = () => {
         </React.Fragment>
       </AnalyticsContext>
   )
+}
+
+const UpdateLastVisitCookie = () => {
+  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
+
+  useEffect(() => {
+    if (visitorGetsDynamicFrontpage(null)) {
+      setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
+    }
+  }, [setCookie])
+  
+  return <></>
 }
 
 const LWHomeComponent = registerComponent('LWHome', LWHome);
