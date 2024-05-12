@@ -54,6 +54,7 @@ import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/query';
 import { DatabaseServerSetting } from './databaseSettings';
 import { randomId } from '../lib/random';
+import type { RouterLocation } from '../lib/vulcan-lib/routes';
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -102,17 +103,19 @@ const cloudfrontCachingExperiment = ({ response, user }: { response: express.Res
 const maybePrefetchResources = async ({
   request,
   response,
-  enableResourcePrefetch,
+  parsedRoute,
   prefetchPrefix
 }: {
   request: express.Request;
   response: express.Response;
-  enableResourcePrefetch?: boolean | ((req: express.Request, res: express.Response, context: ResolverContext) => Promise<boolean>);
+  parsedRoute: RouterLocation,
   prefetchPrefix: string;
 }) => {
+
+  const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
   const prefetchResources =
     typeof enableResourcePrefetch === "function"
-      ? await enableResourcePrefetch(request, response, createAnonymousContext())
+      ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
       : enableResourcePrefetch;
 
   if (prefetchResources) {
@@ -419,12 +422,7 @@ export function startWebserver() {
     );
 
     // Note: this may write to the response
-    const prefetchResourcesPromise = maybePrefetchResources({
-      request,
-      response,
-      enableResourcePrefetch: parsedRoute.currentRoute?.enableResourcePrefetch,
-      prefetchPrefix
-    });
+    const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
 
     const renderResultPromise = performanceMetricLoggingEnabled.get()
       ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
