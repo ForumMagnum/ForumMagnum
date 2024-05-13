@@ -25,7 +25,7 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   spotlightText: {
-    width: "calc(100% - 0px)",
+    width: "calc(100% - 150px)",
     '& p': {
       ...commentBodyStyles(theme),
       '& a': {
@@ -87,7 +87,7 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
           {/* TODO: remove this after LessOnline sale */}
           <div className={classes.spotlight}>
             <div className={classes.spotlightText}>
-              <h3>LessOnline</h3>
+              <h3>LessOnline Festival</h3>
               <h4>Ticket Prices increase tomorrow</h4>
               <p>Join us May 31st - June 2nd, in Berkeley CA for a festival of truth-seeking, optimization, and blogging. <span className={classes.hideOnMobile}>We'll have writing workshops, rationality classes, puzzle hunts, and thoughtful conversations across a sprawling fractal campus of nooks and whiteboards.</span></p>
               <p><a href="https://lessonline.org/tickets">Buy Tickets</a></p>
