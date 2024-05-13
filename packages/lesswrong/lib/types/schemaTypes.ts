@@ -88,6 +88,24 @@ type SqlPostProcess<N extends CollectionNameString> = (
   context: ResolverContext,
 ) => AnyBecauseHard;
 
+type CollectionFieldResolveAs<N extends CollectionNameString> = {
+  type: string | GraphQLScalarType,
+  description?: string,
+  fieldName?: string,
+  addOriginalField?: boolean,
+  arguments?: string|null,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
+  sqlResolver?: SqlResolver<N>,
+  /**
+   * `sqlPostProcess` is run on the result of the database call, in addition
+   * to the `sqlResolver`. It should return the value of this `field`, generally
+   * by performing some operation on the value returned by the `sqlResolver`.
+   * Most of the time this is an anti-pattern which should be avoided, but
+   * sometimes it's unavoidable.
+   */
+  sqlPostProcess?: SqlPostProcess<N>,
+}
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -97,23 +115,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   typescriptType?: string,
   /** Use the following information in the GraphQL schema and at query-time to
    * calculate a response */
-  resolveAs?: {
-    type: string|GraphQLScalarType,
-    description?: string,
-    fieldName?: string,
-    addOriginalField?: boolean,
-    arguments?: string|null,
-    resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
-    sqlResolver?: SqlResolver<N>,
-    /**
-     * `sqlPostProcess` is run on the result of the database call, in addition
-     * to the `sqlResolver`. It should return the value of this `field`, generally
-     * by performing some operation on the value returned by the `sqlResolver`.
-     * Most of the time this is an anti-pattern which should be avoided, but
-     * sometimes it's unavoidable.
-     */
-    sqlPostProcess?: SqlPostProcess<N>,
-  },
+  resolveAs?: CollectionFieldResolveAs<N>,
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,

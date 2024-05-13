@@ -21,4 +21,10 @@ createPostgresView(
       FROM "Conversations"
     ) q
   `,
+  [],
+  undefined,
+  [
+    {type: "collection", name: "Notifications"},
+    {type: "collection", name: "Messages"},
+  ],
 );
