@@ -6,6 +6,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
 import { isLWorAF } from '../../lib/instanceSettings';
+import {showSubscribeReminderInFeed} from '../../lib/publicSettings'
 
 const recentDisucssionFeedComponents = forumSelect({
   LWAF: {
@@ -144,14 +145,16 @@ const RecentDiscussionFeed = ({
                   />}
                 </div>,
               },
-              subscribeReminder: {
-                fragmentName: null,
-                render: () => <SubscribeReminderComponent />
-              },
               meetupsPoke: {
                 fragmentName: null,
                 render: () => <MeetupsPokeComponent />
               },
+              ...(showSubscribeReminderInFeed.get() ? {
+                subscribeReminder: {
+                  fragmentName: null,
+                  render: () => <SubscribeReminderComponent/>,
+                },
+              } : {}),
             }}
           />
         </SingleColumnSection>

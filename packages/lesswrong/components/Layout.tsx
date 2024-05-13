@@ -589,14 +589,14 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
-                        <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
+                        {/* <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
                           <div className={classes.bannerText}>
                             <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
                             <h3>Ticket prices increase in {dateDifferenceLabel}</h3>
                             <p>Join us May 31st to June 2nd, at <a href="https://lighthaven.space" target="_blank" rel="noreferrer" onClick={() => captureEvent('lighthavenLinkClicked')}>Lighthaven</a>, Berkeley CA</p>
                             <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
                           </div>
-                        </AnalyticsContext>
+                        </AnalyticsContext> */}
                         {/* <div className={classes.backgroundGradient}/> */}
                       </div> 
                     : 

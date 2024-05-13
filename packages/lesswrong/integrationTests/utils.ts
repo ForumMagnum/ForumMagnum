@@ -171,7 +171,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     userId: user_._id,
     title: randomId(),
     "contents_latest": randomId(),
-    "moderationGuidelines_latest": randomId(),
     fmCrosspost: {isCrosspost: false},
     createdAt: new Date(),
   }

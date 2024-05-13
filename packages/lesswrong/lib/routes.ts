@@ -11,10 +11,11 @@ import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHo
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations } from './betas';
+import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 
 const knownTagNames = ['tag', 'topic', 'concept']
-const useShortAllTagsPath = isEAForum;
+const useShortAllTagsPath = isFriendlyUI;
 
 /**
  * Get the path for the all tags page
@@ -604,6 +605,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'termsOfUse',
       path: '/termsOfUse',
       componentName: 'EATermsOfUsePage',
+    },
+    {
+      name: 'privacyPolicy',
+      path: '/privacyPolicy',
+      redirect: () => 'https://ev.org/ops/about/privacy-policy',
     },
     {
       name: 'intro',
@@ -1225,6 +1231,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'BookmarksPage',
       title: 'Saved & read',
     },
+    {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
+    },
   ],
 })
 
@@ -1295,44 +1307,19 @@ addRoute({
   title: "All Comments"
 });
 
-// Routes where just the EA Forum has an override
-addRoute(...forumSelect<Route[]>({
-  EAForum: [
-    {
-      name: 'Shortform',
-      path: '/quicktakes',
-      componentName: 'ShortformPage',
-      title: "Quick takes",
-      description: "Quickly written or informal writing on Effective Altruism.",
-    },
-    {
-      name: 'ShortformRedirect',
-      path: '/shortform',
-      redirect: () => "/quicktakes",
-    },
-  ],
-  LWAF: [
-    {
-      name: 'Shortform',
-      path: '/quicktakes',
-      componentName: 'ShortformPage',
-      title: "Quick Takes",
-    },
-    {
-      name: 'ShortformRedirect',
-      path: '/shortform',
-      redirect: () => "/quicktakes",
-    },
-  ],
-  default: [
-    {
-      name: 'Shortform',
-      path: '/shortform',
-      componentName: 'ShortformPage',
-      title: "Shortform"
-    },
-  ],
-}));
+addRoute(
+  {
+    name: 'Shortform',
+    path: '/quicktakes',
+    componentName: 'ShortformPage',
+    title: "Quick Takes",
+  },
+  {
+    name: 'ShortformRedirect',
+    path: '/shortform',
+    redirect: () => "/quicktakes",
+  },
+);
 
 if (hasEventsSetting.get()) {
   addRoute(

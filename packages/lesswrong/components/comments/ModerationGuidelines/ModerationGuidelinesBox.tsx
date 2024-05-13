@@ -65,7 +65,10 @@ const truncateGuidelines = (guidelines: string) => {
   });
 }
 
-const getPostModerationGuidelines = (post: PostsList, classes: ClassesType) => {
+const getPostModerationGuidelines = (
+  post: PostsModerationGuidelines,
+  classes: ClassesType,
+) => {
   const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
 
   const { html = "" } = post.moderationGuidelines || {}
@@ -110,10 +113,12 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
     documentId,
     collectionName: isPost ? "Posts" : "Tags",
     fetchPolicy: "cache-first",
-    fragmentName: isPost ? "PostsList" : "TagFragment",
+    fragmentName: isPost ? "PostsModerationGuidelines" : "TagFragment",
   });
-  const isPostType = (document: PostsList|TagFragment): document is PostsList => isPost && !!document
-  
+  const isPostType = (
+    document: PostsModerationGuidelines|TagFragment,
+  ): document is PostsModerationGuidelines => isPost && !!document;
+
   if (!document || loading) return null
 
   const handleClick = (e: React.MouseEvent) => {
