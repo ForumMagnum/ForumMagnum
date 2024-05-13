@@ -18,10 +18,10 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
-export const getCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
+export const graphqlTypeToCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
-export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
+export const collectionNameToGraphQLType = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
 type CreateCollectionOptions <N extends CollectionNameString> = Omit<
   CollectionOptions<N>,

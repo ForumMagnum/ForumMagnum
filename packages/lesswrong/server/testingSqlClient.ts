@@ -1,15 +1,8 @@
 import { Application, json, Request, Response } from "express";
-import PgCollection from "../lib/sql/PgCollection";
-import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
-import CreateTableQuery from "../lib/sql/CreateTableQuery";
-import { Collections } from "./vulcan-lib";
-import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
-import { ensurePostgresViewsExist } from "./postgresView";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
-import { inspect } from "util";
 import { testServerSetting } from "../lib/instanceSettings";
-import { installExtensions, updateFunctions } from "./migrations/meta/utils";
+import { readFile } from "fs/promises";
 import Posts from "../lib/collections/posts/collection";
 import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
@@ -23,89 +16,14 @@ import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 import seedUsers from "../../../cypress/fixtures/users";
-import { DatabaseMetadata } from "../lib/collections/databaseMetadata/collection";
-import DebouncerEvents from "../lib/collections/debouncerEvents/collection";
-import PageCache from "../lib/collections/pagecache/collection";
-import ReadStatuses from "../lib/collections/readStatus/collection";
 
-export const preparePgTables = () => {
-  for (let collection of Collections) {
-    if (collection instanceof PgCollection) {
-      if (!collection.getTable()) {
-        collection.buildPostgresTable();
-      }
-    }
+const loadDbSchema = async (client: SqlClient) => {
+  try {
+    const schema = await readFile("./schema/accepted_schema.sql");
+    await client.multi(schema.toString());
+  } catch (e) {
+    throw new Error("Failed to load db schema", {cause: e});
   }
-}
-
-/**
- * These are custom indexes we created during the nullability PR for various ON CONFLICT queries.
- * We need to run them here but with options to ensure they actually get run, because the calls to create them in the codebase don't get run during test setup.
- * We need a better way to handle `ensureCustomPgIndex` properly for indexes required by tests.
- */
-const ensureMigratedIndexes = async (client: SqlClient) => {
-  const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
-  // eslint-disable-next-line no-console
-  console.log('Creating custom indexes');
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
-    ON public."DatabaseMetadata" USING btree
-    (name);
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
-    ON public."DebouncerEvents" USING btree
-    (dispatched, af, key, name)
-    WHERE (dispatched IS FALSE);
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
-    ON public."PageCache" USING btree
-    (path, "abTestGroups", "bundleHash");
-  `, options);
-  await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
-    ON public."ReadStatuses" USING btree
-    (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
-  `, options);
-}
-
-const buildTables = async (client: SqlClient) => {
-  await installExtensions(client);
-
-  preparePgTables();
-
-  for (let collection of Collections) {
-    if (collection instanceof PgCollection) {
-      const {collectionName} = collection;
-      const table = collection.getTable();
-      const createTableQuery = new CreateTableQuery(table);
-      const {sql, args} = createTableQuery.compile();
-      try {
-        await client.any(sql, args);
-      } catch (e) {
-        throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
-      }
-
-      const rawIndexes = expectedIndexes[collectionName as CollectionNameString] ?? [];
-      for (const rawIndex of rawIndexes) {
-        const {key, ...options} = rawIndex;
-        const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;
-        const index = table.getIndex(Object.keys(fields), options) ?? table.addIndex(fields, options);
-        const createIndexQuery = new CreateIndexQuery(table, index, true);
-        const {sql, args} = createIndexQuery.compile();
-        try {
-          await client.any(sql, args);
-        } catch (e) {
-          throw new Error(`Create index query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
-        }
-      }
-    }
-  }
-
-  await ensureMigratedIndexes(client);
-  await updateFunctions(client);
-  await ensurePostgresViewsExist(client);
 }
 
 const makeDbName = (id?: string) => {
@@ -152,7 +70,7 @@ export const createTestingSqlClient = async (
   await sql.none(`CREATE DATABASE ${dbName}`);
   const testUrl = replaceDbNameInPgConnectionString(PG_URL, dbName);
   sql = await createSqlConnection(testUrl, true);
-  await buildTables(sql);
+  await loadDbSchema(sql);
   if (setAsGlobalClient) {
     setSqlClient(sql);
   }

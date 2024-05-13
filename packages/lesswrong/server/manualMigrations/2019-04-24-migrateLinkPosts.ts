@@ -41,7 +41,7 @@ registerMigration({
     }));
     
     if (updates.length > 0) {
-      Posts.rawCollection().bulkWrite(updates, { ordered: false });
+      void Posts.rawCollection().bulkWrite(updates, { ordered: false });
     }
   }
 });

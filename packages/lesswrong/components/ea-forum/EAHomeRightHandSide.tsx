@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import moment from 'moment';
 import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
@@ -7,7 +6,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useTimezone } from '../common/withTimezone';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useUserLocation } from '../../lib/collections/users/helpers';
@@ -159,7 +157,6 @@ const styles = (theme: ThemeType) => ({
 const UpcomingEventsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { timezone } = useTimezone()
   const currentUser = useCurrentUser()
   const {lat, lng, known} = useUserLocation(currentUser, true)
   const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
@@ -178,7 +175,7 @@ const UpcomingEventsSection = ({classes}: {
     fetchPolicy: 'cache-and-network',
   })
 
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper} = Components;
+  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
       <LWTooltip
@@ -195,7 +192,6 @@ const UpcomingEventsSection = ({classes}: {
         />
       </LWTooltip>
       {upcomingEvents?.map(event => {
-        const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
         return <div key={event._id}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={event} As="span">
@@ -206,7 +202,7 @@ const UpcomingEventsSection = ({classes}: {
           </div>
           <div className={classes.postMetadata}>
             <span className={classes.eventDate}>
-              {shortDate}
+              {event.startTime && <FormatDate date={event.startTime} format={"MMM D"} />}
             </span>
             <span className={classes.eventLocation}>
               {event.onlineEvent ? "Online" : getCityName(event)}

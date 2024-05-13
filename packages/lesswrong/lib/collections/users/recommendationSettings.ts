@@ -141,6 +141,7 @@ export interface HybridRecombeeConfiguration {
   refreshKey?: string,
   loadMore?: {
     prevRecommIds: [string, string],
+    loadMoreCount?: number,
   },
 }
 

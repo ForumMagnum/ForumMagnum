@@ -7,6 +7,7 @@ import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { hasAuthorModeration } from '../../betas';
 
 export const userCanPost = (user: UsersCurrent|DbUser) => {
   if (user.deleted) return false;
@@ -45,9 +46,16 @@ export const Posts = createCollection({
   resolvers: getDefaultResolvers('Posts'),
   mutations: getDefaultMutations('Posts', options),
   logChanges: true,
+  dependencies: [
+    {type: "extension", name: "btree_gin"},
+    {type: "extension", name: "earthdistance"},
+  ],
 });
 
 const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   return !!(currentUser && ((currentUser.moderationGuidelines && currentUser.moderationGuidelines.html) || currentUser.moderationStyle))
 }
 

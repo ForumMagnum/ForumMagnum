@@ -7,6 +7,10 @@ export const PostRecommendations: PostRecommendationsCollection = createCollecti
   collectionName: "PostRecommendations",
   typeName: "PostRecommendation",
   schema,
+  dependencies: [
+    {type: "extension", name: "vector"},
+    {type: "extension", name: "intarray"},
+  ],
 });
 addUniversalFields({collection: PostRecommendations});
 

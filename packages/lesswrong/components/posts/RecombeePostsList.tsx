@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
@@ -52,7 +52,7 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
-const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
+const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[], loadMoreCount: number): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
   switch (resolverName) {
     case DEFAULT_RESOLVER_NAME:
       const prevRecommId = results.find(result => result.recommId)?.recommId;
@@ -62,7 +62,7 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: Recommende
       return { prevRecommId };  
     case HYBRID_RESOLVER_NAME:
       const [firstRecommId, secondRecommId] = filterNonnull(uniq(results.map(({ recommId }) => recommId)));
-      return { prevRecommIds: [firstRecommId, secondRecommId] };
+      return { prevRecommIds: [firstRecommId, secondRecommId], loadMoreCount };
   }
 }
 
@@ -72,13 +72,16 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationIcon: showRecommendationIcon = false, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
+  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
+
+  const [loadMoreCount, setLoadMoreCount] = useState(1);
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -88,7 +91,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
 
   const query = getRecombeePostsQuery(resolverName);
   const { data, loading, fetchMore, networkStatus } = useQuery(query, {
-    ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
@@ -98,8 +100,22 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   });
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
+
   const postIds = results?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = results?.map(({post, scenario}) => ({postId: post._id, scenario: scenario ?? 'none'})) ?? [];
+  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
+    let loggedScenario = scenario;
+    if (!loggedScenario) {
+      if (curated) {
+        loggedScenario = 'curated';
+      } else if (stickied) {
+        loggedScenario = 'stickied';
+      } else {
+        loggedScenario = 'hacker-news';
+      }
+    }
+    
+    return { postId: post._id, scenario: loggedScenario };
+  }) ?? [];
 
   useOnMountTracking({
     eventType: "postList",
@@ -125,6 +141,8 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
         post={post} 
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
+        showRecommendationIcon={showRecommendationIcon}
+        emphasizeIfNew={true}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>
@@ -132,13 +150,15 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
-          const loadMoreSettings = getLoadMoreSettings(resolverName, results);
+          const loadMoreSettings = getLoadMoreSettings(resolverName, results, loadMoreCount);
           void fetchMore({
             variables: {
               settings: { ...recombeeSettings, loadMore: loadMoreSettings },
             },
             // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
             updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
+              setLoadMoreCount(loadMoreCount + 1);
+
               if (!fetchMoreResult) return prev;
 
               return {

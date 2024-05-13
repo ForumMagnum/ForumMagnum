@@ -11,6 +11,7 @@ import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import Table from '../sql/Table';
 import PgCollection from '../sql/PgCollection';
+import type { BulkWriterResult } from '../sql/BulkWriter';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -48,7 +49,14 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   getTable: () => Table<ObjectsByCollectionName[N]>;
 
-  rawCollection: () => {bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
+  rawCollection: () => {
+    bulkWrite: (operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>, options?: MongoBulkWriteOptions) => Promise<BulkWriterResult>,
+    findOneAndUpdate: any,
+    dropIndex: any,
+    indexes: any,
+    updateOne: any,
+    updateMany: any
+  }
   find: (
     selector?: MongoSelector<ObjectsByCollectionName[N]>,
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
@@ -110,7 +118,8 @@ type CollectionOptions<N extends CollectionNameString> = {
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
-  writeAheadLogged?: boolean
+  writeAheadLogged?: boolean,
+  dependencies?: SchemaDependency[],
 };
 
 interface FindResult<T> {
@@ -309,6 +318,9 @@ interface ResolverContext extends CollectionsByName {
 }
 
 type FragmentName = keyof FragmentTypes;
+type CollectionFragmentTypeName = {
+  [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
+}[keyof FragmentTypes];
 
 type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates";
 
