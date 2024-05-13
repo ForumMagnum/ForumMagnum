@@ -96,6 +96,7 @@ makeEditable({
       canUpdate: ['members', 'sunshineRegiment', 'admins'],
       canCreate: [userHasModerationGuidelines]
     },
+    normalized: true,
   }
 })
 
