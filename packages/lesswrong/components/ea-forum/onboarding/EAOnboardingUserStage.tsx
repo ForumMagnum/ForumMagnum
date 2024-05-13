@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
+import {useCurrentUser} from '../../common/withUser'
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -91,6 +92,7 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   const [acceptedTos, setAcceptedTos] = useState(true);
   const [updateUser] = useMutation(newUserCompleteProfileMutation);
   const inputRef = useRef<HTMLInputElement>(null);
+  const currentUser = useCurrentUser()
 
   const onToggleAcceptedTos = useCallback((ev: React.MouseEvent) => {
     if ((ev.target as HTMLElement).tagName !== "A") {
@@ -135,8 +137,8 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
   });
 
   useEffect(() => {
-    setNameTaken(!loading && !!data?.IsDisplayNameTaken);
-  }, [data, loading]);
+    setNameTaken(!loading && !!data?.IsDisplayNameTaken && name !== currentUser?.displayName);
+  }, [data, loading, currentUser, name]);
 
   useEffect(() => {
     setTimeout(() => {
