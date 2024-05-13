@@ -143,8 +143,6 @@ Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, core:1, name: 1});
-
 
 Tags.addView('newTags', (terms: TagsViewTerms) => {
   return {
