@@ -94,6 +94,7 @@ async function createSpotlights() {
       fragmentName: "PostsPage",
       currentUser: null,
       selector: {[`tagRelevance.${tag._id}`]: {$gt: 0}},
+      skipFiltering: true,
     });
 
     const spotlightPosts = posts.filter(post => !spotlightDocIds.includes(post._id))

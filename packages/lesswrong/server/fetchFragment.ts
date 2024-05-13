@@ -14,6 +14,7 @@ type FetchFragmentOptions<
   options?: MongoFindOneOptions<ObjectsByCollectionName[CollectionName]>,
   resolverArgs?: Record<string, unknown> | null,
   context?: ResolverContext,
+  skipFiltering?: boolean,
 }
 
 export const fetchFragment = async <
@@ -27,6 +28,7 @@ export const fetchFragment = async <
   options,
   resolverArgs,
   context,
+  skipFiltering,
 }: FetchFragmentOptions<FragmentName, CollectionName>): Promise<FragmentTypes[FragmentName][]> => {
   const query = new SelectFragmentQuery(
     fragmentName as FragmentName,
@@ -38,11 +40,14 @@ export const fetchFragment = async <
   );
   const {sql, args} = query.compile();
   const db = getSqlClientOrThrow();
-  const result = await db.any(sql, args);
+  const results = await db.any(sql, args);
+  if (skipFiltering) {
+    return results;
+  }
   const filtered = await accessFilterMultiple(
     currentUser,
     getCollection(collectionName),
-    result,
+    results,
     context ?? null,
   );
   return filtered as unknown as FragmentTypes[FragmentName][];
