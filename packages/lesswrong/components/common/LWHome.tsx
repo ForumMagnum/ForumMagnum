@@ -44,7 +44,7 @@ export const styles = (theme: ThemeType) => ({
     },
     zIndex: 1,
     position: "relative",
-    background: "linear-gradient(to right, #fff 230px, transparent calc(230px + 30%))"
+    background: `linear-gradient(to right, ${theme.palette.background.pageActiveAreaBackground} 230px, transparent calc(230px + 30%))`
   },
   spotlightImage: {
     height: "100%",
@@ -80,7 +80,6 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          <DismissibleSpotlightItem />
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
@@ -94,7 +93,7 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
             </div>
             <CloudinaryImage2
               publicId={"spotlight3_ubpxgr"}
-              darkPublicId={"v1715637712/kdywliuzimi8vfv65bd1"}
+              darkPublicId={"darkmodespot3_zvefab"}
               className={classes.spotlightImage}
             />  
           </div>
