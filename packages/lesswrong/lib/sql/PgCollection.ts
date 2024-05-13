@@ -270,7 +270,7 @@ class PgCollection<
       console.warn(
         `Running CREATE INDEX CONCURRENTLY query without waiting for it to complete, ` +
         `as this would cause a deadlock. If your code relies on this index existing immediately ` +
-        `you should deploy in two stages. This is the query in question: "${query.compile()}"`
+        `you should deploy in two stages. This is the query in question: "${query.compile()?.sql}"`
       )
       void this.executeQuery(query, {fieldOrSpec, options}, "noTransaction")
     }
