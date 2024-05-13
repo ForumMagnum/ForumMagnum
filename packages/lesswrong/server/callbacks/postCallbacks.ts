@@ -651,3 +651,18 @@ voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, contex
   
   // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
 });
+
+getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
+  modifier: MongoModifier<DbPost>,
+  _post: DbPost,
+): Promise<MongoModifier<DbPost>> {
+  if (
+    modifier.$set?.submitToFrontpage === false ||
+    modifier.$set?.submitToFrontpage === null ||
+    modifier.$unset?.submitToFrontpage
+  ) {
+    modifier.$unset ??= {};
+    modifier.$unset.frontpageDate = 1;
+  }
+  return modifier;
+});
