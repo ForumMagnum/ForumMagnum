@@ -778,3 +778,16 @@ registerFragment(`
     firstVideoAttribsForPreview
   }
 `);
+
+registerFragment(`
+  fragment PostsRSSFeed on Post {
+    ...PostsPage
+    scoreExceeded2Date
+    scoreExceeded30Date
+    scoreExceeded45Date
+    scoreExceeded75Date
+    scoreExceeded125Date
+    scoreExceeded200Date
+    metaDate
+  }
+`);

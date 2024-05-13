@@ -1628,6 +1628,16 @@ interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
   readonly spotifyPodcastLink: string | null,
 }
 
+interface PostsRSSFeed extends PostsPage { // fragment on Posts
+  readonly scoreExceeded2Date: Date | null,
+  readonly scoreExceeded30Date: Date | null,
+  readonly scoreExceeded45Date: Date | null,
+  readonly scoreExceeded75Date: Date | null,
+  readonly scoreExceeded125Date: Date | null,
+  readonly scoreExceeded200Date: Date | null,
+  readonly metaDate: Date,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -3952,6 +3962,7 @@ interface FragmentTypes {
   PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
+  PostsRSSFeed: PostsRSSFeed
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
@@ -4152,7 +4163,7 @@ interface FragmentTypesByCollection {
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"PostsRSSFeed"|"SuggestAlignmentPost"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
@@ -4274,6 +4285,7 @@ interface CollectionNamesByFragmentName {
   PostWithGeneratedSummary: "Posts"
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
+  PostsRSSFeed: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
