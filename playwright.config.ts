@@ -17,7 +17,7 @@ const getWebServers = () => {
 
   webServers.push({
     command: "yarn start-playwright",
-    url: "http://localhost:3000",
+    url: "http://localhost:3456",
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",
     stderr: "pipe",
@@ -47,7 +47,7 @@ export default defineConfig({
    */
   use: {
     /* Base URL to use in actions like `await page.goto("/")`. */
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3456",
 
     /*
      * Collect trace when retrying the failed test.

@@ -25,6 +25,7 @@ test("account signup", async ({page}) => {
   await page.getByPlaceholder("Spaces and special characters allowed").fill(username);
   await page.getByTestId("onboarding-continue-user").click();
   await page.getByText("Skip for now").click();
+  await expect(page.getByText("What do you do?")).toBeVisible();
   await page.getByText("Skip for now").click();
   await page.getByText("Go to the forum").click();
 
