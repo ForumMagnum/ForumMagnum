@@ -791,3 +791,19 @@ registerFragment(`
     metaDate
   }
 `);
+
+registerFragment(`
+  fragment PostsRSSChanges on Post {
+    _id
+    userId
+    feedId
+    feedLink
+    contents {
+      _id
+      originalContents {
+        type
+        data
+      }
+    }
+  }
+`);
