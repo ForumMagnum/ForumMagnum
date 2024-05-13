@@ -199,6 +199,12 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
+      // It's possible for collection "edit" forms to contain resolver-only
+      // fields (such as fields created by `makeEditable` with `normalized`
+      // set to `true`. This condition checks if a field is a resolver-only
+      // field and skips over it in this case avoiding an error. This makes
+      // the assumption that there is some special handing elsewhere that
+      // takes care of updating the field (as is the case for `makeEditable`).
       if (this.table instanceof Table && this.table.hasResolverOnlyField(field)) {
         return [];
       }
