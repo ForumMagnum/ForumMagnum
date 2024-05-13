@@ -56,21 +56,6 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 --
 `
 
-/**
- * - Generate a hash from the raw SQL
- * - Add a semi-colon if missing
- * - Remove CONCURRENTLY from the query, so the entire accepted_schema.sql file can be applied in a transaction
- */
-const hashAndSanitizeIndex = (indexSql: string) => {
-  let indexSanitizedSql = indexSql.trim();
-  if (!indexSanitizedSql.endsWith(';')) {
-    indexSanitizedSql += ';';
-  }
-  const indexHash = md5(indexSanitizedSql);
-  indexSanitizedSql = indexSanitizedSql.replace(/CONCURRENTLY/g, ' ');
-  return { indexHash, indexSanitizedSql };
-}
-
 declare global {
   type SchemaDependency =
     {type: "extension", name: PostgresExtension} |

@@ -262,9 +262,18 @@ class PgCollection<
       : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
-    const target = options?.concurrently ? "noTransaction" : "write";
 
-    await this.executeQuery(query, {fieldOrSpec, options}, target)
+    if (!options?.concurrently) {
+      await this.executeQuery(query, {fieldOrSpec, options}, "write")
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Running CREATE INDEX CONCURRENTLY query without waiting for it to complete, ` +
+        `as this would cause a deadlock. If your code relies on this index existing immediately ` +
+        `you should deploy in two stages. This is the query in question: "${query.compile()}"`
+      )
+      void this.executeQuery(query, {fieldOrSpec, options}, "noTransaction")
+    }
   }
 
   aggregate = (
