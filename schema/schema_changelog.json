@@ -658,5 +658,10 @@
     "acceptsSchemaHash": "80ff63223032d7a466bbfbfa292b48b4",
     "acceptedByMigration": "20240513T115214.normalize_posts_moderationGuidelines.ts",
     "timestamp": "2024-05-13T11:52:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "fbdc0322e89273b427d262fcc7ae5f46",
+    "acceptedByMigration": "20240513T142347.normalize_posts_contents.ts",
+    "timestamp": "2024-05-13T14:23:47.000Z"
   }
 ]
