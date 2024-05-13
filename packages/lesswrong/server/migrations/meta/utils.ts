@@ -226,7 +226,8 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
     UPDATE "Revisions" AS r
     SET
       "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
-      "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
+      -- Don't update userId as there are data integrity issues (see Github PR #9213)
+      -- "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
       "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
       "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
       "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
