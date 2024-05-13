@@ -204,7 +204,7 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
 ) => {
   const {collectionName} = collection;
 
-  // First, check if the field is already denormalized - this won't be the
+  // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
   // created from a newer version of the schema. In this case we should just
   // early-return without an error.
