@@ -943,7 +943,6 @@ interface DbPost extends DbObject {
   contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
-  moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
   customHighlight: EditableFieldContents | null
   customHighlight_latest: string | null
@@ -1198,7 +1197,7 @@ interface DbSubscription extends DbObject {
   documentId: string | null
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

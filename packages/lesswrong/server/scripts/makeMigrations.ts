@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { format } from 'pg-formatter'; // FIXME this requires perl to be installed, make sure it's installed in CI
-import { Vulcan, getCollection } from "../vulcan-lib";
-import { getAllCollections } from "../../lib/vulcan-lib/getCollection";
+import { format as sqlFormatter } from 'sql-formatter';
+import { Vulcan } from "../vulcan-lib";
+import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
 import Table from "../../lib/sql/Table";
 import CreateTableQuery from "../../lib/sql/CreateTableQuery";
 import md5 from 'md5';
@@ -11,13 +11,14 @@ import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
 import { ForumTypeString } from '../../lib/instanceSettings';
-import { postgresFunctions } from '../postgresFunctions';
-import { postgresExtensions } from '../postgresExtensions';
+import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
+import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
 import CreateIndexQuery from '../../lib/sql/CreateIndexQuery';
 import { sqlInterpolateArgs } from '../../lib/sql/Type';
-import { expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
-import { getAllPostgresViews } from '../postgresView';
+import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import { PostgresView, getAllPostgresViews } from '../postgresView';
+import TableIndex from '../../lib/sql/TableIndex';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -68,6 +69,238 @@ const hashAndSanitizeIndex = (indexSql: string) => {
   const indexHash = md5(indexSanitizedSql);
   indexSanitizedSql = indexSanitizedSql.replace(/CONCURRENTLY/g, ' ');
   return { indexHash, indexSanitizedSql };
+}
+
+declare global {
+  type SchemaDependency =
+    {type: "extension", name: PostgresExtension} |
+    {type: "collection", name: CollectionNameString} |
+    {type: "function", name: string} |
+    {type: "view", name: string};
+}
+
+abstract class Node {
+  public dependencies: SchemaDependency[] = [];
+
+  addDependency(dependency: SchemaDependency) {
+    this.dependencies.push(dependency);
+  }
+
+  abstract getName(): string;
+  abstract getQuery(): {compile(): {sql: string, args: any[]}};
+
+  getHeader(): string {
+    const type = this.constructor.name.replace(/(_|Node)/g, "");
+    return `-- ${type} "${this.getName()}", hash ${this.getHash()}`;
+  }
+
+  getSource(): string {
+    const {sql, args} = this.getQuery().compile();
+    return sqlInterpolateArgs(sql, args).trim();
+  }
+
+  getAnnotatedSource(): string {
+    const source = this.getSource();
+    const hasSemi = source[source.length - 1] === ";";
+    return `${this.getHeader()}\n${source}${hasSemi ? "" : ";"}\n`;
+  }
+
+  getHash(): string {
+    return md5(this.getSource());
+  }
+}
+
+class ExtensionNode extends Node {
+  constructor(private extension: PostgresExtension) {
+    super();
+  }
+
+  getName() {
+    return this.extension;
+  }
+
+  getQuery() {
+    return new CreateExtensionQuery(this.extension);
+  }
+}
+
+class TableNode extends Node {
+  constructor(private table: Table<DbObject>) {
+    super();
+  }
+
+  getName() {
+    return this.table.getName();
+  }
+
+  getQuery() {
+    return new CreateTableQuery(this.table);
+  }
+}
+
+class IndexNode extends Node {
+  constructor(
+    private table: Table<DbObject>,
+    private index: TableIndex<DbObject>,
+  ) {
+    super();
+    this.addDependency({
+      type: "collection",
+      name: table.getName() as CollectionNameString,
+    });
+  }
+
+  getName() {
+    return this.index.getName();
+  }
+
+  getQuery() {
+    return new CreateIndexQuery(this.table, this.index, true, false);
+  }
+}
+
+class CustomIndexNode extends Node {
+  private static nameRegex = /^\s*CREATE\s+(UNIQUE\s+)?INDEX\s+(CONCURRENTLY\s+)?(IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z0-9_]+)/i;
+  private static targetRegex = /.*ON\s+(public\.)?"([A-Za-z0-9_]+)"/i;
+  private static concurrentRegex = /\s+CONCURRENTLY\s+/gi;
+
+  private name: string;
+
+  constructor(private index: CustomPgIndex) {
+    super();
+    const {source, options} = index;
+    const name = source.match(CustomIndexNode.nameRegex)?.[4];
+    if (!name) {
+      throw new Error(`Can't parse name for custom index: ${source}`);
+    }
+    this.name = name;
+
+    const target = source.match(CustomIndexNode.targetRegex)?.[2];
+    if (!target) {
+      throw new Error(`Can't parse target for custom index "${name}"`);
+    }
+    const dependency: SchemaDependency = isValidCollectionName(target)
+      ? {type: "collection", name: target}
+      : {type: "view", name: target};
+    this.addDependency(dependency);
+
+    this.dependencies = this.dependencies.concat(options?.dependencies ?? []);
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.index.source.trim().replace(CustomIndexNode.concurrentRegex, " "),
+        args: [],
+      }),
+    };
+  }
+}
+
+class FunctionNode extends Node {
+  private static nameRegex = /^\s*CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+([a-zA-Z0-9_]+)/i;
+
+  private name: string;
+
+  constructor(private func: PostgresFunction) {
+    super();
+    const name = func.source.match(FunctionNode.nameRegex)?.[2];
+    if (!name) {
+      throw new Error(`Can't find name for function: ${func.source}`);
+    }
+    const overload = func.overload ? `_${func.overload}` : "";
+    this.name = name + overload;
+    this.dependencies = this.dependencies.concat(func.dependencies ?? []);
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.func.source.trim(),
+        args: [],
+      }),
+    };
+  }
+}
+
+class ViewNode extends Node {
+  constructor(private view: PostgresView) {
+    super();
+  }
+
+  getName() {
+    return this.view.getName();
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.view.getCreateViewQuery().trim(),
+        args: [],
+      }),
+    };
+  }
+}
+
+class Graph {
+  private nodes: Record<string, Node> = {};
+
+  addNode(node: Node) {
+    const name = node.getName();
+    if (this.nodes[name]) {
+      throw new Error(`Duplicate node names: "${name}"`);
+    }
+    this.nodes[name] = node;
+  }
+
+  addNodes(nodes: Node[]) {
+    for (const node of nodes) {
+      this.addNode(node);
+    }
+  }
+
+  getOverallHash() {
+    return md5(Object.values(this.nodes).map((n) => n.getHash()).sort().join());
+  }
+
+  linearize(): Node[] {
+    const stack: Node[] = [];
+    const unvisited = new Set<string>(Object.keys(this.nodes));
+
+    const depthFirstSearch = (nodeName: string, parents: string[]) => {
+      if (parents.includes(nodeName)) {
+        throw new Error(`Dependency cycle detected for ${nodeName} via ${parents}`);
+      }
+
+      const node = this.nodes[nodeName];
+      if (!node) {
+        throw new Error(`Invalid node: "${nodeName}"`);
+      }
+
+      if (!unvisited.has(nodeName)) {
+        return;
+      }
+      unvisited.delete(nodeName);
+
+      for (const dependency of node.dependencies) {
+        depthFirstSearch(dependency.name, [...parents, nodeName]);
+      }
+
+      stack.push(node);
+    }
+
+    unvisited.forEach((node) => depthFirstSearch(node, []));
+
+    return stack;
+  }
 }
 
 const generateMigration = async ({
@@ -138,98 +371,46 @@ export const makeMigrations = async ({
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
   log(`-- Using accepted hash ${acceptedHash}`);
 
-  const currentHashes: Record<string, string> = {};
-  let schemaFileContents = "";
+  const graph = new Graph();
+  graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
+  graph.addNodes(getAllCollections().flatMap((collection) => {
+    const table = Table.fromCollection(collection, forumType);
+    const indexes: Node[] = table.getIndexes().map((i) => new IndexNode(table, i));
+    return indexes.concat(new TableNode(table));
+  }));
+  graph.addNodes(expectedCustomPgIndexes.map((i) => new CustomIndexNode(i)));
+  graph.addNodes(postgresFunctions.map((f) => new FunctionNode(f)));
+  graph.addNodes(getAllPostgresViews().flatMap((view) => {
+    const indexQueries = view.getCreateIndexQueries();
+    const indexes: Node[] = indexQueries.map((source) => new CustomIndexNode({source}));
+    return indexes.concat(new ViewNode(view));
+  }));
 
-  for (const extensionName of postgresExtensions) {
-    const extensionHash = md5(extensionName);
-    currentHashes[extensionName] = extensionHash;
-    const query = new CreateExtensionQuery(extensionName);
-    schemaFileContents += `-- Extension "${extensionName}", hash: ${extensionHash}\n`;
-    schemaFileContents += query.compile().sql + ";\n\n";
-  }
+  const nodes = graph.linearize();
+  const rawSchema = nodes.map((n) => n.getAnnotatedSource()).join("\n");
+  const schemaFileContents = sqlFormatter(rawSchema, {
+    language: "postgresql",
+    linesBetweenQueries: 1,
+    tabWidth: 2,
+    useTabs: false,
+    keywordCase: "upper",
+    dataTypeCase: "upper",
+    functionCase: "upper",
+    identifierCase: "preserve",
+    logicalOperatorNewline: "after",
+    paramTypes: {
+      positional: false,
+      numbered: [],
+      named: [],
+      quoted: [],
+      custom: [],
+    },
+  }) + "\n";
 
-  // Sort collections by name, so that the order of the output is deterministic
-  const collectionNames: CollectionNameString[] = getAllCollections().map(c => c.collectionName).sort();
-  let failed: string[] = [];
+  const overallHash = graph.getOverallHash();
 
-  for (const collectionName of collectionNames) {
-    try {
-      const collection = getCollection(collectionName as any);
-      if (!collection) {
-        throw new Error(`Invalid collection: ${collectionName}`);
-      }
-
-      const table = Table.fromCollection(collection, forumType);
-      const createTableQuery = new CreateTableQuery(table);
-      const compiled = createTableQuery.compile();
-      if (compiled.args.length) {
-        throw new Error(`Unexpected arguments: ${compiled.args}`);
-      }
-
-      const sql = compiled.sql + ";";
-      const hash = md5(sql);
-      currentHashes[collectionName] = hash;
-
-      // Include the hash of every collection to make it easier to see what changed
-      schemaFileContents += `-- Schema for "${collectionName}", hash: ${hash}\n`;
-      schemaFileContents += `${format(sql)}`;
-
-      const indexes = table.getIndexes();
-      for (const index of indexes) {
-        const indexName = index.getName();
-        const indexQuery = new CreateIndexQuery(table, index);
-        const indexCompiled = indexQuery.compile();
-        const indexSql = sqlInterpolateArgs(indexCompiled.sql, indexCompiled.args) + ";";
-        const { indexHash, indexSanitizedSql } = hashAndSanitizeIndex(indexSql);
-        currentHashes[indexName] = indexHash;
-
-        schemaFileContents += `-- Index "${indexName}" ON "${collectionName}", hash: ${indexHash}\n`;
-        schemaFileContents += `${format(indexSanitizedSql)}`;
-      }
-    } catch (e) {
-      console.error(`Failed to check schema for collection ${collectionName}`);
-      failed.push(collectionName);
-      console.error(e);
-    }
-  }
-
-  for (const func of postgresFunctions) {
-    const hash = md5(func);
-    currentHashes[func] = hash;
-    schemaFileContents += `-- Function, hash: ${hash}\n`;
-    schemaFileContents += func + ";\n\n";
-  }
-
-  for (const index of expectedCustomPgIndexes) {
-    const { indexHash, indexSanitizedSql } = hashAndSanitizeIndex(index);
-    currentHashes[index] = indexHash;
-    schemaFileContents += `-- Custom index, hash: ${indexHash}\n`;
-    schemaFileContents += format(indexSanitizedSql);
-  }
-
-  for (const view of getAllPostgresViews()) {
-    const name = view.getName();
-    const query = view.getCreateViewQuery().trim();
-    const hasSemi = query[query.length - 1] === ";";
-    const hash = md5(query);
-    currentHashes[name] = hash;
-    schemaFileContents += `-- View "${name}", hash: ${hash}\n`;
-    schemaFileContents += format(query + (hasSemi ? "" : ";"));
-
-    for (const index of view.getCreateIndexQueries()) {
-      const { indexHash, indexSanitizedSql } = hashAndSanitizeIndex(index)
-      currentHashes[index] = hash;
-      schemaFileContents += `-- Index on view "${name}", hash: ${indexHash}\n`;
-      schemaFileContents += format(indexSanitizedSql);
-    }
-  }
-
-  if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
-  
-  const overallHash = md5(Object.values(currentHashes).sort().join());
   let schemaFileHeader = schemaFileHeaderTemplate + `-- Overall schema hash: ${overallHash}\n\n`;
-  
+
   const toAcceptSchemaFile = schemaToAcceptPath(rootPath);
   const acceptedSchemaFile = acceptedSchemePath(rootPath);
 

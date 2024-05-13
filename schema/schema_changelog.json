@@ -650,8 +650,18 @@
     "timestamp": "2024-05-08T22:08:21.000Z"
   },
   {
-    "acceptsSchemaHash": "4d21d3ccc260a536fc4df5c23028310e",
-    "acceptedByMigration": "20240509T093725.set_not_null_clientId.ts",
-    "timestamp": "2024-05-09T09:37:25.000Z"
+    "acceptsSchemaHash": "08f3f1875cc1bc68a6fdd52845584509",
+    "acceptedByMigration": "20240509T160927.dag_schema_dependencies.ts",
+    "timestamp": "2024-05-09T16:09:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "80ff63223032d7a466bbfbfa292b48b4",
+    "acceptedByMigration": "20240513T115214.normalize_posts_moderationGuidelines.ts",
+    "timestamp": "2024-05-13T11:52:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "76b9efb31df58ad0051fc439e9f527dd",
+    "acceptedByMigration": "20240513T135549.set_not_null_clientId.ts",
+    "timestamp": "2024-05-13T13:55:49.000Z"
   }
 ]

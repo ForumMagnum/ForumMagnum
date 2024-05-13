@@ -32,21 +32,21 @@ const LWHome = () => {
           </SingleColumnSection>}
           
           <AnalyticsInViewTracker
-              eventProps={{inViewType: "homePosts"}}
-              observerProps={{threshold:[0, 0.5, 1]}}
+            eventProps={{inViewType: "homePosts"}}
+            observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <LWHomePosts />
+            <LWHomePosts>
+              <QuickTakesSection />
+    
+              <EAPopularCommentsSection />
+    
+              <RecentDiscussionFeed
+                af={false}
+                commentsLimit={4}
+                maxAgeHours={18}
+              />
+            </LWHomePosts>
           </AnalyticsInViewTracker>
-
-          <QuickTakesSection />
-
-          <EAPopularCommentsSection />
-
-          <RecentDiscussionFeed
-            af={false}
-            commentsLimit={4}
-            maxAgeHours={18}
-          />
         </React.Fragment>
       </AnalyticsContext>
   )

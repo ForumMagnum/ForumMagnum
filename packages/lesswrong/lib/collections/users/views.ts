@@ -56,8 +56,6 @@ ensureIndex(Users, {"services.resume.loginTokens": 1});
 ensureIndex(Users, {email: 1}, {sparse: 1, collation: { locale: 'en', strength: 2 }})
 ensureIndex(Users, {'emails.address': 1}, {sparse: 1, unique: true, collation: { locale: 'en', strength: 2 }}) //TODO: Deprecate or change to use email
 
-ensureIndex(Users, {email: 1})
-
 const termsToMongoSort = (terms: UsersViewTerms) => {
   if (!terms.sort)
     return undefined;
@@ -304,7 +302,11 @@ void ensureCustomPgIndex(`
     AND "deleted" IS NOT TRUE
     AND "email" IS NOT NULL
     AND fm_has_verified_email(emails);
-`);
+`, {
+  dependencies: [
+    {type: "function", name: "fm_has_verified_email"}
+  ],
+});
 
 void ensureCustomPgIndex(`
   CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated"

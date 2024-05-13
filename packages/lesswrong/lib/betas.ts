@@ -48,8 +48,6 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isFriendlyUI ? adminOnly : shippedFeature;
 
-export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
-
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
@@ -60,6 +58,8 @@ export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
   isEAForum && !!user?.beta;
+
+export const userHasSubscribeTabFeed = isLW ? isAdmin : disabled;
 
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
