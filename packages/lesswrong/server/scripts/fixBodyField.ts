@@ -1,6 +1,7 @@
 import { Posts } from '../../lib/collections/posts';
 import { htmlToText } from 'html-to-text';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
+import { getLatestContentsRevision } from '../../lib/collections/posts/helpers';
 
 const runFix = false;
 
@@ -10,7 +11,8 @@ if (runFix) { void (async ()=>{
   let postCount = 0;
   const allPosts = await Posts.find().fetch();
   await asyncForeachSequential(allPosts, async (post) => {
-    const { html = "" } = post.contents || {}
+    const contents = await getLatestContentsRevision(post);
+    const {html = ""} = contents || {};
     if (html) {
       const plaintextBody = htmlToText(html);
       const excerpt =  plaintextBody.slice(0,140);

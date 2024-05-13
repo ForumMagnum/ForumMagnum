@@ -6,11 +6,12 @@ import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
-import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
+import { getWithLoader } from '../../loaders';
+import Revisions from '../revisions/collection';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -407,4 +408,25 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
     return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
   }
   return false;
+}
+
+export const getLatestContentsRevision = async (
+  post: DbPost,
+  context?: ResolverContext,
+): Promise<DbRevision | null> => {
+  if (!post.contents_latest) {
+    return null;
+  }
+  if (context) {
+    const revisions = await getWithLoader(
+      context,
+      Revisions,
+      "postLatestRevision",
+      {},
+      "_id",
+      post.contents_latest,
+    );
+    return revisions[0] ?? null;
+  }
+  return Revisions.findOne({_id: post.contents_latest});
 }

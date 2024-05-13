@@ -34,6 +34,7 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { getLatestContentsRevision } from '../../lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -65,7 +66,7 @@ if (isEAForum) {
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
-    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
@@ -376,9 +377,14 @@ async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
+  const contents = await getLatestContentsRevision(post);
+  if (!contents) {
+    return post;
+  }
+
   let socialPreviewImageAutoUrl = ''
-  if (post.contents?.html) {
-    const $ = cheerioParse(post.contents?.html)
+  if (contents?.html) {
+    const $ = cheerioParse(contents?.html)
     const firstImg = $('img').first()
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {

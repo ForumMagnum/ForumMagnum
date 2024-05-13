@@ -4,6 +4,7 @@ import Revisions from "../lib/collections/revisions/collection";
 import { Posts } from "../lib/collections/posts";
 import { runQuery } from "../server/vulcan-lib";
 import { syncDocumentWithLatestRevision } from "../server/editor/utils";
+import { fetchFragmentSingle } from "../server/fetchFragment";
 
 async function updatePost(user: DbUser, postId: string, newMarkup: string) {
   const query = `
@@ -44,7 +45,12 @@ describe("syncDocumentWithLatestRevision", () => {
     // Function we're actually testing
     await syncDocumentWithLatestRevision(Posts, post, 'contents')
 
-    const postAfterSync = await Posts.findOne({_id: post._id})
+    const postAfterSync = await fetchFragmentSingle({
+      collectionName: "Posts",
+      fragmentName: "PostsRSSChanges",
+      currentUser: null,
+      selector: {_id: post._id},
+    });
     if (!postAfterSync) {
       throw new Error("Lost post")
     }
