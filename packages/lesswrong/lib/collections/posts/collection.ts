@@ -77,6 +77,7 @@ makeEditable({
       canCreate: ['members']
     },
     hasToc: true,
+    normalized: true,
   }
 })
 

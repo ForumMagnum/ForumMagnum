@@ -940,7 +940,6 @@ interface DbPost extends DbObject {
   agentFoundationsId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines_latest: string | null

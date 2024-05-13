@@ -19,13 +19,25 @@ const forceNonResolverFields = [
   "postPageDescription",
 ];
 
+// TODO: This is temporary hacky garbage - delete it when we finish normalizing
+// editable fields
+const normalizedEditableFields: {
+  collectionName: CollectionNameString,
+  fieldName: string,
+}[] = [
+  {collectionName: "Posts", fieldName: "moderationGuidelines"},
+  {collectionName: "Posts", fieldName: "contents"},
+];
+
 export const isResolverOnly = <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   fieldName: string,
   schema: CollectionFieldSpecification<N>,
 ) => {
-  if (collection.collectionName === "Posts" && fieldName === "moderationGuidelines") {
-    return true;
+  for (const {collectionName, fieldName: fieldName_} of normalizedEditableFields) {
+    if (collection.collectionName === collectionName && fieldName === fieldName_) {
+      return true;
+    }
   }
   return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 }
