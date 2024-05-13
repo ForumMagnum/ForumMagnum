@@ -31,6 +31,9 @@ export const Users = createCollection({
     removeCheck: () => false
   }),
   logChanges: true,
+  dependencies: [
+    {type: "extension", name: "pg_trgm"},
+  ],
 });
 
 addGraphQLResolvers({

@@ -165,8 +165,8 @@ export const installExtensions = async (db: SqlClientOrTx) => {
 }
 
 export const updateFunctions = async (db: SqlClientOrTx) => {
-  for (const query of postgresFunctions) {
-    await db.none(query);
+  for (const func of postgresFunctions) {
+    await db.none(func.source);
   }
 }
 
@@ -181,7 +181,7 @@ export const updateIndexes = async <N extends CollectionNameString>(
 
 export const updateCustomIndexes = async (db: SqlClientOrTx) => {
   for (const index of expectedCustomPgIndexes) {
-    await db.none(index);
+    await db.none(index.source);
     await sleep(100);
   }
 }

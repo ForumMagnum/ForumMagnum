@@ -13,12 +13,6 @@ import { ensureIndex } from '../lib/collectionIndexUtils';
 
 const runValidateSettings = false
 
-ensureIndex(DatabaseMetadata, {
-  name: 1
-}, {
-  unique: true
-})
-
 if (isDevelopment && runValidateSettings) {
   // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
   setTimeout(() => validateSettings(registeredSettings, getPublicSettings(), getServerSettingsCache()), 30000)
