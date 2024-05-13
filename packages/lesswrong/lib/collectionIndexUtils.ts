@@ -1,7 +1,5 @@
 export const expectedIndexes: Partial<Record<CollectionNameString, Array<MongoIndexSpecification<any>>>> = {};
 
-export const expectedCustomPgIndexes: string[] = [];
-
 export function ensureIndex<N extends CollectionNameString>(
   collection: CollectionBase<N>,
   index: any,
@@ -16,11 +14,25 @@ export function ensureIndex<N extends CollectionNameString>(
   });
 }
 
-export const ensureCustomPgIndex = async (sql: string) => {
-  if (expectedCustomPgIndexes.includes(sql)) {
+type CustomPgIndexOptions = {
+  dependencies?: SchemaDependency[],
+}
+
+export type CustomPgIndex = {
+  source: string,
+  options?: CustomPgIndexOptions,
+}
+
+export const expectedCustomPgIndexes: CustomPgIndex[] = [];
+
+export const ensureCustomPgIndex = async (
+  source: string,
+  options?: CustomPgIndexOptions,
+) => {
+  if (expectedCustomPgIndexes.find((idx) => idx.source === source)) {
     return;
   }
-  expectedCustomPgIndexes.push(sql);
+  expectedCustomPgIndexes.push({source, options});
 }
 
 // Given an index partial definition for a collection's default view,

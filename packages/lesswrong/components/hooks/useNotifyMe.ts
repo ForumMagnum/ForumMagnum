@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
-import { getCollectionName } from "../../lib/vulcan-lib";
+import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";
@@ -87,7 +87,7 @@ export const useNotifyMe = ({
     fragmentName: "SubscriptionState",
   });
 
-  const collectionName = getCollectionName(document.__typename);
+  const collectionName = graphqlTypeToCollectionName(document.__typename);
   if (!isDefaultSubscriptionType(collectionName)) {
     throw new Error(`Collection ${collectionName} is not subscribable`);
   }

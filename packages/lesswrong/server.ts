@@ -134,6 +134,7 @@ import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
 import './server/resolvers/conversationResolvers';
 import './server/resolvers/dialogueMessageResolvers';
+import './server/resolvers/subscribedUsersFeedResolver';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
