@@ -348,7 +348,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       wrappedSetContents({contents: newState, autosave: false});
       // TODO: Focus editor
     }
-  }, [wrappedSetContents]);
+  }, [wrappedSetContents, flash, isCollabEditor]);
   
   useEffect(() => {
     if (editorRef.current) {
