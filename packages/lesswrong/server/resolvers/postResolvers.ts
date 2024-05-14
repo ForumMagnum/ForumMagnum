@@ -640,6 +640,7 @@ addGraphQLSchema(`
     post: Post!
     scenario: String
     recommId: String
+    generatedAt: Date
     curated: Boolean
     stickied: Boolean
   }
