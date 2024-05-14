@@ -50,9 +50,7 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Setup database
-      run: |
-        psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
-        psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
+      run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Install browsers
       run: yarn playwright install --with-deps
     - name: Run playwright tests
