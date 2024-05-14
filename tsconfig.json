@@ -21,7 +21,7 @@
   "include": [
     "packages/lesswrong",
     "public/lesswrong-editor/src/editorConfigs.js",
-    "cypress"
+    "playwright"
   ],
   "exclude": [
     "node_modules",

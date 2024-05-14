@@ -1,4 +1,4 @@
-import { isCypress } from '../../lib/executionEnvironment';
+import { isE2E } from '../../lib/executionEnvironment';
 import { AbstractThemeOptions, ThemeOptions, themeOptionsAreConcrete } from '../../themes/themeNames';
 import { getMergedStylesheet } from '../styleGeneration';
 
@@ -41,7 +41,7 @@ export const renderAutoStyleImport = (siteThemeOverride?: SiteThemeOverride) => 
 export const renderJssSheetImports = (themeOptions: AbstractThemeOptions): string => {
   // The "auto" import option breaks playwright, so just stick to the default
   // sheet in e2e tests
-  if (isCypress) {
+  if (isE2E) {
     themeOptions = {name: "default"};
   }
   const prefix = '<style id="jss-insertion-point"></style>';

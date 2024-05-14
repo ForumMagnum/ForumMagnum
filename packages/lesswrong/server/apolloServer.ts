@@ -35,7 +35,7 @@ import { getEAGApplicationData } from './zohoUtils';
 import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCypressRoutes } from './testingSqlClient';
+import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
@@ -340,7 +340,7 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addCypressRoutes(app);
+  addTestingRoutes(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

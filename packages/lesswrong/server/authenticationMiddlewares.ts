@@ -24,7 +24,7 @@ import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { oauth2 } from '@googleapis/oauth2';
 import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
 import { userIsAdmin } from '../lib/vulcan-users';
-import { isCypress } from '../lib/executionEnvironment';
+import { isE2E } from '../lib/executionEnvironment';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -444,7 +444,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     profileFromAccessToken = promisify(auth0Strategy.userProfile.bind(auth0Strategy));
   }
 
-  if (hasAuth0 || isCypress) {
+  if (hasAuth0 || isE2E) {
     addConnectHandler("/auth/auth0/embedded-login", json({limit: "1mb"}));
     addConnectHandler("/auth/auth0/embedded-login", async (req: Request, res: Response) => {
       const errorHandler: NextFunction = (err) => {

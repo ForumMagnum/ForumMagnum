@@ -3,9 +3,9 @@ import { getDatadogUser } from '../lib/collections/users/helpers';
 import { isEAForum } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
-import { isCypress, isServer } from '../lib/executionEnvironment';
+import { isE2E, isServer } from '../lib/executionEnvironment';
 
-const hasDatadog = isEAForum && !isCypress;
+const hasDatadog = isEAForum && !isE2E;
 
 let datadogInitialized = false;
 

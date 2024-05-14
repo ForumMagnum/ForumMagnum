@@ -22,7 +22,7 @@ import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
-import { isCypress } from '../../lib/executionEnvironment';
+import { isE2E } from '../../lib/executionEnvironment';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -239,7 +239,7 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   subject: string,
   body: React.ReactNode}
 ): Promise<boolean> => {
-  if (isCypress) {
+  if (isE2E) {
     return true;
   }
   if (!to && !user) throw new Error("No destination email address for logged-out user email");

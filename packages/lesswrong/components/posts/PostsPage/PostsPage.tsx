@@ -221,7 +221,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postBody: {
     width: "max-content",
   },
-  postContent: { //Used by a Cypress test
+  postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {

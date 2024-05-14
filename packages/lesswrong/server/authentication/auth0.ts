@@ -14,7 +14,7 @@ import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
 import { auth0ClientSettings } from "../../lib/publicSettings";
 import { UsersRepo } from "../repos";
-import { isCypress } from "../../lib/executionEnvironment";
+import { isE2E } from "../../lib/executionEnvironment";
 
 type Auth0Settings = {
   appId: string;
@@ -123,7 +123,7 @@ class Auth0Client extends IAuth0Client {
   }
 }
 
-const auth0Client: IAuth0Client = isCypress
+const auth0Client: IAuth0Client = isE2E
   ? new MockAuth0Client()
   : new Auth0Client();
 
