@@ -396,14 +396,20 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     })
   }
 
-  let profileFromAccessToken: ProfileFromAccessToken = async (token: string) => ({
-    provider: "auth0",
-    id: token,
-    displayName: token,
-    birthday: "",
-    _raw: token,
-    _json: {},
-  });
+  // This is a mock method used in playwright tests - it gets overwritten below
+  // for actual servers
+  let profileFromAccessToken: ProfileFromAccessToken = async (token: string) => {
+    const email = token.replace("access-token-", "");
+    return {
+      provider: "auth0",
+      id: email,
+      displayName: email,
+      emails: [{value: email}],
+      birthday: "",
+      _raw: email,
+      _json: {},
+    }
+  }
 
   // NB: You must also set the expressSessionSecret setting in your database
   // settings - auth0 passport strategy relies on express-session to store state

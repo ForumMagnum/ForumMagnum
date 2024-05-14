@@ -1,13 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-const createNewUserDetails = () => {
-  const n = Math.floor(Math.random() * 10_000_000);
-  return {
-    username: `test${n}`,
-    email: `test${n}@example.com`,
-    password: "hunter2!",
-  };
-}
+import { createNewUserDetails } from "./playwrightUtils";
 
 test("account signup", async ({page}) => {
   const {username, email, password} = createNewUserDetails();
