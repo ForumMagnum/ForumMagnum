@@ -42,7 +42,7 @@ export const brotliCompressResource = (content: Buffer): CompressedCacheResource
 
   if (isProduction) {
     resource.brotliPromise = new Promise((resolve: (result: Buffer) => void) => {
-      void zlib.brotliCompress(content, {
+      zlib.brotliCompress(content, {
         params: {
           [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
         }
