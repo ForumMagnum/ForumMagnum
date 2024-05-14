@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { loginNewUser } from "./playwrightUtils";
+import { createNewPost, loginNewUser } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
   await loginNewUser(context);
@@ -8,7 +8,7 @@ test("create and edit post", async ({page, context}) => {
   // Create a post with a title and body
   const title = "Test post 123";
   const body = "Test body 123";
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(100); // Wait for title to be editable
   await page.getByPlaceholder("Post title").fill(title);
   await page.getByLabel("Rich Text Editor, main").fill(body);
   await page.getByText("Submit").click();
@@ -26,7 +26,7 @@ test("create and edit post", async ({page, context}) => {
   // Edit the post
   const newTitle = "Edited test post";
   const newBody = "Edited test body";
-  await page.waitForTimeout(100);
+  await page.waitForTimeout(100); // Wait for title to be editable
   await page.getByPlaceholder("Post title").fill(newTitle);
   await page.getByLabel("Rich Text Editor, main").fill(newBody);
   await page.getByText("Publish changes").click();
@@ -52,4 +52,31 @@ test("can create 5 posts per day, but not 6", async ({page, context}) => {
   // After creating five posts the post rate limit should be triggered
   await page.goto("/newPost");
   await expect(page.getByText("Users cannot post more than 5 posts a day")).toBeVisible();
+});
+
+test("voting on a post gives karma", async ({page, context}) => {
+  // Create and visit a new post
+  await loginNewUser(context);
+  const post = await createNewPost();
+
+  // The post author should have no karma
+  const authorPage = `/users/${post.author.slug}`;
+  await page.goto(authorPage);
+  await expect(page.getByText("0 karma")).toBeVisible();
+
+  // Post should start with 1 karma from the author
+  await page.goto(post.postPageUrl);
+  const karma = page.locator(".PostsVoteDefault-voteScore");
+  await expect(karma).toContainText("0");
+
+  // Click the upvote button and give time for the page to update
+  await page.locator(".VoteArrowIcon-up").click();
+  await page.waitForTimeout(1000);
+
+  // Post should now have 2 karma
+  await expect(karma).toContainText("1");
+
+  // The post author should now have the karma
+  await page.goto(authorPage);
+  await expect(page.getByText("1 karma")).toBeVisible();
 });
