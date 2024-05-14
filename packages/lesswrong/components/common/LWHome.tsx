@@ -52,7 +52,17 @@ export const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     right: 0,
-    zIndex: 0
+    zIndex: 0,
+    filter: "saturate(2.5)"
+  },
+  button: {
+    border: `1px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    padding: '4px 12px',
+    borderRadius: 3,
+    textDecoration: "none",
+    display: "inline-block",
+    marginTop: 8,
   },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
@@ -92,7 +102,7 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
               <h3><Link to={"/posts/MmWziepD8DDauSide/lessonline-festival-updates-thread"}>LessOnline Festival</Link></h3>
               <h4>Ticket Prices increase tomorrow</h4>
               <p>Join us May 31st - June 2nd, in Berkeley CA for a festival of truth-seeking, optimization, and blogging. <span className={classes.hideOnMobile}>We'll have writing workshops, rationality classes, puzzle hunts, and thoughtful conversations across a sprawling fractal campus of nooks and whiteboards.</span></p>
-              <p><a onClick={() => captureEvent('frontpageCTAButtonClicked')} href="https://less.online" target="_blank" rel="noreferrer">Buy Tickets</a></p>
+              <p><a className={classes.button} onClick={() => captureEvent('frontpageCTAButtonClicked')} href="https://less.online" target="_blank" rel="noreferrer">Buy Tickets</a></p>
             </div>
             <CloudinaryImage2
               publicId={"spotlight3_ubpxgr"}
