@@ -72,15 +72,22 @@ export const loginUser = async (
   });
 }
 
-export const createNewUser = async (): Promise<PlaywrightUser> => {
+export const createNewUserDetails = (): PlaywrightUser => {
   const n = uniqueId.get();
-  const username = `user${n}`;
-  const email = `user${n}@example.com`;
-  const _id = `id-user-${n}`;
+  return {
+    _id: `id-user-${n}`,
+    username: `user${n}`,
+    email: `user${n}@example.com`,
+    password: `Password${n}!`,
+  };
+}
+
+export const createNewUser = async (): Promise<PlaywrightUser> => {
+  const user = createNewUserDetails();
+  const {_id, username, email} = user;
   const slug = getSlug(username);
   const abtestkey = `abtestkey-${username}`;
   const emails = [{address: email, verifed: false}];
-  const password = `Password${n}!`;
 
   await db.get().none(`
     INSERT INTO "Users" (
@@ -96,12 +103,7 @@ export const createNewUser = async (): Promise<PlaywrightUser> => {
     ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, FALSE, TRUE)
   `, [_id, username, username, email, emails, slug, abtestkey]);
 
-  return {
-    _id,
-    username,
-    email,
-    password,
-  };
+  return user;
 }
 
 export const createNewRevision = async ({

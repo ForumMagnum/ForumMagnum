@@ -14,4 +14,4 @@ test("create post", async ({page, context}) => {
   await page.waitForURL("/posts/**/test-post-123**");
   await expect(page.getByText("Test post 123")).toBeVisible();
   await expect(page.getByText("Test body 123")).toBeVisible();
-})
+});
