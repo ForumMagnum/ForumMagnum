@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser } from "./playwrightUtils";
+import { createNewPost, loginNewUser, logout } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
   await loginNewUser(context);
@@ -79,4 +79,26 @@ test("voting on a post gives karma", async ({page, context}) => {
   // The post author should now have the karma
   await page.goto(authorPage);
   await expect(page.getByText("1 karma")).toBeVisible();
+});
+
+test("admins can move posts to draft", async ({page, context}) => {
+  // Create and visit a new post
+  const post = await createNewPost();
+  await page.goto(post.postPageUrl);
+
+  // The post is visible
+  await expect(page.getByText(post.title)).toBeVisible();
+
+  // An admin can move the post to draft
+  await loginNewUser(context, {isAdmin: true});
+  await page.reload();
+  await page.locator(".PostActionsButton-root").first().click();
+  await page.getByText("Move to draft").click();
+  await expect(page.getByText("[Draft]")).toBeVisible();
+
+  // Non-admins now can't view the post
+  await logout(context);
+  await page.reload();
+  await expect(page.getByText("you don't have access")).toBeVisible();
+  await expect(page.getByText(post.title)).not.toBeVisible();
 });

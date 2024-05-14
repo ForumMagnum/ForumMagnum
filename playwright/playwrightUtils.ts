@@ -1,4 +1,4 @@
-import type { BrowserContext } from "@playwright/test";
+import type { BrowserContext, Cookie } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
 import getSlug from "speakingurl";
 
@@ -87,7 +87,13 @@ export const createNewUserDetails = (): PlaywrightUser => {
   };
 }
 
-export const createNewUser = async (): Promise<PlaywrightUser> => {
+type CreateNewUserOptions = Partial<{
+  isAdmin: boolean,
+}>;
+
+export const createNewUser = async ({
+  isAdmin = false,
+}: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
   const {_id, username, email, slug, displayName} = user;
   const abtestkey = `abtestkey-${username}`;
@@ -102,10 +108,11 @@ export const createNewUser = async (): Promise<PlaywrightUser> => {
       "emails",
       "slug",
       "abTestKey",
+      "isAdmin",
       "usernameUnset",
       "acceptedTos"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, FALSE, TRUE)
-  `, [_id, username, displayName, email, emails, slug, abtestkey]);
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, FALSE, TRUE)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin]);
 
   return user;
 }
@@ -223,8 +230,21 @@ export const createNewPost = async (): Promise<PlaywrightPost> => {
 
 export const loginNewUser = async (
   context: BrowserContext,
+  options?: CreateNewUserOptions,
 ): Promise<PlaywrightUser> => {
-  const user = await createNewUser();
+  const user = await createNewUser(options);
   await loginUser(context, user);
   return user;
 }
+
+export const deleteCookie = async (context: BrowserContext, cookieName: string) => {
+  const oldCookies = await context.cookies();
+  const newCookies = oldCookies.filter((cookie: Cookie) => {
+    return cookie.name !== cookieName;
+  });
+  await context.clearCookies();
+  await context.addCookies(newCookies);
+}
+
+export const logout = (context: BrowserContext) =>
+  deleteCookie(context, "loginToken");
