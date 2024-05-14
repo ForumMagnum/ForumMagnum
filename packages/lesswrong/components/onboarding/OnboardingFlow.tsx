@@ -38,7 +38,7 @@ const OnboardingFlow = ({stages, viewAsAdmin, classes}: {
 
   const {BlurredBackgroundModal} = Components
   return (
-    <BlurredBackgroundModal open className={classes.root} testId="onboarding-flow">
+    <BlurredBackgroundModal open className={classes.root} data-testid="onboarding-flow">
       <EAOnboardingContextProvider stages={stages} onOnboardingComplete={onOnboardingComplete} viewAsAdmin={viewAsAdmin}/>
     </BlurredBackgroundModal>
   )

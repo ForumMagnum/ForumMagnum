@@ -182,7 +182,7 @@ export const EAOnboardingStage = ({
               <a
                 onClick={onSkip}
                 className={classes.skip}
-                test-id={`onboarding-skip-${stageName}`}
+                data-testid={`onboarding-skip-${stageName}`}
               >
                 Skip for now
               </a>
