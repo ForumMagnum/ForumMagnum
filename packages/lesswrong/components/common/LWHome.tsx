@@ -52,7 +52,6 @@ export const styles = (theme: ThemeType) => ({
     top: 0,
     right: 0,
     zIndex: 0,
-    filter: "saturate(2.5)",
     background: `linear-gradient(to right, ${theme.palette.background.pageActiveAreaBackground} 230px, transparent calc(230px + 30%))`
   },
   button: {
