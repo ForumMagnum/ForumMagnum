@@ -26,7 +26,7 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   spotlightText: {
-    width: "calc(100% - 150px)",
+    width: "calc(100% - 180px)",
     '& p': {
       ...commentBodyStyles(theme),
       '& a': {
@@ -45,7 +45,6 @@ export const styles = (theme: ThemeType) => ({
     },
     zIndex: 1,
     position: "relative",
-    background: `linear-gradient(to right, ${theme.palette.background.pageActiveAreaBackground} 230px, transparent calc(230px + 30%))`
   },
   spotlightImage: {
     height: "100%",
@@ -53,7 +52,8 @@ export const styles = (theme: ThemeType) => ({
     top: 0,
     right: 0,
     zIndex: 0,
-    filter: "saturate(2.5)"
+    filter: "saturate(2.5)",
+    background: `linear-gradient(to right, ${theme.palette.background.pageActiveAreaBackground} 230px, transparent calc(230px + 30%))`
   },
   button: {
     border: `1px solid ${theme.palette.primary.main}`,
@@ -100,8 +100,8 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
           <div className={classes.spotlight}>
             <div className={classes.spotlightText}>
               <h3><Link to={"/posts/MmWziepD8DDauSide/lessonline-festival-updates-thread"}>LessOnline Festival</Link></h3>
-              <h4>Ticket Prices increase tomorrow</h4>
-              <p>Join us May 31st - June 2nd, in Berkeley CA for a festival of truth-seeking, optimization, and blogging. <span className={classes.hideOnMobile}>We'll have writing workshops, rationality classes, puzzle hunts, and thoughtful conversations across a sprawling fractal campus of nooks and whiteboards.</span></p>
+              <h4>May 31st – June 2nd, in Berkeley CA</h4>
+              <p><span className={classes.hideOnMobile}>A festival of truth-seeking, optimization, and blogging. We'll have writing workshops, rationality classes, puzzle hunts, and thoughtful conversations across a sprawling fractal campus of nooks and whiteboards.</span></p>
               <p><a className={classes.button} onClick={() => captureEvent('frontpageCTAButtonClicked')} href="https://less.online" target="_blank" rel="noreferrer">Buy Tickets</a></p>
             </div>
             <CloudinaryImage2
