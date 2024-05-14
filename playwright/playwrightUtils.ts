@@ -5,8 +5,10 @@ import getSlug from "speakingurl";
 type PlaywrightUser = {
   _id: string,
   username: string,
+  displayName: string,
   email: string,
   password: string,
+  slug: string,
 }
 
 type PlaywrightPost = {
@@ -74,18 +76,20 @@ export const loginUser = async (
 
 export const createNewUserDetails = (): PlaywrightUser => {
   const n = uniqueId.get();
+  const username = `user${n}`;
   return {
     _id: `id-user-${n}`,
-    username: `user${n}`,
+    username,
+    displayName: username,
     email: `user${n}@example.com`,
     password: `Password${n}!`,
+    slug: getSlug(username),
   };
 }
 
 export const createNewUser = async (): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
-  const {_id, username, email} = user;
-  const slug = getSlug(username);
+  const {_id, username, email, slug, displayName} = user;
   const abtestkey = `abtestkey-${username}`;
   const emails = [{address: email, verifed: false}];
 
@@ -101,7 +105,7 @@ export const createNewUser = async (): Promise<PlaywrightUser> => {
       "usernameUnset",
       "acceptedTos"
     ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, FALSE, TRUE)
-  `, [_id, username, username, email, emails, slug, abtestkey]);
+  `, [_id, username, displayName, email, emails, slug, abtestkey]);
 
   return user;
 }
