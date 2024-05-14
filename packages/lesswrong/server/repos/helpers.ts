@@ -1,5 +1,8 @@
 import { postStatuses } from "../../lib/collections/posts/constants";
 
+/**
+ * When changing this, also update the default view.
+ */
 export const getViewableSequencesSelector = (sequencesTableAlias?: string) => {
   const aliasPrefix = sequencesTableAlias ? `${sequencesTableAlias}.` : "";
   return `
@@ -7,6 +10,9 @@ export const getViewableSequencesSelector = (sequencesTableAlias?: string) => {
   `;
 }
 
+/**
+ * When changing this, also update the default view.
+ */
 export const getViewablePostsSelector = (postsTableAlias?: string) => {
   const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
   return `
@@ -23,6 +29,9 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
   `;
 };
 
+/**
+ * When changing this, also update the default view.
+ */
 export const getViewableTagsSelector = (tagsTableAlias?: string) => {
   const aliasPrefix = tagsTableAlias ? `${tagsTableAlias}.` : "";
   return `
