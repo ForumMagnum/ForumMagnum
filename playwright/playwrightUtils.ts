@@ -71,6 +71,7 @@ export const loginUser = async (
   context: BrowserContext,
   {email, password}: PlaywrightUser,
 ): Promise<void> => {
+  await logout(context);
   await context.request.post("/auth/auth0/embedded-login", {
     data: {
       email,
