@@ -31,7 +31,6 @@ const CKCommentEditor = ({
   onInit?: any,
   placeholder?: string,
 }) => {
-  console.log("CKCommentEditor.render");
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor(forumTypeSetting.get());
