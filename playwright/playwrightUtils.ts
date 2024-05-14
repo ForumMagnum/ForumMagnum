@@ -31,6 +31,11 @@ type PlaywrightRevision = {
   commitMessage: string,
 }
 
+type PlaywrightGroup = {
+  _id: string,
+  name: string,
+}
+
 const db = new class {
   private client: IDatabase<{}> | null = null;
 
@@ -225,6 +230,31 @@ export const createNewPost = async (): Promise<PlaywrightPost> => {
     title,
     slug,
     postPageUrl,
+  };
+}
+
+type CreateNewGroupOptions = Partial<{
+  organizerIds: string[],
+}>;
+
+export const createNewGroup = async ({
+  organizerIds = [],
+}: CreateNewGroupOptions = {}): Promise<PlaywrightGroup> => {
+  const n = uniqueId.get();
+  const _id = `id-group-${n}`;
+  const name = `Group ${n}`;
+
+  await db.get().none(`
+    INSERT INTO "Localgroups" (
+      "_id",
+      "name",
+      "organizerIds"
+    ) VALUES ($1, $2, $3)
+  `, [_id, name, organizerIds]);
+
+  return {
+    _id,
+    name,
   };
 }
 
