@@ -63,7 +63,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF ? "AND af=true" : ""
+    const maybeRequireAF = isAF ? "AND af IS TRUE" : ""
     const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
       -- PostsRepo.postRouteWillDefinitelyReturn200
       SELECT EXISTS(
