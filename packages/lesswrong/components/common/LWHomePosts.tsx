@@ -332,7 +332,8 @@ const LWHomePosts = ({children, classes}: {
   }
 
   const limit = parseInt(query.limit) || defaultLimit;
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString();
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString();
+  console.log(dateCutoff);
 
   const recentPostsTerms = {
     ...query,
