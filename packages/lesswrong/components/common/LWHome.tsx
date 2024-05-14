@@ -100,7 +100,7 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
           <div className={classes.spotlight}>
             <div className={classes.spotlightText}>
               <h3><Link to={"/posts/MmWziepD8DDauSide/lessonline-festival-updates-thread"}>LessOnline Festival</Link></h3>
-              <h4>May 31st - June 2nd, in Berkeley CA</h4>
+              <h4>May 31st - June 2nd, in Berkeley CA</h4>
               <p><span className={classes.hideOnMobile}>A festival of truth-seeking, optimization, and blogging. We'll have writing workshops, rationality classes, puzzle hunts, and thoughtful conversations across a sprawling fractal campus of nooks and whiteboards.</span></p>
               <p><a className={classes.button} onClick={() => captureEvent('frontpageCTAButtonClicked')} href="https://less.online" target="_blank" rel="noreferrer">Buy Tickets</a></p>
             </div>
