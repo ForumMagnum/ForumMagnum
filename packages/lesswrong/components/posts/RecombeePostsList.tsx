@@ -67,7 +67,8 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
 `;
 
 const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
-  const loadMoreTtlMs = 1000 * 60 * 1;
+  // Use 29 minutes instead of 30 as the cutoff for considering recommendations stale, just to have a bit of buffer.
+  const loadMoreTtlMs = 1000 * 60 * 29;
   const cutoff = moment().subtract(loadMoreTtlMs, 'ms');
 
   return moment(recGeneratedAt).isAfter(cutoff);
