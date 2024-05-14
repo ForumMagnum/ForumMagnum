@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 type WebServers = Extract<Parameters<typeof defineConfig>[0]["webServer"], any[]>;
+type Projects = Extract<Parameters<typeof defineConfig>[0]["projects"], any[]>;
 
 const getWebServers = () => {
   const webServers: WebServers = [];
@@ -27,7 +28,7 @@ const getWebServers = () => {
 }
 
 const getProjects = () => {
-  let projects = [
+  let projects: Projects = [
     {
       name: "chromium",
       use: {...devices["Desktop Chrome"]},
@@ -37,7 +38,17 @@ const getProjects = () => {
     projects = projects.concat([
       {
         name: "firefox",
-        use: {...devices["Desktop Firefox"]},
+        use: {
+          ...devices["Desktop Firefox"],
+          launchOptions: {
+            // Enable hover on Firefox Linux
+            // See https://github.com/microsoft/playwright/issues/7769
+            firefoxUserPrefs: {
+              "ui.primaryPointerCapabilities": 0x02 | 0x04,
+              "ui.allPointerCapabilities": 0x02 | 0x04,
+            },
+          },
+        },
       },
       {
         name: "webkit",
@@ -82,7 +93,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: "html",
+  reporter: [['html', { open: 'never' }], ['line']],
   /* Increase timeout in CI as github runners are very underpowered */
   timeout: process.env.CI ? 60000 : 30000,
   /*
