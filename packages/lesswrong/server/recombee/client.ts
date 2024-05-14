@@ -323,9 +323,6 @@ const helpers = {
 
   getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
     const loadMoreCount = hybridArgs.loadMore?.loadMoreCount;
-    // if (!loadMoreCount && hybridArgs.excludedPostIds?.length) {
-    //   loadMoreCount = 1;
-    // }
     const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
     const notPostIdsArg = excludedPostIds.length ? { notPostIds: excludedPostIds } : {};
