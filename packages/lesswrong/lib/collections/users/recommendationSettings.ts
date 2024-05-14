@@ -130,6 +130,7 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   onlyUnread?: boolean,
   lwRationalityOnly?: boolean,
   scenario: string,
+  excludedPostIds?: string[],
 }
 
 export interface HybridRecombeeConfiguration {

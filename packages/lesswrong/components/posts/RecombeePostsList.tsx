@@ -76,13 +76,21 @@ const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
 
 const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[], loadMoreCount: number): LoadMoreSettings => {
   switch (resolverName) {
-    case DEFAULT_RESOLVER_NAME:
-      const prevRecommId = results.find(result => result.recommId)?.recommId;
-      if (!prevRecommId) {
+    case DEFAULT_RESOLVER_NAME: {
+      const prevRecomm = results.find((result): result is RecombeeRecommendedPost => !!result.recommId);
+      if (!prevRecomm) {
         return undefined;
       }
-      return { loadMore: { prevRecommId } };  
-    case HYBRID_RESOLVER_NAME:
+
+      const isStale = prevRecomm.generatedAt && !isWithinLoadMoreWindow(prevRecomm.generatedAt);
+      if (isStale) {
+        const excludedPostIds = results.filter(({ recommId }) => prevRecomm.recommId === recommId).map(({ post: { _id } }) => _id);
+        return { excludedPostIds };
+      }
+
+      return { loadMore: { prevRecommId: prevRecomm.recommId } };
+    }
+    case HYBRID_RESOLVER_NAME: {
       const staleRecommIds = filterNonnull(uniq(
         results
           .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
@@ -102,6 +110,7 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: Recommende
       } else {
         return { excludedPostIds, loadMore: { prevRecommIds: [firstRecommId, secondRecommId], loadMoreCount } };
       }
+    }
   }
 }
 
