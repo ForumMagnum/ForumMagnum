@@ -1,6 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -9,6 +9,7 @@ import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 import { commentBodyStyles, postBodyStyles, smallPostStyles } from '../../themes/stylePiping';
 import { SECTION_WIDTH } from './SingleColumnSection';
+import { Link } from '../../lib/reactRouterWrapper';
 
 export const styles = (theme: ThemeType) => ({
   spotlight: {
@@ -72,6 +73,8 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
     }
   }, [setCookie])
 
+  const { captureEvent } = useTracking();
+
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -86,10 +89,10 @@ const LWHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
           {/* TODO: remove this after LessOnline sale */}
           <div className={classes.spotlight}>
             <div className={classes.spotlightText}>
-              <h3>LessOnline Festival</h3>
+              <h3><Link to={"/posts/MmWziepD8DDauSide/lessonline-festival-updates-thread"}>LessOnline Festival</Link></h3>
               <h4>Ticket Prices increase tomorrow</h4>
               <p>Join us May 31st - June 2nd, in Berkeley CA for a festival of truth-seeking, optimization, and blogging. <span className={classes.hideOnMobile}>We'll have writing workshops, rationality classes, puzzle hunts, and thoughtful conversations across a sprawling fractal campus of nooks and whiteboards.</span></p>
-              <p><a href="https://lessonline.org/tickets">Buy Tickets</a></p>
+              <p><a onClick={() => captureEvent('frontpageCTAButtonClicked')} href="https://less.online" target="_blank" rel="noreferrer">Buy Tickets</a></p>
             </div>
             <CloudinaryImage2
               publicId={"spotlight3_ubpxgr"}
