@@ -1,4 +1,4 @@
-import { ApiClient, BatchResponse, RecommendationResponse, requests } from 'recombee-api-client';
+import { ApiClient, BatchResponse, Recommendation, RecommendationResponse, requests } from 'recombee-api-client';
 import { HybridArmsConfig, HybridRecombeeConfiguration, RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
@@ -9,6 +9,7 @@ import { recombeeCacheTtlMsSetting, recombeeDatabaseIdSetting, recombeePrivateAp
 import { viewTermsToQuery } from '../../lib/utils/viewUtils';
 import { stickiedPostTerms } from '../../components/posts/RecombeePostsList';
 import groupBy from 'lodash/groupBy';
+import uniq from 'lodash/uniq';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
 import { performQueryFromViewParameters } from '../../lib/vulcan-core/default_resolvers';
@@ -52,6 +53,7 @@ export interface RecombeeRecommendedPost {
   post: Partial<DbPost>,
   scenario: string,
   recommId: string,
+  generatedAt: Date,
   curated?: never,
   stickied?: never,
 }
@@ -60,6 +62,7 @@ interface NativeRecommendedPost {
   post: Partial<DbPost>,
   scenario?: never,
   recommId?: never,
+  generatedAt?: never,
   curated: boolean,
   stickied: boolean,
 }
@@ -87,14 +90,26 @@ interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostField
 
 type RecRequest = requests.RecommendNextItems | requests.RecommendItemsToUser;
 
+interface DatedRec extends Recommendation {
+  generatedAt?: Date;
+}
+
+interface RecWithMetadata extends DatedRec {
+  recommId: string;
+  scenario: string;
+}
+
 /**
  * If we're getting cached recommendations, we'll have a cached scenario.
  */
-type RecResponse = RecommendationResponse & { scenario: string };
+interface RecResponse extends RecommendationResponse {
+  scenario: string;
+  recomms: DatedRec[]
+};
 
 interface AssignRecommendationResultMetadataArgs {
   post: Partial<DbPost>,
-  recommendationIdTuples: Array<(readonly [string, string, string])>,
+  recsWithMetadata: RecWithMetadata[],
   stickiedPostIds: string[],
   curatedPostIds: string[],
 }
@@ -126,7 +141,7 @@ const helpers = {
   createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
     const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
 
-    if (loadMore) {
+    if (loadMore?.prevRecommId) {
       return new requests.RecommendNextItems(loadMore.prevRecommId, count);
     }
 
@@ -229,7 +244,8 @@ const helpers = {
     const curatedPostIds = curatedPosts.map(post => post._id);
     const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
     const stickiedPostIds = [...manuallyStickiedPostIds, ...stickiedPosts.map(post => post._id)];
-    const excludedPostIds = [...curatedPostIds, ...stickiedPostIds];
+    const staleRecPostIds = 'excludedPostIds' in lwAlgoSettings ? lwAlgoSettings.excludedPostIds ?? [] : [];
+    const excludedPostIds = uniq([...curatedPostIds, ...stickiedPostIds, ...staleRecPostIds]);
     const excludedPostFilter = `'itemId' not in {${excludedPostIds.map(id => `"${id}"`).join(', ')}}`;
 
     return {
@@ -329,13 +345,13 @@ const helpers = {
       : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
   },
 
-  assignRecommendationResultMetadata({ post, recommendationIdTuples, stickiedPostIds, curatedPostIds }: AssignRecommendationResultMetadataArgs) {
+  assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }: AssignRecommendationResultMetadataArgs) {
     // _id isn't going to be filtered out by `accessFilterMultiple`
     const postId = post._id!;
-    const [_, recommId, scenario] = recommendationIdTuples.find(([id]) => id === postId) ?? [];
+    const { recommId, scenario, generatedAt } = recsWithMetadata.find(({ id }) => id === postId) ?? {};
 
     if (recommId) {
-      return { post, recommId, scenario };
+      return { post, recommId, scenario, generatedAt };
     } else {
       const stickied = stickiedPostIds.includes(postId);
       const curated = curatedPostIds.includes(postId);
@@ -398,7 +414,11 @@ const helpers = {
     let formattedRecommendations: RecResponse[]; 
     if (unexpiredRecommendations.length < recRequest.count) {
       const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest);
-      formattedRecommendations = [{ ...recResponse, scenario }];
+      formattedRecommendations = [{
+        ...recResponse,
+        recomms: recResponse.recomms.map(rec => ({ ...rec, generatedAt: new Date(currentTimestampMs) })),
+        scenario
+      }];
     } else {
       // Unless/until we go back to doing recombee batch requests, we shouldn't have multiple attributionIds, especially within a single scenario
       // But this is robust to that changing, so may as well
@@ -406,8 +426,8 @@ const helpers = {
         .entries(groupBy(unexpiredRecommendations, (rec) => rec.attributionId))
         .map(([attributionId, recs]) => ({
           recommId: attributionId,
-          recomms: recs.map(rec => ({ id: rec.postId })),
-          scenario: recs[0].scenario
+          recomms: recs.map(rec => ({ id: rec.postId, generatedAt: rec.createdAt })),
+          scenario: recs[0].scenario,
         }));
     }
 
@@ -492,7 +512,7 @@ const recombeeApi = {
       const postId = post._id!;
       const recommId = recommendationIdPairs.find(([id]) => id === postId)?.[1];
       if (recommId) {
-        return { post, recommId, scenario: lwAlgoSettings.scenario };
+        return { post, recommId, scenario: lwAlgoSettings.scenario, generatedAt: new Date() };
       } else {
         return {
           post,
@@ -576,8 +596,8 @@ const recombeeApi = {
     }
 
     // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recommendationIdTuples = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, response.recommId, response.scenario] as const));
-    const recommendedPostIds = recommendationIdTuples.map(([id]) => id);
+    const recsWithMetadata = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => ({ ...rec, recommId: response.recommId, scenario: response.scenario })));
+    const recommendedPostIds = recsWithMetadata.map(({ id }) => id);
     // The ordering of these post ids is actually important, since it's preserved through all subsequent filtering/mapping
     // It ensures the "curated > stickied > everything else" ordering
     const postIds = [...includedCuratedAndStickiedPostIds, ...recommendedPostIds];
@@ -601,7 +621,7 @@ const recombeeApi = {
     const topDeferredPosts = deferredPosts.slice(0, fixedArmCount + missingPostCount);
 
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
-    const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recommendationIdTuples, stickiedPostIds, curatedPostIds }));
+    const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
     const curatedOrStickiedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.curated || result.stickied));
     const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.curated || result.stickied || result.recommId));

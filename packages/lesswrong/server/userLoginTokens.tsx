@@ -27,4 +27,7 @@ createPostgresView(
     interval: "every 5 minutes",
     query: refreshUserLoginTokensIndexQuery,
   },
+  [
+    {type: "collection", name: "Users"},
+  ],
 );

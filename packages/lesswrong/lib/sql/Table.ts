@@ -19,6 +19,7 @@ import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
  */
 class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
+  private resolverOnlyFields = new Set<string>();
   private indexes: TableIndex<T>[] = [];
   private writeAheadLogged = true;
 
@@ -38,6 +39,10 @@ class Table<T extends DbObject> {
 
   getField(name: string) {
     return this.fields[name];
+  }
+
+  hasResolverOnlyField(name: string) {
+    return this.resolverOnlyFields.has(name);
   }
 
   countFields() {
@@ -86,9 +91,14 @@ class Table<T extends DbObject> {
         table.addField("_id", new IdType(collection));
       } else if (field.indexOf("$") < 0) {
         const fieldSchema = schema[field];
-        if (!isResolverOnly(field, fieldSchema)) {
+        if (isResolverOnly(collection, field, fieldSchema)) {
+          table.resolverOnlyFields.add(field);
+        } else {
           const indexSchema = schema[`${field}.$`];
-          table.addField(field, Type.fromSchema(field, fieldSchema, indexSchema, forumType));
+          table.addField(
+            field,
+            Type.fromSchema(collection, field, fieldSchema, indexSchema, forumType),
+          );
         }
       }
     }

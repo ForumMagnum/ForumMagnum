@@ -1,12 +1,25 @@
 import AbstractRepo from "./AbstractRepo";
 import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
+  }
+
+  async sequenceRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
+    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- SequencesRepo.sequenceRouteWillDefinitelyReturn200
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Sequences"
+        WHERE "_id" = $1 AND ${getViewableSequencesSelector()}
+      )
+    `, [id]);
+
+    return res?.exists ?? false;
   }
 
   private getSearchDocumentQuery(): string {

@@ -166,6 +166,8 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
@@ -595,12 +597,6 @@ Posts.addView("daily", (terms: PostsViewTerms) => ({
     sort: {baseScore: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1}),
-  {
-    name: "posts.postedAt_baseScore",
-  }
-);
 
 Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
