@@ -48,7 +48,8 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     }
     
     const payload = {
-      iss: environmentId,
+      aud: environmentId,
+      iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: {
         id: user ? user._id : randomId(),
         name: user ? userGetDisplayName(user) : "Anonymous"
