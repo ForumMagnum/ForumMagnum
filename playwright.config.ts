@@ -98,7 +98,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html', { open: 'never' }], ['line']],
   /* Increase timeout in CI as github runners are very underpowered */
-  timeout: process.env.CI ? 60000 : 30000,
+  timeout: process.env.CI ? 90000 : 30000,
   /*
    * Shared settings for all the projects below.
    * See https://playwright.dev/docs/api/class-testoptions.
