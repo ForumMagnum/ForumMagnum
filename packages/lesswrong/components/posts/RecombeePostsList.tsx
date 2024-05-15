@@ -75,34 +75,29 @@ const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
 };
 
 const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[], loadMoreCount: number): LoadMoreSettings => {
+  const staleRecommIds = filterNonnull(uniq(
+    results
+      .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
+      .map(({ recommId }) => recommId)
+  ));
+
+  const staleRecomms = results.filter(({ recommId }) => recommId && staleRecommIds.includes(recommId));
+  const freshRecomms = results.filter(({ recommId }) => recommId && !staleRecommIds.includes(recommId));
+
+  const excludedPostIds = staleRecomms.map(({ post: { _id } }) => _id);
+  const [firstRecommId, secondRecommId] = filterNonnull(uniq(freshRecomms.map(({ recommId }) => recommId)));
+
   switch (resolverName) {
     case DEFAULT_RESOLVER_NAME: {
-      const prevRecomm = results.find((result): result is RecombeeRecommendedPost => !!result.recommId);
-      if (!prevRecomm) {
-        return undefined;
-      }
-
-      const isStale = prevRecomm.generatedAt && !isWithinLoadMoreWindow(prevRecomm.generatedAt);
-      if (isStale) {
-        const excludedPostIds = results.filter(({ recommId }) => prevRecomm.recommId === recommId).map(({ post: { _id } }) => _id);
+      if (staleRecomms.length && !freshRecomms.length) {
         return { excludedPostIds };
+      } else if (!staleRecomms.length && freshRecomms.length) {
+        return { loadMore: { prevRecommId: firstRecommId } };
+      } else {
+        return { excludedPostIds, loadMore: { prevRecommId: firstRecommId } };
       }
-
-      return { loadMore: { prevRecommId: prevRecomm.recommId } };
     }
     case HYBRID_RESOLVER_NAME: {
-      const staleRecommIds = filterNonnull(uniq(
-        results
-          .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
-          .map(({ recommId }) => recommId)
-      ));
-
-      const staleRecomms = results.filter(({ recommId }) => recommId && staleRecommIds.includes(recommId));
-      const freshRecomms = results.filter(({ recommId }) => recommId && !staleRecommIds.includes(recommId));
-
-      const excludedPostIds = staleRecomms.map(({ post: { _id } }) => _id);
-      const [firstRecommId, secondRecommId] = filterNonnull(uniq(freshRecomms.map(({ recommId }) => recommId)));
-
       if (staleRecomms.length && !freshRecomms.length) {
         return { excludedPostIds, loadMore: { prevRecommIds: [undefined, undefined], loadMoreCount } };
       } else if (!staleRecomms.length && freshRecomms.length) {

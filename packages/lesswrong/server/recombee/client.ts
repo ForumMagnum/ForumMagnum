@@ -235,7 +235,7 @@ const helpers = {
   },
 
   async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext, skipOnLoadMore = true): Promise<OnsitePostRecommendationsInfo> {
-    if (lwAlgoSettings.loadMore && skipOnLoadMore) {
+    if (helpers.isLoadMoreOperation(lwAlgoSettings) && skipOnLoadMore) {
       return {
         curatedPostIds: [],
         stickiedPostIds: [],
@@ -348,7 +348,7 @@ const helpers = {
   },
 
   getCuratedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, curatedPostIds: string[], userId: string, context: ResolverContext) {
-    return lwAlgoSettings.loadMore
+    return helpers.isLoadMoreOperation(lwAlgoSettings)
       ? Promise.resolve([])
       : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
   },
@@ -477,6 +477,10 @@ const helpers = {
       ...getParentTraceId()
     });
   },
+
+  isLoadMoreOperation(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration) {
+    return !!(lwAlgoSettings.loadMore || lwAlgoSettings.excludedPostIds);
+  },
 };
 
 const curatedPostTerms: PostsViewTerms = {
@@ -486,13 +490,13 @@ const curatedPostTerms: PostsViewTerms = {
 
 const recombeeApi = {
   async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
+    const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
 
-    const isLoadMoreOperation = !!(lwAlgoSettings.loadMore || lwAlgoSettings.excludedPostIds);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const includedCuratedAndStickiedPostIds = isLoadMoreOperation
+    const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
       : [...includedCuratedPostIds, ...stickiedPostIds];
 
@@ -504,7 +508,7 @@ const recombeeApi = {
       recRequest: recommendationsRequestBody,
       scenario: lwAlgoSettings.scenario,
       batch: false,
-      skipCache: isLoadMoreOperation,
+      skipCache: reqIsLoadMore,
       context
     });
 
@@ -527,11 +531,11 @@ const recombeeApi = {
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
-    const isLoadMoreOperation = !!(lwAlgoSettings.loadMore || lwAlgoSettings.excludedPostIds);
+    const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
     // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
-    const includedCuratedAndStickiedPostIds = isLoadMoreOperation
+    const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
       : excludeFromLatestPostIds;
 
@@ -562,7 +566,7 @@ const recombeeApi = {
           recRequest: recombeeRequest,
           scenario: recombeeRequestSettings.scenario,
           batch: true,
-          skipCache: isLoadMoreOperation,
+          skipCache: reqIsLoadMore,
           context
         });
       } catch (err) {
