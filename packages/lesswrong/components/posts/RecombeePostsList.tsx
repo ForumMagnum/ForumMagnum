@@ -75,26 +75,29 @@ const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
 };
 
 const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[], loadMoreCount: number): LoadMoreSettings => {
+  const staleRecommIds = filterNonnull(uniq(
+    results
+      .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
+      .map(({ recommId }) => recommId)
+  ));
+
+  const staleRecomms = results.filter(({ recommId }) => recommId && staleRecommIds.includes(recommId));
+  const freshRecomms = results.filter(({ recommId }) => recommId && !staleRecommIds.includes(recommId));
+
+  const excludedPostIds = staleRecomms.map(({ post: { _id } }) => _id);
+  const [firstRecommId, secondRecommId] = filterNonnull(uniq(freshRecomms.map(({ recommId }) => recommId)));
+
   switch (resolverName) {
-    case DEFAULT_RESOLVER_NAME:
-      const prevRecommId = results.find(result => result.recommId)?.recommId;
-      if (!prevRecommId) {
-        return undefined;
+    case DEFAULT_RESOLVER_NAME: {
+      if (staleRecomms.length && !freshRecomms.length) {
+        return { excludedPostIds };
+      } else if (!staleRecomms.length && freshRecomms.length) {
+        return { loadMore: { prevRecommId: firstRecommId } };
+      } else {
+        return { excludedPostIds, loadMore: { prevRecommId: firstRecommId } };
       }
-      return { loadMore: { prevRecommId } };  
-    case HYBRID_RESOLVER_NAME:
-      const staleRecommIds = filterNonnull(uniq(
-        results
-          .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
-          .map(({ recommId }) => recommId)
-      ));
-
-      const staleRecomms = results.filter(({ recommId }) => recommId && staleRecommIds.includes(recommId));
-      const freshRecomms = results.filter(({ recommId }) => recommId && !staleRecommIds.includes(recommId));
-
-      const excludedPostIds = staleRecomms.map(({ post: { _id } }) => _id);
-      const [firstRecommId, secondRecommId] = filterNonnull(uniq(freshRecomms.map(({ recommId }) => recommId)));
-
+    }
+    case HYBRID_RESOLVER_NAME: {
       if (staleRecomms.length && !freshRecomms.length) {
         return { excludedPostIds, loadMore: { prevRecommIds: [undefined, undefined], loadMoreCount } };
       } else if (!staleRecomms.length && freshRecomms.length) {
@@ -102,6 +105,7 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: Recommende
       } else {
         return { excludedPostIds, loadMore: { prevRecommIds: [firstRecommId, secondRecommId], loadMoreCount } };
       }
+    }
   }
 }
 
