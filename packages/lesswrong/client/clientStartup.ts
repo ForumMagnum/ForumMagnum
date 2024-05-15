@@ -25,7 +25,7 @@ async function clientStartup() {
 // before starting up the client, which appears to fix the problem.
 function startupAfterRendering() {
   if (isE2E) {
-    clientStartup();
+    void clientStartup();
     return;
   }
 
