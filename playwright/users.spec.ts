@@ -22,7 +22,7 @@ test("admins can ban users and remove their content", async ({page, context}) =>
   await page.locator(".rdtDay.rdtNew[data-value=\"1\"]").click(); // Select 1st
   await page.getByText("Submit").click();
   await page.waitForURL(authorPage);
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1000); // Wait for backend async callbacks to run
 
   // Non-admin user now can't view the author or the post
   await loginUser(context, nonAdmin);

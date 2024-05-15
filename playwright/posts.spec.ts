@@ -8,7 +8,6 @@ test("create and edit post", async ({page, context}) => {
   // Create a post with a title and body
   const title = "Test post 123";
   const body = "Test body 123";
-  await page.waitForTimeout(100); // Wait for title to be editable
   await page.getByPlaceholder("Post title").fill(title);
   await page.getByLabel("Rich Text Editor, main").fill(body);
   await page.getByText("Submit").click();
@@ -26,7 +25,6 @@ test("create and edit post", async ({page, context}) => {
   // Edit the post
   const newTitle = "Edited test post";
   const newBody = "Edited test body";
-  await page.waitForTimeout(100); // Wait for title to be editable
   await page.getByPlaceholder("Post title").fill(newTitle);
   await page.getByLabel("Rich Text Editor, main").fill(newBody);
   await page.getByText("Publish changes").click();
@@ -96,11 +94,9 @@ test("admins can move posts to draft", async ({page, context}) => {
   await page.getByText("Move to draft").click();
   await expect(page.getByText("[Draft]")).toBeVisible();
 
-  /* TODO: Fix error running this in CI
   // Non-admins now can't view the post
   await logout(context);
   await page.reload();
   await expect(page.getByText("you don't have access")).toBeVisible();
   await expect(page.getByText(post.title)).not.toBeVisible();
-  */
 });

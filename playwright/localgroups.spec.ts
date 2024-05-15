@@ -20,7 +20,6 @@ test("can create and edit events in group", async ({page, context}) => {
   await page.reload();
   await page.getByText("New event").click();
   await page.waitForURL("/newPost**");
-  await page.waitForTimeout(100); // Wait for title to be editable
   const title = "Test event title";
   await page.getByPlaceholder("Event name").fill(title);
   await page.getByLabel("Rich Text Editor, main").fill("Test event body");
