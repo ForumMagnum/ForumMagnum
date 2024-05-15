@@ -121,7 +121,7 @@ export interface RecombeeConfiguration {
   hybridScenarios?: HybridArmsConfig,
   refreshKey?: string,
   loadMore?: {
-    prevRecommId: string,
+    prevRecommId?: string,
   },
 }
 
@@ -140,8 +140,10 @@ export interface HybridRecombeeConfiguration {
   booster?: string,
   refreshKey?: string,
   loadMore?: {
-    prevRecommIds: [string, string],
+    prevRecommIds: [string | undefined, string | undefined],
+    loadMoreCount?: number,
   },
+  excludedPostIds?: string[],
 }
 
 export interface VertexConfiguration {

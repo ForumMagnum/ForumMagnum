@@ -30,9 +30,36 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
+type PostAndCommentsResultRow = {
+  postId: string
+  commentIds: string[]|null
+  subscribedPosts: boolean|null
+  subscribedComments: boolean|null
+};
+
 class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
+  }
+  
+  moveCoauthorshipToNewUser(oldUserId: string, newUserId: string): Promise<null> {
+    return this.none(`
+      -- PostsRepo.moveCoauthorshipToNewUser
+      UPDATE "Posts"
+      SET "coauthorStatuses" = array(
+        SELECT
+          CASE
+            WHEN (jsonb_elem->>'userId') = $1
+            THEN jsonb_set(jsonb_elem, '{userId}', to_jsonb($2::text), false)
+            ELSE jsonb_elem
+          END
+          FROM unnest("coauthorStatuses") AS t(jsonb_elem)
+      )
+      WHERE EXISTS (
+        SELECT 1 FROM unnest("coauthorStatuses") AS sub(jsonb_sub)
+        WHERE jsonb_sub->>'userId' = $1
+      );
+    `, [oldUserId, newUserId]);
   }
 
   async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
@@ -734,6 +761,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
   async getPostsFromPostSubscriptions(userId: string, limit: number) {
+    // 2024-04-26: This is used on a prototype subscriptions tab that's currently disabled, which might be dropped entirely and replaced with a better subscriptions tab
     return await this.any(`
       WITH user_subscriptions AS (
         SELECT DISTINCT type, "documentId" AS "userId"
@@ -755,6 +783,68 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT $2
     `, 
     [userId, limit]);
+  }
+  
+  async getPostsAndCommentsFromSubscriptions(userId: string, numDays: number): Promise<Array<PostAndCommentsResultRow >> {
+    return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
+      WITH user_subscriptions AS (
+      SELECT DISTINCT "displayName", type, "documentId" AS "userId"
+      FROM "Subscriptions" s
+               LEFT JOIN "Users" u ON u._id = s."documentId"
+      WHERE state = 'subscribed'
+        AND s.deleted IS NOT TRUE
+        AND "collectionName" = 'Users'
+        AND "type" = 'newActivityForFeed'
+        AND "userId" = $1
+      ),
+      posts_by_subscribees AS (
+           SELECT
+              p._id AS "postId",
+              "postedAt",
+              TRUE as "subscribedPosts"
+           FROM "Posts" p
+                    JOIN user_subscriptions us USING ("userId")
+           WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
+           ORDER BY p."postedAt" DESC
+       ),
+      posts_with_comments_from_subscribees AS (
+          SELECT
+             "postId",
+             ARRAY_AGG(c._id ORDER BY c."postedAt" DESC) AS "commentIds",
+             MAX(c."postedAt") AS last_updated,
+            TRUE as "subscribedComments"
+          FROM "Comments" c
+               JOIN user_subscriptions us USING ("userId")
+          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
+          AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
+          AND c.deleted IS NOT TRUE
+          AND c."authorIsUnreviewed" IS NOT TRUE
+          AND c.retracted IS NOT TRUE
+          GROUP BY "postId"
+      ),
+      combined AS (
+          SELECT
+              *
+          FROM
+              posts_by_subscribees
+          FULL JOIN posts_with_comments_from_subscribees USING ("postId")
+      )
+      SELECT combined.*
+      FROM combined
+      JOIN "Posts" p ON combined."postId" = p._id
+      WHERE
+        p.draft IS NOT TRUE
+        AND p.status = 2
+        AND p.rejected IS NOT TRUE
+        AND p."authorIsUnreviewed" IS NOT TRUE
+        AND p."hiddenRelatedQuestion" IS NOT TRUE
+        AND p.unlisted IS NOT TRUE
+        AND p."isFuture" IS NOT TRUE
+      ORDER BY GREATEST(last_updated, combined."postedAt") DESC;
+    `, [
+      userId,
+      `${numDays} days`
+    ]);
   }
 }
 

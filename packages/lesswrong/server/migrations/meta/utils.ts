@@ -12,8 +12,14 @@ import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
 import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
-import { Type } from "../../../lib/sql/Type";
+import { JsonType, Type } from "../../../lib/sql/Type";
 import LogTableQuery from "../../../lib/sql/LogTableQuery";
+import {
+  expectedIndexes,
+  expectedCustomPgIndexes,
+} from "../../../lib/collectionIndexUtils";
+import { getPostgresViewByName } from "../../postgresView";
+import { sleep } from "../../../lib/utils/asyncUtils";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -159,7 +165,108 @@ export const installExtensions = async (db: SqlClientOrTx) => {
 }
 
 export const updateFunctions = async (db: SqlClientOrTx) => {
-  for (const query of postgresFunctions) {
-    await db.none(query);
+  for (const func of postgresFunctions) {
+    await db.none(func.source);
   }
+}
+
+export const updateIndexes = async <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+): Promise<void> => {
+  for (const index of expectedIndexes[collection.collectionName] ?? []) {
+    collection._ensureIndex(index.key, index);
+    await sleep(100);
+  }
+}
+
+export const updateCustomIndexes = async (db: SqlClientOrTx) => {
+  for (const index of expectedCustomPgIndexes) {
+    await db.none(index.source);
+    await sleep(100);
+  }
+}
+
+export const updateView = async (db: SqlClientOrTx, name: string) => {
+  const view = getPostgresViewByName(name);
+  const query = view.getCreateViewQuery();
+  await db.none(query);
+  await sleep(100);
+  for (const index of view.getCreateIndexQueries()) {
+    await db.none(index);
+    await sleep(100);
+  }
+}
+
+export const normalizeEditableField = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  fieldName: string,
+) => {
+  const {collectionName} = collection;
+
+  // First, check if the field is already normalized - this will be the
+  // case if we're running the migration on a new forum instance that's been
+  // created from a newer version of the schema. In this case we should just
+  // early-return without an error.
+  const columnInfo = await db.oneOrNone(`
+    SELECT *
+    FROM information_schema.columns
+    WHERE
+      table_schema = 'public'
+      AND table_name = '${collectionName}'
+      AND column_name = '${fieldName}'
+  `);
+  if (!columnInfo) {
+    return;
+  }
+
+  // Check for data integrity issues and update any revisions that have diverged
+  // from the current denormalized value
+  await db.none(`
+    UPDATE "Revisions" AS r
+    SET
+      "html" = COALESCE(p."${fieldName}"->>'html', r."html"),
+      -- Don't update userId as there are data integrity issues (see Github PR #9213)
+      -- "userId" = COALESCE(p."${fieldName}"->>'userId', r."userId"),
+      "version" = COALESCE(p."${fieldName}"->>'version', r."version"),
+      "editedAt" = COALESCE((p."${fieldName}"->>'editedAt')::TIMESTAMPTZ, r."editedAt"),
+      "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
+      "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
+      "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
+      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents")
+    FROM "${collectionName}" AS p
+    WHERE
+      r."collectionName" = '${collectionName}'
+      AND r."fieldName" = '${fieldName}'
+      AND p."${fieldName}_latest" = r."_id"
+      AND p."${fieldName}"->>'html' <> r."html"
+  `);
+  await dropRemovedField(db, collection, fieldName);
+}
+
+export const denormalizeEditableField = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+  fieldName: string,
+) => {
+  const {collectionName} = collection;
+  await addRemovedField(db, collection, fieldName, new JsonType());
+  await db.none(`
+    UPDATE "${collectionName}" AS p
+    SET "${fieldName}" = JSONB_BUILD_OBJECT(
+      'html', r."html",
+      'userId', r."userId",
+      'version', r."version",
+      'editedAt', r."editedAt",
+      'wordCount', r."wordCount",
+      'updateType', r."updateType",
+      'commitMessage', r."commitMessage",
+      'originalContents', r."originalContents"
+    )
+    FROM "Revisions" AS r
+    WHERE
+      r."collectionName" = '${collectionName}'
+      AND r."fieldName" = '${fieldName}'
+      AND p."${fieldName}_latest" = r."_id"
+  `);
 }

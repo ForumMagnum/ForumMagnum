@@ -1,8 +1,8 @@
-import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isCypress } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import {initializeSetting} from './settingsCache'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -232,13 +232,35 @@ export type PostFeedDetails = {
   disabled?: boolean,
   adminOnly?: boolean,
   showLabsIcon?: boolean,
+  isInfiniteScroll?: boolean,
   slug?: string
 }
 
-export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [], "optional");
+export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [
+    {
+      'name': 'forum-classic',
+      'label': 'Latest',
+      'description': 'The classic LessWrong frontpage algorithm that combines karma with time discounting, plus any tag-based weighting if applied.',
+    },
+    {
+      'name': 'forum-bookmarks',
+      'label': 'Bookmarks',
+      'description': 'A list of posts you saved because you wanted to have them findable later.',
+    },
+    {
+      'name': 'forum-continue-reading',
+      'label': 'Resume Reading',
+      'description': 'Further posts in post sequences that you started reading.',
+    },
+  ]
+  , 'optional')
+
+export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>('email.assumeVerified', isEAForum, 'optional')
 
 /**
  * This is a filepath that is _relative_ to the location of the instance settings file itself.
  * See full explanation in `google-vertex/client.ts`
  */
 export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
+
+export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");

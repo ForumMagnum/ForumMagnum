@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils';
-import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
+import { ensureCustomPgIndex } from '../../collectionIndexUtils'
 
 export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
   collectionName: "DatabaseMetadata",

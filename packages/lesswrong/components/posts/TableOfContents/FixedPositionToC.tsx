@@ -10,8 +10,6 @@ import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
 import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
-import moment from 'moment';
-import { useTimezone } from '../../common/withTimezone';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
@@ -157,11 +155,10 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow } = Components;
+  const { TableOfContentsRow, AnswerTocRow, FormatDate } = Components;
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { timezone } = useTimezone();
   const { query } = location;
   const { tocVisible } = useContext(SidebarsContext)!;
 
@@ -283,7 +280,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         {title?.trim()}
       </div>
       {postedAt && <div className={classes.tocPostedAt}>
-        {moment(new Date(postedAt)).tz(timezone).format("Do MMM YYYY")}
+        <FormatDate date={postedAt} format={"Do MMM YYYY"} />
       </div>}
     </TableOfContentsRow>
   );

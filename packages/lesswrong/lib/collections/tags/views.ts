@@ -15,6 +15,9 @@ declare global {
   }
 }
 
+/**
+ * Default view. When changing this, also update getViewableTagsSelector.
+ */
 Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   const currentUser = context?.currentUser ?? null;
 
@@ -143,8 +146,6 @@ Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, core:1, name: 1});
-
 
 Tags.addView('newTags', (terms: TagsViewTerms) => {
   return {

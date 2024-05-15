@@ -18,6 +18,7 @@ import PostViewTimesRepo from "./PostViewTimesRepo";
 import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
+import RecommendationsCachesRepo from "./RecommendationsCachesRepo";
 import ReviewWinnersRepo from "./ReviewWinnersRepo";
 import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import SequencesRepo from "./SequencesRepo";
@@ -53,6 +54,7 @@ const getAllRepos = () => ({
   postViews: new PostViewsRepo(),
   postViewTimes: new PostViewTimesRepo(),
   readStatuses: new ReadStatusesRepo(),
+  recommendationsCaches: new RecommendationsCachesRepo(),
   reviewWinners: new ReviewWinnersRepo(),
   reviewWinnerArts: new ReviewWinnerArtsRepo(),
   sequences: new SequencesRepo(),
@@ -83,6 +85,7 @@ export {
   PostRelationsRepo,
   PostsRepo,
   ReadStatusesRepo,
+  RecommendationsCachesRepo,
   SequencesRepo,
   SideCommentCachesRepo,
   SplashArtCoordinatesRepo,

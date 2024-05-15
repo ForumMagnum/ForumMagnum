@@ -4,13 +4,13 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents'
+import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { pBodyStyle } from '../themes/stylePiping';
+import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
@@ -32,6 +32,10 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+import moment from 'moment';
+
+import { Link } from '../lib/reactRouterWrapper';
+import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -125,8 +129,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   imageColumn: {
-    gridArea: 'imageGap',
-    [theme.breakpoints.down('md')]: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: "100vh",
+    ['@media(max-width: 1000px)']: {
       display: 'none'
     },
   },
@@ -134,52 +141,109 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-30px',
+    top: '-57px',
+    right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
       right: '0px',
     }
   },
-  votingImage: {
-    width: '777px',
-    right: '-150px',
-    height: '960px',
-    marginTop: '27px',
+  frontpageImage: {
+    right: -50,
+    height: '82vh',
     objectFit: 'cover',
-    transform: 'scaleX(-1)',
-    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
+    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
+    zIndex: -2,
+    position: 'relative',
   },
   bannerText: {
     ...theme.typography.postStyle,
+    ['@media(max-width: 1375px)']: {
+      width: 250
+    },
+    ['@media(max-width: 1325px)']: {
+      width: 200
+    },
+    ['@media(max-width: 1200px)']: {
+      display: "none"
+    },
     position: 'absolute',
     right: 16,
-    top: 70,
-    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
-    color: theme.palette.text.alwaysBlack,
-    textAlign: 'right',
-    width: '240px',
+    bottom: 79,
+    color: theme.palette.grey[900],
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    textAlign: "right",
+    width: 300,
     '& h2': {
-      fontSize: '2.2rem',
-      margin: 0,
+      fontSize: '2.4rem',
+      lineHeight: '2.6rem',
+      marginTop: 20,
+      marginBottom: 10,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
+      '& a:hover': {
+        opacity: 1
+      }
     },
     '& h3': {
       fontSize: '20px',
       margin: 0,
       lineHeight: '1.2',
-      marginBottom: 8
+      marginBottom: 6,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
     },
     '& button': {
       ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.text.alwaysWhite,
-      opacity: 0.8,
+      backgroundColor: theme.palette.primary.main,
+      opacity: .9,
       border: 'none',
-      color: theme.palette.text.alwaysBlack,
+      color: theme.palette.text.alwaysWhite,
+      fontWeight: 600,
       borderRadius: '3px',
       textAlign: 'center',
       padding: 8,
       fontSize: '14px',
+      marginTop: 6
+    },
+    '& p': {
+      ...commentBodyStyles(theme),
+      fontSize: '14px',
+      marginBottom: 10,
+      maxWidth: 165,
+    },
+    '& p a': {
+      color: theme.palette.primary.main,
     }
+  },
+  ticketPricesRaise: {
+    ...theme.typography.commentStyle,
+    fontStyle: 'italic',
+    fontSize: 14,
+    marginTop: 10,
+    '& p': {
+      margin: 4
+    }
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: '100vh',
+    width: '50vw',
+    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
+    zIndex: -1,
   },
   lessOnlineBannerDateAndLocation: {
     ...theme.typography.commentStyle,
@@ -334,6 +398,8 @@ const Layout = ({currentUser, children, classes}: {
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
   
+  const { captureEvent } = useTracking();
+  
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -375,6 +441,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       EAOnboardingFlow,
+      BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -421,12 +488,19 @@ const Layout = ({currentUser, children, classes}: {
         && currentTime < afterTime
     }
 
+    const saleEndDate = moment.utc("2024-05-15")
+    const currentDate = moment.utc()
+
+    const dateDifference = saleEndDate.diff(currentDate, 'days');
+    const dateDifferenceLabel = dateDifference > 1 ? `${dateDifference} days` : `${dateDifference} day`
+    
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
+      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
@@ -506,22 +580,25 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {children}
-                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
+                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                    <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw" darkPublicId={"ohabryka_Minimalist_aquarelle_drawing_fading_to_white._c5ca88dc-a31b-4aa1-b803-a71e3e1db725_oe3saw"}/>
-                      <div className={classes.bannerText}>
-                        <h2><a href="http://less.online">LessOnline</a></h2>
-                        <h3>A Festival of Writers Who are Wrong on the Internet</h3>
-                        <h3 className={classes.lessOnlineBannerDateAndLocation}>May 31 - Jun 2, Berkeley, CA</h3>
-                        <button><a href="http://less.online/#tickets-section">Buy Ticket ($400)</a></button>
-                      </div>
-                    </div> 
+                      <div className={classes.imageColumn}>
+                        <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
+                        {/* <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
+                          <div className={classes.bannerText}>
+                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
+                            <h3>Ticket prices increase in {dateDifferenceLabel}</h3>
+                            <p>Join us May 31st to June 2nd, at <a href="https://lighthaven.space" target="_blank" rel="noreferrer" onClick={() => captureEvent('lighthavenLinkClicked')}>Lighthaven</a>, Berkeley CA</p>
+                            <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
+                          </div>
+                        </AnalyticsContext> */}
+                        {/* <div className={classes.backgroundGradient}/> */}
+                      </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
@@ -553,6 +630,7 @@ const Layout = ({currentUser, children, classes}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>
+      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>
