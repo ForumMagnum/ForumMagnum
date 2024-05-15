@@ -4,7 +4,6 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
-import { is } from 'cheerio/lib/api/attributes';
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
