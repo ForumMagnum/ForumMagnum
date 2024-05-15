@@ -1,7 +1,7 @@
 import '../client/publicSettings' // Must come first
 
 // Imports required for this file:
-import { isE2E, runStartupFunctions } from '../lib/executionEnvironment';
+import { runStartupFunctions } from '../lib/executionEnvironment';
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib';
 
@@ -24,11 +24,6 @@ async function clientStartup() {
 // time to first meaningful paint to be delayed. This function waits until one frame has been rendered
 // before starting up the client, which appears to fix the problem.
 function startupAfterRendering() {
-  if (isE2E) {
-    void clientStartup();
-    return;
-  }
-
   // If for some reason the requestAnimationFrame functions don't fire (e.g. because
   // the tab is in the background), we still want to start the client reasonably quickly.
   setTimeout(() => clientStartup(), 500);
