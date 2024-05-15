@@ -31,7 +31,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
   subscriptionType,
   classes,
 }: NotifyMeToggleDropdownItemInternalProps) => {
-  const {isSubscribed, onSubscribe} = useNotifyMe({
+  const {isSubscribed, onSubscribe, loading, disabled } = useNotifyMe({
     document,
     overrideSubscriptionType: subscriptionType,
     hideFlashes: true,
@@ -53,6 +53,8 @@ export const NotifyMeToggleDropdownItemInternal = ({
       title={title}
       onClick={toggleSubscribed}
       afterIcon={afterIcon}
+      loading={loading}
+      disabled={disabled}
     />
   );
 }

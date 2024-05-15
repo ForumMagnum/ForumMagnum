@@ -40,6 +40,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
     case subscriptionTypes.newDialogueMessages:
       const authorIds = [document.userId, ...getConfirmedCoauthorIds(document)];
       return authorIds.includes(user._id);
+    case subscriptionTypes.newActivityForFeed:
+      return false;
     default:
       //eslint-disable-next-line no-console
       console.error("Unrecognized subscription type: "+subscriptionType);

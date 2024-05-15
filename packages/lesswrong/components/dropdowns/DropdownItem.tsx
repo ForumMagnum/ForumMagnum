@@ -119,24 +119,24 @@ const DropdownItem = ({
               <Loading />
             </ListItemIcon>
           }
-          {icon && !loading &&
-            <ListItemIcon>
+          {!loading && <>
+            {icon && <ListItemIcon>
               {typeof icon === "string"
                 ? <ForumIcon icon={icon} className={iconClassName} />
                 : icon()
               }
-            </ListItemIcon>
-          }
-          <span className={classes.title}>{title}</span>
-          {typeof afterIcon === "string"
-            ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
-            : afterIcon?.()
-          }
-          {sideMessage &&
-            <div className={classes.sideMessage}>
-              {sideMessage}
-            </div>
-          }
+            </ListItemIcon>}
+            <span className={classes.title}>{title}</span>
+            {typeof afterIcon === "string"
+              ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+              : afterIcon?.()
+            }
+            {sideMessage &&
+              <div className={classes.sideMessage}>
+                {sideMessage}
+              </div>
+            }
+          </>}
         </MenuItem>
       </TooltipWrapper>
     </LinkWrapper>

@@ -192,8 +192,8 @@ export const useNotifyMe = ({
     };
   };
 
-  // Can't subscribe to yourself
-  if (collectionName === 'Users' && document._id === currentUser?._id) {
+  // Can't subscribe to yourself, unless it's for your feed
+  if (collectionName === 'Users' && document._id === currentUser?._id && subscriptionType !== 'newActivityForFeed') {
     return {
       disabled: true,
       loading: false,
