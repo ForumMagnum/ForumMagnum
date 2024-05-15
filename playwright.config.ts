@@ -31,7 +31,10 @@ const getProjects = () => {
   let projects: Projects = [
     {
       name: "chromium",
-      use: {...devices["Desktop Chrome"]},
+      use: {
+        ...devices["Desktop Chrome"],
+        video: "retain-on-failure",
+      },
     },
   ];
   if (process.env.CI) {
