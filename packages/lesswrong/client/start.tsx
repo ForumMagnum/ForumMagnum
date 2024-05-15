@@ -46,6 +46,7 @@ onStartup(() => {
     apolloClient.disableNetworkFetches = false;
     foreignApolloClient.disableNetworkFetches = false;
     timeOverride.currentTime = null;
+    document.getElementById("ssr-interaction-disable")?.remove();
   });
 // Order 100 to make this execute last
 }, 100);

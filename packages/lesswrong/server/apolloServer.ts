@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -54,6 +54,24 @@ import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/query';
 import { DatabaseServerSetting } from './databaseSettings';
 import { randomId } from '../lib/random';
+
+/**
+ * End-to-end tests automate interactions with the page. If we try to, for
+ * instance, click on a button before the page has been hydrated then the "click"
+ * will occur but nothing will happen as the event listener won't be attached
+ * yet which leads to flaky tests. To avoid this we add some static styles to
+ * the top of the SSR'd page which are then manually deleted _after_ React
+ * hydration has finished.
+ */
+const ssrInteractionDisable = isE2E
+  ? `
+    <style id="ssr-interaction-disable">
+      button {
+        pointer-events: none;
+      }
+    </style>
+  `
+  : "";
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -395,7 +413,7 @@ export function startWebserver() {
     // it into a global variable.
     const tabId = randomId();
     const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
-    
+
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -416,6 +434,7 @@ export function startWebserver() {
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.
         + clientScript
+        + ssrInteractionDisable
     );
 
     // Note: this may write to the response
