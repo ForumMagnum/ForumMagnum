@@ -246,7 +246,7 @@ For these the development process will be like this:
 
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Playwright](https://playwright.dev/) for end-to-end testing.
 
 ### Jest
 
@@ -255,14 +255,18 @@ We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress
 
 Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
-### Cypress
+### Playwright
 
-* To run Cypress tests locally, first run `yarn ea-start-testing-db`, then in a separate terminal run either `yarn ea-cypress-run` for a CLI version, or `yarn ea-cypress-open` for a GUI version. To run specific tests in the CLI, you can use the `-s <glob-file-pattern>` option.
-* Test database instance settings for Cypress are stored under `./settings-test.json`.
-* For the basics of writing Cypress tests, see [Writing your first test](https://docs.cypress.io/guides/getting-started/writing-your-first-test#Step-2-Query-for-an-element). Primarily you'll use `cy.get()` to find elements via CSS selectors, `cy.contains()` to find elements via text contents, `cy.click()` and `cy.type()` for input, and `cy.should()` for assertions. Feel free to steal from existing tests in `./cypress/integration/`.
-* Add custom commands under `./cypress/support/commands.js`, and access them via `cy.commandName()`.
-* Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
-* To execute code in a node context, you can create a [task](https://docs.cypress.io/api/commands/task#Syntax) under `./cypress/plugins/index.js`. Tasks are executed using `cy.task('<task-name>', args)`.
+There is some one-time setup before you can run the playwright tests:
+ * Install `docker` (`brew install --cask docker` on OSX)
+ * Download the Postgres `docker` image with `yarn playwright-db` (you can Ctrl+C to exit the container once it has successfully downloaded and started)
+ * Install the browsers with `yarn playwright install`
+
+You can then run the tests with `yarn playwright test` - you can run specific tests with the `-g` flag.
+
+You can also open the Playwright UI with `yarn playwright test --ui`, but note that unlike in CLI mode this won't automatically start the database and server so you'll also need to run `yarn playwright-db` and `yarn start-playwright` in 2 separate terminals.
+
+For information on how to create Playwright tests see [their documentation](https://playwright.dev/docs/writing-tests) and the existing tests in the `playwright` directory.
 
 ### Where to branch off of
 
