@@ -8,6 +8,12 @@ export const CLIENT_ID_COOKIE = registerCookie({
   description: "A unique identifier for this browser",
 });
 
+export const CLOUDFRONT_X_CACHE_COOKIE = registerCookie({
+  name: "cloudfrontXCache",
+  type: "necessary",
+  description: "A cookie storing the value of the X-cache header from CloudFront, for monitoring cache hit rate",
+});
+
 export const LOGIN_TOKEN_COOKIE = registerCookie({
   name: "loginToken",
   type: "necessary",

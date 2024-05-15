@@ -7,6 +7,7 @@ import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
 import { userChangedCallback } from '../lib/vulcan-lib/callbacks';
+import { CLOUDFRONT_X_CACHE_COOKIE } from '../lib/cookies/cookies';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -60,6 +61,7 @@ userChangedCallback.add(configureDatadogRum);
 
 window.addEventListener('load', ev => {
   const urlParams = new URLSearchParams(document.location?.search)
+  const cloudfrontXCache = document.cookie.split('; ').find(row => row.startsWith(`${CLOUDFRONT_X_CACHE_COOKIE}=`))?.split('=')[1];
 
   captureEvent("pageLoadFinished", {
     url: document.location?.href,
@@ -74,5 +76,8 @@ window.addEventListener('load', ev => {
       timeOrigin: window.performance?.timeOrigin,
       timing: window.performance?.timing?.toJSON?.(),
     },
+    ...(cloudfrontXCache && { cloudfrontXCache })
   });
+
+  document.cookie = `${CLOUDFRONT_X_CACHE_COOKIE}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
 });
