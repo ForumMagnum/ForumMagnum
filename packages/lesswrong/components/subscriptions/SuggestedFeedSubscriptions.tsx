@@ -7,6 +7,8 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -104,8 +106,6 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, classes}: {
 
   const nameLengthLimit = 20;
   const completeName = userGetDisplayName(user)
-  const truncatedName = completeName.slice(0, nameLengthLimit);
-  const overlyLongName = completeName.length > nameLengthLimit;
 
   return <div className={classes.subscribeButton}>
     <div onClick={() => handleSubscribeOrDismiss(user)}>
@@ -130,7 +130,13 @@ export const SuggestedFeedSubscriptions = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
 
-  const [widgetOpen, setWidgetOpen] = useState(true);
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS])
+  const [widgetOpen, setWidgetOpen] = useState(cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS] !== "true");
+
+  const toggleWidgetOpen = () => {
+    setWidgetOpen(!widgetOpen);
+    setCookie(HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, widgetOpen ? "true" : "false")
+  }
 
   const { results, refetch } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
@@ -174,7 +180,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
 
   return <div className={classes.root}>
     <div className={classes.titleRow}>
-      <div className={classes.hideButton} onClick={()=> setWidgetOpen(!widgetOpen)}>
+      <div className={classes.hideButton} onClick={toggleWidgetOpen}>
         {widgetOpen ? "Hide" : "Show Suggested Users"}
       </div>
       {widgetOpen && <div className={classes.titleAndManageLink}>
