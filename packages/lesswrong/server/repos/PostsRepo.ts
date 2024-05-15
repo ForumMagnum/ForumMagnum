@@ -788,7 +788,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   async getPostsAndCommentsFromSubscriptions(userId: string, numDays: number): Promise<Array<PostAndCommentsResultRow >> {
     return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
       WITH user_subscriptions AS (
-      SELECT DISTINCT "displayName", type, "documentId" AS "userId"
+      SELECT DISTINCT type, "documentId" AS "userId"
       FROM "Subscriptions" s
                LEFT JOIN "Users" u ON u._id = s."documentId"
       WHERE state = 'subscribed'
@@ -816,7 +816,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           FROM "Comments" c
                JOIN user_subscriptions us USING ("userId")
           WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
-          AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
+          -- TODO: maybe reintroduce this filter?
+          -- AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE

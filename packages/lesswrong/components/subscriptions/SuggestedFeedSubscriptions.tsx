@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 10,
     marginBottom: 10,
     background: theme.palette.panelBackground.recentDiscussionThread,
-    paddingTop: 18,
+    paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 12,
