@@ -9,7 +9,7 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
   }
 
   async ensureClientId({ clientId, firstSeenReferrer, firstSeenLandingPage }: { clientId: string; firstSeenReferrer: string | null; firstSeenLandingPage: string; }): Promise<void> {
-    await this.getRawDb().query(`
+    await this.none(`
       INSERT INTO "ClientIds" ("_id", "clientId", "firstSeenReferrer", "firstSeenLandingPage")
       VALUES ($1, $2, $3, $4)
       ON CONFLICT ("clientId") DO NOTHING;

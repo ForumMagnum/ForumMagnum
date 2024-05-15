@@ -4,6 +4,9 @@ import type { AddMiddlewareType } from './apolloServer';
 import express from 'express';
 import { responseIsCacheable } from './cacheControlMiddleware';
 import { ClientIdsRepo } from './repos';
+import LRU from 'lru-cache';
+
+const seenClientIds = new LRU<string, boolean>({ max: 10_000, maxAge: 1000 * 60 * 60 });
 
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
@@ -34,13 +37,14 @@ export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
 
     // 2. If there is a client id, ensure (asynchronously) that it is stored in the DB
     const clientId = existingClientId ?? newClientId;
-    if (clientId && isApplicableUrl(req.url) && !isNotRandomId(clientId)) {
+    if (clientId && isApplicableUrl(req.url) && !isNotRandomId(clientId) && !seenClientIds.get(clientId)) {
       try {
         void clientIdsRepo.ensureClientId({
           clientId,
           firstSeenReferrer: referrer,
           firstSeenLandingPage: url,
         });
+        seenClientIds.set(clientId, true);
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(e);

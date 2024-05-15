@@ -438,7 +438,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     const url = getPathFromReq(req);
     // eslint-disable-next-line no-console
     console.error(message, {url})
-    captureException(new Error(`A/B tests used during a render that may be cached externally: ${Object.keys(abTestGroupsUsed).join(", ")}. Defer the A/B test until after SSR or disable caching on this route (\`swrCaching\`)`), {
+    captureException(new Error(message), {
       extra: { url }
     });
     if (!isProduction) {
