@@ -1,5 +1,18 @@
 import { postStatuses } from "../../lib/collections/posts/constants";
 
+/**
+ * When changing this, also update the default view.
+ */
+export const getViewableSequencesSelector = (sequencesTableAlias?: string) => {
+  const aliasPrefix = sequencesTableAlias ? `${sequencesTableAlias}.` : "";
+  return `
+    ${aliasPrefix}"hidden" = FALSE
+  `;
+}
+
+/**
+ * When changing this, also update the default view.
+ */
 export const getViewablePostsSelector = (postsTableAlias?: string) => {
   const aliasPrefix = postsTableAlias ? `${postsTableAlias}.` : "";
   return `
@@ -15,3 +28,14 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
     ${aliasPrefix}"postedAt" IS NOT NULL
   `;
 };
+
+/**
+ * When changing this, also update the default view.
+ */
+export const getViewableTagsSelector = (tagsTableAlias?: string) => {
+  const aliasPrefix = tagsTableAlias ? `${tagsTableAlias}.` : "";
+  return `
+    ${aliasPrefix}"deleted" = FALSE
+    ${aliasPrefix}"adminOnly" = FALSE
+  `;
+}
