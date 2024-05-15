@@ -70,6 +70,7 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
+  menuItemClassName?: string,
   afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
@@ -96,6 +97,7 @@ const DropdownItem = ({
   to,
   icon,
   iconClassName,
+  menuItemClassName,
   afterIcon,
   tooltip,
   disabled,
@@ -112,7 +114,7 @@ const DropdownItem = ({
         <MenuItem
           onClick={onClick}
           disabled={disabled}
-          className={classNames(classes.main, {[classes.noIcon]: !icon})}
+          className={classNames(classes.main, menuItemClassName, {[classes.noIcon]: !icon})}
         >
           {loading &&
             <ListItemIcon>

@@ -3,12 +3,14 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { NotifyMeDocument, useNotifyMe } from "../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../hooks/useOptimisticToggle";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
+import Checkbox from "@material-ui/core/Checkbox";
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,
   title: string,
   enabled?: boolean,
   subscriptionType: SubscriptionType,
+  useCheckboxIcon?: boolean,
   classes: ClassesType,
 }
 
@@ -23,12 +25,16 @@ const styles = (_theme: ThemeType) => ({
   toggle: {
     marginLeft: 12,
   },
+  menuItemCheckbox: {
+    paddingRight: 8
+  }
 });
 
 export const NotifyMeToggleDropdownItemInternal = ({
   document,
   title,
   subscriptionType,
+  useCheckboxIcon,
   classes,
 }: NotifyMeToggleDropdownItemInternalProps) => {
   const {isSubscribed, onSubscribe, loading, disabled } = useNotifyMe({
@@ -44,8 +50,14 @@ export const NotifyMeToggleDropdownItemInternal = ({
   const {DropdownItem, ToggleSwitch} = Components;
 
   const afterIcon = useCallback(
-    () => <ToggleSwitch value={subscribed} className={classes.toggle} smallVersion />,
-    [subscribed, ToggleSwitch, classes.toggle],
+    () => {
+      if (useCheckboxIcon) {
+        return <Checkbox checked={subscribed} />
+      } 
+
+      return <ToggleSwitch value={subscribed} className={classes.toggle} smallVersion />
+    },
+    [subscribed, useCheckboxIcon, ToggleSwitch, classes.toggle ],
   );
 
   return (
@@ -55,6 +67,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
       afterIcon={afterIcon}
       loading={loading}
       disabled={disabled}
+      menuItemClassName={useCheckboxIcon ? classes.menuItemCheckbox : undefined}
     />
   );
 }

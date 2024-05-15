@@ -4,6 +4,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { is } from 'cheerio/lib/api/attributes';
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -95,16 +96,19 @@ const UserNotifyDropdown = ({
             {userHasSubscribeTabFeed(currentUser) && <NotifyMeToggleDropdownItem
               document={user}
               title="Include in my feeds"
+              useCheckboxIcon={!isFriendlyUI}
               subscriptionType="newActivityForFeed"
             />}
             <NotifyMeToggleDropdownItem
               document={user}
               title={isFriendlyUI ? "New posts" : "Notify on posts"}
+              useCheckboxIcon={!isFriendlyUI}
               subscriptionType="newPosts"
             />
             <NotifyMeToggleDropdownItem
               document={user}
               title={isFriendlyUI ? "New comments" : "Notify on comments"}
+              useCheckboxIcon={!isFriendlyUI}
               subscriptionType="newUserComments"
             />
           </DropdownMenu>
