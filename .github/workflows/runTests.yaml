@@ -29,6 +29,7 @@ jobs:
   runPlaywrightTests:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         project: [chromium, firefox, webkit]
     services:
