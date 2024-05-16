@@ -140,7 +140,7 @@ class IndexNode extends Node {
   }
 
   getQuery() {
-    return new CreateIndexQuery(this.table, this.index, true, false);
+    return new CreateIndexQuery({ table: this.table, index: this.index, ifNotExists: true, allowConcurrent: false });
   }
 }
 

@@ -261,7 +261,7 @@ class PgCollection<
       ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
-    const query = new CreateIndexQuery(this.getTable(), index, true);
+    const query = new CreateIndexQuery({ table: this.getTable(), index, ifNotExists: true });
 
     if (!options?.concurrently) {
       await this.executeQuery(query, {fieldOrSpec, options}, "write")

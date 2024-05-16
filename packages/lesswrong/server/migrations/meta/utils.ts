@@ -115,7 +115,7 @@ export const createIndex = async <N extends CollectionNameString>(
   ifNotExists = true,
   allowConcurrent = true,
 ): Promise<void> => {
-  const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists, allowConcurrent).compile();
+  const {sql, args} = new CreateIndexQuery({ table: collection.getTable(), index, ifNotExists, allowConcurrent }).compile();
   await db.none(sql, args);
 }
 
