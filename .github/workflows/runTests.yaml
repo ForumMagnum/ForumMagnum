@@ -56,7 +56,7 @@ jobs:
     - name: Setup database
       run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
     - name: Install browsers
-      run: yarn playwright install --with-deps
+      run: yarn playwright install ${{ matrix.project }} --with-deps
     - name: Run playwright tests
       run: yarn playwright test --project ${{ matrix.project }}
     - name: Upload playwright report
