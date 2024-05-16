@@ -70,7 +70,6 @@ import './2020-09-15-revisionChangeMetrics'
 import './2020-10-26-postDefaultDraft'
 import './2020-11-12-guaranteedPostReviewer'
 import './2020-12-04-nominationCount2019'
-import './2021-03-11-readStatusesIndex'
 import './2021-04-28-populateCommentDescendentCounts';
 import './2021-05-09-selfVoteOnTagRevisions';
 import './2021-06-05-fillWikiEditCount'
@@ -136,3 +135,5 @@ import './2024-03-01-updateReviewWinnerSocialPreviewImages'
 import './2024-03-06-backfillDefaultVotingSystem'
 import './2024-03-19-importACXmeetups'
 import './2024-04-05-addBannerImagesToSpotlights'
+import './2024-05-09-fixUnsubmittedFrontpagePosts'
+

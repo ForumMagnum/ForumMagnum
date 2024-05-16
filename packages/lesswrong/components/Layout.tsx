@@ -4,13 +4,13 @@ import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents'
+import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { pBodyStyle } from '../themes/stylePiping';
+import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
@@ -32,6 +32,10 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+import moment from 'moment';
+
+import { Link } from '../lib/reactRouterWrapper';
+import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -123,69 +127,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
-  },
-  imageColumn: {
-    gridArea: 'imageGap',
-    [theme.breakpoints.down('md')]: {
-      display: 'none'
-    },
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
-    top: '-30px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
-  },
-  votingImage: {
-    width: '777px',
-    right: '-150px',
-    height: '960px',
-    marginTop: '27px',
-    objectFit: 'cover',
-    transform: 'scaleX(-1)',
-    '-webkit-mask-image': `radial-gradient(ellipse at top left, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`
-  },
-  bannerText: {
-    ...theme.typography.postStyle,
-    position: 'absolute',
-    right: 16,
-    top: 70,
-    textShadow: `0 0 3px ${theme.palette.text.alwaysWhite}, 0 0 3px ${theme.palette.text.alwaysWhite}`,
-    color: theme.palette.text.alwaysBlack,
-    textAlign: 'right',
-    width: '240px',
-    '& h2': {
-      fontSize: '2.2rem',
-      margin: 0,
-    },
-    '& h3': {
-      fontSize: '20px',
-      margin: 0,
-      lineHeight: '1.2',
-      marginBottom: 8
-    },
-    '& button': {
-      ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.text.alwaysWhite,
-      opacity: 0.8,
-      border: 'none',
-      color: theme.palette.text.alwaysBlack,
-      borderRadius: '3px',
-      textAlign: 'center',
-      padding: 8,
-      fontSize: '14px',
-    }
-  },
-  lessOnlineBannerDateAndLocation: {
-    ...theme.typography.commentStyle,
-    fontSize: '16px !important',
-    fontStyle: 'normal',
-    marginBottom: '16px !important',
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -334,6 +275,8 @@ const Layout = ({currentUser, children, classes}: {
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
   
+  const { captureEvent } = useTracking();
+  
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -375,6 +318,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       EAOnboardingFlow,
+      BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -420,13 +364,14 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
-
+    
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
       <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
+      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
@@ -506,7 +451,7 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   <ErrorBoundary>
                     {children}
-                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
+                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
@@ -534,6 +479,7 @@ const Layout = ({currentUser, children, classes}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>
+      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
       </UnreadNotificationsContextProvider>

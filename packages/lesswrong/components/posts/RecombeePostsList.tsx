@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { NetworkStatus, gql, useQuery } from '@apollo/client';
 import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
-import { isServer } from '../../lib/executionEnvironment';
+import moment from 'moment';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
   post: PostsListWithVotes,
   scenario: string,
   recommId: string,
+  generatedAt: Date,
   curated?: never,
   stickied?: never,
 }
@@ -20,9 +21,21 @@ type RecommendedPost = RecombeeRecommendedPost | {
   post: PostsListWithVotes,
   scenario?: never,
   recommId?: never,
+  generatedAt?: never,
   curated: boolean,
   stickied: boolean,
 };
+
+type LoadMoreSettings = {
+  loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
+  excludedPostIds: string[];
+} | {
+  loadMore?: never;
+  excludedPostIds: string[]
+} | {
+  loadMore: (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'];
+  excludedPostIds?: never
+} | undefined;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -44,6 +57,7 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
         }
         scenario
         recommId
+        generatedAt
         curated
         stickied
       }
@@ -52,17 +66,46 @@ const getRecombeePostsQuery = (resolverName: RecombeeResolver) => gql`
   ${fragmentTextForQuery('PostsListWithVotes')}
 `;
 
-const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[]): (RecombeeConfiguration | HybridRecombeeConfiguration)['loadMore'] => {
+const isWithinLoadMoreWindow = (recGeneratedAt: Date) => {
+  // Use 29 minutes instead of 30 as the cutoff for considering recommendations stale, just to have a bit of buffer.
+  const loadMoreTtlMs = 1000 * 60 * 29;
+  const cutoff = moment().subtract(loadMoreTtlMs, 'ms');
+
+  return moment(recGeneratedAt).isAfter(cutoff);
+};
+
+const getLoadMoreSettings = (resolverName: RecombeeResolver, results: RecommendedPost[], loadMoreCount: number): LoadMoreSettings => {
+  const staleRecommIds = filterNonnull(uniq(
+    results
+      .filter(({ generatedAt }) => generatedAt && !isWithinLoadMoreWindow(generatedAt))
+      .map(({ recommId }) => recommId)
+  ));
+
+  const staleRecomms = results.filter(({ recommId }) => recommId && staleRecommIds.includes(recommId));
+  const freshRecomms = results.filter(({ recommId }) => recommId && !staleRecommIds.includes(recommId));
+
+  const excludedPostIds = staleRecomms.map(({ post: { _id } }) => _id);
+  const [firstRecommId, secondRecommId] = filterNonnull(uniq(freshRecomms.map(({ recommId }) => recommId)));
+
   switch (resolverName) {
-    case DEFAULT_RESOLVER_NAME:
-      const prevRecommId = results.find(result => result.recommId)?.recommId;
-      if (!prevRecommId) {
-        return undefined;
+    case DEFAULT_RESOLVER_NAME: {
+      if (staleRecomms.length && !freshRecomms.length) {
+        return { excludedPostIds };
+      } else if (!staleRecomms.length && freshRecomms.length) {
+        return { loadMore: { prevRecommId: firstRecommId } };
+      } else {
+        return { excludedPostIds, loadMore: { prevRecommId: firstRecommId } };
       }
-      return { prevRecommId };  
-    case HYBRID_RESOLVER_NAME:
-      const [firstRecommId, secondRecommId] = filterNonnull(uniq(results.map(({ recommId }) => recommId)));
-      return { prevRecommIds: [firstRecommId, secondRecommId] };
+    }
+    case HYBRID_RESOLVER_NAME: {
+      if (staleRecomms.length && !freshRecomms.length) {
+        return { excludedPostIds, loadMore: { prevRecommIds: [undefined, undefined], loadMoreCount } };
+      } else if (!staleRecomms.length && freshRecomms.length) {
+        return { loadMore: { prevRecommIds: [firstRecommId, secondRecommId], loadMoreCount } };
+      } else {
+        return { excludedPostIds, loadMore: { prevRecommIds: [firstRecommId, secondRecommId], loadMoreCount } };
+      }
+    }
   }
 }
 
@@ -72,13 +115,16 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationIcon = false, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
+  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
+
+  const [loadMoreCount, setLoadMoreCount] = useState(1);
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -88,7 +134,6 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
 
   const query = getRecombeePostsQuery(resolverName);
   const { data, loading, fetchMore, networkStatus } = useQuery(query, {
-    ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
     pollInterval: 0,
     variables: {
@@ -98,8 +143,22 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
   });
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
+
   const postIds = results?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = results?.map(({post, scenario}) => ({postId: post._id, scenario: scenario ?? 'none'})) ?? [];
+  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
+    let loggedScenario = scenario;
+    if (!loggedScenario) {
+      if (curated) {
+        loggedScenario = 'curated';
+      } else if (stickied) {
+        loggedScenario = 'stickied';
+      } else {
+        loggedScenario = 'hacker-news';
+      }
+    }
+    
+    return { postId: post._id, scenario: loggedScenario };
+  }) ?? [];
 
   useOnMountTracking({
     eventType: "postList",
@@ -125,6 +184,8 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
         post={post} 
         recombeeRecommId={recommId} 
         curatedIconLeft={curated} 
+        showRecommendationIcon={showRecommendationIcon}
+        emphasizeIfNew={true}
         terms={stickied ? stickiedPostTerms : undefined}
       />)}
     </div>
@@ -132,13 +193,15 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: 
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
-          const loadMoreSettings = getLoadMoreSettings(resolverName, results);
+          const loadMoreSettings = getLoadMoreSettings(resolverName, results, loadMoreCount);
           void fetchMore({
             variables: {
-              settings: { ...recombeeSettings, loadMore: loadMoreSettings },
+              settings: { ...recombeeSettings, ...loadMoreSettings },
             },
             // Update the apollo cache with the combined results of previous loads and the items returned by the current loadMore
             updateQuery: (prev: AnyBecauseHard, { fetchMoreResult }: AnyBecauseHard) => {
+              setLoadMoreCount(loadMoreCount + 1);
+
               if (!fetchMoreResult) return prev;
 
               return {

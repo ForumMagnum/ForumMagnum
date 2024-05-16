@@ -5,13 +5,9 @@ import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScroll
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
 import classNames from 'classnames';
-import { useTimezone } from '../common/withTimezone';
-import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -72,8 +68,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow } = Components;
-  const { timezone } = useTimezone();
+  const { TableOfContentsRow, FormatDate } = Components;
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -106,7 +101,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
         {post.title?.trim()}
       </span>
       {post.postedAt && <div className={classes.tocPostedAt}>
-        {moment(new Date(post.postedAt)).tz(timezone).format("Do MMM YYYY")}
+        <FormatDate date={post.postedAt} format={"Do MMM YYYY"} />
       </div>}
     </TableOfContentsRow>
 

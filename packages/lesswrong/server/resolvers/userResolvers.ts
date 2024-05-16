@@ -14,6 +14,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
+import { createPaginatedResolver } from './paginatedResolver';
 
 
 addGraphQLSchema(`
@@ -339,5 +340,23 @@ defineQuery({
     }
     const isTaken = await context.repos.users.isDisplayNameTaken(displayName);
     return isTaken;
+  }
+});
+
+
+createPaginatedResolver({
+  name: "SuggestedFeedSubscriptionUsers",
+  graphQLType: "User",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbUser[]> => {
+    const {currentUser} = context;
+
+    if (!currentUser) {
+      throw new Error("You must be logged to get suggsted users to subscribe to.");
+    }
+
+    return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
   }
 });

@@ -13,6 +13,12 @@
  */
 export const acceptsSchemaHash = "9ff9e6371051f8d49cac5770b07dc0d8";
 
+// The original migration here is commented out as it is incompatible with
+// after adding views to the schema - it was sufficiently long ago that it's no
+// longer needed anyway.
+export const up = async () => {}
+
+/*
 import { FloatType } from "../../lib/sql/Type";
 import { getAllCollections } from "../vulcan-lib";
 import { updateFieldType } from "./meta/utils";
@@ -29,3 +35,4 @@ export const up = async ({db}: MigrationContext) => {
     }
   }
 }
+*/

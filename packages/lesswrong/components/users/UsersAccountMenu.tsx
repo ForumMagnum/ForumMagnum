@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { blackBarTitle } from '../../lib/publicSettings';
+import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,11 +33,7 @@ const styles = (theme: ThemeType) => ({
 const EAUsersAccountMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [action, setAction] = useState<"login" | "signup" | null>(null);
-
-  const onLogin = useCallback(() => setAction("login"), []);
-  const onSignup = useCallback(() => setAction("signup"), []);
-
+  const {onLogin, onSignup} = useLoginPopoverContext();
   const {EAButton, EALoginPopover} = Components;
   return (
     <div className={classes.root}>
@@ -53,11 +50,7 @@ const EAUsersAccountMenu = ({classes}: {
       >
         Sign up
       </EAButton>
-      <EALoginPopover
-        open={!!action}
-        setAction={setAction}
-        isSignup={action === "signup"}
-      />
+      <EALoginPopover />
     </div>
   );
 }

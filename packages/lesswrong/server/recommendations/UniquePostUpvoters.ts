@@ -37,7 +37,16 @@ const refreshUniquePostUpvotersQuery = `
 `;
 
 createPostgresView(
+  "UniquePostUpvoters",
   createUniquePostUpvotersQuery,
   [createUniquePostUpvotersIndexQuery],
-  refreshUniquePostUpvotersQuery,
+  {
+    interval: "every 1 hour",
+    query: refreshUniquePostUpvotersQuery,
+  },
+  [
+    {type: "extension", name: "intarray"},
+    {type: "collection", name: "Posts"},
+    {type: "collection", name: "Votes"},
+  ],
 );

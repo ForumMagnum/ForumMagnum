@@ -15,6 +15,6 @@ defineQuery({
   fn: async (_, { dialogueId, numMessages }: { dialogueId: string, numMessages: number }, context: ResolverContext): Promise<String[]> => {
     const dialogue = await context.Posts.findOne({_id: dialogueId})
     if (!dialogue || !dialogue.collabEditorDialogue) return []
-    return await extractLatestDialogueMessages(dialogue?.contents.html, numMessages);
+    return await extractLatestDialogueMessages(dialogue?.contents?.html ?? "", numMessages);
   }
 })

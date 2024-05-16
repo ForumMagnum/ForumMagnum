@@ -495,6 +495,7 @@ const CKPostEditor = ({
       onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
+      isCollaborative={!!isCollaborative}
       onInit={(editor: Editor) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger

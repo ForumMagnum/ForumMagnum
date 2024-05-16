@@ -2569,42 +2569,6 @@ const schema: SchemaType<"Posts"> = {
     },
   },
 
-  // GraphQL only field that resolves based on whether the current user has closed
-  // this posts author's moderation guidelines in the past
-  showModerationGuidelines: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    hidden: ({document}) => !!document?.collabEditorDialogue,
-    resolveAs: {
-      type: 'Boolean!',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
-        if (isFriendlyUI) {
-          return false;
-        }
-        const { LWEvents, currentUser } = context;
-        if(currentUser){
-          const query = {
-            name:'toggled-user-moderation-guidelines',
-            documentId: post.userId,
-            userId: currentUser._id
-          }
-          const sort = {sort:{createdAt:-1}}
-          const event = await LWEvents.findOne(query, sort);
-          const author = await context.loaders.Users.load(post.userId);
-          if (event) {
-            return !!(event.properties && event.properties.targetState)
-          } else {
-            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
-          }
-        } else {
-          return false
-        }
-      },
-      addOriginalField: false
-    }
-  },
-
   moderationStyle: {
     type: String,
     optional: true,
@@ -2879,7 +2843,7 @@ const schema: SchemaType<"Posts"> = {
 
       if (!firstComment) return null;
 
-      return firstComment.contents.html;
+      return firstComment.contents?.html;
     }
   }),
 

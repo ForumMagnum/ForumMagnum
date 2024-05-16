@@ -76,7 +76,7 @@ const getEssays = async (): Promise<Essay[]> => {
   const toGenerate = (p: DbPost) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
 
   return es.map(e => {
-    return {post: e, title: e.title, content: e.contents.html, toGenerate: toGenerate(e) }
+    return {post: e, title: e.title, content: e.contents?.html ?? "", toGenerate: toGenerate(e) }
   })
 }
 

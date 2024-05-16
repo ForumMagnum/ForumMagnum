@@ -2,8 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useMessages } from "../common/withMessages";
-import moment from "../../lib/moment-timezone";
-import {useTimezone} from "../common/withTimezone";
 import { makeLinkAbsolute } from "./GardenCodesItem";
 
 
@@ -33,11 +31,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCodeFragment, classes: ClassesType}) => {
-  
-  const { timezone } = useTimezone();
-  
   const { flash } = useMessages();
-  const { ContentItemBody, LWTooltip, Typography } = Components
+  const { ContentItemBody, LWTooltip, Typography, FormatDate } = Components
   const inviteLink = `http://garden.lesswrong.com?code=${gardenCode.code}&event=${gardenCode.slug}`
   
   return <div className={classes.root}>
@@ -49,8 +44,8 @@ export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCod
         </CopyToClipboard>
       </LWTooltip>
     <div className={classes.startTime}>
-      <div>{moment(gardenCode.startTime).tz(timezone).format("dddd, MMMM Do, YYYY")}</div>
-      <div>{moment(gardenCode.startTime).tz(timezone).format("h:mma z")}</div>
+      <div><FormatDate date={gardenCode.startTime} format={"dddd, MMMM Do, YYYY"} /></div>
+      <div><FormatDate date={gardenCode.startTime} format={"h:mma z"} /></div>
     </div>
     <ContentItemBody
       dangerouslySetInnerHTML={{__html: gardenCode.contents?.html||""}}

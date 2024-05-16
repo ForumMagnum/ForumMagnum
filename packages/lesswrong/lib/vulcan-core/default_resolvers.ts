@@ -1,4 +1,5 @@
-import { Utils, getTypeName, getCollection } from '../vulcan-lib';
+import { Utils } from '../vulcan-lib/utils';
+import { collectionNameToGraphQLType, getCollection } from '../vulcan-lib/collections';
 import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
@@ -53,7 +54,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
   options?: Partial<DefaultResolverOptions>,
 ) {
   type T = ObjectsByCollectionName[N]
-  const typeName = getTypeName(collectionName);
+  const typeName = collectionNameToGraphQLType(collectionName);
   const resolverOptions = {...defaultOptions, options};
 
   return {
@@ -286,7 +287,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
   };
 }
 
-const performQueryFromViewParameters = async <N extends CollectionNameString>(
+export const performQueryFromViewParameters = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   terms: ViewTermsBase,
   parameters: AnyBecauseTodo,

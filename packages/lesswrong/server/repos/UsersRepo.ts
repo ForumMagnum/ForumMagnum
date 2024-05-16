@@ -5,6 +5,7 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
+import { getPostgresViewByName } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 
 const GET_USERS_BY_EMAIL_QUERY = `
@@ -51,12 +52,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
   getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
     return this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
-      SELECT *
-      FROM "Users"
-      WHERE "services"->'resume'->'loginTokens' @> ('[{"hashedToken": "' || $1 || '"}]')::JSONB
+      SELECT * FROM fm_get_user_by_login_token($1)
     `, [hashedToken]);
   }
-  
+
   getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
     // the notification radius is in miles, so we convert the EARTH_DISTANCE from meters to miles
     return this.any(`
@@ -91,8 +90,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
-  clearLoginTokens(userId: string): Promise<null> {
-    return this.none(`
+  async clearLoginTokens(userId: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.clearLoginTokens
       UPDATE "Users"
       SET services = jsonb_set(
@@ -103,10 +102,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId]);
+    await this.refreshUserLoginTokens();
   }
 
-  resetPassword(userId: string, hashedPassword: string): Promise<null> {
-    return this.none(`
+  async resetPassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.resetPassword
       UPDATE "Users"
       SET services = jsonb_set(
@@ -131,6 +131,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId, hashedPassword]);
+    await this.refreshUserLoginTokens();
+  }
+
+  private async refreshUserLoginTokens() {
+    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
@@ -692,6 +697,146 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `);
 
     return userIdRecords.map(({ _id }) => _id);
+  }
+  async getAllUserPostIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Posts" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserCommentIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Comments" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getAllUserSequenceIds(userId: string): Promise<string[]> {
+    const results = await this.getRawDb().any(`
+      SELECT "_id" FROM "Sequences" WHERE "userId" = $1
+    `, [userId]);
+    return results.map(({_id}) => _id);
+  }
+
+  async getSubscriptionFeedSuggestedUsers(userId: string, limit: number): Promise<DbUser[]> {
+    return this.any(`
+      WITH existing_subscriptions AS (
+        SELECT DISTINCT 
+          "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" = 'newActivityForFeed'
+          AND "userId" = $1
+      ),
+      votes AS (
+        SELECT
+          "authorIds"[1] AS "authorId",
+          power,
+          "votedAt"
+        FROM "Votes"
+        WHERE
+          "userId" = $1
+          AND cancelled IS NOT TRUE
+          AND "isUnvote" IS NOT TRUE
+          AND power > 0
+          AND NOT "userId" = ANY("authorIds")
+        ORDER BY "votedAt"
+        ),
+        most_upvoted_authors AS (
+          SELECT
+            "authorId",
+            SUM(power) AS summed_power
+          FROM votes
+          GROUP BY "authorId"
+          ORDER BY summed_power DESC
+        ),
+        reads AS (
+          SELECT
+            "postId",
+            "lastUpdated",
+          p."userId" AS "authorId"
+          FROM "ReadStatuses" rs
+          JOIN "Posts" p ON p."_id" = rs."postId"
+          WHERE 
+            rs."userId" = $1
+            AND "isRead" = TRUE
+        ),
+        most_read_authors AS (
+          SELECT
+            "authorId",
+            COUNT(*) AS posts_read
+          FROM reads
+          GROUP BY "authorId"
+          ORDER BY COUNT(*) DESC
+        ),
+        recent_posts AS (
+          SELECT
+            "userId" AS "authorId",
+            "postedAt"
+          FROM "Posts" p
+          WHERE 
+            "postedAt" > current_date - INTERVAL '30 days'
+            AND p.draft IS NOT TRUE
+            AND p.status = 2
+            AND p.rejected IS NOT TRUE
+            AND p."authorIsUnreviewed" IS NOT TRUE
+            AND p."hiddenRelatedQuestion" IS NOT TRUE
+            AND p.unlisted IS NOT TRUE
+            AND p."isFuture" IS NOT TRUE
+            AND "baseScore" > 20
+        ),
+        most_active_posters AS (
+          SELECT 
+            "authorId", 
+            COUNT(*) AS num_posts_written
+          FROM recent_posts
+          GROUP BY 1
+          ORDER BY num_posts_written DESC
+        ),
+        recent_comments AS (
+          SELECT
+            "userId" AS "authorId",
+            "postedAt"
+          FROM "Comments" c
+          WHERE 
+            "postedAt" > current_date - INTERVAL '30 days'
+            AND c.deleted IS NOT TRUE
+            AND c."baseScore" >= 5
+        ),
+        most_active_commenters AS (
+          SELECT 
+            "authorId", 
+            COUNT(*) AS num_comments_written
+          FROM recent_comments
+          GROUP BY 1
+          ORDER BY num_comments_written DESC
+        ),
+        activity_scores AS (
+          SELECT
+            *,
+            COALESCE(num_posts_written, 0) * 5 + COALESCE(num_comments_written, 0) AS "activity_score"
+          FROM most_active_posters
+          FULL OUTER JOIN most_active_commenters USING ("authorId")
+        )
+        SELECT
+          u.*
+        FROM most_upvoted_authors
+        FULL OUTER JOIN most_read_authors USING ("authorId")
+        LEFT JOIN activity_scores USING ("authorId")
+        JOIN "Users" u ON u."_id" = "authorId"
+        LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
+        WHERE
+            (u.banned IS NULL OR u.banned < current_date)
+            AND "authorId" != $1
+            AND es."userId" IS NULL
+            AND activity_score >= 5
+        ORDER BY (
+          COALESCE(summed_power*3,0) + COALESCE(posts_read*2, 0)
+        ) DESC NULLS LAST
+        LIMIT $2
+    `, [userId, limit]);
   }
 }
 

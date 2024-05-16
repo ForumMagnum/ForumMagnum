@@ -1,12 +1,25 @@
 import AbstractRepo from "./AbstractRepo";
 import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
+  }
+
+  async sequenceRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
+    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- SequencesRepo.sequenceRouteWillDefinitelyReturn200
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Sequences"
+        WHERE "_id" = $1 AND ${getViewableSequencesSelector()}
+      )
+    `, [id]);
+
+    return res?.exists ?? false;
   }
 
   private getSearchDocumentQuery(): string {
@@ -24,9 +37,18 @@ class SequencesRepo extends AbstractRepo<"Sequences"> {
         COALESCE(s."hidden", FALSE) AS "hidden",
         COALESCE(s."af", FALSE) AS "af",
         s."bannerImageId",
-        author."displayName" AS "authorDisplayName",
-        author."username" AS "authorUserName",
-        author."slug" AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."username"
+        END AS "authorUserName",
         s."contents"->>'html' AS "plaintextDescription",
         NOW() AS "exportedAt"
       FROM "Sequences" s
