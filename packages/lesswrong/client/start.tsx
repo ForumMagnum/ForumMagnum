@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import AppGenerator from './AppGenerator';
 import { onStartup } from '../lib/executionEnvironment';
 import type { TimeOverride } from '../lib/utils/timeUtil';
@@ -38,7 +37,7 @@ onStartup(() => {
     />
   );
 
-  const root = hydrateRoot(
+  hydrateRoot(
     document.getElementById('react-app')!,
     <Main />,
   );

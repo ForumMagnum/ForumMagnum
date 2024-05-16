@@ -67,8 +67,8 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
 const ssrInteractionDisable = isE2E
   ? `
     <style id="ssr-interaction-disable">
-      body {
-        display: "none";
+      #react-app * {
+        display: none;
       }
     </style>
   `
@@ -428,6 +428,7 @@ export function startWebserver() {
       + '<head>\n'
         + jssStylePreload
         + externalStylesPreload
+        + ssrInteractionDisable
         + instanceSettingsHeader
         + faviconHeader
         // Embedded script tags that must precede the client bundle
@@ -437,7 +438,6 @@ export function startWebserver() {
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.
         + clientScript
-        + ssrInteractionDisable
     );
 
     // Note: this may write to the response
