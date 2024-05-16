@@ -245,7 +245,6 @@ importComponent("CitationTags", () => require('../components/common/CitationTags
 importComponent("LWHome", () => require('../components/common/LWHome'));
 importComponent("LWHomePosts", () => require('../components/common/LWHomePosts'));
 importComponent("HomeLatestPosts", () => require('../components/common/HomeLatestPosts'));
-importComponent("EmptyPageComponent", () => require('../components/common/EmptyPageComponent'));
 importComponent(["MenuItem","MenuItemLink"], () => require('../components/common/Menus'));
 importComponent("CommentsListCondensed", () => require('../components/common/CommentsListCondensed'));
 importComponent("BatchTimePicker", () => require('../components/common/BatchTimePicker'));
