@@ -61,13 +61,13 @@ jobs:
       run: yarn playwright test --project ${{ matrix.project }}
     - name: Upload playwright report
       if: failure()
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: Playwright report
         path: playwright-report
     - name: Upload playwright test results
       if: failure()
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: Playwright test results
         path: test-results
@@ -80,7 +80,7 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: Upload schema to accept
