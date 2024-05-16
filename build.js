@@ -188,6 +188,6 @@ build({
   ],
 })
 
-if (cliopts.watch && cliopts.run && !isProduction) {
+if (cliopts.watch && cliopts.run && !isProduction && !process.env.CI) {
   startAutoRefreshServer({serverPort, websocketPort});
 }
