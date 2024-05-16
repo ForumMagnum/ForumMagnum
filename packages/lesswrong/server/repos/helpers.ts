@@ -35,7 +35,7 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
 export const getViewableTagsSelector = (tagsTableAlias?: string) => {
   const aliasPrefix = tagsTableAlias ? `${tagsTableAlias}.` : "";
   return `
-    ${aliasPrefix}"deleted" = FALSE
+    ${aliasPrefix}"deleted" = FALSE AND
     ${aliasPrefix}"adminOnly" = FALSE
   `;
 }
