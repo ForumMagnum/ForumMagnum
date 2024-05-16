@@ -28,6 +28,9 @@ jobs:
 
   runPlaywrightTests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [chromium, firefox, webkit]
     services:
       postgres:
         image: ankane/pgvector
@@ -55,7 +58,7 @@ jobs:
     - name: Install browsers
       run: yarn playwright install --with-deps
     - name: Run playwright tests
-      run: yarn playwright test
+      run: yarn playwright test --project ${{ matrix.project }}
     - name: Upload playwright report
       if: failure()
       uses: actions/upload-artifact@v1
