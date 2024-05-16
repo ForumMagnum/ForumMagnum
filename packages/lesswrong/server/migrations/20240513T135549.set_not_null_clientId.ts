@@ -37,10 +37,7 @@ import { updateIndexes } from "./meta/utils";
 export const acceptsSchemaHash = "76b9efb31df58ad0051fc439e9f527dd";
 
 export const up = async ({db}: MigrationContext) => {
-  await db.none(`ALTER TABLE "ClientIds" ALTER COLUMN "clientId" SET NOT NULL;`)
   await updateIndexes(ClientIds);
 }
 
-export const down = async ({db}: MigrationContext) => {
-  await db.none(`ALTER TABLE "ClientIds" ALTER COLUMN "clientId" DROP NOT NULL;`)
-}
+export const down = async ({db}: MigrationContext) => {}
