@@ -128,129 +128,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  imageColumn: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: "100vh",
-    ['@media(max-width: 1000px)']: {
-      display: 'none'
-    },
-  },
-  backgroundImage: {
-    position: 'absolute',
-    width: '57vw',
-    maxWidth: '1000px',
-    top: '-57px',
-    right: '-334px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
-    
-    [theme.breakpoints.up(2000)]: {
-      right: '0px',
-    }
-  },
-  frontpageImage: {
-    right: -50,
-    height: '82vh',
-    objectFit: 'cover',
-    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
-    zIndex: -2,
-    position: 'relative',
-  },
-  bannerText: {
-    ...theme.typography.postStyle,
-    ['@media(max-width: 1375px)']: {
-      width: 250
-    },
-    ['@media(max-width: 1325px)']: {
-      width: 200
-    },
-    ['@media(max-width: 1200px)']: {
-      display: "none"
-    },
-    position: 'absolute',
-    right: 16,
-    bottom: 79,
-    color: theme.palette.grey[900],
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-end",
-    textAlign: "right",
-    width: 300,
-    '& h2': {
-      fontSize: '2.4rem',
-      lineHeight: '2.6rem',
-      marginTop: 20,
-      marginBottom: 10,
-      textShadow: `
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-      `,
-      '& a:hover': {
-        opacity: 1
-      }
-    },
-    '& h3': {
-      fontSize: '20px',
-      margin: 0,
-      lineHeight: '1.2',
-      marginBottom: 6,
-      textShadow: `
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
-        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
-      `,
-    },
-    '& button': {
-      ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.primary.main,
-      opacity: .9,
-      border: 'none',
-      color: theme.palette.text.alwaysWhite,
-      fontWeight: 600,
-      borderRadius: '3px',
-      textAlign: 'center',
-      padding: 8,
-      fontSize: '14px',
-      marginTop: 6
-    },
-    '& p': {
-      ...commentBodyStyles(theme),
-      fontSize: '14px',
-      marginBottom: 10,
-      maxWidth: 165,
-    },
-    '& p a': {
-      color: theme.palette.primary.main,
-    }
-  },
-  ticketPricesRaise: {
-    ...theme.typography.commentStyle,
-    fontStyle: 'italic',
-    fontSize: 14,
-    marginTop: 10,
-    '& p': {
-      margin: 4
-    }
-  },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    height: '100vh',
-    width: '50vw',
-    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
-    zIndex: -1,
-  },
-  lessOnlineBannerDateAndLocation: {
-    ...theme.typography.commentStyle,
-    fontSize: '16px !important',
-    fontStyle: 'normal',
-    marginBottom: '16px !important',
-  },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
@@ -487,12 +364,6 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
-
-    const saleEndDate = moment.utc("2024-05-15")
-    const currentDate = moment.utc()
-
-    const dateDifference = saleEndDate.diff(currentDate, 'days');
-    const dateDifferenceLabel = dateDifference > 1 ? `${dateDifference} days` : `${dateDifference} day`
     
     return (
       <AnalyticsContext path={pathname}>
@@ -584,28 +455,6 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
-                        {/* <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
-                          <div className={classes.bannerText}>
-                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
-                            <h3>Ticket prices increase in {dateDifferenceLabel}</h3>
-                            <p>Join us May 31st to June 2nd, at <a href="https://lighthaven.space" target="_blank" rel="noreferrer" onClick={() => captureEvent('lighthavenLinkClicked')}>Lighthaven</a>, Berkeley CA</p>
-                            <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
-                          </div>
-                        </AnalyticsContext> */}
-                        {/* <div className={classes.backgroundGradient}/> */}
-                      </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
-                  </>
-                }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper

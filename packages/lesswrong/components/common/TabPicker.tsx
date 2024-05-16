@@ -90,7 +90,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: '23px',
     fontWeight: '500',
-    padding: '4px 8px',
+    padding: '4px 16px',
     borderRadius: 3,
     cursor: 'pointer',
     [theme.breakpoints.down('xs')]: {

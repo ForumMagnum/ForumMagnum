@@ -134,4 +134,6 @@ import './2024-02-29-markPrivateMessagesAsViewed'
 import './2024-03-01-updateReviewWinnerSocialPreviewImages'
 import './2024-03-06-backfillDefaultVotingSystem'
 import './2024-03-19-importACXmeetups'
+import './2024-04-05-addBannerImagesToSpotlights'
 import './2024-05-09-fixUnsubmittedFrontpagePosts'
+

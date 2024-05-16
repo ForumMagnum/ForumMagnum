@@ -26,6 +26,30 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment ReviewWinnerSpotlight on ReviewWinner {
+    ...ReviewWinnerAll
+    post {
+      _id
+      title
+      slug
+      user {
+        ...UsersMinimumInfo
+      }
+      coauthors {
+        ...UsersMinimumInfo
+      }
+      customHighlight {
+        ...RevisionDisplay
+      }
+      contents {
+        htmlHighlight
+        plaintextDescription
+      }
+    }
+  }
+`)
+
+registerFragment(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     category

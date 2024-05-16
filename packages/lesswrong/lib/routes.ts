@@ -1564,6 +1564,13 @@ addRoute(
     componentName: 'SpotlightsPage',
     title: 'Spotlights Page'
   },
+
+  {
+    name: 'FullPageSpotlightsPage',
+    path: '/fullpageSpotlights',
+    componentName: 'FullPageSpotlightsPage',
+    title: 'Fullpage Spotlights'
+  },
 );
 
 addRoute(

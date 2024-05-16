@@ -3486,11 +3486,14 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly headerTitleRightColor: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
+  readonly contextInfo: string | null,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
   readonly imageFadeColor: string | null,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageUrl: string | null,
+  readonly pinned: boolean,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -3499,18 +3502,21 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageUrl: string | null,
   readonly draft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
   readonly headerTitle: string | null,
+  readonly contextInfo: string | null,
   readonly headerTitleLeftColor: string | null,
   readonly headerTitleRightColor: string | null,
   readonly duration: number,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
   readonly imageFadeColor: string | null,
+  readonly pinned: boolean,
 }
 
 interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
@@ -3532,13 +3538,7 @@ interface SpotlightDisplay_document { // fragment on Posts
   readonly _id: string,
   readonly title: string,
   readonly slug: string,
-  readonly user: SpotlightDisplay_document_user|null,
-}
-
-interface SpotlightDisplay_document_user { // fragment on Users
-  readonly _id: string,
-  readonly displayName: string,
-  readonly slug: string,
+  readonly user: UsersMinimumInfo|null,
 }
 
 interface SpotlightDisplay_description { // fragment on Revisions
@@ -3801,6 +3801,25 @@ interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
+}
+
+interface ReviewWinnerSpotlight extends ReviewWinnerAll { // fragment on ReviewWinners
+  readonly post: ReviewWinnerSpotlight_post,
+}
+
+interface ReviewWinnerSpotlight_post { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly slug: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly coauthors: Array<UsersMinimumInfo>,
+  readonly customHighlight: RevisionDisplay|null,
+  readonly contents: ReviewWinnerSpotlight_post_contents|null,
+}
+
+interface ReviewWinnerSpotlight_post_contents { // fragment on Revisions
+  readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
 }
 
 interface ReviewWinnerAll { // fragment on ReviewWinners
@@ -4123,6 +4142,7 @@ interface FragmentTypes {
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
+  ReviewWinnerSpotlight: ReviewWinnerSpotlight
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
@@ -4445,6 +4465,7 @@ interface CollectionNamesByFragmentName {
   CkEditorUserSessionInfo: "CkEditorUserSessions"
   ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerTopPostsDisplay: "ReviewWinners"
+  ReviewWinnerSpotlight: "ReviewWinners"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
