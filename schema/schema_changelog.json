@@ -660,7 +660,7 @@
     "timestamp": "2024-05-13T11:52:14.000Z"
   },
   {
-    "acceptsSchemaHash": "76b9efb31df58ad0051fc439e9f527dd",
+    "acceptsSchemaHash": "aa1eac5798b9679483aaff7b85ba1e8e",
     "acceptedByMigration": "20240513T135549.set_not_null_clientId.ts",
     "timestamp": "2024-05-13T13:55:49.000Z"
   }
