@@ -1,47 +1,83 @@
 import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path'
+import { zlib } from 'mz';
+import { isProduction } from '../../lib/executionEnvironment';
 
-const loadClientBundle = () => {
-  // This path join is relative to "build/server/serverBundle.js", NOT to this file
+export type CompressedCacheResource = {
+  content: Buffer
+  brotli: Buffer|null
+  brotliPromise: Promise<Buffer>|null
+  hash: string
+}
+
+type CachedClientBundle = {
+  resource: CompressedCacheResource
+  bundlePath: string
+  lastModified: number
+};
+
+/**
+ * Given a resource (a buffer), start a job to brotli-compress it. The
+ * resulting CompressedCacheResource object contains the original
+ * (uncompressed) buffer, a reference to the brotli-compressed version which
+ * will be filled in later, and a promise (if the compression is in progress).
+ * Compression is slow, but takes place on a node worker thread, not the main
+ * thread.
+ *
+ * Note that the brotli field will be filled in later, when compression is
+ * done, so you shouldn't copy this object (the copy won't get filled in).
+ *
+ * This will be skipped if not in production mode (since it would slow down
+ * the development-refresh cycle).
+ * ). 
+ */
+export const brotliCompressResource = (content: Buffer): CompressedCacheResource => {
+  const resource: CompressedCacheResource = {
+    content,
+    hash: crypto.createHash('sha256').update(content).digest('hex'),
+    brotli: null,
+    brotliPromise: null,
+  };
+
+  if (isProduction) {
+    resource.brotliPromise = new Promise((resolve: (result: Buffer) => void) => {
+      zlib.brotliCompress(content, {
+        params: {
+          [zlib.constants.BROTLI_PARAM_MODE]: zlib.constants.BROTLI_MODE_TEXT,
+        }
+      }, (_err, result) => {
+        resource.brotli = result;
+        resource.brotliPromise = null;
+        resolve(result);
+      });
+    });
+  } else {
+    resource.brotliPromise = null;
+  }
+  
+  return resource;
+}
+
+const loadClientBundle = (): CachedClientBundle => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
-  const bundleBrotliPath = `${bundlePath}.br`;
-
   const lastModified = fs.statSync(bundlePath).mtimeMs;
-  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
 
   const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
-
-  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
-  // save a conversion and a little memory
   const bundleBuffer = Buffer.from(bundleText, 'utf8');
+
   return {
-    bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
-    lastModified,
-    bundleBuffer,
-    bundleBrotliBuffer,
+    resource: brotliCompressResource(bundleBuffer),
+    bundlePath, lastModified
   };
 }
 
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
+let clientBundle: CachedClientBundle|null;
+
 export const getClientBundle = () => {
   if (!clientBundle) {
     clientBundle = loadClientBundle();
-    return clientBundle;
   }
-  
-  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
-  const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
   return clientBundle;
 }
 

@@ -96,7 +96,7 @@ type ClientIdsCollection = CollectionBase<"ClientIds">;
 
 interface DbClientId extends DbObject {
   __collectionName?: "ClientIds"
-  clientId: string | null
+  clientId: string
   firstSeenReferrer: string | null
   firstSeenLandingPage: string | null
   userIds: Array<string> | null
