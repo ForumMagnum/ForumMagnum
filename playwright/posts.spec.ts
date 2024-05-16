@@ -8,6 +8,7 @@ test("create and edit post", async ({page, context}) => {
   // Create a post with a title and body
   const title = "Test post 123";
   const body = "Test body 123";
+  await page.waitForTimeout(500); // ckeditor is slow to initialize
   await page.getByPlaceholder("Post title").fill(title);
   await page.getByLabel("Rich Text Editor, main").fill(body);
   await page.getByText("Submit").click();
@@ -25,6 +26,7 @@ test("create and edit post", async ({page, context}) => {
   // Edit the post
   const newTitle = "Edited test post";
   const newBody = "Edited test body";
+  await page.waitForTimeout(500); // ckeditor is slow to initialize
   await page.getByPlaceholder("Post title").fill(newTitle);
   await page.getByLabel("Rich Text Editor, main").fill(newBody);
   await page.getByText("Publish changes").click();
@@ -41,6 +43,7 @@ test("can create 5 posts per day, but not 6", async ({page, context}) => {
   // Create five posts with a single user
   for (let i = 0; i < 5; i++) {
     await page.goto("/newPost");
+    await page.waitForTimeout(500); // ckeditor is slow to initialize
     await page.getByPlaceholder("Post title").fill(`Test post ${i}`);
     await page.getByLabel("Rich Text Editor, main").fill(`Test body ${i}`);
     await page.getByText("Submit").click();
