@@ -64,13 +64,13 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Playwright report
-        path: playwright-report
+        path: playwright-report-${{ matrix.project }}
     - name: Upload playwright test results
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: Playwright test results
-        path: test-results
+        path: test-results-${{ matrix.project }}
 
   runUnitTests:
     runs-on: ubuntu-latest
