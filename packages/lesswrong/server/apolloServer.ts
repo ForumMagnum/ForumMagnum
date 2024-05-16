@@ -67,8 +67,8 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
 const ssrInteractionDisable = isE2E
   ? `
     <style id="ssr-interaction-disable">
-      button {
-        pointer-events: none;
+      body {
+        display: "none";
       }
     </style>
   `
