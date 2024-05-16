@@ -97,8 +97,13 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['html', { open: 'never' }], ['line']],
-  /* Increase timeout in CI as github runners are very underpowered */
-  timeout: process.env.CI ? 60000 : 30000,
+  /* Increase timeout in CI as Github runners are very underpowered */
+  timeout: process.env.CI ? 60_000 : 30_000,
+  /*
+   * Global timeout for the entire test run. Note that we run each project in
+   * a separate matrix on Github, so this timeout ends up being per project.
+   */
+  globalTimeout: process.env.CI ? 600_000 : undefined,
   /*
    * Shared settings for all the projects below.
    * See https://playwright.dev/docs/api/class-testoptions.
