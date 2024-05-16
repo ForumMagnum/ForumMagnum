@@ -17,6 +17,7 @@ interface CKEditorProps {
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   onBlur?: any,
   config?: any,
+  isCollaborative: boolean,
 }
 
 // Copied from and modified: https://github.com/ckeditor/ckeditor5-react/blob/master/src/ckeditor.jsx
@@ -43,7 +44,22 @@ export default class CKEditor extends React.Component<CKEditorProps,{}> {
     }
     
     if ( this._shouldUpdateContent( nextProps ) ) {
-      this.editor.setData( nextProps.data );
+      if (!this.props.isCollaborative) {
+        // HACK: In collaborative editing mode, ignore prop changes to `data`.
+        // In collab editing mode, that will crash the editor with
+        //   `realtimecollaborationclient-editor-setdata-and-editor-data-set-are-forbidden-in-real-time-collaboration`
+        //
+        // In theory, the `data` prop getting passed around and the document
+        // state inside the editor are supposed to be kept in sync. In practice,
+        // due to debouncing and subtleties of render timing, there are race
+        // conditions/corner cases where they aren't.
+        //
+        // This means that changing the editor contents from outside the editor
+        // won't work (eg, clearing the input, restoring from local storage). In
+        // practice, scenarios where this is supposed to happen don't overlap
+        // much with scenarios where this is in collaborative editing mode.
+        this.editor.setData( nextProps.data );
+      }
     }
     
     if ( 'disabled' in nextProps ) {
