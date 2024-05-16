@@ -253,7 +253,7 @@ const schema: SchemaType<"Spotlights"> = {
   spotlightDarkImageId: {
     type: String,
     canRead: ['guests'],
-    canUpdate: ['admins', 'sunshinn eRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
     control: "ImageUpload",
     optional: true,
