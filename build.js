@@ -2,7 +2,6 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const process = require('process');
-const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
 const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
 /**
@@ -119,16 +118,6 @@ build({
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
-      // Creating brotli compressed version of bundle.js to save on client download size:
-      const brotliOutfilePath = `${clientOutfilePath}.br`;
-      // Always delete compressed version if it exists, to avoid stale files
-      if (fs.existsSync(brotliOutfilePath)) {
-        fs.unlinkSync(brotliOutfilePath);
-      }
-      if (isProduction) {
-        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(clientOutfilePath, 'utf8')));
-      }
-
       latestCompletedBuildId = inProgressBuildId;
       if (cliopts.watch) {
         initiateRefresh({serverPort});

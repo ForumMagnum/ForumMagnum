@@ -15,6 +15,9 @@ declare global {
   }
 }
 
+/**
+ * Default view. When changing this, also update getViewableTagsSelector.
+ */
 Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   const currentUser = context?.currentUser ?? null;
 
