@@ -51,7 +51,9 @@ const styles = (theme: ThemeType) => ({
   },
   threadMeta: {
     cursor: "pointer",
-
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     "&:hover $showHighlight": {
       opacity: 1
     },
@@ -95,10 +97,13 @@ const styles = (theme: ThemeType) => ({
   metaAndActions: {
     display: "flex",
     alignItems: "center",
+    minWidth: "30%",
+    maxWidth: "50%",
+    justifyContent: "end",
   },
   titleAndLinkIcon: {
-    display: "flex",
-    alignItems: "center",
+    // display: "flex",
+    // alignItems: "center",
   },
   linkPostIcon: {
   },
@@ -109,7 +114,7 @@ const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.display2,
     ...theme.typography.commentStyle,
-    flexGrow: 1,
+    // flexGrow: 1,
     marginTop: 0,
     marginBottom: 8,
     display: "flex",
@@ -149,7 +154,6 @@ const FeedPostCommentsCard = ({
   commentTreeOptions?: CommentTreeOptions,
   classes: ClassesType<typeof styles>,
 }) => {
-  const currentUser = useCurrentUser();
   const {
     showHighlight,
     expandAllThreads,
@@ -184,9 +188,6 @@ const FeedPostCommentsCard = ({
 
       <div className={classNames(classes.root, classes.plainBackground)}>
         <div className={classNames(classes.post, classes.plainBackground)}>
-
-
-
           <div className={classes.postItem}>
             {/* TODO: this will break styling, need to test with actual example */}
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
@@ -197,8 +198,8 @@ const FeedPostCommentsCard = ({
               {post.url && linkpostIcon}
             </div>
             <div className={classes.metaAndActions}>
-              <div className={classNames(classes.threadMeta)} onClick={showHighlight}>
-                <PostsItemMeta post={post} hideTags={true} abbreviateAuthorsIfLong />
+              <div className={classes.threadMeta} onClick={showHighlight}>
+                <PostsItemMeta post={post} hideTags={true} />
               </div>
               <div className={classes.actions}>
                 <PostActionsButton post={post} autoPlace vertical />
@@ -213,25 +214,18 @@ const FeedPostCommentsCard = ({
               maxCollapsedLengthWords={lastVisitedAt ? 70 : maxCollapsedLengthWords} 
             />
           </div>}
-        
-        
-        
         </div>
-
-
-
-
 
         <div className={classes.content}>
           <div className={classes.commentsList}>
             {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
-                  treeOptions={{...treeOptions, switchAlternatingHighlights: true}}
+                  treeOptions={{...treeOptions}}
                   startThreadTruncated={true}
                   expandAllThreads={expandAllThreads}
                   expandNewComments={false}
-                  nestingLevel={1}
+                  nestingLevel={0}
                   comment={comment.item}
                   childComments={comment.children}
                   key={comment.item._id}
@@ -240,10 +234,6 @@ const FeedPostCommentsCard = ({
             )}
           </div>
         </div>
-
-
-
-
       </div>
     </AnalyticsContext>
   )
