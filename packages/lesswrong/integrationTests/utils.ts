@@ -168,7 +168,7 @@ type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
 }
 
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
-  const user_ = user || await createDefaultUser()
+  user ||= await createDefaultUser()
   const postId = data?._id ?? randomId();
   const revision = await createDummyRevision(user as DbUser, {
     _id: randomId(),
@@ -179,13 +179,13 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     updateType: "initial",
     version: "1.0.0",
     commitMessage: "",
-    userId: user?._id,
+    userId: user!._id,
     draft: false,
     ...data?.contents,
   });
   const defaultData = {
     _id: postId,
-    userId: user_._id,
+    userId: user!._id,
     title: randomId(),
     "contents_latest": revision._id,
     fmCrosspost: {isCrosspost: false},
@@ -198,7 +198,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     // it accepts, as long as validate is false
     document: postData as DbPost,
     // As long as user has a _id it should be fine
-    currentUser: user_ as DbUser,
+    currentUser: user as DbUser,
     validate: false,
   });
   return newPostResponse.data
