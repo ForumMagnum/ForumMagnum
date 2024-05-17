@@ -3012,6 +3012,22 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  /**
+   * Setting to enable stale-while-revalidate caching for this post. Remove this field once
+   * swr caching is enabled on all posts.
+   */
+  swrCachingEnabled: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    label: "stale-while-revalidate caching enabled",
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export default schema;

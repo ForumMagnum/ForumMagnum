@@ -525,14 +525,6 @@ declare global {
       panelBackgroundDark: ColorString,
       postScoreArrow: ColorString,
     },
-    emojiHeader: {
-      background: ColorString,
-      foreground: ColorString,
-      placeholder: ColorString,
-      removeButton: ColorString,
-      tooltipShadow: string,
-      emojiShadow: string,
-    },
     dialogueMatching: {
       checkedNotMatched: ColorString,
       checkedMatched: ColorString,

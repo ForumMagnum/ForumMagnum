@@ -166,6 +166,8 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
