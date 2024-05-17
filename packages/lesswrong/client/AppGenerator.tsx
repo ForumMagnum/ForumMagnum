@@ -22,13 +22,13 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
-  ssrMetadata: SSRMetadata,
+  ssrMetadata?: SSRMetadata,
 }) => {
-  const [timeOverride, setTimeOverride] = useState<TimeOverride | null>({
+  const [timeOverride, setTimeOverride] = useState<TimeOverride | null>(ssrMetadata ? {
     currentTime: new Date(ssrMetadata.renderedAt),
     cacheFriendly: ssrMetadata.cacheFriendly,
     timezone: ssrMetadata.timezone
-  });
+  } : null);
 
   useEffect(() => {
     setTimeOverride(null);
