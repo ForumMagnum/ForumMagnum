@@ -136,7 +136,7 @@ defineQuery({
 
     const post = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsRSSChanges",
+      fragmentName: "PostsOriginalContents",
       currentUser: context.currentUser,
       selector: {_id: args.postId},
       context,

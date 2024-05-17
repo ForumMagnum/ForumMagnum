@@ -47,7 +47,7 @@ describe("syncDocumentWithLatestRevision", () => {
 
     const postAfterSync = await fetchFragmentSingle({
       collectionName: "Posts",
-      fragmentName: "PostsRSSChanges",
+      fragmentName: "PostsOriginalContents",
       currentUser: null,
       selector: {_id: post._id},
     });

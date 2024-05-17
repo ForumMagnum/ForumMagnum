@@ -39,6 +39,30 @@ interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly deleted: boolean,
 }
 
+interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly editedAt: Date,
+  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly version: string,
+  readonly commitMessage: string,
+  readonly userId: string,
+  readonly draft: boolean,
+  readonly originalContents: any /*ContentType*/,
+  readonly html: string,
+  readonly markdown: string|null,
+  readonly draftJS: any /*JSON*/,
+  readonly ckEditorMarkup: string|null,
+  readonly wordCount: number | null,
+  readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
+  readonly plaintextDescription: string,
+  readonly plaintextMainText: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface UsersDefaultFragment { // fragment on Users
   readonly username: string,
   readonly emails: Array<any /*{"definitions":[{}]}*/>,
@@ -1638,17 +1662,19 @@ interface PostsRSSFeed extends PostsPage { // fragment on Posts
   readonly metaDate: Date,
 }
 
-interface PostsRSSChanges { // fragment on Posts
+interface PostsOriginalContents { // fragment on Posts
   readonly _id: string,
-  readonly userId: string,
-  readonly feedId: string,
-  readonly feedLink: string,
-  readonly contents: PostsRSSChanges_contents|null,
+  readonly contents: PostsOriginalContents_contents|null,
 }
 
-interface PostsRSSChanges_contents { // fragment on Revisions
+interface PostsOriginalContents_contents { // fragment on Revisions
   readonly _id: string,
   readonly originalContents: any,
+}
+
+interface PostsHTML { // fragment on Posts
+  readonly _id: string,
+  readonly contents: RevisionHTML|null,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1820,6 +1846,11 @@ interface RevisionDisplay { // fragment on Revisions
   readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+}
+
+interface RevisionHTML { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface RevisionEdit { // fragment on Revisions
@@ -2808,30 +2839,6 @@ interface PodcastEpisodeFull { // fragment on PodcastEpisodes
   readonly title: string,
   readonly episodeLink: string,
   readonly externalEpisodeId: string,
-}
-
-interface RevisionsDefaultFragment { // fragment on Revisions
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
-  readonly version: string,
-  readonly commitMessage: string,
-  readonly userId: string,
-  readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
-  readonly html: string,
-  readonly markdown: string|null,
-  readonly draftJS: any /*JSON*/,
-  readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
-  readonly htmlHighlight: string,
-  readonly htmlHighlightStartingAtHash: string,
-  readonly plaintextDescription: string,
-  readonly plaintextMainText: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersMinimumInfo { // fragment on Users
@@ -3901,6 +3908,7 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
 interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
+  RevisionsDefaultFragment: RevisionsDefaultFragment
   UsersDefaultFragment: UsersDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
   UserTagRelsDefaultFragment: UserTagRelsDefaultFragment
@@ -3976,7 +3984,8 @@ interface FragmentTypes {
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
   PostsRSSFeed: PostsRSSFeed
-  PostsRSSChanges: PostsRSSChanges
+  PostsOriginalContents: PostsOriginalContents
+  PostsHTML: PostsHTML
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
@@ -3990,6 +3999,7 @@ interface FragmentTypes {
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
   RevisionDisplay: RevisionDisplay
+  RevisionHTML: RevisionHTML
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
@@ -4090,7 +4100,6 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastEpisodeFull: PodcastEpisodeFull
-  RevisionsDefaultFragment: RevisionsDefaultFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -4159,6 +4168,7 @@ interface FragmentTypes {
 interface FragmentTypesByCollection {
   Collections: "CollectionsDefaultFragment"|"CollectionContinueReadingFragment"|"CollectionsPageFragment"|"CollectionsEditFragment"|"CollectionsBestOfFragment"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
@@ -4177,7 +4187,7 @@ interface FragmentTypesByCollection {
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"PostsRSSFeed"|"PostsRSSChanges"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"SuggestAlignmentPost"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
@@ -4191,7 +4201,6 @@ interface FragmentTypesByCollection {
   Messages: "MessagesDefaultFragment"|"messageListFragment"
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CronHistories: "CronHistoriesDefaultFragment"
-  Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
@@ -4225,6 +4234,7 @@ interface FragmentTypesByCollection {
 interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
   LocalgroupsDefaultFragment: "Localgroups"
+  RevisionsDefaultFragment: "Revisions"
   UsersDefaultFragment: "Users"
   CommentsDefaultFragment: "Comments"
   UserTagRelsDefaultFragment: "UserTagRels"
@@ -4300,7 +4310,8 @@ interface CollectionNamesByFragmentName {
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
   PostsRSSFeed: "Posts"
-  PostsRSSChanges: "Posts"
+  PostsOriginalContents: "Posts"
+  PostsHTML: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
@@ -4314,6 +4325,7 @@ interface CollectionNamesByFragmentName {
   CommentsListWithModerationMetadata: "Comments"
   CommentsListWithModGPTAnalysis: "Comments"
   RevisionDisplay: "Revisions"
+  RevisionHTML: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"
   RevisionMetadataWithChangeMetrics: "Revisions"
@@ -4414,7 +4426,6 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastEpisodeFull: "PodcastEpisodes"
-  RevisionsDefaultFragment: "Revisions"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"

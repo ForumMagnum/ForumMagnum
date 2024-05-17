@@ -6,6 +6,9 @@
         "name": "Voteable",
         "possibleTypes": [
           {
+            "name": "Revision"
+          },
+          {
             "name": "ElectionCandidate"
           },
           {
@@ -16,9 +19,6 @@
           },
           {
             "name": "Post"
-          },
-          {
-            "name": "Revision"
           }
         ]
       }

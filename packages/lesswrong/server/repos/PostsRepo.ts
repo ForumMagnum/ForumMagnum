@@ -7,6 +7,8 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 
+type DbPostWithContents = DbPost & {contents?: DbRevision | null};
+
 type MeanPostKarma = {
   _id: number,
   meanKarma: number,
@@ -455,12 +457,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [userId, targetUserId, limit]);
   }
 
-  async getPostsWithElicitData(): Promise<DbPost[]> {
-    return await this.any(`
+  async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
+    return await this.getRawDb().any(`
       -- PostsRepo.getPostsWithElicitData
-      SELECT *
-      FROM "Posts"
-      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+      SELECT p.*, ROW_TO_JSON(r.*) "contents"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
+      WHERE r."html" LIKE '%elicit-binary-prediction%'
     `);
   }
 

@@ -10,6 +10,7 @@ import { isAnyTest, isCypress } from "../lib/executionEnvironment";
 import { isEAForum } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
+import { fetchFragmentSingle } from "./fetchFragment";
 
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum && !isCypress;
 
@@ -89,7 +90,13 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
 const getEmbeddingsForPost = async (
   postId: string,
 ): Promise<EmbeddingsResult & {hash: string}> => {
-  const post = await Posts.findOne({_id: postId});
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    selector: {_id: postId},
+    currentUser: null,
+    skipFiltering: true,
+  });
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
   }

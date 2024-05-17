@@ -11,6 +11,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
 
 /**
  * To set up automatic tagging:
@@ -127,7 +128,7 @@ function preprocessHtml(html: string): string {
 
 export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
   template: LanguageModelTemplate,
-  post: DbPost|PostIsCriticismRequest,
+  post: FetchedFragment<"PostsHTML">|PostIsCriticismRequest,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
   postBodyCache?: PostBodyCache,
@@ -166,7 +167,7 @@ function preprocessPostHtml(postHtml: string): string {
 }
 
 export type PostBodyCache = {preprocessedBody: Record<string,string>}
-export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
+export function generatePostBodyCache(posts: FetchedFragment<"PostsHTML">[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
     result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html ?? "");
@@ -174,7 +175,11 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   return result;
 }
 
-export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAI) {
+export async function checkTags(
+  post: FetchedFragment<"PostsHTML">,
+  tags: DbTag[],
+  openAIApi: OpenAI,
+) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let tagsApplied: Record<string,boolean> = {};
@@ -260,7 +265,18 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
   }
   
   const tags = await getAutoAppliedTags();
-  const tagsApplied = await checkTags(post, tags, api);
+  const postHTML = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: post._id},
+    currentUser: context.currentUser,
+    context,
+    skipFiltering: true,
+  });
+  if (!postHTML) {
+    return;
+  }
+  const tagsApplied = await checkTags(postHTML, tags, api);
   
   //eslint-disable-next-line no-console
   console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);

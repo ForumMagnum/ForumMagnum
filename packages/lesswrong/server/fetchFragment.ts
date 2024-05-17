@@ -17,7 +17,7 @@ type FetchFragmentOptions<
   skipFiltering?: boolean,
 }
 
-type FetchedFragment<FragmentName extends keyof FragmentTypes> =
+export type FetchedFragment<FragmentName extends keyof FragmentTypes> =
   ObjectsByCollectionName[CollectionNamesByFragmentName[FragmentName]] &
   FragmentTypes[FragmentName];
 
