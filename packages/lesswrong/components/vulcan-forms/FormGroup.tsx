@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import { Components, registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
-import * as _ from 'underscore';
 import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormGroupLayoutProps } from '../form-components/FormGroupLayout';
@@ -121,7 +120,7 @@ const FormGroup = ({
   }, [label, helpText, collapsed, toggle]);
 
   const hasErrors = useCallback(() => {
-    return _.some(fields, (field: FormField<any>) => {
+    return fields.some((field: FormField<any>) => {
       return !!errors.filter((error: any) => error.path === field.path).length;
     });
   }, [fields, errors]);

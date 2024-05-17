@@ -7,7 +7,7 @@ import ArchiveIcon from '@material-ui/icons/Archive';
 import UnarchiveIcon from '@material-ui/icons/Unarchive';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames'
-import * as _ from 'underscore';
+import without from 'lodash/without';
 
 const styles = (theme: ThemeType): JssStyles => ({
   ...postsItemLikeStyles(theme),
@@ -49,7 +49,7 @@ const ConversationItem = ({conversation, updateConversation, currentUser, classe
 
   const archiveIconClick = () => {
     const newArchivedByIds = isArchived ?
-      _.without(conversation.archivedByIds || [] , currentUser._id) :
+      without(conversation.archivedByIds || [] , currentUser._id) :
       [...(conversation.archivedByIds || []), currentUser._id]
 
     updateConversation({

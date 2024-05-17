@@ -3,10 +3,10 @@ import { postStatusLabels } from './constants'
 import { guestsGroup, membersGroup, adminsGroup, userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { sunshineRegimentGroup, trustLevel1Group, canModeratePersonalGroup, canCommentLockGroup } from '../../permissions';
 import { userIsSharedOn } from '../users/helpers'
-import * as _ from 'underscore';
 import { userIsPostGroupOrganizer } from './helpers';
 import { getSharingKeyFromContext } from './collabEditingPermissions';
 import { constantTimeCompare } from '../../helpers';
+import matches from 'lodash/matches';
 
 const guestsActions = [
   'posts.view.approved'
@@ -59,7 +59,9 @@ Posts.checkAccess = async (currentUser: DbUser|null, post: DbPost, context: Reso
   } else if (post.authorIsUnreviewed && !post.rejected) {
     return false
   } else {
-    const status = _.findWhere(postStatusLabels, {value: post.status});
+    const status = postStatusLabels.find((n) =>
+      matches(n)({value: post.status}) ? n : undefined,
+    );
     if (!status) return false;
     return userCanDo(currentUser, `posts.view.${status.label}`);
   }

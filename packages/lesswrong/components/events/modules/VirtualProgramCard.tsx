@@ -1,7 +1,6 @@
 import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import Card from '@material-ui/core/Card';
 import classNames from 'classnames';
 import moment from 'moment';

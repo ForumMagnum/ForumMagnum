@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
-import * as _ from 'underscore';
+import omit from 'lodash/omit';
 
 // Replaceable layout
 const FormNestedObjectLayout = ({ hasErrors, label, content }: {
@@ -26,7 +26,7 @@ class FormNestedObject extends PureComponent<FormNestedObjectProps> {
     const FormComponents = mergeWithComponents(this.props.formComponents);
     //const value = this.getCurrentValue()
     // do not pass FormNested's own value, input and inputProperties props down
-    const properties = _.omit(
+    const properties = omit(
       this.props,
       'value',
       'input',
@@ -46,7 +46,7 @@ class FormNestedObject extends PureComponent<FormNestedObjectProps> {
         content={[
           <FormComponents.FormNestedItem
             key="form-nested-item"
-            {...properties}
+            {...properties as AnyBecauseHard}
             path={`${this.props.path}`}
           />,
           hasErrors ? (

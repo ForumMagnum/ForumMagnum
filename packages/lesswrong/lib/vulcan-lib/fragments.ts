@@ -1,10 +1,11 @@
 import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
-import * as _ from 'underscore';
 
 // This is safe as it uses `import type`
 // eslint-disable-next-line import/no-restricted-paths
 import type SqlFragment from '@/server/sql/SqlFragment';
+import reject from 'lodash/reject';
+import uniq from 'lodash/uniq';
 
 interface FragmentDefinition {
   fragmentText: string
@@ -33,7 +34,7 @@ export const registerFragment = (fragmentTextSource: string): void => {
 
   // extract subFragments from text
   const matchedSubFragments = fragmentText.match(/\.{3}([_A-Za-z][_0-9A-Za-z]*)/g) || [];
-  const subFragments = _.unique(matchedSubFragments.map(f => f.replace('...', '')));
+  const subFragments = uniq(matchedSubFragments.map(f => f.replace('...', '')));
 
   const sqlFragment = bundleIsServer
     // eslint-disable-next-line import/no-restricted-paths, babel/new-cap
@@ -79,7 +80,7 @@ export const getDefaultFragmentText = <N extends CollectionNameString>(
   schema: SchemaType<N>,
   options={onlyViewable: true},
 ): string|null => {
-  const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
+  const fieldNames = reject(Object.keys(schema), (fieldName: string) => {
     /*
 
     Exclude a field from the default fragment if
@@ -167,10 +168,11 @@ const addFragmentDependencies = (fragments: Array<FragmentName>): Array<Fragment
   for (let i=0; i<result.length; i++) {
     const dependencies = Fragments[result[i]].subFragments;
     if (dependencies) {
-      _.forEach(dependencies, (subfragment: FragmentName) => {
-        if (!_.find(result, (s: FragmentName)=>s===subfragment))
+      for (const subfragment of dependencies) {
+        if (!result.find((s: FragmentName)=>s===subfragment)) {
           result.push(subfragment);
-      });
+        }
+      }
     }
   }
   return result;

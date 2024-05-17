@@ -9,7 +9,6 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
   EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
-import * as _ from 'underscore';
 import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { isEAForum } from '../../lib/instanceSettings';
@@ -18,8 +17,6 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useCallbackDebugRerenders } from '../hooks/useCallbackDebugRerenders';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
 

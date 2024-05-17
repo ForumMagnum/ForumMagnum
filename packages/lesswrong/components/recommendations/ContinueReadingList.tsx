@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDismissRecommendation } from './withDismissRecommendation';
 import { captureEvent, AnalyticsContext } from '../../lib/analyticsEvents';
-import * as _ from 'underscore';
 import { ContinueReading } from './withContinueReading';
-
+import sortBy from "lodash/sortBy";
+import sampleSize from 'lodash/sampleSize';
 
 const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3, shuffle }: {
   continueReading: ContinueReading[],
@@ -28,10 +28,10 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
   
   const limitResumeReading = (resumeReadingList: ContinueReading[]): { entries: ContinueReading[], showAllLink: boolean } => {
     // Filter out dismissed recommendations
-    const filtered = _.filter(resumeReadingList, r=>!dismissedRecommendations[r.nextPost._id]);
+    const filtered = resumeReadingList.filter(r=>!dismissedRecommendations[r.nextPost._id]);
     
     // Sort by last-interaction time
-    let sorted = _.sortBy(filtered, r=>r.lastReadTime);
+    let sorted = sortBy(filtered, r=>r.lastReadTime);
     sorted.reverse(); //in-place
     
     // Limit to the three most recent
@@ -41,8 +41,8 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
         showAllLink: false,
       };
     } else if (shuffle) {
-      const sampled = _.sample(sorted, limit) as ContinueReading[]; // _.sample doesn't preserve type
-      sorted = _.sortBy(sampled, r =>r.lastReadTime); // need to sort again because _.sample doesn't guarantee order
+      const sampled = sampleSize(sorted, limit);
+      sorted = sortBy(sampled, r =>r.lastReadTime); // need to sort again because _.sample doesn't guarantee order
       sorted.reverse();
       return {
         entries: sorted,

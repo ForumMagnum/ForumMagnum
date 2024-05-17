@@ -1,13 +1,15 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
-import * as _ from 'underscore';
 import { extractFragmentInfo, getFragment, pluralize, camelCaseify, collectionNameToTypeName } from '../vulcan-lib';
 import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
 import { useNavigate } from '../reactRouterWrapper';
 import { apolloSSRFlag } from '../helpers';
 import { getMultiResolverName } from './utils';
+import clone from 'lodash/clone';
+import isEqual from 'lodash/isEqual';
+import take from 'lodash/take';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -151,7 +153,7 @@ export function useMulti<
   const defaultLimit: number = locationQueryLimit ?? termsLimit ?? initialLimit
 
   const [ limit, setLimit ] = useState(defaultLimit);
-  const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
+  const [ lastTerms, setLastTerms ] = useState(clone(terms));
   
   const typeName = collectionNameToTypeName(collectionName);
   const fragment = getFragment(fragmentName);
@@ -168,7 +170,7 @@ export function useMulti<
   }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
 
   let effectiveLimit = limit;
-  if (!_.isEqual(terms, lastTerms)) {
+  if (!isEqual(terms, lastTerms)) {
     setLastTerms(terms);
     setLimit(defaultLimit);
     effectiveLimit = defaultLimit;
@@ -249,7 +251,7 @@ export function useMulti<
   
   let results = data?.[resolverName]?.results;
   if (results && results.length > limit) {
-    results = _.take(results, limit);
+    results = take(results, limit);
   }
   
   return {

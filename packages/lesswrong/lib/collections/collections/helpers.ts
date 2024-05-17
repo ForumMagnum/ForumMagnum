@@ -2,27 +2,28 @@ import { getSiteUrl } from '../../vulcan-lib/utils';
 import Books from '../books/collection';
 import { sequenceGetAllPostIDs } from '../sequences/helpers';
 import toDictionary from '../../utils/toDictionary';
-import * as _ from 'underscore';
+import union from 'lodash/fp/union';
+import { filterNonnull } from '../../utils/typeGuardUtils';
 
 export const collectionGetAllPostIDs = async (collectionID: string, context: ResolverContext): Promise<Array<string>> => {
   const books = await Books.find({collectionId: collectionID}).fetch();
-  const sequenceIDs = _.flatten(books.map(book=>book.sequenceIds));
-  
-  const sequencePostsPairs = await Promise.all(
-    sequenceIDs.map(async seqID => [seqID, await sequenceGetAllPostIDs(seqID, context)])
+  const sequenceIDs = books.flatMap(book=>book.sequenceIds);
+
+  const sequencePostsPairs: [string, string[]][] = await Promise.all(
+    sequenceIDs.map(async (seqID) => [seqID, await sequenceGetAllPostIDs(seqID, context)])
   );
   const postsBySequence = toDictionary(sequencePostsPairs, pair=>pair[0], pair=>pair[1]);
-  
-  const posts = _.flatten(books.map(book => {
-    const postsInSequencesInBook = _.flatten(
-      _.map(book.sequenceIds, sequenceId => postsBySequence[sequenceId])
+
+  const posts = books.flatMap(book => {
+    const postsInSequencesInBook = book.sequenceIds.flatMap(
+      sequenceId => postsBySequence[sequenceId]
     );
     if (book.postIds)
-      return _.union(book.postIds, postsInSequencesInBook);
+      return union(book.postIds, postsInSequencesInBook);
     else
       return postsInSequencesInBook;
-  }));
-  return posts;
+  });
+  return filterNonnull(posts);
 };
 
 export const collectionGetPageUrl = (collection: { slug: string }, isAbsolute?: boolean): string => {

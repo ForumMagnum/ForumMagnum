@@ -1,7 +1,7 @@
 import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
 import { getForumTheme } from '../themes/forumTheme';
-import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
+import sortBy from "lodash/sortBy";
 
 // This component imports a lot of JSX files for plugins and our current build
 // setup for tests can't parse them correctly for some reason. For now we can
@@ -38,7 +38,7 @@ describe('JSS', () => {
       throw new Error("Expected more components to test - are they imported correctly?");
     }
 
-    for (let componentName of _.sortBy(componentsToTest, x=>x)) {
+    for (let componentName of sortBy(componentsToTest, x=>x)) {
       const styleGetter = ComponentsTable[componentName].options?.styles;
       const styles = (typeof styleGetter === 'function') ? styleGetter(fakeTheme) : styleGetter;
       if (styles && !ComponentsTable[componentName].options?.allowNonThemeColors) {

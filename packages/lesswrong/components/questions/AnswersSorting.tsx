@@ -2,11 +2,10 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
-import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
-import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import isEmpty from 'lodash/isEmpty';
 
 const sortingNames = {
   'top': isFriendlyUI ? 'Top' : 'top scoring',
@@ -29,7 +28,7 @@ const AnswersSorting = ({ post, classes }: {
   const handleSortingClick = (opt: Option) => {
     const sorting = opt.value;
     const { query } = location;
-    const currentQuery = _.isEmpty(query) ? { answersSorting: "top" } : query;
+    const currentQuery = isEmpty(query) ? { answersSorting: "top" } : query;
     const newQuery = { ...currentQuery, answersSorting: sorting, postId: post ? post._id : undefined };
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };

@@ -1,7 +1,6 @@
 import { MouseEvent, useState } from "react";
 import { useDialog } from "../common/withDialog";
 import { useCurrentUser } from "../common/withUser";
-import { pluck } from "underscore";
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useMutation } from "@apollo/client";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
@@ -32,7 +31,10 @@ const getHoverText = (bookmarked: boolean) => {
 export const useBookmarkPost = (post: PostsBase): BookmarkPost => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
-  const [bookmarked, setBookmarkedState] = useState(pluck((currentUser?.bookmarkedPostsMetadata || []), 'postId')?.includes(post._id));
+  const metadata = currentUser?.bookmarkedPostsMetadata || [];
+  const [bookmarked, setBookmarkedState] = useState(
+    metadata.map(({postId}) => postId)?.includes(post._id),
+  );
   const {captureEvent} = useTracking();
 
   const [setIsBookmarkedMutation] = useMutation(gql`

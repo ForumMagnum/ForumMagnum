@@ -4,10 +4,9 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import without from 'lodash/without';
 import uniq from 'lodash/uniq';
 import intersection from 'lodash/intersection';
-import * as _ from 'underscore';
 
 // note: treat checkbox group the same as a nested component, using `path`
-const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, updateCurrentValues, inputProperties, itemProperties }: AnyBecauseTodo) => {
+const CheckboxGroupComponent = ({ refFunction, path, value, formType, updateCurrentValues, inputProperties, itemProperties }: AnyBecauseTodo) => {
 
   const { options } = inputProperties;
 
@@ -16,7 +15,9 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
 
   // if this is a "new document" form check options' "checked" property to populate value
   if (formType === 'new' && value.length === 0) {
-    const checkedValues = _.where(options, { checked: true }).map((option: any) => option.value);
+    const checkedValues = options
+      .filter((opt: AnyBecauseTodo) => opt?.checked)
+      .map((option: AnyBecauseTodo) => option.value);
     if (checkedValues.length) {
       value = checkedValues;
     }

@@ -22,7 +22,6 @@ import {
   reviewUserBotSetting,
 } from '../../instanceSettings'
 import { forumSelect } from '../../forumTypeUtils';
-import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
 import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
@@ -1408,7 +1407,7 @@ const schema: SchemaType<"Posts"> = {
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
         if (!post.suggestForCuratedUserIds) return null;
-        const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
+        const users = await Promise.all(post.suggestForCuratedUserIds.map(
           async userId => {
             const user = await context.loaders.Users.load(userId)
             return user.displayName;

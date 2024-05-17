@@ -4,7 +4,6 @@ import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
@@ -62,7 +61,7 @@ const UsersViewABTests = ({classes}: {
             <th>Your Group</th>
           </tr></thead>
           <tbody>
-            {_.keys(allABtests).map(abTestName => <tr key={abTestName}>
+            {Object.keys(allABtests).map(abTestName => <tr key={abTestName}>
               <td>{abTestsMetadata[abTestName].description}</td>
               <td>
                 {currentUser &&

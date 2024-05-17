@@ -6,7 +6,6 @@ import { setVoteClient } from '../../lib/voting/vote';
 import { collectionNameToTypeName, getFragmentText } from '../../lib/vulcan-lib';
 import { isAF } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
-import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 
 const getVoteMutationQuery = (typeName: string) => {
@@ -84,7 +83,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
         },
       })
     } catch(e) {
-      const errorMessage = _.map(e.graphQLErrors, (gqlErr: any)=>gqlErr.message).join("; ");
+      const errorMessage = e.graphQLErrors.map((gqlErr: any)=>gqlErr.message).join("; ");
       messages.flash({ messageString: errorMessage });
       setOptimisticResponseDocument(null);
     }

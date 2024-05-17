@@ -1,8 +1,7 @@
 import { isServer } from '../executionEnvironment';
-import * as _ from 'underscore';
-
 import { isPromise } from './utils';
 import { loggerConstructor } from '../utils/logging'
+import reject from 'lodash/reject';
 
 export interface CallbackPropertiesBase<N extends CollectionNameString> {
   // TODO: Many of these are empirically optional, but setting them to optional
@@ -122,7 +121,7 @@ export const addCallback = function (hook: string, callback: AnyBecauseTodo) {
  */
 const removeCallback = function (hookName: string, callback: AnyBecauseTodo) {
   const formattedHook = formatHookName(hookName);
-  Callbacks[formattedHook] = _.reject(Callbacks[formattedHook],
+  Callbacks[formattedHook] = reject(Callbacks[formattedHook],
     c => c === callback
   );
 };

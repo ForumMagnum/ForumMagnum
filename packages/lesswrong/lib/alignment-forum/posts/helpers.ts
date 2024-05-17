@@ -1,4 +1,5 @@
-import * as _ from 'underscore';
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
 
 export const postSuggestForAlignment = ({ currentUser, post, updatePost }: {
   currentUser: UsersCurrent,
@@ -6,7 +7,7 @@ export const postSuggestForAlignment = ({ currentUser, post, updatePost }: {
   updatePost: WithUpdateFunction<"Posts">,
 }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
-  const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
+  const newSuggestUserIds = uniq([...suggestUserIds, currentUser._id])
   void updatePost({
     selector: {_id: post._id},
     data: {suggestForAlignmentUserIds: newSuggestUserIds},
@@ -19,7 +20,7 @@ export const postUnSuggestForAlignment = ({ currentUser, post, updatePost }: {
   updatePost: WithUpdateFunction<"Posts">,
 }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
-  const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)
+  const newSuggestUserIds = without([...suggestUserIds], currentUser._id)
   void updatePost({
     selector: {_id: post._id},
     data: {suggestForAlignmentUserIds:newSuggestUserIds},

@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
-import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -34,8 +33,8 @@ const RelatedQuestionsList = ({ post, classes }: {
 }) => {
   const { PostsItem, SectionTitle } = Components
   
-  const sourcePostRelations = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)
-  const targetPostRelations = _.filter(post.targetPostRelations, rel => (rel.sourcePostId === post._id && !!rel.targetPost))
+  const sourcePostRelations = post.sourcePostRelations.filter(rel => !!rel.sourcePost)
+  const targetPostRelations = post.targetPostRelations.filter(rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
   const totalRelatedQuestionCount = sourcePostRelations.length + targetPostRelations.length
   
@@ -60,7 +59,7 @@ const RelatedQuestionsList = ({ post, classes }: {
       {showSubQuestionLabel && <div className={classes.header}>Sub-Questions</div>}
       {targetPostRelations.map((rel, i) => {
         const parentQuestionId = rel.targetPostId;
-        const subQuestionTargetPostRelations = _.filter(post.targetPostRelations, rel => rel.sourcePostId === parentQuestionId);
+        const subQuestionTargetPostRelations = post.targetPostRelations.filter(rel => rel.sourcePostId === parentQuestionId);
         const showSubQuestions = subQuestionTargetPostRelations.length >= 1;
         if (!rel.targetPost) return null
         return (

@@ -3,7 +3,6 @@ import { fragmentTextForQuery, registerComponent, Components } from '../../lib/v
 import { useQuery, gql, ObservableQuery, QueryHookOptions, WatchQueryFetchPolicy } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
-import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const loadMoreDistance = 500;
@@ -25,7 +24,7 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   sortKeyType: string,
   renderers: any,
 }) => {
-  const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
+  const fragmentsUsed = Object.keys(renderers).map(r => renderers[r].fragmentName).filter(f=>f);
   const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),

@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import * as _ from 'underscore';
 import { useMulti } from '../../lib/crud/withMulti';
 import ForumNoSSR from '../common/ForumNoSSR';
+import without from 'lodash/without';
 
 const styles = (theme: ThemeType): JssStyles => ({
   
@@ -18,7 +18,7 @@ const TagFlagToggleList = ({ value, path }: {
   const handleClick = (option: string) => {    
     if (value.includes(option)) {
       context.updateCurrentValues({
-        [path]: _.without(value, option)
+        [path]: without(value, option)
       })
     } else {
       context.updateCurrentValues({

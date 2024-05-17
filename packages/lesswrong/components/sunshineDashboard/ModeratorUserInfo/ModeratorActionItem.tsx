@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from '../../../lib/collections/moderatorActions/schema';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { sortBy } from 'underscore';
+import sortBy from 'lodash/sortBy';
 import Input from '@material-ui/core/Input';
 import DoneIcon from '@material-ui/icons/Done'
 import ClearIcon from '@material-ui/icons/Clear'
@@ -155,4 +155,3 @@ declare global {
     ModeratorActionItem: typeof ModeratorActionItemComponent
   }
 }
-

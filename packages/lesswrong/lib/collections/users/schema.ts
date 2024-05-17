@@ -4,7 +4,6 @@ import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
-import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
@@ -20,6 +19,8 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import uniq from 'lodash/uniq';
+import without from 'lodash/without';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -531,8 +532,8 @@ const schema: SchemaType<"Users"> = {
     group: adminGroup,
     form: {
       options: function() {
-        const groups = _.without(
-          _.keys(userGroups),
+        const groups = without(
+          Object.keys(userGroups),
           'guests',
           'members',
           'admins'
@@ -1165,7 +1166,7 @@ const schema: SchemaType<"Users"> = {
     }),
     onUpdate: ({data, currentUser, oldDocument}) => {
       if (data?.bookmarkedPostsMetadata) {
-        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+        return uniqBy(data?.bookmarkedPostsMetadata, 'postId')
       }
     },
   },
@@ -1306,7 +1307,7 @@ const schema: SchemaType<"Users"> = {
       ).fetch()
       const filteredEvents = await accessFilterMultiple(currentUser, LWEvents, events, context);
       const IPs = filteredEvents.map(event => event.properties?.ip);
-      const uniqueIPs = _.uniq(IPs);
+      const uniqueIPs = uniq(IPs);
       return uniqueIPs
     },
   }),

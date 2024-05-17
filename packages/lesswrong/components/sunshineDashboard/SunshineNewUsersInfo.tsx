@@ -2,7 +2,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useMulti } from '../../lib/crud/withMulti';
-import * as _ from 'underscore';
 import { userCanDo } from '../../lib/vulcan-users';
 import { CONTENT_LIMIT, DEFAULT_BIO_WORDCOUNT, MAX_BIO_WORDCOUNT } from './UsersReviewInfoCard';
 import { truncate } from '../../lib/editor/ellipsize';

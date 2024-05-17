@@ -3,7 +3,7 @@ import React, { forwardRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
-import * as _ from 'underscore';
+import isEqual from 'lodash/isEqual';
 
 type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
@@ -286,7 +286,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
             }
             break;
           case "deep":
-            if (!_.isEqual(oldProps[key], newProps[key])) {
+            if (!isEqual(oldProps[key], newProps[key])) {
               if (debugRerenders) {
                 // eslint-disable-next-line no-console
                 console.log(`Updating ${name} because props.${key} changed`);

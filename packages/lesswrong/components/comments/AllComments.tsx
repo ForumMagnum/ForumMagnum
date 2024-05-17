@@ -1,12 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import * as _ from 'underscore';
+import isEmpty from 'lodash/isEmpty';
 
 const AllComments = () => {
   const { query } = useLocation();
   const { SingleColumnSection, RecentComments, SectionTitle } = Components
-  const terms: CommentsViewTerms = _.isEmpty(query) ? {view: 'recentComments', limit: 100} : query;
+  const terms: CommentsViewTerms = isEmpty(query) ? {view: 'recentComments', limit: 100} : query;
   
   return (
     <SingleColumnSection>

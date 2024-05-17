@@ -8,7 +8,6 @@ import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
-import { filter } from 'underscore';
 import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
 import { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -122,8 +121,7 @@ const CommentsListSection = ({
 
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate
-    ? filter(
-      comments,
+    ? comments.filter(
       (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
     ).length
     : 0;

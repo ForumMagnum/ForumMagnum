@@ -7,8 +7,8 @@ import { useHover } from '../common/withHover'
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
-import * as _ from 'underscore';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import uniq from "lodash/uniq";
 
 const AFSuggestUsersItem = ({user}: {
   user: SuggestAlignmentUser,
@@ -27,7 +27,7 @@ const AFSuggestUsersItem = ({user}: {
       selector: { _id: user._id },
       data: {
         reviewForAlignmentForumUserId: currentUser!._id,
-        groups: _.unique([...(user.groups || []), 'alignmentForum'])
+        groups: uniq([...(user.groups || []), 'alignmentForum'])
       }
     })
     setShow(false);

@@ -4,7 +4,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useMessages } from '../../common/withMessages';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { clone } from 'underscore';
+import clone from 'lodash/clone';
 
 const BanUserFromPostDropdownItem = ({comment, post}: {
   comment: CommentsList,

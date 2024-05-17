@@ -1,7 +1,6 @@
 import { graphql } from '@apollo/client/react/hoc';
 import { useMutation, gql, OperationVariables } from '@apollo/client';
 import { getFragment } from '../vulcan-lib';
-import * as _ from 'underscore';
 
 /**
  * HoC for an arbitrary GraphQL mutation, which assembles a graphql query string
@@ -22,8 +21,8 @@ export function withMutation({name, args, fragmentName}: {
   }
   
   if (args) {
-    const args1 = _.map(args, (type, name) => `$${name}: ${type}`); // e.g. $url: String
-    const args2 = _.map(args, (type, name) => `${name}: $${name}`); // e.g. $url: url
+    const args1 = args.map((type: string, name: string) => `$${name}: ${type}`); // e.g. $url: String
+    const args2 = args.map((_type: string, name: string) => `${name}: $${name}`); // e.g. $url: url
     mutation = `
       mutation ${name}(${args1}) {
         ${name}(${args2})${fragmentBlock}
@@ -69,8 +68,8 @@ export function useNamedMutation<ArgsType extends OperationVariables>({name, gra
   }
   
   if (graphqlArgs) {
-    const args1 = _.map(graphqlArgs, (type, name) => `$${name}: ${type}`); // e.g. $url: String
-    const args2 = _.map(graphqlArgs, (type, name) => `${name}: $${name}`); // e.g. $url: url
+    const args1 = graphqlArgs.map((type: string, name: string) => `$${name}: ${type}`); // e.g. $url: String
+    const args2 = graphqlArgs.map((_type: string, name: string) => `${name}: $${name}`); // e.g. $url: url
     mutation = `
       mutation ${name}(${args1}) {
         ${name}(${args2})${fragmentBlock}

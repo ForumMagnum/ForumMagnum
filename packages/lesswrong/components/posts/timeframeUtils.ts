@@ -1,6 +1,6 @@
 import moment from '../../lib/moment-timezone';
-import * as _ from 'underscore';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import range from 'lodash/range';
 
 export const timeframes = ["daily", "weekly", "monthly", "yearly"] as const;
 export const timeframeSettings = ["allTime", ...timeframes, "exponential"] as const;
@@ -76,7 +76,7 @@ export function getDateRange (after: string|Date, before: string|Date, timeBlock
   }
   const numTimeBlocks = Math.ceil(rawDiff)
   const greatestDateInRange = mBefore.subtract(1, timeBlock)
-  return _.range(numTimeBlocks).map(
+  return range(numTimeBlocks).map(
     i => greatestDateInRange.clone()
       .subtract(i, timeBlock)
       .format('YYYY-MM-DD')

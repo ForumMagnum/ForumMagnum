@@ -1,13 +1,13 @@
 import { useState, useCallback } from "react";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from "../common/withUser";
-import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
+import sortBy from "lodash/sortBy";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */

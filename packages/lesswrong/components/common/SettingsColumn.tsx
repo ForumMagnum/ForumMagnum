@@ -2,10 +2,10 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { QueryLink } from '../../lib/reactRouterWrapper'
 import classNames from 'classnames'
-import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import isString from 'lodash/fp/isString';
 
 const styles = (theme: ThemeType): JssStyles => ({
   selectionList: {
@@ -67,7 +67,7 @@ const SettingsColumn = ({type, title, options, currentOption, classes, setSettin
       {title}
     </MetaInfo>
     {Object.entries(options).map(([name, optionValue]: any) => {
-      const label = _.isString(optionValue) ? optionValue : optionValue.label
+      const label = isString(optionValue) ? optionValue : optionValue.label
       const nofollowTag = nofollow ? { rel: 'nofollow' } : {};
       return (
         <QueryLink

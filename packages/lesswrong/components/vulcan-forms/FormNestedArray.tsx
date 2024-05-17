@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import * as _ from 'underscore';
+import omit from 'lodash/omit';
 
 // Replaceable layout
 const FormNestedArrayLayout = ({ hasErrors, label, content }: {
@@ -53,7 +53,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
   render() {
     const value = this.getCurrentValue();
     // do not pass FormNested's own value, input and inputProperties props down
-    const properties = _.omit(
+    const properties = omit(
       this.props,
       'value',
       'input',
@@ -84,7 +84,7 @@ class FormNestedArray extends PureComponent<FormNestedArrayProps<any>> {
               !this.isDeleted(i) && (
                 <React.Fragment key={i}>
                   <FormComponents.FormNestedItem
-                    {...properties}
+                    {...properties as AnyBecauseHard}
                     itemIndex={i}
                     path={`${this.props.path}.${i}`}
                     removeItem={() => {

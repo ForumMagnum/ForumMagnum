@@ -1,9 +1,9 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import * as _ from 'underscore'
 import MessageIcon from '@material-ui/icons/Message'
 import DescriptionIcon from '@material-ui/icons/Description'
+import sortBy from "lodash/sortBy";
 
 const styles = (theme: ThemeType): JssStyles => ({
   contentSummaryRow: {
@@ -53,8 +53,8 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 
-  const commentKarmaPreviews = comments ? _.sortBy(comments, contentSort) : []
-  const postKarmaPreviews = posts ? _.sortBy(posts, contentSort) : []
+  const commentKarmaPreviews = comments ? sortBy(comments, contentSort) : []
+  const postKarmaPreviews = posts ? sortBy(posts, contentSort) : []
   
   const hiddenPostCount = user.maxPostCount - user.postCount
   const hiddenCommentCount = user.maxCommentCount - user.commentCount

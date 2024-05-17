@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import without from 'lodash/without';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -44,7 +44,7 @@ const MultiSelectButtons = ({ value, label, options, path, classes }: FormCompon
   const handleClick = (option: string) => {    
     if (value && value.includes(option)) {
       context.updateCurrentValues({
-        [path]: _.without(value, option)
+        [path]: without(value, option)
       })
     } else {
       context.updateCurrentValues({

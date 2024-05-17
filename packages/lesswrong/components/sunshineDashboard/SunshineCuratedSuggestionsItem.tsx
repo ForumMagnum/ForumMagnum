@@ -10,7 +10,8 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
-import * as _ from 'underscore';
+import clone from 'lodash/clone';
+import without from 'lodash/without';
 
 const styles = (theme: ThemeType): JssStyles => ({
   audioIcon: {
@@ -54,7 +55,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post}: {
   }
 
   const handleSuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = clone(post.suggestForCuratedUserIds) || []
     if (!suggestUserIds.includes(currentUser!._id)) {
       suggestUserIds.push(currentUser!._id)
     }
@@ -65,9 +66,9 @@ const SunshineCuratedSuggestionsItem = ({classes, post}: {
   }
 
   const handleUnsuggestCurated = () => {
-    let suggestUserIds = _.clone(post.suggestForCuratedUserIds) || []
+    let suggestUserIds = clone(post.suggestForCuratedUserIds) || []
     if (suggestUserIds.includes(currentUser!._id)) {
-      suggestUserIds = _.without(suggestUserIds, currentUser!._id);
+      suggestUserIds = without(suggestUserIds, currentUser!._id);
     }
     void updatePost({
       selector: {_id: post._id},

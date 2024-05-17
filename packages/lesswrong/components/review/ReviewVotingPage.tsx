@@ -4,13 +4,12 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
-import * as _ from "underscore"
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents'
 import seedrandom from '../../lib/seedrandom';
 import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReviewYearFromString } from '../../lib/reviewUtils';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum, isLW, isAF } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import { randomId } from '../../lib/random';
 import { useLocation } from '../../lib/routeUtil';
@@ -21,11 +20,7 @@ import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { getVotePower } from '../../lib/voting/vote';
-
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
-const isLW = forumTypeSetting.get() === 'LessWrong'
-const isAF = forumTypeSetting.get() === 'AlignmentForum'
+import range from 'lodash/range';
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -229,7 +224,7 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   const seed = user?._id || "";
   const rng = seedrandom(seed);
   
-  let remaining = _.range(count);
+  let remaining = range(count);
   let result: Array<number> = [];
   while(remaining.length > 0) {
     let idx = Math.floor(rng() * remaining.length);

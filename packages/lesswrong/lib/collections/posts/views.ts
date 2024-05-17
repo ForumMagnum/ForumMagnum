@@ -9,10 +9,11 @@ import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Posts } from './collection';
 import { postStatuses, startHerePostIdSetting } from './constants';
 import uniq from 'lodash/uniq';
-import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
+import pick from 'lodash/pick';
+import isEmpty from 'lodash/isEmpty';
+import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, ReviewPhase, REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD, VOTING_PHASE_REVIEW_THRESHOLD } from '../../reviewUtils';
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
-import { filter, isEmpty, pick } from 'underscore';
 import { visitorGetsDynamicFrontpage } from '../../betas';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
@@ -348,8 +349,8 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     } :
     t
   )
-  const tagsRequired = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Required");
-  const tagsExcluded = filter(tagFilterSettingsWithDefaults, t=>t.filterMode==="Hidden");
+  const tagsRequired = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Required");
+  const tagsExcluded = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Hidden");
   
   const frontpageFiltering = getFrontpageFilter(filterSettings)
   

@@ -2,7 +2,6 @@ import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles';
-import * as _ from 'underscore';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import { useTimezone } from '../../common/withTimezone';
@@ -13,6 +12,7 @@ import classNames from 'classnames';
 import { communityPath } from '../../../lib/routes';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import range from "lodash/range";
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -141,7 +141,7 @@ const EventCards = ({events, loading, numDefaultCards, hideSpecialCards, hideGro
   // while the data is loading, show some placeholder empty cards
   if (loading && !events.length) {
     return numDefaultCards ? <>
-      {_.range(numDefaultCards).map((i) => {
+      {range(numDefaultCards).map((i) => {
         return <Card key={i} className={classNames(classes.eventCard, cardClassName)}></Card>
       })}
     </> : null

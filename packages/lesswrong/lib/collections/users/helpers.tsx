@@ -4,7 +4,6 @@ import {assumeUserEmailVerifiedSetting, forumTypeSetting, isEAForum} from '../..
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
-import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';

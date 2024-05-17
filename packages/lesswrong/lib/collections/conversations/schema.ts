@@ -1,8 +1,8 @@
 import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils'
-import * as _ from 'underscore';
 import { isLWorAF } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import difference from 'lodash/difference';
 
 const schema: SchemaType<"Conversations"> = {
   title: {
@@ -84,7 +84,7 @@ const schema: SchemaType<"Conversations"> = {
     // but I don't expect this to ever come up, and it fails relatively gracefully in case one does occur
     onUpdate: ({data, currentUser, oldDocument}) => {
       if (data?.archivedByIds) {
-        const changedIds = _.difference(oldDocument?.archivedByIds || [], data?.archivedByIds)
+        const changedIds = difference(oldDocument?.archivedByIds || [], data?.archivedByIds)
         changedIds.forEach((id => {
           if (id !== currentUser!._id) {
             throw new Error(`You can't archive or unarchive a conversation for another user. Attempted update: ${JSON.stringify(data)}`)

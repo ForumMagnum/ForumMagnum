@@ -1,8 +1,7 @@
 import { SubscriptionType, subscriptionTypes } from './collections/subscriptions/schema';
-import * as _ from 'underscore';
 import { getConfirmedCoauthorIds } from './collections/posts/helpers';
 
-export function userIsDefaultSubscribed({user, subscriptionType, collectionName, document}: {
+export function userIsDefaultSubscribed({user, subscriptionType, document}: {
   user: DbUser|UsersCurrent|null,
   subscriptionType: SubscriptionType,
   collectionName: CollectionNameString,
@@ -23,7 +22,7 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       // TODO
       return false;
     case subscriptionTypes.newEvents:
-      return _.some(document.organizers, organizerId=>organizerId===user._id)
+      return document.organizers.some((organizerId: string) => organizerId===user._id)
         && user.autoSubscribeAsOrganizer;
     case subscriptionTypes.newReplies:
       return user.auto_subscribe_to_my_comments && document.userId===user._id;

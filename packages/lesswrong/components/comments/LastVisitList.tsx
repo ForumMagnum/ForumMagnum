@@ -1,7 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import * as _ from 'underscore';
+import take from 'lodash/take';
 
 const VISITS_TO_SHOW = 4
 const MINIMUM_TIME_BETWEEN = 120000; //in milliseconds
@@ -47,7 +47,7 @@ const LastVisitList = ({ postId, currentUser, clickCallback }: {
   }
   
   if (filteredVisits.length>VISITS_TO_SHOW)
-    filteredVisits = _.take(filteredVisits, VISITS_TO_SHOW);
+    filteredVisits = take(filteredVisits, VISITS_TO_SHOW);
   
   return <>{filteredVisits.map((visit) =>
     <MenuItem key={visit._id} dense onClick={() => clickCallback(visit.createdAt)}>Visit at:&nbsp;<Components.CalendarDate date={visit.createdAt}/> </MenuItem>

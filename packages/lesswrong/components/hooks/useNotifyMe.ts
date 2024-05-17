@@ -11,8 +11,8 @@ import {
 } from "../../lib/collections/subscriptions/mutations";
 import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
 import { useMulti } from "../../lib/crud/withMulti";
-import { max } from "underscore";
 import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
+import maxBy from "lodash/maxBy";
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -37,10 +37,10 @@ const currentUserIsSubscribed = (
   // recent subscription
   if (results && results.length > 0) {
     // Get the newest subscription entry (Mingo doesn't enforce the limit:1)
-    const currentSubscription = max(
+    const currentSubscription = maxBy(
       results,
       (result) => new Date(result.createdAt).getTime(),
-    );
+    )!; // Assert not undefined - we already know length > 0
 
     if (currentSubscription.state === "subscribed") {
       return true;

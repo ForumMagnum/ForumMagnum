@@ -1,7 +1,6 @@
 import { Utils } from './vulcan-lib'; // import from vulcan:lib because vulcan:core isn't loaded yet
 import DataLoader from 'dataloader';
-import * as _ from 'underscore';
-
+import groupBy from "lodash/groupBy";
 
 //
 // Do a query, with a custom loader for query batching. This effectively does a
@@ -37,7 +36,7 @@ export async function getWithLoader<N extends CollectionNameString>(
         [groupByField]: {$in: docIDs}
       };
       const queryResults: ObjectsByCollectionName[N][] = await Utils.Connectors.find(collection, query, projection);
-      const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
+      const sortedResults = groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {
       cache: true

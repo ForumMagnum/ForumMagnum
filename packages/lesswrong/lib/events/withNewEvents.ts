@@ -2,7 +2,7 @@ import { useCreate } from '../crud/withCreate';
 import { useState, useEffect, useCallback } from 'react';
 import { v4 as uuid } from 'uuid';
 import { hookToHoc } from '../../lib/hocUtils';
-import * as _ from 'underscore';
+import omit from 'lodash/omit';
 
 export const useNewEvents = () => {
   const [events, setEvents] = useState<any>({});
@@ -49,7 +49,7 @@ export const useNewEvents = () => {
       },
     }});
     
-    setEvents(_.omit(events, eventId));
+    setEvents(omit(events, eventId));
     return eventId;
   }, [events, createLWEvent]);
   

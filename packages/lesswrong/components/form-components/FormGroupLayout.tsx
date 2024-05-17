@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { slugify } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import type { FormControlProps } from '../vulcan-forms/FormGroup';
 

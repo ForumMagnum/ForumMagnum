@@ -21,7 +21,6 @@ import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
 import { isClient } from '../../lib/executionEnvironment';
 import { styleMap } from "./draftJsEditorStyleMap";
-import * as _ from 'underscore';
 import ForumNoSSR from '../common/ForumNoSSR';
 
 function customBlockStyleFn(contentBlock: AnyBecauseTodo) {
@@ -78,10 +77,9 @@ const initializePlugins = (commentEditor: AnyBecauseTodo) => {
   ]
 
   const inlineToolbarPlugin = createInlineToolbarPlugin({
-    structure: _.chain(toolbarButtons)
-                .filter(b => commentEditor ? b.commentEditor : true)
-                .pluck('button')
-                .value()
+    structure: toolbarButtons
+      .filter(b => commentEditor ? b.commentEditor : true)
+      .map(({button}) => button),
   });
 
   const richButtonsPlugin = createRichButtonsPlugin();

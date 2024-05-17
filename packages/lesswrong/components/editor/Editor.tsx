@@ -6,13 +6,12 @@ import classNames from 'classnames';
 import Input from '@material-ui/core/Input';
 import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import Select from '@material-ui/core/Select';
-import { debounce } from 'underscore';
+import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
-import type { Editor as CKEditorType } from "@ckeditor/ckeditor5-core";
 
 const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;

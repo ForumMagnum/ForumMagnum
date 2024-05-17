@@ -1,8 +1,8 @@
+import without from 'lodash/without';
 import React, {useCallback} from 'react';
 import {SortableContainer, SortableElement, arrayMove} from 'react-sortable-hoc';
 // These imports need to be separate to satisfy eslint, for some reason
 import type {SortableContainerProps, SortEvent, SortEventWithTag} from 'react-sortable-hoc';
-import * as _ from 'underscore';
 
 export const makeSortableListComponent = ({renderItem}: {
   renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id: string) => void, classes: ClassesType }) => React.ReactNode
@@ -56,7 +56,7 @@ export const makeSortableListComponent = ({renderItem}: {
       setValue(arrayMove(value, oldIndex, newIndex));
     }, [value, setValue]);
     const removeItem = useCallback((item: string) => {
-      setValue(_.without(value, item));
+      setValue(without(value, item));
     }, [value, setValue]);
     
     return <SortableList

@@ -8,7 +8,7 @@ import {
   waitUntilCallbacksFinished,
 } from '../utils'
 import Posts from '../../lib/collections/posts/collection';
-import * as _ from 'underscore';
+import pluck from "lodash/fp/pluck";
 
 describe('PostsEdit', () => {
   let graphQLerrors = catchGraphQLErrors();
@@ -76,12 +76,12 @@ describe('Posts RSS Views', () => {
     `;
 
     const { data: { posts: {results: posts} } } = await runQuery(query,{},{currentUser:user}) as any;
-    (_.pluck(posts, '_id') as any).should.not.include(frontpagePost1._id);
-    (_.pluck(posts, '_id') as any).should.not.include(frontpagePost2._id);
-    (_.pluck(posts, '_id') as any).should.not.include(frontpagePost3._id);
-    (_.pluck(posts, '_id') as any).should.include(curatedPost1._id);
-    (_.pluck(posts, '_id') as any).should.include(curatedPost2._id);
-    (_.pluck(posts, '_id') as any).should.include(curatedPost3._id);
+    (pluck(posts, '_id') as any).should.not.include(frontpagePost1._id);
+    (pluck(posts, '_id') as any).should.not.include(frontpagePost2._id);
+    (pluck(posts, '_id') as any).should.not.include(frontpagePost3._id);
+    (pluck(posts, '_id') as any).should.include(curatedPost1._id);
+    (pluck(posts, '_id') as any).should.include(curatedPost2._id);
+    (pluck(posts, '_id') as any).should.include(curatedPost3._id);
   });
   it("returns curated posts in descending order of them being curated", async () => {
     const user = await createDummyUser();
@@ -103,7 +103,7 @@ describe('Posts RSS Views', () => {
     `;
 
     const { data: { posts: {results: posts} } } = await runQuery(query,{},{currentUser:user}) as any
-    const idList = _.pluck(posts, '_id');
+    const idList = pluck(posts, '_id');
     (idList.indexOf(curatedPost1._id) as any).should.be.below(idList.indexOf(curatedPost2._id));
     (idList.indexOf(curatedPost2._id) as any).should.be.below(idList.indexOf(curatedPost3._id));
   });
@@ -133,11 +133,11 @@ describe('Posts RSS Views', () => {
     `;
 
     const { data: { posts: {results: posts} } } = await runQuery(query,{},{currentUser:user}) as any;
-    (_.pluck(posts, '_id') as any).should.include(frontpagePost1._id);
-    (_.pluck(posts, '_id') as any).should.include(frontpagePost2._id);
-    (_.pluck(posts, '_id') as any).should.include(frontpagePost3._id);
-    (_.pluck(posts, '_id') as any).should.not.include(personalPost1._id);
-    (_.pluck(posts, '_id') as any).should.not.include(personalPost2._id);
-    (_.pluck(posts, '_id') as any).should.not.include(personalPost3._id);
+    (pluck(posts, '_id') as any).should.include(frontpagePost1._id);
+    (pluck(posts, '_id') as any).should.include(frontpagePost2._id);
+    (pluck(posts, '_id') as any).should.include(frontpagePost3._id);
+    (pluck(posts, '_id') as any).should.not.include(personalPost1._id);
+    (pluck(posts, '_id') as any).should.not.include(personalPost2._id);
+    (pluck(posts, '_id') as any).should.not.include(personalPost3._id);
   });
 })

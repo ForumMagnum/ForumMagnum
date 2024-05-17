@@ -6,12 +6,11 @@ import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
-import moment from '../../moment-timezone';
-import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
 import type { RouterLocation } from '../../vulcan-lib/routes';
+import maxBy from 'lodash/maxBy';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -334,7 +333,8 @@ export const isNotHostedHere = (post: PostsPage|DbPost) => {
 const mostRelevantTag = (
   tags: TagPreviewFragment[],
   tagRelevance: Record<string, number>,
-): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+): TagPreviewFragment | null =>
+  maxBy(tags, ({_id}) => tagRelevance[_id] ?? 0) ?? null;
 
 export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
   const {tags, tagRelevance} = post;

@@ -11,8 +11,9 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
-import * as _ from 'underscore';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import range from "lodash/range";
+import map from 'lodash/map';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -139,7 +140,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
             value={timeOfDay}
             onChange={(event) => this.setBatchingTimeOfDay(parseInt(event.target.value), timezone)}
           >
-            { _.range(24).map(hour =>
+            { range(24).map(hour =>
                 <MenuItem key={hour} value={hour}>{hour}:00</MenuItem>
               )
             }
@@ -180,7 +181,7 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
         value={settings.updateFrequency}
         onChange={(event, newValue) => this.modifyValue({updateFrequency: newValue as any})}
       >
-        {_.map(karmaNotificationTimingChoices, (timingChoice, key) =>
+        {map(karmaNotificationTimingChoices, (timingChoice, key) =>
           <FormControlLabel
             key={key}
             value={key}

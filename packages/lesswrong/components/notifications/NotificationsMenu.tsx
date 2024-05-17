@@ -12,7 +12,6 @@ import MailIcon from '@material-ui/icons/Mail';
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({

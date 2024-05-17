@@ -5,7 +5,7 @@ import { useMessages } from '../../common/withMessages';
 import { userOwns } from '../../../lib/vulcan-users/permissions';
 import { userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { clone } from 'underscore';
+import clone from 'lodash/clone';
 
 const BanUserFromAllPostsDropdownItem = ({comment, post}: {
   comment: CommentsList,

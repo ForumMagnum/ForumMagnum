@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL from 'react-map-gl';
-import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { Helmet } from '../../lib/utils/componentsWithChildren';
+import without from 'lodash/without';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {
@@ -46,7 +46,7 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
   }
 
   handleInfoWindowClose = (id: string) => {
-    this.setState({openWindows: _.without(this.state.openWindows, id)})
+    this.setState({openWindows: without(this.state.openWindows, id)})
   }
 
   getDocument = () => {

@@ -2,9 +2,6 @@
  * Schema converter/getters
  */
 import { userCanCreateField, userCanUpdateField } from '../vulcan-users/permissions';
-import _keys from 'lodash/keys';
-import _filter from 'lodash/filter';
-import * as _ from 'underscore';
 
 /* getters */
 // filter out fields with "." or "$"
@@ -35,7 +32,7 @@ export const getUpdateableFields = <N extends CollectionNameString>(schema: Sche
  * @param {Object} user – the user for which to check field permissions
  */
 export const getInsertableFields = function<N extends CollectionNameString>(schema: SchemaType<N>, user: UsersCurrent|null): Array<string> {
-  const fields: Array<string> = _filter(_keys(schema), function(fieldName: string): boolean {
+  const fields: Array<string> = Object.keys(schema).filter(function(fieldName: string): boolean {
     var field = schema[fieldName];
     return userCanCreateField(user, field);
   });
@@ -52,7 +49,7 @@ export const getEditableFields = function<N extends CollectionNameString>(
   user: UsersCurrent|null,
   document: ObjectsByCollectionName[N],
 ): Array<string> {
-  const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
+  const fields = Object.keys(schema).filter(function(fieldName: string): boolean {
     var field = schema[fieldName];
     return userCanUpdateField(user, field, document);
   });

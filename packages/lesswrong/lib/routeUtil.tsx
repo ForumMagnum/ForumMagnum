@@ -3,10 +3,10 @@ import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
 import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
-import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
+import indexOf from 'lodash/indexOf';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -105,8 +105,8 @@ export const removeUrlParameters = (url: string, queryParameterBlacklist: string
   
   const parsedQuery = qs.parse(query);
   let filteredQuery: AnyBecauseTodo = {};
-  for (let key of _.keys(parsedQuery)) {
-    if (_.indexOf(queryParameterBlacklist, key) < 0) {
+  for (let key of Object.keys(parsedQuery)) {
+    if (indexOf(queryParameterBlacklist, key) < 0) {
       filteredQuery[key] = parsedQuery[key];
     }
   }

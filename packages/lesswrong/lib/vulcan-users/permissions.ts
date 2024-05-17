@@ -1,9 +1,11 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
-import * as _ from 'underscore';
 import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
 import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
+import difference from 'lodash/difference';
+import flatten from 'lodash/flatten';
+import uniq from 'lodash/uniq';
 
 class Group {
   actions: Array<string>
@@ -19,7 +21,7 @@ class Group {
 
   cannot(actions: string|string[]) {
     actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = _.difference(this.actions, actions);
+    this.actions = difference(this.actions, actions);
   }
 }
 
@@ -73,7 +75,7 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
     const group = userGroups[groupName];
     return group && group.actions;
   });
-  return _.unique(_.flatten(groupActions));
+  return uniq(flatten(groupActions));
 };
 
 // Check if a user is a member of a group

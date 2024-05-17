@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'
 import type { Request, Response } from 'express';
@@ -75,6 +74,14 @@ export type Route = {
 /** Populated by calls to addRoute */
 export const Routes: Record<string,Route> = {};
 
+const getRouteWithPath = (path: string) => {
+  for (const route in Routes) {
+    if (Routes[route].path === path) {
+      return Routes[route];
+    }
+  }
+}
+
 // Add a route to the routes table.
 //
 // Because routes have a bunch of optional fields and fields with constrained
@@ -86,9 +93,8 @@ export const addRoute = (...routes: Route[]): void => {
     const {name, path, ...properties} = route;
   
     // check if there is already a route registered to this path
-    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
-    const routeWithSamePath = _.findWhere(Routes, { path });
-  
+    const routeWithSamePath = getRouteWithPath(path);
+
     if (routeWithSamePath) {
       // Don't allow shadowing/replacing routes
       throw new Error(`Conflicting routes with path ${path}`);
@@ -114,9 +120,7 @@ export const overrideRoute = (...routes: Route[]): void => {
     const {name, path} = route;
     delete Routes[name];
 
-    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
-    const routeWithSamePath = _.findWhere(Routes, { path });
-
+    const routeWithSamePath = getRouteWithPath(path);
     if (routeWithSamePath) {
       delete Routes[routeWithSamePath.name];
     }

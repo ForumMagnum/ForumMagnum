@@ -18,7 +18,7 @@ import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
-import { without } from 'underscore';
+import without from 'lodash/without';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { useNavigate } from '../../lib/reactRouterWrapper';

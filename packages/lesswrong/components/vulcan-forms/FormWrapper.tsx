@@ -13,7 +13,8 @@ import { useCurrentUser } from '../common/withUser';
 import { getReadableFields, getCreateableFields, getUpdateableFields } from '../../lib/vulcan-forms/schema_utils';
 import { WrappedSmartFormProps } from './propTypes';
 import { Form } from './Form';
-import * as _ from 'underscore';
+import uniq from 'lodash/uniq';
+import intersection from 'lodash/intersection';
 
 const intlSuffix = '_intl';
 
@@ -38,16 +39,16 @@ const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", pr
   // for the mutations's return value, also get non-editable but viewable fields (such as createdAt, userId, etc.)
   let mutationFields =
     formType === 'new'
-      ? _.unique(createableFields.concat(readableFields))
-      : _.unique(createableFields.concat(updatetableFields));
+      ? uniq(createableFields.concat(readableFields))
+      : uniq(createableFields.concat(updatetableFields));
 
   // if "fields" prop is specified, restrict list of fields to it
   if (typeof fields !== 'undefined' && fields.length > 0) {
     // add "_intl" suffix to all fields in case some of them are intl fields
     const fieldsWithIntlSuffix = fields.map(field => `${field}${intlSuffix}`);
     const allFields = [...fields, ...fieldsWithIntlSuffix];
-    queryFields = _.intersection(queryFields, allFields);
-    mutationFields = _.intersection(mutationFields, allFields);
+    queryFields = intersection(queryFields, allFields);
+    mutationFields = intersection(mutationFields, allFields);
   }
 
   // add "addFields" prop contents to list of fields

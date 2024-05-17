@@ -4,13 +4,11 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@material-ui/core/Checkbox';
 import { QueryLink } from '../../lib/reactRouterWrapper'
-import * as _ from 'underscore';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
 import { preferredHeadingCase } from '../../themes/forumTheme';
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

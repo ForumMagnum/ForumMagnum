@@ -6,7 +6,6 @@ import { isServer } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
-import * as _ from 'underscore';
 import { loggerConstructor } from './logging';
 import { DeferredForumSelect } from '../forumTypeUtils';
 
@@ -93,7 +92,7 @@ export const accessFilterMultiple = async <N extends CollectionNameString>(
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
   // nulls.
-  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as ObjectsByCollectionName[N][];
+  const existingDocs = unfilteredDocs.filter(d=>!!d) as ObjectsByCollectionName[N][];
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d, context))
@@ -457,7 +456,7 @@ export function denormalizedCountOfReferences<
         document._id
       );
       
-      const docsThatCount = _.filter(docsThatMayCount, d=>filter(d));
+      const docsThatCount = docsThatMayCount.filter(d=>filter(d));
       return docsThatCount.length;
     }
   }

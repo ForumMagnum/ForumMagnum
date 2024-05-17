@@ -6,7 +6,7 @@ import { isClient, isServer, isDevelopment, isAnyTest, isE2E } from './execution
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
-import { throttle } from 'underscore';
+import throttle from 'lodash/throttle';
 import moment from 'moment';
 import { Globals } from './vulcan-lib/config';
 

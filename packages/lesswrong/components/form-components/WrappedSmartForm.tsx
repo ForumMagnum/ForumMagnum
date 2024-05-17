@@ -6,7 +6,6 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
 import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
-import * as _ from 'underscore';
 
 /**
  * This is a wrapper around FormWrapper which adds a submit callback that filters
@@ -25,10 +24,10 @@ function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFor
         if (props.submitCallback) {data = props.submitCallback(data)}
         
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
-        const editableFields = _.object(editableCollectionsFields[collectionName].map(fieldName => {
+        const editableFields = Object.fromEntries(editableCollectionsFields[collectionName].map(fieldName => {
           const { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions } = (data && data[fieldName]) || {}
           return [
-            fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
+            fieldName,
             // Ensure that we have data. We check for data field presence but
             // not truthiness, because the empty string is falsy.
             (typeof originalContents==="object" && "data" in originalContents)

@@ -1,17 +1,16 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-// import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
-import * as _ from 'underscore';
 import classNames from 'classnames';
 import { useQuery, gql } from '@apollo/client';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
+import sortBy from "lodash/sortBy";
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -408,9 +407,9 @@ const SpreadsheetPage = ({classes}: {
 
   if (loading) return <Loading />
 
-  const dataRows = _.filter(data.CoronaVirusData.values, (row: any): boolean => row.accepted === "Accept")
-  const sortedRowsAdded = _.sortBy(dataRows, (row: any) => -row.dateAdded)
-  const sortedRowsImp = _.sortBy(sortedRowsAdded, (row: any) => -row.imp)
+  const dataRows = data.CoronaVirusData.values.filter((row: any): boolean => row.accepted === "Accept")
+  const sortedRowsAdded = sortBy(dataRows, (row: any) => -row.dateAdded)
+  const sortedRowsImp = sortBy(sortedRowsAdded, (row: any) => -row.imp)
 
   const linkCell = (url: string, link: string, domain: string, type: string) => <div>
       <div className={classes.link}><HoverPreviewLink href={url}>{link}</HoverPreviewLink></div>
@@ -428,66 +427,66 @@ const SpreadsheetPage = ({classes}: {
       label: "Guides/FAQs/Intros",
       displayLabel: "Guides/FAQs/Intros",
       description: "Websites that attempt to gently introduce coronavirus or explain things about it. Typically non-exhaustive.",
-      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Guides/FAQs/Intros")
+      rows: sortedRowsImp.filter((row: any): boolean => row.category === "Guides/FAQs/Intros")
     },
     {
       label: "Dashboards",
       description: "Websites showing up-to-date SC2-relevant numbers in easy-to-read format.",
-      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Dashboards")
+      rows: sortedRowsImp.filter((row: any): boolean => row.category === "Dashboards")
     },
     {
       label: "Progression & Outcome",
       displayLabel: "Progression & Outcome",
       description: "Information on what happens once you have COVID-19.",
-      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Progression & Outcome")
+      rows: sortedRowsImp.filter((row: any): boolean => row.category === "Progression & Outcome")
     },
     {
       label: "Spread & Prevention",
       description: "Information about current or predicted prevalence, how COVID-19 is spread, or lower the former/preventing the latter. We may need a prevalence model olympics",
-      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Spread & Prevention")
+      rows: sortedRowsImp.filter((row: any): boolean => row.category === "Spread & Prevention")
     },
     {
       label: "Science",
       description: "Basic science that does not immediatley prompt action. E.g. 'here's what SC2 targets' is in, 'Here's a drug targeting that' is out.",
-      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Science")
+      rows: sortedRowsImp.filter((row: any): boolean => row.category === "Science")
     },
     {
       label: "Medical System",
       description: "Information or models on the current state of the medical system, including 'here's how bad hospitals are' and potential treatments.",
-      rows: _.filter(sortedRowsImp, (row: any): boolean => row.category === "Medical System")
+      rows: sortedRowsImp.filter((row: any): boolean => row.category === "Medical System")
     },
     {
       label: "Everyday Life",
       description: "Announcements of shutdowns, government or not.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Everyday Life")
+      rows: sortedRowsImp.filter(row => row.category === "Everyday Life")
     },
     {
       label: "DIY",
       description: "Advice on how to build and use medical supplies.",
-      rows: _.filter(sortedRowsImp, row => row.category === "DIY")
+      rows: sortedRowsImp.filter(row => row.category === "DIY")
     },
     {
       label: "Work & Donate",
       description: "Opportunities to help out. Volunteering and paid positions, as well as donation advice.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Work & Donate")
+      rows: sortedRowsImp.filter(row => row.category === "Work & Donate")
     },
     {
       label: "Aggregators",
       description: "Websites aggregating other content.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Aggregators")
+      rows: sortedRowsImp.filter(row => row.category === "Aggregators")
     },
     {
       label: "Economics",
       description: "Information and models on the economic impact of C19",
-      rows: _.filter(sortedRowsImp, row => row.category === "Economics")
+      rows: sortedRowsImp.filter(row => row.category === "Economics")
     },
     {
       label: "Other",
       description: "Links that don’t fit into the current categories.",
-      rows: _.filter(sortedRowsImp, row => row.category === "Other")
+      rows: sortedRowsImp.filter(row => row.category === "Other")
     }
   ]
-  const currentTab = _.find(tabs, tab => tab.label === selectedTab)
+  const currentTab = tabs.find(tab => tab.label === selectedTab)
   const rows = currentTab?.rows || []
   return (
     <div className={classes.root}>

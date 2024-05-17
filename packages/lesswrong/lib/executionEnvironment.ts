@@ -1,5 +1,3 @@
-import * as _ from 'underscore';
-
 declare global {
   let bundleIsServer: boolean;
   let bundleIsTest: boolean;
@@ -54,10 +52,6 @@ export const getAbsoluteUrl = (): string => {
   } else {
     return `http://localhost:${getServerPort()}/`
   }
-}
-
-export const addGlobalForShell = (name: string, value: any) => {
-  // TODO
 }
 
 export const getServerPort = () => serverPort;

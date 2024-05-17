@@ -5,7 +5,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { commentGetDefaultView } from '../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../common/withUser';
 import qs from 'qs'
-import { isEmpty } from 'underscore';
+import isEmpty from 'lodash/isEmpty';
 import type { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useNavigate } from '../../lib/reactRouterWrapper';

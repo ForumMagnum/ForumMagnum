@@ -14,10 +14,15 @@ import uniq from 'lodash/uniq';
 import uniqBy from 'lodash/uniqBy';
 import unset from 'lodash/unset';
 import update from 'lodash/update';
+import sortBy from "lodash/sortBy";
+import intersection from 'lodash/intersection';
+import difference from 'lodash/difference';
+import reject from "lodash/reject";
+import without from 'lodash/without';
+import isEmpty from 'lodash/isEmpty';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import SimpleSchema from 'simpl-schema';
-import * as _ from 'underscore';
 import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { getSimpleSchema } from '../../lib/utils/getSchema';
@@ -240,10 +245,10 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       return this.createField(fieldName, this.state.schema, mutableFields);
     });
 
-    fields = _.sortBy(fields, 'order');
+    fields = sortBy(fields, 'order');
 
     // get list of all unique groups (based on their name) used in current fields
-    let groups = _.compact(uniqBy(_.pluck(fields, 'group'), (g) => g && g.name));
+    let groups = compact(uniqBy(fields.map(({group}) => group), (g) => g && g.name));
 
     // for each group, add relevant fields
     groups = groups.map(group => {
@@ -259,13 +264,13 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       name: 'default',
       label: 'default',
       order: 0,
-      fields: _.filter(fields, field => {
+      fields: fields.filter(field => {
         return !field.group;
       })
     });
 
     // sort by order
-    groups = _.sortBy(groups, 'order');
+    groups = sortBy(groups, 'order');
 
     return groups;
   };
@@ -292,14 +297,14 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
     // if "fields" prop is specified, restrict list of fields to it
     if (typeof fields !== 'undefined' && fields.length > 0) {
-      relevantFields = _.intersection(relevantFields, fields);
+      relevantFields = intersection(relevantFields, fields);
     }
 
     // if "removeFields" prop is specified, remove its fields
     if (excludeRemovedFields) {
       const removeFields = this.props.removeFields;
       if (typeof removeFields !== 'undefined' && removeFields.length > 0) {
-        relevantFields = _.difference(relevantFields, removeFields);
+        relevantFields = difference(relevantFields, removeFields);
       }
     }
 
@@ -315,12 +320,12 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     // remove all hidden fields
     if (excludeHiddenFields) {
       const document = this.getDocument();
-      relevantFields = _.reject(relevantFields, fieldName => {
+      relevantFields = reject(relevantFields, fieldName => {
         const hidden = schema[fieldName].hidden;
         return typeof hidden === 'function'
           ? hidden({ ...this.props, document })
           : hidden;
-      });
+      }) as unknown as string[];
     }
 
     // remove any duplicates
@@ -655,7 +660,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
             }
   
             // 3. in case value had previously been deleted, "undelete" it
-            newState.deletedValues = _.without(prevState.deletedValues, path);
+            newState.deletedValues = without(prevState.deletedValues, path);
           }
         });
         if (changeCallback) changeCallback(newState.currentDocument);
@@ -904,7 +909,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       properties: [error, this],
     });
 
-    if (!_.isEmpty(error)) {
+    if (!isEmpty(error)) {
       // add error to state
       this.throwError(error);
     }
