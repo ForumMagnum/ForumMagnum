@@ -9,6 +9,8 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { extractTableOfContents, getTocAnswers, getTocComments, shouldShowTableOfContents, ToCData } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { parseDocumentFromString } from '../lib/domParser';
+import { FetchedFragment } from './fetchFragment';
+import { getLatestContentsRevision } from '../lib/collections/revisions/helpers';
 
 
 async function getTocAnswersServer (document: DbPost) {
@@ -41,7 +43,7 @@ async function getTocCommentsServer (document: DbPost) {
 }
 
 export const getToCforPost = async ({document, version, context}: {
-  document: DbPost,
+  document: DbPost|FetchedFragment<"PostsHTML">,
   version: string|null,
   context: ResolverContext,
 }): Promise<ToCData|null> => {
@@ -52,10 +54,13 @@ export const getToCforPost = async ({document, version, context}: {
     if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
-  } else {
+  } else if ("contents" in document) {
     html = document?.contents?.html ?? "";
+  } else {
+    const revision = await getLatestContentsRevision(document, context);
+    html = revision?.html ?? "";
   }
-  
+
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
   

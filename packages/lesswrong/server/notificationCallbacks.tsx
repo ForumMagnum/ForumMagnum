@@ -23,11 +23,10 @@ import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
-import { isEAForum, isLWorAF } from '../lib/instanceSettings';
-import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius, createNotification } from './notificationCallbacksHelpers'
+import { isLWorAF } from '../lib/instanceSettings';
+import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
-import uniq from 'lodash/uniq';
 import Messages from '../lib/collections/messages/collection';
 import Tags from '../lib/collections/tags/collection';
 import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
@@ -294,9 +293,10 @@ export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: s
 
 getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
   if (newPost.collabEditorDialogue) {
-    
-    const oldIds = getDialogueResponseIds(oldPost)
-    const newIds = getDialogueResponseIds(newPost);
+    const [oldIds, newIds] = await Promise.all([
+      getDialogueResponseIds(oldPost),
+      getDialogueResponseIds(newPost),
+    ]);
     const uniqueNewIds = _.difference(newIds, oldIds);
     
     if (uniqueNewIds.length > 0) {
