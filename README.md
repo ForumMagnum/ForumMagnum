@@ -268,6 +268,13 @@ You can also open the Playwright UI with `yarn playwright test --ui`, but note t
 
 For information on how to create Playwright tests see [their documentation](https://playwright.dev/docs/writing-tests) and the existing tests in the `playwright` directory.
 
+The server can be accessed at `localhost:3456` for debugging.
+
+You can open the tests in a normal browser (for instance, to access the DOM
+inspector or debugger) with `PWDEBUG=console yarn playwright test`. It's strongly
+recommended to use the `-g` to only run a single test, as each test will open
+in a separate browser window.
+
 ### Where to branch off of
 
 Branch off of `master` and submit to `master`. Deploys occur when `master` is
