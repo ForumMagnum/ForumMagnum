@@ -247,12 +247,17 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
         anyoneWithLinkCan: "none",
         explicitlySharedUsersCan: "edit",
       },
-      contents: {
-        originalContents: {
-          type: "ckEditorMarkup",
-          data: welcomeMessage(formDataSourceUser, formDataTargetUser)
+      // TODO: This bypasses the type check which would otherwise fail since
+      // contents is a resolver only field - there's probably a nicer way to
+      // handle this, but it's also pretty rare so maybe it's not worth it
+      ...({
+        contents: {
+          originalContents: {
+            type: "ckEditorMarkup",
+            data: welcomeMessage(formDataSourceUser, formDataTargetUser)
+          }
         }
-      } as AnyBecauseHard
+      }),
     },
     validate: false,
     context,

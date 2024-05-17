@@ -174,7 +174,7 @@ defineMutation({
             contents: {
               originalContents: revision.originalContents,
             },
-          },
+          } as AnyBecauseHard,
           currentUser,
           validate: false,
         });

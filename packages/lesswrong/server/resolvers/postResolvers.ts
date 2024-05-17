@@ -539,11 +539,15 @@ addGraphQLResolvers({
             _id: finalPostId,
             userId: currentUser._id,
             title: docMetadata.name,
-            contents: {
-              originalContents,
-              commitMessage,
-              googleDocMetadata: docMetadata
-            },
+            ...({
+              // Contents is a resolver only field, but there is handling for it
+              // in `createMutator`/`updateMutator`
+              contents: {
+                originalContents,
+                commitMessage,
+                googleDocMetadata: docMetadata
+              },
+            }),
             draft: true
           },
           currentUser,
