@@ -11,10 +11,6 @@ import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanc
 import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { welcomeBoxes } from './WelcomeBox';
-import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -369,8 +365,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
 
-  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-
   const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
   const { readingProgressBarRef } = usePostReadProgress({
@@ -654,13 +648,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsContext>
   </>;
 
-  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
-  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps
-    ? <div className={classes.welcomeBox}>
-        <WelcomeBox {...welcomeBoxProps} />
-      </div>
-    : null;
+  const welcomeBox = (
+    <ForumNoSSR>
+      <WelcomeBox />
+    </ForumNoSSR>
+  );
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}

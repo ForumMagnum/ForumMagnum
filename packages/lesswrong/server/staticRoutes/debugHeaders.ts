@@ -6,7 +6,7 @@ import { getUserFromReq } from '../vulcan-lib/apollo-server/context';
 // changes while requests pass through load-balancers etc on prod, and in
 // particular for headers like X-Forwarded-For.
 addStaticRoute('/admin/debugHeaders', async (query,req,res,next) => {
-  const user = await getUserFromReq(req);
+  const user = getUserFromReq(req);
   if (!user) {
     res.statusCode = 403;
     res.end("Not logged in");

@@ -22,9 +22,6 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
-export const EMOJIS_HEADER_HEIGHT = 196;
-
-const emojisInfoLink = "/posts/HhCxpbfT3wXGyvspt/tobytrem-s-quick-takes?commentId=rzakXXrfWkBuJGiYX";
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -215,62 +212,6 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
-  emojisRoot: {
-    marginBottom: EMOJIS_HEADER_HEIGHT - 70,
-    [theme.breakpoints.down("sm")]: {
-      marginBottom: 0,
-    },
-  },
-  emojisAppBar: {
-    [theme.breakpoints.up("md")]: {
-      boxShadow: "none",
-      color: theme.palette.emojiHeader.foreground,
-      backgroundColor: theme.palette.emojiHeader.background,
-      height: EMOJIS_HEADER_HEIGHT,
-      "& .MuiToolbar-root > *": {
-        zIndex: 2,
-      },
-      "& .EAButton-greyContained": {
-        backgroundColor: `${theme.palette.grey[320]} !important`,
-        "&:hover": {
-          backgroundColor: `${theme.palette.grey[340]} !important`,
-        }
-      },
-      "& .Header-titleLink": {
-        color: theme.palette.emojiHeader.foreground,
-      },
-      "& .ForumIcon-root": {
-        color: theme.palette.emojiHeader.foreground,
-      },
-    },
-  },
-  emojisContent: {
-    zIndex: 2,
-    maxWidth: 300,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 13,
-    fontWeight: 500,
-    lineHeight: "140%",
-    marginLeft: 46,
-    "& a": {
-      textDecoration: "underline",
-      "&:hover": {
-        textDecoration: "none",
-        opacity: 1,
-      },
-    },
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-  },
-  emojisTitle: {
-    fontSize: 30,
-    fontWeight: 700,
-    lineHeight: "120%",
-    letterSpacing: "-0.3px",
-    marginBottom: 10,
-    marginTop: 2,
-  },
 });
 
 const Header = ({
@@ -303,15 +244,10 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
 
-  const showEmojisHeader =
-    isEAForum &&
-    pathname === "/" &&
-    !currentUser?.usernameUnset;
-
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton, EAEmojisHeader,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
   } = Components;
 
   useEffect(() => {
@@ -482,7 +418,7 @@ const Header = ({
 
   return (
     <AnalyticsContext pageSectionContext="header">
-      <div className={classNames(classes.root, showEmojisHeader && classes.emojisRoot)}>
+      <div className={classes.root}>
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
@@ -492,12 +428,11 @@ const Header = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop || showEmojisHeader}
+          disable={stayAtTop}
         >
           <header
             className={classNames(
               classes.appBar,
-              showEmojisHeader && classes.emojisAppBar,
               !!backgroundColor && classes.appBarDarkBackground,
             )}
             style={backgroundColor ? {backgroundColor} : {}}
@@ -521,24 +456,9 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              {showEmojisHeader && <div style={{flexGrow: 2}} />}
               {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
-            {showEmojisHeader &&
-              <>
-                <div className={classes.emojisContent}>
-                  <div className={classes.emojisTitle}>
-                    Ways the world is getting better
-                  </div>
-                  <div>
-                    Click the banner to add a piece of{" "}
-                    <Link to={emojisInfoLink}>good news</Link>
-                  </div>
-                </div>
-                <EAEmojisHeader />
-              </>
-            }
           </header>
           {headerNavigationDrawer}
         </Headroom>
