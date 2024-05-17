@@ -420,8 +420,6 @@ const helpers = {
     const currentTimestampMs = (new Date()).getTime();
     const unexpiredRecommendations = cachedRecommendations.filter(rec => currentTimestampMs < (rec.createdAt.getTime() + rec.ttlMs));
 
-    console.log({ reqRequestCount: count });
-
     let formattedRecommendations: RecResponse[]; 
     if (unexpiredRecommendations.length <= (count / 2)) {
       const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
@@ -562,8 +560,6 @@ const recombeeApi = {
       
       const recombeeRequestSettings = helpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
       const recombeeRequest = helpers.createRecommendationsForUserRequest(userId, configurableArmCount, recombeeRequestSettings);
-
-      console.log({ configurableArmCount });
 
       try {
         recombeeResponsesWithScenario = await helpers.getCachedRecommendations({
