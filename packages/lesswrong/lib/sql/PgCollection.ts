@@ -15,7 +15,7 @@ let executingQueries = 0;
 
 export const isAnyQueryPending = () => executingQueries > 0;
 
-export type DbTarget = "read" | "write";
+export type DbTarget = "read" | "write" | "noTransaction";
 
 type ExecuteQueryData<T extends DbObject> = {
   selector: MongoSelector<T> | string;
@@ -261,8 +261,19 @@ class PgCollection<
       ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
-    const query = new CreateIndexQuery(this.getTable(), index, true);
-    await this.executeWriteQuery(query, {fieldOrSpec, options})
+    const query = new CreateIndexQuery({ table: this.getTable(), index, ifNotExists: true });
+
+    if (!options?.concurrently) {
+      await this.executeQuery(query, {fieldOrSpec, options}, "write")
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Running CREATE INDEX CONCURRENTLY query without waiting for it to complete, ` +
+        `as this would cause a deadlock. If your code relies on this index existing immediately ` +
+        `you should deploy in two stages. This is the query in question: "${query.compile()?.sql}"`
+      )
+      void this.executeQuery(query, {fieldOrSpec, options}, "noTransaction")
+    }
   }
 
   aggregate = (
@@ -292,7 +303,7 @@ class PgCollection<
   rawCollection = () => ({
     bulkWrite: async (
       operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>,
-      options: MongoBulkWriteOptions,
+      options?: MongoBulkWriteOptions,
     ) => {
       executingQueries++;
       let result: BulkWriterResult;

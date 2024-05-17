@@ -10,7 +10,7 @@ const CuratedPostsList = ({overrideLimit}: {overrideLimit?: number}) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
 
-  const fiveDaysAgo = moment(now).subtract(5, 'days').startOf("hour").toISOString();
+  const fiveDaysAgo = moment(now).subtract(5*24, 'hours').startOf("hour").toISOString();
 
   return (
     <AnalyticsContext listContext="curatedPosts" pageSubSectionContext="curatedPosts">

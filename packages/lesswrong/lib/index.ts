@@ -323,6 +323,9 @@ import './collections/splashArtCoordinates/fragments';
 // Curation emails
 import './collections/curationEmails/collection';
 
+// Recommendations cache
+import './collections/recommendationsCaches/collection';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
@@ -345,3 +348,5 @@ import './sql';
 
 import './rateLimits/constants';
 import './rateLimits/types';
+
+import './subscribedUsersFeed';

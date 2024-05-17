@@ -8,12 +8,19 @@ let sql: SqlClient | null = null;
  *  Currently used in the EA Forum bot environment to decrease load on the main database
  */
 let sqlRead: SqlClient | null = null;
+/**
+ * A sql client which can be assumed to be outside a transaction, to allow running queries that require
+ * this (such as CREATE INDEX CONCURRENTLY ...)
+ */
+let sqlOutsideTransaction: SqlClient | null = null;
 
 export const setSqlClient = (sql_: SqlClient, target: DbTarget = "write") => {
-  if (target === "write") {
-    sql = sql_;
+  if (target === "noTransaction") {
+    sqlOutsideTransaction = sql_
+  } else if (target === "read") {
+    sqlRead = sql_
   } else {
-    sqlRead = sql_;
+    sql = sql_
   }
 }
 
@@ -22,7 +29,16 @@ export const getSqlClient = (target: DbTarget = "write") => {
 }
 
 export const getSqlClientOrThrow = (target: DbTarget = "write") => {
-  const client = (target === "write" || !sqlRead) ? sql : sqlRead;
+  let client: SqlClient | null = null;
+
+  if (target === "noTransaction") {
+    client = sqlOutsideTransaction ?? sql;
+  } else if (target === "read") {
+    client = sqlRead ?? sql;
+  } else {
+    client = sql;
+  }
+
   if (!client) {
     throw new Error("SQL Client is not initialized");
   }

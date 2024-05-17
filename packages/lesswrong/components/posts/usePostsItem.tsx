@@ -88,6 +88,8 @@ export type PostsItemConfig = {
   recombeeRecommId?: string,
   vertexAttributionId?: string,
   showRecommendationIcon?: boolean,
+  /** Whether or not to make new post items have bold post item dates */
+  emphasizeIfNew?: boolean,
   className?: string,
 }
 
@@ -136,6 +138,7 @@ export const usePostsItem = ({
   recombeeRecommId,
   vertexAttributionId,
   showRecommendationIcon = false,
+  emphasizeIfNew = false,
   className,
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
@@ -278,6 +281,7 @@ export const usePostsItem = ({
     isVoteable,
     isRecommendation,
     showRecommendationIcon,
+    emphasizeIfNew,
     className,
   };
 }

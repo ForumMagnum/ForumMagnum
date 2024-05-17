@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 export const POSTED_AT_WIDTH = 38
@@ -28,6 +29,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     }
   },
+  isNew: {
+    '&&': {
+      fontWeight: 400
+    }
+  },
   startTime: {
     '&&': {
       cursor: "pointer",
@@ -50,14 +56,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
   useCuratedDate?: boolean,
+  emphasizeIfNew?: boolean,
   classes: ClassesType,
 }) => {
-  const now = useCurrentTime();
 
   if (noStyles) {
     classes = {
@@ -66,6 +72,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
     };
   }
 
+  const now = useCurrentTime();
   const { PostsItem2MetaInfo, FormatDate, LWTooltip, TimeTag } = Components;
 
   if (post.isEvent && post.startTime) {
@@ -104,8 +111,10 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
+  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'hours') < 48;
+
   const dateElement = (
-    <PostsItem2MetaInfo className={classes.postedAt}>
+    <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>
       <TimeTag dateTime={dateToDisplay}>
         {timeFromNow}
         {ago}
@@ -129,9 +138,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, classes}: {
     placement="right"
     title={<ExpandedDate date={post.postedAt}/>}
   >
-    <PostsItem2MetaInfo className={classes.postedAt}>
-      {dateElement}
-    </PostsItem2MetaInfo>
+    {dateElement}
   </LWTooltip>
 }
 

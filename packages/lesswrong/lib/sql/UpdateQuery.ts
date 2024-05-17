@@ -1,7 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
-import { JsonType, Type } from "./Type";
+import { JsonType } from "./Type";
 
 export type UpdateOptions = Partial<{
   limit: number,
@@ -199,7 +199,15 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // @ts-ignore
+      // It's possible for collection "edit" forms to contain resolver-only
+      // fields (such as fields created by `makeEditable` with `normalized`
+      // set to `true`. This condition checks if a field is a resolver-only
+      // field and skips over it in this case avoiding an error. This makes
+      // the assumption that there is some special handing elsewhere that
+      // takes care of updating the field (as is the case for `makeEditable`).
+      if (this.table instanceof Table && this.table.hasResolverOnlyField(field)) {
+        return [];
+      }
       throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }

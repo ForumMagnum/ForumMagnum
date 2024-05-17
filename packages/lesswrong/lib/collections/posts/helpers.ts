@@ -11,6 +11,7 @@ import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
+import type { RouterLocation } from '../../vulcan-lib/routes';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -399,7 +400,7 @@ export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
 
-export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, context: ResolverContext) => {
+export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
   const matchPostPath = pathToRegexp('/posts/:_id/:slug?');
   const [_, postId] = matchPostPath.exec(req.path) ?? [];
 

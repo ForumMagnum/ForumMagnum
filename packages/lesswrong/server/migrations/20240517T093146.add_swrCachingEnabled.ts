@@ -31,12 +31,27 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "2b717580ae36a1a7e24c5a806f1806ac";
+export const acceptsSchemaHash = "4a1206bafcc5c4d63fca651ad906d213";
 
 import Posts from "../../lib/collections/posts/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
+  const index = await db.oneOrNone(`
+    SELECT indexname FROM pg_indexes
+    WHERE tablename = 'ClientIds' AND indexname = 'idx_idx_ClientIds_clientId_unique'
+  `);
+
+  if (!index) {
+    throw new Error(
+      "Index idx_idx_ClientIds_clientId_unique does not exist on table ClientIds. " +
+      "clientIdMiddleware.ts now requires this unique index to exist. It should have been created " +
+      "(in the background) by 20240513T135549.set_not_null_clientId. If this error has resulted " +
+      "in a failed deployment, you probably don't need to do anything except wait for the index " +
+      "creation to complete and run again."
+    );
+  }
+
   await addField(db, Posts, "swrCachingEnabled");
 }
 
