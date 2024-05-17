@@ -27,12 +27,13 @@ test("create and edit post", async ({page, context}) => {
   const newBody = "Edited test body";
   await page.getByPlaceholder("Post title").fill(newTitle);
   await page.getByLabel("Rich Text Editor, main").fill(newBody);
-  await page.waitForTimeout(1000);
   await page.getByText("Publish changes").click();
 
   // Submitting navigates to the post page - check it has our edits
   await page.waitForURL("/posts/**/edited-test-post**");
-  await expect(page.getByText(newTitle)).toBeVisible();
+  
+  //title has .first() because the title is both a title element and in a flash message
+  await expect(page.getByText(newTitle).first()).toBeVisible();
   await expect(page.getByText(newBody)).toBeVisible();
 });
 

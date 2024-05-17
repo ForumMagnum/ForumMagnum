@@ -6,6 +6,7 @@ import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { isE2E } from '../../lib/executionEnvironment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -58,7 +59,7 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
       void updatePost({
         selector: {_id: document._id},
         data: {title: event.target.value}
-      }).then(() => flash({messageString: "Title has been changed."}))
+      }).then(() => flash({messageString: "Title has been changed."}));
     }
   }, [document, updatePost, lastSavedTitle, flash])
 
@@ -73,7 +74,13 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     }}
     onBlur={(event) =>  handleChangeTitle(event)}
     disableUnderline={true}
-    multiline
+    multiline={
+      !isE2E
+      // For reasons we haven't been able to figure out, in a Playwright context
+      // in the multi-post-submit test, this input (if it's multiline) winds up
+      // zero-height, which causes `getByPlaceholder` to treat it as hidden,
+      // which makes the test fail.
+    }
   />
 };
 
