@@ -665,11 +665,6 @@
     "timestamp": "2024-05-13T13:55:49.000Z"
   },
   {
-    "acceptsSchemaHash": "fbdc0322e89273b427d262fcc7ae5f46",
-    "acceptedByMigration": "20240513T142347.normalize_posts_contents.ts",
-    "timestamp": "2024-05-13T14:23:47.000Z"
-  },
-  {
     "acceptsSchemaHash": "4a1206bafcc5c4d63fca651ad906d213",
     "acceptedByMigration": "20240517T093146.add_swrCachingEnabled.ts",
     "timestamp": "2024-05-17T09:31:46.000Z"
