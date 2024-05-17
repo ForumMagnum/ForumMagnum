@@ -280,6 +280,9 @@ const PostsNewForm = ({classes}: {
   if (!currentUser) {
     return (<LoginForm />);
   }
+  if (!currentUserWithModerationGuidelines) {
+    return <Loading/>
+  }
 
   if (!userCanPost(currentUser)) {
     return (<SingleColumnSection>
