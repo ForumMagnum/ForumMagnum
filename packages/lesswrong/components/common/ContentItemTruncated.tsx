@@ -51,12 +51,12 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   </>
 }
 
-const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number): {
+export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
   truncatedHtml: string,
   wasTruncated: boolean,
   wordsLeft: number,
 } => {
-  const truncatedHtml = truncate(html, maxLengthWords, "words");
+  const truncatedHtml = truncate(html, maxLengthWords, "words", suffix);
   const wordsLeft = (truncatedHtml===html) ? 0 : rawWordCount-maxLengthWords;
   
   if (truncatedHtml === html || wordsLeft<graceWords) {

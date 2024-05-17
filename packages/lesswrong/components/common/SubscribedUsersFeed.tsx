@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
+  root: {
+    maxWidth: 700,
+  }
 })
 
 const SubscribedUsersFeed = ({classes}: {
@@ -9,7 +12,7 @@ const SubscribedUsersFeed = ({classes}: {
 }) => {
   const { MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
   
-  return <div>
+  return <div className={classes.root}>
     <SuggestedFeedSubscriptions />
     <MixedTypeFeed
       resolverName={"SubscribedFeed"}
@@ -20,12 +23,12 @@ const SubscribedUsersFeed = ({classes}: {
         postCommented: {
           fragmentName: "SubscribedPostAndCommentsFeed",
           render: (postCommented: SubscribedPostAndCommentsFeed) => {
-            return <Components.RecentDiscussionThread
+            return <Components.FeedPostCommentsCard
               key={postCommented.post._id}
               post={postCommented.post}
               comments={postCommented.comments}
+              maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
               refetch={()=>{} /*TODO*/}
-              smallerFonts={true}
             />
           },
         }
