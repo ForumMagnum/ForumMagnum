@@ -1,7 +1,7 @@
 import { Posts } from '../../lib/collections/posts';
 import { htmlToText } from 'html-to-text';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
-import { getLatestContentsRevision } from '../../lib/collections/posts/helpers';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 
 const runFix = false;
 

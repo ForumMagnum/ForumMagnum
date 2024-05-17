@@ -34,7 +34,7 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
-import { getLatestContentsRevision } from '../../lib/collections/posts/helpers';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 

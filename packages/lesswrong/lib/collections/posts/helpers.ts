@@ -10,8 +10,6 @@ import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
-import { getWithLoader } from '../../loaders';
-import Revisions from '../revisions/collection';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
@@ -409,25 +407,4 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
     return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
   }
   return false;
-}
-
-export const getLatestContentsRevision = async (
-  post: DbPost,
-  context?: ResolverContext,
-): Promise<DbRevision | null> => {
-  if (!post.contents_latest) {
-    return null;
-  }
-  if (context) {
-    const revisions = await getWithLoader(
-      context,
-      Revisions,
-      "postLatestRevision",
-      {},
-      "_id",
-      post.contents_latest,
-    );
-    return revisions[0] ?? null;
-  }
-  return Revisions.findOne({_id: post.contents_latest});
 }

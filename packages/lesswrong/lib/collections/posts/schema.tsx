@@ -2,7 +2,7 @@ import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/util
 import moment from 'moment';
 import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
-import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory, getLatestContentsRevision } from './helpers';
+import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { TagRels } from "../tagRels/collection";
@@ -38,6 +38,7 @@ import { hasSideComments } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
+import { getLatestContentsRevision } from '../revisions/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
