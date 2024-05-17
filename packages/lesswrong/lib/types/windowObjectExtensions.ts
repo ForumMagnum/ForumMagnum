@@ -10,7 +10,7 @@ declare global {
   interface Window {
     tabId: string | null;
     themeOptions: AbstractThemeOptions,
-    ssrMetadata: SSRMetadata
+    ssrMetadata?: SSRMetadata
     /** TODO Remove after 2024-05-14, here for backwards compatibility */
     ssrRenderedAt: string,
     publicSettings: any,
