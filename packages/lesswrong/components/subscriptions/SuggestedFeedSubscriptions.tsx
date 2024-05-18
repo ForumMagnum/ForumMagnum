@@ -9,19 +9,30 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import classNames from 'classnames';
+import _ from 'underscore';
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
     marginTop: 10,
-    marginBottom: 10,
     background: theme.palette.panelBackground.recentDiscussionThread,
+    borderRadius: 3,
+  },
+  widgetOpen: {
     paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 12,
-    borderRadius: 3,
+    marginBottom: 10,
+    width: "100%",
+  },
+  widgetClosed: {
+    width: "fit-content",
+    opacity: 0.8,
+    background: "none",
+    textShadow: "2px 2px 20px #fff"
   },
   titleRow: {
     display: "flex",
@@ -62,7 +73,7 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "nowrap",
     '&:hover': {
       backgroundColor: theme.palette.grey[200],
-      opacity: 1.0,
+      opacity: 0.7,
     }
   },
   userSubscribeButtons: {
@@ -178,7 +189,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
       setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
   }
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, {[classes.widgetOpen]: widgetOpen, [classes.widgetClosed]: !widgetOpen})}>
     <div className={classes.titleRow}>
       <div className={classes.hideButton} onClick={toggleWidgetOpen}>
         {widgetOpen ? "Hide" : "Show Suggested Users"}

@@ -12,7 +12,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { useCurrentUser } from '../common/withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 
@@ -29,12 +28,16 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   postStyle: theme.typography.commentStyle,
-  postItem: {
+  cardHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "baseline",
     paddingBottom: 6,
     ...theme.typography.commentStyle,
+    [theme.breakpoints.down('xs')]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+    }
   },
   continueReading: {
     marginTop:theme.spacing.unit*2,
@@ -49,7 +52,8 @@ const styles = (theme: ThemeType) => ({
   noComments: {
     paddingBottom: 16
   },
-  threadMeta: {
+  postMetaInfo: {
+    display: "flex",
     cursor: "pointer",
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -97,30 +101,27 @@ const styles = (theme: ThemeType) => ({
   metaAndActions: {
     display: "flex",
     alignItems: "center",
-    minWidth: "30%",
-    maxWidth: "50%",
     justifyContent: "end",
-  },
-  titleAndLinkIcon: {
-    // display: "flex",
-    // alignItems: "center",
-  },
-  linkPostIcon: {
-  },
-  linkIcon: {
-    height: "0.7rem",
-    width: "0.7rem",
+    flexGrow: 1,
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    }
   },
   title: {
+    display: "flex",
+    flexGrow: 1,
+    maxWidth: "65%",
     ...theme.typography.display2,
     ...theme.typography.commentStyle,
-    // flexGrow: 1,
     marginTop: 0,
     marginBottom: 8,
-    display: "flex",
-    fontSize: "1.3rem",
-    // color: theme.palette.primary.main,
+    marginRight: 10,
+    fontSize: "1.4rem",
     flexWrap: "wrap",
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "1.3rem",
+      maxWidth: "100%",
+    }
   },
   actions: {
     "& .PostActionsButton-icon": {
@@ -155,7 +156,6 @@ const FeedPostCommentsCard = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const {
-    showHighlight,
     expandAllThreads,
     lastVisitedAt,
     nestedComments,
@@ -174,36 +174,23 @@ const FeedPostCommentsCard = ({
     [classes.noComments]: post.commentCount === null
   });
 
-  const linkpostIcon = <span className={classes.linkPostIcon}>
-    <Components.LWTooltip title={<div>Link Post <div><em>(Click to see linked content)</em></div></div>} placement="right">
-      <a href={post.url}><Components.ForumIcon icon="Link" className={classes.linkIcon}/></a>
-    </Components.LWTooltip>
-  </span>
-
   const {
-    PostsGroupDetails, PostsItemMeta, CommentsNode, FeedPostsHighlight, PostActionsButton,
+    PostsGroupDetails, PostsItemMeta, CommentsNode, FeedPostsHighlight, PostActionsButton, FeedPostCardMeta
   } = Components;
   return (
     <AnalyticsContext pageSubSectionContext='FeedPostCommentsCard'>
 
       <div className={classNames(classes.root, classes.plainBackground)}>
         <div className={classNames(classes.post, classes.plainBackground)}>
-          <div className={classes.postItem}>
-            {/* TODO: this will break styling, need to test with actual example */}
+          <div className={classes.cardHeader}>
+            {/* TODO: this will break styling probably, need to test with actual example of groups*/}
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
-            <div className={classes.titleAndLinkIcon}>
-              <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
-                {post.title}
-              </Link>
-              {post.url && linkpostIcon}
-            </div>
+            <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
+              {post.title}
+            </Link>
             <div className={classes.metaAndActions}>
-              <div className={classes.threadMeta} onClick={showHighlight}>
-                <PostsItemMeta post={post} hideTags={true} />
-              </div>
-              <div className={classes.actions}>
-                <PostActionsButton post={post} autoPlace vertical />
-              </div>
+              <FeedPostCardMeta post={post} />
+              <PostActionsButton post={post} autoPlace vertical className={classes.actions} />
             </div>
           </div>
 

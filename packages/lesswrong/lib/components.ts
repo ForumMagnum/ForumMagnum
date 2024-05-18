@@ -669,6 +669,7 @@ importComponent("CommentView", () => require('../components/dialogues/DialogueRe
 importComponent("CalendlyIFrame", () => require('../components/dialogues/CalendlyIFrame'));
 importComponent("ActiveDialogues", () => require('../components/dialogues/ActiveDialogues'));
 importComponent("FeedPostCommentsCard", () => require('../components/recentDiscussion/FeedPostCommentsCard'));
+importComponent("FeedPostCardMeta", () => require('../components/posts/FeedPostCardMeta'));
 
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
