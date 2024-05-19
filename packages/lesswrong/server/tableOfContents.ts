@@ -53,7 +53,7 @@ export const getToCforPost = async ({document, version, context}: {
       return null;
     html = revision.html;
   } else {
-    html = document?.contents?.html;
+    html = document?.contents?.html ?? "";
   }
   
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
@@ -105,7 +105,7 @@ const getToCforTag = async ({document, version, context}: {
       console.log("Author annotation failed");
       // eslint-disable-next-line no-console
       console.log(e);
-      html = document.description?.html;
+      html = document.description?.html ?? "";
     }
   }
   

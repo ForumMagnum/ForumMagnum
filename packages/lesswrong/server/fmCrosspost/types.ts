@@ -221,7 +221,6 @@ export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
 //     myEditorAccess: t.keyof({ none: null, read: null, comment: null, edit: null }),
 //     noIndex: t.boolean,
 //     socialPreviewImageUrl: t.string,
-//     showModerationGuidelines: t.boolean,
 //     activateRSVPs: t.boolean,
 //     fmCrosspost: t.partial({
 //       isCrosspost: t.boolean,

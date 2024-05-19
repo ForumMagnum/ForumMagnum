@@ -1,8 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import React, { useEffect, ReactElement } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { DebouncedCallbackOptions, useDebouncedCallback } from '../components/hooks/useDebouncedCallback';
@@ -87,7 +86,9 @@ describe('useDebouncedCallback', () => {
     expect(fn).toHaveBeenCalledTimes(0);
     
     // Unmount. Should cause it to be called.
-    root.unmount();
+    act(() => {
+      root.unmount();
+    });
     expect(fn).toHaveBeenCalledTimes(1);
     
     // Attempt to call it. Should be blocked because allowExplicitCallAfterUnmount is false.

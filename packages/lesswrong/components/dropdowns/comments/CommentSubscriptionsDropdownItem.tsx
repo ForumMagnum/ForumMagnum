@@ -3,7 +3,8 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema";
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
-import { allowSubscribeToUserComments } from "../../../lib/betas";
+import { allowSubscribeToUserComments, userHasSubscribeTabFeed } from "../../../lib/betas";
+import { isAdmin } from "../../../lib/vulcan-users";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -34,6 +35,14 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
     unsubscribeMessage: `Unsubscribe from this comment's replies`,
     title: `New replies to this comment`,
     subscriptionType: subscriptionTypes.newReplies,
+  },
+  {
+    document: comment.user,
+    enabled: userHasSubscribeTabFeed(currentUser) && enableSubscribeToCommentUser,
+    subscribeMessage: `Subscribe to ${userGetDisplayName(comment.user)} in your feed`,
+    unsubscribeMessage: `Unsubscribe from ${userGetDisplayName(comment.user)} in your feed`,
+    title: `New posts by ${userGetDisplayName(comment.user)}`,
+    subscriptionType: subscriptionTypes.newActivityForFeed,
   },
   {
     document: comment.user,

@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { frontpageDaysAgoCutoffSetting } from "../../lib/scoring";
-import { useTimezone } from "../common/withTimezone";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
@@ -20,6 +19,7 @@ import Input from "@material-ui/core/Input";
 import moment from "moment";
 import qs from "qs";
 import { useNavigate } from "../../lib/reactRouterWrapper";
+import { useCurrentTime } from "../../lib/utils/timeUtil";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -80,7 +80,7 @@ const RecommendationsSamplePage = ({classes}: {
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {timezone} = useTimezone();
+  const now = useCurrentTime();
   const {query} = useLocation();
   const navigate = useNavigate();
   const [strategy, setStrategy] = useState<RecommendationStrategyName>(
@@ -98,10 +98,10 @@ const RecommendationsSamplePage = ({classes}: {
 
   const {results, loading, loadMoreProps} = useMulti({
     terms: {
-      after: moment().tz(timezone).subtract(
-        frontpageDaysAgoCutoffSetting.get(),
-        "days",
-      ).format("YYYY-MM-DD"),
+      after: moment(now).subtract(
+        frontpageDaysAgoCutoffSetting.get()*24,
+        "hours",
+      ).startOf("hour").toISOString(),
       view: "magic",
       forum: true,
       limit: 20,

@@ -1,7 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
 import SelectQuery from "./SelectQuery";
-import { JsonType, Type } from "./Type";
+import { JsonType } from "./Type";
 
 export type UpdateOptions = Partial<{
   limit: number,
@@ -167,18 +167,31 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
     value: any,
     format: (resolvedField: string, updateValue: Atom<T>[]) => Atom<T>[],
   ): Atom<T>[] {
-    try {
-      // If we're updating the value of a JSON blob without totally replacing
-      // it then we need to wrap the update in a call to `JSONB_SET`.
-      if (field.includes(".")) {
-        const updateValue = this.compileUpdateExpression(value, { skipTypeHint: true });
-        const {column, path} = this.buildJsonUpdatePath(field);
-        return format(
-          column,
-          ["JSONB_SET(", column, ",", path, "::TEXT[],", ...updateValue, ", TRUE)"],
-        );
+    // If we're updating the value of a JSON blob without totally replacing
+    // it then we need to wrap the update in a call to `JSONB_SET`.
+    if (field.includes(".")) {
+      const updateValue = this.compileUpdateExpression(value);
+      const {column, path} = this.buildJsonUpdatePath(field);
+      // Check if we're trying to unset the field (currently you can only unset fields in the first level)
+      if (value === null) {
+        const fieldTokens = field.split(".")
+        if (fieldTokens.length === 2) {
+          return format(
+            column,
+            [column, ` - '${fieldTokens[1]}'`],
+          );
+        } else {
+          throw new Error(`Unsetting a field past the first level of a JSON blob is not yet supported`)
+        }
       }
-  
+      
+      return format(
+        column,
+        ["JSONB_SET(", column, ",", path, "::TEXT[], TO_JSONB(", ...updateValue, "), TRUE)"],
+      );
+    }
+    
+    try {
       const fieldType = this.getField(field);
       const arrayValueInNonArrayJsonbField = fieldType && !fieldType.isArray() && fieldType.toConcrete() instanceof JsonType && Array.isArray(value);
       const typeForArg = arrayValueInNonArrayJsonbField ? new JsonType() : undefined;
@@ -186,7 +199,15 @@ class UpdateQuery<T extends DbObject> extends Query<T> {
       const resolvedField = this.resolveFieldName(field);
       return format(resolvedField, updateValue);
     } catch (e) {
-      // @ts-ignore
+      // It's possible for collection "edit" forms to contain resolver-only
+      // fields (such as fields created by `makeEditable` with `normalized`
+      // set to `true`. This condition checks if a field is a resolver-only
+      // field and skips over it in this case avoiding an error. This makes
+      // the assumption that there is some special handing elsewhere that
+      // takes care of updating the field (as is the case for `makeEditable`).
+      if (this.table instanceof Table && this.table.hasResolverOnlyField(field)) {
+        return [];
+      }
       throw new Error(`Field "${field}" is not recognized - is it missing from the schema?`, {cause: e});
     }
   }

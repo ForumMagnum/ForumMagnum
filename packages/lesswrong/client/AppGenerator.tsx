@@ -1,5 +1,5 @@
 // Client-side React wrapper/context provider
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
@@ -11,19 +11,29 @@ import { CookiesProvider } from 'react-cookie';
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abTestImpl';
 import type { AbstractThemeOptions } from '../themes/themeNames';
-import type { TimeOverride } from '../lib/utils/timeUtil';
+import type { SSRMetadata, TimeOverride } from '../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
 // the server-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such.
-const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, themeOptions, timeOverride }: {
+const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, themeOptions, ssrMetadata }: {
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   themeOptions: AbstractThemeOptions,
-  timeOverride: TimeOverride,
+  ssrMetadata?: SSRMetadata,
 }) => {
+  const [timeOverride, setTimeOverride] = useState<TimeOverride | null>(ssrMetadata ? {
+    currentTime: new Date(ssrMetadata.renderedAt),
+    cacheFriendly: ssrMetadata.cacheFriendly,
+    timezone: ssrMetadata.timezone
+  } : null);
+
+  useEffect(() => {
+    setTimeOverride(null);
+  }, []);
+
   const App = (
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>

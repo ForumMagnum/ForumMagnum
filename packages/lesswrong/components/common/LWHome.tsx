@@ -1,12 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useEffect } from 'react';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget, 
@@ -19,36 +20,38 @@ const LWHome = () => {
     }
   }, [setCookie])
 
+  const { captureEvent } = useTracking();
+
+
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          <DismissibleSpotlightItem current standaloneSection />
-
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-        
           {reviewIsActive() && getReviewPhase() !== "RESULTS" && showReviewOnFrontPageIfActive.get() && <SingleColumnSection>
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
-          
+          <SingleColumnSection>
+            <DismissibleSpotlightItem current/>
+          </SingleColumnSection>
           <AnalyticsInViewTracker
-              eventProps={{inViewType: "homePosts"}}
-              observerProps={{threshold:[0, 0.5, 1]}}
+            eventProps={{inViewType: "homePosts"}}
+            observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <LWHomePosts />
+            <LWHomePosts>
+              <QuickTakesSection />
+    
+              <EAPopularCommentsSection />
+    
+              <RecentDiscussionFeed
+                af={false}
+                commentsLimit={4}
+                maxAgeHours={18}
+              />
+            </LWHomePosts>
           </AnalyticsInViewTracker>
-
-          <QuickTakesSection />
-
-          <EAPopularCommentsSection />
-
-          <RecentDiscussionFeed
-            af={false}
-            commentsLimit={4}
-            maxAgeHours={18}
-          />
         </React.Fragment>
       </AnalyticsContext>
   )

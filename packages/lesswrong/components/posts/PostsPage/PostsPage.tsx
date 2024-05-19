@@ -8,13 +8,9 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, recombeeEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { welcomeBoxes } from './WelcomeBox';
-import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -47,6 +43,7 @@ export const CENTRAL_COLUMN_WIDTH = 682
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
+export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
 
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
@@ -349,6 +346,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
+  const [attributionId, setAttributionId] = useState<string | undefined>();
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -366,8 +364,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
-
-  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
 
   const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
@@ -492,30 +488,36 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, RecombeeInViewTracker
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker
   } = Components
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+    const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
 
     void recordPostView({
       post: post,
       extraEventProperties: {
         sequenceId: getSequenceId()
       },
-      recombeeOptions: {
-        recommId
+      recommendationOptions: {
+        recombeeOptions: { recommId },
+        vertexOptions: { attributionId }
       }
-
     });
 
-    if (!currentUser || !recombeeEnabledSetting.get()) return;
+    if (!currentUser || (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get())) return;
     setRecommId(recommId);
+    setAttributionId(attributionId);
 
-    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
-    // sharing links with a recommId
+    // Remove recombee & vertex attribution ids from query once the they're stored to state and initial event fired off, to prevent accidentally
+    // sharing links with the query params still present
     const currentQuery = isEmpty(query) ? {} : query;
-    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
+    const newQuery = {
+      ...currentQuery,
+      [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
+      [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
+    };
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -653,13 +655,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsContext>
   </>;
 
-  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
-  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps
-    ? <div className={classes.welcomeBox}>
-        <WelcomeBox {...welcomeBoxProps} />
-      </div>
-    : null;
+  const welcomeBox = (
+    <ForumNoSSR>
+      <WelcomeBox />
+    </ForumNoSSR>
+  );
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
@@ -757,7 +757,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1, recommId}}>
+      <AttributionInViewTracker eventProps={{ postId: post._id, portion: 1, recommId, vertexAttributionId: attributionId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -788,7 +788,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             </div>
           }
         </div>
-      </RecombeeInViewTracker>
+      </AttributionInViewTracker>
     </AnalyticsInViewTracker>
 
   const commentsToC = fullPost

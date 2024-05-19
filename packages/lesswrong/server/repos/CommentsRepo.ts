@@ -227,9 +227,18 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         c."postedAt",
         EXTRACT(EPOCH FROM c."postedAt") * 1000 AS "publicDateMs",
         COALESCE(c."af", FALSE) AS "af",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."username" AS "authorUserName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."username"
+        END AS "authorUserName",
         c."postId",
         post."title" AS "postTitle",
         post."slug" AS "postSlug",

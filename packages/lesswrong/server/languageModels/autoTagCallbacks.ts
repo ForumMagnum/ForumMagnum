@@ -169,7 +169,7 @@ export type PostBodyCache = {preprocessedBody: Record<string,string>}
 export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
-    result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html);
+    result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html ?? "");
   }
   return result;
 }

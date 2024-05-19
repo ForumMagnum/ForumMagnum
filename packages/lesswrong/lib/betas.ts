@@ -20,6 +20,7 @@ import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 import { recombeeEnabledSetting } from './publicSettings';
 import { useLocation } from './routeUtil';
+import { isAnyTest } from './executionEnvironment';
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -47,8 +48,6 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isFriendlyUI ? adminOnly : shippedFeature;
 
-export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
-
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
@@ -59,6 +58,8 @@ export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
   isEAForum && !!user?.beta;
+
+export const userHasSubscribeTabFeed = isLW ? isAdmin : disabled;
 
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
@@ -90,6 +91,11 @@ export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.g
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
 export const useCurationEmailsCron = isLW;
+
+// EA Forum disabled the author's ability to moderate posts. We disregard this
+// check in tests as the tests run in EA Forum mode, but we want to be able to
+// test the moderation features.
+export const hasAuthorModeration = !isEAForum || isAnyTest;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

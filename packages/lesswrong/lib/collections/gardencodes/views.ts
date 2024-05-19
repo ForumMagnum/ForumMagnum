@@ -68,8 +68,6 @@ GardenCodes.addView("usersPrivateGardenCodes", function (terms) {
   }
 })
 
-ensureIndex(GardenCodes, {code: 1, deleted: 1, userId: 1, });
-
 GardenCodes.addView("publicGardenCodes", function (terms: GardenCodesViewTerms) {
   const twoHoursAgo = new Date(new Date().getTime()-(2*60*60*1000));
   return {

@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isEAForum } from "../../instanceSettings";
+import {assumeUserEmailVerifiedSetting, forumTypeSetting, isEAForum} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -9,6 +9,7 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
+import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -108,14 +109,26 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
+const postHasModerationGuidelines = (
+  post: PostsBase | PostsModerationGuidelines | DbPost,
+): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
+  return !!(
+    ("moderationGuidelines_latest" in post && post.moderationGuidelines_latest) ||
+    ("moderationGuidelines" in post && post.moderationGuidelines?.originalContents) ||
+    post.moderationStyle
+  );
 }
 
-export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
+export const userCanModeratePost = (
+  user: UsersProfile|DbUser|null,
+  post?: PostsBase|PostsModerationGuidelines|DbPost|null,
+): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
     return true
   }
@@ -280,8 +293,8 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
-  // EA Forum does not do its own email verification
-  if (forumTypeSetting.get() === 'EAForum') {
+  // Some forums don't do their own email verification
+  if (assumeUserEmailVerifiedSetting.get()) {
     return true
   }
   if (!user || !user.emails)

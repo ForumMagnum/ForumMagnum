@@ -3,6 +3,7 @@ import {
   searchIndexedCollectionNames,
 } from "../../../lib/search/searchUtil";
 import { getCollectionHooks } from "../../mutationCallbacks";
+import { UsersRepo } from "../../repos";
 import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
 import { isElasticEnabled } from "./elasticSettings";
@@ -27,4 +28,30 @@ if (isElasticEnabled) {
     getCollectionHooks(collectionName).createAfter.add(callback);
     getCollectionHooks(collectionName).updateAfter.add(callback);
   }
+
+  getCollectionHooks("Users").editAsync.add(async function reindexDeletedUserContent(
+    newUser: DbUser,
+    oldUser: DbUser,
+  ) {
+    if (!!newUser.deleted !== !!oldUser.deleted) {
+      const repo = new UsersRepo();
+      const [
+        postIds,
+        commentIds,
+        sequenceIds,
+      ] = await Promise.all([
+        repo.getAllUserPostIds(newUser._id),
+        repo.getAllUserCommentIds(newUser._id),
+        repo.getAllUserSequenceIds(newUser._id),
+      ]);
+
+      const client = new ElasticClient();
+      const exporter = new ElasticExporter(client);
+      await Promise.all([
+        ...postIds.map((id) => exporter.updateDocument("Posts", id)),
+        ...commentIds.map((id) => exporter.updateDocument("Comments", id)),
+        ...sequenceIds.map((id) => exporter.updateDocument("Sequences", id)),
+      ]);
+    }
+  });
 }

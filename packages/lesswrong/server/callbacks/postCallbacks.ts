@@ -32,7 +32,8 @@ import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
 import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
 import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
 import { recombeeApi } from '../recombee/client';
-import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { googleVertexApi } from '../google-vertex/client';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -604,29 +605,64 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 /* Recombee callbacks */
 
 postPublishedCallback.add((post, context) => {
-  if (!recombeeEnabledSetting.get() || post.shortform || post.unlisted) return;
+  if (post.shortform || post.unlisted) return;
 
-  void recombeeApi.upsertPost(post, context)
-    // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending published post to recombee', { e }));  
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(post, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to recombee', { e }));
+  }
+
+  if (vertexEnabledSetting.get()) {
+    void googleVertexApi.upsertPost({ post }, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to google vertex', { e }));
+  }
 });
 
 getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
-  //newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
-  //This does seem likely to be a bug in a the mutator logic
+  // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
+  // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if (!recombeeEnabledSetting.get() || (post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+  if ((post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
 
-  void recombeeApi.upsertPost(post, context)
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(post, context)
     // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending updated post to recombee', { e }));  
+    .catch(e => console.log('Error when sending updated post to recombee', { e }));
+  }
+
+  if (vertexEnabledSetting.get()) {
+    void googleVertexApi.upsertPost({ post }, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending updated post to google vertex', { e }));
+  }
 });
 
 voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
 
-  void recombeeApi.upsertPost(newDocument as DbPost, context)
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(newDocument as DbPost, context)
     // eslint-disable-next-line no-console
-    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));  
+    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));
+  }
+  
+  // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
+});
+
+getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
+  modifier: MongoModifier<DbPost>,
+  _post: DbPost,
+): Promise<MongoModifier<DbPost>> {
+  if (
+    modifier.$set?.submitToFrontpage === false ||
+    modifier.$set?.submitToFrontpage === null ||
+    modifier.$unset?.submitToFrontpage
+  ) {
+    modifier.$unset ??= {};
+    modifier.$unset.frontpageDate = 1;
+  }
+  return modifier;
 });

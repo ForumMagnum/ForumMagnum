@@ -138,6 +138,7 @@ export type AnalyticsProps = {
   feedType?: string,
   onsite?: boolean,
   terms?: PostsViewTerms,
+  viewType?: string,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
