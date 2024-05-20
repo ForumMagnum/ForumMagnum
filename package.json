@@ -79,6 +79,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.5.4",
     "@apollo/client": "^3.2.0",
+    "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.12.1",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
     "@datadog/browser-rum": "^4.26.0",
