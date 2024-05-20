@@ -6,6 +6,10 @@ import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib';
 import { randomId } from '../lib/random';
 
+// Imports required for the whole app:
+import '../client';
+import { CLIENT_ID_COOKIE } from '../lib/cookies/cookies';
+
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
  * needs to be cache friendly (and hence may not be unique to this client + tab). Generate them now
@@ -21,13 +25,7 @@ function ensureIdentifiers() {
     window.tabId = randomId();
   }
 }
-
-// Needs to run before importing '../client' so `tabId` is picked up correctly
 ensureIdentifiers();
-
-// Imports required for the whole app:
-import '../client';
-import { CLIENT_ID_COOKIE } from '../lib/cookies/cookies';
 
 let startupCalled = false;
 async function clientStartup() {

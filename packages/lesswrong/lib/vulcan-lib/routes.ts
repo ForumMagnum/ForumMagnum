@@ -62,7 +62,7 @@ export type Route = {
   // This should only return true for routes which are *guaranteed* to return a 200 status code.
   // I.e. it is better to give false negatives (not prefetching on a route that actually returns
   // a 200) than false positives.
-  enableResourcePrefetch?: boolean | ((req: Request, res: Response, context: ResolverContext) => Promise<boolean>),
+  enableResourcePrefetch?: boolean | ((req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => Promise<boolean>),
   /**
    * Under what circumstances stale-while-revalidate caching should be enabled on this route.
    * If enabled, page loads where this is allowed will have a "Cache-control: max-age=1, s-max-age=1, stale-while-revalidate=86400"

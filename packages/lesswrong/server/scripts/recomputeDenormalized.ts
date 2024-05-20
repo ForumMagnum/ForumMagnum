@@ -4,6 +4,7 @@ import { migrateDocuments } from '../manualMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 
 
 export const recomputeAllDenormalizedValues = async () => {
@@ -134,7 +135,7 @@ async function runDenormalizedFieldMigration<N extends CollectionNameString>({
         }
       }))
 
-      const nonEmptyUpdates = _.without(updates, null)
+      const nonEmptyUpdates = filterNonnull(updates)
       numDifferent += nonEmptyUpdates.length;
 
       // eslint-disable-next-line no-console

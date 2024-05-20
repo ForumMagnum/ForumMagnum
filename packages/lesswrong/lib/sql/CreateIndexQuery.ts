@@ -19,7 +19,7 @@ import { StringType } from "./Type";
 class CreateIndexQuery<T extends DbObject> extends Query<T> {
   private isUnique: boolean;
 
-  constructor(table: Table<T>, index: TableIndex<T>, ifNotExists = true, allowConcurrent=true) {
+  constructor({ table, index, ifNotExists = true, allowConcurrent = true }: { table: Table<T>; index: TableIndex<T>; ifNotExists?: boolean; allowConcurrent?: boolean; }) {
     super(table);
     this.isIndex = true;
     this.calculateIsUnique(index);

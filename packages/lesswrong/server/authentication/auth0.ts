@@ -185,6 +185,7 @@ export const loginAuth0User = async (
  * Signup a new user using an email and password.
  * For this to work, you must manually enable the "password" grant type in
  * the Auth0 dashboard.
+ * Specifically go to `Dashboard > Applications > Your App > Show Advanced Settings > Grant Types`
  */
 export const signupAuth0User = async (
   profileFromAccessToken: ProfileFromAccessToken,

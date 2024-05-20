@@ -61,6 +61,11 @@ type ABTestGroup = {
 }
 
 type ABKeyInfo = {
+  /**
+   * clientId can now be undefined on the server, in the case where a new user's first request is
+   * to a cache friendly page (we can't add a "set-cookie" to the response, so it is generated as
+   * soon as the client initialises instead)
+   */
   clientId?: string
 } | {
   user: DbUser | UsersCurrent

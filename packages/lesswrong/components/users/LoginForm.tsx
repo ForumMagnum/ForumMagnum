@@ -7,6 +7,7 @@ import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -101,7 +102,7 @@ type LoginFormProps = {
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return <LoginFormEA {...props} />
   }
   return <LoginFormDefault {...props} />
@@ -260,9 +261,8 @@ const LoginFormEA = ({
 
   return (
     <Components.EALoginPopover
-      open={!!action}
+      action={action}
       setAction={wrappedSetAction}
-      isSignup={action === "signup"}
     />
   );
 }

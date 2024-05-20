@@ -9,6 +9,7 @@ import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
 import { Link } from '../../lib/reactRouterWrapper';
 import { CareerStageValue } from '../../lib/collections/users/schema';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -319,6 +320,7 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
   classes: ClassesType<typeof styles>,
 }) => {
   const adData = JOB_AD_DATA[jobName]
+  const now = useCurrentTime();
   
   const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
   
@@ -328,7 +330,7 @@ const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, clas
   
   // Only show the "Remind me" button if the job's deadline is more than 3 days away
   // and the current user hasn't already set a reminder for this job.
-  const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline) && !userJobAd?.reminderSetAt
+  const showRemindMe = adData.deadline && moment(now).add(3*24, 'hours').isBefore(adData.deadline) && !userJobAd?.reminderSetAt
   
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
     <div className={classes.root}>

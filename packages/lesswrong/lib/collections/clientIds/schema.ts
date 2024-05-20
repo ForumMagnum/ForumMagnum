@@ -4,7 +4,8 @@ const schema: SchemaType<"ClientIds"> = {
   clientId: {
     type: String,
     canRead: ['sunshineRegiment','admins'],
-    nullable: false
+    /** Not actually nullable, but attempting to add the NOT NULL constraint causes the table to lock */
+    nullable: true
   },
   firstSeenReferrer: {
     type: String,

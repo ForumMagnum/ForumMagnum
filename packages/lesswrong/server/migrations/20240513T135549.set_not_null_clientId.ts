@@ -1,3 +1,6 @@
+import { ClientIds } from "../../lib/collections/clientIds/collection";
+import { updateIndexes } from "./meta/utils";
+
 /**
  * Generated on 2024-05-01T13:57:58.420Z by `yarn makemigrations`
  * The following schema changes were detected:
@@ -31,12 +34,10 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "5cfcede474784a16b714db78a9f550d0";
+export const acceptsSchemaHash = "aa1eac5798b9679483aaff7b85ba1e8e";
 
 export const up = async ({db}: MigrationContext) => {
-  await db.none(`ALTER TABLE "ClientIds" ALTER COLUMN "clientId" SET NOT NULL;`)
+  await updateIndexes(ClientIds);
 }
 
-export const down = async ({db}: MigrationContext) => {
-  await db.none(`ALTER TABLE "ClientIds" ALTER COLUMN "clientId" DROP NOT NULL;`)
-}
+export const down = async ({db}: MigrationContext) => {}
