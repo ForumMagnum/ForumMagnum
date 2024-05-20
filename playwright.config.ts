@@ -31,12 +31,12 @@ const getProjects = () => {
   let projects: Projects = [
     {
       name: "chromium",
-      use: {
-        ...devices["Desktop Chrome"],
-      },
+      use: {...devices["Desktop Chrome"]},
     },
   ];
   if (process.env.CI) {
+    // In CI the projects are run by name from the strategy matrix, so
+    // we add all of them here to make them available.
     projects = projects.concat([
       {
         name: "firefox",
@@ -52,30 +52,30 @@ const getProjects = () => {
           },
         },
       },
-      // {
-      //   name: "webkit",
-      //   use: {...devices["Desktop Safari"]},
-      // },
+      {
+        name: "webkit",
+        use: {...devices["Desktop Safari"]},
+      },
 
       /* Test against mobile viewports. */
-      // {
-      //   name: "mobile-chrome",
-      //   use: {...devices["Pixel 5"]},
-      // },
+      {
+        name: "mobile-chrome",
+        use: {...devices["Pixel 5"]},
+      },
       {
         name: "mobile-webkit",
         use: {...devices["iPhone 12"]},
       },
 
       /* Test against branded browsers. */
-      // {
-      //   name: "edge",
-      //   use: {...devices["Desktop Edge"], channel: "msedge"},
-      // },
-      // {
-      //   name: "chrome",
-      //   use: {...devices["Desktop Chrome"], channel: "chrome"},
-      // },
+      {
+        name: "edge",
+        use: {...devices["Desktop Edge"], channel: "msedge"},
+      },
+      {
+        name: "chrome",
+        use: {...devices["Desktop Chrome"], channel: "chrome"},
+      },
     ]);
   }
   return projects;
