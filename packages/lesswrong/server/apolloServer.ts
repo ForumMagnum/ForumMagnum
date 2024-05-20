@@ -63,7 +63,8 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
  * will occur but nothing will happen as the event listener won't be attached
  * yet which leads to flaky tests. To avoid this we add some static styles to
  * the top of the SSR'd page which are then manually deleted _after_ React
- * hydration has finished.
+ * hydration has finished. Be careful editing this - it would ve very bad for
+ * this to end up in production builds.
  */
 const ssrInteractionDisable = isE2E
   ? `

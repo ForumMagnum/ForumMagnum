@@ -34,7 +34,7 @@ const placeholders: Record<PostCategory|"event", string> = {
   "linkpost": "Linkpost title"
 }
 
-const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
+const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
   document: PostsBase,
   value: any,
   path: string,
@@ -75,11 +75,12 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     onBlur={(event) =>  handleChangeTitle(event)}
     disableUnderline={true}
     multiline={
-      !isE2E
       // For reasons we haven't been able to figure out, in a Playwright context
       // in the multi-post-submit test, this input (if it's multiline) winds up
       // zero-height, which causes `getByPlaceholder` to treat it as hidden,
-      // which makes the test fail.
+      // which makes the test fail. Investigations suggest this is a bug inside
+      // MaterialUI, rather than an issue with our code.
+      !isE2E
     }
   />
 };

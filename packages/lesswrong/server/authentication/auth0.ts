@@ -34,6 +34,11 @@ abstract class IAuth0Client {
   abstract loginUser(email: string, password: string): Promise<string | null>;
 }
 
+/**
+ * We replace the real `Auth0Client` (defined below) with this mock client for
+ * end-to-end Cypress tests. This bypasses auth0 completely. Note that the mock
+ * client will always login the user, whether or not their password is correct.
+ */
 class MockAuth0Client extends IAuth0Client {
   getUserById(_userId: string): Promise<Auth0User> {
     throw new Error("getUserById not implemented for tests");
