@@ -36,19 +36,20 @@ const invalidateUrlFromQueue = async (): Promise<void> => {
   if (!url) return;
 
   logger(`Sending invalidation request. URL: ${url}, serverId: ${serverId}`)
-  fetch(url, {
-    headers: {
-      'User-Agent': INVALIDATION_USER_AGENT
-    }
-  }).then(response => {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': INVALIDATION_USER_AGENT
+      }
+    });
     if (!response.ok) {
       // eslint-disable-next-line no-console
       console.error(`Invalidation request to URL failed: ${url}`);
     }
-  }).catch(error => {
+  } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Invalidation request to URL failed: ${url}`, error);
-  });
+  }
 }
 
 const scheduleQueueProcessing = () => {
