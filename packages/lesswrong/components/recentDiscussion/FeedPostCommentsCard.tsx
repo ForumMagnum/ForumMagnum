@@ -156,7 +156,7 @@ const FeedPostCommentsCard = ({
   });
 
   const {
-    PostsGroupDetails, PostsItemMeta, CommentsNode, FeedPostsHighlight, PostActionsButton, FeedPostCardMeta
+    PostsGroupDetails, CommentsNode, FeedPostsHighlight, PostActionsButton, FeedPostCardMeta
   } = Components;
   return (
     <AnalyticsContext pageSubSectionContext='FeedPostCommentsCard'>
@@ -186,10 +186,10 @@ const FeedPostCommentsCard = ({
 
         <div className={classes.content}>
           <div className={classes.commentsList}>
-            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+            {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
-                  treeOptions={{...treeOptions}}
+                  treeOptions={treeOptions}
                   startThreadTruncated={true}
                   expandAllThreads={expandAllThreads}
                   expandNewComments={false}

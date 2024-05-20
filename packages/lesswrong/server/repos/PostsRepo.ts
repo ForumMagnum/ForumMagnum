@@ -810,7 +810,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       posts_with_comments_from_subscribees AS (
           SELECT
              "postId",
-             ARRAY_AGG(c._id ORDER BY c."postedAt" DESC) AS "commentIds",
+             (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
              MAX(c."postedAt") AS last_updated,
             TRUE as "subscribedComments"
           FROM "Comments" c
