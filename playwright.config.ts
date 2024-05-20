@@ -33,7 +33,6 @@ const getProjects = () => {
       name: "chromium",
       use: {
         ...devices["Desktop Chrome"],
-        video: "retain-on-failure",
       },
     },
   ];
@@ -117,6 +116,11 @@ export default defineConfig({
      * See https://playwright.dev/docs/trace-viewer
      */
     trace: "on-first-retry",
+
+    /**
+     * Record videos on test failure
+     */
+    video: "retain-on-failure",
   },
   projects: getProjects(),
   webServer: getWebServers(),
