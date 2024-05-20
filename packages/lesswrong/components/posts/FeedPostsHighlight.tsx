@@ -8,9 +8,8 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
-
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { truncateWithGrace } from '../common/ContentItemTruncated';
+import { useRecordPostView } from '../hooks/useRecordPostView';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,10 +72,13 @@ const FeedPostHighlightBody = ({
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
+  const { recordPostView } = useRecordPostView(post); 
+
   const clickExpand = useCallback((ev: MouseEvent) => {
     setExpanded(true);
     ev.preventDefault();
-  }, [setExpanded]);
+    void recordPostView({post, extraEventProperties: {type: 'expandPostCard'}});
+  }, [setExpanded, recordPostView, post]);
 
 
   const maxLengthWords = expanded ? 1000 : maxCollapsedLengthWords;
