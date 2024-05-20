@@ -43,7 +43,7 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
   classes: ClassesType
 }) => {
   const { flash } = useMessages()
-  const [lastSavedTitle, setLastSavedTitle] = useState<string>(document.title)
+  const [lastSavedTitle, setLastSavedTitle] = useState<string|undefined>(document.title)
   const {mutate: updatePost} = useUpdate({
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
@@ -53,7 +53,7 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
   const effectiveCategory = isEvent ? "event" : question ? "question" as const : postCategory as PostCategory;
   const displayPlaceholder = placeholders[effectiveCategory];
 
-  const handleChangeTitle = useCallback((event: React.FocusEvent<AnyBecauseTodo>) => {
+  const handleChangeTitle = useCallback((event: React.FocusEvent<HTMLInputElement>) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
       setLastSavedTitle(event.target.value)
       void updatePost({
@@ -72,8 +72,8 @@ const EditTitle = ({document, value, path, updateCurrentValues, classes}: {
         [path]: event.target.value
       })
     }}
-    onBlur={(event) =>  handleChangeTitle(event)}
-    disableUnderline={true}
+    onBlur={handleChangeTitle}
+    disableUnderline
     multiline={
       // For reasons we haven't been able to figure out, in a Playwright context
       // in the multi-post-submit test, this input (if it's multiline) winds up
