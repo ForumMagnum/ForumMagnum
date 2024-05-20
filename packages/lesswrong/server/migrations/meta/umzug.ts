@@ -18,6 +18,7 @@ declare global {
 
   interface MigrationContext {
     db: SqlClient;
+    dbOutsideTransaction: SqlClient;
     timers: Record<string, Partial<MigrationTimer>>;
     hashes: Record<string, string>;
   }
@@ -27,9 +28,9 @@ const root = "./packages/lesswrong/server/migrations";
 
 const createMigrationPrefix = () => new Date().toISOString().replace(/[-:]/g, "").split(".")[0];
 
-const getLastMigration = async (storage: PgStorage, db: SqlClient): Promise<string | undefined> => {
-  const context = {db, timers: {}, hashes: {}};
-  const executed = await storage.executed({context}) ?? [];
+const getLastMigration = async (storage: PgStorage, context: MigrationContext): Promise<string | undefined> => {
+  // Make sure timers and hashes aren't written to here
+  const executed = (await storage.executed({ context: { ...context, timers: {}, hashes: {} } })) ?? [];
   return executed[0];
 }
 
@@ -68,35 +69,42 @@ const reportOutOfOrderRun = async (lastMigrationName: string, currentMigrationNa
   }
 }
 
-export const createMigrator = async (db: SqlClient) => {
+export const createMigrator = async (dbInTransaction: SqlClient, dbOutsideTransaction: SqlClient) => {
   const storage = new PgStorage();
-  await storage.setupEnvironment(db);
+  await storage.setupEnvironment(dbInTransaction);
+
+  const context: MigrationContext = {
+    db: dbInTransaction,
+    dbOutsideTransaction,
+    timers: {},
+    hashes: {},
+  };
 
   const migrator = new Umzug({
     migrations: {
       glob: `${root}/*.ts`,
-      resolve: ({name, path, context}) => {
+      resolve: ({name, path, context: ctx}) => {
         if (!path) {
           throw new Error("Missing migration path");
         }
         const code = readFileSync(path).toString();
-        context.hashes[name] = createHash("md5").update(code).digest("hex");
+        ctx.hashes[name] = createHash("md5").update(code).digest("hex");
         return {
           name,
           up: async () => {
-            context.timers[name] = {start: new Date()};
-            await safeRun(context.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
-            const result = await require(path).up(context);
-            await safeRun(context.db, `refresh_lowercase_views`) // add the views back in
-            context.timers[name].end = new Date();
+            ctx.timers[name] = {start: new Date()};
+            await safeRun(ctx.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
+            const result = await require(path).up(ctx);
+            await safeRun(ctx.db, `refresh_lowercase_views`) // add the views back in
+            ctx.timers[name].end = new Date();
             return result;
           },
           down: async () => {
             const migration = require(path);
             if (migration.down) {
-              await safeRun(context.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
-              const result = await migration.down(context);
-              await safeRun(context.db, `refresh_lowercase_views`) // add the views back in
+              await safeRun(ctx.db, `remove_lowercase_views`) // Remove any views before we change the underlying tables
+              const result = await migration.down(ctx);
+              await safeRun(ctx.db, `refresh_lowercase_views`) // add the views back in
               return result;
             } else {
               console.warn(`Migration '${name}' has no down step`);
@@ -105,11 +113,7 @@ export const createMigrator = async (db: SqlClient) => {
         };
       },
     },
-    context: {
-      db,
-      timers: {},
-      hashes: {},
-    },
+    context,
     storage,
     logger: console,
     create: {
@@ -121,7 +125,7 @@ export const createMigrator = async (db: SqlClient) => {
     },
   });
 
-  const lastMigration = await getLastMigration(storage, db);
+  const lastMigration = await getLastMigration(storage, context);
   if (lastMigration) {
     const lastMigrationTime = migrationNameToTime(lastMigration);
     migrator.on("migrating", async ({name}) => {

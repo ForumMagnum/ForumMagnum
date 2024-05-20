@@ -69,6 +69,7 @@ const CKCommentEditor = ({
         ...cloudinaryConfig,
       }}
       data={data}
+      isCollaborative={false}
     />
   </div>
 }

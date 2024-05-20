@@ -128,7 +128,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString()
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     ...query,

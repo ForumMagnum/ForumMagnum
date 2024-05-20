@@ -33,7 +33,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
   const now = useCurrentTime();
   const {filterSettings: userFilterSettings} = useFilterSettings()
 
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString()
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     view: "magic",

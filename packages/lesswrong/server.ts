@@ -17,7 +17,7 @@ import './server/rss-integration/callbacks';
 import './server/dialogues/cron';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
-import './server/pageCache/cron';
+import './server/cache';
 import './server/users/cron'
 import './server/curationEmails/cron';
 import './server/database-import/force_batch_update_scores';
@@ -187,7 +187,6 @@ import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
-import './server/resolvers/eventEmojiResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

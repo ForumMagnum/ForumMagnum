@@ -111,7 +111,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
 
-  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'days') < 2;
+  const isEmphasized = emphasizeIfNew && moment(now).diff(post.postedAt, 'hours') < 48;
 
   const dateElement = (
     <PostsItem2MetaInfo className={classNames(classes.postedAt, {[classes.isNew]: isEmphasized})}>

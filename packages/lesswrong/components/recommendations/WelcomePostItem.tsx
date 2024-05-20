@@ -5,9 +5,11 @@ import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";
 import { useSingle } from "../../lib/crud/withSingle";
+import { useCurrentTime } from "../../lib/utils/timeUtil";
 
 const WelcomePostItem = () => {
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
   const welcomePostId = aboutPostIdSetting.get();
 
   const { document: post } = useSingle({
@@ -27,7 +29,7 @@ const WelcomePostItem = () => {
     return null;
   }
 
-  const userAgeInDays = currentUser ? moment().diff(moment(currentUser.createdAt), 'days') : 0;
+  const userAgeInDays = currentUser ? (moment(now).diff(moment(currentUser.createdAt), 'hours')/24) : 0;
 
   // Don't display user has read post or has been a user for more than 90 days
   if (isRead || userAgeInDays > 90) {

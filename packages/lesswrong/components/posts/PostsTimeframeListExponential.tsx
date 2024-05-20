@@ -34,39 +34,39 @@ const PostsTimeframeListExponential = ({postListParameters, classes}: {
   const timeframes: TimeBlockRange[] = [
     // Today and Yesterday
     {
-      after: moment(now).add(-1,'d').startOf('day'),
+      after: moment(now).add(-24,'hours').startOf('day'),
       before: moment(now).endOf('day'),
       timeframe: "daily",
       getTitle: (size) => preferredHeadingCase("Today and Yesterday"),
     },
     // Past week
     {
-      after: moment(now).add(-7,'d').startOf('day'),
-      before: moment(now).add(-1,'d').startOf('day'),
+      after: moment(now).add(-7*24,'hours').startOf('day'),
+      before: moment(now).add(-24,'hours').startOf('day'),
       timeframe: "weekly",
       getTitle: (size) => preferredHeadingCase("Past week"),
     },
     // Past two weeks
     {
-      after: moment(now).add(-14,'d').startOf('day'),
-      before: moment(now).add(-7,'d').startOf('day'),
+      after: moment(now).add(-14*24,'hours').startOf('day'),
+      before: moment(now).add(-7*24,'hours').startOf('day'),
       timeframe: "weekly",
       getTitle: (size) => preferredHeadingCase("Past 14 days"),
     },
     // Past month
     {
-      after: moment(now).add(-31,'d').startOf('day'),
-      before: moment(now).add(-14,'d').startOf('day'),
+      after: moment(now).add(-31*24,'hours').startOf('day'),
+      before: moment(now).add(-14*24,'hours').startOf('day'),
       timeframe: "monthly",
       getTitle: (size) => preferredHeadingCase("Past 31 days"),
     }
   ];
   
   // Past two months, round to earlier month boundary
-  const roundedMonthStart = moment(now).add(-31,'d').startOf('month').add(-1,'M');
+  const roundedMonthStart = moment(now).add(-31*24,'hours').startOf('month').add(-1,'M');
   timeframes.push({
     after: roundedMonthStart,
-    before: moment(now).add(-31,'d').startOf('day'),
+    before: moment(now).add(-31*24,'hours').startOf('day'),
     timeframe: "monthly",
     // Not calling preferredHeadingCase because month names are always capitalized
     getTitle: (size) => `Since ${roundedMonthStart.format("MMMM Do")}`,
