@@ -52,28 +52,28 @@ const getProjects = () => {
           },
         },
       },
-      {
-        name: "webkit",
-        use: {...devices["Desktop Safari"]},
-      },
+      // {
+      //   name: "webkit",
+      //   use: {...devices["Desktop Safari"]},
+      // },
 
       /* Test against mobile viewports. */
       // {
-      //   name: "Mobile Chrome",
+      //   name: "mobile-chrome",
       //   use: {...devices["Pixel 5"]},
       // },
-      // {
-      //   name: "Mobile Safari",
-      //   use: {...devices["iPhone 12"]},
-      // },
+      {
+        name: "mobile-safari",
+        use: {...devices["iPhone 12"]},
+      },
 
       /* Test against branded browsers. */
       // {
-      //   name: "Microsoft Edge",
+      //   name: "edge",
       //   use: {...devices["Desktop Edge"], channel: "msedge"},
       // },
       // {
-      //   name: "Google Chrome",
+      //   name: "chrome",
       //   use: {...devices["Desktop Chrome"], channel: "chrome"},
       // },
     ]);

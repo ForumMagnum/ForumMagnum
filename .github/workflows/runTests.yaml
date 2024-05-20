@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        project: [chromium, firefox, webkit]
+        project: [chromium, firefox, mobile-safari]
     services:
       postgres:
         image: ankane/pgvector
