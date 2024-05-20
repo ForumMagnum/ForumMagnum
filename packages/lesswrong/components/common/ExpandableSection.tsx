@@ -47,7 +47,7 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   afterTitleText?: string,
   afterTitleTo?: string,
   AfterTitleComponent?: ComponentType,
-  Content: ComponentType,
+  children: React.ReactNode,
 }
 
 const ExpandableSection = ({
@@ -58,7 +58,7 @@ const ExpandableSection = ({
   afterTitleText = "View more",
   afterTitleTo,
   AfterTitleComponent,
-  Content,
+  children,
   classes,
   ...sectionTitleProps
 }: ExpandableSectionProps & {classes: ClassesType}) => {
@@ -99,7 +99,7 @@ const ExpandableSection = ({
             </div>
           }
         </SectionTitle>
-        {expanded && <Content />}
+        {expanded && <>{children}</>}
       </SingleColumnSection>
     </AnalyticsContext>
   );
