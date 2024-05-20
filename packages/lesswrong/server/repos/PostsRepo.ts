@@ -841,6 +841,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND p."hiddenRelatedQuestion" IS NOT TRUE
         AND p.unlisted IS NOT TRUE
         AND p."isFuture" IS NOT TRUE
+        AND p."isEvent" IS NOT TRUE
       ORDER BY GREATEST(last_updated, combined."postedAt") DESC;
     `, [
       userId,

@@ -13,19 +13,18 @@ import { postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collec
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
-    flexGrow: 1,
+    maxWidth: "100%",
     display: "flex",
     alignItems: "flex-start",
-    // TODO: seemingly these should be in parent component
-    justifyContent: "end",
-    [theme.breakpoints.down('xs')]: {
-      justifyContent: "start"
-    }
+    justifyContent: "start"
   },
   interactionWrapper: {
+    display: "flex",
+    alignItems: "center",
     "&:hover": {
       opacity: 1,
     },
+    marginRight: 6,
   },
   icon: {
     width: 16,
@@ -36,7 +35,6 @@ const styles = (theme: ThemeType) => ({
   },
   authorsList: {
     fontSize: "1.1rem",
-    marginRight: 4,
   },
   read: {
     opacity: ".8"
@@ -46,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   karma: {
-    minWidth:20,
+    // minWidth:20,
     textAlign: "center",
     display: "inline-block",
   },
@@ -103,12 +101,11 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
           <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
         </LWTooltip>
     </Link>
-    {separatorElement}
   </span>
 
   const dateElement = post.postedAt && !post.isEvent && <div className={classes.info}>
         <FormatDate date={post.postedAt}/>
-        {separatorElement}
+        {post.url && separatorElement}
       </div>
   
   const baseScoreElement = !post.shortform && !post.isEvent && <span className={classes.info}>
@@ -140,6 +137,7 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
           expandContainer={authorExpandContainer}
           className={classes.authorsList}
         />
+      {separatorElement}
       </InteractionWrapper>
 
   return (
@@ -147,11 +145,11 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
       className={classNames(classes.root, className)}
       ref={authorExpandContainer}
     >
-      {linkPostIcon}
-      {dateElement}
       {baseScoreElement}
       {afScoreElement}
       {authorsListElement}
+      {dateElement}
+      {linkPostIcon}
     </div>
   );
 }

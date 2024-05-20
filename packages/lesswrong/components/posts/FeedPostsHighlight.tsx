@@ -14,6 +14,7 @@ import { truncateWithGrace } from '../common/ContentItemTruncated';
 
 const styles = (theme: ThemeType) => ({
   root: {
+
     '& .read-more-button': {
       // color: theme.palette.primary.main,
       opacity: 0.7,
@@ -97,7 +98,7 @@ const FeedPostHighlightBody = ({
 
   const {truncatedHtml, wasTruncated, wordsLeft} =  truncateWithGrace(html, maxLengthWords, 20, rawWordCount, suffix);
 
-  return <Components.ContentStyles contentType="comment" className={classes.root}>
+  return <Components.ContentStyles contentType="postHighlight" className={classes.root}>
     <Components.ContentItemBody
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}

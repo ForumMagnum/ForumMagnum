@@ -27,21 +27,12 @@ const styles = (theme: ThemeType) => ({
   plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
-  postStyle: theme.typography.commentStyle,
   cardHeader: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "baseline",
-    paddingBottom: 6,
     ...theme.typography.commentStyle,
-    [theme.breakpoints.down('xs')]: {
-      flexDirection: "column",
-      alignItems: "flex-start",
-    }
-  },
-  continueReading: {
-    marginTop:theme.spacing.unit*2,
-    marginBottom:theme.spacing.unit*2,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    marginBottom: 12,
   },
   postHighlight: {
     overflow: "hidden",
@@ -61,11 +52,6 @@ const styles = (theme: ThemeType) => ({
     "&:hover $showHighlight": {
       opacity: 1
     },
-  },
-  smallerMeta: {
-    '& .PostsItemMeta-info': {
-      fontSize: '1rem'
-    }
   },
   showHighlight: {
     opacity: 0,
@@ -98,29 +84,24 @@ const styles = (theme: ThemeType) => ({
       paddingRight: 14,
     },
   },
-  metaAndActions: {
+  titleAndActions: {
+    width: "100%",
     display: "flex",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "end",
-    flexGrow: 1,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    }
+    marginBottom: 8,
   },
   title: {
-    display: "flex",
-    flexGrow: 1,
-    maxWidth: "65%",
     ...theme.typography.display2,
-    ...theme.typography.commentStyle,
+    ...theme.typography.postStyle,
     marginTop: 0,
-    marginBottom: 8,
+    display: "flex",
     marginRight: 10,
-    fontSize: "1.4rem",
+    fontSize: "1.75rem",
     flexWrap: "wrap",
+    flexGrow: 1,
     [theme.breakpoints.down('xs')]: {
       fontSize: "1.3rem",
-      maxWidth: "100%",
     }
   },
   actions: {
@@ -185,13 +166,13 @@ const FeedPostCommentsCard = ({
           <div className={classes.cardHeader}>
             {/* TODO: this will break styling probably, need to test with actual example of groups*/}
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
-            <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
-              {post.title}
-            </Link>
-            <div className={classes.metaAndActions}>
-              <FeedPostCardMeta post={post} />
+            <div className={classes.titleAndActions}>
+              <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
+                {post.title}
+              </Link>
               <PostActionsButton post={post} autoPlace vertical className={classes.actions} />
             </div>
+            <FeedPostCardMeta post={post} />
           </div>
 
           {post.contents?.wordCount && <div className={highlightClasses}>
