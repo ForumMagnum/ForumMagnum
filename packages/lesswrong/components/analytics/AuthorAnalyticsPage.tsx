@@ -22,8 +22,10 @@ const gridColumns = (titleWidth: number) =>
     titleWidth
   )}%`;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
+    width: 800,
+    maxWidth: "100vw",
     [theme.breakpoints.down("sm")]: {
       // Add the top padding back in for mobile
       paddingTop: theme.spacing.mainLayoutPaddingTop,
@@ -61,6 +63,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     // stick to bottom
     alignSelf: "flex-end",
     marginBottom: 4,
+  },
+  allYourPosts: {
+    fontSize: 18,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
   },
   grid: {
     display: "grid",
@@ -192,7 +200,9 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
   );
 };
 
-const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
+const AuthorAnalyticsPage = ({ classes }: {
+  classes: ClassesType<typeof styles>,
+}) => {
   const { params, query, location } = useLocation();
   const navigate = useNavigate();
   const slug = slugify(params.slug);
@@ -252,7 +262,10 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     desc: sortDesc,
   });
 
-  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
+  const {
+    SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon,
+    AnalyticsGraph, LWTooltip,
+  } = Components;
 
   const isCurrentUser = currentUser?.slug === slug
   if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
@@ -284,15 +297,16 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     <>
       <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
-      <div className={classes.pageHeader}>
-        <Typography variant="headline" className={classes.pageHeaderText}>
-          {isCurrentUser ? "Your" : `${user.displayName}'s`} post stats
-        </Typography>
-      </div>
+        <div className={classes.pageHeader}>
+          <Typography variant="headline" className={classes.pageHeaderText}>
+            {isCurrentUser ? "Your" : `${user.displayName}'s`} post stats
+          </Typography>
+        </div>
         <div className={classes.section}>
           <AnalyticsGraph userId={user._id}/>
         </div>
         <div className={classes.section}>
+          <div className={classes.allYourPosts}>All your posts</div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               <div className={classes.dateHeaderLabel}>

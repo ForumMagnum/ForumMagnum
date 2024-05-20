@@ -12,7 +12,7 @@ import classNames from "classnames";
 
 const GRAPH_HEIGHT = 300;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
@@ -84,6 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   notEnoughDataMessage: {
     color: theme.palette.grey[500],
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   controls: {
     display: "flex",
@@ -199,7 +200,7 @@ const startEndDateFromOption = (option: string) => {
 
 interface ColoredCheckboxProps extends CheckboxProps {
   fillColor: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }
 
 const ColoredCheckbox: React.FC<ColoredCheckboxProps> = ({ fillColor, classes, ...props }: ColoredCheckboxProps) => {
@@ -230,7 +231,7 @@ export const AnalyticsGraph = ({
   postIds?: string[];
   title?: string;
   smallerTitle?: boolean;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { Typography, ForumDropdown } = Components;
 
@@ -292,7 +293,7 @@ export const AnalyticsGraph = ({
     };
   });
 
-  const getTooltipContent = useCallback(({ active, payload, label }: TooltipProps<string, string>) => {
+  const getTooltipContent = useCallback(({ active, payload }: TooltipProps<string, string>) => {
     if (!(active && payload && payload.length)) return null;
 
     const date = new Date(payload[0].payload["date"]);
