@@ -140,6 +140,13 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
   },
   dateDropdown: {
+    marginLeft: 4,
+    marginBottom: 16,
+    color: theme.palette.grey[1000],
+    "& .MuiButton-label": {
+      fontSize: 18,
+      fontWeight: 600,
+    },
   },
   overallStat: {
     display: "flex",
