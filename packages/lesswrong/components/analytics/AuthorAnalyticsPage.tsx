@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "../../lib/routeUtil";
 import { Components, capitalize, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
@@ -25,6 +25,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     width: 800,
     maxWidth: "100%",
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
       // Add the top padding back in for mobile
       paddingTop: theme.spacing.mainLayoutPaddingTop,
@@ -189,6 +190,9 @@ const AuthorAnalyticsPage = ({ classes }: {
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
+  const initialLimit = 10;
+  const itemsPerPage = 20;
+
   const {
     data,
     loading: analyticsLoading,
@@ -197,16 +201,35 @@ const AuthorAnalyticsPage = ({ classes }: {
     userId: user?._id,
     sortBy,
     desc: sortDesc,
+    initialLimit,
+    itemsPerPage,
   });
 
+  const [posts, setPosts] = useState(data?.posts ?? []);
+  const [totalCount, setTotalCount] = useState(loadMoreProps.totalCount);
+
+  useEffect(() => {
+    if ((data?.posts?.length ?? 0) > posts.length) {
+      setPosts(data!.posts);
+    }
+  }, [data, posts, loadMoreProps]);
+
+  useEffect(() => {
+    setTotalCount((current) => Math.max(current, loadMoreProps.totalCount));
+  }, [loadMoreProps.totalCount]);
+
   const {
-    SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon,
-    AnalyticsGraph, LWTooltip, AnalyticsPostItem, AnalyticsPostItemSkeleton,
+    SingleColumnSection, HeadTags, Typography, LoadMore, ForumIcon, LWTooltip,
+    AnalyticsGraph, AnalyticsPostItem, AnalyticsPostItemSkeleton,
   } = Components;
 
   const isCurrentUser = currentUser?.slug === slug
   if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
-    return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
+    return (
+      <SingleColumnSection className={classes.root}>
+        You don't have permission to view this page.
+      </SingleColumnSection>
+    );
   }
 
   const title = `Stats for ${user?.displayName ?? slug}`;
@@ -218,8 +241,6 @@ const AuthorAnalyticsPage = ({ classes }: {
     }
     return user ? `${user.displayName}'s` : format("User");
   }
-
-  const posts = data?.posts || [];
 
   const renderHeaderCell = (headerField: string, label: string) => (
     <div onClick={() => onClickHeader(headerField)} className={classes.valueHeader}>
@@ -236,9 +257,9 @@ const AuthorAnalyticsPage = ({ classes }: {
     </div>
   );
 
-  const postPlaceholderCount = posts.length
-    ? Math.min(loadMoreProps.totalCount - loadMoreProps.count, 10)
-    : 10;
+  const placeholderCount = posts.length
+    ? Math.min(itemsPerPage, totalCount - posts.length)
+    : initialLimit;
 
   return (
     <>
@@ -276,12 +297,11 @@ const AuthorAnalyticsPage = ({ classes }: {
             <AnalyticsPostItem key={post._id} post={post} />
           ))}
           {analyticsLoading &&
-            range(0, postPlaceholderCount).map((i) => (
+            range(0, placeholderCount).map((i) => (
               <AnalyticsPostItemSkeleton key={i} />
             ))
           }
-          {analyticsLoading && <Loading />}
-          <LoadMore className={classes.loadMore} {...loadMoreProps} />
+          <LoadMore className={classes.loadMore} {...loadMoreProps} hideLoading />
         </div>
       </SingleColumnSection>
     </>
