@@ -13,11 +13,9 @@ import { getBranchDbName } from "./branchDb";
 import { dropAndCreatePg } from './testingSqlClient';
 import process from 'process';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
-import { getAllPostgresViews } from './postgresView';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { panic } from './utils/errorUtil';
-import { addCronJob } from './cronUtil';
 
 const numCPUs = cpus().length;
 
@@ -91,34 +89,21 @@ const initPostgres = async () => {
       }
     }
   }
-
-  // If we're migrating up, we might be migrating from the start on a fresh database, so skip the check
-  // for whether postgres views exist
-  const migrating = process.argv.some(arg => arg.indexOf('migrate') > -1)
-  const migratingUp = process.argv.some(arg => arg === 'up')
-  if (migrating && migratingUp) return;
-
-  try {
-    for (const view of getAllPostgresViews()) {
-      view.registerCronJob(addCronJob);
-    }
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to ensure Postgres views exist:", e);
-  }
 }
 
-export const initServer = async (commandLineArguments?: CommandLineArguments) => {
+export const initServer = async (commandLineArguments: CommandLineArguments) => {
   initConsole();
-  const args = commandLineArguments ?? getCommandLineArguments();
-  if (!args.postgresUrl) {
+  if (!commandLineArguments.postgresUrl) {
     panic("Missing postgresUrl");
   }
-  await initDatabases(args);
+  await initDatabases(commandLineArguments);
   await initSettings();
-  require('../server.ts');
+  importAllServerFiles();
   await initPostgres();
-  return args;
+}
+
+function importAllServerFiles() {
+  require('../server.ts');
 }
 
 function getClusterRole(): "standalone"|"primary"|"worker" {
@@ -133,6 +118,7 @@ function getClusterRole(): "standalone"|"primary"|"worker" {
 }
 
 export const serverStartup = async () => {
+  const commandLineArguments = getCommandLineArguments();
   const clusterRole = getClusterRole();
 
   // Use OS load balancing (as opposed to round-robin)
@@ -144,7 +130,7 @@ export const serverStartup = async () => {
   if (clusterRole === "primary") {
     // Initialize db connection and a few other things such as settings, but don't start a webserver.
     console.log("Initializing primary process");
-    await initServer();
+    await initServer(commandLineArguments);
 
     const numWorkers = numWorkersSetting.get();
 
@@ -164,7 +150,7 @@ export const serverStartup = async () => {
       console.log(`Starting worker ${process.pid}`);
     }
     
-    const commandLineArguments = await initServer();
+    await initServer(commandLineArguments);
     const { serverMain } = require('./serverMain');
     await serverMain(commandLineArguments);
 

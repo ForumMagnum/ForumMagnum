@@ -21,6 +21,7 @@ import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
 import { initGatherTownCron } from './gatherTownCron';
+import { registerViewCronJobs } from './postgresView';
 
 
 /**
@@ -46,6 +47,7 @@ export const serverMain = async ({shellMode, command}: CommandLineArguments) => 
 }
 
 export async function runServerOnStartupFunctions() {
+  registerViewCronJobs();
   startAnalyticsWriter();
   scheduleQueueProcessing();
   initRenderQueueLogging();
