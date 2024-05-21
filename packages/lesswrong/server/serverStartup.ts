@@ -121,17 +121,27 @@ export const initServer = async (commandLineArguments?: CommandLineArguments) =>
   return args;
 }
 
-export const serverStartup = async () => {
-  // Run server directly if not in cluster mode
+function getClusterRole(): "standalone"|"primary"|"worker" {
   if (!clusterSetting.get()) {
-    await serverStartupWorker();
-    return;
+    return "standalone";
   }
+  if (cluster.isPrimary) {
+    return "primary";
+  } else {
+    return "worker";
+  }
+}
+
+export const serverStartup = async () => {
+  const clusterRole = getClusterRole();
 
   // Use OS load balancing (as opposed to round-robin)
   // In principle, this should give better performance because it is aware of resource (cpu) usage
-  cluster.schedulingPolicy = cluster.SCHED_NONE
-  if (cluster.isPrimary) {
+  if (clusterRole !== "standalone") {
+    cluster.schedulingPolicy = cluster.SCHED_NONE
+  }
+
+  if (clusterRole === "primary") {
     // Initialize db connection and a few other things such as settings, but don't start a webserver.
     console.log("Initializing primary process");
     await initServer();
@@ -150,14 +160,16 @@ export const serverStartup = async () => {
       console.log(`Worker ${worker.process.pid} died`);
     });
   } else {
-    console.log(`Starting worker ${process.pid}`);
-    await serverStartupWorker();
-    console.log(`Worker ${process.pid} started`);
-  }
-}
+    if (clusterRole !== "standalone") {
+      console.log(`Starting worker ${process.pid}`);
+    }
+    
+    const commandLineArguments = await initServer();
+    const { serverMain } = require('./serverMain');
+    await serverMain(commandLineArguments);
 
-export const serverStartupWorker = async () => {
-  const commandLineArguments = await initServer();
-  const { serverMain } = require('./serverMain');
-  await serverMain(commandLineArguments);
+    if (clusterRole !== "standalone") {
+      console.log(`Worker ${process.pid} started`);
+    }
+  }
 }

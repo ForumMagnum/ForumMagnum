@@ -61,9 +61,6 @@ async function oneTimeSetup() {
   await ensurePgConnection();
 
   await runServerOnStartupFunctions();
-
-  createVoteableUnionType();
-  initGraphQL();
 }
 
 jest.setTimeout(50000);

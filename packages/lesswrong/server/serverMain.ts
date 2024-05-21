@@ -31,10 +31,6 @@ import { initGatherTownCron } from './gatherTownCron';
 export const serverMain = async ({shellMode, command}: CommandLineArguments) => {
   await runServerOnStartupFunctions();
 
-  // define executableSchema
-  createVoteableUnionType();
-  initGraphQL();
-
   if (shellMode) {
     initShell();
   } else if (command) {
@@ -66,6 +62,10 @@ export async function runServerOnStartupFunctions() {
   addLegacyRssRoutes();
   await initReviewWinnerCache();
   initGatherTownCron();
+
+  // define executableSchema
+  createVoteableUnionType();
+  initGraphQL();
 }
 
 
