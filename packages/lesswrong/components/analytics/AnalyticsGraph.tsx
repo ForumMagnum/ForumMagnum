@@ -14,6 +14,10 @@ const GRAPH_HEIGHT = 300;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   graphContainer: {
@@ -68,6 +72,7 @@ const styles = (theme: ThemeType) => ({
   },
   tooltip: {
     backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.dropdown.border}`,
     boxShadow: theme.palette.boxShadow.graphTooltip,
     padding: 10,
     borderRadius: theme.borderRadius.small,
@@ -88,9 +93,11 @@ const styles = (theme: ThemeType) => ({
   },
   controls: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: "32px",
+    width: "100%",
+    paddingLeft: 18,
+    paddingRight: 28,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
     }
@@ -101,6 +108,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[900],
     fontSize: 14,
     fontWeight: 500,
+    marginBottom: -6,
     [theme.breakpoints.down('xs')]: {
       width: '100%',
       display: "grid",
@@ -132,9 +140,21 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
   },
   dateDropdown: {
-    alignSelf: "flex-start",
-    margin: '4px 20px 0 0',
-  }
+  },
+  overallStat: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    fontSize: 13,
+    fontWeight: 500,
+  },
+  overallStatCount: {
+    fontSize: 32,
+    fontWeight: 700,
+  },
+  flexPadding: {
+    flexGrow: 1,
+  },
 });
 
 const LINE_COLORS: Record<AnalyticsField, string> = {
@@ -293,6 +313,12 @@ export const AnalyticsGraph = ({
     };
   });
 
+  const overallStats = dataSeries.reduce((totals, dataPoint) => {
+    totals.views += dataPoint.views ?? 0;
+    totals.reads += dataPoint.reads ?? 0;
+    return totals;
+  }, {views: 0, reads: 0});
+
   const getTooltipContent = useCallback(({ active, payload }: TooltipProps<string, string>) => {
     if (!(active && payload && payload.length)) return null;
 
@@ -322,7 +348,7 @@ export const AnalyticsGraph = ({
     const currentMaxValue = Math.max(...displayFields.map(field => dataPoint[field as AnalyticsField] ?? 0));
     return Math.max(maxVal, currentMaxValue);
   }, 0);
-  
+
   // Unfortunately this is the best workaround, see here: https://github.com/recharts/recharts/issues/2027
   const yAxisWidth = 26 + Math.ceil(maxValue.toLocaleString().length * 6);
   const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 2;
@@ -334,7 +360,22 @@ export const AnalyticsGraph = ({
           {title}
         </Typography>
       </div>
+      <ForumDropdown
+        value={dateOption}
+        options={dateOptions}
+        onSelect={handleDateOptionChange}
+        className={classes.dateDropdown}
+      />
       <div className={classes.controls}>
+        <div className={classes.overallStat}>
+          <div className={classes.overallStatCount}>{overallStats.views}</div>
+          <div>Views</div>
+        </div>
+        <div className={classes.overallStat}>
+          <div className={classes.overallStatCount}>{overallStats.reads}</div>
+          <div>Reads</div>
+        </div>
+        <div className={classes.flexPadding} />
         <div className={classes.controlFields}>
           {analyticsFieldsList.map((field) => (
             <label key={field} className={classes.fieldLabel}>
@@ -348,7 +389,6 @@ export const AnalyticsGraph = ({
             </label>
           ))}
         </div>
-        <ForumDropdown value={dateOption} options={dateOptions} className={classes.dateDropdown} onSelect={handleDateOptionChange} />
       </div>
       <ResponsiveContainer width="100%" height={GRAPH_HEIGHT} className={classes.graphContainer}>
         <LineChart data={dataSeriesToDisplay} height={300} margin={{ right: 30 }}>
