@@ -159,6 +159,20 @@ const styles = (theme: ThemeType) => ({
     fontSize: 32,
     fontWeight: 700,
   },
+  overallStatDescription: {
+    cursor: "pointer",
+  },
+  overallStatTooltip: {
+    maxWidth: 150,
+    color: theme.palette.grey[0],
+    background: theme.palette.grey[1000],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    borderRadius: theme.borderRadius.default,
+    padding: "6px 10px",
+    textAlign: "center",
+    fontSize: 12,
+    fontWeight: 500,
+  },
   flexPadding: {
     flexGrow: 1,
   },
@@ -260,7 +274,7 @@ export const AnalyticsGraph = ({
   smallerTitle?: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { Typography, ForumDropdown } = Components;
+  const {Typography, ForumDropdown, LWTooltip} = Components;
 
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
@@ -376,11 +390,27 @@ export const AnalyticsGraph = ({
       <div className={classes.controls}>
         <div className={classes.overallStat}>
           <div className={classes.overallStatCount}>{overallStats.views}</div>
-          <div>Views</div>
+          <LWTooltip
+            title="When someone clicks on your post it’s counted as a view"
+            placement="bottom"
+            tooltip={false}
+            popperClassName={classes.overallStatTooltip}
+            className={classes.overallStatDescription}
+          >
+            Views
+          </LWTooltip>
         </div>
         <div className={classes.overallStat}>
           <div className={classes.overallStatCount}>{overallStats.reads}</div>
-          <div>Reads</div>
+          <LWTooltip
+            title="When someone views your post for longer than 30 sec it’s counted as a read"
+            placement="bottom"
+            tooltip={false}
+            popperClassName={classes.overallStatTooltip}
+            className={classes.overallStatDescription}
+          >
+            Reads
+          </LWTooltip>
         </div>
         <div className={classes.flexPadding} />
         <div className={classes.controlFields}>
