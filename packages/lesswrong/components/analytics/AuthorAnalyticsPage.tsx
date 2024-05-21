@@ -239,7 +239,7 @@ const AuthorAnalyticsPage = ({ classes }: {
     if (isCurrentUser) {
       return format("your");
     }
-    return user ? `${user.displayName}'s` : format("User");
+    return user ? `${user.displayName}'s` : format("user");
   }
 
   const renderHeaderCell = (headerField: string, label: string) => (
