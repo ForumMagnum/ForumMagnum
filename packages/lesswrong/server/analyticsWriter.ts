@@ -11,7 +11,7 @@ import { constructPerfMetricBatchInsertQuery, insertAndCacheNormalizedDataInBatc
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
 
-const serverId = randomId();
+export const serverId = randomId();
 
 const isValidEventAge = (age: number) => age>=0 && age<=60*60*1000;
 

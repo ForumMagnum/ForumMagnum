@@ -25,6 +25,7 @@ import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
 import { isLWorAF } from '../lib/instanceSettings';
+import { swrInvalidatePostRoute } from './cache/swr';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -77,6 +78,9 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   );
   if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
     void elasticSyncDocument(collection.collectionName, newDocument._id);
+  }
+  if (collection.collectionName === "Posts") {
+    void swrInvalidatePostRoute(newDocument._id)
   }
   return {newDocument, vote};
 }

@@ -1,7 +1,7 @@
-import { Utils, getCollection } from './vulcan-lib';
+import { Utils, getCollection } from '@/lib/vulcan-lib';
 import moment from 'moment';
-import { randomId } from './random';
-import { isServer } from './executionEnvironment';
+import { randomId } from '@/lib/random';
+import { isServer } from '@/lib/executionEnvironment';
 
 // Get relative link to conversation (used only in session)
 export const conversationGetLink = (conversation: HasIdType): string => {
