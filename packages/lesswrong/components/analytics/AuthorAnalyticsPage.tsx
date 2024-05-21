@@ -25,7 +25,7 @@ const gridColumns = (titleWidth: number) =>
 const styles = (theme: ThemeType) => ({
   root: {
     width: 800,
-    maxWidth: "100vw",
+    maxWidth: "100%",
     [theme.breakpoints.down("sm")]: {
       // Add the top padding back in for mobile
       paddingTop: theme.spacing.mainLayoutPaddingTop,

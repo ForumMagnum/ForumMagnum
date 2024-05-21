@@ -10,10 +10,13 @@ import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
 import classNames from "classnames";
 
+const CONTROLS_BREAKPOINT = 700;
+
 const GRAPH_HEIGHT = 300;
 
 const styles = (theme: ThemeType) => ({
   root: {
+    overflow: "auto hidden",
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
@@ -40,11 +43,6 @@ const styles = (theme: ThemeType) => ({
   graphHeaderSmallerTitle: {
     [theme.breakpoints.down('xs')]: {
       minHeight: 42,
-    }
-  },
-  graphHeaderNoTitle: {
-    [theme.breakpoints.down('xs')]: {
-      minHeight: 0,
     }
   },
   graphHeading: {
@@ -98,8 +96,10 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     paddingLeft: 18,
     paddingRight: 28,
-    [theme.breakpoints.down('xs')]: {
+    [`@media(max-width: ${CONTROLS_BREAKPOINT}px)`]: {
       flexDirection: "column",
+      alignItems: "flex-start",
+      gap: "20px",
     }
   },
   controlFields: {
@@ -109,6 +109,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     marginBottom: -6,
+    [`@media(max-width: ${CONTROLS_BREAKPOINT}px)`]: {
+      marginLeft: -14,
+    },
     [theme.breakpoints.down('xs')]: {
       width: '100%',
       display: "grid",
@@ -155,6 +158,11 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     fontWeight: 500,
   },
+  overallStatContainer: {
+    display: "flex",
+    gap: "32px",
+    flexGrow: 1,
+  },
   overallStatCount: {
     fontSize: 32,
     fontWeight: 700,
@@ -172,9 +180,6 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
     fontSize: 12,
     fontWeight: 500,
-  },
-  flexPadding: {
-    flexGrow: 1,
   },
 });
 
@@ -376,11 +381,17 @@ export const AnalyticsGraph = ({
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle, [classes.graphHeaderNoTitle]: !title})}>
-        <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
-          {title}
-        </Typography>
-      </div>
+      {title &&
+        <div className={classNames(classes.graphHeader, {
+          [classes.graphHeaderSmallerTitle]: smallerTitle},
+        )}>
+          <Typography variant="headline" className={classNames(classes.graphHeading, {
+            [classes.smallerTitle]: smallerTitle,
+          })}>
+            {title}
+          </Typography>
+        </div>
+      }
       <ForumDropdown
         value={dateOption}
         options={dateOptions}
@@ -388,31 +399,32 @@ export const AnalyticsGraph = ({
         className={classes.dateDropdown}
       />
       <div className={classes.controls}>
-        <div className={classes.overallStat}>
-          <div className={classes.overallStatCount}>{overallStats.views}</div>
-          <LWTooltip
-            title="When someone clicks on your post it’s counted as a view"
-            placement="bottom"
-            tooltip={false}
-            popperClassName={classes.overallStatTooltip}
-            className={classes.overallStatDescription}
-          >
-            Views
-          </LWTooltip>
+        <div className={classes.overallStatContainer}>
+          <div className={classes.overallStat}>
+            <div className={classes.overallStatCount}>{overallStats.views}</div>
+            <LWTooltip
+              title="When someone clicks on your post it’s counted as a view"
+              placement="bottom"
+              tooltip={false}
+              popperClassName={classes.overallStatTooltip}
+              className={classes.overallStatDescription}
+            >
+              Views
+            </LWTooltip>
+          </div>
+          <div className={classes.overallStat}>
+            <div className={classes.overallStatCount}>{overallStats.reads}</div>
+            <LWTooltip
+              title="When someone views your post for longer than 30 sec it’s counted as a read"
+              placement="bottom"
+              tooltip={false}
+              popperClassName={classes.overallStatTooltip}
+              className={classes.overallStatDescription}
+            >
+              Reads
+            </LWTooltip>
+          </div>
         </div>
-        <div className={classes.overallStat}>
-          <div className={classes.overallStatCount}>{overallStats.reads}</div>
-          <LWTooltip
-            title="When someone views your post for longer than 30 sec it’s counted as a read"
-            placement="bottom"
-            tooltip={false}
-            popperClassName={classes.overallStatTooltip}
-            className={classes.overallStatDescription}
-          >
-            Reads
-          </LWTooltip>
-        </div>
-        <div className={classes.flexPadding} />
         <div className={classes.controlFields}>
           {analyticsFieldsList.map((field) => (
             <label key={field} className={classes.fieldLabel}>
