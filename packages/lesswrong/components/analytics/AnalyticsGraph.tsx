@@ -371,9 +371,24 @@ export const AnalyticsGraph = ({
     />
   );
 
-  if (loading) {
+  const titleNode = title
+    ? (
+      <div className={classNames(classes.graphHeader, {
+        [classes.graphHeaderSmallerTitle]: smallerTitle},
+        )}>
+        <Typography variant="headline" className={classNames(classes.graphHeading, {
+          [classes.smallerTitle]: smallerTitle,
+          })}>
+          {title}
+        </Typography>
+      </div>
+    )
+    : undefined;
+
+  if (loading || (!userId && !postIds?.length)) {
     return (
       <Components.AnalyticsGraphSkeleton
+        title={titleNode}
         dateOptionDropdown={dateOptionDropdown}
       />
     );
@@ -398,17 +413,7 @@ export const AnalyticsGraph = ({
 
   return (
     <div className={classes.root}>
-      {title &&
-        <div className={classNames(classes.graphHeader, {
-          [classes.graphHeaderSmallerTitle]: smallerTitle},
-        )}>
-          <Typography variant="headline" className={classNames(classes.graphHeading, {
-            [classes.smallerTitle]: smallerTitle,
-          })}>
-            {title}
-          </Typography>
-        </div>
-      }
+      {titleNode}
       {dateOptionDropdown}
       <div className={classes.controls}>
         <div className={classes.overallStatContainer}>

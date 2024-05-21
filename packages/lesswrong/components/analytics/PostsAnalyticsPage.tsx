@@ -11,6 +11,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
+import classNames from "classnames";
 
 function formatBounceRate(denominator?: number, numerator?: number) {
   if (!denominator || numerator === undefined || numerator === null) return null
@@ -28,11 +29,15 @@ function readableReadingTime (seconds?: number) {
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
       paddingTop: 16,
     },
   },
   title: {
+    display: "flex",
+    alignItems: "center",
+    minHeight: 40,
     marginBottom: 24,
     fontSize: 32,
     fontWeight: "700",
@@ -50,16 +55,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   table: {
     marginBottom: 32,
   },
+  placeholder: {
+    height: 10,
+    background: theme.palette.panelBackground.placeholderGradient,
+    backgroundSize: "300% 100%",
+    animation: "profile-image-loader 1.8s infinite",
+    borderRadius: 3,
+    maxWidth: "100%",
+  },
+  titlePlaceholder: {
+    display: "flex",
+    alignItems: "center",
+    width: 500,
+  },
+  statPlaceholder: {
+    width: 60,
+  },
 });
 
 const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { query } = useLocation();
 
-  const {
-    document: post,
-    loading,
-    error,
-  } = useSingle({
+  const {document: post, error} = useSingle({
     documentId: query.postId,
     collectionName: "Posts",
     fragmentName: "PostsPage",
@@ -80,78 +97,116 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     AnalyticsGraph,
     AnalyticsDisclaimers,
     LWTooltip,
-    Loading,
   } = Components;
 
-  if (loading || error || !query.postId) {
+  if (!query.postId) {
     return null;
+  }
+
+  if (error) {
+    return (
+      <SingleColumnSection className={classes.root}>
+        {error.message}
+      </SingleColumnSection>
+    );
   }
 
   if (!currentUser) {
     return (
-      <SingleColumnSection>
+      <SingleColumnSection className={classes.root}>
         <p>You don't have permission to view this page. Would you like to log in?</p>
         <LoginForm />
       </SingleColumnSection>
     );
   }
 
-  if (!canUserEditPostMetadata(currentUser, post) && !userIsAdminOrMod(currentUser)) {
-    return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
+  if (post && !canUserEditPostMetadata(currentUser, post) && !userIsAdminOrMod(currentUser)) {
+    return (
+      <SingleColumnSection className={classes.root}>
+        You don't have permission to view this page.
+      </SingleColumnSection>
+    );
   }
 
-  const overallStatsTable = overallStats ? (
-    <Table className={classes.table}>
-      <TableBody>
-        <TableRow>
-          <TableCell>Views</TableCell>
-          <TableCell>{overallStats.views}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>
-            <LWTooltip title="Unique views 30s or longer">Reads</LWTooltip>
-          </TableCell>
-          <TableCell>{overallStats.reads}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Karma</TableCell>
-          <TableCell>{overallStats.karma}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Comments</TableCell>
-          <TableCell>{overallStats.comments}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>
-            <LWTooltip title="Percentage of unique views less than 30s">Bounce Rate</LWTooltip>
-          </TableCell>
-          <TableCell>{formatBounceRate(overallStats.uniqueViews, overallStats.reads)}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>
-            <LWTooltip title="Note: includes time spent reading and writing comments">Mean reading time</LWTooltip>
-          </TableCell>
-          <TableCell>{readableReadingTime(overallStats.meanReadingTime)}</TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  ) : (
-    <Loading />
+  const statPlaceholder = (
+    <div className={classNames(classes.statPlaceholder, classes.placeholder)} />
   );
 
   return (
     <>
-      <HeadTags title={post.title} />
+      <HeadTags title={post?.title ?? "Post analytics"} />
       <SingleColumnSection className={classes.root}>
         <Typography variant="display2" className={classes.title}>
-          <Link to={postGetPageUrl(post)}>{post.title}</Link>
+          {post
+            ? <Link to={postGetPageUrl(post)}>{post.title}</Link>
+            : <div className={classNames(classes.placeholder, classes.titlePlaceholder)} />
+          }
         </Typography>
         <Typography variant="display2" className={classes.subheading}>
           Overall stats
         </Typography>
-        {overallStatsTable}
-        <AnalyticsGraph postIds={[post._id]} title={"Daily stats"} smallerTitle />
-        <AnalyticsDisclaimers earliestDate={post.createdAt} />
+        <Table className={classes.table}>
+          <TableBody>
+            <TableRow>
+              <TableCell>Views</TableCell>
+              <TableCell>
+                {overallStats ? overallStats.views : statPlaceholder}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <LWTooltip title="Unique views 30s or longer">Reads</LWTooltip>
+              </TableCell>
+              <TableCell>
+                {overallStats ? overallStats.reads : statPlaceholder}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Karma</TableCell>
+              <TableCell>
+                {overallStats ? overallStats.karma : statPlaceholder}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Comments</TableCell>
+              <TableCell>
+                {overallStats ? overallStats.comments : statPlaceholder}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <LWTooltip title="Percentage of unique views less than 30s">
+                  Bounce Rate
+                </LWTooltip>
+              </TableCell>
+              <TableCell>
+                {overallStats
+                  ? formatBounceRate(overallStats.uniqueViews, overallStats.reads)
+                  : statPlaceholder
+                }
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <LWTooltip title="Note: includes time spent reading and writing comments">
+                  Mean reading time
+                </LWTooltip>
+              </TableCell>
+              <TableCell>
+                {overallStats
+                  ? readableReadingTime(overallStats.meanReadingTime)
+                  : statPlaceholder
+                }
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <AnalyticsGraph
+          postIds={post ? [post._id] : []}
+          title="Daily stats"
+          smallerTitle
+        />
+        <AnalyticsDisclaimers earliestDate={post?.createdAt ?? new Date()} />
       </SingleColumnSection>
     </>
   );
