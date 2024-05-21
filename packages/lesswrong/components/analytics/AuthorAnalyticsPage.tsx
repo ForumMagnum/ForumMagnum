@@ -205,6 +205,8 @@ const AuthorAnalyticsPage = ({ classes }: {
     itemsPerPage,
   });
 
+  // Give the posts their own state so the list doesn't disappear when
+  // clicking "load more" or updating other data
   const [posts, setPosts] = useState(data?.posts ?? []);
   const [totalCount, setTotalCount] = useState(loadMoreProps.totalCount);
 
@@ -217,6 +219,12 @@ const AuthorAnalyticsPage = ({ classes }: {
   useEffect(() => {
     setTotalCount((current) => Math.max(current, loadMoreProps.totalCount));
   }, [loadMoreProps.totalCount]);
+
+  // Manually reset the post list if we navigate to a different user's stats
+  useEffect(() => {
+    setPosts([]);
+    setTotalCount(0);
+  }, [slug]);
 
   const {
     SingleColumnSection, HeadTags, Typography, LoadMore, ForumIcon, LWTooltip,
