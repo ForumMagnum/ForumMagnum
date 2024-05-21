@@ -1,6 +1,5 @@
 import { Posts } from "../../lib/collections/posts";
 import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { onStartup } from "../../lib/executionEnvironment";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "../analyticsWriter";
 import { DatabaseServerSetting } from "../databaseSettings";
@@ -117,7 +116,7 @@ const invalidateUrlFromQueue = async (): Promise<void> => {
   }, 120_000)
 };
 
-const scheduleQueueProcessing = () => {
+export const scheduleQueueProcessing = () => {
   // Use setTimeout rather than setInterval to pick up changes to the interval setting without needing to reload the server
   setTimeout(async () => {
     const logger = loggerConstructor(`swr-invalidation-queue`)
@@ -128,9 +127,6 @@ const scheduleQueueProcessing = () => {
     scheduleQueueProcessing();
   }, swrCachingInvalidationIntervalMsSetting.get());
 };
-onStartup(() => {
-  scheduleQueueProcessing();
-})
 
 /**
  * Invalidate the CDN cache entry for the given post by pinging the URL

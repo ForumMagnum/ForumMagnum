@@ -4,7 +4,7 @@ import { LWEvents } from '../lib/collections/lwevents/collection';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
-import { isProduction, onStartup } from '../lib/executionEnvironment';
+import { isProduction } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
 import { isLW } from '../lib/instanceSettings';
@@ -23,8 +23,8 @@ const currentGatherTownTrackerVersion = 7;
 // server can update it instead.
 const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", currentGatherTownTrackerVersion);
 
-if (isProduction && isLW) {
-  onStartup(() => {
+export function initGatherTownCron() {
+  if (isProduction && isLW) {
     if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
       addCronJob({
         name: 'gatherTownBot'+currentGatherTownTrackerVersion,
@@ -34,7 +34,7 @@ if (isProduction && isLW) {
         }
       });
     }
-  });
+  }
 }
 
 const pollGatherTownUsers = async () => {

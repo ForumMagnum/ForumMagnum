@@ -1,6 +1,5 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
@@ -13,6 +12,7 @@ import {
 } from '../server/testingSqlClient';
 import { Collections } from '../lib/vulcan-lib';
 import PgCollection from '../lib/sql/PgCollection';
+import { runServerOnStartupFunctions } from '@/server/serverMain';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
@@ -60,9 +60,8 @@ async function oneTimeSetup() {
 
   await ensurePgConnection();
 
-  await runStartupFunctions();
+  await runServerOnStartupFunctions();
 
-  // define executableSchema
   createVoteableUnionType();
   initGraphQL();
 }

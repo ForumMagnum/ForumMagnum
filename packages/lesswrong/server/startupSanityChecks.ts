@@ -1,4 +1,4 @@
-import { onStartup, isAnyTest } from '../lib/executionEnvironment';
+import { isAnyTest } from '../lib/executionEnvironment';
 import process from 'process';
 import { DatabaseMetadata } from '../lib/collections/databaseMetadata/collection';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
@@ -12,7 +12,7 @@ const loadDatabaseId = async () => {
   return databaseIdObject?.value || null;
 }
 
-onStartup(async () => {
+export async function startupSanityChecks() {
   if (isAnyTest) return;
   const expectedDatabaseId = expectedDatabaseIdSetting.get();
   const preload = getPreloadedDatabaseId();
@@ -29,5 +29,5 @@ onStartup(async () => {
       process.exit(1);
     }
   }
-});
+}
 
