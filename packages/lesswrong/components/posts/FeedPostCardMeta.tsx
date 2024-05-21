@@ -13,7 +13,7 @@ import { postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collec
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
-    maxWidth: "100%",
+    width: "100%",
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "start"
@@ -52,6 +52,9 @@ const styles = (theme: ThemeType) => ({
     fonsize: "1.1rem",
     opacity: 0.8,
   },
+  linkPost: {
+    marginLeft: -4
+  },
   info: {
     display: "flex",
     color: theme.palette.text.dim3,
@@ -63,7 +66,7 @@ const styles = (theme: ThemeType) => ({
   dot: {
     opacity: 0.8,
     marginLeft: 4,
-    // marginRight: 8
+    fontWeight: 600,
   }
 });
 
@@ -95,7 +98,7 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
     >{post.url}</a>
   </div>
 
-  const linkPostIcon =  post.url && <span className={classes.info}>
+  const linkPostIcon =  post.url && <span className={classNames(classes.linkPost, classes.info)}>
     <Link to={postGetPageUrl(post)}>
         <LWTooltip title={linkPostMessage} placement="left">
           <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
@@ -114,8 +117,6 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
       ({ post.voteCount} votes)
     </div>}>
       <span className={classes.karma}>
-        {/* <span className={classes.karmaIcon}>★ </span> */}
-        {/* <StarIcon className={classes.karmaIcon} /> */}
         <span>{ baseScore }</span>
       </span>
     </LWTooltip>

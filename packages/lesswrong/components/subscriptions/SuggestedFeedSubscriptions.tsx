@@ -30,7 +30,6 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
   },
   widgetClosed: {
-    width: "fit-content",
     opacity: 0.8,
     background: "none",
     textShadow: "2px 2px 20px #fff"

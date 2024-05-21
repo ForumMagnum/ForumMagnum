@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    maxWidth: 700,
   }
 })
 
