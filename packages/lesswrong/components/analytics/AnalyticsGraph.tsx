@@ -12,9 +12,9 @@ import classNames from "classnames";
 
 const CONTROLS_BREAKPOINT = 700;
 
-const GRAPH_HEIGHT = 300;
+export const GRAPH_HEIGHT = 300;
 
-const styles = (theme: ThemeType) => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     overflow: "auto hidden",
     display: "flex",
@@ -290,7 +290,7 @@ export const AnalyticsGraph = ({
 
   const { openDialog } = useDialog();
 
-  const { analyticsSeries: dataSeries } = useAnalyticsSeries({
+  const {analyticsSeries: dataSeries, loading} = useAnalyticsSeries({
     userId,
     postIds,
     startDate: displayStartDate,
@@ -362,6 +362,23 @@ export const AnalyticsGraph = ({
     );
   }, [classes.date, classes.tooltip, classes.tooltipLabel, displayFields]);
 
+  const dateOptionDropdown = (
+    <ForumDropdown
+      value={dateOption}
+      options={dateOptions}
+      onSelect={handleDateOptionChange}
+      className={classes.dateDropdown}
+    />
+  );
+
+  if (loading) {
+    return (
+      <Components.AnalyticsGraphSkeleton
+        dateOptionDropdown={dateOptionDropdown}
+      />
+    );
+  }
+
   if (!dataSeriesToDisplay?.length || dataSeriesToDisplay.length === 1) {
     return (
       <Typography variant="body1" className={classes.notEnoughDataMessage}>
@@ -392,12 +409,7 @@ export const AnalyticsGraph = ({
           </Typography>
         </div>
       }
-      <ForumDropdown
-        value={dateOption}
-        options={dateOptions}
-        onSelect={handleDateOptionChange}
-        className={classes.dateDropdown}
-      />
+      {dateOptionDropdown}
       <div className={classes.controls}>
         <div className={classes.overallStatContainer}>
           <div className={classes.overallStat}>
