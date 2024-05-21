@@ -10,6 +10,7 @@ import { captureException }from "@sentry/core";
 import classNames from 'classnames';
 import { truncateWithGrace } from '../common/ContentItemTruncated';
 import { useRecordPostView } from '../hooks/useRecordPostView';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,12 +74,14 @@ const FeedPostHighlightBody = ({
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
   const { recordPostView } = useRecordPostView(post); 
+  const { captureEvent } = useTracking();
 
   const clickExpand = useCallback((ev: MouseEvent) => {
     setExpanded(true);
     ev.preventDefault();
     void recordPostView({post, extraEventProperties: {type: 'expandPostCard'}});
-  }, [setExpanded, recordPostView, post]);
+    captureEvent('readMoreClicked', {postId: post._id});
+  }, [setExpanded, recordPostView, post, captureEvent]);
 
 
   const maxLengthWords = expanded ? 1000 : maxCollapsedLengthWords;
@@ -208,3 +211,7 @@ declare global {
     FeedPostsHighlight: typeof FeedPostsHighlightComponent
   }
 }
+function useEventCapture(): { captureEvent: any; } {
+  throw new Error('Function not implemented.');
+}
+
