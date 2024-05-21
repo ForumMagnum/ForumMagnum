@@ -39,6 +39,15 @@ export const tagPageHeaderStyles = (theme: ThemeType) => ({
   },
 });
 
+const sidePaddingStyle = (theme: ThemeType) => ({
+  paddingLeft: 42,
+  paddingRight: 42,
+  [theme.breakpoints.down('xs')]: {
+    paddingLeft: '8px',
+    paddingRight: '8px',
+  },
+})
+
 // Also used in TagCompareRevisions, TagDiscussionPage
 export const styles = (theme: ThemeType): JssStyles => ({
   rootGivenImage: {
@@ -74,8 +83,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   header: {
     paddingTop: 19,
     paddingBottom: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     background: theme.palette.panelBackground.default,
     borderTopLeftRadius: theme.borderRadius.default,
     borderTopRightRadius: theme.borderRadius.default,
@@ -117,8 +125,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   wikiSection: {
     paddingTop: 5,
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     paddingBottom: 12,
     marginBottom: 24,
     background: theme.palette.panelBackground.default,
@@ -126,8 +133,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderBottomRightRadius: theme.borderRadius.default,
   },
   subHeading: {
-    paddingLeft: 42,
-    paddingRight: 42,
+    ...sidePaddingStyle(theme),
     marginTop: -2,
     background: theme.palette.panelBackground.default,
     ...theme.typography.body2,
