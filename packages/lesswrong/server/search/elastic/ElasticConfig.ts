@@ -158,6 +158,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         weight: 0.5,
         scoring: {type: "numeric", pivot: 20},
       },
+      {
+        field: "baseScore",
+        order: "desc",
+        weight: 1.5,
+        scoring: {type: "numeric", pivot: 50, min: 50},
+      },
     ],
     tiebreaker: "publicDateMs",
     filters: [
