@@ -99,8 +99,8 @@ const RecommendationsSamplePage = ({classes}: {
   const {results, loading, loadMoreProps} = useMulti({
     terms: {
       after: moment(now).subtract(
-        frontpageDaysAgoCutoffSetting.get(),
-        "days",
+        frontpageDaysAgoCutoffSetting.get()*24,
+        "hours",
       ).startOf("hour").toISOString(),
       view: "magic",
       forum: true,

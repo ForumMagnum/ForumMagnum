@@ -123,6 +123,7 @@ export interface RecombeeConfiguration {
   loadMore?: {
     prevRecommId?: string,
   },
+  excludedPostIds?: string[],
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {

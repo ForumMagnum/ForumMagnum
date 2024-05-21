@@ -17,6 +17,22 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly noindex: boolean,
 }
 
+interface ClientIdsDefaultFragment { // fragment on ClientIds
+  readonly clientId: string,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly userIds: Array<string> | null,
+}
+
+interface ModeratorClientIDInfo { // fragment on ClientIds
+  readonly _id: string,
+  readonly clientId: string,
+  readonly createdAt: Date,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly users: Array<UsersMinimumInfo>,
+}
+
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
   readonly nameInAnotherLanguage: string,
@@ -867,6 +883,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly agentFoundationsId: string,
+  readonly swrCachingEnabled: boolean,
 }
 
 interface RecommendationsCachesDefaultFragment { // fragment on RecommendationsCaches
@@ -982,22 +999,6 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly userId: string,
   readonly name: string,
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
-interface ClientIdsDefaultFragment { // fragment on ClientIds
-  readonly clientId: string,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string> | null,
-}
-
-interface ModeratorClientIDInfo { // fragment on ClientIds
-  readonly _id: string,
-  readonly clientId: string,
-  readonly createdAt: Date,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly users: Array<UsersMinimumInfo>,
 }
 
 interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
@@ -1489,6 +1490,7 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
+  readonly swrCachingEnabled: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -3877,6 +3879,8 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
 
 interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
+  ClientIdsDefaultFragment: ClientIdsDefaultFragment
+  ModeratorClientIDInfo: ModeratorClientIDInfo
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   UsersDefaultFragment: UsersDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
@@ -3908,8 +3912,6 @@ interface FragmentTypes {
   lastEventFragment: lastEventFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
-  ClientIdsDefaultFragment: ClientIdsDefaultFragment
-  ModeratorClientIDInfo: ModeratorClientIDInfo
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -4133,6 +4135,7 @@ interface FragmentTypes {
 
 interface FragmentTypesByCollection {
   Collections: "CollectionsDefaultFragment"|"CollectionContinueReadingFragment"|"CollectionsPageFragment"|"CollectionsEditFragment"|"CollectionsBestOfFragment"
+  ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
@@ -4160,7 +4163,6 @@ interface FragmentTypesByCollection {
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
-  ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
@@ -4199,6 +4201,8 @@ interface FragmentTypesByCollection {
 
 interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
+  ClientIdsDefaultFragment: "ClientIds"
+  ModeratorClientIDInfo: "ClientIds"
   LocalgroupsDefaultFragment: "Localgroups"
   UsersDefaultFragment: "Users"
   CommentsDefaultFragment: "Comments"
@@ -4230,8 +4234,6 @@ interface CollectionNamesByFragmentName {
   lastEventFragment: "LWEvents"
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
-  ClientIdsDefaultFragment: "ClientIds"
-  ModeratorClientIDInfo: "ClientIds"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
   MessagesDefaultFragment: "Messages"

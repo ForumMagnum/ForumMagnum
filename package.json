@@ -79,6 +79,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.5.4",
     "@apollo/client": "^3.2.0",
+    "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.12.1",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
     "@datadog/browser-rum": "^4.26.0",
@@ -204,7 +205,6 @@
     "draft-js-resizeable-plugin": "^2.0.6",
     "draft-js-richbuttons-plugin": "^2.1.0",
     "element-closest": "^2.0.2",
-    "emoji-picker-element": "^1.21.3",
     "enzyme": "3.1.0",
     "escape-string-regexp": "^1.0.5",
     "estrella": "1.4.1",
@@ -331,7 +331,6 @@
     "@graphql-codegen/introspection": "^1.9.0",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^15.0.5",
-    "@types/cross-spawn": "^6.0.6",
     "@types/csso": "^5.0.0",
     "@types/hepburn": "^1.2.0",
     "@types/raf": "^3.4.0",

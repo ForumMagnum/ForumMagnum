@@ -113,8 +113,9 @@ export const createIndex = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   index: TableIndex<ObjectsByCollectionName[N]>,
   ifNotExists = true,
+  allowConcurrent = true,
 ): Promise<void> => {
-  const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists).compile();
+  const {sql, args} = new CreateIndexQuery({ table: collection.getTable(), index, ifNotExists, allowConcurrent }).compile();
   await db.none(sql, args);
 }
 
@@ -174,7 +175,7 @@ export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
   for (const index of expectedIndexes[collection.collectionName] ?? []) {
-    collection._ensureIndex(index.key, index);
+    await collection._ensureIndex(index.key, index);
     await sleep(100);
   }
 }
