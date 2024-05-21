@@ -147,7 +147,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
-      "authorDisplayName",
+      "authorDisplayName^11",
     ],
     snippet: "body",
     highlight: "authorDisplayName",
