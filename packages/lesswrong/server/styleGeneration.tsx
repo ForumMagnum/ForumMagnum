@@ -2,13 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 // Adds selected MUI components to global styles.
 // import './register-mui-styles';
-import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/components';
+import { importAllComponents, ComponentsTable, styleDefinitions } from '../lib/vulcan-lib/components';
 import { withStyles } from '@material-ui/core/styles';
 import { wrapWithMuiTheme } from './material-ui/themeProvider';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import filter from 'lodash/filter'
 import sortBy from 'lodash/sortBy';
-import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
@@ -18,7 +17,6 @@ import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
 import stringify from 'json-stringify-deterministic';
-import { zlib } from 'mz';
 import { brotliCompressResource, CompressedCacheResource } from './utils/bundleUtils';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
@@ -28,10 +26,23 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   
   // Sort components by stylePriority, tiebroken by name (alphabetical)
   const componentsWithStyles = filter(Object.keys(ComponentsTable),
-    componentName => ComponentsTable[componentName].options?.styles
+    componentName => !!ComponentsTable[componentName].options?.styles
   ) as Array<string>;
-  const componentsWithStylesByName = sortBy(componentsWithStyles, n=>n);
-  const componentsWithStylesByPriority = sortBy(componentsWithStylesByName, (componentName: string) => ComponentsTable[componentName].options?.stylePriority || 0);
+  const namesAndStyles = [
+    ...componentsWithStyles.map(componentName => ({
+      name: componentName,
+      styles: ComponentsTable[componentName].options!.styles!,
+      stylePriority: ComponentsTable[componentName].options!.stylePriority || 0,
+    })),
+    ...styleDefinitions.map(d => ({
+      name: d.name,
+      styles: d.styles,
+      stylePriority: d.options?.stylePriority || 0,
+    }))
+  ];
+
+  const stylesByName = sortBy(namesAndStyles, s=>s.name);
+  const stylesByPriority = sortBy(stylesByName, (s) => s.stylePriority);
   
   const DummyComponent = (props: any) => <div/>
   const DummyTree = <div>
@@ -39,9 +50,9 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
       const StyledComponent = withStyles(usedMuiStyles[componentName], {name: componentName})(DummyComponent)
       return <StyledComponent key={componentName}/>
     })}
-    {componentsWithStylesByPriority.map((componentName: string) => {
-      const StyledComponent = withStyles(ComponentsTable[componentName].options?.styles, {name: componentName})(DummyComponent)
-      return <StyledComponent key={componentName}/>
+    {stylesByPriority.map(s => {
+      const StyledComponent = withStyles(s.styles as AnyBecauseHard, {name: s.name})(DummyComponent)
+      return <StyledComponent key={s.name}/>
     })}
   </div>
   const WrappedTree = wrapWithMuiTheme(DummyTree, context, themeOptions);

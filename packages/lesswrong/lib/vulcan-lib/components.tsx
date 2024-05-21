@@ -1,6 +1,6 @@
 import compose from 'lodash/flowRight';
 import React, { forwardRef } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { StyleRules, withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
@@ -11,8 +11,10 @@ type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
 interface ComponentOptions {
-  // JSS styles for this component. These will generate class names, which will
-  // be passed as an extra prop named "classes".
+  /**
+   * DEPRECATED: JSS styles for this component, which will be passed in as an
+   * HoC. See `defineStyles` for the preferred way to do this now.
+   */
   styles?: any
   
   // Whether to ignore the presence of colors that don't come from the theme in
@@ -86,20 +88,6 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const classNameProxy = (prefix: string) => {
-  return new Proxy({}, {
-    get: function(obj: any, prop: any) {
-      // Check that the prop is really a string. This isn't an error that comes
-      // up normally, but apparently React devtools will try to query for non-
-      // string properties sometimes when using the component debugger.
-      if (typeof prop === "string")
-        return prefix+prop;
-      else
-        return prefix+'invalid';
-    }
-  });
-}
-
 const addClassnames = (componentName: string, styles: any) => {
   const classesProxy = classNameProxy(componentName+'-');
   return (WrappedComponent: any) => forwardRef((props, ref) => {
@@ -113,10 +101,6 @@ const addClassnames = (componentName: string, styles: any) => {
   })
 }
 
-export const useStyles = (styles: (theme: ThemeType) => JssStyles, componentName: keyof ComponentTypes) => {
-  return classNameProxy(componentName+'-');
-};
-
 // Register a component. Takes a name, a raw component, and ComponentOptions
 // (see above). Components should be in their own file, imported with
 // `importComponent`, and registered in that file; components that are
@@ -127,12 +111,11 @@ export const useStyles = (styles: (theme: ThemeType) => JssStyles, componentName
 // ComponentTypes interface to type-check usages of the component in other
 // files.
 export function registerComponent<PropType>(name: string, rawComponent: React.ComponentType<PropType>,
-  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">>
-{
+  options?: ComponentOptions): React.ComponentType<Omit<PropType,"classes">> {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
     if (isClient && window?.missingMainStylesheet) {
-      hocs.push(withStyles(styles, {name: name}));
+      hocs.push(withStyles(styles as AnyBecauseHard, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));
     }
@@ -180,8 +163,7 @@ export function importAllComponents() {
   }
 }
 
-export function prepareComponent(componentName: string): any
-{
+export function prepareComponent(componentName: string): any {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];
   } else if (componentName in ComponentsTable) {
@@ -364,3 +346,58 @@ export const mergeWithComponents = (myComponents: Partial<ComponentTypes>|null|u
   
   return new Proxy({}, mergedComponentsProxyHandler );
 }
+
+/****************************************************************************/
+
+interface JssStyleDefinition<ClassNames extends string> {
+  name: string
+  styles: (theme: ThemeType) => JssStyles<ClassNames>
+  options: JssStyleDefinitionOptions|null
+  proxy: Record<ClassNames,any>
+}
+
+interface JssStyleDefinitionOptions {
+  stylePriority?: number
+}
+
+export const styleDefinitions: JssStyleDefinition<any>[] = [];
+
+/**
+ * Define styles with JSS, and return an object with classes corresponding
+ * to them. The first argument (name) is conventionally the name of the
+ * component that will use the styles, but may be any string that is valid as
+ * part of a CSS classname and which is unique among calls to defineStyles. The
+ * second argument is a function that takes a theme and returns JSS styles.
+ */
+export const defineStyles = <ClassNames extends string>(
+  name: string,
+  styles: (theme: ThemeType) => JssStyles<ClassNames>,
+  options?: JssStyleDefinitionOptions
+) => {
+  const definition: JssStyleDefinition<ClassNames> = {
+    name, styles,
+    options: options ?? null,
+    proxy: classNameProxy(name+"-"),
+  };
+  styleDefinitions.push(definition);
+  return definition.proxy;
+}
+
+export const classNameProxy = (prefix: string) => {
+  return new Proxy({}, {
+    get: function(_obj: any, prop: any) {
+      // Check that the prop is really a string. This isn't an error that comes
+      // up normally, but apparently React devtools will try to query for non-
+      // string properties sometimes when using the component debugger.
+      if (typeof prop === "string")
+        return prefix+prop;
+      else
+        return prefix+'invalid';
+    }
+  });
+}
+
+export const useStyles = <ClassNames extends string>(definition: JssStyleDefinition<ClassNames>): JssStyles<ClassNames> => {
+  return definition.proxy;
+};
+

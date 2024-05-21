@@ -1,5 +1,5 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib';
+import { Components, defineStyles, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
@@ -32,9 +32,6 @@ import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import moment from 'moment';
-
-import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
@@ -60,7 +57,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType): JssStyles => ({
+const classes = defineStyles("Layout", theme => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -324,7 +321,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   stickyWrapperHeaderVisible: {
     transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
-});
+  standaloneNavFlex: {},
+}));
 
 const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
 
@@ -347,10 +345,9 @@ const StickyWrapper: FC<{
     )
     : <>{children}</>;
 
-const Layout = ({currentUser, children, classes}: {
+const Layout = ({currentUser, children}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
@@ -408,7 +405,7 @@ const Layout = ({currentUser, children, classes}: {
         document.body.classList.remove(classes.whiteBackground);
       }
     }
-  }, [useWhiteBackground, classes.whiteBackground]);
+  }, [useWhiteBackground]);
 
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
@@ -633,7 +630,7 @@ const Layout = ({currentUser, children, classes}: {
   return render();
 }
 
-const LayoutComponent = registerComponent('Layout', Layout, {styles});
+const LayoutComponent = registerComponent('Layout', Layout);
 
 declare global {
   interface ComponentTypes {
