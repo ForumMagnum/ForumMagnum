@@ -34,24 +34,13 @@
 export const acceptsSchemaHash = "222d42945763fb6dcaff3b497911d7b7";
 
 import Users from "../../lib/collections/users/collection"
+import { BoolType } from "../../lib/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils"
 
-/*
- * NOTE 31-08-2023
- * I've commented out the code for this migration as it should've already be
- * run on all the servers that matter, and it causes errors when trying to
- * bootstrap new instances
- */
-
 export const up = async ({db}: MigrationContext) => {
-  // if (!Users.isPostgres()) return
-  
-  // // TODO: This appears not to work
-  // await addRemovedField(db, Users, "noComicSans")
+  await addRemovedField(db, Users, "noComicSans", new BoolType())
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // if (!Users.isPostgres()) return
-  
-  // await dropRemovedField(db, Users, "noComicSans")
+  await dropRemovedField(db, Users, "noComicSans")
 }

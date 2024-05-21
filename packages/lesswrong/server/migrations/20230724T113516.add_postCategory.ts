@@ -37,8 +37,6 @@ import Posts from "../../lib/collections/posts/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Posts.isPostgres()) return;
-  
   await addField(db, Posts, "postCategory");
   // set postCategory to 'post' for all existing posts
   // set postCategory to 'linkpost' if post.url is not null or empty
@@ -54,7 +52,5 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Posts.isPostgres()) return;
-  
   await dropField(db, Posts, "postCategory");
 }

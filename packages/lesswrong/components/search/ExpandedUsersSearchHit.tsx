@@ -5,7 +5,7 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -68,11 +68,11 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
   classes: ClassesType,
 }) => {
   const {FormatDate, UsersProfileImage, ForumIcon} = Components;
-  const user = hit as AlgoliaUser;
+  const user = hit as SearchUser;
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
-      {isEAForum && <div className={classes.profilePhotoCol}>
+      {isFriendlyUI && <div className={classes.profilePhotoCol}>
         <UsersProfileImage user={user} size={36} />
       </div>}
       <div>
@@ -82,7 +82,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>
-            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
+            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma}
           </span>
           {user.mapLocationAddress && <span className={classes.metaInfo}>
             <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}

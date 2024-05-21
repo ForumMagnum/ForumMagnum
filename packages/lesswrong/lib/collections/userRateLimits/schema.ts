@@ -16,7 +16,7 @@ const INTERVAL_UNITS = {
   weeks: 'weeks'
 };
 
-const schema: SchemaType<DbUserRateLimit> = {
+const schema: SchemaType<"UserRateLimits"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

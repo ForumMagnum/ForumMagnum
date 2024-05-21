@@ -9,10 +9,11 @@
 import * as session from 'express-session';
 import { assert } from 'console';
 import { loggerConstructor } from '../../../lib/utils/logging';
+import SessionsRepo, { UpsertSessionData } from '../../repos/SessionsRepo';
 
 const debug = loggerConstructor('connect-mongo');
 
-type ConnectMongoCollection = CollectionBase<DbSession>;
+type ConnectMongoCollection = CollectionBase<"Sessions">;
 
 type RequiredConnectMongoOptions = {
   collection: ConnectMongoCollection;
@@ -76,15 +77,10 @@ export default class MongoStore extends session.Store {
   }
 
   private getTransformFunctions() {
-    return this.collection.isPostgres()
-      ? {
-        serialize: identity,
-        unserialize: identity,
-      }
-      : {
-        serialize: JSON.stringify,
-        unserialize: JSON.parse,
-      };
+    return {
+      serialize: identity,
+      unserialize: identity,
+    };
   }
 
   private async setAutoRemove(collection: ConnectMongoCollection): Promise<void> {
@@ -96,7 +92,6 @@ export default class MongoStore extends session.Store {
     switch (this.options.autoRemove) {
       case 'native':
         debug('Creating MongoDB TTL index');
-        await collection._ensureIndex({ expires: 1 });
         break;
       case 'interval':
         debug('create Timer to remove expired sessions');
@@ -160,14 +155,8 @@ export default class MongoStore extends session.Store {
         // @ts-ignore
         delete session.lastModified;
       }
-      const s: Partial<DbSession> = {
-        _id: sid,
-        session: this.getTransformFunctions().serialize(session),
-      };
-      // Expire handling
-      if (session?.cookie?.expires) {
-        s.expires = new Date(session.cookie.expires);
-      } else {
+      const expires = (session?.cookie?.expires) 
+        ? new Date(session.cookie.expires) 
         // If there's no expiration date specified, it is
         // browser-session cookie or there is no cookie at all,
         // as per the connect docs.
@@ -175,17 +164,21 @@ export default class MongoStore extends session.Store {
         // So we set the expiration to two-weeks from now
         // - as is common practice in the industry (e.g Django) -
         // or the default specified in the options.
-        s.expires = new Date(Date.now() + (this.options.ttl * 1000));
-      }
-      // Last modify handling
-      if (this.options.touchAfter > 0) {
-        s.lastModified = new Date();
-      }
-      const rawResp = await this.collection.rawUpdateOne(
-        { _id: s._id },
-        { $set: s },
-        { upsert: true, returnCount: "upsertedCount" },
-      );
+        : new Date(Date.now() + (this.options.ttl * 1000));
+      
+      const lastModified =  (this.options.touchAfter > 0) 
+        ? new Date() 
+        : null;
+      
+      const s: UpsertSessionData = {
+        _id: sid,
+        session: this.getTransformFunctions().serialize(session),
+        expires,
+        lastModified
+      };
+
+      const rawResp = await new SessionsRepo().upsertSession(s);
+
       if (rawResp > 0) {
         this.emit('create', sid)
       } else {

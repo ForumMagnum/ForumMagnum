@@ -6,7 +6,6 @@ export const Sessions: SessionsCollection = createCollection({
   collectionName: 'Sessions',
   dbCollectionName: 'sessions',
   typeName: 'Session',
-  collectionType: 'pg',
   schema,
   logChanges: false,
 });

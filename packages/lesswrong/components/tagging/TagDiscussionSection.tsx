@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
@@ -10,6 +10,7 @@ const TagDiscussionSection = ({classes, tag}: {
   tag: TagBasicInfo
 }) => {
   const {CommentsListSection } = Components;
+  const [highlightDate,setHighlightDate] = useState<Date|undefined>(undefined);
   
   const { results, loadMore, loadingMore, totalCount } = useMulti({
     skip: !tag?._id,
@@ -36,6 +37,8 @@ const TagDiscussionSection = ({classes, tag}: {
       loadingMoreComments={loadingMore}
       newForm={true}
       newFormProps={{enableGuidelines: false}}
+      highlightDate={highlightDate}
+      setHighlightDate={setHighlightDate}
     />
   );
 }

@@ -4,7 +4,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { onError } from '@apollo/client/link/error';
 import { isServer } from '../executionEnvironment';
 import { DatabasePublicSetting } from "../publicSettings";
-import { Operation, selectURI } from "@apollo/client/core";
+import { ApolloLink, Operation, selectURI } from "@apollo/client/core";
 
 const graphqlBatchMaxSetting = new DatabasePublicSetting('batchHttpLink.batchMax', 50)
 
@@ -70,6 +70,22 @@ export const createHttpLink = (baseUrl = '/') => {
     batchKey,
   });
 }
+
+export const headerLink = new ApolloLink((operation, forward) => {
+  if (!isServer) {
+    const url = new URL(window.location.href)
+    const path = url.pathname + url.search
+
+    const headers = {
+      'request-origin-path': path
+    };
+
+    operation.setContext({
+      headers,
+    });
+  }
+  return forward(operation);
+});
 
 const locationsToStr = (locations: readonly SourceLocation[] = []) =>
   locations.map(({column, line}) => `line ${line}, col ${column}`).join(';');

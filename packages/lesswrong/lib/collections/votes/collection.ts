@@ -6,7 +6,6 @@ import { userIsAdminOrMod } from '../../vulcan-users/permissions';
 export const Votes: VotesCollection = createCollection({
   collectionName: 'Votes',
   typeName: 'Vote',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Votes'),
 });

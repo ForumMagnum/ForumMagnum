@@ -14,7 +14,8 @@ import moment from '../../../lib/moment-timezone';
 import React from 'react'
 import { useTracking } from '../../../lib/analyticsEvents';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCurrentTime } from '../../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
@@ -23,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit*2,
     ...theme.typography.postStyle,
     color: theme.palette.text.dim,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
     [theme.breakpoints.down('xs')]: {
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: isEAForum ? 3 : 2
+    paddingTop: isFriendlyUI ? 3 : 2
   },
   icon: {
     fontSize: 16,
@@ -102,6 +103,7 @@ const PostsPageEventData = ({classes, post}: {
   classes: ClassesType,
   post: PostsList,
 }) => {
+  const now = moment(useCurrentTime())
   const {captureEvent} = useTracking()
   
   const { location, contactInfo, onlineEvent, eventRegistrationLink, joinEventLink, eventType } = post
@@ -140,11 +142,10 @@ const PostsPageEventData = ({classes, post}: {
   </div>
   
   // determine if it's currently before, during, or after the event
-  const inTenMinutes = moment().add(10, 'minutes')
+  const inTenMinutes = now.add(10, 'minutes')
   const beforeEvent = post.startTime && moment(post.startTime).isAfter(inTenMinutes)
   
-  const now = moment()
-  const twoHoursAgo = moment().subtract(2, 'hours')
+  const twoHoursAgo = now.subtract(2, 'hours')
   const afterEvent = (post.endTime && moment(post.endTime).isBefore(now)) ||
     (!post.endTime && post.startTime && moment(post.startTime).isBefore(twoHoursAgo))
 

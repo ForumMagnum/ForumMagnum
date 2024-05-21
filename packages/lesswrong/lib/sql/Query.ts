@@ -1,5 +1,5 @@
 import Table from "./Table";
-import { Type, JsonType, ArrayType, NotNullType } from "./Type";
+import { Type, JsonType, ArrayType, NotNullType, DefaultValueType } from "./Type";
 
 /**
  * Arg is a wrapper to mark a particular value as being an argument for the
@@ -10,10 +10,18 @@ class Arg {
   public typehint = "";
 
   constructor(public value: any, type?: Type) {
+    if (this.value === null && type instanceof DefaultValueType && type.isNotNull() && type.getDefaultValueString()) {
+      if (type.isArray() || type.toConcrete() instanceof JsonType) {
+        this.value = type.getDefaultValue();
+      } else {
+        this.value = type.getDefaultValueString();
+      }
+    }
+
     // JSON arrays make node-postgres fall over, but we can work around it
     // with a special-case typehint
-    if (Array.isArray(value) && value[0] && typeof value[0] === "object") {
-      if (type instanceof JsonType) {
+    if (Array.isArray(this.value) && this.value[0] && typeof this.value[0] === "object") {
+      if (type?.toConcrete() instanceof JsonType) {
         this.value = JSON.stringify(this.value);
         this.typehint = "::JSONB";
       } else {
@@ -106,6 +114,7 @@ abstract class Query<T extends DbObject> {
   protected constructor(
     protected table: Table<T> | Query<T>,
     protected atoms: Atom<T>[] = [],
+    protected primaryPrefix: string | null = null,
   ) {}
 
   /**
@@ -129,6 +138,12 @@ abstract class Query<T extends DbObject> {
   compileAtoms(atoms: Atom<T>[], argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
+    
+    const comment = this.getSqlComment();
+    if (comment) {
+      strings.push(`-- ${comment}\n`);
+    }
+    
     for (const atom of atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argOffset}${atom.typehint}`);
@@ -151,6 +166,10 @@ abstract class Query<T extends DbObject> {
       sql: strings.join(" "),
       args,
     };
+  }
+  
+  getSqlComment(): string|null {
+    return null;
   }
 
   /**
@@ -235,6 +254,14 @@ abstract class Query<T extends DbObject> {
   }
 
   /**
+   * Add the (optional) table prefix to a field name
+  */
+  protected prefixify(field: string) {
+    const prefix = this.primaryPrefix ? `"${this.primaryPrefix}".` : "";
+    return prefix + field;
+  }
+
+  /**
    * Convert a Mongo selector field into a string that Postgres can understand. The
    * `field` may be a simple field name, or it may dereference a JSON object or
    * index an array.
@@ -255,7 +282,7 @@ abstract class Query<T extends DbObject> {
         throw new NonScalarArrayAccessError(first, rest);
       } else if (fieldType) {
         const hint = this.getTypeHint(typeHint);
-        const result = `("${first}"` +
+        const result = "(" + this.prefixify(`"${first}"`) +
           rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
           `)${hint}`;
         return hint === "::TEXT"
@@ -264,7 +291,12 @@ abstract class Query<T extends DbObject> {
       }
     }
 
-    if (this.getField(field) || this.syntheticFields[field]) {
+    if (this.getField(field)) {
+      return this.prefixify(`"${field}"`);
+    }
+
+    if (this.syntheticFields[field]) {
+      // Don't prefixify synthetic fields
       return `"${field}"`;
     }
 
@@ -275,7 +307,7 @@ abstract class Query<T extends DbObject> {
    * Mongo is happy to treat arrays and scalar values as being effectively
    * interchangable, but Postgres is more picky. This helper allows us to
    * localize the special handling needed when we operate on a value that
-   * is an array, despite not necessarily be marked as one explicitely in
+   * is an array, despite not necessarily being marked as one explicitely in
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
@@ -340,7 +372,7 @@ abstract class Query<T extends DbObject> {
     const last = path.pop();
     const selector = path.join("->") + "->>" + last;
     return [
-      "(_id IN (SELECT _id FROM",
+      `(${this.prefixify("_id")} IN (SELECT _id FROM`,
       this.table,
       `, UNNEST("${fieldName}") unnested WHERE ${selector} =`,
       this.createArg(value),
@@ -446,10 +478,12 @@ abstract class Query<T extends DbObject> {
           if (!center || !Array.isArray(center) || center.length !== 2 || !locationName) {
             throw new Error("Invalid $geoWithin selector");
           }
+          const prefixedName = this.prefixify(locationName);
           const [lng, lat] = center[0];
           const distance = center[1];
           return [
-            `(EARTH_DISTANCE(LL_TO_EARTH((${locationName}->>'lng')::FLOAT8, (${locationName}->>'lat')::FLOAT8),`,
+            `(EARTH_DISTANCE(LL_TO_EARTH((${prefixedName}->>'lng')::FLOAT8, `,
+            `(${prefixedName}->>'lat')::FLOAT8),`,
             "LL_TO_EARTH(",
             this.createArg(lng),
             ",",
@@ -638,6 +672,8 @@ abstract class Query<T extends DbObject> {
       const [array, index] = expr[op];
       // This is over specialized, but most of our usage follows this pattern
       if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
+        // TODO: I think the logic inside this `if` is no longer used - can we
+        // delete it?
         const tokens = array.split(".");
         const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
         const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
@@ -645,7 +681,7 @@ abstract class Query<T extends DbObject> {
           path[path.length - 2] = "->>";
         }
         // Postgres array are 1-indexed
-        return [`("${field}")[1 + ${index}]${path.join("")}`];
+        return [`(${this.prefixify(field)})[1 + ${index}]${path.join("")}`];
       }
       return [
         "(",
@@ -710,6 +746,10 @@ abstract class Query<T extends DbObject> {
       ];
     }
   }
+}
+
+export function sanitizeSqlComment(comment: string): string {
+  return comment.replace(/\n/g, '_');
 }
 
 export default Query;

@@ -40,7 +40,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
       return <CommentsListMeta>
         <span>
           Some comments are truncated due to high volume. <LWTooltip title={expandTooltip}>
-            <a className={!expandAllThreads && classes.button} onClick={()=>setExpandAllThreads(true)}>(⌘F to expand all)</a>
+            <a className={!expandAllThreads ? classes.button : undefined} onClick={()=>setExpandAllThreads(true)}>(⌘F to expand all)</a>
           </LWTooltip>
         </span>
         {currentUser 
@@ -76,6 +76,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           parentCommentId={parentCommentId}
           parentAnswerId={parentAnswerId}
           shortform={(treeOptions.post as PostsBase)?.shortform}
+          nestingLevel={defaultNestingLevel}
           isChild={defaultNestingLevel > 1}
         />)
       }

@@ -34,7 +34,7 @@ const getItemProps = (
       iconVariant: "primary",
       user: item.user,
       action: "commented on",
-      postTitleOverride: `${post.user?.displayName}'s Quick take`,
+      postTitleOverride: `${post.user?.displayName}'s quick take`,
       postUrlOverride: commentGetPageUrlFromIds({
         commentId: item.topLevelCommentId ?? item._id,
         postId: post._id,

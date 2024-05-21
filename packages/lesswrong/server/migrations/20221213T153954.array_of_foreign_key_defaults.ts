@@ -24,35 +24,19 @@ import Tags from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Books.isPostgres()) {
-    await updateDefaultValue(db, Books, "postIds");
-    await updateDefaultValue(db, Books, "sequenceIds");
-  }
-  if (Chapters.isPostgres()) {
-    await updateDefaultValue(db, Chapters, "postIds");
-  }
-  if (Comments.isPostgres()) {
-    await updateDefaultValue(db, Comments, "suggestForAlignmentUserIds");
-  }
-  if (Conversations.isPostgres()) {
-    await updateDefaultValue(db, Conversations, "participantIds");
-    await updateDefaultValue(db, Conversations, "archivedByIds");
-  }
-  if (Localgroups.isPostgres()) {
-    await updateDefaultValue(db, Localgroups, "organizerIds");
-  }
-  if (Posts.isPostgres()) {
-    await updateDefaultValue(db, Posts, "organizerIds");
-    await updateDefaultValue(db, Posts, "suggestForAlignmentUserIds");
-  }
-  if (Tags.isPostgres()) {
-    await updateDefaultValue(db, Tags, "tagFlagsIds");
-    await updateDefaultValue(db, Tags, "subforumModeratorIds");
-  }
-  if (Users.isPostgres()) {
-    await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
-    await updateDefaultValue(db, Users, "hiddenPostsMetadata");
-    await updateDefaultValue(db, Users, "profileTagIds");
-    await updateDefaultValue(db, Users, "organizerOfGroupIds");
-  }
+  await updateDefaultValue(db, Books, "postIds");
+  await updateDefaultValue(db, Books, "sequenceIds");
+  await updateDefaultValue(db, Chapters, "postIds");
+  await updateDefaultValue(db, Comments, "suggestForAlignmentUserIds");
+  await updateDefaultValue(db, Conversations, "participantIds");
+  await updateDefaultValue(db, Conversations, "archivedByIds");
+  await updateDefaultValue(db, Localgroups, "organizerIds");
+  await updateDefaultValue(db, Posts, "organizerIds");
+  await updateDefaultValue(db, Posts, "suggestForAlignmentUserIds");
+  await updateDefaultValue(db, Tags, "tagFlagsIds");
+  await updateDefaultValue(db, Tags, "subforumModeratorIds");
+  await updateDefaultValue(db, Users, "bookmarkedPostsMetadata");
+  await updateDefaultValue(db, Users, "hiddenPostsMetadata");
+  await updateDefaultValue(db, Users, "profileTagIds");
+  await updateDefaultValue(db, Users, "organizerOfGroupIds");
 }

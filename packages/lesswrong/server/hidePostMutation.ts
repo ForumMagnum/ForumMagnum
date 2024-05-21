@@ -8,7 +8,7 @@ import reject from 'lodash/reject'
 addGraphQLMutation('setIsHidden(postId: String!, isHidden: Boolean!): User!');
 addGraphQLResolvers({
   Mutation: {
-    async setIsHidden(root: void, {postId,isHidden: isHidden}: {postId: string, isHidden: boolean}, context: ResolverContext): Promise<DbUser> {
+    async setIsHidden(root: void, {postId,isHidden: isHidden}: {postId: string, isHidden: boolean}, context: ResolverContext): Promise<Partial<DbUser>> {
       const {currentUser} = context;
       if (!currentUser)
         throw new Error("Log in to hide posts");
@@ -18,9 +18,9 @@ addGraphQLResolvers({
       // to leveraging inserts and removals in Mongo vs. writing the whole list
       const oldHiddenList = currentUser.hiddenPostsMetadata || [];
 
-      let newHiddenList:Array<{postId:string}>;
+      let newHiddenList: Array<{postId: string}>;
       if (isHidden) {
-        const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId == postId)
+        const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId === postId)
         if (alreadyHidden) {
           newHiddenList = oldHiddenList;
         } else {

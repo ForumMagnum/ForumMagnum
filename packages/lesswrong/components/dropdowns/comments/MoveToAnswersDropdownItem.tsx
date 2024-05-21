@@ -5,7 +5,8 @@ import { useMessages } from '../../common/withMessages';
 import { userCanDo, userOwns } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { useApolloClient } from '@apollo/client/react/hooks';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const MoveToAnswersDropdownItem = ({comment, post}: {
   comment: CommentsList,

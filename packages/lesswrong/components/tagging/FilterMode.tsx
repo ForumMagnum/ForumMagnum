@@ -9,13 +9,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
+const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({
@@ -40,13 +41,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 3,
     ...theme.typography.commentStyle,
     display: "inline-block",
-    marginBottom: 4,
-    marginRight: 4,
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
-    color: isEAForum ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    color: isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
+    ...(isFriendlyUI ? {
+      marginBottom: 4,
+      marginRight: 4,
+    } : {
+      maxWidth: 180,
+      whiteSpace: "nowrap",
+    }),
   },
   description: {
     marginTop: 20
@@ -56,6 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: theme.typography.body1.fontWeight,
+    overflow: isFriendlyUI ? undefined : 'hidden',
   },
   filterScore: {
     color: theme.palette.primary.main,
@@ -139,13 +146,15 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   label?: string,
   mode: FilterMode,
   canRemove?: boolean,
-  onChangeMode: (mode: FilterMode)=>void,
-  onRemove?: ()=>void,
+  onChangeMode: (mode: FilterMode) => void,
+  onRemove?: () => void,
   description?: React.ReactNode
   classes: ClassesType,
 }) => {
   const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
-  const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
+  const { hover, anchorEl, eventHandlers } = useHover({
+    eventProps: {tagId, label, mode},
+  });
 
   const currentUser = useCurrentUser()
   const { document: tag } = useSingle({

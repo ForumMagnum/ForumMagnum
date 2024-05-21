@@ -1,11 +1,10 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
-import { useNavigation } from '../../lib/routeUtil';
-import Sequences from '../../lib/collections/sequences/collection';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -59,7 +58,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       paddingBottom: 50,
       overflow: "hidden",
   
-      "& .form-input": {
+      "& .form-input, & .FormGroupLayout-formSection": {
         maxWidth: 640,
         position: "relative !important",
         left: 45,
@@ -68,6 +67,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
         [theme.breakpoints.down('sm')]: {
           left: 0,
           padding: "0 10px",
+        },
+        "& .form-input": {
+          left: 0
         }
       },
       "& .form-input.input-title, &.input-bannerImageId": {
@@ -103,7 +105,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: forumTypeSetting.get() === 'EAForum' ? 84 : 45,
+          top: isFriendlyUI ? 84 : 45,
           left: 7,
           textAlign: "left",
         }
@@ -123,12 +125,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
         top: 15,
         [theme.breakpoints.down('sm')]: {
           left: 15,
-          top: 40,
+          top: 50,
         },
-        [legacyBreakpoints.maxTiny]: {
-          left: 12,
-          top: 15,
-        }
+      },
+      "& .image-remove-button": {
+        [theme.breakpoints.down('sm')]: {
+          position: "absolute !important",
+          left: 6,
+          top: 102,
+          background: theme.palette.buttons.imageUpload.background,
+          "&:hover": {
+            background: theme.palette.buttons.imageUpload.hoverBackground,
+          },
+          color: theme.palette.text.invertedBackgroundText,
+        },
       },
     
       position: "absolute",
@@ -147,15 +157,15 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const { history } = useNavigation();
-  
+  const navigate = useNavigate();
+
   if (currentUser) {
     return (
       <div className={classes.sequencesForm}>
         <Components.WrappedSmartForm
           collectionName="Sequences"
           successCallback={(sequence: any) => {
-            history.push({pathname: redirect || '/s/' + sequence._id });
+            navigate({pathname: redirect || '/s/' + sequence._id });
             flash({messageString: "Successfully created Sequence", type: "success"});
           }}
           cancelCallback={cancelCallback}

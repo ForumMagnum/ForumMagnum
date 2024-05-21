@@ -45,13 +45,9 @@ import { UserRateLimits } from "../../lib/collections/userRateLimits"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (UserRateLimits.isPostgres()) {
-    await createTable(db, UserRateLimits)
-  }
+  await createTable(db, UserRateLimits)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (UserRateLimits.isPostgres()) {
-    await dropTable(db, UserRateLimits);
-  }
+  await dropTable(db, UserRateLimits);
 }

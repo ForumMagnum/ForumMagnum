@@ -1,6 +1,6 @@
 import { isServer } from "../executionEnvironment";
 import { truncate } from "../editor/ellipsize";
-import { preferredHeadingCase } from "../forumTypeUtils";
+import { preferredHeadingCase } from "../../themes/forumTheme";
 
 const getInnerHTML = (html: string) => {
   if (isServer) {

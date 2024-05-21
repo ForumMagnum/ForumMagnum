@@ -64,7 +64,7 @@ async function enforcePostRateLimit (user: DbUser) {
   }
 }
 
-async function enforceCommentRateLimit({user, comment, context}:{
+async function enforceCommentRateLimit({user, comment, context}: {
   user: DbUser,
   comment: DbComment,
   context: ResolverContext,

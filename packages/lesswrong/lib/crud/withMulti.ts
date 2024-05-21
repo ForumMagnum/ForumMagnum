@@ -1,16 +1,14 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import qs from 'qs';
-import { useState } from 'react';
-import compose from 'recompose/compose';
-import withState from 'recompose/withState';
+import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
-import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
-import { useLocation, useNavigation } from '../routeUtil';
+import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
+import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
-import { isServer } from '../executionEnvironment';
+import { useNavigate } from '../reactRouterWrapper';
+import { apolloSSRFlag } from '../helpers';
 
-// Template of a GraphQL query for withMulti/useMulti. A sample query might look
+// Template of a GraphQL query for useMulti. A sample query might look
 // like:
 //
 // mutation multiMovieQuery($input: MultiMovieInput) {
@@ -58,160 +56,6 @@ function getGraphQLQueryFromOptions({collectionName, collection, fragmentName, f
     ${multiClientTemplate({ typeName, fragmentName, extraVariablesString })}
     ${fragment}
   `;
-}
-
-/**
- * HoC for querying a collection for a list of results. DEPRECATED: you probably
- * want to be using the hook version, useMulti, instead.
- */
-export function withMulti({
-  limit = 10, // Only used as a fallback if terms.limit is not specified
-  pollInterval = 0, //LESSWRONG: Polling is disabled, and by now it would probably horribly break if turned on
-  enableTotal = false, //LESSWRONG: enableTotal defaults false
-  enableCache = false,
-  extraVariables,
-  fetchPolicy,
-  notifyOnNetworkStatusChange,
-  propertyName = "results",
-  collectionName, collection,
-  fragmentName, fragment,
-  terms: queryTerms,
-}: {
-  limit?: number,
-  pollInterval?: number,
-  enableTotal?: boolean,
-  enableCache?: boolean,
-  extraVariables?: any,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  notifyOnNetworkStatusChange?: boolean,
-  propertyName?: string,
-  collectionName?: CollectionNameString,
-  collection?: CollectionBase<any>,
-  fragmentName?: FragmentName,
-  fragment?: any,
-  terms?: any,
-}) {
-  // if this is the SSR process, set pollInterval to null
-  // see https://github.com/apollographql/apollo-client/issues/1704#issuecomment-322995855
-  //pollInterval = typeof window === 'undefined' ? null : pollInterval;
-
-  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
-  ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
-
-  const typeName = collection!.options.typeName;
-  const resolverName = collection!.options.multiResolverName;
-  
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
-
-  return compose(
-    // wrap component with HoC that manages the terms object via its state
-    withState('paginationTerms', 'setPaginationTerms', (props: any) => {
-      // get initial limit from props, or else options
-      const paginationLimit = (props.terms && props.terms.limit) || limit;
-      const paginationTerms = {
-        limit: paginationLimit,
-        itemsPerPage: paginationLimit,
-      };
-
-      return paginationTerms;
-    }),
-
-    // wrap component with graphql HoC
-    graphql(
-      query,
-
-      {
-        alias: `with${pluralize(typeName)}`,
-
-        // graphql query options
-        options(props: any) {
-          const { terms, paginationTerms, ...rest } = props;
-          // get terms from options, then props, then pagination
-          const mergedTerms = { ...queryTerms, ...terms, ...paginationTerms };
-          const graphQLOptions: any = {
-            variables: {
-              input: {
-                terms: mergedTerms,
-                enableCache,
-                enableTotal,
-              },
-              ...(_.pick(rest, Object.keys(extraVariables || {})))
-            },
-            // note: pollInterval can be set to 0 to disable polling (20s by default)
-            pollInterval,
-            ssr: true,
-          };
-
-          if (fetchPolicy) {
-            graphQLOptions.fetchPolicy = fetchPolicy;
-          }
-
-          // set to true if running into https://github.com/apollographql/apollo-client/issues/1186
-          if (notifyOnNetworkStatusChange) {
-            graphQLOptions.notifyOnNetworkStatusChange = notifyOnNetworkStatusChange;
-          }
-
-          return graphQLOptions;
-        },
-
-        // define props returned by graphql HoC
-        props(props: any) {
-          // see https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
-          if (!(props?.data)) throw new Error("Missing props.data");
-          const refetch = props.data.refetch,
-            // results = Utils.convertDates(collection, props.data[listResolverName]),
-            results = props.data[resolverName] && props.data[resolverName].results,
-            totalCount = props.data[resolverName] && props.data[resolverName].totalCount,
-            networkStatus = props.data.networkStatus,
-            loadingInitial = props.data.networkStatus === 1,
-            loading = props.data.networkStatus === 1,
-            loadingMore = props.data.networkStatus === 2,
-            error = props.data.error;
-
-          if (error) {
-            // This error was already caught by the apollo middleware, but the
-            // middleware had no idea who  made the query. To aid in debugging, log a
-            // stack trace here.
-            // eslint-disable-next-line no-console
-            console.error(error.message)
-          }
-
-          return {
-            // see https://github.com/apollostack/apollo-client/blob/master/src/queries/store.ts#L28-L36
-            // note: loading will propably change soon https://github.com/apollostack/apollo-client/issues/831
-            loading,
-            loadingInitial,
-            loadingMore,
-            [propertyName]: results,
-            totalCount,
-            refetch,
-            networkStatus,
-            error,
-            count: results && results.length,
-
-            // regular load more (reload everything)
-            loadMore(providedTerms: any) {
-              // if new terms are provided by presentational component use them, else default to incrementing current limit once
-              const newTerms =
-                typeof providedTerms === 'undefined'
-                  ? {
-                      /*...props.ownProps.terms,*/ ...props.ownProps.paginationTerms,
-                      limit: results.length + props.ownProps.paginationTerms.itemsPerPage,
-                    }
-                  : providedTerms;
-
-              props.ownProps.setPaginationTerms(newTerms);
-            },
-
-            fragmentName,
-            fragment,
-            ...props.ownProps, // pass on the props down to the wrapped component
-            data: props.data,
-          };
-        },
-      }
-    )
-  );
 }
 
 export interface UseMultiOptions<
@@ -300,7 +144,7 @@ export function useMulti<
   ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
   const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
@@ -315,14 +159,14 @@ export function useMulti<
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
-  const graphQLVariables = {
+  const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
       enableCache, enableTotal, createIfMissing
     },
-    ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
-  }
-  
+    ...extraVariablesValues
+  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
+
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {
     setLastTerms(terms);
@@ -340,18 +184,18 @@ export function useMulti<
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
-    ssr: ssr || !isServer,
+    ssr: apolloSSRFlag(ssr),
     skip,
     notifyOnNetworkStatusChange: true
   }
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
 
   const client = useApolloClient();
-  const invalidateCache = () => invalidateQuery({
+  const invalidateCache = useCallback(() => invalidateQuery({
     client,
     query,
     variables: graphQLVariables,
-  });
+  }), [client, query, graphQLVariables]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the
@@ -378,7 +222,7 @@ export function useMulti<
     const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
-      history.push({...location, search: `?${qs.stringify(newQuery)}`})
+      navigate({...location, search: `?${qs.stringify(newQuery)}`})
     }
     void fetchMore({
       variables: {

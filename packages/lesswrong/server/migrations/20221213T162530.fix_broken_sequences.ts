@@ -4,10 +4,6 @@ import { randomId } from "../../lib/random";
 import InsertQuery from "../../lib/sql/InsertQuery";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Sequences.isPostgres() || !Chapters.isPostgres()) {
-    return;
-  }
-
   const [sequences, chapters] = await Promise.all([
     Sequences.find({}, {projection: {_id: 1}}).fetch(),
     Chapters.find({}, {projection: {_id: 1, sequenceId: 1}}).fetch(),
@@ -29,7 +25,7 @@ export const up = async ({db}: MigrationContext) => {
   }
 
   if (newChapters.length) {
-    const query = new InsertQuery(Chapters.table, newChapters as DbChapter[]);
+    const query = new InsertQuery(Chapters.getTable(), newChapters as DbChapter[]);
     const {sql, args} = query.compile();
     await db.none(sql, args);
   }

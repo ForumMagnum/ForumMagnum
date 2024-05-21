@@ -3,7 +3,7 @@ import { SENT_MODERATOR_MESSAGE } from '../../lib/collections/moderatorActions/s
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { loadByIds } from '../../lib/loaders';
 import { getCollectionHooks } from '../mutationCallbacks';
-import { createMutator } from '../vulcan-lib';
+import { createMutator, updateMutator } from '../vulcan-lib';
 
 getCollectionHooks("Messages").newValidate.add(function NewMessageEmptyCheck (message: DbMessage) {
   const { data } = (message.contents && message.contents.originalContents) || {}
@@ -45,5 +45,34 @@ getCollectionHooks("Messages").createAsync.add(async function updateUserNotesOnM
         }
       });
     }
+  }
+});
+
+/**
+ * If the current user is not part of the conversation then add them to make
+ * sure they get notified about future messages (only mods have permission to
+ * add themselves to conversations).
+ */
+getCollectionHooks("Messages").createAsync.add(async function addParticipantIfNew({
+  document,
+  currentUser,
+  context,
+}) {
+  const {conversationId} = document;
+  const conversation = await context.loaders.Conversations.load(conversationId);
+  if (
+    currentUser &&
+    conversation &&
+    !conversation.participantIds.includes(currentUser._id)
+  ) {
+    await updateMutator({
+      currentUser,
+      collection: Conversations,
+      documentId: conversationId,
+      set: {
+        participantIds: [...conversation.participantIds, currentUser._id],
+      },
+      validate: false,
+    });
   }
 });

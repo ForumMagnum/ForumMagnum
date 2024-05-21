@@ -20,6 +20,7 @@ registerMigration({
       callback: async (documents: DbRevision[]) => {
         const updates: Array<any> = [];
         for (const doc of documents) {
+          if (!doc.originalContents) continue;
           const { data, type } = doc.originalContents;
           const wordCount = await dataToWordCount(data, type);
           if (wordCount !== doc.wordCount) {

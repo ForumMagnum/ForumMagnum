@@ -22,6 +22,7 @@ registerMigration({
         let updates: Array<any> = [];
         
         for (let doc of documents) {
+          if (!doc.originalContents) continue;
           const { data, type } = doc.originalContents;
           const wordCount = await dataToWordCount(data, type);
           

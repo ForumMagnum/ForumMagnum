@@ -15,28 +15,34 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
     '& a': {
       color: theme.palette.primary.main,
     },
+    
+    "& .footnote-back-link": {
+      display: "none",
+    },
   },
 })
 
-const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   onsite?: boolean,
   id?: string,
-  rel?: string
+  rel?: string,
+  children: React.ReactNode,
 }) => {
-  const { LWPopper } = Components
+  const { ContentStyles, LWPopper } = Components
   
   const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "linkPreview",
-    hoverPreviewType: "DefaultPreview",
-    href,
-    onsite
+    eventProps: {
+      pageElementContext: "linkPreview",
+      hoverPreviewType: "DefaultPreview",
+      href,
+      onsite,
+    },
   });
   
   let footnoteContentsNonempty = false;
-  let footnoteMinusBacklink = "";
+  let footnoteHTML = "";
   
   // Get the contents of the linked footnote.
   // This has a try-catch-ignore around it because the link doesn't necessarily
@@ -45,11 +51,7 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
   // it.
   try {
     // Grab contents of linked footnote if it exists
-    const footnoteHTML = document.querySelector(href)?.innerHTML;
-    // Remove the backlink anchor tag. Note that this regex is deliberately very narrow;
-    // a more permissive regex would introduce risk of XSS, since we're not re-validating
-    // after this transform.
-    footnoteMinusBacklink = footnoteHTML?.replace(/<a href="#fnref[a-zA-Z0-9]*">\^<\/a>/g, '') || "";
+    footnoteHTML = document.querySelector(href)?.innerHTML || "";
     // Check whether the footnotehas nonempty contents
     footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
   // eslint-disable-next-line no-empty
@@ -72,19 +74,20 @@ const FootnotePreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
         allowOverflow
       >
         <Card>
-          <div className={classes.hovercard}>
-            <div dangerouslySetInnerHTML={{__html: footnoteMinusBacklink || ""}} />
-          </div>
+          <ContentStyles contentType="postHighlight" className={classes.hovercard}>
+            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+          </ContentStyles>
         </Card>
       </LWPopper>}
 
       <a
         href={href}
-        dangerouslySetInnerHTML={{__html: innerHTML}}
         id={id}
         rel={rel}
         onClick={() => window.dispatchEvent(new Event(EXPAND_FOOTNOTES_EVENT))}
-      />
+      >
+        {children}
+      </a>
     </span>
   );
 }

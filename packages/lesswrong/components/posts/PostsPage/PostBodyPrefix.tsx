@@ -1,14 +1,15 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Info from '@material-ui/icons/Info';
-import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { useCurrentUser } from '../../common/withUser';
 import { canNominate, postEligibleForReview, postIsVoteable, reviewIsActive, REVIEW_YEAR } from '../../../lib/reviewUtils';
 import { forumSelect } from "../../../lib/forumTypeUtils";
 import { Link } from '../../../lib/reactRouterWrapper';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const shortformDraftMessage = isEAForum
-  ? "This is a special post that holds your Quick takes. Because it's marked as a draft, your Quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
+const shortformDraftMessage = isFriendlyUI
+  ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
   : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -25,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
     maxWidth: 600,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -68,7 +69,7 @@ const forumNewUserProcessingTime = forumSelect({
 })
 
 const PostBodyPrefix = ({post, query, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
   classes: ClassesType,
 }) => {
@@ -90,14 +91,9 @@ const PostBodyPrefix = ({post, query, classes}: {
       {shortformDraftMessage}
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
-      {isEAForum
-        ? <>
-          This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
-        </>
-        : <>
-          This is a special post for short-form writing by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/shortform">Shortform Page</Link> and <Link to="/allPosts">All Posts page</Link>.
-        </>
-      }
+      <>
+        This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+      </>
     </div>}
 
     {post.rejected && <div className={classes.rejectionNotice}>
@@ -120,7 +116,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    <LinkPostMessage post={post} negativeTopMargin />
+    <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

@@ -1,10 +1,11 @@
 import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useLocation, useNavigation } from '../../lib/routeUtil'
+import { useLocation } from '../../lib/routeUtil'
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback}: {
   tag: TagFragment,
@@ -26,7 +27,7 @@ const EditTagPage = () => {
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading } = useTagBySlug(slug, "TagFragment");
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const client = useApolloClient()
 
   if (loading)
@@ -41,7 +42,7 @@ const EditTagPage = () => {
         tag={tag} 
         successCallback={ async (tag: any) => {
           await client.resetStore()
-          history.push({pathname: tagGetUrl(tag)})
+          navigate({pathname: tagGetUrl(tag)})
         }}
       />
     </Components.SingleColumnSection>

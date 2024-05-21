@@ -7,7 +7,6 @@ import { registerFragment } from '../../vulcan-lib/fragments';
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
   typeName: "ClientId",
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ClientIds'),
 });
@@ -21,7 +20,7 @@ addUniversalFields({
   createdAtOptions: {canRead: ['admins']},
 });
 
-ensureIndex(ClientIds, {clientId: 1});
+ensureIndex(ClientIds, {clientId: 1}, {unique: true, concurrently: true, name: "idx_ClientIds_clientId_unique"});
 ensureIndex(ClientIds, {userIds: 1});
 
 registerFragment(`

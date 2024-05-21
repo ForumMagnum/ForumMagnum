@@ -11,7 +11,8 @@ import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
 import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -56,16 +57,18 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const truncateGuidelines = (guidelines: string) => {
-  const truncatiseOptions = {
+  return truncatise(guidelines, {
     TruncateLength: 300,
     TruncateBy: "characters",
     Suffix: `... <a>(${preferredHeadingCase("Read More")})</a>`,
     Strict: false
-  }
-  return truncatise(guidelines, truncatiseOptions)
+  });
 }
 
-const getPostModerationGuidelines = (post: PostsList, classes: ClassesType) => {
+const getPostModerationGuidelines = (
+  post: PostsModerationGuidelines,
+  classes: ClassesType,
+) => {
   const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
 
   const { html = "" } = post.moderationGuidelines || {}
@@ -110,10 +113,12 @@ const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
     documentId,
     collectionName: isPost ? "Posts" : "Tags",
     fetchPolicy: "cache-first",
-    fragmentName: isPost ? "PostsList" : "TagFragment",
+    fragmentName: isPost ? "PostsModerationGuidelines" : "TagFragment",
   });
-  const isPostType = (document: PostsList|TagFragment): document is PostsList => isPost && !!document
-  
+  const isPostType = (
+    document: PostsModerationGuidelines|TagFragment,
+  ): document is PostsModerationGuidelines => isPost && !!document;
+
   if (!document || loading) return null
 
   const handleClick = (e: React.MouseEvent) => {

@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 export const postSuggestForAlignment = ({ currentUser, post, updatePost }: {
   currentUser: UsersCurrent,
   post: PostsBase,
-  updatePost: WithUpdateFunction<PostsCollection>,
+  updatePost: WithUpdateFunction<"Posts">,
 }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.uniq([...suggestUserIds, currentUser._id])
@@ -16,7 +16,7 @@ export const postSuggestForAlignment = ({ currentUser, post, updatePost }: {
 export const postUnSuggestForAlignment = ({ currentUser, post, updatePost }: {
   currentUser: UsersCurrent,
   post: PostsBase,
-  updatePost: WithUpdateFunction<PostsCollection>,
+  updatePost: WithUpdateFunction<"Posts">,
 }) => {
   const suggestUserIds = post.suggestForAlignmentUserIds || []
   const newSuggestUserIds = _.without([...suggestUserIds], currentUser._id)

@@ -3,33 +3,40 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { SectionTitleProps } from "./SectionTitle";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   title: {
     display: "flex",
-    alignItems: "center",
     columnGap: 10
   },
-  expandIcon: {
-    position: "relative",
-    top: 3,
-    fontSize: 16,
-    cursor: "pointer",
-    "&:hover": {
-      color: theme.palette.grey[800],
-    }
-  },
-  afterTitleLink: {
+  afterContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
     fontSize: 14,
     color: theme.palette.grey[600],
     fontWeight: 600,
-    "&:hover": {
+    "& a:hover": {
       color: theme.palette.grey[1000],
       opacity: 1,
     },
     "@media (max-width: 350px)": {
       display: "none",
     },
+  },
+  expandIcon: {
+    verticalAlign: 'middle',
+    transform: "translateY(-1px)",
+    fontSize: 16,
+    cursor: "pointer",
+    transition: "transform 0.2s ease-in-out",
+    "&:hover": {
+      color: theme.palette.grey[800],
+    }
+  },
+  chevronExpanded: {
+    transform: "rotate(90deg)",
   },
 });
 
@@ -39,7 +46,8 @@ type ExpandableSectionProps = Exclude<SectionTitleProps, "children"> & {
   toggleExpanded: () => void,
   afterTitleText?: string,
   afterTitleTo?: string,
-  Content: ComponentType,
+  AfterTitleComponent?: ComponentType,
+  children: React.ReactNode,
 }
 
 const ExpandableSection = ({
@@ -49,7 +57,8 @@ const ExpandableSection = ({
   title,
   afterTitleText = "View more",
   afterTitleTo,
-  Content,
+  AfterTitleComponent,
+  children,
   classes,
   ...sectionTitleProps
 }: ExpandableSectionProps & {classes: ClassesType}) => {
@@ -67,21 +76,30 @@ const ExpandableSection = ({
                 hideOnTouchScreens
               >
                 <ForumIcon
-                  icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+                  icon="ThickChevronRight"
                   onClick={toggleExpanded}
-                  className={classes.expandIcon}
+                  className={classNames(classes.expandIcon, {
+                    [classes.chevronExpanded]: expanded,
+                  })}
                 />
               </LWTooltip>
             </div>
           }
         >
-          {expanded && afterTitleTo &&
-            <Link to={afterTitleTo} className={classes.afterTitleLink}>
-              {afterTitleText}
-            </Link>
+          {expanded && (AfterTitleComponent || afterTitleTo) &&
+            <div className={classes.afterContainer}>
+              {AfterTitleComponent &&
+                <AfterTitleComponent />
+              }
+              {afterTitleTo &&
+                <Link to={afterTitleTo}>
+                  {afterTitleText}
+                </Link>
+              }
+            </div>
           }
         </SectionTitle>
-        {expanded && <Content />}
+        {expanded && <>{children}</>}
       </SingleColumnSection>
     </AnalyticsContext>
   );

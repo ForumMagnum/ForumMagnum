@@ -6,12 +6,12 @@ import { htmlToTextDefault } from "../lib/htmlToText";
 import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
-import { isAnyTest } from "../lib/executionEnvironment";
+import { isAnyTest, isCypress } from "../lib/executionEnvironment";
 import { isEAForum } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 
-export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum;
+export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum && !isCypress;
 
 export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
@@ -67,11 +67,11 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   const model = DEFAULT_EMBEDDINGS_MODEL;
   const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
   const trimmedText = trimText(text, model, maxTokens);
-  const result = await api.createEmbedding({
+  const result = await api.embeddings.create({
     input: trimmedText,
     model,
   });
-  const embeddings = result?.data?.data?.[0].embedding;
+  const embeddings = result?.data?.[0].embedding;
   if (
     !embeddings ||
     !Array.isArray(embeddings) ||

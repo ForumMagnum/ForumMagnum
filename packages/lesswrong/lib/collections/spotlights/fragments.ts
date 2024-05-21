@@ -18,9 +18,19 @@ registerFragment(`
     duration
     showAuthor
     imageFade
+    imageFadeColor
   }
 `)
 
+registerFragment(`
+  fragment SpotlightHeaderEventSubtitle on Spotlight {
+    ...SpotlightMinimumInfo
+    document {
+      _id
+      slug
+    }
+  }
+`);
 registerFragment(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo

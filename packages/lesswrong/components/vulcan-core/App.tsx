@@ -1,190 +1,132 @@
+import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
-import PropTypes from 'prop-types';
-import React, { PureComponent } from 'react';
-// eslint-disable-next-line no-restricted-imports
-import { withRouter } from 'react-router';
-import { withCurrentUser } from '../../lib/crud/withCurrentUser';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { LocationContext, NavigationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from '../../lib/vulcan-core/appContext';
-import { IntlProvider, intlShape } from '../../lib/vulcan-i18n';
-import { Components, registerComponent, Strings, userChangedCallback } from '../../lib/vulcan-lib';
-import { MessageContext } from '../common/withMessages';
+import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
+import { TimeOverride, TimeOverrideContext } from '../../lib/utils/timeUtil';
+// eslint-disable-next-line no-restricted-imports
+import { useLocation, withRouter } from 'react-router';
+import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
+import {
+  LocationContext,
+  parseRoute,
+  ServerRequestStatusContext,
+  SubscribeLocationContext,
+  ServerRequestStatusContextType,
+  NavigationContext,
+  checkUserRouteAccess,
+} from '../../lib/vulcan-core/appContext'
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
-import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
-import type { History } from 'history';
+import { MessageContextProvider } from '../common/FlashMessages';
+import type { History } from 'history'
+import { RefetchCurrentUserContext } from '../common/withUser';
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
 interface ExternalProps {
-  apolloClient: any
-  serverRequestStatus?: ServerRequestStatusContextType
-  timeOverride: TimeOverride
-}
-interface AppProps extends ExternalProps {
-  // From withRouter
-  location: any
-  history: History
-  
-  // From withCurrentUser HoC
-  currentUser: UsersCurrent
-  currentUserLoading: boolean
+  apolloClient: AnyBecauseTodo,
+  serverRequestStatus?: ServerRequestStatusContextType,
+  timeOverride: TimeOverride | null,
 }
 
-class App extends PureComponent<AppProps,any> {
-  locationContext: RouterLocation|null = null
-  subscribeLocationContext: RouterLocation|null = null
-  navigationContext: { history: History }
-  
-  constructor(props: AppProps) {
-    super(props);
+const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
+  history: History
+}) => {
+  const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
+  const reactDomLocation = useLocation();
+  const locationContext = useRef<RouterLocation | null>(null);
+  const subscribeLocationContext = useRef<RouterLocation | null>(null);
+  const navigationContext = useRef<{ history: History<unknown> } | null>();
+
+  const locale = localeSetting.get();
+
+  useEffect(() => {
     void userChangedCallback.runCallbacks({
-      iterator: props.currentUser,
+      iterator: currentUser,
       properties: [],
     });
-    const locale = localeSetting.get();
-    this.state = {
-      locale,
-      messages: [],
-    };
     moment.locale(locale);
-  }
+  }, [currentUser, locale]);
 
-  /*
-
-  Show a flash message
-
-  */
-  flash = (message: AnyBecauseTodo) => {
-    this.setState({
-      messages: [...this.state.messages, message]
+  useEffect(() => {
+    void userChangedCallback.runCallbacks({
+      iterator: currentUser,
+      properties: [],
     });
-  }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?._id]);
 
-  /*
-
-  Clear all flash messages
-
-  */
-  clear = () => {
-    // When clearing messages, we first set all current messages to have a hide property
-    // And only after 500ms set the array to empty, to allow UI elements to show a fade-out animation
-    this.setState({
-      messages: this.state.messages.map((message: AnyBecauseTodo) => ({...message, hide: true}))
-    })
-    setTimeout(() => {
-      this.setState({ messages: []});
-    }, 500)
-  }
-
-  getLocale = (truncate?: boolean) => {
-    return truncate ? this.state.locale.slice(0, 2) : this.state.locale;
-  };
-
-  getChildContext() {
-    return {
-      getLocale: this.getLocale,
-    };
-  }
-
-  UNSAFE_componentWillUpdate(nextProps: AppProps) {
-    if (this.props.currentUser?._id !== nextProps.currentUser?._id) {
-      void userChangedCallback.runCallbacks({
-        iterator: nextProps.currentUser,
-        properties: [],
-      });
-    }
-  }
+  // Parse the location into a route/params/query/etc.
+  const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));
   
-  render() {
-    const { flash } = this;
-    const { messages } = this.state;
-    const { currentUser, currentUserLoading, serverRequestStatus, timeOverride } = this.props;
-
-    // Parse the location into a route/params/query/etc.
-    const location = parseRoute({location: this.props.location});
-    
-    if (location.redirected) {
-      return <Components.PermanentRedirect url={location.url}/>
-    }
-    
-    // Reuse the container objects for location and navigation context, so that
-    // they will be reference-stable and won't trigger spurious rerenders.
-    if (!this.locationContext) {
-      this.locationContext = {...location};
-    } else {
-      Object.assign(this.locationContext, location);
-    }
-
-    if (!this.navigationContext) {
-      this.navigationContext = {
-        history: this.props.history
-      };
-    } else {
-      this.navigationContext.history = this.props.history;
-    }
-
-    // subscribeLocationContext changes (by shallow comparison) whenever the
-    // URL changes.
-    // FIXME: Also needs to include changes to hash and to query params
-    if (!this.subscribeLocationContext
-      || this.subscribeLocationContext.pathname != location.pathname
-      || JSON.stringify(this.subscribeLocationContext.query) != JSON.stringify(location.query)
-      || this.subscribeLocationContext.hash != location.hash
-    ) {
-      this.subscribeLocationContext = {...location};
-    } else {
-      Object.assign(this.subscribeLocationContext, location);
-    }
-
-    const { RouteComponent } = location;
-    
-    // If logged in but waiting for currentUser to load, don't render stuff.
-    // (Otherwise the logged-in SSR winds up doing the queries for, and sending
-    // an Apollo cache containing the results of, the union of both logged-in
-    // and logged-out views.)
-    if (currentUserLoading && !currentUser) {
-      return <Components.Loading/>
-    }
-    
+  if (location.redirected) {
     return (
-      <LocationContext.Provider value={this.locationContext}>
-      <SubscribeLocationContext.Provider value={this.subscribeLocationContext}>
-      <NavigationContext.Provider value={this.navigationContext}>
-      <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
-      <TimeContext.Provider value={timeOverride}>
-      <IntlProvider locale={this.getLocale()} key={this.getLocale()} messages={Strings[this.getLocale()]}>
-        <MessageContext.Provider value={{ messages, flash, clear: this.clear }}>
-          <Components.HeadTags image={siteImageSetting.get()} />
-          <Components.ScrollToTop />
-          <Components.Layout currentUser={currentUser}>
-            <RouteComponent />
-          </Components.Layout>
-        </MessageContext.Provider>
-      </IntlProvider>
-      </TimeContext.Provider>
-      </ServerRequestStatusContext.Provider>
-      </NavigationContext.Provider>
-      </SubscribeLocationContext.Provider>
-      </LocationContext.Provider>
+      <Components.PermanentRedirect url={location.url} />
     );
   }
+
+  // Reuse the container objects for location and navigation context, so that
+  // they will be reference-stable and won't trigger spurious rerenders.
+  if (!locationContext.current) {
+    locationContext.current = {...location};
+  } else {
+    Object.assign(locationContext.current, location);
+  }
+  
+  if (!navigationContext.current) {
+    navigationContext.current = { history };
+  } else {
+    navigationContext.current.history = history;
+  }
+
+  // subscribeLocationContext changes (by shallow comparison) whenever the
+  // URL changes.
+  // FIXME: Also needs to include changes to hash and to query params
+  if (!subscribeLocationContext.current ||
+    subscribeLocationContext.current.pathname !== location.pathname ||
+    JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
+    subscribeLocationContext.current.hash !== location.hash
+  ) {
+    subscribeLocationContext.current = {...location};
+  } else {
+    Object.assign(subscribeLocationContext.current, location);
+  }
+
+  // If logged in but waiting for currentUser to load, don't render stuff.
+  // (Otherwise the logged-in SSR winds up doing the queries for, and sending
+  // an Apollo cache containing the results of, the union of both logged-in
+  // and logged-out views.)
+  if (currentUserLoading && !currentUser) {
+    return (
+      <Components.Loading />
+    );
+  }
+
+  return (
+    <LocationContext.Provider value={locationContext.current}>
+    <NavigationContext.Provider value={navigationContext.current}>
+    <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
+    <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
+    <TimeOverrideContext.Provider value={timeOverride}>
+    <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
+      <MessageContextProvider>
+        <Components.HeadTags image={siteImageSetting.get()} />
+        <Components.ScrollToTop />
+        <Components.Layout currentUser={currentUser}>
+          <location.RouteComponent />
+        </Components.Layout>
+      </MessageContextProvider>
+    </RefetchCurrentUserContext.Provider>
+    </TimeOverrideContext.Provider>
+    </ServerRequestStatusContext.Provider>
+    </SubscribeLocationContext.Provider>
+    </NavigationContext.Provider>
+    </LocationContext.Provider>
+  );
 }
 
-(App as any).childContextTypes = {
-  intl: intlShape,
-  getLocale: PropTypes.func,
-};
-
-//registerComponent('App', App, withCurrentUser, [withUpdate, updateOptions], withCookies, withRouter);
-// TODO LESSWRONG-Temporarily omit withCookies until it's debugged
 const AppComponent = registerComponent<ExternalProps>('App', App, {
-  hocs: [
-    withCurrentUser,
-    withRouter,
-  ]
+  hocs: [withRouter],
 });
-
-
 
 declare global {
   interface ComponentTypes {
@@ -192,4 +134,4 @@ declare global {
   }
 }
 
-export default App; 
+export default App;

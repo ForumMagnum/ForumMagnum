@@ -5,11 +5,30 @@ import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
 
-const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
+const forceNonResolverFields = [
+  "contents",
+  "moderationGuidelines",
+  "customHighlight",
+  "originalContents",
+  "description",
+  "subforumWelcomeText",
+  "howOthersCanHelpMe",
+  "howICanHelpOthers",
+  "biography",
+  "frontpageDescription",
+  "postPageDescription",
+];
 
-export const isResolverOnly =
-  <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
-    schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
+export const isResolverOnly = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  fieldName: string,
+  schema: CollectionFieldSpecification<N>,
+) => {
+  if (collection.collectionName === "Posts" && fieldName === "moderationGuidelines") {
+    return true;
+  }
+  return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
+}
 
 /**
  * The `Type` classes model data types as they exist in Postgres.
@@ -47,13 +66,14 @@ export abstract class Type {
     return null;
   }
 
-  static fromSchema<T extends DbObject>(
+  static fromSchema<N extends CollectionNameString>(
+    collection: CollectionBase<N>,
     fieldName: string,
-    schema: CollectionFieldSpecification<T>,
-    indexSchema: CollectionFieldSpecification<T> | undefined,
+    schema: CollectionFieldSpecification<N>,
+    indexSchema: CollectionFieldSpecification<N> | undefined,
     forumType: ForumTypeString,
   ): Type {
-    if (isResolverOnly(fieldName, schema)) {
+    if (isResolverOnly(collection, fieldName, schema)) {
       throw new Error("Can't generate type for resolver-only field");
     }
 
@@ -62,12 +82,17 @@ export abstract class Type {
       const value = defaultValue instanceof DeferredForumSelect
         ? defaultValue.get(forumType)
         : defaultValue;
-      return new DefaultValueType(Type.fromSchema(fieldName, rest, indexSchema, forumType), value);
+      return new DefaultValueType(
+        Type.fromSchema(collection, fieldName, rest, indexSchema, forumType),
+        value,
+      );
     }
 
     if (schema.optional === false || schema.nullable === false) {
       const newSchema = {...schema, optional: true, nullable: true};
-      return new NotNullType(Type.fromSchema(fieldName, newSchema, indexSchema, forumType));
+      return new NotNullType(
+        Type.fromSchema(collection, fieldName, newSchema, indexSchema, forumType),
+      );
     }
 
     switch (schema.type) {
@@ -97,7 +122,9 @@ export abstract class Type {
           }
           return new VectorType(schema.vectorSize);
         }
-        return new ArrayType(Type.fromSchema(fieldName + ".$", indexSchema, undefined, forumType));
+        return new ArrayType(
+          Type.fromSchema(collection, fieldName + ".$", indexSchema, undefined, forumType),
+        );
     }
 
     if (schema.type instanceof SimpleSchema) {
@@ -260,6 +287,18 @@ const valueToString = (value: any, subtype?: Type, isNested = false): string => 
 }
 
 /**
+ * Interpolate SQL args into a compiled SQL string - you should _NEVER_ use
+ * this unless you know exactly what you're doing and you have a good reason
+ * as it's extremely dangerous with untrusted input.
+ */
+export const sqlInterpolateArgs = (sql: string, args: any[]) => {
+  for (let i = args.length - 1; i >= 0; i--) {
+    sql = sql.replace(new RegExp(`\\$${i + 1}`, "g"), valueToString(args[i]));
+  }
+  return sql;
+}
+
+/**
  * Annotate a type as having a default value. Subtype may or may not be concrete.
  */
 export class DefaultValueType extends Type {
@@ -269,6 +308,10 @@ export class DefaultValueType extends Type {
 
   toString() {
     return `${this.type.toString()} DEFAULT ${this.getDefaultValueString()}`;
+  }
+
+  getDefaultValue(): AnyBecauseHard {
+    return this.value
   }
 
   getDefaultValueString(): string | null {
@@ -281,6 +324,10 @@ export class DefaultValueType extends Type {
 
   isArray(): this is ArrayType {
     return this.type.isArray();
+  }
+
+  isNotNull(): boolean {
+    return this.type instanceof NotNullType;
   }
 }
 

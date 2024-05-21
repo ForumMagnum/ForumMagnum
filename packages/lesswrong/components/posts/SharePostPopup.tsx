@@ -208,7 +208,6 @@ const SharePostPopup = ({
   classes: ClassesType;
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
-  const postUrl = postGetPageUrl(post, true);
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
@@ -236,9 +235,11 @@ const SharePostPopup = ({
     };
   }, []);
 
+  const postUrl = (source: string) => `${postGetPageUrl(post, true)}?utm_campaign=publish_share&utm_source=${source}`
+
   const copyLink = () => {
-    captureEvent("sharePost", { option: "copyLink" });
-    void navigator.clipboard.writeText(postUrl);
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "copyLink" });
+    void navigator.clipboard.writeText(postUrl('link'));
     flash("Link copied to clipboard");
   };
 
@@ -250,21 +251,21 @@ const SharePostPopup = ({
   const linkTitle = `${post.title} - ${siteName}`;
 
   const shareToTwitter = () => {
-    captureEvent("sharePost", { option: "twitter" });
-    const tweetText = `${linkTitle} ${postUrl}`;
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "twitter" });
+    const tweetText = `${linkTitle} ${postUrl('twitter')}`;
     const destinationUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     openLinkInNewTab(destinationUrl);
   };
   const shareToFacebook = () => {
-    captureEvent("sharePost", { option: "facebook" });
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "facebook" });
     const destinationUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      postUrl
+      postUrl('facebook')
     )}&t=${encodeURIComponent(linkTitle)}`;
     openLinkInNewTab(destinationUrl);
   };
   const shareToLinkedIn = () => {
-    captureEvent("sharePost", { option: "linkedIn" });
-    const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "linkedIn" });
+    const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl('linkedin'))}`;
     openLinkInNewTab(destinationUrl);
   };
 

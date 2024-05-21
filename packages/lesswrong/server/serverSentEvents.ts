@@ -5,9 +5,11 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
-import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
-import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { ActiveDialogue, ActiveDialogueServer, ServerSentEventsMessage, TypingIndicatorMessage } from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
+import UsersRepo from './repos/UsersRepo';
+import { isEAForum } from '../lib/instanceSettings';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -23,7 +25,7 @@ export function addServerSentEventsEndpoint(app: Express) {
     const parsedUrl = new URL(req.url, getSiteUrl())
     const apiVersionStr = parsedUrl.searchParams.get("version") ?? "1";
     const apiVersion = parseInt(apiVersionStr);
-    const currentUser = await getUserFromReq(req)
+    const currentUser = getUserFromReq(req)
 
     // Can't subscribe to notifications if logged out
     if (!currentUser) {
@@ -75,11 +77,15 @@ export function addServerSentEventsEndpoint(app: Express) {
   });
   
   setInterval(checkForNotifications, 1000);
-  setInterval(checkForTypingIndicators, 1000);
+  if (!isEAForum) {
+    setInterval(checkForTypingIndicators, 1000);
+    setInterval(checkForActiveDialoguePartners, 1000);
+  }
 }
 
 let lastNotificationCheck = new Date();
 let lastTypingIndicatorsCheck = new Date();
+let lastActiveDialoguePartnersMessage = new Date();
 
 async function checkForNotifications() {
   const numOpenConnections = Object.keys(openConnections).length;
@@ -194,12 +200,72 @@ async function checkForTypingIndicators() {
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : TypingIndicatorMessage = {
+        const message: TypingIndicatorMessage = {
           eventType: "typingIndicator", 
           typingIndicators: results[userId],
         }
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
       }
+    }
+  }
+}
+
+const isRecentlyActive = (editedAt: Date | undefined, minutes: number): boolean => {
+  if (!editedAt) {
+    return false;
+  }
+
+  const currentTime = new Date().getTime();
+  const editedTime = new Date(editedAt).getTime();
+
+  return (currentTime - editedTime) <= minutes * 60 * 1000;
+}
+
+async function checkForActiveDialoguePartners() {
+  const numOpenConnections = Object.keys(openConnections).length;
+  if (!numOpenConnections) {
+    return;
+  }
+
+  const userIds = Object.keys(openConnections);
+
+  const activeDialogues: ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
+
+  const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
+  for (let dialogue of activeDialogues) {
+    const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
+    const allUserIds = [dialogue.userId, ...coauthorUserIds];
+    for (let userId of allUserIds) {
+      const editedAt = dialogue?.mostRecentEditedAt;
+      const data = {
+        postId: dialogue._id,
+        title: dialogue.title,
+        userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+        mostRecentEditedAt: editedAt,
+        anyoneRecentlyActive: isRecentlyActive(editedAt, 15) // within the last 15 min
+      }
+      if (allUsersDialoguesData[userId]) {
+        allUsersDialoguesData[userId].push(data);
+      } else {
+        allUsersDialoguesData[userId] = [data];
+      }
+    }
+  }
+
+  for (let userId of userIds) {
+    const userDialoguesData = allUsersDialoguesData[userId];
+    const message = {
+      eventType: "activeDialoguePartners",
+      data: userDialoguesData ?? []
+    };
+
+    const messageString = `data: ${JSON.stringify(message)}\n\n`;
+
+    if (openConnections[userId]) {
+      for (let connection of openConnections[userId]) {
+        connection.res.write(messageString);
+        connection.newestNotificationTimestamp = new Date();
+      } 
     }
   }
 }

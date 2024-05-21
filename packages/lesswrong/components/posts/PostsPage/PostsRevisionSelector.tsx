@@ -26,7 +26,7 @@ const PostsRevisionSelector = ({ post, format, classes }: {
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
   
-  const openMenu = useCallback((event) => {
+  const openMenu = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
   }, [setAnchorEl]);
   const closeMenu = useCallback(() => {

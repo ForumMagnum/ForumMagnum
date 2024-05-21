@@ -27,13 +27,13 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   COMMENTS: [
     {
       ...timeframe('4 Comments per 30 minutes'),
-      karmaThreshold: 30,
+      isActive: (user) => (user.karma < 30),
       rateLimitType: "lowKarma",
       rateLimitMessage: "You'll be able to post more comments as your karma increases.",
       appliesToOwnPosts: true
     }, {
       ...timeframe('4 Comments per 30 minutes'),
-      downvoteRatioThreshold: .3,
+      isActive: (user, features) => features.downvoteRatio >= 0.3,
       rateLimitType: "downvoteRatio",
       rateLimitMessage: "",
       appliesToOwnPosts: true
@@ -48,114 +48,127 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   // 2 posts per week rate limits
     {
       ...timeframe('2 Posts per 1 weeks'),
-      karmaThreshold: 4,
       rateLimitType: "newUserDefault",
+      isActive: user => (user.karma < 5),
       rateLimitMessage: `Users with less than 5 karma can write up to 2 posts a week.<br/>${lwDefaultMessage}`,
     }, 
   // 1 post per week rate limits
     {
       ...timeframe('1 Posts per 1 weeks'),
-      karmaThreshold: -1,
-      rateLimitMessage: `Users with -3 or less karma can post once per week.<br/>${lwDefaultMessage}`
+      isActive: user => (user.karma < -2),
+      rateLimitMessage: `Users with less than -2 karma can post once per week.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 1 weeks'),
-      last20PostKarmaThreshold: -15,
-      downvoterCountThreshold: 4,
-      rateLimitMessage: `Users with -15 or less karma on their recent posts can post once per week.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => (
+        features.last20PostKarma < -15 && 
+        features.postDownvoterCount >= 4
+      ),
+      rateLimitMessage: `Users with less than -15 karma on their recent posts can post once per week.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 1 weeks'),
-      last20KarmaThreshold: -30,
-      downvoterCountThreshold: 10,
-      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => (
+        features.last20PostKarma < -30 && 
+        features.postDownvoterCount >= 10
+      ),
+      rateLimitMessage: `Users with less than -30 karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
     }, 
     // 1 post per 2+ weeks rate limits
     {
       ...timeframe('1 Posts per 2 weeks'),
-      karmaThreshold: -1,
-      last20PostKarmaThreshold: -30,
-      downvoterCountThreshold: 5,
-      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once every 2 weeks.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => ( 
+        user.karma < 0 && 
+        features.last20Karma < -30 && 
+        features.postDownvoterCount >= 5
+      ),
+      rateLimitMessage: `Users with less than -30 karma on their recent posts/comments can post once every 2 weeks.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 3 weeks'),
-      karmaThreshold: -1,
-      last20PostKarmaThreshold: -45,
-      downvoterCountThreshold: 5,
-      rateLimitMessage: `Users with -45 or less karma on recent posts/comments can post once every 3 weeks.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => (
+        user.karma < 0 && 
+        features.last20PostKarma < -45 && 
+        features.postDownvoterCount >= 5
+      ),
+      rateLimitMessage: `Users with less than -45 karma on recent posts can post once every 3 weeks.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 4 weeks'),
-      last20PostKarmaThreshold: -60, // uses last20Karma so it's not too hard to dig your way out 
-      downvoterCountThreshold: 5,
-      karmaThreshold: -1,
-      rateLimitMessage: `Users with -60 or less karma can post once every 4 weeks.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => (
+        user.karma < 0 && 
+        features.last20Karma < -60 && 
+        features.postDownvoterCount >= 5
+      ), // uses last20Karma so it's not too hard to dig your way out 
+      rateLimitMessage: `Users with less than -60 karma on recent comments/posts can post once every 4 weeks.<br/>${lwDefaultMessage}`
     }
   ],
   COMMENTS: [ 
     {
       ...timeframe('1 Comments per 1 hours'),
-      last20KarmaThreshold: -1,
-      downvoterCountThreshold: 3,
       appliesToOwnPosts: false,
-      rateLimitMessage: `Users with -1 or less karma on recent posts/comments can comment once per hour.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => (
+        features.last20Karma < 0 && 
+        features.downvoterCount >= 3
+      ),
+      rateLimitMessage: `Users with less than 0 karma on recent posts/comments can comment once per hour.<br/>${lwDefaultMessage}`
     }, 
   // 3 comments per day rate limits
     {
       ...timeframe('3 Comments per 1 days'),
-      karmaThreshold: 4,
       appliesToOwnPosts: false,
       rateLimitType: "newUserDefault",
+      isActive: user => (user.karma < 5),
       rateLimitMessage: `Users with less than 5 karma can write up to 3 comments a day.<br/>${lwDefaultMessage}`,
     }, 
     {
       ...timeframe('3 Comments per 1 days'), // semi-established users can make up to 20 posts/comments without getting upvoted, before hitting a 3/day comment rate limit
-      last20KarmaThreshold: 1, // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes
-      karmaThreshold: 1999, // at 2000+ karma I trust you more to go on long conversations
       appliesToOwnPosts: false,
+      isActive: (user, features) => (
+        user.karma < 2000 && 
+        features.last20Karma < 1
+      ),  // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes, but at 2000+ karma I trust you more to go on long conversations
       rateLimitMessage: `You've recently posted a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.<br/>${lwDefaultMessage}`,
     }, 
   // 1 comment per day rate limits
     {
       ...timeframe('1 Comments per 1 days'),
-      karmaThreshold: -1,
       appliesToOwnPosts: false,
-      rateLimitMessage: `Users with -3 or less karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
+      isActive: user => (user.karma < -2),
+      rateLimitMessage: `Users with less than -2 karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Comments per 1 days'),
-      last20KarmaThreshold: -5,
-      karmaThreshold: 1999, // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
-      downvoterCountThreshold: 4,
+
       appliesToOwnPosts: false,
-      rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
-    }, 
-    {
-      ...timeframe('1 Comments per 1 days'),
-      last20KarmaThreshold: -5,
-      downvoterCountThreshold: 7,
-      appliesToOwnPosts: false,
-      rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
+      isActive: (user, features) => (
+        features.last20Karma < -5 && 
+        features.downvoterCount >= (user.karma < 2000 ? 4 : 7)
+      ), // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
+      rateLimitMessage: `Users with less than -5 karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
   // 1 comment per 3 days rate limits
     {
       ...timeframe('1 Comments per 3 days'),
-      last20KarmaThreshold: -15,
-      downvoterCountThreshold: 5,
-      karmaThreshold: 499,
       appliesToOwnPosts: false,
-      rateLimitMessage: `Users with -15 or less karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
+      isActive: (user, features) => (
+        user.karma < 500 &&
+        features.last20Karma < -15 && 
+        features.downvoterCount >= 5
+      ),
+      rateLimitMessage: `Users with less than -15 karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
     }, 
   // 1 comment per week rate limits
     {
       ...timeframe('1 Comments per 1 weeks'),
-      lastMonthKarmaThreshold: -30,
-      // Added as a hedge against someone with positive karma coming back after some period of inactivity and immediately getting into an argument
-      last20KarmaThreshold: -1,
-      karmaThreshold: -1,
-      lastMonthDownvoterCountThreshold: 5,
       appliesToOwnPosts: false,
+      isActive: (user, features) => (
+        user.karma < 0 && 
+        features.last20Karma < -1 && 
+        features.lastMonthDownvoterCount >= 5 &&
+        features.lastMonthKarma <= -30
+      ),
+      // Added as a hedge against someone with positive karma coming back after some period of inactivity and immediately getting into an argument
       rateLimitMessage: `Users with -30 or less karma on recent posts/comments can write up to one comment per week. ${lwDefaultMessage}`
     },
   ]
@@ -166,6 +179,7 @@ const ALL = {
     FIVE_PER_DAY: {
       ...timeframe('5 Posts per 1 days'),
       rateLimitType: "universal",
+      isActive: () => true,
       rateLimitMessage: "Users cannot post more than 5 posts a day.",
     }
   },
@@ -173,6 +187,7 @@ const ALL = {
     ONE_PER_EIGHT_SECONDS: {
       ...timeframe('1 Comments per 8 seconds'),
       rateLimitType: "universal",
+      isActive: ()  => true,
       rateLimitMessage: "Users cannot submit more than 1 comment per 8 seconds to prevent double-posting.",
       appliesToOwnPosts: true
     }
@@ -198,7 +213,7 @@ export const autoCommentRateLimits: ForumOptions<CommentAutoRateLimit[]> = {
   ],
   LessWrong: [
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS, 
-    ...LW.COMMENTS,
+    ...LW.COMMENTS
   ],
   default: [
     ALL.COMMENTS.ONE_PER_EIGHT_SECONDS

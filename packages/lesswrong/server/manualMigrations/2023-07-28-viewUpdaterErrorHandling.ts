@@ -27,7 +27,7 @@ registerMigration({
         from information_schema."columns"
         inner join information_schema."tables" using (table_name)
         where "columns".table_schema = 'public'
-          and table_name not in ('migration_log', 'mongo2pg_lock')
+          and table_name not in ('migration_log')
           and table_type = 'BASE TABLE'
         group by table_name
       LOOP
@@ -56,7 +56,7 @@ registerMigration({
         from information_schema."columns"
         inner join information_schema."tables" using (table_name)
         where "columns".table_schema = 'public'
-          and table_name not in ('migration_log', 'mongo2pg_lock')
+          and table_name not in ('migration_log')
           and table_type = 'BASE TABLE'
         group by table_name
       LOOP

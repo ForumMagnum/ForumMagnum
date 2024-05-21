@@ -37,18 +37,30 @@ export const userGetGitHubName = function(user: DbUser): string|null {
   return null;
 };
 
-export const userFindLast = async function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): Promise<T|null> {
+export const userFindLast = async function<N extends CollectionNameWithCreatedAt>(
+  user: DbUser,
+  collection: CollectionBase<N>,
+  filter?: MongoSelector<ObjectsByCollectionName[N]>,
+): Promise<ObjectsByCollectionName[N]|null> {
   return await collection.findOne({ ...filter, userId: user._id }, { sort: { createdAt: -1 } });
 };
 
-export const userTimeSinceLast = async function<T extends HasCreatedAtType>(user: DbUser, collection: CollectionBase<T>, filter?: any): Promise<number> {
+export const userTimeSinceLast = async function<N extends CollectionNameWithCreatedAt>(
+  user: DbUser,
+  collection: CollectionBase<N>,
+  filter?: MongoSelector<ObjectsByCollectionName[N]>,
+): Promise<number> {
   var now = new Date().getTime();
   var last = await userFindLast(user, collection, filter);
   if (!last) return 999; // if this is the user's first post or comment ever, stop here
   return Math.abs(Math.floor((now - last.createdAt.getTime()) / 1000));
 };
 
-export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, filter?: Record<string,any>): Promise<number> {
+export const userNumberOfItemsInPast24Hours = async function<N extends CollectionNameWithCreatedAt>(
+  user: DbUser,
+  collection: CollectionBase<N>,
+  filter?: MongoSelector<ObjectsByCollectionName[N]>,
+): Promise<number> {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,
@@ -60,7 +72,12 @@ export const userNumberOfItemsInPast24Hours = async function<T extends DbObject>
   return await items.count();
 };
 
-export const userNumberOfItemsInPastTimeframe = function<T extends DbObject>(user: DbUser, collection: CollectionBase<T>, hours: number, filter?: MongoSelector<T>): Promise<number> {
+export const userNumberOfItemsInPastTimeframe = function<N extends CollectionNameWithCreatedAt>(
+  user: DbUser,
+  collection: CollectionBase<N>,
+  hours: number,
+  filter?: MongoSelector<ObjectsByCollectionName[N]>,
+): Promise<number> {
   var mNow = moment();
   var items = collection.find({
     userId: user._id,

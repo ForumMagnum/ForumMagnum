@@ -1,11 +1,12 @@
 import { useQuery, gql, ApolloError } from "@apollo/client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigation } from "../../lib/routeUtil";
+import { useLocation } from "../../lib/routeUtil";
 import qs from "qs";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";
 import { generateDateSeries } from "../../lib/helpers";
 import stringify from "json-stringify-deterministic";
+import { useNavigate } from "../../lib/reactRouterWrapper";
 
 export const analyticsFieldsList = ['views', 'reads', 'karma', 'comments'] as const
 export const analyticsFields = new TupleSet(analyticsFieldsList);
@@ -40,8 +41,8 @@ type AnalyticsSeriesQueryResult = {
 };
 
 const MultiPostAnalyticsQuery = gql`
-  query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int, $cachedOnly: Boolean) {
-    MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit, cachedOnly: $cachedOnly) {
+  query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int) {
+    MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit) {
       posts {
         _id
         title
@@ -60,8 +61,8 @@ const MultiPostAnalyticsQuery = gql`
 `;
 
 const AnalyticsSeriesQuery = gql`
-  query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date, $cachedOnly: Boolean) {
-    AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate, cachedOnly: $cachedOnly) {
+  query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date) {
+    AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate) {
       date
       views
       reads
@@ -72,10 +73,7 @@ const AnalyticsSeriesQuery = gql`
 `;
 
 /**
- * Fetches analytics for a given user, sorted by a given field. The reason for all the complexity here is that it
- * does one fetch for only materialized data and then a followup fetch for the latest data. This is because fetching the
- * latest data can be slow (usually it isn't, but I'm not 100% sure I've ironed out all the performance bugs) and so we
- * don't want to block the page loading on it
+ * Fetches analytics for a given user, sorted by a given field.
  */
 export const useMultiPostAnalytics = ({
   userId,
@@ -94,53 +92,29 @@ export const useMultiPostAnalytics = ({
   itemsPerPage?: number;
   queryLimitName?: string;
 }) => {
-  const isStaleDataAllowed = !["views", "reads"].includes(sortBy ?? "") && !!(userId || (postIds && postIds.length > 1));
-
-  const [fetchingStaleData, setFetchingStaleData] = useState(isStaleDataAllowed);
-  const nonStaleFetchCountRef = useRef(0);
-  const refetchKeyRef = useRef(stringify({userId, sortBy, desc}))
-
   const { query: locationQuery } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
-  const defaultLimit = useRef(locationQueryLimit ?? initialLimit);
 
-  const [effectiveLimit, setEffectiveLimit] = useState(defaultLimit.current);
+  const [limit, setLimit] = useState(locationQueryLimit ?? initialLimit);
   const [moreLoading, setMoreLoading] = useState(false);
 
-  const variables = { userId, postIds, sortBy, desc, limit: defaultLimit.current, cachedOnly: fetchingStaleData };
+  const variables = { userId, postIds, sortBy, desc, limit };
   const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });
 
-  useEffect(() => {
-    // If we already have data, then set fetchStaleData to do a followup fetch for the latest data
-    if ((fetchingStaleData && data) || isStaleDataAllowed) {
-      setFetchingStaleData(false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, sortBy, fetchingStaleData]);
-  
-  const dataRef = useRef(data?.MultiPostAnalytics);
-  if ((data?.MultiPostAnalytics && data?.MultiPostAnalytics !== dataRef.current) || refetchKeyRef.current !== stringify({userId, sortBy, desc})) {
-    if (!fetchingStaleData) {
-      nonStaleFetchCountRef.current++;
-    }
-    dataRef.current = data?.MultiPostAnalytics;
-    refetchKeyRef.current = stringify({userId, sortBy, desc});
-  }
-
-  const currentData = dataRef.current;
+  const currentData = data?.MultiPostAnalytics
   const totalCount = currentData?.totalCount ?? 0
   const count = currentData?.posts?.length ?? 0
   const showLoadMore = userId && (count < totalCount);
 
   const loadMore = async (limitOverride?: number) => {
-    const newLimit = limitOverride || effectiveLimit + itemsPerPage;
+    const newLimit = limitOverride ?? (limit + itemsPerPage);
     const newQuery = {...locationQuery, [queryLimitName]: newLimit}
-    history.push({...location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location, search: `?${qs.stringify(newQuery)}`})
 
     setMoreLoading(true);
     void fetchMore({
@@ -154,7 +128,7 @@ export const useMultiPostAnalytics = ({
         return fetchMoreResult;
       },
     });
-    setEffectiveLimit(newLimit);
+    setLimit(newLimit);
   };
 
   const loadMoreProps = {
@@ -166,9 +140,8 @@ export const useMultiPostAnalytics = ({
   };
 
   return {
-    data: dataRef.current,
-    loading: loading && nonStaleFetchCountRef.current > 0,
-    maybeStale: nonStaleFetchCountRef.current === 0,
+    data: data?.MultiPostAnalytics,
+    loading: loading,
     error,
     loadMoreProps
   };
@@ -184,7 +157,6 @@ export type UseAnalyticsSeriesProps = {
 /**
  * Get the views, reads, karma, comment numbers by day for a particular user or set of postIds. This hook does the following to manage
  * it's internal state:
- * - Fetches materialized data first before checking for and live data that is more recent (for perfomance reasons)
  * - Doesn't refetch if the bounding dates are changed within the range of data it already has
  * - After fetching the absolutely required data for a given range, overfetches by 180 days on either side to avoid having to refetch
  *   when the user changes the date range slightly
@@ -192,42 +164,42 @@ export type UseAnalyticsSeriesProps = {
 export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   analyticsSeries: AnalyticsSeriesValue[];
   loading: boolean;
-  maybeStale: boolean;
   error?: ApolloError
 } => {
   const { userId, postIds, startDate: propsStartDate, endDate: propsEndDate } = props;
-  const cachedFirst = !!(userId || (postIds && postIds.length > 1));
   // Convert to UTC to ensure args passed to useQuery are consistent between SSR and client
   const utcPropsStartDate = propsStartDate ? moment(propsStartDate).utc().toDate() : null;
   const utcPropsEndDate = moment(propsEndDate).utc().toDate();
 
   const fetchDateRef = useRef({ startDate: utcPropsStartDate, endDate: utcPropsEndDate });
-  
+
+  // Update fetchDateRef based on whether the current values from the props are within the existing bounds
   if (
     (fetchDateRef.current.startDate ?? 0) > (utcPropsStartDate ?? 0) ||
     // If we are changing from null to non-null or vice versa, we need to refetch
     ([fetchDateRef.current.startDate, utcPropsStartDate].includes(null) &&
       fetchDateRef.current.startDate !== utcPropsStartDate)
-  )
+  ) {
     fetchDateRef.current.startDate = utcPropsStartDate;
-  if (fetchDateRef.current.endDate < utcPropsEndDate) fetchDateRef.current.endDate = utcPropsEndDate;
-  
+  }
+
+  if (fetchDateRef.current.endDate < utcPropsEndDate) {
+    fetchDateRef.current.endDate = utcPropsEndDate;
+  }
+
   const { startDate, endDate } = fetchDateRef.current;
 
   const [activeVariables, setActiveVariables] = useState({});
   const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
-  const cachedOnly = !variablesAreActive && cachedFirst;
-  const variables = { userId, postIds, startDate, endDate, cachedOnly };
+  const variables = { userId, postIds, startDate, endDate };
   const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(AnalyticsSeriesQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });
 
   useEffect(() => {
-    // Once one fetch has returned, set the active variables to trigger a second fetch with:
-    // - the dates padded by 180 days on either side
-    // - cachedOnly set to false to include the very latest data (see cachedOnly: !variablesAreActive above)
+    // Once one fetch has returned, set the active variables to trigger a second fetch with the dates padded by 180 days on either side
     if (data && !variablesAreActive) {
       const endOfToday = moment().utc().endOf("day").toDate();
       const paddedStartDate = startDate ? moment(startDate).utc().subtract(180, "days").startOf("day").toDate() : null;
@@ -237,7 +209,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
 
       setActiveVariables({ userId, postIds, startDate: paddedStartDate, endDate: paddedEndDate });
     }
-  }, [cachedFirst, data, endDate, postIds, startDate, userId, variablesAreActive]);
+  }, [data, endDate, postIds, startDate, userId, variablesAreActive]);
 
   const fullSeriesRef = useRef<AnalyticsSeriesValue[]>([]);
   const truncatedSeriesRef = useRef<AnalyticsSeriesValue[]>([]);
@@ -252,16 +224,16 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
       const date = new Date(value.date);
       return (!utcPropsStartDate || date >= utcPropsStartDate) && date <= utcPropsEndDate;
     });
-    
+
     // Now pad the series with 0 values for any missing dates
     const truncatedStartDate = new Date(truncated[0]?.date ?? utcPropsStartDate);
     const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? utcPropsEndDate);
 
-    if (truncatedStartDate == utcPropsStartDate && truncatedEndDate == utcPropsEndDate) return truncated;
-    
+    if (truncatedStartDate === utcPropsStartDate && truncatedEndDate === utcPropsEndDate) return truncated;
+
     const startPaddingLength = Math.floor(moment.duration(moment(truncatedStartDate).utc().diff(utcPropsStartDate)).asDays());
     const endPaddingLength = Math.floor(moment.duration(moment(utcPropsEndDate).utc().diff(truncatedEndDate)).asDays());
-    
+
     const dateSeries = generateDateSeries(utcPropsStartDate ?? truncatedStartDate, utcPropsEndDate);
     const startSeries = dateSeries.slice(0, startPaddingLength).map((date) => ({ date: new Date(date), views: 0, reads: 0, karma: 0, comments: 0 }));
     const endSeries = dateSeries.slice(dateSeries.length - endPaddingLength).map((date) => ({ date: new Date(date), views: 0, reads: 0, karma: 0, comments: 0 }));
@@ -272,7 +244,6 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   return {
     analyticsSeries: truncatedSeriesRef.current,
     loading,
-    maybeStale: variablesAreActive && loading && cachedFirst,
     error,
   };
 };

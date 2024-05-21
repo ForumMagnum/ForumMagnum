@@ -38,11 +38,9 @@ import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { updateDefaultValue } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (UserTagRels.isPostgres()) {
-    await updateDefaultValue(db, UserTagRels, "subforumEmailNotifications");
-  }
+  await updateDefaultValue(db, UserTagRels, "subforumEmailNotifications");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await updateDefaultValue(db, UserTagRels, "subforumEmailNotifications");
 }

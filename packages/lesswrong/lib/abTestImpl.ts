@@ -4,6 +4,7 @@ import * as _ from 'underscore';
 import rng from './seedrandom';
 import { CLIENT_ID_COOKIE } from './cookies/cookies';
 import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
+import { randomId } from './random';
 
 //
 // A/B tests. Each A/B test has a name (which should be unique across all A/B
@@ -18,10 +19,11 @@ import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent
 // Logged-out users are assigned an A/B test group based on their ClientID. If
 // they create a new account, that account inherits the test groups of the
 // ClientID through which the account was created. Users created before A/B
-// tests were created have their test groups instead assigned based on a hash
-// of their username. On pageload, which group a user is in is fixed for that
-// tab; logging out and logging in as a different user doesn't switch them to
-// that user's A/B test group until they refresh or open a new tab.
+// tests (and anyone missing AB test key for some other reason) had their AB tesk 
+// key populated with their userId on 2023-12-05 for LW. On pageload, which group a user 
+// is in is fixed for that tab; logging out and logging in as a different user 
+// doesn't switch them to that user's A/B test group until they refresh or open 
+// a new tab.
 //
 // A/B tests can be overridden server-wide, eg to end an A/B test and put
 // everyone in the winning group, by writing an abTestOverride value into the
@@ -58,20 +60,35 @@ type ABTestGroup = {
   weight: number,
 }
 
+type ABKeyInfo = {
+  /**
+   * clientId can now be undefined on the server, in the case where a new user's first request is
+   * to a cache friendly page (we can't add a "set-cookie" to the response, so it is generated as
+   * soon as the client initialises instead)
+   */
+  clientId?: string
+} | {
+  user: DbUser | UsersCurrent
+}
+
 // The generic permits type-safe checks for group assignment with `useABTest`
 export class ABTest<T extends string = string> {
   name: string;
+  active: boolean;
+  affectsLoggedOut: boolean;
   description: string;
   groups: Record<T, ABTestGroup>;
   
-  constructor({name, description, groups}: {
+  constructor({name, active, affectsLoggedOut, description, groups}: {
     name: string,
+    active: boolean,
+    affectsLoggedOut: boolean,
     description: string,
     groups: Record<T, ABTestGroup>
   }) {
     const totalWeight = _.reduce(
       Object.keys(groups),
-      (sum:number, key:T) => sum+groups[key].weight,
+      (sum: number, key: T) => sum+groups[key].weight,
       0
     );
     if (totalWeight === 0) {
@@ -79,6 +96,8 @@ export class ABTest<T extends string = string> {
     }
     
     this.name = name;
+    this.active = active;
+    this.affectsLoggedOut = affectsLoggedOut;
     this.description = description;
     this.groups = groups;
     
@@ -118,33 +137,34 @@ export function getABTestsMetadata(): Record<string,ABTest> {
   return allABTests;
 }
 
-export function getUserABTestKey(user: UsersCurrent|DbUser|null, clientId: string) {
-  if (user?.abTestKey) {
-    return user.abTestKey;
+export function getUserABTestKey(abKeyInfo: ABKeyInfo): string | undefined {
+  if ('user' in abKeyInfo) {
+    return abKeyInfo.user.abTestKey;
   } else {
-    return clientId;
+    return abKeyInfo.clientId;
   }
 }
 
-export function getUserABTestGroup<Groups extends string>(user: UsersCurrent|DbUser|null, clientId: string, abTest: ABTest<Groups>): Groups {
-  const abTestKey = getUserABTestKey(user, clientId);
+export function getUserABTestGroup<Groups extends string>(abKeyInfo: ABKeyInfo, abTest: ABTest<Groups>): Groups {
+  const abTestKey = getUserABTestKey(abKeyInfo);
   const groupWeights = Object.fromEntries(
     Object
       .entries(abTest.groups)
       .map(([groupName, group]: [Groups, ABTestGroup]) => [groupName, group.weight] as const)
   ) as Record<Groups, number>;
 
-  if (user?.abTestOverrides && user.abTestOverrides[abTest.name]) {
-    return user.abTestOverrides[abTest.name];
+  if ('user' in abKeyInfo && abKeyInfo.user.abTestOverrides && abKeyInfo.user.abTestOverrides[abTest.name]) {
+    return abKeyInfo.user.abTestOverrides[abTest.name];
   } else {
-    return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey}`);
+    // In the case where abTestKey is undefined, fall back to a random ID to preserve the group weightings
+    return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey ?? randomId()}`);
   }
 }
 
-export function getAllUserABTestGroups(user: UsersCurrent|DbUser|null, clientId: string): CompleteTestGroupAllocation {
+export function getAllUserABTestGroups(abKeyInfo: ABKeyInfo): CompleteTestGroupAllocation {
   let abTestGroups: CompleteTestGroupAllocation = {};
   for (let abTestName in allABTests)
-    abTestGroups[abTestName] = getUserABTestGroup(user, clientId, allABTests[abTestName]);
+    abTestGroups[abTestName] = getUserABTestGroup(abKeyInfo, allABTests[abTestName]);
   return abTestGroups;
 }
 
@@ -153,7 +173,7 @@ function weightedRandomPick<T extends string>(options: Record<T,number>, seed: s
   const weights = _.values(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");
-  const totalWeight: number = _.reduce(weights, (x:number, y:number) => x+y);
+  const totalWeight: number = _.reduce(weights, (x: number, y: number) => x+y);
   const randomRangeValue = totalWeight*rng(seed).double();
   
   let i=0;
@@ -171,7 +191,7 @@ export function useABTest<Groups extends string>(abtest: ABTest<Groups>): Groups
   const currentUser = useCurrentUser();
   const clientId = useClientId();
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
-  const group = getUserABTestGroup(currentUser, clientId, abtest);
+  const group = getUserABTestGroup(currentUser ? {user: currentUser} : {clientId}, abtest);
   
   abTestGroupsUsed[abtest.name] = group;
   return group;
@@ -190,7 +210,7 @@ export function useABTestProperties(abtest: ABTest): ABTestGroup {
 // A logged-out user's client ID determines which A/B test groups they are in.
 // A logged-in user has their A/B test groups determined by the client ID they
 // had when they created their account.
-export function useClientId(): string {
+export function useClientId(): string | undefined {
   const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   return cookies[CLIENT_ID_COOKIE];
 }
@@ -204,7 +224,7 @@ export function useAllABTests(): CompleteTestGroupAllocation {
   
   const abTestGroupsUsed: CompleteTestGroupAllocation = useContext(ABTestGroupsUsedContext);
   
-  const testGroups = getAllUserABTestGroups(currentUser, clientId);
+  const testGroups = getAllUserABTestGroups(currentUser ? {user: currentUser} : {clientId});
   for (let abTestKey in testGroups)
     abTestGroupsUsed[abTestKey] = testGroups[abTestKey];
   

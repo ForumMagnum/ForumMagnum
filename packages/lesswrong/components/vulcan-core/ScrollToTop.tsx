@@ -18,7 +18,7 @@ export default function ScrollToTop() {
     // dependencies of this useEffect change, because those are client-side
     // navigations, which the browser won't handle.
     if (isNotFirstMountRef.current) {
-      if (currentRoute?.initialScroll == "bottom") {
+      if (currentRoute?.initialScroll === "bottom") {
         window.scrollTo(0, document.body.scrollHeight);
       } else {
         window.scrollTo(0, 0);

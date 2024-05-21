@@ -29,23 +29,13 @@ import Tags from "../../lib/collections/tags/collection";
 import { addField, dropField, updateDefaultValue } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (Posts.isPostgres()) {
-    await addField(db, Posts, 'criticismTipsDismissed')
-  }
-  
-  if (Tags.isPostgres()) {
-    await updateDefaultValue(db, Tags, "autoTagModel")
-    await updateDefaultValue(db, Tags, "autoTagPrompt")
-  }
+  await addField(db, Posts, 'criticismTipsDismissed')
+  await updateDefaultValue(db, Tags, "autoTagModel")
+  await updateDefaultValue(db, Tags, "autoTagPrompt")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Posts.isPostgres()) {
-    await dropField(db, Posts, 'criticismTipsDismissed')
-  }
-  
-  if (Tags.isPostgres()) {
-    await updateDefaultValue(db, Tags, "autoTagModel")
-    await updateDefaultValue(db, Tags, "autoTagPrompt")
-  }
+  await dropField(db, Posts, 'criticismTipsDismissed')
+  await updateDefaultValue(db, Tags, "autoTagModel")
+  await updateDefaultValue(db, Tags, "autoTagPrompt")
 }

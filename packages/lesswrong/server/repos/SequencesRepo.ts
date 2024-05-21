@@ -1,15 +1,30 @@
 import AbstractRepo from "./AbstractRepo";
 import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
-import { getViewablePostsSelector } from "./helpers";
+import { getViewablePostsSelector, getViewableSequencesSelector } from "./helpers";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class SequencesRepo extends AbstractRepo<DbSequence> {
+class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
   }
 
+  async sequenceRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
+    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
+      -- SequencesRepo.sequenceRouteWillDefinitelyReturn200
+      SELECT EXISTS(
+        SELECT 1
+        FROM "Sequences"
+        WHERE "_id" = $1 AND ${getViewableSequencesSelector()}
+      )
+    `, [id]);
+
+    return res?.exists ?? false;
+  }
+
   private getSearchDocumentQuery(): string {
     return `
+      -- SequencesRepo.getSearchDocumentQuery
       SELECT
         s."_id",
         s."_id" AS "objectID",
@@ -22,9 +37,18 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
         COALESCE(s."hidden", FALSE) AS "hidden",
         COALESCE(s."af", FALSE) AS "af",
         s."bannerImageId",
-        author."displayName" AS "authorDisplayName",
-        author."username" AS "authorUserName",
-        author."slug" AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."username"
+        END AS "authorUserName",
         s."contents"->>'html' AS "plaintextDescription",
         NOW() AS "exportedAt"
       FROM "Sequences" s
@@ -32,15 +56,17 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaSequence> {
+  getSearchDocumentById(id: string): Promise<SearchSequence> {
     return this.getRawDb().one(`
+      -- SequencesRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE s."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaSequence[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchSequence[]> {
     return this.getRawDb().any(`
+      -- SequencesRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY s."createdAt" DESC
       LIMIT $1
@@ -58,6 +84,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
    */
   async postsCount(sequenceIds: string[]): Promise<number[]> {
     const query = `
+      -- SequencesRepo.postsCount
       SELECT
         s._id as _id,
         count(*) as total_count
@@ -86,6 +113,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     const userIds = params.map(p => p.userId);
   
     const query = `
+      -- SequencesRepo.readPostsCount
       SELECT
         s._id || '-' || rs."userId" as composite_id,
         count(*) AS read_count
@@ -109,3 +137,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     });
   }
 }
+
+recordPerfMetrics(SequencesRepo);
+
+export default SequencesRepo;

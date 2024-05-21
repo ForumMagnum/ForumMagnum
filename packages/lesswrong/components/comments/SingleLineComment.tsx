@@ -8,7 +8,7 @@ import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
 import { coreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from './CommentsItem/CommentsItemMeta';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -25,7 +25,7 @@ export const singleLineStyles = (theme: ThemeType): JssStyles => ({
   paddingRight: theme.spacing.unit,
   color: theme.palette.text.dim60,
   whiteSpace: "nowrap",
-  fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+  fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
 })
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -169,21 +169,26 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
+  
+  const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
 
   return (
     <div className={classes.root} {...eventHandlers}>
       <ContentStyles
         contentType={comment.answer ? "post" : "comment"}
-        className={classNames(classes.commentInfo, {
-          [classes.isAnswer]: comment.answer, 
-          [classes.odd]:((nestingLevel%2) !== 0),
-        })}
+        className={classNames(
+          classes.commentInfo,
+          comment.answer && classes.isAnswer,
+          ((effectiveNestingLevel%2) !== 0) && classes.odd,
+        )}
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
         {actuallyDisplayTagIcon && <div className={classes.tagIcon}>
           <CoreTagIcon tag={comment.tag} />
         </div>}
 
+        {/* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */}
+        {/* eslint-disable-next-line eqeqeq */}
         {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
@@ -223,7 +228,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
               truncated
               nestingLevel={1}
               comment={comment}
-              treeOptions={{...treeOptions, hideReply: true, forceSingleLine: false, forceNotSingleLine: true}}
+              treeOptions={{
+                ...treeOptions,
+                hideReply: true,
+                forceSingleLine: false,
+                forceNotSingleLine: true,
+                switchAlternatingHighlights: false,
+              }}
               hoverPreview
             />
           </div>

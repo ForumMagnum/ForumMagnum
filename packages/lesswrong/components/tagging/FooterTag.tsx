@@ -1,24 +1,24 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useHover } from '../common/withHover';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { RobotIcon } from '../icons/RobotIcon';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
 import { coreTagIconMap } from './CoreTagIcon';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = (theme: ThemeType): JssStyles => ({
-  marginRight: 3,
+  marginRight: isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: 8,
+  marginBottom: isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
@@ -26,7 +26,7 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer",
-  whiteSpace: isEAForum ? "nowrap": undefined,
+  whiteSpace: isFriendlyUI ? "nowrap": undefined,
 })
 
 const newTagStyle = (theme: ThemeType): JssStyles => ({
@@ -68,11 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
       backgroundColor: theme.palette.tag.backgroundHover,
     },
-    "& a:hover": isEAForum ? {opacity: 1} : {},
-    ...(useExperimentalTagStyleSetting.get() && !isEAForum
+    "& a:hover": isFriendlyUI ? {opacity: 1} : {},
+    ...(useExperimentalTagStyleSetting.get() && isBookUI
       ? newTagStyle(theme)
       : tagStyle(theme)
     )
+  },
+  tooltip: {
+    marginTop: isFriendlyUI ? 6 : undefined,
   },
   core: {
     ...coreTagStyle(theme),
@@ -81,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     display: "inline-block",
     minWidth: 20,
-    margin: isEAForum ? "0 3px 0 6px" : undefined,
+    margin: isFriendlyUI ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,
@@ -115,67 +118,64 @@ const FooterTag = ({
   tag,
   hideScore=false,
   smallText,
-  popperCard,
+  PreviewWrapper,
   link=true,
   highlightAsAutoApplied=false,
   neverCoreStyling=false,
+  hideRelatedTags,
   className,
   classes,
 }: {
+  tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
-  tag: TagBasicInfo,
   hideScore?: boolean,
   smallText?: boolean,
-  popperCard?: React.ReactNode,
+  PreviewWrapper?: TagsTooltipPreviewWrapper,
   link?: boolean
   highlightAsAutoApplied?: boolean,
   neverCoreStyling?: boolean,
+  hideRelatedTags?: boolean,
   className?: string,
   classes: ClassesType,
 }) => {
-  const { hover, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "tagItem",
-    tagId: tag._id,
-    tagName: tag.name,
-    tagSlug: tag.slug
-  });
-  const { PopperCard, TagRelCard, CoreTagIcon } = Components
+  const currentUser = useCurrentUser();
 
-  const currentUser = useCurrentUser()
-  
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 
-  const tagName = isEAForum && smallText
+  const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name
     : tag.name;
 
+  const {TagsTooltip, CoreTagIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>
 
-  // Fall back to TagRelCard if no popperCard is provided
-  const popperCardToRender = popperCard ?? (tagRel ? <TagRelCard tagRel={tagRel} /> : <></>)
-
-  return (<AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
-    <span {...eventHandlers} className={classNames(classes.root, className, {
-      [classes.core]: !neverCoreStyling && tag.core,
-      [classes.smallText]: smallText,
-    })}>
-      {link ? <Link to={tagGetUrl(tag)}>
-        {renderedTag}
-        {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
-      </Link> : renderedTag}
-      {<PopperCard open={hover} anchorEl={anchorEl} allowOverflow>
-        <div>
-          {popperCardToRender}
-        </div>
-      </PopperCard>}
-    </span>
-  </AnalyticsContext>);
+  return (
+    <AnalyticsContext tagName={tag.name} tagId={tag._id} tagSlug={tag.slug} pageElementContext="tagItem">
+      <TagsTooltip
+        tag={tag}
+        tagRel={tagRel}
+        PreviewWrapper={PreviewWrapper}
+        hideRelatedTags={hideRelatedTags}
+        popperClassName={classes.tooltip}
+      >
+        <span className={classNames(classes.root, className, {
+          [classes.core]: !neverCoreStyling && tag.core,
+          [classes.smallText]: smallText,
+        })}>
+          {link ? <Link to={tagGetUrl(tag)}>
+            {renderedTag}
+            {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
+          </Link> : renderedTag}
+        </span>
+      </TagsTooltip>
+    </AnalyticsContext>
+  );
 }
 
 const FooterTagComponent = registerComponent("FooterTag", FooterTag, {

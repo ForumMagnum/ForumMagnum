@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
-import {useOnNotificationsChanged} from '../hooks/useUnreadNotifications';
+import {useOnServerSentEvent} from '../hooks/useUnreadNotifications';
 import {useCurrentUser} from '../common/withUser';
 import {useGlobalKeydown} from '../common/withGlobalKeydown';
 import {gql, useMutation} from '@apollo/client';
@@ -45,14 +45,12 @@ export const DebateTypingIndicator = ({classes, post}: {
     }
   }, INCIDATOR_UPDATE_PERIOD));
 
-  useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'typingIndicator') {
-      const typingIndicators = message.typingIndicators
-      const filteredIndicators = typingIndicators.filter((typingIndicator) => {
-        return typingIndicator.documentId === post._id
-      })
-      setTypingIndicators(filteredIndicators)
-    }
+  useOnServerSentEvent('typingIndicator', currentUser, (message) => {
+    const typingIndicators = message.typingIndicators
+    const filteredIndicators = typingIndicators.filter((typingIndicator) => {
+      return typingIndicator.documentId === post._id
+    })
+    setTypingIndicators(filteredIndicators)
   });
 
   if (!currentUser) return null;

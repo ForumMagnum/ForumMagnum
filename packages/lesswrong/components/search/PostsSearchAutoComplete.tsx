@@ -1,13 +1,13 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib'
-import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
+import { getSearchIndexName } from '../../lib/search/searchUtil';
 
-const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}:{
+const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}: {
   clickAction: (id: string) => void,
   placeholder?: string
 }) => {
   return <Components.SearchAutoComplete
-    indexName={getAlgoliaIndexName("Posts")}
+    indexName={getSearchIndexName("Posts")}
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <Components.PostsListEditorSearchHit hit={hit} />}
     placeholder={placeholder}

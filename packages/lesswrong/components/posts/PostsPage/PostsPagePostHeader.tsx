@@ -1,20 +1,22 @@
 import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import moment from 'moment';
-import { isEAForum, isLWorAF } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
-const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
+const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
-const PODCAST_ICON_PADDING = isEAForum ? 4 : 2
+const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -22,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isEAForum ? 20 : theme.spacing.unit*2,
+    marginBottom: isFriendlyUI ? 20 : theme.spacing.unit*2,
   },
   headerLeft: {
     width: "100%"
@@ -30,9 +32,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   headerVote: {
     textAlign: 'center',
     fontSize: 42,
-    position: isEAForum ? 'absolute' : "relative",
-    top: isEAForum ? 0 : undefined,
-    left: isEAForum ? -93 : undefined,
+    position: isFriendlyUI ? 'absolute' : "relative",
+    top: isFriendlyUI ? 0 : undefined,
+    left: isFriendlyUI ? -93 : undefined,
     [theme.breakpoints.down("sm")]: {
       position: 'relative',
       top: 'auto',
@@ -47,12 +49,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     columnGap: SECONDARY_SPACING,
     flexWrap: 'wrap',
-    fontSize: isEAForum ? theme.typography.body1.fontSize : '1.4rem',
-    fontWeight: isEAForum ? 450 : undefined,
+    fontSize: isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
+    fontWeight: isFriendlyUI ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
-    paddingBottom: isEAForum ? 12 : undefined,
-    borderBottom: isEAForum ? theme.palette.border.grey300 : undefined
+    paddingBottom: isFriendlyUI ? 12 : undefined,
+    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined
   },
   secondaryInfo: {
     flexGrow: 1,
@@ -78,25 +80,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: SECONDARY_SPACING
   },
   secondaryInfoLink: {
-    fontWeight: isEAForum ? 450 : undefined,
-    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    fontWeight: isFriendlyUI ? 450 : undefined,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   wordCount: {
-    fontWeight: isEAForum ? 450 : undefined,
-    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    fontWeight: isFriendlyUI ? 450 : undefined,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default',
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
     alignSelf: 'center',
-    color: isEAForum ? undefined : theme.palette.primary.main,
-    height: isEAForum ? undefined : PODCAST_ICON_SIZE,
+    color: isFriendlyUI ? undefined : theme.palette.primary.main,
+    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
   },
   audioIcon: {
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
     padding: PODCAST_ICON_PADDING
   },
   audioNewFeaturePulse: {
@@ -107,7 +109,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.small
   },
   actions: {
-    color: isEAForum ? undefined : theme.palette.grey[500],
+    color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
       opacity: 0.5,
     },
@@ -151,6 +153,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   nonhumanAudio: {
     color: theme.palette.grey[500],
+  },
+  headerFooter: { 
+    display: 'flex',
+    justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  tagSection: {
+    flex: 1,
+    display: "flex",
+    flexDirection: isFriendlyUI ? "column" : "row",
+    height: "100%",
   }
 });
 
@@ -181,26 +198,6 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const countAnswersAndDescendents = (answers: CommentsList[]) => {
-  const sum = answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0);
-  return sum + answers.length;
-}
-
-const getResponseCounts = (
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  answers: CommentsList[],
-) => {
-  // answers may include some which are deleted:true, deletedPublic:true (in which
-  // case various fields are unpopulated and a deleted-item placeholder is shown
-  // in the UI). These deleted answers are *not* included in post.commentCount.
-  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
-
-  return {
-    answerCount: nonDeletedAnswers.length,
-    commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
-  };
-};
-
 const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
@@ -218,7 +215,7 @@ const CommentsLink: FC<{
     }
   }
   return (
-    <a className={className} {...(isEAForum ? {onClick} : {href: anchor})}>
+    <a className={className} {...(isFriendlyUI ? {onClick} : {href: anchor})}>
       {children}
     </a>
   );
@@ -226,20 +223,21 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton} = Components;
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -253,10 +251,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
-  const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-  const { major } = extractVersionsFromSemver(post.version)
-  const hasMajorRevision = major > 1
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
+  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
+  const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
@@ -288,9 +286,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {
     answerCount,
     commentCount,
-  } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isEAForum && post.shortform);
+  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
 
   const readingTimeNode = minimalSecondaryInfo
     ? null
@@ -332,28 +330,30 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={!isEAForum} flip={true}/>
+        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
       </AnalyticsContext>
     </span>
 
-  // this is the info section under the post title, to the right of the author names
-  let secondaryInfoNode = <div className={classes.secondaryInfo}>
-    <div className={classes.secondaryInfoLeft}>
-      {crosspostNode}
-      {readingTimeNode}
-      {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-      {post.isEvent && <GroupLinks document={post} noMargin />}
-      {answersNode}
-      <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-        {postGetCommentCountStr(post, commentCount)}
-      </CommentsLink>
-      {audioNode}
-      {addToCalendarNode}
-      {tripleDotMenuNode}
+  let secondaryInfoNode;
+  if (isBookUI) {
+    // this is the info section under the post title, to the right of the author names
+    secondaryInfoNode = <div className={classes.secondaryInfo}>
+      <div className={classes.secondaryInfoLeft}>
+        {crosspostNode}
+        {readingTimeNode}
+        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+        {post.isEvent && <GroupLinks document={post} noMargin />}
+        {answersNode}
+        <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+          {postGetCommentCountStr(post, commentCount)}
+        </CommentsLink>
+        {audioNode}
+        {addToCalendarNode}
+        {tripleDotMenuNode}
+      </div>
     </div>
-  </div>
-  // EA Forum splits the info into two sections, plus has the info in a different order
-  if (isEAForum) {
+  } else {
+    // EA Forum splits the info into two sections, plus has the info in a different order
     secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
@@ -385,7 +385,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      <PostsTopSequencesNav post={post} />
+      {('sequence' in post) && <PostsTopSequencesNav post={post} />}
     </AnalyticsContext>
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
@@ -395,9 +395,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
-            {post.feed && post.feed.user &&
+            {rssFeedSource && rssFeedSource.user &&
               <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
-                <a href={feedLink}>{post.feed.nickname}</a>
+                <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
           </div>
@@ -408,9 +408,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore allowTruncate />
-    </AnalyticsContext>}
+    <div className={classes.headerFooter}>
+      <div className={classes.tagSection}>
+        {!post.shortform && !post.isEvent && !hideTags && 
+        <AnalyticsContext pageSectionContext="tagHeader">
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
+        </AnalyticsContext>}
+      </div>
+    </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

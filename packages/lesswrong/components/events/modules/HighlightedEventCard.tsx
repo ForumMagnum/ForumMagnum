@@ -3,11 +3,10 @@ import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { createStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import { prettyEventDateTimes } from '../../../lib/collections/posts/helpers';
 import { useTimezone } from '../../common/withTimezone';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 // space pic for events with no img
 export const getDefaultEventImg = (width: number, blur?: boolean) => {
@@ -85,7 +84,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     color: theme.palette.text.alwaysWhite,
     marginTop: 0,
     marginBottom: 10,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
     [theme.breakpoints.down('sm')]: {
@@ -117,7 +116,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
     return event.location ? event.location.slice(0, event.location.lastIndexOf(',')) : ''
   }
   
-  const { Loading, AddToCalendarButton } = Components
+  const { Loading, AddToCalendarButton, PrettyEventDateTime } = Components
   
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
   // the default img and color here should probably be forum-dependent
@@ -167,7 +166,7 @@ const HighlightedEventCard = ({event, loading, classes}: {
       <div className={classes.content}>
         <div className={classes.text}>
           <div className={classes.detail}>
-            {prettyEventDateTimes(event, timezone, true)}
+            <PrettyEventDateTime post={event} timezone={timezone} dense={true} />
           </div>
           <h1 className={classes.title}>
             <Link to={`/events/${event._id}/${event.slug}`} onClick={() => captureEvent('highlightedEventClicked')}>

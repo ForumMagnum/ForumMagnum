@@ -15,10 +15,11 @@ registerMigration({
       filter: {collectionName: "Tags", fieldName: "description"},
       callback: async (revision: DbRevision) => {
         const userId = revision.userId;
+        if (!userId) return;
         if (!(userId in usersCache)) {
           usersCache[userId] = (await Users.findOne({_id:userId}))!;
         }
-        const user = usersCache[revision.userId];
+        const user = usersCache[userId];
         
         await performVoteServer({ document: revision, voteType: 'smallUpvote', collection: Revisions, user, toggleIfAlreadyVoted: false, skipRateLimits: true });
       }

@@ -58,7 +58,9 @@ const FrontpageVotingPhase = ({settings, classes}: {
             </Link>
             {(currentUser && currentUser.karma >= 1000) && <div className={classes.timeRemaining}>
               <em>Deadline for voting, reviewing and editing posts is Jan 19th (<span className={classes.learnMore}>
-                <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review" innerHTML={"learn more"}/>
+                <HoverPreviewLink href="/posts/qXwmMkEBLL59NkvYR/the-lesswrong-2018-review">
+                  {"learn more"}
+                </HoverPreviewLink>
               </span>)</em>
             </div>}
           </SectionSubtitle>

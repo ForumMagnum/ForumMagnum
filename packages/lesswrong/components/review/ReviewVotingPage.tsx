@@ -13,13 +13,15 @@ import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReview
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import { randomId } from '../../lib/random';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { getVotePower } from '../../lib/voting/vote';
+
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -293,7 +295,7 @@ const ReviewVotingPage = ({classes}: {
     }
   }
 
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
 
   if (postsError) {
@@ -332,7 +334,7 @@ const ReviewVotingPage = ({classes}: {
   const updatePostSort = (sort: AnyBecauseTodo) => {
     setSortPosts(sort)
     const newQuery = {...location.query, sort}
-    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {
@@ -372,8 +374,14 @@ const ReviewVotingPage = ({classes}: {
         const post2Score = post2.currentUserReviewVote?.qualitativeScore || 0
         const post1QuadraticScore = post1.currentUserReviewVote?.quadraticScore || 0
         const post2QuadraticScore = post2.currentUserReviewVote?.quadraticScore || 0
-        const post1NotKarmaVoted = post1.currentUserVote === null 
-        const post2NotKarmaVoted = post2.currentUserVote === null
+        const post1KarmaVote = post1.currentUserVote
+          ? getVotePower({ user: currentUser!, voteType: post1.currentUserVote, document: post1 })
+          : 0;
+        const post2KarmaVote = post2.currentUserVote
+          ? getVotePower({ user: currentUser!, voteType: post2.currentUserVote, document: post2 })
+          : 0;
+        const post1NotKarmaVoted = post1KarmaVote === 0;
+        const post2NotKarmaVoted = post2KarmaVote === 0;
 
         if (sortPosts === "needsReview") {
           // This prioritizes posts with no reviews, which you highly upvoted
@@ -414,9 +422,14 @@ const ReviewVotingPage = ({classes}: {
           if (post1Score > post2Score) return -1
         }
         if (sortPosts === "yourKarmaVote") {
+          // Sort order is (strong-upvoted, upvoted, downvoted, strong-downvoted,
+          // neutral), ie: first sort by _whether_ you karma voted, then sort by
+          // _what_ you karma voted.
           if (post1NotKarmaVoted && !post2NotKarmaVoted) return 1
           if (post2NotKarmaVoted && !post1NotKarmaVoted) return -1
-        }        
+          if (post1KarmaVote < post2KarmaVote) return 1;
+          if (post1KarmaVote > post2KarmaVote) return -1;
+        }
 
         if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
         if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1

@@ -8,7 +8,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const UsersAutoCompleteHit = ({document, classes}: {
-  document: AlgoliaUser
+  document: SearchUser
   classes: ClassesType
 }) => {
   if (document) {

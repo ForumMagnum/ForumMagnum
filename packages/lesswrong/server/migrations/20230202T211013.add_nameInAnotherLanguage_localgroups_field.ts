@@ -37,15 +37,11 @@ import Localgroups from "../../lib/collections/localgroups/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Localgroups.isPostgres()) {
-    await addField(db, Localgroups, "nameInAnotherLanguage");
-    await addField(db, Localgroups, "salesforceId");
-  }
+  await addField(db, Localgroups, "nameInAnotherLanguage");
+  await addField(db, Localgroups, "salesforceId");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Localgroups.isPostgres()) {
-    await dropField(db, Localgroups, "nameInAnotherLanguage");
-    await dropField(db, Localgroups, "salesforceId");
-  }
+  await dropField(db, Localgroups, "nameInAnotherLanguage");
+  await dropField(db, Localgroups, "salesforceId");
 }

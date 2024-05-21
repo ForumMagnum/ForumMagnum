@@ -1,4 +1,4 @@
-const schema: SchemaType<DbPodcast> = {
+const schema: SchemaType<"Podcasts"> = {
   title: {
     type: String,
     optional: false,

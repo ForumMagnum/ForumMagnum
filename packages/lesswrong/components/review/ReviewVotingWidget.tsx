@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 import { eligibleToNominate, REVIEW_NAME_IN_SITU, REVIEW_YEAR, VoteIndex } from '../../lib/reviewUtils';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { overviewTooltip } from './FrontpageReviewWidget';
+import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:VoteIndex)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
   
@@ -57,7 +57,7 @@ const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classe
   return <ErrorBoundary>
       <div className={classes.root}>
         {showTitle && <p>
-          Vote on this post for the <LWTooltip title={overviewTooltip}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
+          Vote on this post for the <LWTooltip title={<ReviewOverviewTooltip/>}><Link to={"/reviewVoting"}>{REVIEW_NAME_IN_SITU}</Link></LWTooltip>
         </p>}
         <ReviewVotingButtons post={post} dispatch={dispatchQualitativeVote} currentUserVote={currentUserVote}/>
       </div>

@@ -7,7 +7,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: SchemaType<DbSession> = {
+const schema: SchemaType<"Sessions"> = {
   // Sessions doesn't have universal fields so we need to add the _id manually
   _id: {
     type: String,

@@ -1,19 +1,24 @@
-const schema: SchemaType<DbUserActivity> = {
+const schema: SchemaType<"UserActivities"> = {
   visitorId: {
-    type: String
+    type: String,
+    nullable: false
   },
   type: {
     type: String,
     allowedValues: ["userId", "clientId"],
+    nullable: false
   },
   startDate: {
-    type: Date
+    type: Date,
+    nullable: false
   },
   endDate: {
-    type: Date
+    type: Date,
+    nullable: false
   },
   activityArray: {
-    type: Array
+    type: Array,
+    nullable: false
   },
   'activityArray.$': {
     // In practice this is currently a boolean, but we could support weighting by how long exactly they were active for

@@ -1,12 +1,9 @@
-import { MongoCollection } from '../mongoCollection';
 import PgCollection from '../sql/PgCollection';
-import SwitchingCollection from '../SwitchingCollection';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
-import { forceCollectionTypeSetting } from '../instanceSettings';
 export * from './getCollection';
 
 // When used in a view, set the query so that it returns rows where a field is
@@ -21,63 +18,40 @@ export const viewFieldNullOrMissing = {nullOrMissing:true};
 export const viewFieldAllowAny = {allowAny:true};
 
 // TODO: find more reliable way to get collection name from type name?
-export const getCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
+export const graphqlTypeToCollectionName = (typeName: string): CollectionNameString => pluralize(typeName) as CollectionNameString;
 
 // TODO: find more reliable way to get type name from collection name?
-export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
+export const collectionNameToGraphQLType = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-declare global {
-  type CollectionType = "mongo" | "pg" | "switching";
-}
+type CreateCollectionOptions <N extends CollectionNameString> = Omit<
+  CollectionOptions<N>,
+  "singleResolverName" | "multiResolverName" | "interfaces" | "description"
+>;
 
-const pickCollectionType = (collectionType?: CollectionType) => {
-  collectionType = forceCollectionTypeSetting.get() ?? collectionType;
-  switch (collectionType) {
-  case "pg":
-    return PgCollection;
-  case "switching":
-    return SwitchingCollection;
-  default:
-    return MongoCollection;
-  }
-}
-
-export const createCollection = <
-  N extends CollectionNameString
->(options: {
-  typeName: string,
-  collectionName: N,
-  collectionType?: CollectionType,
-  schema: SchemaType<ObjectsByCollectionName[N]>,
-  generateGraphQLSchema?: boolean,
-  dbCollectionName?: string,
-  collection?: any,
-  resolvers?: any,
-  mutations?: any,
-  logChanges?: boolean,
-}): any => {
+export const createCollection = <N extends CollectionNameString>(
+  options: CreateCollectionOptions<N>,
+): CollectionsByName[N] => {
   const {
     typeName,
     collectionName,
-    collectionType,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
   } = options;
 
-  const Collection = pickCollectionType(collectionType);
-
-  // initialize new Mongo collection
-  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<ObjectsByCollectionName[N]>;
-
-  // decorate collection with options
-  collection.options = options as any;
+  // initialize new collection
+  const collection = new PgCollection<N>(
+    dbCollectionName ?? collectionName.toLowerCase(),
+    {
+      ...options,
+      singleResolverName: camelCaseify(typeName),
+      multiResolverName: camelCaseify(pluralize(typeName)),
+    },
+  );
 
   // add typeName if missing
   collection.typeName = typeName;
   collection.options.typeName = typeName;
-  collection.options.singleResolverName = camelCaseify(typeName);
-  collection.options.multiResolverName = camelCaseify(pluralize(typeName));
 
   // add collectionName if missing
   collection.collectionName = collectionName;
@@ -103,8 +77,8 @@ export const createCollection = <
   const defaultFragment = getDefaultFragmentText(collection, schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
-
   registerCollection(collection);
 
-  return collection;
+  // TODO: This type should coerce better?
+  return collection as unknown as CollectionsByName[N];
 };

@@ -29,10 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 500,
   },
   
+  locationInputWrapper: {
+    display: "flex",
+  },
   locationInput: {
     display: "inline-block",
     borderBottom: `1px solid ${theme.palette.text.normal}`,
-    width: 350,
+    flexGrow: 1,
     marginTop: 40,
     marginBottom: 40,
     position: "relative",
@@ -165,7 +168,7 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
     <div>Did you know that there are LessWrong meetups? To get email notification
     of meetups near you, enter your location:</div>
     
-    <div>
+    <div className={classes.locationInputWrapper}>
       {mapsLoaded ? <Geosuggest
         ref={geosuggestElement}
         placeholder="My Location"

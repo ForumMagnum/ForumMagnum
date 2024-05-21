@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
-import { userCanVote } from '../../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -59,7 +59,7 @@ const TagVoteActivityRow = ({vote, classes}: {
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
   
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
   
   return (

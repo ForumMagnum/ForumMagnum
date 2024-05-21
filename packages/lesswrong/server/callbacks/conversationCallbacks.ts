@@ -101,6 +101,10 @@ getCollectionHooks("Conversations").updateAsync.add(async function leavingNotica
     .filter(id => !newDocument.participantIds?.includes(id))
   if (usersWhoLeft.length === 0) return;
   const adminAccount = await getAdminTeamAccount();
+  if (!adminAccount) {
+    // Something has gone horribly wrong
+    throw new Error("Could not find admin account");
+  }
   for (const userId of usersWhoLeft) {
     const leavingUser = (await Users.findOne(userId));
     await createMutator({

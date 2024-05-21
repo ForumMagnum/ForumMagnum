@@ -7,9 +7,10 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
+import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
+import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -89,7 +90,7 @@ const transferEditableField = async ({documentId, sourceUserId, targetUserId, co
   documentId: string,
   sourceUserId: string,
   targetUserId: string,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<CollectionNameString>,
   fieldName: string
 }) => {
   // Update the denormalized revision on the document
@@ -162,7 +163,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
+Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   sourceUserId: string, 
   targetUserId: string, 
   dryRun: boolean
@@ -188,6 +189,10 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // Transfer posts
   await transferCollection({sourceUserId, targetUserId, collectionName: "Posts", dryRun})
+  // Transfer post co-authorship
+  if (!dryRun) {
+    await new PostsRepo().moveCoauthorshipToNewUser(sourceUserId, targetUserId)
+  }
 
   // Transfer comments
   await transferCollection({sourceUserId, targetUserId, collectionName: "Comments", dryRun})
@@ -206,11 +211,20 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // Transfer reports (i.e. user reporting a comment/tag/etc)
   await transferCollection({sourceUserId, targetUserId, collectionName: "Reports", dryRun})
+  
+  // Transfer election votes
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ElectionVotes", dryRun})
+  
+  // Transfer moderator actions
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ModeratorActions", dryRun})
+  
+  // Transfer user rate limits
+  await transferCollection({sourceUserId, targetUserId, collectionName: "UserRateLimits", dryRun})
 
   try {
     const [sourceConversationsCount, targetConversationsCount] = await Promise.all([
       Conversations.find({participantIds: sourceUserId}).count(),
-      Conversations.find({participantIds: sourceUserId}).count()
+      Conversations.find({participantIds: targetUserId}).count()
     ])
     // eslint-disable-next-line no-console
     console.log(`conversations from source user: ${sourceConversationsCount}`)
@@ -219,15 +233,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
     if (!dryRun) {
       // Transfer conversations
-      if (Conversations.isPostgres()) {
-        await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
-      } else {
-        await Conversations.rawUpdateMany(
-          {participantIds: sourceUserId},
-          {$set: {"participantIds.$": targetUserId}},
-          {multi: true},
-        );
-      }
+      await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -246,8 +252,8 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   try {
     const readStatuses = await ReadStatuses.find({userId: sourceUserId}).fetch()
-    const readPostIds = readStatuses.map((status) => status.postId).filter(postId => !!postId)
-    const readTagIds = readStatuses.map((status) => status.tagId).filter(tagId => !!tagId)
+    const readPostIds = filterNonnull(readStatuses.map((status) => status.postId))
+    const readTagIds = filterNonnull(readStatuses.map((status) => status.tagId))
     // eslint-disable-next-line no-console
     console.log(`source readPostIds count: ${readPostIds.length}`)
     // eslint-disable-next-line no-console
@@ -276,15 +282,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // Transfer localgroups
   if (!dryRun) {
-    if (Localgroups.isPostgres()) {
-      await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
-    } else {
-      await Localgroups.rawUpdateMany(
-        {organizerIds: sourceUserId},
-        {$set: {"organizerIds.$": targetUserId}},
-        {multi: true},
-      );
-    }
+    await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
   }
 
   // Transfer review votes
@@ -303,16 +301,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       // Transfer votes that target content from source user (authorId)
       // eslint-disable-next-line no-console
       console.log("Transferring votes that target source user")
-      if (Votes.isPostgres()) {
-        await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
-      } else {
-        // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
-        await Votes.rawUpdateMany(
-          {authorIds: sourceUserId},
-          {$set: {"authorIds.$": targetUserId}},
-          {multi: true},
-        );
-      }
+      await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
 
       // Transfer votes cast by source user
       // eslint-disable-next-line no-console
@@ -330,7 +319,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           karma: newKarma, 
           // We only recalculate the karma for non-af karma, because recalculating
           // af karma is a lot more complicated
-          afKarma: sourceUser.afKarma + targetUser.afKarma 
+          afKarma: (sourceUser.afKarma) + (targetUser.afKarma)
         },
         validate: false
       })
@@ -371,7 +360,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       await updateMutator({
         collection: Users,
         documentId: targetUserId,
-        set: {oldSlugs: newOldSlugs}, 
+        set: {oldSlugs: filterNonnull(newOldSlugs)}, 
         validate: false
       })
     }
@@ -384,7 +373,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // if the two accounts share an email address, change the sourceUser email to "+old"
   try {
-    if (!dryRun) {
+    if (!dryRun && !!sourceUser.email && !!targetUser.email) {
       const splitEmail = sourceUser.email.split("@")
       const newEmail = `${splitEmail[0]}+old@${splitEmail[1]}` 
       if (sourceUser.email === targetUser.email) {
@@ -396,15 +385,19 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
           }}
         );
       }
-      const sourceEmailsEmail = (sourceUser.emails?.length > 0) && sourceUser.emails[0]
-      const targetEmailsEmail = (targetUser.emails?.length > 0) && targetUser.emails[0]
-      if (sourceEmailsEmail === targetEmailsEmail) {
-        await Users.rawUpdateOne(
-          {_id: sourceUserId},
-          {$set: {
-            'emails.0': {address: newEmail, verified: sourceEmailsEmail ? sourceEmailsEmail.verified : false}
-          }}
-        );
+
+      if ((sourceUser?.emails) && (targetUser?.emails)) {
+        const sourceEmailsEmail = sourceUser.emails.length > 0 && sourceUser.emails[0]
+        const targetEmailsEmail = targetUser.email.length > 0 && targetUser.emails[0]
+
+        if (sourceEmailsEmail === targetEmailsEmail) {
+          await Users.rawUpdateOne(
+            {_id: sourceUserId},
+            {$set: {
+              'emails.0': {address: newEmail, verified: sourceEmailsEmail ? sourceEmailsEmail.verified : false}
+            }}
+          );
+        }
       }
     }
   } catch (err) {
@@ -460,7 +453,8 @@ async function recomputeKarma(userId: string) {
     cancelled: false,
     collectionName: {$in: collectionsThatAffectKarma}
   };
-  const allTargetVotes = await Votes.find(selector).fetch()
+  const rawAllTargetVotes = await Votes.find(selector).fetch()
+  const allTargetVotes = filterWhereFieldsNotNull(rawAllTargetVotes, "authorIds")
   const karma = sumBy(allTargetVotes, vote => {
     // a doc author cannot give karma to themselves or any other authors for that doc
     return vote.authorIds.includes(vote.userId) ? 0 : vote.power

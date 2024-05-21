@@ -1,7 +1,8 @@
 import React from 'react';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,14 +15,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 // Component for displaying details about currently selected conversation
-const ConversationDetails = ({conversation, classes}: {
-  conversation: conversationsListFragment,
+const ConversationDetails = ({conversation, hideOptions = false, classes}: {
+  conversation: ConversationsList,
+  hideOptions?: boolean,
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();
   const { Loading, MetaInfo, UsersName } = Components
   if (!conversation?.participants?.length) return <Loading />
-  
+
   const openConversationOptions = () => {
     openDialog({
       componentName: "ConversationTitleEditForm",
@@ -41,9 +43,9 @@ const ConversationDetails = ({conversation, classes}: {
           { i < conversation.participants.length-1 && ","}
         </MetaInfo>)}
       </span>
-      <span onClick={openConversationOptions}>
+      {!hideOptions && <span onClick={openConversationOptions}>
         <MetaInfo button>{preferredHeadingCase("Conversation Options")}</MetaInfo>
-      </span>
+      </span>}
     </div>
   )
 }
@@ -55,4 +57,3 @@ declare global {
     ConversationDetails: typeof ConversationDetailsComponent
   }
 }
-

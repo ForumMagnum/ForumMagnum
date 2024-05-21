@@ -1,33 +1,37 @@
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { RefinementListExposed, RefinementListProvided, SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectRefinementList, ToggleRefinement, NumericMenu, connectStats, ClearRefinements, connectScrollTo } from 'react-instantsearch-dom';
-import { getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed, isSearchEnabled } from '../../lib/search/algoliaUtil';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
-import { forumTypeSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
+import type { SearchState } from 'react-instantsearch/connectors';
+import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { useLocation } from '../../lib/routeUtil';
+import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import InfoIcon from '@material-ui/icons/Info';
-import Select from '@material-ui/core/Select';
+import IconButton from '@material-ui/core/IconButton';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';
 import {
+  getSearchClient,
+  SearchIndexCollectionName,
+  collectionIsSearchIndexed,
+  isSearchEnabled,
   ElasticSorting,
   defaultElasticSorting,
-  elasticCollectionIsCustomSortable,
   elasticSortingToUrlParam,
-  formatElasticSorting,
   getElasticIndexNameWithSorting,
-  getElasticSortingsForCollection,
   isValidElasticSorting,
-} from '../../lib/search/elasticUtil';
-import { communityPath } from '../../lib/routes';
+} from '../../lib/search/searchUtil';
+import Modal from '@material-ui/core/Modal';
+import classNames from 'classnames';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { useCurrentUser } from '../common/withUser';
+import { userHasPeopleDirectory } from '../../lib/betas';
 
 const hitsPerPage = 10
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: 1200,
@@ -40,56 +44,23 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingTop: 24,
     }
   },
-  filtersColumn: {
-    flex: 'none',
-    width: 250,
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.grey[800],
-    paddingTop: 12,
+  filtersColumnWrapper: {
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
-    '& .ais-NumericMenu': {
-      marginBottom: 26
-    },
-    '& .ais-NumericMenu-item': {
-      marginTop: 5
-    },
-    '& .ais-NumericMenu-label': {
-      display: 'flex',
-      columnGap: 3
-    },
-    '& .ais-ToggleRefinement-label': {
-      display: 'flex',
-      columnGap: 6,
-      alignItems: 'center',
-      marginTop: 12
-    },
-    '& .ais-ClearRefinements': {
-      color: theme.palette.primary.main,
-      marginTop: 20
-    },
-    '& .ais-ClearRefinements-button--disabled': {
-      display: 'none'
-    },
   },
-  filtersHeadline: {
-    marginBottom: 18,
-    fontWeight: 500,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    "&:not(:first-child)": {
-      marginTop: 35,
-    },
+  filtersModal: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  filterLabel: {
-    fontSize: 14,
-    color: theme.palette.grey[600],
-    marginBottom: 6
-  },
-  mapLink: {
-    color: theme.palette.primary.main,
-    padding: 1,
-    marginTop: 30
+  filtersModalContent: {
+    maxWidth: "max-content",
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
+    padding: '20px',
+    overflowY: 'auto',
+    zIndex: 10001
   },
   resultsColumn: {
     flex: '1 1 0',
@@ -105,6 +76,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       marginBottom: 12,
     },
+  },
+  funnelIconButton: {
+    [theme.breakpoints.up('md')]: {
+      display: 'none'
+    },
+  },
+  funnelIconLW: {
+    fill: theme.palette.grey[1000],
+  },
+  funnelIconEA: {
+    stroke: theme.palette.grey[1000],
   },
   searchInputArea: {
     flex: 1,
@@ -173,10 +155,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700],
     marginBottom: 20
   },
-  sort: {
-    borderRadius: theme.borderRadius.small,
-    width: "100%",
-  },
   pagination: {
     ...theme.typography.commentStyle,
     fontSize: 16,
@@ -198,37 +176,30 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ais-Pagination-item--disabled': {
       color: theme.palette.grey[500]
     }
-  }
+  },
+  peopleDirectory: {
+    display: "block",
+    padding: "16px 12px",
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.primary.main,
+    background: theme.palette.primaryAlpha(0.05),
+    borderRadius: theme.borderRadius.small,
+    marginBottom: 20,
+    maxWidth: 585,
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
 });
 
-type ExpandedSearchState = SearchState & {
-  contentType?: AlgoliaIndexCollectionName,
+export type ExpandedSearchState = SearchState & {
+  contentType?: SearchIndexCollectionName,
   refinementList?: {
     tags: Array<string>|''
   }
 }
-
-type TagsRefinementProps = {
-  tagsFilter?: Array<string>,
-  setTagsFilter?: Function
-}
-
-// filters by tags
-const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
-  RefinementListProvided & TagsRefinementProps
-) => {
-  return <Components.TagMultiselect
-    value={tagsFilter ?? []}
-    path="tags"
-    placeholder={`Filter by ${taggingNamePluralSetting.get()}`}
-    hidePostCount
-    startWithBorder
-    updateCurrentValues={(values: {tags?: Array<string>}) => {
-      setTagsFilter && setTagsFilter(values.tags)
-    }}
-  />
-}
-const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
 // shows total # of results
 const Stats = ({ nbHits, className }: {
@@ -260,24 +231,26 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbed = ({classes}:{
-  classes: ClassesType
+const SearchPageTabbed = ({classes}: {
+  classes: ClassesType<typeof styles>,
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const { location, query } = useLocation()
   const captureSearch = useSearchAnalytics();
+  const currentUser = useCurrentUser();
 
   // store these values for the search filter
   const pastDay = useRef(moment().subtract(24, 'hours').valueOf())
   const pastWeek = useRef(moment().subtract(7, 'days').valueOf())
   const pastMonth = useRef(moment().subtract(1, 'months').valueOf())
   const pastYear = useRef(moment().subtract(1, 'years').valueOf())
+  const dateRangeValues = [pastDay, pastWeek, pastMonth, pastYear];
 
   // initialize the tab & search state from the URL
-  const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
-    const contentType = query.contentType as AlgoliaIndexCollectionName
-    return collectionIsAlgoliaIndexed(contentType) ? contentType : 'Posts'
+  const [tab, setTab] = useState<SearchIndexCollectionName>(() => {
+    const contentType = query.contentType as SearchIndexCollectionName
+    return collectionIsSearchIndexed(contentType) ? contentType : 'Posts'
   })
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
     [query.tags ?? []].flatMap(tags => tags)
@@ -289,28 +262,30 @@ const SearchPageTabbed = ({classes}:{
     isValidElasticSorting(initialSorting) ? initialSorting : defaultElasticSorting,
   );
 
+  const [modalOpen, setModalOpen] = useState(false);
+
   const onSortingChange = (newSorting: string) => {
     if (!isValidElasticSorting(newSorting)) {
-      throw new Error("Invalid algolia sorting: " + newSorting);
+      throw new Error("Invalid search sorting: " + newSorting);
     }
     setSorting(newSorting);
-    history.replace({
+    navigate({
       ...location,
       search: qs.stringify({
         ...searchState,
         sort: elasticSortingToUrlParam(newSorting),
       }),
-    });
+    }, {replace: true});
   }
 
   const {
     ErrorBoundary, ExpandedUsersSearchHit, ExpandedPostsSearchHit, ExpandedCommentsSearchHit,
-    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, Typography, LWTooltip, MenuItem, ForumIcon
+    ExpandedTagsSearchHit, ExpandedSequencesSearchHit, LWTooltip, ForumIcon
   } = Components;
 
   // we try to keep the URL synced with the search state
   const updateUrl = (search: ExpandedSearchState, tags: Array<string>) => {
-    history.replace({
+    navigate({
       ...location,
       search: qs.stringify({
         contentType: search.contentType,
@@ -320,10 +295,10 @@ const SearchPageTabbed = ({classes}:{
         page: search.page,
         sort: elasticSortingToUrlParam(sorting),
       })
-    })
+    }, {replace: true})
   }
 
-  const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
     setSorting(defaultElasticSorting);
     setSearchState({...searchState, contentType: value, page: 1});
@@ -384,70 +359,17 @@ const SearchPageTabbed = ({classes}:{
       searchState={searchState}
       onSearchStateChange={onSearchStateChange}
     >
-      <div className={classes.filtersColumn}>
-        <Typography variant="headline" className={classes.filtersHeadline}>Filters</Typography>
-        {['Posts', 'Comments', 'Sequences', 'Users'].includes(tab) && <>
-          <div className={classes.filterLabel}>
-            Filter by {tab === 'Users' ? 'joined' : 'posted'} date
-          </div>
-          <NumericMenu
-            attribute="publicDateMs"
-            items={[
-              { label: 'All' },
-              { label: 'Past 24 hours', start: pastDay.current },
-              { label: 'Past week', start: pastWeek.current },
-              { label: 'Past month', start: pastMonth.current },
-              { label: 'Past year', start: pastYear.current },
-            ]}
-          />
-        </>}
-        {['Posts', 'Comments', 'Users'].includes(tab) && <CustomTagsRefinementList
-            attribute="tags"
-            defaultRefinement={tagsFilter}
-            tagsFilter={tagsFilter}
-            setTagsFilter={handleUpdateTagsFilter}
-          />
-        }
-        {tab === 'Posts' && <ToggleRefinement
-          attribute="curated"
-          label="Curated"
-          value={true}
-        />}
-        {tab === 'Posts' && <ToggleRefinement
-          attribute="isEvent"
-          label="Exclude events"
-          value={false}
-          defaultRefinement={true}
-        />}
-        {tab === 'Tags' && <ToggleRefinement
-          attribute="core"
-          label="Core topic"
-          value={true}
-        />}
-        <ClearRefinements />
 
-        {tab === 'Users' && forumTypeSetting.get() === 'EAForum' && <div className={classes.mapLink}>
-          <Link to={`${communityPath}#individuals`}>View community map</Link>
-        </div>}
-
-        {elasticCollectionIsCustomSortable(tab) &&
-          <>
-            <Typography variant="headline" className={classes.filtersHeadline}>
-              Sort
-            </Typography>
-            <Select
-              value={sorting}
-              onChange={(e) => onSortingChange(e.target.value)}
-              className={classes.sort}
-            >
-              {getElasticSortingsForCollection(tab).map((name, i) =>
-                <MenuItem key={i} value={name}>
-                  {formatElasticSorting(name)}
-                </MenuItem>
-              )}
-            </Select>
-          </>
-        }
+      <div className={classes.filtersColumnWrapper}>
+        <Components.SearchFilters
+          tab={tab}
+          tagsFilter={tagsFilter}
+          handleUpdateTagsFilter={handleUpdateTagsFilter}
+          onSortingChange={onSortingChange}
+          sorting={sorting}
+          dateRangeValues={dateRangeValues}
+          setModalOpen={setModalOpen}
+        />
       </div>
 
       <div className={classes.resultsColumn}>
@@ -458,6 +380,11 @@ const SearchPageTabbed = ({classes}:{
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}
             <SearchBox defaultRefinement={query.query} reset={null} focusShortcuts={[]} autoFocus={true} />
+            <div onClick={() => setModalOpen(true)}>
+              <IconButton className={classes.funnelIconButton}>
+                <ForumIcon icon="Funnel" className={classNames({[classes.funnelIconLW]: !isEAForum, [classes.funnelIconEA]: isEAForum})}/>
+              </IconButton>
+            </div>
           </div>
           <LWTooltip
             title={`"Quotes" and -minus signs are supported.`}
@@ -468,6 +395,26 @@ const SearchPageTabbed = ({classes}:{
         </div>
 
         <div ref={scrollToRef} />
+
+        <Modal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          aria-labelledby="search-filters-modal"
+          aria-describedby="search-filters-modal"
+          className={classNames(classes.filtersModal)}
+        >
+          <div className={classes.filtersModalContent}>
+            <Components.SearchFilters
+              tab={tab}
+              tagsFilter={tagsFilter}
+              handleUpdateTagsFilter={handleUpdateTagsFilter}
+              onSortingChange={onSortingChange}
+              sorting={sorting}
+              dateRangeValues={dateRangeValues}
+              setModalOpen={setModalOpen}
+            />
+          </div>
+        </Modal>
 
         <Tabs
           value={tab}
@@ -484,10 +431,18 @@ const SearchPageTabbed = ({classes}:{
           <Tab label="Sequences" value="Sequences" />
           <Tab label="Users" value="Users" />
         </Tabs>
-        
+
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
+          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
+            <Link
+              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
+              className={classes.peopleDirectory}
+            >
+              -&gt; View results in People directory (beta)
+            </Link>
+          }
           <CustomScrollTo targetRef={scrollToRef}>
             <Hits hitComponent={(props) => <HitComponent {...props} />} />
           </CustomScrollTo>

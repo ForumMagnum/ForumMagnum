@@ -6,7 +6,6 @@ import { recalculateScore } from '../lib/scoring';
 import { voteTypes } from '../lib/voting/voteTypes';
 import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
-import { algoliaExportById } from './search/utils';
 import { createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
@@ -19,13 +18,14 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { userCanVote } from '../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
+import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
-import { isEAForum } from '../lib/instanceSettings';
 import {Posts} from '../lib/collections/posts';
-
+import { VotesRepo } from './repos';
+import { isLWorAF } from '../lib/instanceSettings';
+import { swrInvalidatePostRoute } from './cache/swr';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -43,7 +43,7 @@ const getExistingVote = async ({ document, user }: {
 // Add a vote of a specific type on the server
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
   extendedVote: any,
   user: DbUser,
@@ -76,13 +76,11 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (isElasticEnabled) {
-    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
-      void elasticSyncDocument(collection.collectionName, newDocument._id);
-    }
+  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
+    void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
-  if (isAlgoliaEnabled()) {
-    void algoliaExportById(collection as any, newDocument._id);
+  if (collection.collectionName === "Posts") {
+    void swrInvalidatePostRoute(newDocument._id)
   }
   return {newDocument, vote};
 }
@@ -118,13 +116,18 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
   document: DbVoteableType,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
+  /**
+   * If true, notifies the user of the karma changes from this vote. This will be true
+   * except for votes being nullified by mods.
+   */
+  silenceNotification?: boolean,
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
@@ -175,6 +178,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       isUnvote: true,
       power: -vote.power,
       votedAt: new Date(),
+      silenceNotification,
     };
     await createMutator({
       collection: Votes,
@@ -202,13 +206,8 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (isElasticEnabled) {
-    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
-      void elasticSyncDocument(collection.collectionName, newDocument._id);
-    }
-  }
-  if (isAlgoliaEnabled()) {
-    void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
+    void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return newDocument;
 }
@@ -219,7 +218,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   document?: DbVoteableType|null,
   voteType: string,
   extendedVote?: any,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
@@ -231,7 +230,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   showVotingPatternWarning: boolean,
 }> => {
   if (!context)
-    context = await createAnonymousContext();
+    context = createAnonymousContext();
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
@@ -243,7 +242,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!user) throw new Error("Error casting vote: Not logged in.");
   
   // Check whether the user is allowed to vote at all, in full generality
-  const { fail: cannotVote, reason } = userCanVote(user);
+  const { fail: cannotVote, reason } = voteButtonsDisabledForUser(user);
   if (!selfVote && cannotVote) {
     throw new Error(reason);
   }
@@ -310,6 +309,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       excludeLatest: true,
       context
     })
+
+    voteDocTuple.newDocument = document
     
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
       [voteDocTuple, collection, user, context]
@@ -330,7 +331,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   }, {
     sort: {createdAt: -1}
   });
-  if (!mostRecentWarning) {
+  if (!mostRecentWarning?.createdAt) {
     return false;
   }
   const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
@@ -338,19 +339,14 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   return warningAgeMinutes < 60;
 }
 
-interface VotingRateLimitSet {
-  perDay: number,
-  perHour: number,
-  perUserPerDay: number
-}
-
 // TODO consequences to add, not yet implemented: blockVotingFor24Hours, revertRecentVotes
 type Consequence = "warningPopup" | "denyThisVote" | "flagForModeration"
 
 interface VotingRateLimit {
-  voteCount: number
-  /** Must be ≤ than 24 hours */
-  periodInMinutes: number
+  voteCount: number | ((postCommentCount: number|null) => number)
+  /** If provided, periodInMinutes must be ≤ than 24 hours. At least one of periodInMinutes or allOnSamePost must be provided. */
+  periodInMinutes: number|null,
+  allOnSamePost?: true,
   types: "all"|"onlyStrong"|"onlyDown"
   users: "allUsers"|"singleUser"
   consequences: Consequence[]
@@ -361,7 +357,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
   if (user?.isAdmin) {
     return [];
   } else {
-    return [
+    const rateLimits: VotingRateLimit[] = [
       {
         voteCount: 200,
         periodInMinutes: 60 * 24,
@@ -403,6 +399,28 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         message: null,
       },
     ];
+
+    if (isLWorAF) {
+      rateLimits.push({
+        voteCount: 10,
+        periodInMinutes: 60,
+        types: "onlyStrong",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many strong-votes in one hour",
+      });
+      rateLimits.push({
+        voteCount: (postCommentCount: number|null) => 5 + Math.round((postCommentCount??0) * .05),
+        periodInMinutes: null,
+        allOnSamePost: true,
+        types: "onlyStrong",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "You can only strong-vote on up to (5+5%) of the comments on a post",
+      });
+    }
+
+    return rateLimits;
   }
 }
 
@@ -418,7 +436,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
  */
 const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
   user: DbUser
 }): Promise<{
@@ -428,14 +446,28 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   if(document.userId === user._id)
     return {};
   
-  // Retrieve all non-cancelled votes cast by this user in the past 24 hours
+  // Retrieve all non-cancelled votes cast by this user that were either cast
+  // in the past 24 hours, or are on comments on the same post as this one
   const oneDayAgo = moment().subtract(1, 'days').toDate();
-  const votesInLastDay = await Votes.find({
-    userId: user._id,
-    authorIds: {$ne: user._id}, // Self-votes don't count
-    votedAt: {$gt: oneDayAgo},
-    cancelled:false
-  }).fetch();
+  const postId = (document as any)?.postId ?? null;
+  const [votesInLastDay, votesOnCommentsOnThisPost, postWithCommentCount] = await Promise.all([
+    Votes.find({
+      userId: user._id,
+      authorIds: {$ne: user._id}, // Self-votes don't count
+      votedAt: {$gt: oneDayAgo},
+      cancelled:false
+    }).fetch(),
+    postId ? new VotesRepo().getVotesOnSamePost({
+      userId: user._id,
+      postId,
+      excludedDocumentId: document._id
+    }) : [],
+    postId ? await Posts.findOne({_id: postId}, {}, {commentCount: 1}) : null,
+  ]);
+
+  // If this is a vote on a comment on a post, fetch the comment-count of that
+  // post to use for percentage-based rate limits.
+  const postCommentCount: number|null = postWithCommentCount?.commentCount ?? null;
   
   // Go through rate limits checking if each applies. If more than one rate
   // limit applies, we take the union of the consequences of exceeding all of
@@ -444,12 +476,26 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   let rateLimitConsequences = new Set<Consequence>();
   
   for (const rateLimit of getVotingRateLimits(user)) {
-    if (votesInLastDay.length < rateLimit.voteCount)
-      continue;
+    let votesToConsider = rateLimit.allOnSamePost
+      ? votesOnCommentsOnThisPost
+      : votesInLastDay;
 
-    const numMatchingVotes = getRelevantVotes(rateLimit, document, votesInLastDay).length;
+    const limitVoteCount = (typeof rateLimit.voteCount==='function')
+      ? rateLimit.voteCount(postCommentCount)
+      : rateLimit.voteCount;
+    if (votesToConsider.length < limitVoteCount) {
+      continue;
+    }
+    if (rateLimit.types === "onlyDown" && !voteTypeIsDown(voteType)) {
+      continue;
+    }
+    if (rateLimit.types === "onlyStrong" && !voteTypeIsStrong(voteType)) {
+      continue;
+    }
+
+    const numMatchingVotes = getRelevantVotes(rateLimit, document, votesToConsider).length;
     
-    if (numMatchingVotes >= rateLimit.voteCount) {
+    if (numMatchingVotes >= limitVoteCount) {
       if (!firstExceededRateLimit) {
         firstExceededRateLimit = rateLimit;
       }
@@ -482,26 +528,40 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   return { moderatorActionType };
 }
 
-function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, votes: DbVote[]): DbVote[] {
+function getRelevantVotes(
+  rateLimit: VotingRateLimit,
+  document: DbVoteableType,
+  votes: DbVote[],
+): DbVote[] {
   const now = new Date().getTime();
 
   return votes.filter(vote => {
     const ageInMS = now - vote.votedAt.getTime();
     const ageInMinutes = ageInMS / (1000 * 60);
 
-    if (ageInMinutes > rateLimit.periodInMinutes)
+    if (rateLimit.periodInMinutes && ageInMinutes > rateLimit.periodInMinutes) {
       return false;
-    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+    }
+    
+    if (rateLimit.users === "singleUser" && !!document.userId &&!vote.authorIds?.includes(document.userId))
       return false;
 
-    const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");
-    const isDown = (vote.voteType === "smallDownvote" || vote.voteType === "bigDownvote");
+    const isStrong = voteTypeIsStrong(vote.voteType);
+    const isDown = voteTypeIsDown(vote.voteType);
     if (rateLimit.types === "onlyStrong" && !isStrong)
       return false;
     if (rateLimit.types === "onlyDown" && !isDown)
       return false;
     return true;
   })
+}
+
+function voteTypeIsStrong(voteType: string): boolean {
+  return voteType==="bigDownvote" || voteType==="bigUpvote";
+}
+
+function voteTypeIsDown(voteType: string): boolean {
+  return voteType==="bigDownvote" || voteType==="smallDownvote";
 }
 
 function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {
@@ -523,6 +583,12 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
     {
       documentId: document._id,
       cancelled: false
+    }, {
+      // This sort order eventually winds up affecting the sort-order of
+      // users-who-reacted in the UI
+      sort: {
+        votedAt: 1
+      }
     }
   ).fetch() || [];
   
@@ -537,7 +603,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
-  const afBaseScore = sumBy(afVotes, v=>v.afPower)
+  const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
   const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
   const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;

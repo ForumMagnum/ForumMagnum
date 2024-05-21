@@ -1,21 +1,21 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils';
 import { ensureIndex } from '../../collectionIndexUtils'
-import { forumTypeSetting } from '../../instanceSettings';
 
-const schema: SchemaType<DbLegacyData> = {
+const schema: SchemaType<"LegacyData"> = {
   objectId: {
     type: String,
+    nullable: false,
   },
   collectionName: {
     type: String,
+    nullable: false,
   },
 };
 
 export const LegacyData: LegacyDataCollection = createCollection({
   collectionName: "LegacyData",
   typeName: "LegacyData",
-  collectionType: 'pg',
   schema
 });
 

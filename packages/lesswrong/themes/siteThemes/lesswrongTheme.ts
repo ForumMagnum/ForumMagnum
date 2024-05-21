@@ -1,3 +1,4 @@
+import { blackBarTitle } from "../../lib/publicSettings";
 
 const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
@@ -44,6 +45,12 @@ export const lessWrongTheme: SiteThemeSpecification = {
     error: {
       main: '#bf360c',
     },
+    header: {
+      background: blackBarTitle.get() ? shadePalette.inverseGreyAlpha(.1) : shadePalette.inverseGreyAlpha(.65)
+    },
+    background: {
+      default: '#f8f4ee'
+    }
   }),
   make: (palette: ThemePalette) => ({
     typography: {
@@ -64,6 +71,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       commentStyle: {
         fontFamily: sansSerifStack,
+        '& b, & strong': {
+          fontWeight: 600
+        }
       },
       errorStyle: {
         color: palette.error.main,

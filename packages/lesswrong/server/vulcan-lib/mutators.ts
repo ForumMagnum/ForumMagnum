@@ -42,9 +42,10 @@ import isEmpty from 'lodash/isEmpty';
 import { createError } from 'apollo-errors';
 import pickBy from 'lodash/pickBy';
 import { loggerConstructor } from '../../lib/utils/logging';
-import { captureEvent } from '../../lib/analyticsEvents';
 
-const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>): CreateCallbackProperties<T> => {
+const mutatorParamsToCallbackProps = <N extends CollectionNameString>(
+  createMutatorParams: CreateMutatorParams<N>,
+): CreateCallbackProperties<N> => {
   const {
     currentUser = null,
     collection,
@@ -56,8 +57,8 @@ const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: C
 
   return {
     currentUser, collection, context,
-    document: document as unknown as T, // Pretend this isn't Partial<T>
-    newDocument: document as unknown as T, // Pretend this isn't Partial<T>
+    document: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    newDocument: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     schema
   };
 };
@@ -68,12 +69,14 @@ const mutatorParamsToCallbackProps = <T extends DbObject>(createMutatorParams: C
  * Those may have side effects, depending on the collection!  If they do, you probably shouldn't use this.
  * (Let's please not write any more validation callbacks with side effects.)
  */
-export const validateCreateMutation = async <T extends DbObject>(mutatorParams: CreateMutatorParams<T>) => {
+export const validateCreateMutation = async <N extends CollectionNameString>(
+  mutatorParams: CreateMutatorParams<N>,
+) => {
   let { document } = mutatorParams;
   const callbackProperties = mutatorParamsToCallbackProps(mutatorParams);
   const { collection, context, currentUser } = callbackProperties;
 
-  const hooks = getCollectionHooks(collection.collectionName) as unknown as CollectionMutationCallbacks<T>;
+  const hooks = getCollectionHooks(collection.collectionName);
   
   let validationErrors: Array<any> = [];
   validationErrors = validationErrors.concat(validateDocument(document, collection, context));
@@ -85,7 +88,7 @@ export const validateCreateMutation = async <T extends DbObject>(mutatorParams: 
   });
   // OpenCRUD backwards compatibility
   document = await hooks.newValidate.runCallbacks({
-    iterator: document as DbInsertion<T>, // Pretend this isn't Partial<T>
+    iterator: document as DbInsertion<ObjectsByCollectionName[N]>, // Pretend this isn't Partial
     properties: [currentUser, validationErrors],
     ignoreExceptions: false,
   });
@@ -104,7 +107,9 @@ export const validateCreateMutation = async <T extends DbObject>(mutatorParams: 
  * fields will be filled in by those callbacks; result is a T, but nothing
  * in the type system ensures that everything actually gets filled in. 
  */
-export const createMutator: CreateMutator = async <T extends DbObject>(createMutatorParams: CreateMutatorParams<T>) => {
+export const createMutator: CreateMutator = async <N extends CollectionNameString>(
+  createMutatorParams: CreateMutatorParams<N>,
+) => {
   let {
     collection,
     document,
@@ -122,10 +127,8 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
 
   const { collectionName } = collection;
   const schema = getSchema(collection);
-  
-  // Cast because the type system doesn't know that the collectionName on a
-  // collection object identifies the collection object type
-  const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
+
+  const hooks = getCollectionHooks(collectionName);
 
   /*
 
@@ -210,22 +213,22 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   logger('before callbacks')
   logger('createBefore')
   document = await hooks.createBefore.runCallbacks({
-    iterator: document as unknown as T, // Pretend this isn't Partial<T>
+    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [properties],
-  }) as unknown as Partial<DbInsertion<T>>;
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newBefore')
   // OpenCRUD backwards compatibility
   document = await hooks.newBefore.runCallbacks({
-    iterator: document as unknown as T, // Pretend this isn't Partial<T>
+    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [
       currentUser
     ]
-  }) as unknown as Partial<DbInsertion<T>>;
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
-    iterator: document as unknown as T, // Pretend this isn't Partial<T>
-    properties: [currentUser]
-  }) as unknown as Partial<DbInsertion<T>>;
+    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
+    properties: [currentUser, context]
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
   /*
 
@@ -233,7 +236,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
 
   */
   logger('inserting into database');
-  (document as any)._id = await Connectors.create(collection, document as unknown as T);
+  (document as any)._id = await Connectors.create(collection, document as ObjectsByCollectionName[N]);
 
   /*
 
@@ -244,18 +247,18 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   logger('after callbacks')
   logger('createAfter')
   document = await hooks.createAfter.runCallbacks({
-    iterator: document as unknown as T, // Pretend this isn't Partial<T>
+    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [properties],
-  }) as unknown as DbInsertion<T>;
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   logger('newAfter')
   // OpenCRUD backwards compatibility
   document = await hooks.newAfter.runCallbacks({
-    iterator: document as unknown as T, // Pretend this isn't Partial<T>
+    iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
     properties: [currentUser]
-  }) as unknown as DbInsertion<T>;
+  }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
   // note: query for document to get fresh document with collection-hooks effects applied
-  let completedDocument: T = document as unknown as T;
+  let completedDocument = document as ObjectsByCollectionName[N];
   const queryResult = await Connectors.get(collection, document._id);
   if (queryResult)
     completedDocument = queryResult;
@@ -269,7 +272,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
   logger('async callbacks')
   logger('createAsync')
   await hooks.createAsync.runCallbacksAsync(
-    [{ ...properties, document: completedDocument as T }],
+    [{ ...properties, document: completedDocument }],
   );
   logger('newAsync')
   // OpenCRUD backwards compatibility
@@ -289,7 +292,7 @@ export const createMutator: CreateMutator = async <T extends DbObject>(createMut
  * in theory you can use a selector, but you should only do this if you're sure
  * there's only one matching document (eg, slug). Returns the modified document.
  */
-export const updateMutator: UpdateMutator = async <T extends DbObject>({
+export const updateMutator: UpdateMutator = async <N extends CollectionNameString>({
   collection,
   documentId,
   selector,
@@ -300,7 +303,7 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
   validate=true,
   context,
   document: oldDocument,
-}: UpdateMutatorParams<T>) => {
+}: UpdateMutatorParams<N>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
   const logger = loggerConstructor(`mutators-${collectionName.toLowerCase()}`);
@@ -319,10 +322,8 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in LWEvents
   let origData = {...data};
-  
-  // Cast because the type system doesn't know that the collectionName on a
-  // collection object identifies the collection object type
-  const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
+
+  const hooks = getCollectionHooks(collectionName);
 
   if (isEmpty(selector)) {
     throw new Error('Selector cannot be empty');
@@ -336,7 +337,7 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
   }
 
   // get a "preview" of the new document
-  let document: T = { ...oldDocument, ...data };
+  let document: ObjectsByCollectionName[N] = { ...oldDocument, ...data };
   // FIXME: Filtering out null-valued fields here is a very sketchy, probably
   // wrong thing to do. This originates from Vulcan, and it's not clear why it's
   // doing it. Explicit cast to make it type-check anyways.
@@ -347,7 +348,7 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
   Properties
 
   */
-  const properties: UpdateCallbackProperties<T> = {
+  const properties: UpdateCallbackProperties<N> = {
     data: data||{},
     oldDocument,
     document,
@@ -536,7 +537,7 @@ export const updateMutator: UpdateMutator = async <T extends DbObject>({
 // Deletes a single database entry, and runs any callbacks/etc that trigger on
 // that. Returns the entry that was deleted.
 //
-export const deleteMutator: DeleteMutator = async <T extends DbObject>({
+export const deleteMutator: DeleteMutator = async <N extends CollectionNameString>({
   collection,
   documentId,
   selector,
@@ -544,15 +545,13 @@ export const deleteMutator: DeleteMutator = async <T extends DbObject>({
   validate=true,
   context,
   document,
-}: DeleteMutatorParams<T>) => {
+}: DeleteMutatorParams<N>) => {
   const { collectionName } = collection;
   const schema = getSchema(collection);
   // OpenCRUD backwards compatibility
   selector = selector || { _id: documentId };
-  
-  // Cast because the type system doesn't know that the collectionName on a
-  // collection object identifies the collection object type
-  const hooks = getCollectionHooks(collectionName) as unknown as CollectionMutationCallbacks<T>;
+
+  const hooks = getCollectionHooks(collectionName);
 
   // If no context is provided, create a new one (so that callbacks will have
   // access to loaders)
@@ -574,7 +573,7 @@ export const deleteMutator: DeleteMutator = async <T extends DbObject>({
   Properties
 
   */
-  const properties: DeleteCallbackProperties<T> = { document, currentUser, collection, context, schema };
+  const properties: DeleteCallbackProperties<N> = { document, currentUser, collection, context, schema };
 
   /*
 

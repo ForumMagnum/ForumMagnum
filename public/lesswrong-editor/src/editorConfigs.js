@@ -98,6 +98,31 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Viewpoints',
+			url: /^viewpoints\.xyz\/polls\/([\w-]+)$/,
+			html: ([match, slug]) => {
+				return `
+					<div data-viewpoints-slug="${slug}" class="viewpoints-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://viewpoints.xyz/embed/polls/${slug}"/>
+					</div>
+				`
+			}
+		},
+		{
+			name: 'Calendly',
+			url: /^calendly\.com\/[\w-]+(\/[\w-]+)?\/?$/,
+			html: ([match]) => {
+				return `
+					<div class="calendly-preview">
+						<iframe
+							sandbox="allow-scripts allow-same-origin allow-forms"
+							src="https://${match}"
+						/>
+					</div>
+				`
+			}
+		}
 	]
 }
 
@@ -108,7 +133,8 @@ export const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
-		'footnote'
+		'ctaButtonToolbarItem',
+		'footnote',
 	],
 	toolbar: {
 		items: [
@@ -129,6 +155,7 @@ export const postEditorConfig = {
 			'|',
 			'trackChanges',
 			'math',
+			'ctaButtonToolbarItem',
 			'footnote',
 		],
 		shouldNotGroupWhenFull: true,
@@ -167,6 +194,7 @@ export const commentEditorConfig = {
 		'numberedList',
 		'|',
 		'math',
+		'ctaButtonToolbarItem',
 		'footnote',
 	],
 	image: {
@@ -185,4 +213,3 @@ export const commentEditorConfig = {
 	math: mathConfig,
 	mediaEmbed: embedConfig,
 };
-

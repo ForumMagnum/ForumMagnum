@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, {ComponentProps, useState, useEffect, useRef} from 'react';
+import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -17,13 +17,16 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-export type CommentFormDisplayMode = "default" | "minimalist"
+export type FormDisplayMode = "default" | "minimalist"
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: isEAForum ? {
+export const COMMENTS_NEW_FORM_PADDING = isFriendlyUI ? 12 : 10;
+
+const styles = (theme: ThemeType) => ({
+  root: isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
     }
@@ -39,14 +42,37 @@ const styles = (theme: ThemeType): JssStyles => ({
       flexDirection: "row",
     }
   },
+  rootQuickTakes: {
+    "& .form-component-EditorFormComponent": {
+      background: theme.palette.grey[100],
+      padding: COMMENTS_NEW_FORM_PADDING,
+      borderTopLeftRadius: theme.borderRadius.quickTakesEntry,
+      borderTopRightRadius: theme.borderRadius.quickTakesEntry,
+    },
+  },
+  quickTakesSubmitButtonAtBottom: isFriendlyUI
+    ? {
+      "& .form-component-EditorFormComponent": {
+        background: "transparent",
+        borderRadius: theme.borderRadius.quickTakesEntry,
+      },
+      "& .form-input": {
+        padding: "0 20px",
+      },
+    }
+    : {},
   loadingRoot: {
     opacity: 0.5
   },
   form: {
-    padding: isEAForum ? 12 : 10,
+    padding: COMMENTS_NEW_FORM_PADDING,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
+  },
+  quickTakesForm: {
+    display: 'flex',
+    flexDirection: 'column',
   },
   rateLimitNote: {
     paddingTop: '4px',
@@ -59,7 +85,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     textAlign: 'right',
   },
-  formButton: isEAForum ? {
+  submitQuickTakes: {
+    background: theme.palette.grey[100],
+    padding: COMMENTS_NEW_FORM_PADDING,
+    borderBottomLeftRadius: theme.borderRadius.quickTakesEntry,
+    borderBottomRightRadius: theme.borderRadius.quickTakesEntry,
+  },
+  submitQuickTakesButtonAtBottom: isFriendlyUI
+    ? {
+      marginTop: 20,
+      padding: 20,
+      borderTop: `1px solid ${theme.palette.grey[300]}`,
+    }
+    : {},
+  formButton: isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',
@@ -67,7 +106,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: 'none',
     marginLeft: 8,
   } : {
-    paddingBottom: "2px",
     fontSize: "16px",
     color: theme.palette.lwTertiary.main,
     marginLeft: "5px",
@@ -77,9 +115,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   cancelButton: {
-    color: isEAForum ? undefined : theme.palette.grey[400],
+    color: isFriendlyUI ? undefined : theme.palette.grey[400],
   },
-  submitButton: isEAForum ? {
+  submitButton: isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
     '&:disabled': {
@@ -119,6 +157,11 @@ const shouldOpenNewUserGuidelinesDialog = (
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
+const getSubmitLabel = (isQuickTake: boolean) => {
+  if (!isFriendlyUI) return 'Submit'
+  return isQuickTake ? 'Publish' : 'Comment'
+}
+
 export type BtnProps = {
   variant?: 'contained',
   color?: 'primary',
@@ -136,7 +179,7 @@ export type CommentsNewFormProps = {
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
-  parentComment?: any,
+  parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,
@@ -144,10 +187,12 @@ export type CommentsNewFormProps = {
   fragment?: FragmentName,
   formProps?: any,
   enableGuidelines?: boolean,
-  padding?: boolean
-  replyFormStyle?: CommentFormDisplayMode
-  classes: ClassesType
-  className?: string
+  padding?: boolean,
+  formStyle?: FormDisplayMode,
+  overrideHintText?: string,
+  quickTakesSubmitButtonAtBottom?: boolean,
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }
 
 const CommentsNewForm = ({
@@ -164,9 +209,11 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  replyFormStyle="default",
-  classes,
+  formStyle="default",
+  overrideHintText,
+  quickTakesSubmitButtonAtBottom,
   className,
+  classes,
 }: CommentsNewFormProps) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
@@ -180,6 +227,7 @@ const CommentsNewForm = ({
     extraVariablesValues: { postId: post?._id },
     fetchPolicy: "cache-and-network",
     skip: !currentUser,
+    ssr: false
   });
   const userNextAbleToComment = userWithRateLimit?.document?.rateLimitNextAbleToComment;
   const lastRateLimitExpiry: Date|null = (userNextAbleToComment && new Date(userNextAbleToComment.nextEligible)) ?? null;
@@ -199,12 +247,12 @@ const CommentsNewForm = ({
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = replyFormStyle === "minimalist"
+  const isQuickTake = !!prefilledProps.shortform
+  const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning, RateLimitWarning } = Components
-  
+
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -216,21 +264,23 @@ const CommentsNewForm = ({
   // doesn't work (the focus event fires before the click event, the state change
   // causes DOM nodes to get replaced, and replacing the DOM nodes prevents the
   // rest of the click event handlers from firing.)
-  const onFocusCommentForm = () => setTimeout(() => {
-    // TODO: user field for showing new user guidelines
-    // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
-    const dialogProps = { user: currentUser, post };
-    if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
-      openDialog({
-        componentName: 'NewUserGuidelinesDialog',
-        componentProps: dialogProps,
-        noClickawayCancel: true
-      });
-    }
-    if (!isEAForum) {
-      setShowGuidelines(true);
-    }
-  }, 0);
+  const onFocusCommentForm: React.FocusEventHandler = () => {
+    setTimeout(() => {
+      // TODO: user field for showing new user guidelines
+      // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
+      const dialogProps = { user: currentUser, post };
+      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+        openDialog({
+          componentName: 'NewUserGuidelinesDialog',
+          componentProps: dialogProps,
+          noClickawayCancel: true
+        });
+      }
+      if (isLWorAF) {
+        setShowGuidelines(true);
+      }
+    }, 0);
+  };
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
@@ -275,16 +325,21 @@ const CommentsNewForm = ({
     };
   }
 
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
+  const SubmitComponent = useCallback(({submitLabel = "Submit"}) => {
+    const { Loading } = Components;
     const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
     // by default, the EA Forum uses MUI contained buttons here
-    const cancelBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained'} : {}
-    const submitBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
+    const cancelBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained'} : {}
+    const submitBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
     if (formDisabledDueToRateLimit) {
       submitBtnProps.disabled = true
     }
-    
-    return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist})}>
+
+    return <div className={classNames(classes.submit, {
+      [classes.submitMinimalist]: isMinimalist,
+      [classes.submitQuickTakes]: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI),
+      [classes.submitQuickTakesButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
+    })}>
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}
@@ -310,12 +365,15 @@ const CommentsNewForm = ({
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
-  };
+  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, isQuickTake, loading, openDialog, type, quickTakesSubmitButtonAtBottom]);
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
     currentUser && !currentUser.isReviewed 
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const extraFormProps = {
+    ...(isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}),
+    ...(overrideHintText ? {editorHintText: overrideHintText} : {})
+  }
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -336,14 +394,29 @@ const CommentsNewForm = ({
     return <span>Sorry, you do not have permission to comment at this time.</span>
   }
 
+  const {
+    ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning,
+    NewCommentModerationWarning, RateLimitWarning, FormGroupQuickTakes,
+    FormGroupNoStyling,
+  } = Components;
   return (
     <div className={classNames(
       className,
       isMinimalist ? classes.rootMinimalist : classes.root,
-      {[classes.loadingRoot]: loading}
+      {
+        [classes.loadingRoot]: loading,
+        [classes.rootQuickTakes]: isQuickTake,
+        [classes.quickTakesSubmitButtonAtBottom]: isQuickTake && quickTakesSubmitButtonAtBottom,
+      }
     )} onFocus={onFocusCommentForm}>
       <RecaptchaWarning currentUser={currentUser}>
-        <div className={padding ? classNames({[classes.form]: !isMinimalist, [classes.formMinimalist]: isMinimalist}) : undefined}>
+        <div className={padding
+          ? classNames({
+            [classes.form]: !isMinimalist && !(isQuickTake && quickTakesSubmitButtonAtBottom),
+            [classes.formMinimalist]: isMinimalist,
+          })
+          : undefined
+        }>
           {formDisabledDueToRateLimit && <RateLimitWarning lastRateLimitExpiry={lastRateLimitExpiry} rateLimitMessage={rateLimitMessage} />}
           <div onFocus={(ev) => {
             afNonMemberDisplayInitialPopup(currentUser, openDialog)
@@ -366,16 +439,19 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: Components.DefaultStyleFormGroup
+                FormGroupLayout: isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI)
+                  ? FormGroupQuickTakes
+                  : FormGroupNoStyling,
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}
               removeFields={removeFields}
               formProps={{
+                formClassName: isQuickTake ? classes.quickTakesForm : '',
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum && !prefilledProps.shortform ? 'Comment' : 'Submit'}
+              submitLabel={getSubmitLabel(isQuickTake)}
             />
           </div>
         </div>

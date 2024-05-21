@@ -3,18 +3,16 @@ import { createIndex, dropIndex } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   for (const collection of getAllCollections()) {
-    if (collection.isPostgres()) {
-      const table = collection.getTable();
-      for (const index of table.getIndexes()) {
-        if (index.isUnique() || index.getPartialFilterExpression()) {
-          try {
-            await dropIndex(db, collection, index);
-          } catch {
-            // eslint-disable-next-line no-console
-            console.warn("Index doesn't exist:", index);
-          }
-          await createIndex(db, collection, index);
+    const table = collection.getTable();
+    for (const index of table.getIndexes()) {
+      if (index.isUnique() || index.getPartialFilterExpression()) {
+        try {
+          await dropIndex(db, collection, index);
+        } catch {
+          // eslint-disable-next-line no-console
+          console.warn("Index doesn't exist:", index);
         }
+        await createIndex(db, collection, index, true, false);
       }
     }
   }

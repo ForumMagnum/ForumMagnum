@@ -2,14 +2,15 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { blackBarTitle } from '../../lib/publicSettings';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: isEAForum ? undefined : 'uppercase',
-    color: theme.palette.header.text,
+    textTransform: isFriendlyUI ? undefined : 'uppercase',
+    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
 });
@@ -23,7 +24,7 @@ const HeaderSubtitle = ({classes}: {
   }
 
   const SubtitleComponent: any = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
-  const subtitleString = currentRoute.subtitle;
+  const subtitleString = currentRoute.headerSubtitle ?? currentRoute.subtitle;
   const subtitleLink = currentRoute.subtitleLink;
 
   if (SubtitleComponent) {

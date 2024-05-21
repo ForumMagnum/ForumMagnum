@@ -9,7 +9,7 @@ export const flatten = function(data: AnyBecauseTodo) {
       result[prop] = cur;
     } else if (Array.isArray(cur)) {
       for (var i = 0, l = cur.length; i < l; i++) recurse(cur[i], prop + '[' + i + ']');
-      if (l == 0) result[prop] = [];
+      if (l === 0) result[prop] = [];
     } else {
       var isEmpty = true;
       for (var p in cur) {
@@ -24,7 +24,7 @@ export const flatten = function(data: AnyBecauseTodo) {
 };
 
 export const isEmptyValue = (value: AnyBecauseTodo) =>
-  typeof value === 'undefined' || value === null || value === '' || (Array.isArray(value) && value.length === 0);
+  typeof value === 'undefined' || value === null || value === '';
 
 
 /**

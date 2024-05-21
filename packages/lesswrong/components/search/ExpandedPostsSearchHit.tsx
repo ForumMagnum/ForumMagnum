@@ -1,11 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -61,13 +60,12 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation()
-  
+  const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components
-  const post: AlgoliaPost = hit
+  const post: SearchPost = hit
   
   const handleClick = () => {
-    history.push(postGetPageUrl(post))
+    navigate(postGetPageUrl(post))
   }
 
   return <div className={classes.root} onClick={handleClick}>

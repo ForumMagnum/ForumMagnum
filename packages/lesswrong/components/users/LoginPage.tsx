@@ -1,35 +1,30 @@
+import React, { useEffect } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import React, { Component } from 'react';
-import { withNavigation } from '../../lib/routeUtil';
-import withUser from '../common/withUser';
+import { useCurrentUser } from '../common/withUser';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
-interface LoginPageProps extends WithUserProps {
-  history: any,
-}
+const LoginPage = () => {
+  const currentUser = useCurrentUser();
+  const navigate = useNavigate();
 
-class LoginPage extends Component<LoginPageProps,{}> {
-  UNSAFE_componentWillMount() {
+  useEffect(() => {
     // If already logged in, redirect to the front page
-    if (this.props.currentUser) {
-      this.props.history.push({pathname: "/"});
+    if (currentUser) {
+      navigate({pathname: "/"});
     }
-  }
-  
-  render() {
-    if (this.props.currentUser) {
-      // If already logged in, leave page body blank. You won't see it for more
-      // than a flash anyways because a redirect will have been started by
-      // `componentWillMount`.
-      return <div />
-    } else {
-      return <Components.WrappedLoginForm />;
-    }
+  }, [currentUser, navigate]);
+
+  if (currentUser) {
+    // If already logged in, leave page body blank. You won't see it for more
+    // than a flash anyways because a redirect will have been started by
+    // `componentWillMount`.
+    return <div />;
+  } else {
+    return <Components.LoginForm />;
   }
 }
 
-const LoginPageComponent = registerComponent('LoginPage', LoginPage, {
-  hocs: [withUser, withNavigation]
-});
+const LoginPageComponent = registerComponent('LoginPage', LoginPage);
 
 declare global {
   interface ComponentTypes {

@@ -38,10 +38,8 @@ import { addField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   // Add the new field
-  if (Tags.isPostgres()) {
-    await addField(db, Tags, "subTagIds");
-  }
-  
+  await addField(db, Tags, "subTagIds");
+
   // Materialize subTagIds for existing parent/subtag relationships
   const parentTags = await db.any(`SELECT "parentTagId", array_agg("_id") as ids FROM "Tags" WHERE "parentTagId" IS NOT NULL GROUP BY "parentTagId";`);
   for (const {parentTagId, ids} of parentTags) {

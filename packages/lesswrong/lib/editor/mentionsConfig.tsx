@@ -1,4 +1,4 @@
-import {AlgoliaIndexCollectionName, getAlgoliaIndexName, getSearchClient} from '../search/algoliaUtil'
+import {SearchIndexCollectionName, getSearchIndexName, getSearchClient} from '../search/searchUtil'
 import {Components, getSiteUrl} from '../vulcan-lib'
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -30,8 +30,8 @@ const markers = {
 
 const linkPrefix = getSiteUrl()
 
-function initSearchForIndex<T>(collectionName: AlgoliaIndexCollectionName) {
-  const indexName = getAlgoliaIndexName(collectionName);
+function initSearchForIndex<T>(collectionName: SearchIndexCollectionName) {
+  const indexName = getSearchIndexName(collectionName);
   const searchClient = getSearchClient();
   return async (
     query: string,

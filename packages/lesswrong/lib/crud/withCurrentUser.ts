@@ -10,7 +10,7 @@ import { hookToHoc } from '../hocUtils';
  * context.
  */
 export const useQueryCurrentUser = () => {
-  const {data, loading} = useQuery(gql`
+  const {data, refetch, loading} = useQuery(gql`
     query getCurrentUser {
       currentUser {
         ...UsersCurrent
@@ -24,6 +24,7 @@ export const useQueryCurrentUser = () => {
   
   return {
     currentUser: data?.currentUser,
+    refetchCurrentUser: refetch,
     currentUserLoading: loading,
   }
 }

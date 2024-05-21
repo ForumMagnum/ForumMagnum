@@ -1,4 +1,4 @@
-import { registerMigration, fillDefaultValues, migrateDocuments } from "./migrationUtils";
+import { registerMigration, migrateDocuments } from "./migrationUtils";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { EmailTokens } from "../../lib/collections/emailTokens/collection";
 import FeaturedResources from "../../lib/collections/featuredResources/collection";
@@ -11,8 +11,8 @@ import ReadStatuses from "../../lib/collections/readStatus/collection";
 import {Votes} from "../../lib/collections/votes";
 import Revisions from "../../lib/collections/revisions/collection";
 
-const initCreatedAt = <T extends DbObject>(
-  collection: CollectionBase<T>,
+const initCreatedAt = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
   existingField = "",
 ): Promise<void> =>
   migrateDocuments({
@@ -22,8 +22,8 @@ const initCreatedAt = <T extends DbObject>(
     unmigratedDocumentQuery: {
       createdAt: {$exists: false},
     },
-    migrate: async (documents: T[]) => {
-      const updates = documents.map((document: T) => ({
+    migrate: async (documents: ObjectsByCollectionName[N][]) => {
+      const updates = documents.map((document: ObjectsByCollectionName[N]) => ({
         updateOne: {
           filter: {_id: document._id},
           update: {

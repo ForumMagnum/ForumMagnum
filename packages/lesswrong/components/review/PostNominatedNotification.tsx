@@ -3,8 +3,8 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { forumTitleSetting } from '../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip';
-import { notificationLoadingStyles } from '../posts/PostsPreviewTooltipSingle';
+import { POST_PREVIEW_WIDTH } from '../posts/PostsPreviewTooltip/helpers';
+import { notificationLoadingStyles } from '../posts/PostsPreviewTooltip/PostsPreviewLoading';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostNominatedNotification = ({classes, postId}:{classes:ClassesType, postId:string}) => {
+const PostNominatedNotification = ({classes, postId}: {classes: ClassesType, postId: string}) => {
 
   const { Loading, PostsTitle, ReviewPostButton, LWTooltip, ContentStyles } = Components
 

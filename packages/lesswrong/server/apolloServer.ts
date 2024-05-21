@@ -1,10 +1,10 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import { pickerMiddleware } from './vendor/picker';
+import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
@@ -20,19 +20,19 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettingsLoaded } from '../lib/settingsCache';
+import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
-import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -48,23 +48,108 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
+import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { createAnonymousContext } from './vulcan-lib/query';
+import { randomId } from '../lib/random';
+import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
+import { SSRMetadata } from '../lib/utils/timeUtil';
+import type { RouterLocation } from '../lib/vulcan-lib/routes';
 
-class ApolloServerLogging {
-  requestDidStart(context: any) {
-    const {request} = context;
-    const {operationName, query, variables} = request;
-    logGraphqlQueryStarted(operationName, query, variables);
+/**
+ * Try to set the response status, but log an error if the headers have already been sent.
+ */
+const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
+  if (!response.headersSent) {
+    response.status(status);
+  } else if (response.statusCode !== status) {
+    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
+    if (isProduction) {
+      // eslint-disable-next-line no-console
+      console.error(message);
+    } else {
+      throw new Error(message);
+    }
+  }
+
+  return response;
+}
+
+/**
+ * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
+ */
+const maybePrefetchResources = async ({
+  request,
+  response,
+  parsedRoute,
+  prefetchPrefix
+}: {
+  request: express.Request;
+  response: express.Response;
+  parsedRoute: RouterLocation,
+  prefetchPrefix: string;
+}) => {
+
+  const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
+  const prefetchResources =
+    typeof enableResourcePrefetch === "function"
+      ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
+      : enableResourcePrefetch;
+
+  if (prefetchResources) {
+    response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
+    trySetResponseStatus({ response, status: 200 });
+    response.write(prefetchPrefix);
+  }
+  return prefetchResources;
+};
+
+class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
+  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
+    const { operationName = 'unknownGqlOperation', query, variables } = request;
+
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
+
+    let startedRequestMetric: IncompletePerfMetric;
+    if (performanceMetricLoggingEnabled.get()) {
+      startedRequestMetric = openPerfMetric({
+        op_type: 'query',
+        op_name: operationName,
+        parent_trace_id: context.perfMetric?.trace_id,
+        extra_data: filteredVariables,
+        gql_string: query
+      });  
+    }
+
+    if (query) {
+      logGraphqlQueryStarted(operationName, query, variables);
+    }
     
     return {
-      willSendResponse(props: AnyBecauseTodo) {
-        logGraphqlQueryFinished(operationName, query);
+      willSendResponse() { // hook for transaction finished
+        if (performanceMetricLoggingEnabled.get()) {
+          closePerfMetric(startedRequestMetric);
+        }
+
+        if (query) {
+          logGraphqlQueryFinished(operationName, query);
+        }
       }
     };
   }
 }
 
+export type AddMiddlewareType = typeof app.use;
+
 export function startWebserver() {
-  const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
+  const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
@@ -99,11 +184,24 @@ export function startWebserver() {
   app.use('/analyticsEvent', express.json({ limit: '50mb' }));
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
+  if (isElasticEnabled) {
+    // We register this here (before the auth middleware) to avoid blocking
+    // search requests whilst waiting to fetch the current user from Postgres,
+    // which is never actually used.
+    ElasticController.addRoutes(app);
+  }
+
   addStripeMiddleware(addMiddleware);
+  // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
+  addAdminRoutesMiddleware(addMiddleware);
+  addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
+  addCacheControlMiddleware(addMiddleware);
   addClientIdMiddleware(addMiddleware);
-  app.use(datadogMiddleware);
+  if (isDatadogEnabled) {
+    app.use(datadogMiddleware);
+  }
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
@@ -132,17 +230,19 @@ export function startWebserver() {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
+      setAsyncStoreValue('resolverContext', context);
       return context;
     },
-    plugins: [new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging()],
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
+  app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
+    const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
     let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
@@ -182,7 +282,14 @@ export function startWebserver() {
   
   // Static files folder
   app.use(express.static(path.join(__dirname, '../../client')))
-  app.use(express.static(path.join(__dirname, '../../../public')))
+  app.use(express.static(path.join(__dirname, '../../../public'), {
+    setHeaders: (res, requestPath) => {
+      const relativePath = path.relative(__dirname, requestPath);
+      if (relativePath.startsWith("../../../public/reactionImages")) {
+        res.set("Cache-Control", "public, max-age=604800, immutable");
+      }
+    }
+  }))
   
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware({
@@ -195,27 +302,28 @@ export function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (forumTypeSetting.get() !== 'EAForum') {
+    if (!isEAForum) {
       next()
       return
     }
     
-    const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
-      res.status(403).send("Not logged in or current user has no email address")
+    const currentUser = getUserFromReq(req)
+    if (!currentUser) {
+      res.status(403).send("Not logged in")
+      return
+    }
+
+    const userEmail = getUserEmail(currentUser)
+    if (!userEmail) {
+      res.status(403).send("User does not have email")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
-    res.send(eagApp)
+    const eagApp = await getEAGApplicationData(userEmail)
   })
 
   addCrosspostRoutes(app);
   addCypressRoutes(app);
-
-  if (isElasticEnabled) {
-    ElasticController.addRoutes(app);
-  }
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -226,11 +334,24 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
 
+  app.get('/node_modules/*', (req, res) => {
+    // Under some circumstances (I'm not sure exactly what the trigger is), the
+    // Chrome JS debugger tries to load a bunch of /node_modules/... paths
+    // (presumably for some sort of source mapping). If these were treated as
+    // normal pageloads, this would produce a ton of console-log spam, which is
+    // disruptive. So instead just serve a minimal 404.
+    res.status(404);
+    res.end("");
+  });
+
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
-    const {bundleHash} = getClientBundle();
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
+
+    const bundleHash = getClientBundle().resource.hash;
+    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
@@ -240,9 +361,8 @@ export function startWebserver() {
     const parsedRoute = parseRoute({
       location: parsePath(request.url)
     });
-    const prefetchResources = parsedRoute.currentRoute?.enableResourcePrefetch;
     
-    const user = await getUserFromReq(request);
+    const user = getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
     const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
@@ -250,6 +370,11 @@ export function startWebserver() {
     ).join("");
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+
+    // Inject a tab ID into the page, by injecting a script fragment that puts
+    // it into a global variable. If the response is cacheable (same html may be used
+    // by multiple tabs), this is generated in `clientStartup.ts` instead.
+    const tabId = responseIsCacheable(response) ? null : randomId();
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -264,17 +389,30 @@ export function startWebserver() {
         + externalStylesPreload
         + instanceSettingsHeader
         + faviconHeader
+        // Embedded script tags that must precede the client bundle
+        + publicSettingsHeader
+        + embedAsGlobalVar("tabId", tabId)
+        // The client bundle. Because this uses <script async>, its load order
+        // relative to any scripts that come later than this is undetermined and
+        // varies based on timings and the browser cache.
         + clientScript
     );
-    
-    if (prefetchResources) {
-      response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-      response.status(200);
-      response.write(prefetchPrefix);
+
+    // Note: this may write to the response
+    const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
+
+    const renderResultPromise = performanceMetricLoggingEnabled.get()
+      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
+      : renderWithCache(request, response, user, tabId);
+
+    const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
+
+    if (renderResult.aborted) {
+      trySetResponseStatus({ response, status: 499 });
+      response.end();
+      return;
     }
-    
-    const renderResult = await renderWithCache(request, response, user);
-    
+
     const {
       ssrBody,
       headers,
@@ -284,34 +422,38 @@ export function startWebserver() {
       status,
       redirectUrl,
       renderedAt,
+      timezone,
+      cacheFriendly,
       allAbTestGroups,
     } = renderResult;
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
     // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
     const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
     
     // Finally send generated HTML with initial data to the client
-    if (redirectUrl && !prefetchResources) {
+    if (redirectUrl) {
       // eslint-disable-next-line no-console
       console.log(`Redirecting to ${redirectUrl}`);
-      response.status(status||301).redirect(redirectUrl);
+      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
     } else {
-      if (!prefetchResources) {
-        response.status(status||200);
-        response.write(prefetchPrefix);
+      trySetResponseStatus({ response, status: status || 200 });
+      const ssrMetadata: SSRMetadata = {
+        renderedAt: renderedAt.toISOString(),
+        cacheFriendly,
+        timezone
       }
+
       response.write(
-        // <html><head> opened by the prefetch prefix
-          headers.join('\n')
+        (prefetchingResources ? '' : prefetchPrefix)
+          + headers.join('\n')
           + themeOptionsHeader
           + jssSheets
         + '</head>\n'
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody + '\n'
         + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
         + '</html>\n')

@@ -1,6 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbReport> = {
+const schema: SchemaType<"Reports"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -13,6 +13,7 @@ const schema: SchemaType<DbReport> = {
     canCreate: ['members'],
     hidden: true,
     optional: true,
+    nullable: false
   },
   reportedUserId: {
     ...foreignKeyField({
@@ -85,6 +86,7 @@ const schema: SchemaType<DbReport> = {
   },
   closedAt: {
     optional: true,
+    nullable: true,
     type: Date,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],

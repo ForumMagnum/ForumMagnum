@@ -54,12 +54,12 @@ export async function annotateAuthors(documentId: string, collectionName: string
   
   for (let i=1; i<revsByDate.length; i++) {
     const rev = revsByDate[i];
-    const prevHtml = revsByDate[i-1].html;
-    const newHtml = rev.html;
-    attributions = attributeEdits(prevHtml, newHtml, rev.userId, attributions);
+    const prevHtml = revsByDate[i-1].html ?? "";
+    const newHtml = rev.html ?? "";
+    attributions = attributeEdits(prevHtml, newHtml, rev.userId!, attributions);
   }
   
-  return attributionsToSpans(finalRev.html, attributions);
+  return attributionsToSpans(finalRev.html!, attributions);
 }
 
 function annotateInsDel(root: cheerio.Root): InsDelUnc[] {
@@ -161,7 +161,7 @@ export const attributeEdits = (oldHtml: string, newHtml: string, userId: string,
   return newAttributions;
 }
 
-function walkHtmlPreorder<T>(node: cheerio.Element, props: T, callback: (node: cheerio.Element, props: T)=>T) {
+function walkHtmlPreorder<T>(node: cheerio.Element, props: T, callback: (node: cheerio.Element, props: T) => T) {
   const childProps: T = callback(node, props);
   //@ts-ignore
   if (node.type==="tag" || node.type==="root") {
@@ -171,7 +171,7 @@ function walkHtmlPreorder<T>(node: cheerio.Element, props: T, callback: (node: c
   }
 }
 
-function mapHtmlPostorder($: cheerio.Root, node: cheerio.Element, callback: (node: cheerio.Cheerio)=>cheerio.Cheerio): cheerio.Cheerio {
+function mapHtmlPostorder($: cheerio.Root, node: cheerio.Element, callback: (node: cheerio.Cheerio) => cheerio.Cheerio): cheerio.Cheerio {
   //@ts-ignore
   if (node.type==="tag" || node.type==="root") {
     const $copiedNode = $(node).clone();

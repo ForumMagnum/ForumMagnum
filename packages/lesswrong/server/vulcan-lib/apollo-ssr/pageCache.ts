@@ -1,6 +1,6 @@
 import LRU from 'lru-cache';
 import type { RenderResult } from './renderPage';
-import type { CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
+import { CompleteTestGroupAllocation, RelevantTestGroupAllocation, getABTestsMetadata } from '../../../lib/abTestImpl';
 import { Globals } from '../../../lib/vulcan-lib';
 import type { Request } from 'express';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
@@ -8,10 +8,10 @@ import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../
 import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
-import PageCache from '../../../lib/collections/pagecache/collection';
-import { getServerBundleHash } from '../../utils/bundleUtils';
-import PageCacheRepo from '../../repos/PageCacheRepo';
+import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
+import { isDatadogEnabled } from '../../../lib/instanceSettings';
+import stringify from 'json-stringify-deterministic';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
 // to handle the baseload of traffic going to the front page and to pages that
@@ -29,7 +29,6 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
-const maxCacheAgeMs = 90*1000;
 
 const pageCache = new LRU<string,RenderResult>({
   max: maxPageCacheSizeBytes,
@@ -67,7 +66,7 @@ let keysToCheckForExpiredEntries: Array<string> = [];
 export const cacheKeyFromReq = (req: Request): string => {
   const timezoneCookie = getCookieFromReq(req, "timezone");
   const themeCookie = getCookieFromReq(req, "theme");
-  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : JSON.stringify(getDefaultThemeOptions());
+  const themeOptions = themeCookie && isValidSerializedThemeOptions(themeCookie) ? themeCookie : stringify(getDefaultThemeOptions());
   const path = getPathFromReq(req);
   
   if (timezoneCookie)
@@ -84,13 +83,26 @@ type InProgressRender = {
 
 const inProgressRenders: Record<string,Array<InProgressRender>> = {};
 
+function filterLoggedOutActiveAbTestGroups(abTestGroups: CompleteTestGroupAllocation): RelevantTestGroupAllocation {
+  const abTests = getABTestsMetadata();
+  let result: RelevantTestGroupAllocation = {};
+  for (const name of Object.keys(abTestGroups)) {
+    const abTest = abTests[name];
+    if (abTest.active && abTest.affectsLoggedOut)
+      result[name] = abTestGroups[name];
+    
+  }
+  return result;
+}
+
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req:Request)=>Promise<RenderResult>) => {
+export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req: Request) => Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
-  const cached = await cacheLookup(cacheKey, abTestGroups);
+  const cacheAffectingAbTestGroups = filterLoggedOutActiveAbTestGroups(abTestGroups);
+  const cached = await cacheLookup(cacheKey, cacheAffectingAbTestGroups);
   
   // If already cached, return the cached version
   if (cached) {
@@ -105,7 +117,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   
   if (cacheKey in inProgressRenders) {
     for (let inProgressRender of inProgressRenders[cacheKey]) {
-      if (objIsSubset(abTestGroups, inProgressRender.abTestGroups)) {
+      if (objIsSubset(cacheAffectingAbTestGroups, inProgressRender.abTestGroups)) {
         //eslint-disable-next-line no-console
         console.log(`Merging request for ${path} into in-progress render`);
         const result = await inProgressRender.renderPromise;
@@ -116,7 +128,7 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
       }
     }
     //eslint-disable-next-line no-console
-    console.log(`In progress render merge of ${cacheKey} missed: mismatched A/B test groups (requested: ${JSON.stringify(abTestGroups)}, available: ${JSON.stringify(inProgressRenders[cacheKey].map(r=>r.abTestGroups))})`);
+    console.log(`In progress render merge of ${cacheKey} missed: mismatched A/B test groups (requested: ${JSON.stringify(cacheAffectingAbTestGroups)}, available: ${JSON.stringify(inProgressRenders[cacheKey].map(r=>r.abTestGroups))})`);
   }
   
   recordCacheMiss({path, userAgent: userAgent ?? ''});
@@ -125,7 +137,11 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   
   const renderPromise = renderFn(req);
   
-  const inProgressRender = { cacheKey, abTestGroups, renderPromise };
+  const inProgressRender = {
+    cacheKey,
+    abTestGroups: cacheAffectingAbTestGroups,
+    renderPromise
+  };
   if (cacheKey in inProgressRenders) {
     inProgressRenders[cacheKey].push(inProgressRender);
   } else {
@@ -133,9 +149,11 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   }
   
   const rendered = await renderPromise;
-  // eslint-disable-next-line no-console
-  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
-  cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
+  if (!rendered.aborted) {
+    // eslint-disable-next-line no-console
+    console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
+    cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
+  }
   
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
   if (!inProgressRenders[cacheKey].length)
@@ -187,7 +205,10 @@ const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAl
 
   // eslint-disable-next-line no-console
   console.log(`DB cache hit for cacheKey ${cacheKey}`);
-  return cacheResult?.renderResult;
+  return {
+    ...cacheResult?.renderResult,
+    aborted: false
+  };
 }
 
 const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {
@@ -225,26 +246,7 @@ const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAlloca
 }
 
 const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
-  const bundleHash = getServerBundleHash();
-
-  void PageCache.rawUpdateOne(
-    {
-      path: cacheKey,
-      abTestGroups: abTestGroups,
-      bundleHash,
-    },
-    {
-      $set: {
-        ttlMs: maxCacheAgeMs,
-        renderedAt: new Date(),
-        expiresAt: new Date(Date.now() + maxCacheAgeMs),
-        renderResult: rendered,
-      },
-    },
-    {
-      upsert: true,
-    }
-  );
+  void new PageCacheRepo().upsertPageCacheEntry(cacheKey, abTestGroups, rendered);
 }
 
 const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
@@ -280,27 +282,29 @@ export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: st
   const userType = cacheEvent.userAgent === healthCheckUserAgentSetting.get() ? "health_check" : "likely_real_user";
 
   const expandedCacheEvent = {...cacheEvent, userType};
-  dogstatsd.increment("cache_event", expandedCacheEvent)
+  if (isDatadogEnabled && dogstatsd) {
+    dogstatsd.increment("cache_event", expandedCacheEvent)
+  }
 }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "hit"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "hit"}); // Useful for debugging, but expensive to track all the time
   cacheHits++;
   cacheQueriesTotal++;
 }
 export function recordCacheMiss(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "miss"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "miss"}); // Useful for debugging, but expensive to track all the time
   cacheQueriesTotal++;
 }
 export function recordCacheBypass(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "bypass"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "bypass"}); // Useful for debugging, but expensive to track all the time
   cacheQueriesTotal++;
 }
 export function getCacheHitRate() {
   return cacheHits / cacheQueriesTotal;
 }
 
-function printCacheState(options:any={}) {
+function printCacheState(options: any={}) {
   const {pruneCache=false} = options;
   // eslint-disable-next-line no-console
   const log = console.log;

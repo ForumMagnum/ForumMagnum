@@ -15,7 +15,7 @@ describe('Messages', function() {
     cy.get('[data-cy=message]').click();
     cy.contains('Test seeded message').should('exist');
     cy.get('.ck-editor__editable').type(testReply);
-    cy.contains("Submit").click();
+    cy.get('#new-message-submit').click();
     cy.contains('.MessageItem-messageBody', testReply).should('exist');
   });
 });

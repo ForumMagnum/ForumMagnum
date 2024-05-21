@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { CommentFormDisplayMode } from './CommentsNewForm';
+import type { FormDisplayMode } from './CommentsNewForm';
 
 export interface CommentTreeOptions {
   /**
@@ -57,7 +57,7 @@ export interface CommentTreeOptions {
    * Refetch whatever query generated this comment tree. Called after
    * replying to or editing a comment..
    */
-  refetch?: ()=>void,
+  refetch?: () => void,
   
   /**
    * If passed, expanding this comment (from single-line or truncated)
@@ -129,16 +129,16 @@ export interface CommentTreeOptions {
   noHash?: boolean,
   
   /**
-   * If provided, overrides the style of the reply button and reply
-   * form. Used in subforums.
+   * "default" | "minimalist" . If "minimalist", overrides the style of the reply button
+   * and reply form to be more like a chat interface.
    */
-  replyFormStyle?: CommentFormDisplayMode,
+  formStyle?: FormDisplayMode,
   
   /**
    * If provided, Reply buttons are replaced with something else. Used
    * in side-comments, to replace Reply with See In Context.
    */
-  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,)=>ReactNode
+  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,) => ReactNode
   
   /**
    * Which comment in the tree is moderated, if any.
@@ -168,4 +168,11 @@ export interface CommentTreeOptions {
    * Used to prevent us displaying quick takes multiple times
    */
   hideParentCommentToggleForTopLevel?: boolean,
+  
+  /**
+   * Comments have backgrounds in alternating colors, depending whether their
+   * nesting level is even or odd. If set, toggle which nesting level gets which
+   * background.
+   */
+  switchAlternatingHighlights?: boolean,
 }

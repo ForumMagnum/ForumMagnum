@@ -1,6 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbLWEvent> = {
+const schema: SchemaType<"LWEvents"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

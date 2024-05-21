@@ -1,4 +1,4 @@
-const schema: SchemaType<DbDigest> = {
+const schema: SchemaType<"Digests"> = {
   // the digest number (should correspond with the email digest)
   num: {
     type: Number,

@@ -3,11 +3,11 @@ import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../li
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
 
-export type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
+type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
   getSortKey: (item: ResultType) => SortKeyType,
   isNumericallyPositioned?: boolean,
-  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Array<ResultType>>,
+  doQuery: (limit: number, cutoff?: SortKeyType) => Promise<Partial<ResultType>[]>,
 }
 
 export type SortDirection = "asc" | "desc";
@@ -17,26 +17,29 @@ export type SubquerySortField<ResultType extends DbObject, SortFieldName extends
   sortDirection?: SortDirection,
 }
 
-export type ViewBasedSubqueryProps<ResultType extends DbObject, SortFieldName extends keyof ResultType> = {
+type ViewBasedSubqueryProps<
+  N extends CollectionNameString,
+  SortFieldName extends keyof ObjectsByCollectionName[N]
+> = {
   type: string,
-  collection: CollectionBase<ResultType>,
+  collection: CollectionBase<N>,
   context: ResolverContext,
-  selector: MongoSelector<ResultType>,
+  selector: MongoSelector<ObjectsByCollectionName[N]>,
   sticky?: boolean,
-} & SubquerySortField<ResultType, SortFieldName>;
+} & SubquerySortField<ObjectsByCollectionName[N], SortFieldName>;
 
 export function viewBasedSubquery<
-  ResultType extends DbObject,
+  N extends CollectionNameString,
   SortKeyType,
-  SortFieldName extends keyof ResultType
->(props: ViewBasedSubqueryProps<ResultType, SortFieldName>): FeedSubquery<ResultType, SortKeyType> {
+  SortFieldName extends keyof ObjectsByCollectionName[N]
+>(props: ViewBasedSubqueryProps<N, SortFieldName>): FeedSubquery<ObjectsByCollectionName[N], SortKeyType> {
   props.sortDirection ??= "desc";
   const {type, collection, context, selector, sticky, sortField, sortDirection} = props;
   return {
     type,
-    getSortKey: (item: ResultType) => item[props.sortField] as unknown as SortKeyType,
+    getSortKey: (item: ObjectsByCollectionName[N]) => item[props.sortField] as unknown as SortKeyType,
     isNumericallyPositioned: !!sticky,
-    doQuery: async (limit: number, cutoff: SortKeyType): Promise<Array<ResultType>> => {
+    doQuery: async (limit: number, cutoff: SortKeyType): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
       return queryWithCutoff({context, collection, selector, limit, cutoffField: sortField, cutoff, sortDirection});
     }
   };
@@ -44,13 +47,13 @@ export function viewBasedSubquery<
 
 export function fixedResultSubquery<ResultType extends DbObject, SortKeyType>({type, result, sortKey}: {
   type: string,
-  result: ResultType,
+  result: Partial<ResultType>,
   sortKey: SortKeyType,
 }): FeedSubquery<ResultType, SortKeyType> {
   return {
     type,
     getSortKey: (_item: ResultType): SortKeyType => sortKey,
-    doQuery: async (_limit: number, _cutoff: SortKeyType): Promise<Array<ResultType>> => {
+    doQuery: async (_limit: number, _cutoff: SortKeyType): Promise<Partial<ResultType>[]> => {
       return [result];
     }
   };
@@ -98,8 +101,8 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   addGraphQLQuery(`${name}(
     limit: Int,
     cutoff: ${cutoffTypeGraphQL},
-    offset: Int,
-    ${isNonEmptyObject(args)?", ":""}${args}
+    offset: Int
+    ${(args && args.length>0) ? ", " : ""}${args}
   ): ${name}QueryResults!`);
   
   addGraphQLResolvers({
@@ -220,14 +223,14 @@ function isNonEmptyObject(obj: {}): boolean {
   return Object.keys(obj).length > 0;
 }
 
-async function queryWithCutoff<ResultType extends DbObject>({
+async function queryWithCutoff<N extends CollectionNameString>({
   context, collection, selector, limit, cutoffField, cutoff, sortDirection,
 }: {
   context: ResolverContext,
-  collection: CollectionBase<ResultType>,
-  selector: MongoSelector<ResultType>,
+  collection: CollectionBase<N>,
+  selector: MongoSelector<ObjectsByCollectionName[N]>,
   limit: number,
-  cutoffField: keyof ResultType,
+  cutoffField: keyof ObjectsByCollectionName[N],
   cutoff: any,
   sortDirection: SortDirection,
 }) {
@@ -245,7 +248,7 @@ async function queryWithCutoff<ResultType extends DbObject>({
   )
   const finalizedSelector = replaceSpecialFieldSelectors(mergedSelector);
   const resultsRaw = await collection.find(finalizedSelector, {
-    sort: sort as Partial<Record<keyof ResultType, number>>,
+    sort: sort as Partial<Record<keyof ObjectsByCollectionName[N], number>>,
     limit,
   }).fetch();
 

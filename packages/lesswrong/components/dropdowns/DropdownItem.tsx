@@ -1,22 +1,22 @@
-import React, { FC, ReactElement, MouseEvent } from "react";
+import React, { FC, ReactElement, MouseEvent, PropsWithChildren } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       "&:hover": {
         opacity: 1,
       },
     }),
   },
   main: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       borderRadius: theme.borderRadius.default,
       padding: 8,
       "&:hover": {
@@ -26,12 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
         },
       },
       "& .ForumIcon-root": {
-        fontSize: isEAForum ? 20 : undefined,
+        fontSize: isFriendlyUI ? 20 : undefined,
       },
     }),
   },
   noIcon: {
-    paddingLeft: isEAForum ? 12 : undefined,
+    paddingLeft: isFriendlyUI ? 12 : undefined,
   },
   title: {
     flexGrow: 1,
@@ -39,8 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
   },
   afterIcon: {
-    fontSize: 20,
-    marginLeft: 4,
+    fontSize: '16px !important',
+    marginLeft: 8,
+    color: theme.palette.grey[600],
   },
   sideMessage: {
     position: "absolute",
@@ -69,20 +70,20 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
-  afterIcon?: ForumIconName,
+  afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
   loading?: boolean,
   rawLink?: boolean,
 }
 
-const DummyWrapper: FC<{className?: string}> = ({className, children}) =>
+const DummyWrapper: FC<PropsWithChildren<{className?: string}>> = ({className, children}) =>
   <div className={className}>{children}</div>;
 
-const RawLink: FC<{
+const RawLink: FC<PropsWithChildren<{
   to: string,
   className?: string,
-}> = ({to, className, children}) => (
+}>> = ({to, className, children}) => (
   <a href={to} className={className}>
     {children}
   </a>
@@ -127,8 +128,9 @@ const DropdownItem = ({
             </ListItemIcon>
           }
           <span className={classes.title}>{title}</span>
-          {afterIcon &&
-            <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+          {typeof afterIcon === "string"
+            ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+            : afterIcon?.()
           }
           {sideMessage &&
             <div className={classes.sideMessage}>

@@ -7,6 +7,7 @@ import AlarmOffIcon from '@material-ui/icons/AlarmOff';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -17,7 +18,8 @@ import { getCurrentContentCount, UserContentCountPartial } from '../../lib/colle
 import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -89,6 +91,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 }) => {
   const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
+  const { openDialog } = useDialog();
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -100,7 +103,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
   
   const handleNotes = () => {
-    if (notes != user.sunshineNotes) {
+    if (notes !== user.sunshineNotes) {
       void updateUser({
         selector: {_id: user._id},
         data: {
@@ -116,7 +119,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     }
   });
 
-  const signAndDate = (sunshineNotes:string) => {
+  const signAndDate = (sunshineNotes: string) => {
     if (!sunshineNotes.match(signature)) {
       const padding = !sunshineNotes ? ": " : ": \n\n"
       return signature + padding + sunshineNotes
@@ -126,7 +129,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleClick = () => {
     const signedNotes = signAndDate(notes)
-    if (signedNotes != notes) {
+    if (signedNotes !== notes) {
       setNotes(signedNotes)
     }
   }
@@ -204,7 +207,6 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         data: {
           sunshineFlagged: false,
           reviewedByUserId: currentUser!._id,
-          voteBanned: true,
           needsReview: false,
           reviewedAt: new Date(),
           banned: moment().add(banMonths, 'months').toDate(),
@@ -217,14 +219,13 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handlePurge = () => {
     const newNotes = getModSignatureWithNote("Purge") + notes;
-    if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
+    if (confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) {
       void updateUser({
         selector: {_id: user._id},
         data: {
           sunshineFlagged: false,
           reviewedByUserId: currentUser!._id,
           nullifyVotes: true,
-          voteBanned: true,
           deleteContent: true,
           needsReview: false,
           reviewedAt: new Date(),
@@ -337,6 +338,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     <LWTooltip title="Return this user to the review queue">
       <VisibilityOutlinedIcon className={classNames(classes.modButton, {[classes.disabledButton]: user.needsReview})} onClick={handleNeedsReview}/>
     </LWTooltip>
+    <LWTooltip title="Create a new moderator action for this user">
+      <ReportProblemIcon className={classes.modButton} onClick={() => openDialog({
+        componentName: 'NewModeratorActionDialog',
+        componentProps: {userId: user._id}})}
+      />
+    </LWTooltip>
   </div>
 
   const permissionsRow = <div className={classes.row}>
@@ -345,7 +352,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         Posts
       </div>
     </LWTooltip>
-    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own ${isEAForum ? "quick takes" : "shortform"})`}>
+    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own quick takes)`}>
       <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
         All Comments
       </div>

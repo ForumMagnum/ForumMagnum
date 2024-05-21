@@ -1,9 +1,9 @@
 import React, { useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useTracking } from "../../../lib/analyticsEvents";
-import Helmet from 'react-helmet';
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
+import { Helmet } from '../../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   embeddedPlayer: {
@@ -45,7 +45,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
       onMouseOut={() => setMouseOverDiv(false)}
     >
       <Helmet>
-        <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>
+        <script defer type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>
       </Helmet>
       <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} >
          {/* @ts-ignore */}

@@ -371,7 +371,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SpreadsheetPage = ({classes}:{
+const SpreadsheetPage = ({classes}: {
   classes: ClassesType
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
@@ -413,7 +413,7 @@ const SpreadsheetPage = ({classes}:{
   const sortedRowsImp = _.sortBy(sortedRowsAdded, (row: any) => -row.imp)
 
   const linkCell = (url: string, link: string, domain: string, type: string) => <div>
-      <div className={classes.link}><HoverPreviewLink href={url} innerHTML={link}/></div>
+      <div className={classes.link}><HoverPreviewLink href={url}>{link}</HoverPreviewLink></div>
       {domain && <div className={classes.domain}>{domain} {type && <span>• {type}</span>}</div>}
     </div>
 
@@ -492,14 +492,14 @@ const SpreadsheetPage = ({classes}:{
   return (
     <div className={classes.root}>
       <HeadTags image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
-      {selectedTab == "Intro" && 
+      {selectedTab === "Intro" && 
         <ContentStyles contentType="comment" className={classes.introWrapper}>
           <div className={classes.intro}>
             <p>
               Welcome to the Coronavirus Info-Database, an attempt to organize the disparate papers, articles and links that are spread all over the internet regarding the nCov pandemic. We sort, summarize and prioritize all links on a daily basis. You can submit new links by pressing the big green button.
             </p>
             <p>
-              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"} innerHTML="our tag page"/>.
+              You can find (and participate) in more LessWrong discussion of COVID-19 on <HoverPreviewLink href={"/tag/coronavirus"}>{"our tag page"}</HoverPreviewLink>.
             </p>
           </div>
           <a href="https://docs.google.com/forms/d/e/1FAIpQLSc5uVDXrowWmhlaDbT3kukODdJotWOZXZivdlFmaHQ6n2gsKw/viewform" className={classes.submitButton}>
@@ -611,7 +611,7 @@ const SpreadsheetPage = ({classes}:{
                 <TableCell classes={{root: classes.cellTitle}}>
                   <div>{title}</div>
                   {foundVia && <div className={classes.source}>
-                    Found via <HoverPreviewLink href={sourceLink} innerHTML={foundVia}/>
+                    Found via <HoverPreviewLink href={sourceLink}>{foundVia}</HoverPreviewLink>
                   </div>}
                 </TableCell>
               </TableRow>
@@ -631,7 +631,7 @@ const SpreadsheetPage = ({classes}:{
               </TableCell>
             </TableRow>
             {tabs.map(tab => {
-              if (tab.label == "All Links") return null
+              if (tab.label === "All Links") return null
               return <TableRow key={`intro-${tab.label}`} className={classes.categoryRow}>
                   <TableCell className={classes.cellSheet}>
                     <QueryLink query={{ tab: tab.label }}>{tab.displayLabel || tab.label}</QueryLink>

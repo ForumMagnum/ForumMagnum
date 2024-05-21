@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import {Components, fragmentTextForQuery, registerComponent} from '../../lib/vulcan-lib';
-import {useCurrentUser} from "../common/withUser";
-import {gql, NetworkStatus, useQuery} from "@apollo/client";
+import {Components, registerComponent} from '../../lib/vulcan-lib';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    
   }
 });
 
@@ -14,36 +12,19 @@ export const AllReactedCommentsPage = ({classes}: {
 }) => {
   const defaultLimit = 50;
   const pageSize = 50
-  const [limit, setLimit] = useState(defaultLimit);
   
-  const { data, fetchMore, networkStatus, loading } = useQuery(gql`
-  query getCommentsWithReacts($limit: Int) {
-    CommentsWithReacts(limit: $limit) {
-      comments {
-        ...CommentsListWithParentMetadata
-      }
-    }
-  }
-  ${fragmentTextForQuery("CommentsListWithParentMetadata")}
-  `,
-    {
-      ssr: true,
-      fetchPolicy: "cache-and-network",
-      nextFetchPolicy: "cache-only",
-      variables: {limit: defaultLimit},
-      notifyOnNetworkStatusChange: true
-    }
-  )
-  
-  const results = data?.CommentsWithReacts.comments
-  
-  if (loading || !data) return <Components.Loading/>
+  const { results, loadMoreProps } = usePaginatedResolver({
+    fragmentName: "CommentsListWithParentMetadata",
+    resolverName: "CommentsWithReacts",
+    limit: defaultLimit, itemsPerPage: pageSize,
+    ssr: true,
+  })
   
   return (
     <Components.SingleColumnSection>
       <Components.SectionTitle title="All Reacted Comments"/>
       <div className={classes.root}>
-        {results.map((comment: CommentsListWithParentMetadata) =>
+        {results && results.map((comment: CommentsListWithParentMetadata) =>
           <div key={comment._id}>
             <Components.CommentsNode
               treeOptions={{
@@ -57,28 +38,12 @@ export const AllReactedCommentsPage = ({classes}: {
             />
           </div>
         )}
-        <Components.LoadMore
-          loading={networkStatus === NetworkStatus.fetchMore}
-          loadMore={() => {
-            const newLimit = limit + pageSize;
-            void fetchMore({
-              variables: {
-                limit: newLimit
-              },
-              updateQuery: (prev, {fetchMoreResult}) => {
-                if (!fetchMoreResult) return prev;
-                return fetchMoreResult
-              }
-            })
-            setLimit(newLimit);
-          }}
-          loadingClassName={classes.loadMoreSpinner}
-        />
+        <Components.LoadMore {...loadMoreProps}/>
       </div>
     </Components.SingleColumnSection>
   )
-} 
-  
+}
+
 const AllReactedCommentsPageComponent = registerComponent('AllReactedCommentsPage', AllReactedCommentsPage, {styles});
 
 declare global {

@@ -22,7 +22,7 @@ registerMigration({
           // Because all emails were verified on import, if the email address
           // is unverified, that means verification was cleared (eg by an email
           // address change) on import.
-          if (_.some(user.emails, (email:any) => !email.verified))
+          if (user.emails?.some((email: any) => !email.verified))
             continue;
           
           // If user.whenConfirmationEmailSent, either the email address was unnecessarily re-verified, or the email
@@ -31,6 +31,9 @@ registerMigration({
           if (user.whenConfirmationEmailSent)
             continue;
           
+          // If the user has no email address, no change
+          if (!user.emails) continue;
+
           // If the email address matches legacyData.emailAddress, set its verified flag to legacyData.email_validated.
           const legacyData = (user as any).legacyData;
           for (let i=0; i<user.emails.length; i++) {
@@ -38,7 +41,7 @@ registerMigration({
               && user.emails && user.emails[i].address === legacyData.email)
             {
               const shouldBeVerified = legacyData.email_validated;
-              if(user.emails[i].verified != shouldBeVerified) {
+              if(user.emails[i].verified !== shouldBeVerified) {
                 updates.push({
                   updateOne: {
                     filter: {_id: user._id},
@@ -54,7 +57,7 @@ registerMigration({
           }
         }
         
-        Users.rawCollection().bulkWrite(updates, { ordered: false });
+        void Users.rawCollection().bulkWrite(updates, { ordered: false });
       }
     });
   },

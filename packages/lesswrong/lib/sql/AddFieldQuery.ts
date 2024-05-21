@@ -1,5 +1,6 @@
 import Query from "./Query";
 import Table from "./Table";
+import { Type } from "./Type";
 
 /**
  * Builds a Postgres query to add a new field to a Postgres table.
@@ -8,10 +9,9 @@ import Table from "./Table";
  * meant for use in migrations.
  */
 class AddFieldQuery<T extends DbObject> extends Query<T> {
-  constructor(table: Table<T>, fieldName: string, skipValidation?: boolean) {
-    const fields = table.getFields();
-    const fieldType = fields[fieldName];
-    if (!skipValidation && !fieldType) {
+  constructor(table: Table<T>, fieldName: string, forceType?: Type) {
+    const fieldType = forceType ?? table.getFields()[fieldName];
+    if (!fieldType) {
       throw new Error(`Field "${fieldName}" does not exist in the schema`);
     }
     super(table, [

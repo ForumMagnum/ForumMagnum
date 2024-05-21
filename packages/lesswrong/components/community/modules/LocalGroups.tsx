@@ -6,7 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import Button from '@material-ui/core/Button';
 import { requireCssVar } from '../../../themes/cssVars';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   noResults: {
@@ -86,9 +86,9 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
   },
   localGroupName: {
-    ...theme.typography[isEAForum ? "headerStyle" : "headline"],
+    ...theme.typography[isFriendlyUI ? "headerStyle" : "headline"],
     fontSize: 18,
-    fontWeight: isEAForum ? 700 : undefined,
+    fontWeight: isFriendlyUI ? 700 : undefined,
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
@@ -130,18 +130,22 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 /**
-   * Calculates the distance between the starting location and the ending location, as the crow flies
-   *
-   * @param {Object} start - the starting location
-   * @param {number} start.lat - the starting location's latitude
-   * @param {number} start.lng - the starting location's longitude
-   * @param {Object} end - the ending location
-   * @param {number} end.lat - the ending location's latitude
-   * @param {number} end.lng - the ending location's longitude
-   * @param {'km'|'mi'} distanceUnit - whether the result should be in km or miles
-   * @returns {number}
-   */
- export const distance = (start: {lat: number, lng: number}, end: {lat: number, lng: number}, distanceUnit: 'km'|'mi') => {
+ * Calculates the distance between the starting location and the ending location, as the crow flies
+ *
+ * @param {Object} start - the starting location
+ * @param {number} start.lat - the starting location's latitude
+ * @param {number} start.lng - the starting location's longitude
+ * @param {Object} end - the ending location
+ * @param {number} end.lat - the ending location's latitude
+ * @param {number} end.lng - the ending location's longitude
+ * @param {'km'|'mi'} distanceUnit - whether the result should be in km or miles
+ * @returns {number}
+ */
+export const distance = (
+  start: {lat: number, lng: number},
+  end: {lat: number, lng: number},
+  distanceUnit: 'km'|'mi',
+) => {
   const toRad = (num: number) => num * Math.PI / 180
   
   const dLat = toRad(end.lat - start.lat)

@@ -1,11 +1,13 @@
 import groupBy from "lodash/groupBy"
 import uniq from "lodash/uniq"
 import moment from "moment"
-import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
 import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
-import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
+import { AutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RateLimitUser, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
+import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
+import { ModeratorActions } from "../collections/moderatorActions"
+import { EXEMPT_FROM_RATE_LIMITS } from "../collections/moderatorActions/schema"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -18,7 +20,7 @@ export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateL
   }
 }
 
-export function getUserRateLimitIntervalHours(userRateLimit: DbUserRateLimit | null): number {
+export function getManualRateLimitIntervalHours(userRateLimit: DbUserRateLimit | null): number {
   if (!userRateLimit) return 0;
   return moment.duration(userRateLimit.intervalLength, userRateLimit.intervalUnit).asHours();
 }
@@ -30,8 +32,17 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   }))
 }
 
-export function shouldIgnorePostRateLimit(user: DbUser) {
-  return userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")
+export async function shouldIgnorePostRateLimit(user: DbUser) {
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")) return true
+
+  const isRateLimitExempt = await ModeratorActions.findOne({
+    userId: user._id,
+    type: EXEMPT_FROM_RATE_LIMITS,
+    endedAt: { $gt: new Date() }
+  })
+  if (isRateLimitExempt) return true
+  
+  return false
 }
 
 export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {
@@ -40,7 +51,7 @@ export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>)
   return sortedRateLimits[0] ?? null;
 }
 
-export function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
+export function getManualRateLimitInfo(userRateLimit: DbUserRateLimit|null, documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   if (!userRateLimit) return null
   const nextEligible = getNextAbleToSubmitDate(documents, userRateLimit.intervalUnit, userRateLimit.intervalLength, userRateLimit.actionsPerInterval)
   if (!nextEligible) return null
@@ -49,35 +60,6 @@ export function getUserRateLimitInfo(userRateLimit: DbUserRateLimit|null, docume
     rateLimitType: "moderator",
     rateLimitMessage: "A moderator has rate limited you."
   }
-}
-
-export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLimit, recentKarmaInfo: RecentKarmaInfo): boolean {
-  // rate limit conditions
-  const { karmaThreshold, downvoteRatioThreshold, 
-          last20KarmaThreshold, last20PostKarmaThreshold: recentPostKarmaThreshold, last20CommentKarmaThreshold: recentCommentKarmaThreshold,
-          downvoterCountThreshold, postDownvoterCountThreshold, commentDownvoterCountThreshold, 
-          lastMonthKarmaThreshold, lastMonthDownvoterCountThreshold } = rateLimit
-
-  // user's recent karma info
-  const { last20Karma, lastMonthKarma, last20PostKarma, last20CommentKarma, 
-          downvoterCount, postDownvoterCount, commentDownvoterCount, lastMonthDownvoterCount } = recentKarmaInfo
-  
-  // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
-  if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return false 
-  if ((downvoteRatioThreshold !== undefined) && getDownvoteRatio(user) < downvoteRatioThreshold) return false
-
-  if ((last20KarmaThreshold !== undefined) && (last20Karma > last20KarmaThreshold)) return false
-  if ((recentPostKarmaThreshold !== undefined) && (last20PostKarma > recentPostKarmaThreshold)) return false
-  if ((recentCommentKarmaThreshold !== undefined) && (last20CommentKarma > recentCommentKarmaThreshold)) return false
-
-  if ((lastMonthKarmaThreshold !== undefined && (lastMonthKarma > lastMonthKarmaThreshold))) return false
-  if ((lastMonthDownvoterCountThreshold !== undefined && (lastMonthDownvoterCount > lastMonthDownvoterCountThreshold))) return false
-
-  if ((downvoterCountThreshold !== undefined) && (downvoterCount < downvoterCountThreshold)) return false
-  if ((postDownvoterCountThreshold !== undefined) && (postDownvoterCount < postDownvoterCountThreshold)) return false
-  if ((commentDownvoterCountThreshold !== undefined) && (commentDownvoterCount < commentDownvoterCountThreshold)) return false
-
-  return true
 }
 
 export function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, timeframeUnit: TimeframeUnitType, timeframeLength: number, itemsPerTimeframe: number): Date|null {
@@ -89,11 +71,11 @@ export function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, time
   return moment(doc.postedAt).add(timeframeLength, timeframeUnit).toDate()
 }
 
-export function getAutoRateLimitInfo(user: DbUser, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
+export function getAutoRateLimitInfo(user: RateLimitUser, features: RateLimitFeatures, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   // rate limit effects
   const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
 
-  if (!shouldRateLimitApply(user, rateLimit, recentKarmaInfo)) return null
+  if (!rateLimit.isActive(user, features)) return null 
 
   const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
   if (!nextEligible) return null 
@@ -143,10 +125,10 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const lastMonthDownvoterCount = getDownvoterCount(lastMonthVotes)
   
   return { 
-    last20Karma: last20Karma ?? 0, 
-    lastMonthKarma: lastMonthKarma ?? 0,
-    last20PostKarma: last20PostKarma ?? 0,
-    last20CommentKarma: last20CommentKarma ?? 0,
+    last20Karma, 
+    lastMonthKarma,
+    last20PostKarma,
+    last20CommentKarma,
     downvoterCount: downvoterCount ?? 0, 
     postDownvoterCount: postDownvoterCount ?? 0,
     commentDownvoterCount: commentDownvoterCount ?? 0,
@@ -155,14 +137,12 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
 }
 
 function getRateLimitName (rateLimit: AutoRateLimit) {
-  let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
-  const thresholdInfo = rateLimitThresholds.map(threshold => rateLimit[threshold] ? `${rateLimit[threshold]} ${threshold.replace("Threshold", "")}` : undefined).filter(threshold => threshold)
-  return rateLimitName += ` (${thresholdInfo.join(", ")})`
+  return `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
 }
 
 function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
   const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
-  return nonUniversalLimits.filter(rateLimit => shouldRateLimitApply(user, rateLimit, user.recentKarmaInfo))
+  return nonUniversalLimits.filter(rateLimit => rateLimit.isActive(user, {...user.recentKarmaInfo, downvoteRatio: getDownvoteRatio(user)}))
 }
 
 export function getActiveRateLimitNames(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
@@ -181,7 +161,7 @@ export function getStrictestActiveRateLimitNames (user: UserKarmaInfo & { recent
       return rateLimitASeverity - rateLimitBSeverity
     })[0]
   })
-  return strictestRateLimits.map(rateLimit => getRateLimitName(rateLimit))
+  return strictestRateLimits.map(rateLimit => ({name: getRateLimitName(rateLimit), ...rateLimit}))
 }
 
 function sortRateLimitsByTimeframe<T extends AutoRateLimit>(rateLimits: T[]) {
@@ -232,7 +212,7 @@ export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: R
   // Adjust the user's karma back to what it was before the most recent vote
   // This doesn't always handle the case where the voter is modifying an existing vote's strength correctly, but we don't really care about those
   const mostRecentVotePower = currentVotes[0].power;
-  const previousUserKarma = user.karma - mostRecentVotePower;
+  const previousUserKarma = (user.karma) - mostRecentVotePower;
 
   const currentUserKarmaInfo = { ...user, recentKarmaInfo: currentKarmaInfo };
   const previousUserKarmaInfo = { ...user, recentKarmaInfo: previousKarmaInfo, karma: previousUserKarma };

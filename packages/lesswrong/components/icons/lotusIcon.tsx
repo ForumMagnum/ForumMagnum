@@ -49,7 +49,7 @@ export const LotusIcon = ({className}: {className?: string}) =>
   </svg>
 
 export const LotusOutlineIcon = ({className}: {className?: string}) =>
-  <svg viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+  <svg width="16px" height="16px" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
   <path d="M7.23828 5.39596C7.23828 7.67189 8.78652 9.54086 9.00274 9.79192C9.21898 9.54088 10.7672 7.67176 10.7672 5.39596C10.7672 3.12002 9.21895 1.25106 9.00274 1C8.78649 1.25104 7.23828 3.12016 7.23828 5.39596Z" stroke="currentColor"/>
   <path d="M9.00274 19.4755C9.21898 19.2245 10.7695 17.3554 10.7695 15.0796C10.7695 12.8036 9.21899 10.9346 9.00274 10.6836C8.78649 10.9346 7.23828 12.8037 7.23828 15.0796C7.23828 17.3555 8.78652 19.2245 9.00274 19.4755Z" stroke="currentColor"/>
   <path d="M17.0002 5.61797C16.6746 5.55521 14.2826 5.14839 12.3112 6.28513C10.3398 7.42419 9.49598 9.70029 9.38672 10.0117C9.71224 10.0745 12.1066 10.4813 14.0756 9.34456C16.0471 8.2055 16.8909 5.9294 17.0002 5.61797Z" stroke="currentColor"/>

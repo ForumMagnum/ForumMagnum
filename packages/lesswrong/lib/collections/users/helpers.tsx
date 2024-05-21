@@ -1,7 +1,7 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
-import { getSiteUrl } from '../../vulcan-lib/utils';
+import {assumeUserEmailVerifiedSetting, forumTypeSetting, isEAForum} from '../../instanceSettings'
+import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
 import * as _ from 'underscore';
@@ -9,24 +9,23 @@ import { getBrowserLocalStorage } from '../../../components/editor/localStorageH
 import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
-import moment from 'moment';
-import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
+import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
+export const userGetDisplayName = (user: { username: string | null, fullName?: string | null, displayName: string | null } | null): string => {
   if (!user) {
     return "";
   } else {
     return forumTypeSetting.get() === 'AlignmentForum' ? 
-      (user.fullName || user.displayName) :
-      (user.displayName || getUserName(user)) || ""
+      (user.fullName || user.displayName) ?? "" :
+      (user.displayName || getUserName(user)) ?? ""
   }
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: {username: string} | null): string|null {
+export const getUserName = function(user: {username: string | null } | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -45,24 +44,28 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
  * Count a user as "new" if they have low karma or joined less than a week ago
  */
 export const isNewUser = (user: UsersMinimumInfo): boolean => {
+  const oneYearInMs = 365*24*60*60*1000;
+  const oneWeekInMs = 7*24*60*60*1000;
+  const userCreatedAt = new Date(user.createdAt);
+
   const karmaThreshold = newUserIconKarmaThresholdSetting.get()
-  const userKarma = user.karma ?? 0;
+  const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
 
   // For the EA forum, return true if either:
   // 1. the user is below the karma threshold, or
   // 2. the user was created less than a week ago
   if (isEAForum) {
-    return userBelowKarmaThreshold || moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+    return userBelowKarmaThreshold || userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
   }
 
   // Elsewhere, only return true for a year after creation if the user remains below the karma threshold
   if (userBelowKarmaThreshold) {
-    return moment(user.createdAt).isAfter(moment().subtract(1, "year"));
+    return userCreatedAt.getTime() > new Date().getTime() - oneYearInMs;
   }
   
   // But continue to return true for a week even if they pass the karma threshold
-  return moment(user.createdAt).isAfter(moment().subtract(1, "week"));
+  return userCreatedAt.getTime() > new Date().getTime() - oneWeekInMs;
 }
 
 export interface SharableDocument {
@@ -88,7 +91,7 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
     return (
       document.sharingSettings?.anyoneWithLinkCan
       && document.sharingSettings.anyoneWithLinkCan !== "none"
-      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+      && ((document as DbPost).linkSharingKeyUsedBy)?.includes(currentUser._id)
     )
   }
 }
@@ -106,14 +109,26 @@ export const userCanEditUsersBannedUserIds = (currentUser: DbUser|null, targetUs
   )
 }
 
-const postHasModerationGuidelines = (post: PostsBase | DbPost) => {
+const postHasModerationGuidelines = (
+  post: PostsBase | PostsModerationGuidelines | DbPost,
+): boolean => {
+  if (!hasAuthorModeration) {
+    return false;
+  }
   // Because of a bug in Vulcan that doesn't adequately deal with nested fields
   // in document validation, we check for originalContents instead of html here,
   // which causes some problems with empty strings, but should overall be fine
-  return ('moderationGuidelines' in post && post.moderationGuidelines?.originalContents) || post.moderationStyle
+  return !!(
+    ("moderationGuidelines_latest" in post && post.moderationGuidelines_latest) ||
+    ("moderationGuidelines" in post && post.moderationGuidelines?.originalContents) ||
+    post.moderationStyle
+  );
 }
 
-export const userCanModeratePost = (user: UsersProfile|DbUser|null, post?: PostsBase|DbPost|null): boolean => {
+export const userCanModeratePost = (
+  user: UsersProfile|DbUser|null,
+  post?: PostsBase|PostsModerationGuidelines|DbPost|null,
+): boolean => {
   if (userCanDo(user,"posts.moderate.all")) {
     return true
   }
@@ -214,7 +229,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (user.allCommentingDisabled) return false
 
   // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
-  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id))
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId !== user._id))
     return false
 
   if (post) {
@@ -278,8 +293,8 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
-  // EA Forum does not do its own email verification
-  if (forumTypeSetting.get() === 'EAForum') {
+  // Some forums don't do their own email verification
+  if (assumeUserEmailVerifiedSetting.get()) {
     return true
   }
   if (!user || !user.emails)
@@ -295,12 +310,12 @@ export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => 
   return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-type UserWithEmail = {
-  email: string
-  emails: UsersCurrent["emails"] 
+type UserMaybeWithEmail = {
+  email: string | null
+  emails: UsersCurrent["emails"] | null
 }
 
-export function getUserEmail (user: UserWithEmail|null): string | undefined {
+export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
 }
 
@@ -314,13 +329,13 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
   return {
     id: user._id,
     email: getUserEmail(user),
-    name: user.displayName,
-    slug: user.slug,
+    name: user.displayName ?? user.username ?? '[missing displayName and username]', 
+    slug: user.slug ?? 'missing slug',
   }
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -335,6 +350,16 @@ export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): s
   
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/users/${userSlug}`;
+}
+
+export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): string => {
+  if (!user) return "";
+
+  if (user.slug) {
+    return `${userGetProfileUrlFromSlug(user.slug, isAbsolute)}/stats`;
+  } else {
+    return "";
+  }
 }
 
 
@@ -518,7 +543,7 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
 }
 
 export const isMod = (user: UsersProfile|DbUser): boolean => {
-  return user.isAdmin || user.groups?.includes('sunshineRegiment')
+  return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 
 // TODO: I (JP) think this should be configurable in the function parameters
@@ -570,32 +595,30 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
   await context.Users.rawUpdateOne({_id: moderatedUserId}, {$set: {sunshineNotes: updatedNotes}});
 }
 
-export const userCanVote = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
-  // If the user is null, then returning true from this function is still valid;
-  // it just means that the vote buttons are enabled (but their behavior is that
-  // they open a login form).
-  
-  if (!isLW) {
-    return { fail: false };
-  }
-
-  if (!user) {
-    return {
-      fail: true,
-      reason: `You must be logged in and have ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
-    };
-  }
-
-  // If the user doesn't have a `createdAt`, the date comparison will return false, which then requires them passing the karma check
-  const userCreatedAfterCutoff = new Date(user.createdAt) > new Date(lowKarmaUserVotingCutoffDateSetting.get());
-  const userKarmaAtOrAboveThreshold = user.karma >= lowKarmaUserVotingCutoffKarmaSetting.get();
-
-  if(!userCreatedAfterCutoff || userKarmaAtOrAboveThreshold) {
-    return { fail: false }
-  }
-  
-  return {
-    fail: true,
-    reason: `You need ${lowKarmaUserVotingCutoffKarmaSetting.get()} karma to vote`,
-  }
+/**
+ * At one point, we disabled voting for users with less than 1 karma
+ * Keeping this function and its uses around will make it easier to do that kind of thing in the future
+ */
+export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
+  return { fail: false };
 };
+
+export const SOCIAL_MEDIA_PROFILE_FIELDS = {
+  linkedinProfileURL: 'linkedin.com/in/',
+  facebookProfileURL: 'facebook.com/',
+  twitterProfileURL: 'twitter.com/',
+  githubProfileURL: 'github.com/'
+}
+export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
+
+export const profileFieldToSocialMediaHref = (
+  field: SocialMediaProfileField,
+  userUrl: string,
+) => `https://${combineUrls(SOCIAL_MEDIA_PROFILE_FIELDS[field], userUrl)}`;
+
+export const socialMediaSiteNameToHref = (
+  siteName: SocialMediaSiteName | "website",
+  userUrl: string,
+) => siteName === "website"
+  ? `https://${userUrl}`
+  : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);

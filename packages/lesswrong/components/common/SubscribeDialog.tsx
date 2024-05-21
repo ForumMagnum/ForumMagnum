@@ -18,12 +18,12 @@ import Select from '@material-ui/core/Select';
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import withUser from '../common/withUser';
 import { withTracking } from "../../lib/analyticsEvents";
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
-const isEAForum = forumTypeSetting.get() === "EAForum";
 
 const styles = (theme: ThemeType): JssStyles => ({
   thresholdSelector: {
@@ -102,6 +102,12 @@ const postsPerWeek = forumSelect<Record<string, number>>({
     '30': 2,
     '45': 1,
   },
+  default: {
+    '2': 40,
+    '30': 7,
+    '45': 2,
+    '75': 1,
+  }
 });
 
 const viewNames = {
@@ -177,7 +183,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (isEAForum && !userEmailAddressIsVerified(currentUser)) {
+    if (!isLWorAF && !userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
@@ -259,7 +265,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
         open={open}
         onClose={onClose}
       >
-        {!isEAForum && <Tabs
+        {isLWorAF && <Tabs
           value={method}
           indicatorColor="primary"
           textColor="primary"
@@ -282,7 +288,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
                 onChange={ (event, value) => this.selectThreshold(value) }
                 className={classes.thresholdSelector}
               >
-                { thresholds.map(t => t.toString()).map(threshold =>
+                { thresholds.map((t: AnyBecauseTodo) => t.toString()).map((threshold: AnyBecauseTodo) =>
                   <FormControlLabel
                     control={<Radio />}
                     label={threshold}

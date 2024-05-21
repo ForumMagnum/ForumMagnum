@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { ModerationTemplates } from '../../lib/collections/moderationTemplates';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useLocation } from '../../lib/routeUtil';
-import NoSSR from 'react-no-ssr';
-
+import ForumNoSSR from '../common/ForumNoSSR';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     border: theme.palette.border.commentBorder,
@@ -31,7 +29,7 @@ export const ModerationTemplateItem = ({classes, template}: {
 
   const {hash} = useLocation()
   
-  return <NoSSR><div className={classNames(classes.root, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
+  return <ForumNoSSR><div className={classNames(classes.root, {[classes.deleted]: template.deleted, [classes.highlighted]: hash === `#${template._id}`})}>
     <Row>
       <h3>{template.name}{template.deleted && <> [Deleted]</>}</h3>
       <a onClick={() => setEdit(!edit)}><MetaInfo>Edit</MetaInfo></a>
@@ -55,7 +53,7 @@ export const ModerationTemplateItem = ({classes, template}: {
           </p>
         </div>
     }
-  </div></NoSSR>
+  </div></ForumNoSSR>
 }
 
 const ModerationTemplateItemComponent = registerComponent('ModerationTemplateItem', ModerationTemplateItem, {styles});

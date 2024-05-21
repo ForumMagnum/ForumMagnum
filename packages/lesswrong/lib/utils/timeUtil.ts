@@ -1,10 +1,20 @@
 import React, { useContext } from 'react';
 import moment from '../moment-timezone';
 
-export interface TimeOverride {
-  currentTime: Date|null;
+export const DEFAULT_TIMEZONE = "GMT";
+
+export type SSRMetadata = {
+  /** ISO timestamp */
+  renderedAt: string;
+  cacheFriendly: boolean;
+  /** The timezone used on the server. This may differ from the client's timezone if this is a cached render */
+  timezone: string;
 }
-export const TimeContext = React.createContext<TimeOverride>({currentTime: null});
+
+export type TimeOverride = Pick<SSRMetadata, "cacheFriendly" | "timezone"> & {
+  currentTime: Date;
+}
+export const TimeOverrideContext = React.createContext<TimeOverride | null>(null);
 
 // useCurrentTime: If we're rehydrating a server-side render, returns the
 // time the SSR was prepared. If we're preparing an SSR, returns the time the
@@ -19,7 +29,7 @@ export const TimeContext = React.createContext<TimeOverride>({currentTime: null}
 // (This isn't necessary inside of event handlers or in any context that
 // isn't a component or used by components.)
 export function useCurrentTime(): Date {
-  const time = useContext(TimeContext);
+  const time = useContext(TimeOverrideContext);
   if (time?.currentTime) {
     return time.currentTime;
   } else {
@@ -29,9 +39,9 @@ export function useCurrentTime(): Date {
 
 export const useSsrRenderedAt = () => {
   const currentTime = useCurrentTime();
-  return typeof window === "undefined"
+  return typeof window === "undefined" || !window.ssrMetadata
     ? currentTime
-    : new Date(window.ssrRenderedAt);
+    : new Date(window.ssrMetadata.renderedAt);
 }
 
 // Given a time of day (number of hours, 0-24), a day of the week (string or
@@ -50,4 +60,33 @@ export const convertTimeOfWeekTimezone = (timeOfDay: number, dayOfWeek: string|n
 
 export function isInFuture(when: Date): boolean {
   return when > new Date();
+}
+
+/**
+ * Convert from e.g. 1d to "1 day"
+ */
+export function relativeTimeToLongFormat(time: string): string {
+  if (time === 'now') {
+      return 'a few seconds';
+  }
+
+  const timeUnit = time.slice(time.search(/\D/));
+  const timeValue = parseInt(time.slice(0, -1));
+
+  switch(timeUnit) {
+      case 's':
+          return timeValue + ' second' + (timeValue > 1 ? 's' : '');
+      case 'm':
+          return timeValue + ' minute' + (timeValue > 1 ? 's' : '');
+      case 'h':
+          return timeValue + ' hour' + (timeValue > 1 ? 's' : '');
+      case 'd':
+          return timeValue + ' day' + (timeValue > 1 ? 's' : '');
+      case 'mo':
+          return timeValue + ' month' + (timeValue > 1 ? 's' : '');
+      case 'y':
+          return timeValue + ' year' + (timeValue > 1 ? 's' : '');
+      default:
+          return time;
+  }
 }

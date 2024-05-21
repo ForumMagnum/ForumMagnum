@@ -4,7 +4,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
 import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useMulti } from "../../lib/crud/withMulti";
+import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
 
@@ -13,6 +13,13 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[55],
     padding: "60px 0 80px 0",
     marginTop: 60,
+    [theme.breakpoints.down('sm')]: {
+      // make the background flush with the sides of the screen on mobile
+      paddingLeft: 8,
+      paddingRight: 8,
+      marginLeft: -8,
+      marginRight: -8,
+    },
   },
   section: {
     maxWidth: MAX_CONTENT_WIDTH,
@@ -37,22 +44,26 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostBottomRecommendations = ({post, classes}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision,
-  classes: ClassesType,
+const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false, classes}: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
+  hasTableOfContents?: boolean,
+  ssr?: boolean,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
-    results: moreFromAuthorPosts,
-    loading: moreFromAuthorLoading,
-  } = useMulti({
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
-    terms: {
-      userId: post.userId,
-      notPostIds: [post._id],
-      sortedBy: "topAdjusted",
-      limit: 3,
+    recommendationsLoading: moreFromAuthorLoading,
+    recommendations: moreFromAuthorPosts,
+  } = useRecommendations({
+    algorithm: {
+      strategy: {
+        name: "moreFromAuthor",
+        postId: post._id,
+        context: "post-footer",
+      },
+      count: 3,
+      disableFallbacks: true,
     },
+    ssr
   });
 
   const {
@@ -62,13 +73,18 @@ const PostBottomRecommendations = ({post, classes}: {
     fragmentName: "PostsPage",
     resolverName: "CuratedAndPopularThisWeek",
     limit: 3,
+    ssr
   });
 
   const {
     results: opportunityPosts,
     loading: opportunitiesLoading,
+    coreTagLabel
   } = useRecentOpportunities({
     fragmentName: "PostsListWithVotes",
+    post,
+    maxAgeInDays: 60,
+    ssr
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -77,12 +93,16 @@ const PostBottomRecommendations = ({post, classes}: {
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
 
   const {
-    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip,
+    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip
   } = Components;
+
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
-        <ToCColumn tableOfContents={<div />} notHideable>
+        <ToCColumn
+          tableOfContents={hasTableOfContents ? <div /> : null}
+          notHideable
+        >
           <div>
             {hasUserPosts &&
               <div className={classes.section}>
@@ -127,7 +147,7 @@ const PostBottomRecommendations = ({post, classes}: {
             </div>
             <div className={classes.section}>
               <div className={classes.sectionHeading}>
-                Recent opportunities
+                {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
               {opportunitiesLoading && !opportunityPosts?.length &&
                 <PostsLoading />

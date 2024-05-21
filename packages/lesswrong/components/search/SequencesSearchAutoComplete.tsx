@@ -1,12 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib'
-import { getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
+import { getSearchIndexName } from '../../lib/search/searchUtil';
 
 const SequencesSearchAutoComplete = ({clickAction}: {
   clickAction: (id: string) => void
 }) => {
   return <Components.SearchAutoComplete
-    indexName={getAlgoliaIndexName("Sequences")}
+    indexName={getSearchIndexName("Sequences")}
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <Components.SequencesSearchHit hit={hit} clickAction={clickAction} />}
     placeholder='Search for sequences'

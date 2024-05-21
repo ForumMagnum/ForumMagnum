@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -92,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     objectFit: "cover"
   },
   chapterTitle: {
-    fontSize: `${isEAForum ? "1.2rem" : "1.25rem"} !important`,
+    fontSize: `${isFriendlyUI ? "1.2rem" : "1.25rem"} !important`,
     margin: "8px 0 -8px 0 !important",
   },
   postIcon: {
@@ -116,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: isEAForum ? "flex-start" : "center",
+    justifyContent: isFriendlyUI ? "flex-start" : "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
@@ -186,7 +184,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
           <div className={classes.titleAndAuthor}>
             <Link
               to={`/s/${sequence._id}`}
-              className={classNames(classes.title, {[classes.eaTitle]: forumTypeSetting.get() === "EAForum"})}
+              className={classNames(classes.title, {[classes.eaTitle]: isFriendlyUI})}
             >
               {sequence.title}
             </Link>
@@ -197,7 +195,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
           </div>
           {(highlight.length > 0) && <ContentStyles
             contentType="postHighlight"
-            className={classNames(classes.description, {[classes.eaDescription]: forumTypeSetting.get() === "EAForum"})}
+            className={classNames(classes.description, {[classes.eaDescription]: isFriendlyUI})}
           >
             <ContentItemTruncated
               maxLengthWords={100}

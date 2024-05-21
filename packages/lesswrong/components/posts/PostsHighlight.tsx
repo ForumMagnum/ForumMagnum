@@ -8,13 +8,13 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   highlightContinue: {
     marginTop:theme.spacing.unit*2,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
     },
@@ -50,7 +50,7 @@ const TruncatedSuffix: FC<{
   }
   return (
     <Link to={postGetPageUrl(post)} eventProps={{intent: 'expandPost'}}>
-      {isEAForum
+      {isFriendlyUI
         ? "Continue reading"
         : `(Continue Reading – ${wordsLeft} more words)`
       }
@@ -102,9 +102,9 @@ const HighlightBody = ({
     <Components.ContentItemTruncated
       maxLengthWords={maxLengthWords}
       graceWords={20}
-      rawWordCount={wordCount}
+      rawWordCount={wordCount ?? 0}
       expanded={expanded}
-      getTruncatedSuffix={({wordsLeft}: {wordsLeft:number}) =>
+      getTruncatedSuffix={({wordsLeft}: {wordsLeft: number}) =>
         <div className={classes.highlightContinue}>
           <TruncatedSuffix
             post={post}

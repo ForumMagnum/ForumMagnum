@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@material-ui/core/Chip/Chip';
 
-const TagSelectStyles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
   },
@@ -16,7 +16,7 @@ const TagSelectStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const TagSelect = ({ value, path, document, classes, label, updateCurrentValues }: {
+const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
   value: string,
   path: string,
   document: any,
@@ -24,45 +24,39 @@ const TagSelect = ({ value, path, document, classes, label, updateCurrentValues 
   label?: string,
   updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-  const [currentId, setCurrentId] = useState(document.parentTag?._id);
-  const { document: parentTag, loading } = useSingle({
-    skip: !currentId,
-    documentId: currentId,
+  const {document: selectedTag, loading} = useSingle({
+    skip: !value,
+    documentId: value,
     collectionName: "Tags",
     fragmentName: 'TagBasicInfo',
   });
 
-  useEffect(() => {
-    // updateCurrentValues needs to be called after loading the TagBasicInfo query because
-    // when the query returns `value` gets set back to undefined for some reason. I think this
-    // is probably because it updates local storage somehow, but I'm not sure. This fixes it anyway
-    if (!loading && value !== currentId) {
-      updateCurrentValues({ [path]: currentId });
-    }
-  }, [currentId, value, updateCurrentValues, path, loading]);
+  const setSelectedTagId = useCallback((value?: string) => {
+    updateCurrentValues({
+      [path]: value,
+    });
+  }, [updateCurrentValues, path]);
 
   return (
-    <>
-      <div className={classes.root}>
-        <Components.ErrorBoundary>
-          <Components.TagsSearchAutoComplete
-            clickAction={(id: string) => setCurrentId(id)}
-            placeholder={label}
-          />
-        </Components.ErrorBoundary>
-        {(!loading && parentTag?.name) ?
-          <Chip
-            onDelete={(_: string) => setCurrentId(null)}
-            className={classes.chip}
-            label={parentTag?.name}
-          />: <></>}
-      </div>
-    </>
+    <div className={classes.root}>
+      <Components.ErrorBoundary>
+        <Components.TagsSearchAutoComplete
+          clickAction={setSelectedTagId}
+          placeholder={label}
+        />
+      </Components.ErrorBoundary>
+      {(!loading && selectedTag?.name) ?
+        <Chip
+          onDelete={() => setSelectedTagId(undefined)}
+          className={classes.chip}
+          label={selectedTag?.name}
+        />: <></>}
+    </div>
   );
 }
 
 const TagSelectComponent = registerComponent('TagSelect', TagSelect, {
-  styles: TagSelectStyles,
+  styles: styles,
   hocs: [withUser],
 });
 

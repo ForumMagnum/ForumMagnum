@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigation } from "../../lib/routeUtil";
+import { useLocation } from "../../lib/routeUtil";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
@@ -8,7 +8,7 @@ import { getUserFromResults } from "../users/UsersProfile";
 import { PostAnalytics2Result, useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
 import moment from "moment";
-import { Link } from "../../lib/reactRouterWrapper";
+import { Link, useNavigate } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
@@ -44,8 +44,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24,
   },
   pageHeaderText: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "700",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
   },
@@ -181,7 +181,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
           {timeFromNow}
           {ago}
           {" · "}
-          <Link to={postAnalyticsLink}>view detailed stats</Link>
+          <Link to={postAnalyticsLink}>View detailed stats</Link>
         </div>
       </div>
       <div className={classes.valueCell}>{post.views.toLocaleString()}</div>
@@ -194,7 +194,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
 
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { params, query, location } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
@@ -239,13 +239,12 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
   const {
     data,
     loading: analyticsLoading,
-    maybeStale,
     loadMoreProps,
   } = useMultiPostAnalytics({
     userId: user?._id,
@@ -255,11 +254,12 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
 
-  if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
+  const isCurrentUser = currentUser?.slug === slug
+  if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
   }
 
-  if (userLoading || !user) return null;
+  if (userLoading || !user) return <Loading />;
 
   const title = `Stats for ${user.displayName}`;
 
@@ -286,20 +286,13 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       <SingleColumnSection className={classes.root}>
       <div className={classes.pageHeader}>
         <Typography variant="headline" className={classes.pageHeaderText}>
-          Your post stats
+          {isCurrentUser ? "Your" : `${user.displayName}'s`} post stats
         </Typography>
       </div>
         <div className={classes.section}>
           <AnalyticsGraph userId={user._id}/>
         </div>
         <div className={classes.section}>
-          <div className={classes.postsListHeader}>
-            {/* TODO since removing the title here this now causes some layout shift. Try to fix this (or ideally make it fast enough that
-                this message isn't needed) */}
-            {maybeStale && <span className={classes.fetchingLatest}>
-              checking latest data...
-            </span>}
-          </div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               <div className={classes.dateHeaderLabel}>

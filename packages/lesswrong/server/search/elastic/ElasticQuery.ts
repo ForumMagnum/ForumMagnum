@@ -6,9 +6,16 @@ import type {
 import type {
   SearchRequest as SearchRequestBody,
 } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import { indexNameToConfig, IndexConfig, Ranking } from "./ElasticConfig";
+import {
+  IndexConfig,
+  Ranking,
+  isFullTextField,
+  indexToCollectionName,
+  collectionNameToConfig,
+} from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
 import { searchOriginDate } from "./elasticSettings";
+import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 
 /**
  * There a couple of places where we need a rough origin date
@@ -30,6 +37,8 @@ export type QueryFilter = {
   type: "numeric",
   value: number,
   op: QueryFilterOperator,
+} | {
+  type: "exists"
 });
 
 export type QueryData = {
@@ -41,6 +50,8 @@ export type QueryData = {
   preTag?: string,
   postTag?: string,
   filters: QueryFilter[],
+  // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
+  coordinates?: number[],
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -54,13 +65,15 @@ type CompiledQuery = {
 }
 
 class ElasticQuery {
+  private collectionName: SearchIndexCollectionName;
   private config: IndexConfig;
 
   constructor(
     private queryData: QueryData,
     private fuzziness: Fuzziness = 1,
   ) {
-    this.config = indexNameToConfig(queryData.index);
+    this.collectionName = indexToCollectionName(queryData.index);
+    this.config = collectionNameToConfig(this.collectionName);
   }
 
   compileRanking({field, order, weight, scoring}: Ranking): string {
@@ -95,38 +108,89 @@ class ElasticQuery {
     return expr;
   }
 
-  private compileFilters() {
-    const terms = [...(this.config.filters ?? [])];
-    for (const filter of this.queryData.filters) {
-      switch (filter.type) {
-      case "facet":
-        const term: QueryDslQueryContainer = {
-          term: {
-            [filter.field]: filter.value,
-          },
-        };
-        terms.push(
-          filter.negated
-            ? {
-              bool: {
-                should: [],
-                must_not: [term],
+  private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
+    switch (filter.type) {
+    case "facet":
+      const term: QueryDslQueryContainer =
+        isFullTextField(this.collectionName, filter.field)
+          ? {
+            match: {
+              [`${filter.field}.exact`]: {
+                query: filter.value,
+                analyzer: "fm_exact_analyzer",
+                operator: "AND",
+                fuzziness: 0,
               },
-            }
-            : term,
-        );
-        break;
-      case "numeric":
-        terms.push({
-          range: {
-            [filter.field]: {
-              [filter.op]: filter.value,
             },
+          }
+          : {
+            term: {
+              [filter.field]: filter.value,
+            },
+          };
+      return filter.negated
+        ? {
+          bool: {
+            should: [],
+            must_not: [term],
+          },
+        }
+        : term;
+
+    case "numeric":
+      return {
+        range: {
+          [filter.field]: {
+            [filter.op]: filter.value,
+          },
+        },
+      };
+
+    case "exists":
+      return {
+        bool: {
+          should: [],
+          must: [{
+            exists: {
+              field: filter.field
+            }
+          }]
+        }
+      };
+
+    default:
+      return {};
+    }
+  }
+
+  private compileFilters() {
+    const filtersByField: Record<string, QueryFilter[]> = {};
+    for (const filter of this.queryData.filters) {
+      filtersByField[filter.field] ??= [];
+      filtersByField[filter.field].push(filter);
+    }
+
+    const terms = [...(this.config.filters ?? [])];
+
+    for (const filterField in filtersByField) {
+      const filters = filtersByField[filterField];
+      if (!filters.length) {
+        continue;
+      }
+      const fieldTerms = filters.map(
+        (filter) => this.compileFilterTermForField(filter),
+      );
+      if (fieldTerms.length > 1) {
+        terms.push({
+          bool: {
+            should: fieldTerms,
           },
         });
-        break;
+      } else {
+        terms.push(fieldTerms[0]);
       }
     }
+
     return terms.length ? terms : undefined;
   }
 
@@ -305,11 +369,44 @@ class ElasticQuery {
       : this.compileSimpleQuery();
   }
 
-  private compileSort(sorting?: string): Sort {
+  private compileSort(sorting?: string, coordinates?: number[]): Sort {
+    // Special case:
+    // When providing coordinates in the format [lng, lat], we sort by distance
+    // and ignore the relevance score. See also parseLatLng()
+    if (coordinates) {
+      if (!this.config.locationField) {
+        throw new Error("Index cannot be sorted by location");
+      }
+      return [
+        {
+          _geo_distance : {
+            [this.config.locationField]: coordinates,
+            order : "asc",
+          },
+        },
+        {[this.config.tiebreaker]: {order: "desc"}},
+      ];
+    }
+
     const sort: Sort = [
-      {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
     ];
+
+    // If we specify a custom sort (such as from the people directory) then
+    // we should ignore the search _score completely when sorting
+    if (sorting && sorting.indexOf(":") > 0) {
+      const [field, order] = sorting.split(":");
+      if (order !== "asc" && order !== "desc") {
+        throw new Error("Invalid sorting order");
+      }
+      sort.unshift({[field]: {order}});
+      return sort;
+    } else {
+      sort.unshift({_score: {order: "desc"}});
+    }
+
+    // There are several special sortings builtin to the main search page.
+    // Note that these are used in conjunction with the search _score
     switch (sorting) {
     case "karma":
       const field = this.config.karmaField ?? "baseScore";
@@ -328,6 +425,7 @@ class ElasticQuery {
         throw new Error("Invalid sorting: " + sorting);
       }
     }
+
     return sort;
   }
 
@@ -339,8 +437,14 @@ class ElasticQuery {
       sorting,
       offset = 0,
       limit = 10,
+      coordinates,
     } = this.queryData;
     const {privateFields} = this.config;
+
+    // When sorting by nearest-geographically we disable custom highlighting as
+    // this isn't supported by elastic and causes an exception
+    const hasCustomHighlight = !coordinates;
+
     const {
       searchQuery,
       snippetName,
@@ -367,23 +471,25 @@ class ElasticQuery {
       body: {
         track_scores: true,
         track_total_hits: true,
-        highlight: {
-          fields: {
-            [snippetName]: {
-              ...highlightConfig,
-              highlight_query: snippetQuery,
-            },
-            ...(highlightName && {
-              [highlightName]: {
+        ...(hasCustomHighlight && {
+          highlight: {
+            fields: {
+              [snippetName]: {
                 ...highlightConfig,
-                highlight_query: highlightQuery,
+                highlight_query: snippetQuery,
               },
-            }),
+              ...(highlightName && {
+                [highlightName]: {
+                  ...highlightConfig,
+                  highlight_query: highlightQuery,
+                },
+              }),
+            },
+            number_of_fragments: 1,
+            fragment_size: 140,
+            no_match_size: 140,
           },
-          number_of_fragments: 1,
-          fragment_size: 140,
-          no_match_size: 140,
-        },
+        }),
         query: {
           script_score: {
             query: {
@@ -398,9 +504,9 @@ class ElasticQuery {
             },
           },
         },
-        sort: this.compileSort(sorting),
+        sort: this.compileSort(sorting, coordinates),
         _source: {
-          exclude: ["exportedAt", ...privateFields],
+          excludes: ["exportedAt", ...privateFields],
         },
       },
     };

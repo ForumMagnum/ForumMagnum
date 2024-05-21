@@ -93,8 +93,10 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   }, [captureEvent, setExpanded]);
 
   const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "shortformItemTooltip",
-    commentId: comment._id,
+    eventProps: {
+      pageElementContext: "shortformItemTooltip",
+      commentId: comment._id,
+    },
   });
 
   const treeOptions = {

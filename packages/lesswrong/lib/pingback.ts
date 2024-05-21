@@ -44,8 +44,8 @@ export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<
 
 interface ValidationUserPartial {
   isAdmin: boolean
-  karma: number
-  conversationsDisabled: boolean
+  karma: number | null
+  conversationsDisabled: boolean | null
 }
 
 export const canMention = (currentUser: ValidationUserPartial, mentionsCount: number, {

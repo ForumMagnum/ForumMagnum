@@ -4,7 +4,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { faviconUrlSetting, forumTypeSetting } from '../../lib/instanceSettings';
+import { faviconUrlSetting, isAF } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { onStartup } from '../../lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
@@ -44,11 +44,11 @@ function makeRedirect(res: ServerResponse, destination: string) {
 }
 
 async function findPostByLegacyAFId(legacyId: number) {
-  return await Posts.findOne({"agentFoundationsId": legacyId})
+  return await Posts.findOne({"agentFoundationsId": legacyId.toString()})
 }
 
 async function findCommentByLegacyAFId(legacyId: number) {
-  return await Comments.findOne({"agentFoundationsId": legacyId})
+  return await Comments.findOne({"agentFoundationsId": legacyId.toString()})
 }
 
 
@@ -303,7 +303,7 @@ addStaticRoute('/recentComments', (params, req, res, next) => {
   return makeRedirect(res, '/allComments');
 })
 
-if (forumTypeSetting.get() === "AlignmentForum") {
+if (isAF) {
   addStaticRoute('/newcomments', (params, req, res, next) => {
     return makeRedirect(res, '/allComments');
   })

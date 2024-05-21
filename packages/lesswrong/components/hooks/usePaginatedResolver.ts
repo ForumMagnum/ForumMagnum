@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
-import { isServer } from "../../lib/executionEnvironment";
+import isEqual from "lodash/isEqual"
 import type { LoadMoreCallback, LoadMoreProps } from "../../lib/crud/withMulti";
+import { apolloSSRFlag } from "../../lib/helpers";
 
 export type UsePaginatedResolverResult<
   FragmentTypeName extends keyof FragmentTypes,
@@ -64,7 +65,9 @@ export const usePaginatedResolver = <
     fetchMore,
     networkStatus,
   } = useQuery(query, {
-    ssr: ssr || !isServer,
+    // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+    // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
+    ssr: apolloSSRFlag(ssr),
     notifyOnNetworkStatusChange: true,
     skip,
     pollInterval: 0,
@@ -94,10 +97,10 @@ export const usePaginatedResolver = <
   }
 
   useEffect(() => {
-    if (results?.length && results.length >= (list?.length ?? 0)) {
+    if (results?.length && results.length >= (list?.length ?? 0) && !isEqual(list, results)) {
       setList(results);
     }
-  }, [results, list?.length]);
+  }, [results, list]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the

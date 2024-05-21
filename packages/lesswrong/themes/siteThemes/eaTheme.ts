@@ -1,5 +1,3 @@
-import { createMuiTheme } from '@material-ui/core/styles';
-
 const titleStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Inter',
@@ -26,9 +24,6 @@ const sansSerifStack = [
   'Arial',
   'sans-serif'
 ].join(',')
-
-
-const defaultTheme = createMuiTheme()
 
 export const eaForumTheme: SiteThemeSpecification = {
   shadePalette: {
@@ -59,6 +54,14 @@ export const eaForumTheme: SiteThemeSpecification = {
     text: {
       primaryAlert: "#137283",
       contentHeader: shadePalette.grey[1000],
+      debateComment: {
+        [1]: "#66C9F3",
+        [2]: "#FE927B",
+        [3]: "#F9E199",
+        [4]: "#4BF283",
+        [5]: "#CF72F0",
+        [6]: "#6C7BFF",
+      },
     },
     link: {
       visited: "#7130a6",
@@ -120,12 +123,16 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
+      zIndexes: {
+        searchResults: 1300,
+      },
       spacing: {
         mainLayoutPaddingTop: 20
       },
       borderRadius: {
         default: defaultBorderRadius,
         small: 4,
+        quickTakesEntry: defaultBorderRadius,
       },
       typography: {
         fontDownloads: [

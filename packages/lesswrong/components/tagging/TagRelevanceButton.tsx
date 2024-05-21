@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVote }: {
   document: TagRelMinimumFragment,
   voteType: string,
-  vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
+  vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent}) => void,
   label: React.ReactNode,
   classes: ClassesType,
   cancelVote?: boolean // if this is set, the styling for the voted/non-voted status will be inverted (i.e. you click the button to cancel an existing vote)

@@ -67,7 +67,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     margin: 0,
     textAlign: 'center',
     fontFamily: theme.typography.postStyle.fontFamily,
-    color: '#FFFFFF',
+    color: theme.palette.text.alwaysWhite,
     '& a:hover': {
       // Don't change opacity on hover
       opacity: 1,
@@ -81,7 +81,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: 70,
     marginTop: 10,
     marginBottom: 10,
-    borderBottom: "solid 1px #FFFFFF",
+    borderBottom: `solid 1px ${theme.palette.text.alwaysWhite}`,
   },
   description: {
     width: 200,
@@ -93,7 +93,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 17,
     fontStyle: "italic",
-    color: '#FFFFFF',
+    color: theme.palette.text.alwaysWhite,
     textTransform: 'none',
   },
   dismiss: {
@@ -106,7 +106,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.uiSecondary.fontFamily,
     fontSize: 14,
     textAlign: 'right',
-    color: '#BBB',
+    color: theme.palette.grey.A400,
     zIndex: 1,
   },
 }))

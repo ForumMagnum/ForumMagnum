@@ -55,7 +55,7 @@ export const ModerationTemplatesPage = ({classes}: {
   const nonDeletedTemplates = filteredTemplates.filter(template => !template.deleted)
   const deletedTemplates = filteredTemplates.filter(template => template.deleted)
 
-  const handleFilter = (type:TemplateType) => {
+  const handleFilter = (type: TemplateType) => {
     if (filter === type) {
       setFilter(null)
     } else {
@@ -73,7 +73,6 @@ export const ModerationTemplatesPage = ({classes}: {
         level: 1
       }))
     ],
-    headingsCount: 0
   }
 
   return <ToCColumn tableOfContents={<TableOfContents

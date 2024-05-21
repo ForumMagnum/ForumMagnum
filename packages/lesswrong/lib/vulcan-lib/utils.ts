@@ -18,9 +18,9 @@ export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl'
 
 interface UtilsType {
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
+  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
   
   // In server/vulcan-lib/connectors.ts
   Connectors: any
@@ -38,7 +38,7 @@ interface UtilsType {
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
   
   // In server/vulcan-lib/errors.ts
-  throwError: any
+  throwError: (error: { id: string; data?: Record<string, AnyBecauseTodo> }) => never,
 }
 
 export const Utils: UtilsType = ({} as UtilsType);
@@ -101,7 +101,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
 
 // NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
-const validateUrl = (url: string) => {
+export const validateUrl = (url: string) => {
   try {
     // This will validate the URL - importantly, it will fail if the
     // protocol is missing
@@ -158,7 +158,8 @@ export const slugify = function (s: string): string {
   return slug;
 };
 
-export const getDomain = function(url: string): string|null {
+export const getDomain = function(url: string | null): string|null {
+  if (!url) return null;
   try {
     const hostname = urlObject.parse(url).hostname
     return hostname!.replace('www.', '');
@@ -182,7 +183,7 @@ export const addHttp = function (url: string): string|null {
 // https://stackoverflow.com/questions/16301503/can-i-use-requirepath-join-to-safely-concatenate-urls
 // for searching: url-join
 /** Combine urls without extra /s at the join */
-export const combineUrls = (baseUrl: string, path:string) => {
+export const combineUrls = (baseUrl: string, path: string) => {
   return path
     ? baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
     : baseUrl;
@@ -286,7 +287,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe',
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio',
   
   //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
   "math", "mi", "mn", "mo", "ms", "mspace", "mtext", "merror",
@@ -314,12 +315,24 @@ const allowedTableStyles = {
 };
 
 const allowedMathMLGlobalAttributes = ['mathvariant', 'dir', 'displaystyle', 'scriptlevel'];
+const footnoteAttributes = [
+  'data-footnote-content',
+  'data-footnote-id',
+  'data-footnote-index',
+  'data-footnote-item',
+  'data-footnote-reference',
+  'data-footnote-section',
+  'data-footnote-back-link',
+  'data-footnote-back-link-href',
+]
 
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      '*': [...footnoteAttributes, 'data-internal-id'],
+      audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
       table: ['style'],
@@ -329,10 +342,13 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
-      a: ['href', 'name', 'target', 'rel'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
+      a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
+
+      // Attributes for dialogues
+      section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
       
       // Attributes for MathML elements
       math: [...allowedMathMLGlobalAttributes, 'display'],
@@ -372,12 +388,32 @@ export const sanitize = function(s: string): string {
       'ourworldindata.org',
       'strawpoll.com',
       'estimaker.app',
+      'viewpoints.xyz',
+      'calendly.com'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed', 'estimaker-preview' ],
+      div: [
+        'spoilers',
+        'footnote-content',
+        'footnote-item',
+        'footnote-label',
+        'footnote-reference',
+        'metaculus-preview',
+        'manifold-preview',
+        'metaforecast-preview',
+        'owid-preview',
+        'elicit-binary-prediction',
+        'thoughtSaverFrameWrapper',
+        'strawpoll-embed',
+        'estimaker-preview',
+        'viewpoints-preview',
+        'ck-cta-button',
+        'ck-cta-button-centered',
+        'calendly-preview',
+      ],
       iframe: [ 'thoughtSaverFrame' ],
-      ol: [ 'footnotes' ],
+      ol: [ 'footnotes', 'footnote-section' ],
       li: [ 'footnote-item' ],
     },
     allowedStyles: {

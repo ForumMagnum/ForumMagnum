@@ -5,40 +5,36 @@ import Messages from '../../lib/collections/messages/collection';
 import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
-import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 import { captureEvent } from '../../lib/analyticsEvents';
+import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeApi } from '../recombee/client';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-// This should get refactored someday to be more forum-neutral
-const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
-  {
-    username: "AdminTeam",
-    email: "forum@effectivealtruism.org"
-  } :
-  {
-    username: forumTypeSetting.get(),
-    email: "team@lesswrong.com"
-  }
 
 export const getAdminTeamAccount = async () => {
-  let account = await Users.findOne({username: adminTeamUserData.username});
+  const adminAccountData = adminAccountSetting.get();
+  if (!adminAccountData) {
+    return null;
+  }
+  let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
     const newAccount = await createMutator({
       collection: Users,
-      document: adminTeamUserData,
+      document: adminAccountData,
       validate: false,
     })
     return newAccount.data
@@ -90,7 +86,7 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
   return comment
 });
 
-getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment) {
+getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations (comment: DbComment, _, context: ResolverContext) {
   // update lastCommentedAt field on post or tag
   if (comment.postId) {
     const lastCommentedAt = new Date()
@@ -117,6 +113,15 @@ getCollectionHooks("Comments").newSync.add(async function CommentsNewOperations 
       updateLastCommentedAtPromise,
       updateReadStatusesPromise
     ])
+
+    // update the lastCommentedAt field in Recombee version of post
+    if (recombeeEnabledSetting.get() && !comment.debateResponse) {
+      const post = await context.loaders.Posts.load(comment.postId)
+      if (post) {
+        // eslint-disable-next-line no-console
+        void recombeeApi.upsertPost(post, context).catch(e => console.log('Error when sending commented on post to recombee', { e }));  
+      }
+    }
 
   } else if (comment.tagId) {
     const fieldToSet = comment.tagCommentType === "SUBFORUM" ? "lastSubforumCommentAt" : "lastCommentedAt"
@@ -202,7 +207,7 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   if (comment.postId) {
     const comments = await Comments.find({postId:comment.postId, deleted: false, debateResponse: false}).fetch()
   
-    const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
+    const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
     const lastCommentedAt = (lastComment && lastComment.postedAt) || (await Posts.findOne({_id:comment.postId}))?.postedAt || new Date()
   
     void updateMutator({
@@ -241,7 +246,7 @@ interface SendModerationPMParams {
 
 // TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
 async function sendModerationPM({ messageContents, lwAccount, comment, noEmail, contentTitle, action }: SendModerationPMParams) {
-  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
+  const conversationData: CreateMutatorParams<"Conversations">['document'] = {
     participantIds: [comment.userId, lwAccount._id],
     title: `Comment ${action} on ${contentTitle}`,
     ...(action === 'rejected' ? { moderator: true } : {})
@@ -313,7 +318,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
   let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
   
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-  const noEmail = forumTypeSetting.get() === "EAForum" 
+  const noEmail = isEAForum 
   ? false 
   : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 
@@ -342,15 +347,19 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         : null
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
-    const lwAccount = await getAdminTeamAccount();
     const commentUser = await Users.findOne({_id: comment.userId})
+    const lwAccount = await getAdminTeamAccount() ?? commentUser;
+    if (!lwAccount) {
+      // Something has gone horribly wrong
+      throw new Error("Could not find admin account to send PM from");
+    }
 
     let messageContents =
         `<div>
           <p>One of your comments on "${contentTitle}" has been removed by ${(moderatingUser?.displayName) || "the Akismet spam integration"}. We've sent you another PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page); we will not see replies to this conversation.</p>
           <p>The contents of your message are here:</p>
           <blockquote>
-            ${comment.contents.html}
+            ${comment.contents?.html}
           </blockquote>
         </div>`
     if (comment.deletedReason && moderatingUser) {
@@ -358,7 +367,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     }
 
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = forumTypeSetting.get() === "EAForum" 
+    const noEmail = isEAForum
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 
@@ -405,39 +414,63 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   return {...comment, ...votedComment} as DbComment;
 });
 
-getCollectionHooks("Comments").editSync.add(async function validateDeleteOperations (modifier, comment: DbComment, currentUser: DbUser) {
-  if (modifier.$set) {
-    const { deleted, deletedPublic, deletedReason } = modifier.$set
-    if (deleted || deletedPublic || deletedReason) {
-      if (deletedPublic && !deleted) {
-        throw new Error("You cannot publicly delete a comment without also deleting it")
-      }
+getCollectionHooks("Comments").updateBefore.add(async function validateDeleteOperations (data, properties) {
+  // Validate changes to comment deletion fields (deleted, deletedPublic,
+  // deletedReason). This could be deleting a comment, undoing a delete, or
+  // changing the reason/public-ness of the deletion.
+  //
+  // Note that this is normally called via the mutaiton inside the
+  // moderateComment mutator, which has already enforced some things; in
+  // particular it will have checked `userCanModerateComment` and filled in
+  // deletedByUserId and deletedDate.
 
-      if (
-        (comment.deleted || comment.deletedPublic) &&
-        (deletedPublic || deletedReason) &&
-        !userCanDo(currentUser, 'comments.remove.all') &&
-        comment.deletedByUserId !== currentUser._id) {
-          throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
-      }
-
-      if (deletedReason && !deleted && !deletedPublic) {
-        throw new Error("You cannot set a deleted reason without deleting a comment")
-      }
-
-      const childrenComments = await Comments.find({parentCommentId: comment._id}).fetch()
+  // First check that anything relevant to deletion has changed
+  if (properties.oldDocument.deleted !== properties.newDocument.deleted
+   || properties.oldDocument.deletedPublic !== properties.newDocument.deletedPublic
+   || properties.oldDocument.deletedReason !== properties.newDocument.deletedReason
+  ) {
+    if (properties.newDocument.deletedPublic && !properties.newDocument.deleted) {
+      throw new Error("You cannot publicly delete a comment without also deleting it")
+    }
+    
+    if (properties.newDocument.deleted && !properties.oldDocument.deleted) {
+      // Deletion
+      const childrenComments = await Comments.find({parentCommentId: properties.newDocument._id}).fetch()
       const filteredChildrenComments = _.filter(childrenComments, (c) => !(c && c.deleted))
       if (
         filteredChildrenComments &&
         (filteredChildrenComments.length > 0) &&
-        (deletedPublic || deleted) &&
-        !userCanDo(currentUser, 'comment.remove.all')
+        !userCanDo(properties.currentUser, 'comment.remove.all')
       ) {
         throw new Error("You cannot delete a comment that has children")
       }
+    } else if (properties.oldDocument.deleted && !properties.newDocument.deleted) {
+      // Undeletion
+      //
+      // Deletions can be undone by mods and by the person who did the deletion
+      // (regardless of whether they would still have permission to do that
+      // deletion now).
+      if (
+        !userIsAdminOrMod(properties.currentUser)
+        && properties.oldDocument.deletedByUserId !== properties.currentUser?._id
+      ) {
+        throw new Error("You cannot undo deletion of a comment deleted by someone else");
+      }
+    } else if (properties.newDocument.deleted) {
+      // Changing metadata on a deleted comment requires the same permissions as
+      // undeleting (either a moderator, or was the person who did the deletion
+      // in the first place)
+      if (
+        properties.newDocument.deleted
+        && properties.currentUser?._id !== properties.oldDocument.deletedByUserId
+        && !userIsAdminOrMod(properties.currentUser)
+      ) {
+        throw new Error("You cannot edit the deleted status of a comment that's been deleted by someone else")
+      }
     }
   }
-  return modifier
+
+  return data;
 });
 
 getCollectionHooks("Comments").editSync.add(async function moveToAnswers (modifier, comment: DbComment) {
@@ -536,11 +569,11 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 //   }
 // });
 
-getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
+getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<"Comments">) => {
   await triggerReviewIfNeeded(document.userId);
 })
 
-getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<DbComment>) {
+getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<"Comments">) {
   if (!currentUser) return;
   currentUser.snoozedUntilContentCount && await updateMutator({
     collection: Users,
@@ -553,7 +586,7 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
   await triggerReviewIfNeeded(currentUser._id)
 });
 
-getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbComment>) {
+getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
   if (!oldDocument.rejected && document.rejected) {
     void createMutator({
       collection: context.ModeratorActions,

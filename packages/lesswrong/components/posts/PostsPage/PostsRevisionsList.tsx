@@ -1,9 +1,7 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { QueryLink } from '../../../lib/reactRouterWrapper';
-import { useNavigation } from '../../../lib/routeUtil';
-
+import { QueryLink, useNavigate } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   version: {
@@ -15,7 +13,7 @@ const PostsRevisionsList = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { document, loading } = useSingle({
     documentId: post._id,
     collectionName: "Posts",
@@ -34,7 +32,7 @@ const PostsRevisionsList = ({post, classes}: {
         </MenuItem>
       </QueryLink>)}
     
-    <MenuItem onClick={ev => history.push(`/revisions/post/${post._id}/${post.slug}`)}>
+    <MenuItem onClick={ev => navigate(`/revisions/post/${post._id}/${post.slug}`)}>
       Compare Revisions
     </MenuItem>
   </React.Fragment>

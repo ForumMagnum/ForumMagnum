@@ -1,10 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 2,
   },
   title: {
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontWeight: 600,
@@ -65,36 +64,31 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
   wrap?: boolean,
   widerSpacing?: boolean
 }) => {
-  const {
-    LWPopper, PostsPreviewTooltip, UsersName, MetaInfo, KarmaDisplay,
-  } = Components;
-  const { eventHandlers, hover, anchorEl } = useHover();
-
-  return <span {...eventHandlers}>
-    <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
-      <LWPopper 
-        open={hover} 
-        anchorEl={anchorEl} 
-        placement="left-start"
-        allowOverflow
-      >
-        <PostsPreviewTooltip post={post}/>
-      </LWPopper>
-      <div className={classes.post}>
-        {!hideMeta && <MetaInfo className={classes.karma}>
-          <KarmaDisplay document={post} placement="right" />
-        </MetaInfo>}
-        <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.wrap]: wrap})}>
-          {post.title}
-        </Link>
-        {!hideMeta && post.user && <MetaInfo className={classes.author}>
-          <UsersName user={post.user} />
-        </MetaInfo>}
-
-
+  const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
+  return (
+    <PostsTooltip post={post} clickable={false} placement="bottom-start">
+      <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
+        <div className={classes.post}>
+          {!hideMeta &&
+            <MetaInfo className={classes.karma}>
+              <KarmaDisplay document={post} placement="right" />
+            </MetaInfo>
+          }
+          <Link
+            to={postGetPageUrl(post)}
+            className={classNames(classes.title, {[classes.wrap]: wrap})}
+          >
+            {post.title}
+          </Link>
+          {!hideMeta && post.user &&
+            <MetaInfo className={classes.author}>
+              <UsersName user={post.user} nowrap={!wrap} />
+            </MetaInfo>
+          }
+        </div>
       </div>
-    </div>
-  </span>
+    </PostsTooltip>
+  );
 }
 
 const TagSmallPostLinkComponent = registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
@@ -104,4 +98,3 @@ declare global {
     TagSmallPostLink: typeof TagSmallPostLinkComponent
   }
 }
-

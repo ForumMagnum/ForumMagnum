@@ -1,4 +1,4 @@
-import Query, { Atom } from "./Query";
+import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
 import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
@@ -71,6 +71,17 @@ export type SelectSqlOptions = Partial<{
    * from the result.
    */
   sampleSize: number,
+  /**
+   * Don't initialize the query in the constructor (this is used by
+   * `SelectFragmentQuery` to insert a custom projection without the normal "*"
+   * projection that `SelectQuery` would generate).
+   */
+  deferInit: boolean,
+  /**
+   * Table prefix for the primary table (used by `SelectFragmentQuery` for
+   * custom projections).
+   */
+  primaryPrefix?: string,
 }>
 
 /**
@@ -102,6 +113,7 @@ export const isGroupByAggregateExpression = (value: any) => {
  */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
+  private sqlComment: string|null
 
   constructor(
     table: Table<T> | Query<T>,
@@ -109,7 +121,9 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
   ) {
-    super(table, ["SELECT"]);
+    const deferInit = sqlOptions?.deferInit ?? false;
+    const primaryPrefix = sqlOptions?.primaryPrefix ?? null;
+    super(table, deferInit ? [] : ["SELECT"], primaryPrefix);
 
     if (options?.collation) {
       const collation = getCollationType(options.collation);
@@ -121,6 +135,21 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       return;
     }
 
+    if (options?.comment) {
+      this.sqlComment = sanitizeSqlComment(options.comment);
+    }
+
+    if (!deferInit) {
+      this.initOptions(table, options, sqlOptions);
+      this.initSelector(selector, options, sqlOptions);
+    }
+  }
+
+  private initOptions(
+    table: Table<T> | Query<T>,
+    options?: MongoFindOptions<T>,
+    sqlOptions?: SelectSqlOptions,
+  ) {
     this.hasLateralJoin = !!sqlOptions?.lookup;
 
     const {addFields, projection} = this.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
@@ -137,7 +166,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.joinHook) {
       this.atoms.push(sqlOptions.joinHook);
     }
+  }
 
+  protected initSelector(
+    selector?: string | MongoSelector<T>,
+    options?: MongoFindOptions<T>,
+    sqlOptions?: SelectSqlOptions,
+  ) {
     if (typeof selector === "string") {
       selector = {_id: selector};
     }
@@ -154,6 +189,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.forUpdate) {
       this.atoms.push("FOR UPDATE");
     }
+  }
+
+  getSqlComment() {
+    return this.sqlComment;
   }
 
   private selectorIsEmpty(selector?: string | MongoSelector<T>): boolean {
@@ -178,7 +217,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     const fields = keys.map((key) =>
       `"${typeof (group as AnyBecauseTodo)[key] === "string" && (group as AnyBecauseTodo)[key][0] === "$" ? (group as AnyBecauseTodo)[key].slice(1) : key}"`
     );
-    this.atoms.push(fields.join(", "));
+    this.atoms.push(fields.map((f) => this.prefixify(f)).join(", "));
   }
 
   private getStarSelector() {
@@ -206,7 +245,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private getSyntheticFields(addFields: Record<string, any>, leadingComma = true): Atom<T>[] {
+  protected getSyntheticFields(addFields: Record<string, any>, leadingComma = true): Atom<T>[] {
     for (const field in addFields) {
       this.syntheticFields[field] = new UnknownType();
     }
@@ -215,7 +254,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     ).slice(leadingComma ? 0 : 1);
   }
 
-  private disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
+  protected disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
     if (addFields) {
       const fields = Object.keys(addFields);
       for (const field of fields) {
@@ -311,6 +350,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       }
       this.atoms.push(sorts.join(", "));
     } else if (this.nearbySort) { // Nearby sort is overriden by a sort in `options`
+      // Field has already been resolved and prefixified by Query.compileComparison
       const {field, lng, lat} = this.nearbySort;
       this.atoms = this.atoms.concat([
         "ORDER BY EARTH_DISTANCE(LL_TO_EARTH((",

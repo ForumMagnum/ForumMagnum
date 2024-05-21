@@ -1,10 +1,9 @@
-import { preferredHeadingCase } from '../forumTypeUtils';
-import { addStrings } from '../vulcan-lib';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { addStrings } from '../vulcan-lib/intl';
 
 // Example Forum default strings
 
 addStrings('en', {
-
   'posts.new_post': preferredHeadingCase('New Post'),
   'posts.edit': 'Edit',
   'posts.edit_success': 'Post “{title}” edited.',

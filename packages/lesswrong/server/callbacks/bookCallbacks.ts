@@ -42,7 +42,8 @@ async function getCompleteCollection(id: string) {
   return result
 }
 
-async function getAllCollectionPosts(id: string) {
+async function getAllCollectionPosts(id: string | null) {
+  if (!id) return Promise.resolve({posts: [], sequences: [], collectionSlug: ""});
   let queryResult: any = await getCompleteCollection(id);
 
   let allCollectionPosts: Array<any> = [];

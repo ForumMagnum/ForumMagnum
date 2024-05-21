@@ -14,7 +14,8 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -82,7 +83,7 @@ const TagVersionHistoryButton = ({tagId, classes}: {
 
 const TagVersionHistory = ({tagId, onClose, classes}: {
   tagId: string,
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType
 }) => {
   const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;

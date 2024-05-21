@@ -39,6 +39,12 @@ function countMentions(document: AnyBecauseTodo): number {
 }
 
 function isMention(href: string) {
-  const url = new URL(href)
-  return url.searchParams.get(userMentionQuery) === userMentionValue
+  try {
+    // URLs that fail to parse (including relative URLs) throw an exception from
+    // `new URL`. Don't count them as mentions.
+    const url = new URL(href);
+    return url.searchParams.get(userMentionQuery) === userMentionValue
+  } catch {
+    return false;
+  }
 }

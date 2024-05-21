@@ -6,13 +6,15 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
-import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, getSearchClient } from '../../lib/search/algoliaUtil';
+import { SearchBox, Configure } from 'react-instantsearch-dom';
+import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import { formatFacetFilters } from '../search/SearchAutoComplete';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -116,7 +118,7 @@ const AddPostsToTag = ({classes, tag}: {
     }
   });
 
-  const onPostSelected = useCallback(async (postId) => {
+  const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -146,7 +148,7 @@ const AddPostsToTag = ({classes, tag}: {
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch
-        indexName={getAlgoliaIndexName("Posts")}
+        indexName={getSearchIndexName("Posts")}
         searchClient={getSearchClient()}
       > 
         <div className={classes.searchHeader}>
@@ -178,4 +180,3 @@ declare global {
     AddPostsToTag: typeof AddPostsToTagComponent
   }
 }
-

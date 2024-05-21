@@ -62,6 +62,10 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
     throw new InvalidUserError();
   }
 
+  /**
+   * TODO: Null is made legal value for fields but database types are incorrectly generated without null. 
+   * Hacky fix for now. Search 84b2 to find all instances of this casting.
+   */
   const document: Partial<DbPost> = {
     userId: user._id,
     fmCrosspost: {
@@ -70,7 +74,7 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
       foreignPostId: postId,
     },
     ...denormalizedData,
-  };
+  } as Partial<DbPost>;
 
   const {data: post} = await Utils.createMutator({
     document,
@@ -92,10 +96,11 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
   };
 };
 
+//TODO: clean up typecast `as Partial<DbPost>` below, Code: 84b2
 export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (req) => {
   const { token } = req;
   const {postId, ...rest} = await verifyToken(token, UpdateCrosspostPayloadValidator.is);
-  const denormalizedData: Partial<DbPost> = extractDenormalizedData(rest);
+  const denormalizedData: Partial<DbPost> = extractDenormalizedData(rest) as Partial<DbPost>;
   await Posts.rawUpdateOne({_id: postId}, {$set: denormalizedData});
   return { status: 'updated' };
 };

@@ -11,7 +11,7 @@ const commonFields = (nullable = false) => ({
   nullable,
 });
 
-const schema: SchemaType<DbPostEmbedding> = {
+const schema: SchemaType<"PostEmbeddings"> = {
   postId: {
     ...commonFields(),
     ...foreignKeyField({

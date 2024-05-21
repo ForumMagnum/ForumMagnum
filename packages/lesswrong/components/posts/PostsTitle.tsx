@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -7,16 +7,19 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/constants";
 import { communityPath } from '../../lib/routes';
-import { isEAForum } from '../../lib/instanceSettings';
 import { InteractionWrapper } from '../common/useClickableCell';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: isEAForum ? 600 : undefined,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -36,13 +39,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: 2,
-    paddingRight: isEAForum ? 8 : 10,
+    paddingLeft: isFriendlyUI ? 2 : undefined,
+    paddingRight: isFriendlyUI ? 8 : 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon[isEAForum ? "dim4" : "slightlyDim3"],
+    color: theme.palette.icon["dim4"],
   },
-  stickyIcon: isEAForum
+  stickyIcon: isFriendlyUI
     ? {
       width: 16,
       height: 16,
@@ -56,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.dim55,
     paddingRight: theme.spacing.unit,
     top: -2,
-    width: isEAForum ? 26 : "auto",
+    width: isFriendlyUI ? 26 : "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -66,7 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: isEAForum ? {
+  eaTitleDesktopEllipsis: isFriendlyUI ? {
     '&:hover': {
       opacity: 0.5
     },
@@ -101,7 +104,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-})
+  eventTag: {
+    ...tagStyle(theme),
+    ...smallTagTextStyle(theme),
+    display: "inline-flex",
+    alignItems: "center",
+    marginLeft: 10,
+    padding: "0 6px",
+    height: 20,
+    border: "none",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-foreground)"
+      : "var(--post-title-tag-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-background)"
+      : "var(--post-title-tag-foreground)",
+    "&:hover": {
+      opacity: 0.9,
+    },
+  },
+  highlightedTagTooltip: {
+    marginTop: -2,
+  },
+});
 
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
@@ -119,27 +144,29 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const DefaultWrapper: FC = ({children}) => <>{children}</>;
+const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
 const PostsTitle = ({
   post, 
   postLink, 
-  classes, 
   sticky, 
   read, 
   showPersonalIcon=true, 
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
-  isLink=true, 
-  curatedIconLeft=true, 
+  isLink=true,
+  curatedIconLeft=true,
   strikethroughTitle=false,
+  showRecommendationIcon=false,
   Wrapper=DefaultWrapper,
+  showEventTag,
+  linkEventProps,
   className,
-}:{
+  classes,
+}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
-  classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showPersonalIcon?: boolean
@@ -149,12 +176,17 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
-  Wrapper?: FC,
-  className?: string
+  showRecommendationIcon?: boolean
+  Wrapper?: FC<PropsWithChildren<{}>>,
+  showEventTag?: boolean,
+  linkEventProps?: Record<string, string>,
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const { PostsItemIcons, CuratedIcon, ForumIcon } = Components
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
@@ -177,33 +209,57 @@ const PostsTitle = ({
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span className={classNames({[classes.read]: read && isEAForum})}>
-      <Wrapper>{post.title}</Wrapper>
-    </span>
+    <Wrapper>{post.title}</Wrapper>
   </span>
 
   return (
-    <span className={classNames(classes.root, {
-      [classes.read]: read && !isEAForum,
-      [classes.wrap]: wrap,
-      [classes.strikethroughTitle]: strikethroughTitle
-    }, className)}>
+    <span className={classNames(
+      classes.root,
+      read && classes.read,
+      wrap && classes.wrap,
+      strikethroughTitle && classes.strikethroughTitle,
+      className,
+    )}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <InteractionWrapper className={classes.interactionWrapper}>
           <CuratedIcon hasColor />
         </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
-        {isLink ? <Link to={url}>{title}</Link> : title }
+        {isLink ? <Link to={url} eventProps={linkEventProps}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+          <PostsItemIcons 
+            post={post} 
+            hideCuratedIcon={curatedIconLeft} 
+            hidePersonalIcon={!showPersonalIcon}
+            showRecommendationIcon={showRecommendationIcon}
+          />
         </InteractionWrapper>
       </span>}
+      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <TagsTooltip
+            tagSlug={currentForumEvent.tag.slug}
+            className={classes.highlightedTagTooltip}
+          >
+            <Link to={tagGetUrl(currentForumEvent.tag)}>
+              <span
+                className={classes.eventTag}
+                style={{
+                  "--post-title-tag-background": currentForumEvent.lightColor,
+                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                } as CSSProperties}
+              >
+                {currentForumEvent.tag.name}
+              </span>
+            </Link>
+          </TagsTooltip>
+        </InteractionWrapper>
+      }
     </span>
   )
-
 }
 
 const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});

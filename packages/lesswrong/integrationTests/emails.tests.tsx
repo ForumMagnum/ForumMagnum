@@ -1,6 +1,6 @@
 import "./integrationTestSetup";
 import React from 'react';
-import { withSingle, useSingle } from '../lib/crud/withSingle';
+import { useSingle } from '../lib/crud/withSingle';
 import { createDummyUser, createDummyPost } from './utils'
 import { emailDoctype, generateEmail } from '../server/emails/renderEmail';
 import { withStyles, createStyles } from '@material-ui/core/styles';
@@ -66,22 +66,27 @@ describe('renderEmail', () => {
     (email.html as any).should.equal(emailDoctype+'<body><div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div></body>');
   });
   
-  it("Can use Apollo HoCs", async () => {
+  it("Can use Apollo useSingle", async () => {
     const user = await createDummyUser();
     const post = await createDummyPost(user, { title: "Email unit test post" });
     
-    const PostTitleComponent: any = withSingle({
-      collectionName: "Posts",
-      fragmentName: 'PostsRevision',
-      extraVariables: {
-        version: 'String'
-      }
-    })(
-      ({document}) => <div>{document?.title}</div>
-    );
+    const PostTitleComponent= ({documentId}: {documentId: string}) => {
+      const { document } = useSingle({
+        documentId,
+        collectionName: "Posts",
+        fragmentName: 'PostsRevision',
+        extraVariables: {
+          version: 'String'
+        },
+        extraVariablesValues: {
+          version: null,
+        },
+      });
+      return <div>{document?.title}</div>;
+    }
     
     const email = await renderTestEmail({
-      bodyComponent: <PostTitleComponent documentId={post._id} version={null} />,
+      bodyComponent: <PostTitleComponent documentId={post._id}/>,
     });
     (email.html as any).should.equal(emailDoctype+'<body><div>Email unit test post</div></body>');
   });
@@ -97,7 +102,10 @@ describe('renderEmail', () => {
         fragmentName: 'PostsRevision',
         extraVariables: {
           version: 'String'
-        }
+        },
+        extraVariablesValues: {
+          version: null,
+        },
       });
       return <div>{document?.title}</div>
     }

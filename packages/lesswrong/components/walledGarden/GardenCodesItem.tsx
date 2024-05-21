@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CreateIcon from '@material-ui/icons/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
-import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip';
+import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip/LWPostsPreviewTooltip';
 import { userOwns, userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import PersonIcon from '@material-ui/icons/Person';
@@ -79,8 +79,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const makeLinkAbsolute = (link: string) => {return link.startsWith('http://') || link.startsWith('https://') ? link : `https://${link}`}
 
-export const GardenCodesItem = ({classes, gardenCode}:{
-  classes:ClassesType,
+export const GardenCodesItem = ({classes, gardenCode}: {
+  classes: ClassesType,
   gardenCode: GardenCodeFragment
 }) => {
   const { GardenCodesEditForm, LWTooltip, ContentItemBody } = Components
@@ -94,7 +94,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
   
   return <div className={classes.root}>
     <span className={classes.eventName}>
-      {gardenCode.type=='private' && <LWTooltip title="Your personal event" placement="right">
+      {gardenCode.type==='private' && <LWTooltip title="Your personal event" placement="right">
         <PersonIcon className={classes.personalIcon}/>
       </LWTooltip>}
       {gardenCode.contents?.htmlHighlight ? <span><LWTooltip title={<span className={classes.highlight}>
@@ -123,7 +123,7 @@ export const GardenCodesItem = ({classes, gardenCode}:{
         </CopyToClipboard>
       </LWTooltip>
       <div className={classes.fbIconContainer}> {/*container for fb icon to maintain spacing*/} 
-        {gardenCode.fbLink && (gardenCode.type=="public" || currentUser?.walledGardenInvite) &&
+        {gardenCode.fbLink && (gardenCode.type==="public" || currentUser?.walledGardenInvite) &&
         <LWTooltip title="Link to the FB version of this event" placement="right">
           <a href={makeLinkAbsolute(gardenCode.fbLink)} target="_blank" rel="noopener noreferrer">
             <FacebookIcon className={classes.fbIcon}/>

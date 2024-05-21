@@ -1,10 +1,11 @@
 import moment from 'moment';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
+import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 
 declare global {
@@ -13,6 +14,8 @@ declare global {
     postId?: string,
     userId?: string,
     tagId?: string,
+    relevantTagId?: string,
+    maxAgeDays?: number,
     parentCommentId?: string,
     parentAnswerId?: string,
     topLevelCommentId?: string,
@@ -24,6 +27,7 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    showCommunity?: boolean,
   }
   
   /**
@@ -371,8 +375,8 @@ Comments.addView("postsItemComments", (terms: CommentsViewTerms) => {
     selector: {
       postId: terms.postId,
       deleted: false,
-      score: {$gt: 0},
-      postedAt: terms.after ? {$gt: new Date(terms.after)} : null
+      postedAt: terms.after ? {$gt: new Date(terms.after)} : null,
+      ...(!isEAForum && {score: {$gt: 0}}),
     },
     options: {sort: {postedAt: -1}, limit: terms.limit || 15},
   };
@@ -394,7 +398,7 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   };
 });
 
-export const questionAnswersSortings : Record<CommentSortingMode,MongoSelector<DbComment>> = {
+export const questionAnswersSortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   ...sortings,
   "top": {promoted: -1, baseScore: -1, postedAt: -1},
   "magic": {promoted: -1, score: -1, postedAt: -1},
@@ -458,6 +462,19 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
+Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId: terms.postId,
+      $or: [
+        { answer: true },
+        { parentAnswerId: {$exists: true} },
+      ],
+    },
+    options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
+  };
+});
+
 // Used in moveToAnswers
 ensureIndex(Comments, {topLevelCommentId:1});
 
@@ -502,13 +519,39 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
 });
 
 Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  const twoHoursAgo = moment().subtract(2, 'hours').toDate();
+  const maxAgeDays = terms.maxAgeDays ?? 5;
   return {
     selector: {
       shortform: true,
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      createdAt: {$gt: moment().subtract(5, 'days').toDate()},
+      createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
+      $and: [
+        !terms.showCommunity
+          ? {
+            relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+          }
+          : {},
+        !!terms.relevantTagId
+          ? {
+            relevantTagIds: terms.relevantTagId,
+          }
+          : {},
+      ],
+      // Quick takes older than 2 hours must have at least 1 karma, quick takes
+      // younger than 2 hours must have at least -5 karma
+      $or: [
+        {
+          baseScore: {$gte: 1},
+          createdAt: {$lt: twoHoursAgo},
+        },
+        {
+          baseScore: {$gte: -5},
+          createdAt: {$gte: twoHoursAgo},
+        },
+      ],
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };
@@ -545,7 +588,7 @@ Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsVie
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -559,7 +602,7 @@ Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -578,7 +621,7 @@ Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTer
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -592,7 +635,7 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -608,7 +651,7 @@ Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -702,3 +745,27 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+
+// For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_promotedAt"
+  ON "Comments" ("postId", "promotedAt")
+  WHERE "promotedAt" IS NOT NULL;
+`);
+
+// For allowing `TagsRepo.getUserTopTags` to use an index-only scan, since given previous indexes it needed to pull all the comments to get their "postId".
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_userId_postId_postedAt"
+  ON "Comments" ("userId", "postId", "postedAt");
+`);
+
+// Exists for the sake of `CommentsRepo.getPopularComments`, which otherwise takes several seconds to run on a cold cache
+// Note that while it'll continue to use the index if you _increase_ the baseScore requirement above 15, it won't if you decrease it
+// The other conditions in the query could also have been included in the partial index requirements,
+// but they made a trivial difference so the added complexity (and lack of generalizability) didn't seem worth it
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_comments_popular_comments
+  ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
+  WHERE ("baseScore" >= 15)
+`);

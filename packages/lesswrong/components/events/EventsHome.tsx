@@ -14,14 +14,15 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import Geosuggest from 'react-geosuggest';
 import Button from '@material-ui/core/Button';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { EVENT_TYPES } from '../../lib/collections/posts/schema';
 import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
 import classNames from 'classnames';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   section: {
@@ -44,7 +45,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

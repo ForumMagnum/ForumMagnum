@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     overflow: "hidden",
     lineHeight: "1.2rem",
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   hover: {
     backgroundColor: theme.palette.grey[50]

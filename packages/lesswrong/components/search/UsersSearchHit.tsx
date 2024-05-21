@@ -27,13 +27,13 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 
 const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const { LWTooltip, MetaInfo, FormatDate } = Components
-  const user = hit as AlgoliaUser
+  const user = hit as SearchUser
 
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="User">
       <PersonIcon className={classes.icon} />
     </LWTooltip>}
-    <Link to={userGetProfileUrl(user)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={`${userGetProfileUrl(user)}?from=search_autocomplete`} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <MetaInfo>
         {user.displayName}
       </MetaInfo>

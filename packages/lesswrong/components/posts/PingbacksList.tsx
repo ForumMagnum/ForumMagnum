@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     lineHeight: "1rem",
     marginBottom: -4,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontWeight: 600,
         marginTop: 12,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
@@ -13,6 +13,7 @@ import TextField from '@material-ui/core/TextField';
 import { sharedStyles } from './EventNotificationsDialog'
 import { useGoogleMaps } from '../form-components/LocationFormComponent'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
@@ -23,10 +24,16 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 const SetPersonalMapLocationDialog = ({ onClose, classes }: {
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
+  const { document: currentUserWithMarkdownBio, loading } = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersEdit",
+    skip: !currentUser,
+  });
   const { mapLocation, googleLocation, } = currentUser || {}
   const { Loading, Typography, LWDialog } = Components
   
@@ -34,8 +41,14 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   const [ location, setLocation ] = useState(mapLocation || googleLocation)
   const [ label, setLabel ] = useState(mapLocation?.formatted_address || googleLocation?.formatted_address)
   
-  const defaultMapMarkerText = currentUser?.mapMarkerText || currentUser?.biography?.markdown || "";
-  const [ mapText, setMapText ] = useState(defaultMapMarkerText)
+  const [ mapText, setMapText ] = useState<string|null>(null)
+  
+  useEffect(() => {
+    const defaultMapMarkerText = currentUserWithMarkdownBio?.mapMarkerText || currentUserWithMarkdownBio?.biography?.markdown || "";
+    if (!mapText && defaultMapMarkerText) {
+      setMapText(defaultMapMarkerText);
+    }
+  }, [loading, currentUserWithMarkdownBio, mapText]);
   
   const updateCurrentUser = useUpdateCurrentUser()
   
@@ -69,7 +82,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
         {!isEAForum && <TextField
             label={`Description (Make sure to mention whether you want to organize events)}`}
             className={classes.modalTextField}
-            value={mapText}
+            value={mapText || ""}
             onChange={e => setMapText(e.target.value)}
             fullWidth
             multiline

@@ -3,7 +3,7 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
-import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
+import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
@@ -154,14 +154,28 @@ declare global {
       primaryDarkOnDim: ColorString,
       contentHeader?: ColorString,
     
+      reviewWinner: {
+        title: ColorString,
+        author: ColorString,
+      }
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
+      reviewBallotIcon: ColorString,
       
       eventMaybe: ColorString,
       aprilFools: {
         orange: ColorString,
         yellow: ColorString,
         green: ColorString,
+      },
+      
+      debateComment: {
+        [1]: ColorString,
+        [2]: ColorString,
+        [3]: ColorString,
+        [4]: ColorString,
+        [5]: ColorString,
+        [6]: ColorString,
       },
     },
     linkHover: {
@@ -209,7 +223,9 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
-
+      headerKarma: ColorString,
+      activeDotOrange: ColorString,
+      
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
@@ -226,8 +242,10 @@ declare global {
       slightlyIntense3: string,
       intense: string,
       faint: string,
+      grey200: string,
       grey300: string,
       grey400: string,
+      grey800: string,
       maxIntensity: string,
       tableHeadingDivider: string,
       table: string,
@@ -244,13 +262,10 @@ declare global {
       secondaryHighlight: string,
       secondaryHighlight2: string,
       primaryTranslucent: string,
-      debateComment: string,
-      debateComment2: string,
-      debateComment3: string,
-      debateComment4: string,
-      debateComment5: string,
       dashed500: string,
       mentionsBaloon: string,
+      wrappedSummary: string,
+      eaButtonGreyOutline: string,
     },
     panelBackground: {
       default: ColorString,
@@ -289,6 +304,9 @@ declare global {
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
       tooltipBackground2: ColorString,
+      modalBackground: ColorString,
+      loginInput: ColorString,
+      loginInputHovered: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -303,6 +321,13 @@ declare global {
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
       cookieBanner: ColorString,
+      strawpoll: ColorString,
+      userProfileImageHover: ColorString,
+      userProfileImageLoading: string,
+      reviewGold: ColorString
+      onboardingSection: ColorString,
+      onboardingPodcast: ColorString,
+      placeholderGradient: ColorString,
     },
     boxShadow: {
       default: string,
@@ -326,6 +351,7 @@ declare global {
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
       graphTooltip: string,
+      lwTagHoverOver: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
@@ -362,6 +388,10 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
+      digestAdBannerNoThanks: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
     },
     tag: {
       text: ColorString,
@@ -377,7 +407,25 @@ declare global {
       hollowTagBorder: string,
       boxShadow: string,
       addTagButtonBackground: ColorString,
+      onboardingBackground: ColorString,
+      onboardingBackgroundHover: ColorString,
+      onboardingBackgroundSelected: ColorString,
     },
+    tab: {
+      inactive: {
+        text: ColorString,
+        hover: {
+          text: ColorString,
+        }
+      },
+      active: {
+        text: ColorString,
+        background: ColorString
+        hover: {
+          background: ColorString,
+        }
+      },
+    }
     geosuggest: {
       dropdownBackground: ColorString,
       dropdownText: ColorString,
@@ -390,21 +438,34 @@ declare global {
       activeProgress: ColorString,
       progressBar: ColorString,
       adminButton: ColorString,
+      winner: ColorString,
     },
+    leastwrong: {
+      fadeOut: ColorString,
+      imageGridHeaderHighlighted: ColorString,
+      imageGridHeader: ColorString,
+      highlightedPost: ColorString,
+      imageGridBackground: ColorString,
+      postBodyScrim: ColorString,
+    }
     background: {
       default: ColorString
       paper: ColorString,
+      contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primarySlightlyDim: ColorString,
       primaryTranslucent: ColorString,
       primaryTranslucentHeavy: ColorString,
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      digestAdBannerInput: ColorString,
     },
     header: {
       text: ColorString,
@@ -450,16 +511,42 @@ declare global {
     commentParentScrollerHover: ColorString,
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
+
+    wrapped: {
+      background: ColorString,
+      highlightText: ColorString,
+      secondaryText: ColorString,
+      tertiaryText: ColorString,
+      black: ColorString,
+      darkGrey: ColorString,
+      grey: ColorString,
+      darkDot: ColorString,
+      panelBackground: ColorString,
+      panelBackgroundDark: ColorString,
+      postScoreArrow: ColorString,
+    },
+    dialogueMatching: {
+      checkedNotMatched: ColorString,
+      checkedMatched: ColorString,
+      optIn: ColorString,
+      warning: ColorString,
+    },
+    namesAttachedReactions: {
+      selectedAnti: ColorString,
+    },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   
   type ThemeType = {
     forumType: ForumTypeString,
+    themeOptions: ThemeOptions,
+
+    baseFontSize: number,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
-      down:  (breakpoint: BreakpointName|number)=>string,
-      up: (breakpoint: BreakpointName|number)=>string,
+      down:  (breakpoint: BreakpointName|number) => string,
+      up: (breakpoint: BreakpointName|number) => string,
       values: Record<BreakpointName,number>,
     },
     spacing: {
@@ -470,6 +557,7 @@ declare global {
     borderRadius: {
       default: number,
       small: number,
+      quickTakesEntry: number,
     },
     palette: ThemePalette,
     typography: {

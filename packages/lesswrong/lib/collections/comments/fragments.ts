@@ -10,7 +10,7 @@ registerFragment(`
     }
     relevantTagIds
     relevantTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     tagCommentType
     parentCommentId
@@ -28,6 +28,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    deletedByUserId
     deletedReason
     hideAuthor
     authorIsUnreviewed
@@ -72,6 +73,7 @@ registerFragment(`
     rejected
     rejectedReason
     modGPTRecommendation
+    originalDialogueId
   }
 `);
 

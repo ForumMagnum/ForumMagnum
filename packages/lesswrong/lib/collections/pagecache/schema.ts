@@ -12,7 +12,12 @@ import SimpleSchema from "simpl-schema";
 //   allAbTestGroups: CompleteTestGroupAllocation
 //   themeOptions: AbstractThemeOptions,
 //   renderedAt: Date,
-//   timings: RenderTimings
+//   cacheFriendly: boolean,
+//   timezone: string,
+//   timings: RenderTimings,
+//   aborted: false,
+// } | {
+//   aborted: true
 // }
 const RenderResultSchemaType = new SimpleSchema({
   ssrBody: {
@@ -56,36 +61,49 @@ const RenderResultSchemaType = new SimpleSchema({
   renderedAt: {
     type: Date,
   },
+  cacheFriendly: {
+    type: Boolean,
+  },
+  timezone: {
+    type: String,
+  },
   timings: {
     type: Object,
     blackbox: true,
   },
 });
 
-const schema: SchemaType<DbPageCacheEntry> = {
+const schema: SchemaType<"PageCache"> = {
   path: {
     type: String,
+    nullable: false,
   },
   abTestGroups: {
     // This is always a Record<string, string>
     type: Object,
     blackbox: true,
+    nullable: false,
   },
   bundleHash: {
     type: String,
+    nullable: false,
   },
   renderedAt: {
     type: Date,
+    nullable: false,
   },
   expiresAt: {
     type: Date,
+    nullable: false,
   },
   ttlMs: {
     // This can be inferred from renderedAt and expiresAt, but it's useful to have for debugging
     type: Number,
+    nullable: false,
   },
   renderResult: {
     type: RenderResultSchemaType,
+    nullable: false,
   },
 };
 

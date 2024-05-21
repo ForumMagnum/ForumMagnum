@@ -14,7 +14,7 @@ registerMigration({
       if (!schema) continue;
       
       const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
-      if (fieldsWithAutofill.length == 0) continue;
+      if (fieldsWithAutofill.length === 0) continue;
       
       // eslint-disable-next-line no-console
       console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
@@ -56,7 +56,7 @@ Vulcan.checkForMissingValues = async () => {
     if (!schema) continue;
     
     const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
-    if (fieldsWithAutofill.length == 0) continue;
+    if (fieldsWithAutofill.length === 0) continue;
     
     const count = countRowsNeedingAutofill(collection, fieldsWithAutofill);
     
@@ -65,8 +65,10 @@ Vulcan.checkForMissingValues = async () => {
   }
 }
 
-function countRowsNeedingAutofill<T extends DbObject>(collection: CollectionBase<T>, fieldsWithAutofill: Array<string>)
-{
+function countRowsNeedingAutofill<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  fieldsWithAutofill: Array<string>,
+) {
   return collection.find({
     $or: _.map(fieldsWithAutofill, (fieldName: string) => ({[fieldName]: null}))
   }).count();

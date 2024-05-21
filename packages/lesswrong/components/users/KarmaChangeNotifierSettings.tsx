@@ -7,12 +7,12 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import Checkbox from '@material-ui/core/Checkbox';
 import { withTimezone } from '../common/withTimezone';
-import { isEAForum } from '../../lib/instanceSettings';
 import withErrorBoundary from '../common/withErrorBoundary';
 import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 8,
   },
   heading: {
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   radioGroup: {
     marginTop: 4,
@@ -40,26 +40,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const karmaNotificationTimingChoices = {
+type KarmaNotificationTimingStrings = {
+  label: string
+  infoText: string
+  emptyText: string
+};
+
+export const karmaNotificationTimingChoices: Record<string,KarmaNotificationTimingStrings> = {
   disabled: {
     label: "Disabled",
-    infoText: "Karma changes are disabled",
-    emptyText: "Karma changes are disabled"
+    infoText: "Karma and react notifications are disabled",
+    emptyText: "Karma and react notifications are disabled"
   },
   daily: {
     label: "Batched daily (default)",
-    infoText: "Karma Changes (batched daily):",
-    emptyText: "No karma changes yesterday"
+    infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
+    emptyText: "No karma changes or reacts yesterday"
   },
   weekly: {
     label: "Batched weekly",
-    infoText: "Karma Changes (batched weekly):",
-    emptyText: "No karma changes last week"
+    infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
+    emptyText: "No karma changes or reacts last week"
   },
   realtime: {
     label: "Realtime",
-    infoText: "Recent Karma Changes",
-    emptyText: "No karma changes since you last checked"
+    infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
+    emptyText: "No karma changes or reacts since you last checked"
   },
 };
 
@@ -70,6 +76,8 @@ interface KarmaChangeNotifierSettingsProps extends WithStylesProps {
 }
 
 class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSettingsProps,{}> {
+  declare context: AnyBecauseTodo
+
   modifyValue = (changes: Partial<KarmaChangeSettingsType>) => {
     const oldSettings = this.props.value || {}
     const settings = { ...oldSettings, ...changes };
@@ -159,10 +167,10 @@ class KarmaChangeNotifierSettings extends PureComponent<KarmaChangeNotifierSetti
     
     return <div className={classes.root}>
       <Typography variant="body1" className={classes.heading}>
-        Vote Notifications
+        Vote and Reaction Notifications
       </Typography>
       <Typography variant="body2">
-        Shows upvotes and downvotes to your posts and comments on top of the
+        Shows reactions, upvotes and downvotes on your posts and comments on top of the
         page. By default, this is on but only updates once per day, to avoid
         creating a distracting temptation to frequently recheck it. Can be
         set to real time (removing the batching), disabled (to remove it

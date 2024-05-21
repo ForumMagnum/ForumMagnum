@@ -18,6 +18,7 @@ import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 import { Posts } from "../../lib/collections/posts";
 import { Comments } from "../../lib/collections/comments";
+import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -45,6 +46,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `1px solid ${theme.palette.primaryAlpha(0.5)}`,
     "&:hover": {
       background: theme.palette.primaryAlpha(0.2),
+    },
+  },
+  buttonViewOnly: {
+    cursor: 'default',
+    "&:hover": {
+      background: 'none'
     },
   },
   emojiPreview: {
@@ -97,18 +104,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const isEmojiSelected = <T extends VoteableTypeClient>(
-  voteProps: VotingProps<T>,
+const isEmojiSelected = (
+  currentUserExtendedVote: AnyBecauseHard,
   emojiOption: EmojiOption,
-) => Boolean(voteProps.document?.currentUserExtendedVote?.[emojiOption.name]);
+) => Boolean(currentUserExtendedVote?.[emojiOption.name]);
 
-const getCurrentReactions = <T extends VoteableTypeClient>(
-  voteProps: VotingProps<T>,
+const getCurrentReactions = (
+  extendedScore?: AnyBecauseHard,
 ) => {
-  const extendedScore = voteProps.document?.extendedScore;
   const result = [];
   for (const emojiOption of eaAnonymousEmojiPalette) {
-    result.push({
+    if(alwaysShowAnonymousReactsSetting.get() || extendedScore?.[emojiOption.name]) result.push({
       emojiOption,
       score: extendedScore?.[emojiOption.name] ?? 0,
       anonymous: true,
@@ -199,19 +205,38 @@ export const isEAReactableDocument = (
   return collection === Posts || collection === Comments;
 }
 
-const EAReactsSection: FC<{
+type EAReactsSectionOptions = {
+  // viewOnly disables all interactivity, including tooltips
+  viewOnly: true,
+  document: {
+    _id: string,
+  },
+  voteProps: {
+    document?: {
+      extendedScore: AnyBecauseHard,
+      currentUserExtendedVote?: AnyBecauseHard,
+    },
+  },
+} | {
+  viewOnly?: false|null,
   document: EAReactableDocument,
   voteProps: VotingProps<VoteableTypeClient>,
+};
+
+const EAReactsSection: FC<{
   large?: boolean,
   classes: ClassesType,
-}> = ({document, voteProps, large, classes}) => {
+} & EAReactsSectionOptions> = ({document, voteProps, large, viewOnly, classes}) => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [everOpened, setEverOpened] = useState(false);
   const {captureEvent} = useTracking({
     eventType: "emojiMenuClicked",
-    eventProps: {documentId: document._id, itemType: voteProps.collectionName},
+    eventProps: {
+      documentId: document._id,
+      ...('collectionName' in voteProps && {itemType: voteProps.collectionName})
+    },
   });
 
   const onOpenMenu = useCallback((event: MouseEvent) => {
@@ -225,7 +250,9 @@ const EAReactsSection: FC<{
     setAnchorEl(null);
   }, [captureEvent]);
 
-  const onSelectEmoji = useCallback((emojiOption: EmojiOption) => {
+  const onSelectEmoji = useCallback(async (emojiOption: EmojiOption) => {
+    if (viewOnly) return;
+    
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -236,28 +263,28 @@ const EAReactsSection: FC<{
 
     const extendedVote = {
       ...voteProps.document.currentUserExtendedVote,
-      [emojiOption.name]: !isEmojiSelected(voteProps, emojiOption),
+      [emojiOption.name]: !isEmojiSelected(voteProps.document?.currentUserExtendedVote, emojiOption),
     };
     const partner = getEmojiMutuallyExclusivePartner(emojiOption.name);
     if (partner && extendedVote[emojiOption.name]) {
       extendedVote[partner] = false;
     }
 
-    voteProps.vote({
+    await voteProps.vote({
       document: voteProps.document,
       voteType: voteProps.document.currentUserVote ?? "neutral",
       extendedVote,
       currentUser,
     });
-  }, [currentUser, openDialog, voteProps]);
+  }, [currentUser, openDialog, voteProps, viewOnly]);
 
-  const reactions = getCurrentReactions(voteProps);
+  const reactions = getCurrentReactions(voteProps.document?.extendedScore);
 
   const {EAEmojiPalette, ForumIcon, LWTooltip} = Components;
   return (
     <>
       {reactions.map(({emojiOption, anonymous, score}) => {
-        const isSelected = isEmojiSelected(voteProps, emojiOption);
+        const isSelected = isEmojiSelected(voteProps.document?.currentUserExtendedVote, emojiOption);
         return (
           <LWTooltip
             key={emojiOption.name}
@@ -275,7 +302,7 @@ const EAReactsSection: FC<{
                     currentUser={currentUser}
                     emojiOption={emojiOption}
                     isSelected={isSelected}
-                    reactors={document.emojiReactors}
+                    reactors={'emojiReactors' in document ? document.emojiReactors : undefined}
                     classes={classes}
                   />
                 )
@@ -284,6 +311,7 @@ const EAReactsSection: FC<{
             popperClassName={classNames(classes.tooltip, {
               [classes.tooltipWide]: score > 10,
             })}
+            disabled={!!viewOnly}
           >
             <div
               role="button"
@@ -291,6 +319,7 @@ const EAReactsSection: FC<{
               className={classNames(classes.button, {
                 [classes.buttonSelected]: isSelected,
                 [classes.buttonLarge]: large,
+                [classes.buttonViewOnly]: viewOnly
               })}
             >
               <div className={classes.emojiPreview}>
@@ -301,7 +330,7 @@ const EAReactsSection: FC<{
           </LWTooltip>
         );
       })}
-      <div
+      {!viewOnly && <div
         role="button"
         onClick={onOpenMenu}
         className={classNames(classes.button, {[classes.buttonLarge]: large})}
@@ -319,7 +348,7 @@ const EAReactsSection: FC<{
             })}
           />
         </LWTooltip>
-      </div>
+      </div>}
       <Menu
         onClick={onCloseMenu}
         open={Boolean(anchorEl)}

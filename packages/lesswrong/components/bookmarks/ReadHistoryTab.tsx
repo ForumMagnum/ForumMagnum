@@ -6,6 +6,14 @@ import { gql, useQuery, NetworkStatus } from '@apollo/client';
 import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  empty: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
+    marginBottom: 40,
+  },
   loadMore: {
     marginTop: 10
   },
@@ -47,13 +55,16 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
   
   const {SectionTitle, Loading, PostsItem, LoadMore} = Components
   
-  const readHistory: (PostsListWithVotes & {lastVisitedAt:Date})[] = data?.UserReadHistory?.posts
+  const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />
   }
   if (!readHistory) {
-    return null
+    return null;
+  }
+  if (!readHistory.length) {
+    return <div className={classes.empty}>{"You haven't read any posts yet."}</div>
   }
   
   // group the posts by last read "Today", "Yesterday", and "Older"
@@ -68,7 +79,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
     {yesterdaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
     {!!olderPosts.length && <SectionTitle title="Older"/>}
     {olderPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
-    <div className={classes.loadMore}>
+    {!!readHistory.length && <div className={classes.loadMore}>
       <LoadMore
         loading={networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
@@ -86,7 +97,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
         }}
         loadingClassName={classes.loadMoreSpinner}
       />
-    </div>
+    </div>}
   </AnalyticsContext>
 }
 

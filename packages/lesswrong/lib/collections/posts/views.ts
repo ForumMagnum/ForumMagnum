@@ -2,7 +2,7 @@ import moment from 'moment';
 import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
 import { combineIndexWithDefaultViewIndex, ensureIndex, ensureCustomPgIndex } from '../../collectionIndexUtils';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
-import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { isAF, isEAForum } from '../../instanceSettings';
 import { defaultVisibilityTags } from '../../publicSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
 import { viewFieldAllowAny, viewFieldNullOrMissing } from '../../vulcan-lib';
@@ -13,6 +13,7 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
+import { visitorGetsDynamicFrontpage } from '../../betas';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -53,6 +54,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     notPostIds?: Array<string>,
@@ -152,7 +154,8 @@ export const filters: Record<string,any> = {
  * sorting, do not try to supply your own.
  */
 export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
-  magic: { score: -1 },
+  // filteredScore is added as a synthetic field by filterSettingsToParams
+  magic: { filteredScore: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
   new: { postedAt: -1 },
@@ -163,13 +166,15 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
+Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
+  // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const postCommentedExcludeCommunity = {$or: [
@@ -177,7 +182,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
     {[`tagRelevance.${EA_FORUM_COMMUNITY_TOPIC_ID}`]: {$exists: false}},
   ]}
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   let params: any = {
     selector: {
       status: postStatuses.STATUS_APPROVED,
@@ -231,6 +236,14 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
       options: { ...params.options, ...filterParams.options },
       syntheticFields: { ...params.syntheticFields, ...filterParams.syntheticFields },
     };
+  } else {
+    // The "magic" sorting needs a `filteredScore` to use when ordering. This
+    // is normally filled in using the filter settings, but we need to just
+    // copy over the normal score when filter settings are not supplied.
+    params.syntheticFields = {
+      ...params.syntheticFields,
+      filteredScore: "$score",
+    };
   }
   if (terms.sortedBy) {
     if (terms.sortedBy === 'topAdjusted') {
@@ -252,7 +265,7 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
     let postedAt: any = {};
 
     if (terms.after) {
-      postedAt.$gt = moment(terms.after).toDate();
+      postedAt.$gte = moment(terms.after).toDate();
     }
     if (terms.before) {
       postedAt.$lt = moment(terms.before).toDate();
@@ -263,6 +276,9 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context: ResolverContext) => {
     } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
+  }
+  if (terms.curatedAfter) {
+    params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
   
   return params;
@@ -322,7 +338,7 @@ export function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context: ResolverContext): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context?: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -354,10 +370,10 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context.currentUser && isEAForum
+  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
 
   const syntheticFields = {
-    score: {$divide:[
+    filteredScore: {$divide:[
       {$multiply: [
         {$add:[
           "$baseScore",
@@ -410,12 +426,18 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
 }
 
 function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && 0 < mode && mode < 1) {
+  // Example: "x10.0" is a multiplier of 10
+  const match = typeof mode === "string" && mode.match(/^x(\d+(?:\.\d+)?)$/);
+  if (match) {
+    return parseFloat(match[1]);
+  } else if (typeof mode === "number" && 0 < mode && mode < 1) {
     return mode;
-  } else switch(mode) {
-    default:
-    case "Default": return 1;
-    case "Reduced": return 0.5;
+  } else {
+    switch(mode) {
+      default:
+      case "Default": return 1;
+      case "Reduced": return 0.5;
+    }
   }
 }
 
@@ -575,12 +597,6 @@ Posts.addView("daily", (terms: PostsViewTerms) => ({
     sort: {baseScore: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1}),
-  {
-    name: "posts.postedAt_baseScore",
-  }
-);
 
 Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
@@ -1046,10 +1062,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
               // place in the codebase where we use this operator so it's probably not worth spending a
               // ton of time making this beautiful.
               $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ],
-              ...(Posts.isPostgres()
-                ? { $comment: { locationName: `"googleLocation"->'geometry'->'location'` } }
-                : {}
-              ),
+              $comment: { locationName: `"googleLocation"->'geometry'->'location'` },
             }
           }
         },
@@ -1296,10 +1309,22 @@ ensureIndex(Posts,
   { name: "posts.recommendable" }
 );
 
+Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      $or: [
+        {userId: terms.userId},
+        {"coauthorStatuses.userId": terms.userId}
+      ],
+      collabEditorDialogue: true,
+    },
+  }
+})
+
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      ...jsonArrayContainsSelector(Posts, "pingbacks.Posts", terms.postId),
+      ...jsonArrayContainsSelector("pingbacks.Posts", terms.postId),
       baseScore: {$gt: 0}
     },
     options: {
@@ -1370,7 +1395,7 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   }
 })
 
-const reviews2019Sortings : Record<ReviewSortings, MongoSort<DbPost>> = {
+const reviews2019Sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
   "fewestReviews" : {reviewCount2019: 1},
   "mostReviews" : {reviewCount2019: -1},
   "lastCommentedAt" :  {lastCommentedAt: -1}
@@ -1435,12 +1460,15 @@ ensureIndex(Posts,
 );
 
 
+// Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
+const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
+
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) },
-      reviewCount: { $gte: INITIAL_REVIEW_THRESHOLD }
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1480,7 +1508,8 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       reviewCount: { $gte: VOTING_PHASE_REVIEW_THRESHOLD },
-      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }
+      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1529,3 +1558,16 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
     },
   };
 });
+
+
+/**
+ * For preventing both `PostsRepo.getRecentlyActiveDialogues` and `PostsRepo.getMyActiveDialogues` from being seq scans on Posts.
+ * Given the relatively small number of dialogues, `getMyActiveDialogues` still ends up being fast even though it needs to check each dialogue for userId/coauthorStatuses.
+ * 
+ * This also speeds up `UsersRepo.getUsersWhoHaveMadeDialogues` a bunch.
+ */
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueResponseDate"
+  ON "Posts" (GREATEST("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
+  WHERE "collabEditorDialogue" IS TRUE;
+`);

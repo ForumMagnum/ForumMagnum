@@ -2,8 +2,8 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useLocation } from '../../lib/routeUtil';
-import { Helmet } from 'react-helmet';
 import { styles } from '../common/HeaderSubtitle';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const PostsPageHeaderTitle = ({siteName}: {
   siteName: string,

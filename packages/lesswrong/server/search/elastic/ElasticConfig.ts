@@ -2,8 +2,9 @@ import type {
   MappingProperty,
   QueryDslQueryContainer,
 } from "@elastic/elasticsearch/lib/api/types";
-import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
+import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
+import { isEAForum } from "../../../lib/instanceSettings";
 
 export type Ranking = {
   field: string,
@@ -82,6 +83,10 @@ export type IndexConfig = {
    * `baseScore` if not defined.
    */
   karmaField?: string,
+  /**
+   * Field used for location based geo-sorting
+   */
+  locationField?: string,
 }
 
 /**
@@ -99,6 +104,10 @@ const fullTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
   },
 };
 
@@ -115,7 +124,15 @@ const shingleTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
   },
+};
+
+const geopointMapping: MappingProperty = {
+  type: "geo_point",
 };
 
 /**
@@ -126,7 +143,7 @@ const keywordMapping: MappingProperty = {
   type: "keyword",
 };
 
-const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
+const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
@@ -196,7 +213,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       {term: {rejected: false}},
       {term: {authorIsUnreviewed: false}},
       {term: {status: postStatuses.STATUS_APPROVED}},
-      {range: {baseScore: {gte: 0}}},
+      ...(isEAForum ? [] : [{range: {baseScore: {gte: 0}}}]),
     ],
     mappings: {
       title: fullTextMapping,
@@ -257,9 +274,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
         scoring: {type: "date"},
       },
     ],
-    tiebreaker: "publicDateMs",
+    tiebreaker: "karma",
     filters: [
-      {range: {karma: {gte: 0}}},
       {term: {deleted: false}},
       {term: {deleteContent: false}},
     ],
@@ -277,13 +293,16 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       website: keywordMapping,
       profileImageId: keywordMapping,
       tags: keywordMapping,
+      _geoloc: geopointMapping,
     },
     privateFields: [
       "deleteContent",
       "deleted",
       "isAdmin",
+      "hideFromPeopleDirectory",
     ],
     karmaField: "karma",
+    locationField: "_geoloc",
   },
   Sequences: {
     fields: [
@@ -350,8 +369,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   },
 };
 
-const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
-  const data: Record<string, AlgoliaIndexCollectionName> = {
+export const indexToCollectionName = (index: string): SearchIndexCollectionName => {
+  const data: Record<string, SearchIndexCollectionName> = {
     comments: "Comments",
     posts: "Posts",
     users: "Users",
@@ -365,7 +384,7 @@ const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
 }
 
 export const collectionNameToConfig = (
-  collectionName: AlgoliaIndexCollectionName,
+  collectionName: SearchIndexCollectionName,
 ): IndexConfig => {
   const config = elasticSearchConfig[collectionName];
   if (!config) {
@@ -377,4 +396,15 @@ export const collectionNameToConfig = (
 export const indexNameToConfig = (indexName: string): IndexConfig => {
   const collectionName = indexToCollectionName(indexName);
   return collectionNameToConfig(collectionName);
+}
+
+export const isFullTextField = <N extends SearchIndexCollectionName>(
+  collectionName: N,
+  fieldName: string,
+) => {
+  const config = elasticSearchConfig[collectionName];
+  if (!config) {
+    throw new Error(`Invalid elastic collection name: ${collectionName}`);
+  }
+  return config.mappings?.[fieldName] === fullTextMapping;
 }

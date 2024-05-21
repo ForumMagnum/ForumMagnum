@@ -1,4 +1,4 @@
-import { getCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
+import { graphqlTypeToCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
@@ -20,9 +20,18 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldName: string, simplSchemaType: AnyBecauseTodo, indent = 2): string {
-  const nullable = !!schema[fieldName]?.nullable;
-  if (simplSchemaType.singleType == Array) {
+export function simplSchemaTypeToTypescript(
+  schema: SchemaType<CollectionNameString>,
+  fieldName: string,
+  simplSchemaType: AnyBecauseTodo,
+  indent = 2,
+  DbType = false,
+): string {
+  let nullable = !!schema[fieldName]?.nullable;
+  if (DbType) {
+    nullable = schema[fieldName]?.nullable !== false
+  }
+  if (simplSchemaType.singleType === Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema)) {
       throw new Error(`Field ${fieldName} has an array type but ${fieldName}.$ is not in the schema`);
@@ -33,17 +42,17 @@ export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldN
   } else if (simplSchemaType.singleType) {
     const allowedValues = simplSchemaType.definitions[0]?.allowedValues;
 
-    if (simplSchemaType.singleType == String) {
+    if (simplSchemaType.singleType === String) {
       if (allowedValues) {
         const unionType = simplSchemaUnionTypeToTypescript(allowedValues);
         return maybeNullable(unionType, nullable);
       }
       return maybeNullable("string", nullable);
     }
-    else if (simplSchemaType.singleType == Boolean) return maybeNullable("boolean", nullable);
-    else if (simplSchemaType.singleType == Number) return maybeNullable("number", nullable);
-    else if (simplSchemaType.singleType == Date) return maybeNullable("Date", nullable);
-    else if (simplSchemaType.singleType == SimpleSchema.Integer) return maybeNullable("number", nullable);
+    else if (simplSchemaType.singleType === Boolean) return maybeNullable("boolean", nullable);
+    else if (simplSchemaType.singleType === Number) return maybeNullable("number", nullable);
+    else if (simplSchemaType.singleType === Date) return maybeNullable("Date", nullable);
+    else if (simplSchemaType.singleType === SimpleSchema.Integer) return maybeNullable("number", nullable);
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType);
     if (graphQLtype) {
@@ -84,7 +93,7 @@ function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: 
 
 export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
-  if (graphqlType == GraphQLJSON) return "any";
+  if (graphqlType === GraphQLJSON) return "any";
   
   if (graphqlType.endsWith("!")) {
     return graphqlTypeToTypescript(graphqlType.substr(0, graphqlType.length-1), true);
@@ -94,20 +103,21 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
     const arrayElementType = graphqlType.substr(1,graphqlType.length-2);
     return `Array<${graphqlTypeToTypescript(arrayElementType, false)}>`;
   }
+
+  const nullabilitySuffix = nonnull ? "" : "|null";
   
   switch(graphqlType) {
-    case "Int": return "number";
-    case "Boolean": return "boolean";
-    case "String": return "string";
-    case "Date": return "Date";
-    case "Float": return "number";
+    case "Int": return "number"+nullabilitySuffix;
+    case "Boolean": return "boolean"+nullabilitySuffix;
+    case "String": return "string"+nullabilitySuffix;
+    case "Date": return "Date"+nullabilitySuffix;
+    case "Float": return "number"+nullabilitySuffix;
     default:
-      if (typeof graphqlType=="string") {
-        if (graphqlType.endsWith("!") && isValidCollectionName(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
+      if (typeof graphqlType==="string") {
+        if (graphqlType.endsWith("!") && isValidCollectionName(graphqlTypeToCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
           return graphqlType;
-        } else if (isValidCollectionName(getCollectionName(graphqlType))) {
-          if (nonnull) return graphqlType;
-          else return `${graphqlType}|null`;
+        } else if (isValidCollectionName(graphqlTypeToCollectionName(graphqlType))) {
+          return graphqlType+nullabilitySuffix;
         }
       }
       

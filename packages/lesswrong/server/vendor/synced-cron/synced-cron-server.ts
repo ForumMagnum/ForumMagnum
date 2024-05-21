@@ -18,11 +18,6 @@ export const SyncedCron: any = {
 
     //Default to using localTime
     utc: false,
-
-    //TTL in seconds for history records in collection to expire
-    //NOTE: Unset to remove expiry but ensure you remove the index from
-    //mongo by hand
-    collectionTTL: 172800
   },
   config: function(opts: any) {
     this.options = _.extend({}, this.options, opts);
@@ -91,14 +86,6 @@ onStartup(function() {
 
   // collection holding the job history records
   SyncedCron._collection = CronHistories;
-
-  if (options.collectionTTL) {
-    if (options.collectionTTL > minTTL)
-      SyncedCron._collection._ensureIndex({startedAt: 1 },
-        { expireAfterSeconds: options.collectionTTL } );
-    else
-      log.warn('Not going to use a TTL that is shorter than:' + minTTL);
-  }
 });
 
 var scheduleEntry = function(entry: any) {
@@ -118,8 +105,8 @@ var scheduleEntry = function(entry: any) {
 // });
 SyncedCron.add = async function(entry: {
   name: string,
-  schedule: (parser: any)=>any,
-  job: ()=>void,
+  schedule: (parser: any) => any,
+  job: () => void,
   persist?: boolean,
 }) {
 
@@ -189,13 +176,8 @@ SyncedCron.stop = function() {
   this.running = false;
 }
 
-const isDuplicateKeyError = (
-  collection: CollectionBase<DbCronHistory>,
-  error: Error & {code?: number | string},
-) =>
-  collection.isPostgres()
-    ? error.code === '23505' // pg duplicate key error code - note it's a string
-    : error.code === 11000; // mongodb duplicate key error code
+const isDuplicateKeyError = (error: Error & {code?: number | string}) =>
+  error.code === '23505'; // pg duplicate key error code - note it's a string
 
 // The meat of our logic. Checks if the specified has already run. If not,
 // records that it's running the job, runs it, and records the output
@@ -220,7 +202,7 @@ SyncedCron._entryWrapper = function(entry: any) {
       try {
         jobHistory._id = await self._collection.rawInsert(jobHistory, {quiet: true});
       } catch(e) {
-        if (isDuplicateKeyError(self._collection, e)) {
+        if (isDuplicateKeyError(e)) {
           log.info('Not running "' + entry.name + '" again.');
           return;
         }

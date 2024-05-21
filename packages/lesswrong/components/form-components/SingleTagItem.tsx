@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SingleTagItem = ({documentId, onDelete, classes}: {
   documentId: string,
-  onDelete: (id:string)=>void,
+  onDelete: (id: string) => void,
   classes: ClassesType
 }) => {
   const { document, loading } = useSingle({

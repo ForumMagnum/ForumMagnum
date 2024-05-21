@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { useTagBySlug } from '../tagging/useTag';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetRevisionLink, tagGetUrl, tagUrlBase } from '../../lib/collections/tags/helpers';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
@@ -15,7 +15,7 @@ const TagPageRevisionSelect = ({ classes }: {
   const { params, query } = useLocation();
   const { slug } = params;
   const focusedUser = query.user;
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const { SingleColumnSection, Loading, RevisionSelect, TagRevisionItem, LoadMore } = Components;
   
@@ -34,10 +34,10 @@ const TagPageRevisionSelect = ({ classes }: {
     itemsPerPage: 30,
   });
   
-  const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
+  const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;
-    history.push(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
-  }, [history, tag]);
+    navigate(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
+  }, [navigate, tag]);
 
   if (!tag) return null
 

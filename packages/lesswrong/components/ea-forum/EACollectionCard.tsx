@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { forumSelect } from "../../lib/forumTypeUtils";
@@ -39,21 +39,32 @@ const getCardDetails = ({
 
 const EACollectionCard = ({collection}: {collection: CollectionsBestOfFragment}) => {
   const {eventHandlers} = useHover({
-    pageElementContext: "collectionCard",
-    documentId: collection._id,
-    documentSlug: collection.slug,
+    eventProps: {
+      pageElementContext: "collectionCard",
+      documentId: collection._id,
+      documentSlug: collection.slug,
+    },
   });
 
   const {title, author, imageId} = getCardDetails(collection);
   const href = collectionGetPageUrl(collection);
 
-  const {EASequenceOrCollectionCard, CollectionsHoverOver} = Components;
+  const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
+    const {CollectionsTooltip} = Components;
+    return (
+      <CollectionsTooltip collection={collection}>
+        {children}
+      </CollectionsTooltip>
+    );
+  }, [collection]);
+
+  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={collection.slug}>
       <EASequenceOrCollectionCard
         title={title}
         author={author}
-        hoverOver={<CollectionsHoverOver collection={collection} />}
+        TitleWrapper={TitleWrapper}
         postCount={collection.postsCount}
         readCount={collection.readPostsCount}
         imageId={imageId}

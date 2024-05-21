@@ -1,37 +1,33 @@
-import React, { useRef, useState } from 'react';
-import NoSSR from 'react-no-ssr';
-import moment from 'moment';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
-import TextField from '@material-ui/core/TextField';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useTimezone } from '../common/withTimezone';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { useMessages } from '../common/withMessages';
-import { useUserLocation, userHasEmailAddress } from '../../lib/collections/users/helpers';
+import { useUserLocation } from '../../lib/collections/users/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
-import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
 import { userHasEAHomeRHS } from '../../lib/betas';
-import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
-import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
-import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
-import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
+import { podcastPost, podcasts } from '../../lib/eaPodcasts';
+import ForumNoSSR from '../common/ForumNoSSR';
 
-const styles = (theme: ThemeType): JssStyles => ({
+/**
+ * The max screen width where the Home RHS is visible
+ */
+export const HOME_RHS_MAX_SCREEN_WIDTH = 1370
+
+const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: 50,
     marginTop: 10,
     marginLeft: 50,
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -50,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: 34,
       backgroundColor: theme.palette.grey[250],
     },
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -67,95 +63,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     marginBottom: 32,
   },
-  digestAdSection: {
-    maxWidth: 334,
-  },
   podcastsSection: {
     rowGap: '6px',
   },
   digestAd: {
     maxWidth: 280,
-    backgroundColor: theme.palette.grey[200],
-    padding: '12px 16px',
-    borderRadius: theme.borderRadius.default
-  },
-  digestAdHeadingRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    columnGap: 8,
-    marginBottom: 12
-  },
-  digestAdHeading: {
-    fontWeight: 600,
-    fontSize: 16,
-    margin: 0
-  },
-  digestAdClose: {
-    height: 16,
-    width: 16,
-    color: theme.palette.grey[600],
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.grey[800],
-    }
-  },
-  digestAdBody: {
-    fontSize: 13,
-    lineHeight: '19px',
-    fontWeight: 500,
-    color: theme.palette.grey[600],
-    marginBottom: 15
-  },
-  digestForm: {
-    display: 'flex',
-    alignItems: 'baseline',
-    columnGap: 8,
-    rowGap: '12px'
-  },
-  digestFormInput: {
-    flexGrow: 1,
-    background: theme.palette.grey[0],
-    borderRadius: theme.borderRadius.default,
-    '& .MuiInputLabel-outlined': {
-      transform: 'translate(14px,12px) scale(1)',
-      '&.MuiInputLabel-shrink': {
-        transform: 'translate(14px,-6px) scale(0.75)',
-      }
-    },
-    '& .MuiNotchedOutline-root': {
-      borderRadius: theme.borderRadius.default,
-    },
-    '& .MuiOutlinedInput-input': {
-      padding: 11
-    }
-  },
-  digestFormBtnWideScreen: {
-    '@media(max-width: 1450px)': {
-      display: 'none'
-    }
-  },
-  digestFormBtnNarrowScreen: {
-    display: 'none',
-    '@media(max-width: 1450px)': {
-      display: 'inline'
-    }
-  },
-  digestFormBtnArrow: {
-    transform: 'translateY(3px)',
-    fontSize: 16
-  },
-  digestSuccess: {
-    display: 'flex',
-    columnGap: 10,
-    fontSize: 13,
-    lineHeight: '19px',
-    color: theme.palette.grey[800],
-  },
-  digestSuccessCheckIcon: {
-    color: theme.palette.icon.greenCheckmark
-  },
-  digestSuccessLink: {
-    color: theme.palette.primary.main
+    marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 12,
@@ -237,155 +150,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-/**
- * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
- * It has some overlap with the Forum Digest ad that appears in "Recent discussion".
- * In particular, both components use currentUser.hideSubscribePoke,
- * so for logged in users, hiding one ad hides the other.
- *
- * See RecentDiscussionSubscribeReminder.tsx for the other component.
- */
-const DigestAd = ({classes}: {
-  classes: ClassesType,
-}) => {
-  const currentUser = useCurrentUser()
-  const updateCurrentUser = useUpdateCurrentUser()
-  const emailRef = useRef<HTMLInputElement|null>(null)
-  const ls = getBrowserLocalStorage()
-  const [isHidden, setIsHidden] = useState(
-    // logged out user clicked the X in this ad, or previously submitted the form
-    (!currentUser && ls?.getItem('hideHomeDigestAd')) ||
-    // user is already subscribed
-    currentUser?.subscribedToDigest ||
-    // user is logged in and clicked the X in this ad, or "Don't ask again" in the ad in "Recent discussion"
-    currentUser?.hideSubscribePoke
-  )
-  const [loading, setLoading] = useState(false)
-  const [subscribeClicked, setSubscribeClicked] = useState(false)
-  const { flash } = useMessages()
-  const { captureEvent } = useTracking()
-  
-  // This should never happen, but just exit if it does.
-  if (!currentUser && !ls) return null
-  
-  // If the user just submitted the form, make sure not to hide it, so that it properly finishes submitting.
-  // Alternatively, if the logged in user just clicked "Subscribe", show the success text rather than hiding this.
-  if (isHidden && !subscribeClicked) return null
-  
-  // If the user is logged in and has an email address, we show their email address and the "Subscribe" button.
-  // Otherwise, we show the form with the email address input.
-  const showForm = !currentUser || !userHasEmailAddress(currentUser)
-  
-  const handleClose = () => {
-    setIsHidden(true)
-    captureEvent("digestAdClosed")
-    if (currentUser) {
-      void updateCurrentUser({hideSubscribePoke: true})
-    } else {
-      ls.setItem('hideHomeDigestAd', true)
-    }
-  }
-  
-  const handleUserSubscribe = async () => {
-    setLoading(true)
-    setSubscribeClicked(true)
-    captureEvent("digestAdSubscribed")
-    
-    if (currentUser) {
-      try {
-        await updateCurrentUser({
-          subscribedToDigest: true,
-          unsubscribeFromAll: false
-        })
-      } catch(e) {
-        flash('There was a problem subscribing you to the digest. Please try again later.')
-      }
-    }
-    if (showForm && emailRef.current?.value) {
-      ls.setItem('hideHomeDigestAd', true)
-    }
-    
-    setLoading(false)
-  }
-  
-  const { ForumIcon, EAButton } = Components
-  
-  const buttonProps = loading ? {disabled: true} : {}
-  // button either says "Subscribe" or has a right arrow depending on the screen width
-  const buttonContents = <>
-    <span className={classes.digestFormBtnWideScreen}>Subscribe</span>
-    <span className={classes.digestFormBtnNarrowScreen}>
-      <ForumIcon icon="ArrowRight" className={classes.digestFormBtnArrow} />
-    </span>
-  </>
-  
-  // Show the form to submit to Mailchimp directly,
-  // or display the logged in user's email address and the Subscribe button
-  let formNode = showForm ? (
-    <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
-      <TextField
-        inputRef={emailRef}
-        variant="outlined"
-        label="Email address"
-        placeholder="example@email.com"
-        name="EMAIL"
-        required
-        className={classes.digestFormInput}
-      />
-      <EAButton type="submit" onClick={handleUserSubscribe} {...buttonProps}>
-        {buttonContents}
-      </EAButton>
-    </form>
-  ) : (
-    <div className={classes.digestForm}>
-      <TextField
-        variant="outlined"
-        value={currentUser.email}
-        className={classes.digestFormInput}
-        disabled={true}
-      />
-      <EAButton onClick={handleUserSubscribe} {...buttonProps}>
-        {buttonContents}
-      </EAButton>
-    </div>
-  )
-  
-  // If a logged in user with an email address subscribes, show the success message.
-  if (!showForm && subscribeClicked) {
-    formNode = <div className={classes.digestSuccess}>
-      <ForumIcon icon="CheckCircle" className={classes.digestSuccessCheckIcon} />
-      <div>
-        Thanks for subscribing! You can edit your subscription via
-        your <Link to={'/account?highlightField=subscribedToDigest'} className={classes.digestSuccessLink}>
-          account settings
-        </Link>.
-      </div>
-    </div>
-  }
-  
-  return <AnalyticsContext pageSubSectionContext="digestAd">
-    <div className={classNames(classes.section, classes.digestAdSection)}>
-      <div className={classes.digestAd}>
-        <div className={classes.digestAdHeadingRow}>
-          <h2 className={classes.digestAdHeading}>Get the best posts in your email</h2>
-          <ForumIcon icon="Close" className={classes.digestAdClose} onClick={handleClose} />
-        </div>
-        <div className={classes.digestAdBody}>
-          Sign up for the EA Forum Digest to get curated recommendations every week
-        </div>
-        {formNode}
-      </div>
-    </div>
-  </AnalyticsContext>
-}
 
 /**
  * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
  */
 const UpcomingEventsSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { timezone } = useTimezone()
   const currentUser = useCurrentUser()
   const {lat, lng, known} = useUserLocation(currentUser, true)
   const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
@@ -404,7 +175,7 @@ const UpcomingEventsSection = ({classes}: {
     fetchPolicy: 'cache-and-network',
   })
 
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper} = Components;
+  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
       <LWTooltip
@@ -421,8 +192,7 @@ const UpcomingEventsSection = ({classes}: {
         />
       </LWTooltip>
       {upcomingEvents?.map(event => {
-        const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
-        return <div key={event._id} className={classes.post}>
+        return <div key={event._id}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={event} As="span">
               <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
@@ -432,7 +202,7 @@ const UpcomingEventsSection = ({classes}: {
           </div>
           <div className={classes.postMetadata}>
             <span className={classes.eventDate}>
-              {shortDate}
+              {event.startTime && <FormatDate date={event.startTime} format={"MMM D"} />}
             </span>
             <span className={classes.eventLocation}>
               {event.onlineEvent ? "Online" : getCityName(event)}
@@ -448,7 +218,7 @@ const UpcomingEventsSection = ({classes}: {
  * This is the primary EA Forum home page right-hand side component.
  */
 export const EAHomeRightHandSide = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -495,7 +265,9 @@ export const EAHomeRightHandSide = ({classes}: {
 
   if (!userHasEAHomeRHS(currentUser)) return null
   
-  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
+  const {
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd
+  } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
     <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
@@ -503,35 +275,22 @@ export const EAHomeRightHandSide = ({classes}: {
     </LWTooltip>
   </div>
   
-  if (isHidden) return sidebarToggleNode
+  if (isHidden) {
+    // We include an empty root here so that when the sidebar is hidden,
+    // the center column is slightly closer to the center of the screen.
+    return <AnalyticsContext pageSectionContext="homeRhs">
+      {sidebarToggleNode}
+      <div className={classes.root}></div>
+    </AnalyticsContext>
+  }
   
   // NoSSR sections that could affect the logged out user cache
-  let digestAdNode = <DigestAd classes={classes} />
+  let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
-    digestAdNode = <NoSSR>{digestAdNode}</NoSSR>
-    upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
+    digestAdNode = <ForumNoSSR>{digestAdNode}</ForumNoSSR>
+    upcomingEventsNode = <ForumNoSSR>{upcomingEventsNode}</ForumNoSSR>
   }
-
-  // data for podcasts section
-  const podcasts = [{
-    url: 'https://open.spotify.com/show/3NwXq1GGCveAbeH1Sk3yNq',
-    icon: spotifyLogoIcon,
-    name: 'Spotify'
-  }, {
-    url: 'https://podcasts.apple.com/us/podcast/1657526204',
-    icon: applePodcastsLogoIcon,
-    name: 'Apple Podcasts'
-  }, {
-    url: 'https://pca.st/zlt4n89d',
-    icon: pocketCastsLogoIcon,
-    name: 'Pocket Casts'
-  }, {
-    url: 'https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M',
-    icon: googlePodcastsLogoIcon,
-    name: 'Google Podcasts'
-  }]
-  const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
@@ -577,7 +336,7 @@ export const EAHomeRightHandSide = ({classes}: {
               noBottomPadding
             />
           </LWTooltip>
-          {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
+          {opportunityPosts?.map(post => <div key={post._id}>
             <div className={classes.postTitle}>
               <PostsItemTooltipWrapper post={post} As="span">
                 <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
@@ -586,7 +345,7 @@ export const EAHomeRightHandSide = ({classes}: {
               </PostsItemTooltipWrapper>
             </div>
             <div className={classes.postMetadata}>
-              Posted <PostsItemDate post={post} includeAgo />
+              Posted <PostsItemDate post={post} includeAgo useCuratedDate={false} />
             </div>
           </div>)}
         </div>
@@ -609,7 +368,7 @@ export const EAHomeRightHandSide = ({classes}: {
               postAuthor = post.user.displayName
             }
             const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-            return <div key={post._id} className={classes.post}>
+            return <div key={post._id}>
               <div className={classes.postTitle}>
                 <PostsItemTooltipWrapper post={post} As="span">
                   <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>

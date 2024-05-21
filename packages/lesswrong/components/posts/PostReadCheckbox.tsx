@@ -2,17 +2,17 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@material-ui/icons/CheckBoxTwoTone';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { useNamedMutation } from '../../lib/crud/withMutation';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     cursor: "pointer",
   },
   read: {
-    color: forumTypeSetting.get() === "EAForum"
+    color: isFriendlyUI
       ? theme.palette.primary.main
       : theme.palette.primary.light,
   },

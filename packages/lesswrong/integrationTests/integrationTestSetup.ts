@@ -2,22 +2,32 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';
 import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../lib/sql/sqlClient';
 import {
-  preparePgTables,
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
+import { Collections } from '../lib/vulcan-lib';
+import PgCollection from '../lib/sql/PgCollection';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
 require('iconv-lite').encodingExists('UTF-8')
 require('encoding/node_modules/iconv-lite').encodingExists('UTF-8')
+
+const preparePgTables = () => {
+  for (let collection of Collections) {
+    if (collection instanceof PgCollection) {
+      if (!collection.getTable()) {
+        collection.buildPostgresTable();
+      }
+    }
+  }
+}
 
 let pgConnected = false;
 const ensurePgConnection = async () => {
@@ -57,7 +67,7 @@ async function oneTimeSetup() {
   initGraphQL();
 }
 
-jest.setTimeout(20000);
+jest.setTimeout(50000);
 
 beforeAll(async () => {
   chai.should();
@@ -79,10 +89,7 @@ afterAll(async () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  await Promise.all([
-    closeDatabaseConnection(),
-    closeSqlClient(getSqlClientOrThrow()),
-  ]);
+  await closeSqlClient(getSqlClientOrThrow());
 
   // Our approach to database cleanup is to just delete all the runs older than 1 day.
   // This allows us to inspect the databases created during the last run if necessary

@@ -1,8 +1,8 @@
-import { Utils, getTypeName } from '../vulcan-lib';
+import { Utils } from '../vulcan-lib/utils';
+import { collectionNameToGraphQLType } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '../utils/logging';
-import { captureEvent } from "../analyticsEvents";
 
 export interface MutationOptions<T extends DbObject> {
   newCheck?: (user: DbUser|null, document: T|null) => Promise<boolean>|boolean,
@@ -23,7 +23,7 @@ const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
   type T = ObjectsByCollectionName[N];
-  const typeName = getTypeName(collectionName);
+  const typeName = collectionNameToGraphQLType(collectionName);
   const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
   const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
 
@@ -56,8 +56,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
       async mutation(root: void, { data }: AnyBecauseTodo, context: ResolverContext) {
         const startMutate = Date.now()
         logger('create mutation()')
-        // TS doesn't understand that context indexed by collectionName properly
-        const collection = context[collectionName] as CollectionBase<T>;
+        const collection = context[collectionName];
 
         // check if current user can pass check function; else throw error
         await Utils.performCheck(
@@ -124,8 +123,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { selector, data }: AnyBecauseTodo, context: ResolverContext) {
         logger('update mutation()')
-        // TS doesn't understand that context is properly indexed by collectionName
-        const collection = context[collectionName] as CollectionBase<T>;
+        const collection = context[collectionName];
 
         if (isEmpty(selector)) {
           throw new Error('Selector cannot be empty');
@@ -231,8 +229,7 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
 
       async mutation(root: void, { selector }: AnyBecauseTodo, context: ResolverContext) {
         logger('delete mutation()')
-        // TS doesn't understand that context is properly indexed by collectionName
-        const collection = context[collectionName] as CollectionBase<T>;
+        const collection = context[collectionName];
 
         if (isEmpty(selector)) {
           throw new Error('Selector cannot be empty');

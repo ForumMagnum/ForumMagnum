@@ -145,31 +145,9 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     fragmentName: "UsersCrosspostInfo",
     notifyOnNetworkStatusChange: true,
   });
-  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loading = loadingUnlink || loadingDocument;
-
-  useEffect(() => {
-    const getToken = async () => {
-      if (!document?.fmCrosspostUserId) {
-        try {
-          const result = await fetch("/api/crosspostToken");
-          const {token, error} = await result.json();
-          if (token) {
-            setToken(token);
-          } else if (typeof error === 'string') {
-            setError(error);
-          } else {
-            setError("Couldn't create login token");
-          }
-        } catch {
-          setError("Couldn't create login token");
-        }
-      }
-    }
-    void getToken();
-  }, [document?.fmCrosspostUserId]);
 
   useOnFocusTab(() => {
     if (!loading && !document?.fmCrosspostUserId) {
@@ -177,12 +155,20 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     }
   });
 
-  const onClickLogin = () => {
-    if (token?.length) {
-      const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
-      window.open(url, "_blank")?.focus();
-    } else {
-      setError("Invalid login token - please try again");
+  const onClickLogin = async () => {
+    try {
+      const result = await fetch("/api/crosspostToken");
+      const {token, error} = await result.json();
+      if (token) {
+        const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
+        window.open(url, "_blank")?.focus();
+      } else if (typeof error === 'string') {
+        setError(error);
+      } else {
+        setError("Couldn't create login token");
+      }
+    } catch {
+      setError("Couldn't create login token");
     }
   }
 

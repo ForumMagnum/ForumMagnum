@@ -9,7 +9,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   refetch,
   commentTreeOptions = {},
   initialExpandAllThreads,
-} : {
+}: {
   post: PostsRecentDiscussion,
   comments?: T[],
   refetch: () => void,
@@ -25,7 +25,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
     () => {
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
+      void recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}, recommendationOptions: {skip: true}})
     },
     [setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post],
   );
@@ -42,16 +42,25 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
 
   const lastVisitedAt = markedAsVisitedAt || post.lastVisitedAt
 
+  // For posts that have never been commented on, we do want to show them in the
+  // recent discussion feed. For posts which have been commented on, but the comments
+  // have been deleted, we don't want to show them (these are usually spam).
+  //
+  // There is no completely reliable way to tell the difference, but this is a fairly conservative
+  // (in favour of showing a post) heuristic.
+  const probablyNeverCommentedOn =
+    new Date(post.lastCommentedAt).getTime() - new Date(post.postedAt).getTime() < 30_000;
+
   // TODO verify whether/how this should be interacting with afCommentCount
   // New posts should render (to display their highlight).
-  // Posts with at least one comment should only render if that those comments
+  // Posts with at least one comment should only render if those comments
   // meet the frontpage filter requirements
-  const isSkippable = comments && !comments.length && post.commentCount !== null;
+  const isSkippable = comments && !comments.length && !probablyNeverCommentedOn;
 
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: lastVisitedAt,
+    highlightDate: lastVisitedAt ?? undefined,
     refetch: refetch,
     condensed: true,
     post,

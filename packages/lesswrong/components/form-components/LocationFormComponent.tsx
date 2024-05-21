@@ -92,7 +92,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
 
 let mapsLoadingState: "unloaded"|"loading"|"loaded" = "unloaded";
-let onMapsLoaded: Array<()=>void> = [];
+let onMapsLoaded: Array<() => void> = [];
 
 export const useGoogleMaps = (): [boolean, any] => {
   const [isMapsLoaded, setIsMapsLoaded] = useState(false);

@@ -5,7 +5,9 @@ import { userCanModerateComment } from '../../../lib/collections/users/helpers';
 import { useDialog } from '../../common/withDialog'
 import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users';
+
 
 const DeleteCommentDropdownItem = ({comment, post, tag}: {
   comment: CommentsList,
@@ -28,21 +30,27 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
     });
   }
 
-  const handleUndoDelete = (event: React.MouseEvent) => {
+  const handleUndoDelete = async (event: React.MouseEvent) => {
     event.preventDefault();
-    void moderateCommentMutation({
-      commentId: comment._id,
-      deleted:false,
-      deletedReason:"",
-    }).then(() => flash({
-      messageString: "Successfully restored comment",
-      type: "success",
-    })).catch(/* error */);
+    try {
+      await moderateCommentMutation({
+        commentId: comment._id,
+        deleted:false,
+        deletedReason:"",
+      })
+      flash({
+        messageString: "Successfully restored comment",
+        type: "success",
+      });
+    } catch(e) {
+      flash(e.message);
+    }
   }
 
   if (
-    (!post && !tag) ||
-    !userCanModerateComment(currentUser, post ?? null, tag ?? null, comment)
+    !currentUser
+    || (!post && !tag)
+    || !userCanModerateComment(currentUser, post ?? null, tag ?? null, comment)
   ) {
     return null;
   }
@@ -55,14 +63,19 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
         onClick={showDeleteDialog}
       />
     );
+  } else if (
+    userIsAdminOrMod(currentUser)
+    || comment.deletedByUserId === currentUser._id
+  ) {
+    return (
+      <DropdownItem
+        title={preferredHeadingCase("Undo Delete")}
+        onClick={handleUndoDelete}
+      />
+    );
+  } else {
+    return null;
   }
-
-  return (
-    <DropdownItem
-      title={preferredHeadingCase("Undo Delete")}
-      onClick={handleUndoDelete}
-    />
-  );
 }
 
 const DeleteCommentDropdownItemComponent = registerComponent(

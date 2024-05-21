@@ -42,13 +42,9 @@ import { createTable, dropTable } from "./meta/utils";
 export const acceptsSchemaHash = "f9a5c9f182dad6b94bd1361b603906fd";
 
 export const up = async ({db}: MigrationContext) => {
-  if (UserMostValuablePosts.isPostgres()) {
-    await createTable(db, UserMostValuablePosts);
-  }
+  await createTable(db, UserMostValuablePosts);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (UserMostValuablePosts.isPostgres()) {
-    await dropTable(db, UserMostValuablePosts);
-  }
+  await dropTable(db, UserMostValuablePosts);
 }

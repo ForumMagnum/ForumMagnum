@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
@@ -16,8 +16,6 @@ export type DebouncerTiming =
   | { type: "delayed", delayMinutes: number, maxDelayMinutes?: number }
   | { type: "daily", timeOfDayGMT: number }
   | { type: "weekly", timeOfDayGMT: number, dayOfWeekGMT: string }
-
-const formatDate = (date: Date) => DebouncerEvents.isPostgres() ? date : date.getTime();
 
 /**
  * Defines a debouncable event type; that is, an event which, some time after
@@ -123,39 +121,14 @@ export class EventDebouncer<KeyType = string>
       throw new Error(`Invalid debouncer event data: ${data}`);
     }
 
-    if (DebouncerEvents.isPostgres()) {
-      await new DebouncerEventsRepo().recordEvent(
-        this.name,
-        af,
-        new Date(newDelayTime),
-        new Date(newUpperBoundTime),
-        JSON.stringify(key),
-        data,
-      );
-    } else {
-      const pendingEvent = data !== undefined
-        ? {
-          $push: {
-            pendingEvents: data,
-          },
-        }
-      : {};
-
-      // On rawCollection because minimongo doesn't support $max/$min on Dates
-      await DebouncerEvents.rawCollection().updateOne({
-        name: this.name,
-        af: af,
-        key: JSON.stringify(key),
-        dispatched: false,
-      }, {
-        $max: { delayTime: formatDate(newDelayTime) },
-        $min: { upperBoundTime: formatDate(newUpperBoundTime) },
-        $set: { createdAt: formatDate(new Date()), },
-        ...pendingEvent,
-      }, {
-        upsert: true
-      });
-    }
+    await new DebouncerEventsRepo().recordEvent(
+      this.name,
+      af,
+      new Date(newDelayTime),
+      new Date(newUpperBoundTime),
+      JSON.stringify(key),
+      data,
+    );
   }
 
   parseTiming = (timing: DebouncerTiming) => {
@@ -238,8 +211,7 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 }
 
 export const dispatchPendingEvents = async () => {
-  const now = formatDate(new Date());
-  const af = forumTypeSetting.get() === 'AlignmentForum'
+  const now = new Date();
   let eventToHandle: any = null;
   
   do {
@@ -252,7 +224,7 @@ export const dispatchPendingEvents = async () => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: af,
+        af: isAF,
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }
@@ -297,12 +269,11 @@ export const forcePendingEvents = async (
   } = {}
 ) => {
   let eventToHandle = null;
-  const af = forumTypeSetting.get() === 'AlignmentForum'
   let countHandled = 0;
   // Default time condition is nothing
   let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
   if (upToDate) {
-    const upToDateTime = formatDate(new Date(upToDate));
+    const upToDateTime = new Date(upToDate);
     timeCondition = {
       $or: [
         { delayTime: { $lt: upToDateTime } },
@@ -315,7 +286,7 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: af,
+        af: isAF,
         ...timeCondition,
       },
       { $set: { dispatched: true } },

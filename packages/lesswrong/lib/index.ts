@@ -4,6 +4,7 @@ import './vulcan-users/index';
 
 // schema utils
 import './utils/schemaUtils'
+
 // Permissions
 import './permissions';
 
@@ -93,6 +94,8 @@ import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
 
+import './collections/manifoldProbabilitiesCaches/collection';
+import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';
@@ -135,6 +138,16 @@ import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
+import './collections/userJobAds/collection';
+import './collections/userJobAds/fragments';
+import './collections/userJobAds/permissions';
+import './collections/userJobAds/views';
+
+import './collections/userEAGDetails/collection';
+import './collections/userEAGDetails/fragments';
+import './collections/userEAGDetails/permissions';
+import './collections/userEAGDetails/views';
+
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/permissions';
@@ -155,6 +168,10 @@ import './collections/digests/fragments';
 import './collections/digests/schema';
 import './collections/digests/views';
 
+// Forum events
+import './collections/forumEvents/collection';
+import './collections/forumEvents/fragments';
+import './collections/forumEvents/views';
 
 // Subscriptions
 import './collections/subscriptions';
@@ -172,6 +189,12 @@ import './collections/posts/schema';
 import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
+
+// PostViews
+import './collections/postViews/collection';
+
+// PostViewTimes
+import './collections/postViewTimes/collection';
 
 // Revisions
 import './collections/revisions/collection'
@@ -219,6 +242,10 @@ import './collections/userRateLimits/index';
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
 
+// SideCommentCaches
+import './collections/sideCommentCaches/collection';
+import './collections/sideCommentCaches/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -234,6 +261,21 @@ import './collections/postRelations';
 // PostRecommendations
 import './collections/postRecommendations/collection';
 
+// ElectionCandidates
+import './collections/electionCandidates/collection';
+import './collections/electionCandidates/fragments';
+import './collections/electionCandidates/views';
+
+// ElectionVotes
+import './collections/electionVotes/collection';
+import './collections/electionVotes/fragments';
+import './collections/electionVotes/views';
+
+// GoogleServiceAccountSessions
+import './collections/googleServiceAccountSessions/collection';
+import './collections/googleServiceAccountSessions/fragments';
+import './collections/googleServiceAccountSessions/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';
@@ -241,6 +283,48 @@ import './collections/sessions';
 // dialogue typing indicators
 import './collections/typingIndicators/collection';
 import './collections/typingIndicators/fragments';
+
+// elicit questions
+import './collections/elicitQuestions/collection';
+
+// elicit predictions
+import './collections/elicitQuestionPredictions/collection';
+
+// dialogue checks
+import './collections/dialogueChecks/collection';
+import './collections/dialogueChecks/fragments';
+import './collections/dialogueChecks/views';
+
+// dialogue match preferences
+import './collections/dialogueMatchPreferences/collection';
+import './collections/dialogueMatchPreferences/fragments';
+import './collections/dialogueMatchPreferences/views';
+
+// dialogue match preferences
+import './collections/ckEditorUserSessions/collection';
+import './collections/ckEditorUserSessions/fragments';
+
+// Arbital link cache
+import './collections/arbitalCache/collection';
+
+// Review winners
+import './collections/reviewWinners/collection';
+import './collections/reviewWinners/fragments';
+
+// Review winners
+import './collections/reviewWinnerArts/collection';
+import './collections/reviewWinnerArts/fragments';
+import './collections/reviewWinnerArts/views';
+
+// Splash art coordinates
+import './collections/splashArtCoordinates/collection';
+import './collections/splashArtCoordinates/fragments';
+
+// Curation emails
+import './collections/curationEmails/collection';
+
+// Recommendations cache
+import './collections/recommendationsCaches/collection';
 
 // Alignment Forum
 import './alignment-forum/permissions';
@@ -264,3 +348,5 @@ import './sql';
 
 import './rateLimits/constants';
 import './rateLimits/types';
+
+import './subscribedUsersFeed';

@@ -1,5 +1,5 @@
 import React from 'react'
-import { createMutator, updateMutator } from "../mutators";
+import { createMutator } from "../mutators";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
@@ -43,9 +43,7 @@ async function comparePasswords(password: string, hash: string) {
 }
 
 const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPassport(username, password, done) {
-  const user = await (Users.isPostgres()
-    ? new UsersRepo().getUserByUsernameOrEmail(username)
-    : Users.findOne({$or: [{"emails.address": username}, {email: username}, {username: username}]}));
+  const user = await new UsersRepo().getUserByUsernameOrEmail(username);
 
   if (!user) return done(null, false, { message: 'Invalid login.' }); //Don't reveal that an email exists in DB
   
@@ -81,9 +79,41 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
 passport.use(passwordAuthStrategy)
 
 
-function validatePassword(password:string): {validPassword: true} | {validPassword: false, reason: string} {
+function validatePassword(password: string): {validPassword: true} | {validPassword: false, reason: string} {
   if (password.length < 6) return { validPassword: false, reason: "Your password needs to be at least 6 characters long"}
   return { validPassword: true }
+}
+
+function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
+  if (username.length < 2) {
+    return { validUsername: false, reason: "Your username must be at least 2 characters" };
+  }
+  if (username.trim() !== username) {
+    return { validUsername: false, reason: "Your username can't start or end with whitespace" };
+  }
+  for (let i=0; i<username.length-1; i++) {
+    if (username.substring(i, i+2).trim() === '') {
+      return { validUsername: false, reason: "Your username can't contain consecutive whitespace characters" };
+    }
+  }
+  for (let i=0; i<username.length; i++) {
+    const ch = username.charAt(i);
+    if (!isValidCharInUsername(ch)) {
+      return { validUsername: false, reason: `Your username can't contain a "${ch}"` };
+    }
+  }
+  
+  return {validUsername: true};
+}
+
+function isValidCharInUsername(ch: string): boolean {
+  const restrictedChars = [
+    '\u0000', // Null
+    '\uFEFF', // Byte order mark (BOM)
+    '\u202E', '\u202D', // RTL and LTR override
+    '\n', '\\', '/', '<', '>', '"',
+  ]
+  return !restrictedChars.includes(ch);
 }
 
 const loginData = `type LoginReturnData {
@@ -128,19 +158,7 @@ const VerifyEmailToken = new EmailTokenType({
   name: "verifyEmail",
   onUseAction: async (user) => {
     if (userEmailAddressIsVerified(user)) return {message: "Your email address is already verified"}
-    if (Users.isPostgres()) {
-      await new UsersRepo().verifyEmail(user._id);
-    } else {
-      await updateMutator({
-        collection: Users,
-        documentId: user._id,
-        set: {
-          'emails.0.verified': true,
-        } as any,
-        unset: {},
-        validate: false,
-      });  
-    }
+    await new UsersRepo().verifyEmail(user._id);
     return {message: "Your email has been verified" };
   },
   resultComponentName: "EmailTokenResult"
@@ -150,7 +168,8 @@ const VerifyEmailToken = new EmailTokenType({
 export async function sendVerificationEmail(user: DbUser) {
   const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
   await wrapAndSendEmail({
-    user, 
+    user,
+    force: true,
     subject: `Verify your ${forumTitleSetting.get()} email`,
     body: <div>
       <p>
@@ -173,20 +192,7 @@ const ResetPasswordToken = new EmailTokenType({
     const validatePasswordResponse = validatePassword(password)
     if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
 
-    if (Users.isPostgres()) {
-      await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
-    } else {
-      await updateMutator({ 
-        collection: Users,
-        documentId: user._id,
-        set: {
-          'services.password.bcrypt': await createPasswordHash(password),
-          'services.resume.loginTokens': []
-        } as any,
-        unset: {},
-        validate: false,
-      });  
-    }
+    await new UsersRepo().resetPassword(user._id, await createPasswordHash(password));
     return {message: "Your new password has been set. Try logging in again." };
   },
   resultComponentName: "EmailTokenResult",
@@ -196,7 +202,7 @@ const ResetPasswordToken = new EmailTokenType({
 const authenticationResolvers = {
   Mutation: {
     async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
-      let token:string | null = null
+      let token: string | null = null
 
       await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
         return new Promise((resolve, reject) => {
@@ -225,10 +231,13 @@ const authenticationResolvers = {
     },
     async signup(root: void, args: AnyBecauseTodo, context: ResolverContext) {
       const { email, username, password, subscribeToCurated, reCaptchaToken, abTestKey } = args;
+      
       if (!email || !username || !password) throw Error("Email, Username and Password are all required for signup")
       if (!SimpleSchema.RegEx.Email.test(email)) throw Error("Invalid email address")
       const validatePasswordResponse = validatePassword(password)
       if (!validatePasswordResponse.validPassword) throw Error(validatePasswordResponse.reason)
+      const validateUsernameResponse = validateUsername(username);
+      if (!validateUsernameResponse.validUsername) throw Error(validateUsernameResponse.reason)
       
       if (await userFindOneByEmail(email)) {
         throw Error("Email address is already taken");
@@ -238,10 +247,10 @@ const authenticationResolvers = {
       }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      let recaptchaScore : number | undefined = undefined
+      let recaptchaScore: number | undefined = undefined
       if (reCaptchaResponse) {
         const reCaptchaData = JSON.parse(reCaptchaResponse)
-        if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+        if (reCaptchaData.success && reCaptchaData.action === "login/signup") {
           recaptchaScore = reCaptchaData.score
         } else {
           // eslint-disable-next-line no-console
@@ -286,6 +295,7 @@ const authenticationResolvers = {
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({
         user,
+        force: true,
         subject: "Password Reset Request",
         body: <div>
           <p>

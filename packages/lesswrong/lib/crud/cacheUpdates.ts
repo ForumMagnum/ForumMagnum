@@ -35,7 +35,7 @@ export const updateCacheAfterDelete = (typeName: string) => {
 export const updateEachQueryResultOfType = ({ store, typeName, func, document }: {
   store: ApolloCache<any>,
   typeName: string,
-  func: (props: {document: any, results: MingoQueryResult, parameters: any, typeName: string})=>MingoQueryResult,
+  func: (props: {document: any, results: MingoQueryResult, parameters: any, typeName: string}) => MingoQueryResult,
   document: MingoDocument,
 }) => {
   const watchesToUpdate = findWatchesByTypeName(store, typeName)

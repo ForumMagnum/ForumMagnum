@@ -1,10 +1,11 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbPostRelation> = {
+const schema: SchemaType<"PostRelations"> = {
   type: {
     // "subQuestion"
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -17,6 +18,7 @@ const schema: SchemaType<DbPostRelation> = {
       type: "Post",
       nullable: true
     }),
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
   },
@@ -28,6 +30,7 @@ const schema: SchemaType<DbPostRelation> = {
       type: "Post",
       nullable: true
     }),
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
   },

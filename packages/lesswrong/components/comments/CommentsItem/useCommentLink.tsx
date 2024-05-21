@@ -1,13 +1,13 @@
-import React, { FC, MouseEvent } from "react";
+import React, { FC, MouseEvent, PropsWithChildren } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { useLocation, useNavigation } from "../../../lib/routeUtil";
-import { Link } from "../../../lib/reactRouterWrapper";
+import { useSubscribedLocation } from "../../../lib/routeUtil";
+import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
 
 export type UseCommentLinkProps = {
-  comment: CommentsList,
-  post?: PostsMinimumInfo|null,
+  comment: Pick<CommentsList, "_id" | "tagCommentType">,
+  post?: Pick<PostsMinimumInfo, "_id" | "slug"> | null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
   scrollIntoView?: () => void,
@@ -22,8 +22,8 @@ export const useCommentLink = ({
   scrollIntoView,
   permalink = true,
 }: UseCommentLinkProps) => {
-  const {history} = useNavigation();
-  const {location, query} = useLocation();
+  const navigate = useNavigate();
+  const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
 
   const url = commentGetPageUrlFromIds({
@@ -51,7 +51,7 @@ export const useCommentLink = ({
     }
 
     event.preventDefault();
-    history.push({
+    navigate({
       ...location,
       search: qs.stringify({...query, commentId: comment._id}),
       hash: null,
@@ -62,7 +62,7 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC = scrollOnClick
+  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
     ? ({children}) => (
       <a rel="nofollow" href={url} onClick={handleLinkClick}>
         {children}

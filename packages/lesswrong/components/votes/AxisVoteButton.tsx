@@ -6,7 +6,7 @@ import type { VoteArrowIconProps } from '../votes/VoteArrowIcon';
 
 const AxisVoteButton = <T extends VoteableTypeClient>({VoteIconComponent, vote, document, axis, upOrDown, color, orientation, enabled}: {
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
-  vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent})=>void,
+  vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent}) => void,
   document: T,
   axis: string,
   upOrDown: "Upvote"|"Downvote",

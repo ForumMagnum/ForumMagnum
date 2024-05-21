@@ -1,17 +1,17 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../lib/alignment-forum/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import withUser from '../common/withUser';
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useHover } from '../common/withHover'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
 import {DatabasePublicSetting} from "../../lib/publicSettings";
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
@@ -37,17 +37,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-interface ExternalProps {
+const AFSuggestPostsItem = ({post, classes}: {
   post: SuggestAlignmentPost,
-}
-interface AFSuggestPostsItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithStylesProps {
-  updatePost: WithUpdateFunction<PostsCollection>,
-}
+  classes: ClassesType
+}) => {
+  const currentUser = useCurrentUser();
+  const { hover, anchorEl, eventHandlers } = useHover();
+  
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'SuggestAlignmentPost',
+  });
 
-class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
-
-  handleMoveToAlignment = () => {
-    const { currentUser, post, updatePost } = this.props
+  const handleMoveToAlignment = () => {
     void updatePost({
       selector: {_id: post._id},
       data: {
@@ -58,8 +60,7 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     })
   }
 
-  handleDisregardForAlignment = () => {
-    const { currentUser, post, updatePost } = this.props
+  const handleDisregardForAlignment = () => {
     void updatePost({
       selector: {_id: post._id},
       data: {
@@ -68,15 +69,13 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     })
   }
 
-  render () {
-    const { classes, post, currentUser, hover, anchorEl, updatePost } = this.props
-    
-    if (!currentUser) return null;
+  if (!currentUser) return null;
 
-    const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
-    const userHasSelfSuggested = post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
+  const userHasVoted = post.suggestForAlignmentUserIds && post.suggestForAlignmentUserIds.includes(currentUser._id)
+  const userHasSelfSuggested = post.suggestForAlignmentUsers && post.suggestForAlignmentUsers.map(user=>user._id).includes(post.userId)
 
-    return (
+  return (
+    <span {...eventHandlers}>
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           { userHasSelfSuggested && <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeader}>
@@ -123,29 +122,21 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
               <PlusOneIcon/>
             </Components.SidebarAction>
           }
-          <Components.SidebarAction title="Move to Alignment" onClick={this.handleMoveToAlignment}>
+          <Components.SidebarAction title="Move to Alignment" onClick={handleMoveToAlignment}>
             <Components.OmegaIcon/>
           </Components.SidebarAction>
-          <Components.SidebarAction title="Remove from Alignment Suggestions" onClick={this.handleDisregardForAlignment}>
+          <Components.SidebarAction title="Remove from Alignment Suggestions" onClick={handleDisregardForAlignment}>
             <ClearIcon/>
           </Components.SidebarAction>
         </Components.SidebarActionMenu>}
       </Components.SunshineListItem>
-    )
-  }
+    </span>
+  );
 }
 
-const AFSuggestPostsItemComponent = registerComponent<ExternalProps>('AFSuggestPostsItem', AFSuggestPostsItem, {
+const AFSuggestPostsItemComponent = registerComponent('AFSuggestPostsItem', AFSuggestPostsItem, {
   styles,
-  hocs: [
-    withUpdate({
-      collectionName: "Posts",
-      fragmentName: 'SuggestAlignmentPost',
-    }),
-    withUser,
-    withHover(),
-    withErrorBoundary
-  ]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

@@ -3,11 +3,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import moment from '../../lib/moment-timezone';
-import { useTimezone } from '../common/withTimezone';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';
+import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   readMoreLinkMobile: {
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
+const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "community",
     onExpandEvent: "communityPostsSectionExpanded",
@@ -29,11 +30,10 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
     defaultExpanded: "loggedIn",
     cookieName: SHOW_COMMUNITY_POSTS_SECTION_COOKIE,
   });
-  const { timezone } = useTimezone()
+  const now = useCurrentTime();
   const {filterSettings: userFilterSettings} = useFilterSettings()
 
-  const now = moment().tz(timezone)
-  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD")
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     view: "magic",
@@ -59,22 +59,19 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
       toggleExpanded={toggleExpanded}
       title="Posts tagged community"
       afterTitleTo="/topics/community"
-      Content={() => (
-        <>
-          <AnalyticsContext listContext={"communityPosts"}>
-            <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
-          </AnalyticsContext>
-          <SectionFooter>
-            <Link
-              to="/topics/community"
-              className={classes.readMoreLinkMobile}
-            >
-              View more
-            </Link>
-          </SectionFooter>
-        </>
-      )}
-    />
+    >
+      <AnalyticsContext listContext={"communityPosts"}>
+        <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
+      </AnalyticsContext>
+      <SectionFooter>
+        <Link
+          to="/topics/community"
+          className={classes.readMoreLinkMobile}
+        >
+          View more
+        </Link>
+      </SectionFooter>
+    </ExpandableSection>
   );
 }
 

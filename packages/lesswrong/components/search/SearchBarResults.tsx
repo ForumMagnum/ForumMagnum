@@ -1,28 +1,28 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Hits, Configure, Index } from 'react-instantsearch-dom';
-import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { Hits, Configure } from 'react-instantsearch-dom';
+import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
+import { Index } from '../../lib/utils/componentsWithChildren';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.normal,
     transition: "opacity .1s ease-in-out",
     zIndex: theme.zIndexes.searchResults,
-    width:520,
+    width: 520,
     position: "fixed",
     right: 0,
-    top: forumTypeSetting.get() === 'EAForum' ? EA_FORUM_HEADER_HEIGHT : 64,
+    top: HEADER_HEIGHT,
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: forumTypeSetting.get() === 'EAForum' ? EA_FORUM_HEADER_HEIGHT : 48,
+      top: MOBILE_HEADER_HEIGHT,
     },
   },
   searchResults: {
@@ -69,14 +69,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SearchBarResults = ({closeSearch, currentQuery, classes}: {
-  closeSearch: ()=>void,
+  closeSearch: () => void,
   currentQuery: string,
   classes: ClassesType
 }) => {
   const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 
   const searchTypes: Array<{
-    type: AlgoliaIndexCollectionName;
+    type: SearchIndexCollectionName;
     Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
   }> = [
     { type: "Users", Component: UsersSearchHit },
@@ -91,7 +91,7 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
         {searchTypes.map(({ type, Component }) => (
           <Components.ErrorBoundary key={type}>
             <div className={classes.list}>
-              <Index indexName={getAlgoliaIndexName(type)}>
+              <Index indexName={getSearchIndexName(type)}>
                 <Configure hitsPerPage={3} />
                 <Hits hitComponent={(props) => <Component clickAction={closeSearch} {...props} showIcon/>} />
               </Index>

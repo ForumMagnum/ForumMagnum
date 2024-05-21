@@ -34,7 +34,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 }
 
 const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
-  const comment = (hit as AlgoliaComment);
+  const comment = (hit as SearchComment);
   const { LWTooltip } = Components
 
   let url = "";

@@ -16,7 +16,7 @@ getCollectionHooks("LWEvents").newAsync.add(async function sendIntercomEvent (ev
   }
   let currentTime = new Date();
   let intercomEvent = {
-    event_name: event.name,
+    event_name: event.name ?? undefined,
     created_at: Math.floor((currentTime.getTime()/1000)),
     user_id: user._id,
     metadata: event.properties

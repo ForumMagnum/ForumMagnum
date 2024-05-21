@@ -44,7 +44,7 @@ if (fixKarma) { void (async ()=>{
       await Users.rawUpdateOne({_id: user._id}, {$set :{karma: karma}});
       usersCount++;
 
-      if (usersCount % 1000 == 0 ){
+      if (usersCount % 1000 === 0 ){
         //eslint-disable-next-line no-console
         console.log("Updated karma of n users: ", usersCount);
       }

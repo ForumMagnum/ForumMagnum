@@ -2,7 +2,6 @@
 const { build, cliopts } = require("estrella");
 const fs = require('fs');
 const process = require('process');
-const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
 const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
 /**
@@ -13,6 +12,7 @@ process.on("SIGQUIT", () => process.exit(0));
 
 const [opts, args] = cliopts.parse(
   ["production", "Run in production mode"],
+  ["cypress", "Run in end-to-end testing mode"],
   ["settings", "A JSON config file for the server", "<file>"],
   ["db", "A path to a database connection config file", "<file>"],
   ["postgresUrl", "A postgresql connection connection string", "<url>"],
@@ -43,6 +43,7 @@ setOutputDir(`./build${serverPort === defaultServerPort ? "" : serverPort}`);
 //  * Provide a websocket server for signaling autorefresh
 
 const isProduction = !!opts.production;
+const isCypress = !!opts.cypress;
 const settingsFile = opts.settings || "settings.json"
 
 const databaseConfig = getDatabaseConfig(opts);
@@ -72,6 +73,7 @@ const bundleDefinitions = {
   "process.env.NODE_ENV": isProduction ? "\"production\"" : "\"development\"",
   "bundleIsProduction": isProduction,
   "bundleIsTest": false,
+  "bundleIsCypress": isCypress,
   "bundleIsMigrations": false,
   "defaultSiteAbsoluteUrl": `\"${process.env.ROOT_URL || ""}\"`,
   "buildId": `"${latestCompletedBuildId}"`,
@@ -95,13 +97,13 @@ build({
   bundle: true,
   target: "es6",
   sourcemap: true,
+  metafile: true,
   sourcesContent: true,
   outfile: clientOutfilePath,
   minify: isProduction,
   banner: {
     js: clientBundleBanner,
   },
-  treeShaking: "ignore-annotations",
   run: false,
   onStart: (config, changedFiles, ctx) => {
     setClientRebuildInProgress(true);
@@ -116,19 +118,17 @@ build({
     if (buildResult?.errors?.length > 0) {
       console.log("Skipping browser refresh notification because there were build errors");
     } else {
-      // Creating brotli compressed version of bundle.js to save on client download size:
-      const brotliOutfilePath = `${clientOutfilePath}.br`;
-      // Always delete compressed version if it exists, to avoid stale files
-      if (fs.existsSync(brotliOutfilePath)) {
-        fs.unlinkSync(brotliOutfilePath);
-      }
-      if (isProduction) {
-        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(clientOutfilePath, 'utf8')));
-      }
-
       latestCompletedBuildId = inProgressBuildId;
       if (cliopts.watch) {
         initiateRefresh({serverPort});
+      }
+
+      if (buildResult.metafile) {
+        fs.writeFile(
+          "client_meta.json",
+          JSON.stringify(buildResult.metafile, null, 2),
+          () => {},
+        );
       }
     }
     inProgressBuildId = null;
@@ -137,6 +137,9 @@ build({
     ...bundleDefinitions,
     ...clientBundleDefinitions,
   },
+  external: [
+    "cheerio",
+  ],
 });
 
 let serverCli = ["node", "-r", "source-map-support/register", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
@@ -181,6 +184,7 @@ build({
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
+    "cheerio",
   ],
 })
 

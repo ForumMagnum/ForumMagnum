@@ -15,7 +15,7 @@ const EventsPast = ({ classes }: {
   const { timezone } = useTimezone();
   const { SingleColumnSection, SectionTitle, PostsTimeframeList } = Components
   const numberOfDays = forumAllPostsNumDaysSetting.get();
-  const terms = {
+  const terms: PostsViewTerms = {
     view: 'eventsInTimeRange',
     timeField: 'startTime',
   };
@@ -32,6 +32,7 @@ const EventsPast = ({ classes }: {
             timezone: timezone
           })}
           before={getBeforeDefault({timeBlock: 'day', timezone: timezone})}
+          numTimeBlocks={numberOfDays}
           postListParameters={terms}
           shortform="none"
           includeTags={false}

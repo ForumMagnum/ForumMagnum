@@ -1,23 +1,23 @@
 import Button from '@material-ui/core/Button';
-import CloseIcon from '@material-ui/icons/Close';
 import EditIcon from '@material-ui/icons/Edit';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 
+const TEXT_WIDTH = 350;
 
-export const descriptionStyles = (theme: JssStyles) => ({
+export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  ...(!isEAForum ? theme.typography.body2 : {}),
+  ...(isBookUI ? theme.typography.body2 : {}),
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -34,12 +34,17 @@ export const descriptionStyles = (theme: JssStyles) => ({
   },
 })
 
-const styles = (theme: ThemeType): JssStyles => ({
+const buildFadeMask = (breakpoints: string[]) => {
+  const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
+  return {mask, "-webkit-mask-image": mask};
+}
+
+const styles = (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       maxWidth: SECTION_WIDTH,
       marginLeft: "auto",
       marginRight: "auto",
@@ -63,6 +68,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[100],
     }
   },
+  spotlightFadeBackground: {
+    background: "var(--spotlight-fade)",
+  },
   closeButtonWrapper: {
     position: 'absolute',
     top: 0,
@@ -72,21 +80,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: theme.palette.grey[300],
+    color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
+  },
+  hideButton: {
+    cursor: "pointer",
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 20,
+    height: 20,
+    color: theme.palette.text.alwaysWhite,
+    "&:hover": {
+      opacity: 0.8,
+    },
   },
   content: {
     padding: 16,
     paddingRight: 35,
     display: "flex",
-    // overflow: "hidden",
     flexDirection: "column",
     justifyContent: "space-between",
     marginRight: 150,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: `
+    textShadow: isFriendlyUI ? undefined : `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -113,40 +132,69 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       fontSize: 13,
+      fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.grey[700],
+      color: theme.palette.text.alwaysWhite,
       marginTop: 8,
+      maxWidth: TEXT_WIDTH,
+      "& a": {
+        color: theme.palette.text.alwaysWhite,
+        textDecoration: "underline",
+        "&:hover": {
+          opacity: 0.8,
+          color: `${theme.palette.text.alwaysWhite} !important`,
+        },
+        "&:visited": {
+          color: theme.palette.text.alwaysWhite,
+        },
+      },
     } : {}),
   },
   title: {
     ...theme.typography.headerStyle,
-    fontSize: 20,
-    ...(isEAForum ?
-      {fontWeight: 600} :
-      {fontVariant: "small-caps"}
+    ...(isFriendlyUI
+      ? {
+        fontSize: 22,
+        fontWeight: 700,
+        color: theme.palette.text.alwaysWhite,
+      }
+      : {
+        fontSize: 20,
+        fontVariant: "small-caps",
+        lineHeight: "1.2em",
+      }
     ),
-    lineHeight: "1.2em",
     display: "flex",
     alignItems: "center"
   },
   subtitle: {
     ...theme.typography.postStyle,
-    color: theme.palette.grey[700],
     ...theme.typography.italic,
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       fontSize: 13,
+      fontWeight: 500,
       fontFamily: theme.palette.fonts.sansSerifStack,
+      color: theme.palette.text.alwaysWhite,
       marginTop: 8,
+      maxWidth: TEXT_WIDTH,
     } : {
+      color: theme.palette.grey[700],
       fontSize: 15,
       marginTop: -1,
     }),
   },
-  startOrContinue: {
-    marginTop: isEAForum ? 16 : 4,
-  },
+  startOrContinue: isFriendlyUI
+    ? {
+      marginTop: 0,
+      [theme.breakpoints.down("xs")]: {
+        marginTop: 8,
+      },
+    }
+    : {
+      marginTop: 4,
+    },
   image: {
     height: "100%",
     position: "absolute",
@@ -155,12 +203,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isEAForum && {width: "100%", objectFit: "cover"}),
+    ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
   },
-  imageFade: {
-    mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
-    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
-  },
+  imageFade: buildFadeMask([
+    "transparent 0",
+    `${theme.palette.text.alwaysWhite} 80%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
+  imageFadeCustom: buildFadeMask([
+    "transparent 0",
+    "transparent 30%",
+    `${theme.palette.text.alwaysWhite} 90%`,
+    `${theme.palette.text.alwaysWhite} 100%`,
+  ]),
   author: {
     marginTop: 4,
     color: theme.palette.grey[600],
@@ -256,13 +311,8 @@ export const SpotlightItem = ({
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2, LWTooltip,
-    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading, Typography
-  } = Components
-  
   const currentUser = useCurrentUser()
 
   const [edit, setEdit] = useState<boolean>(false)
@@ -272,14 +322,30 @@ export const SpotlightItem = ({
 
   const duration = spotlight.duration
 
-  const onUpdate = () => {
+  const onUpdate = useCallback(() => {
     setEdit(false);
     refetchAllSpotlights?.();
-  };
-  
+  }, [refetchAllSpotlights]);
+
+  // Define fade color with a CSS variable to be accessed in the styles
+  const style = {
+    "--spotlight-fade": spotlight.imageFadeColor,
+  } as CSSProperties;
+
+  const {
+    MetaInfo, FormatDate, AnalyticsTracker, ContentItemBody, CloudinaryImage2,
+    WrappedSmartForm, SpotlightEditorStyles, SpotlightStartOrContinueReading,
+    Typography, LWTooltip, ForumIcon,
+  } = Components
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div className={classNames(classes.root, className)} id={spotlight._id}>
-      <div className={classes.spotlightItem}>
+    <div
+      id={spotlight._id}
+      style={style}
+      className={classNames(classes.root, className)}
+    >
+      <div className={classNames(classes.spotlightItem, {
+        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
+      })}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
@@ -294,7 +360,7 @@ export const SpotlightItem = ({
           {spotlight.customSubtitle && <div className={classes.subtitle}>
             {spotlight.customSubtitle}
           </div>}
-          {(spotlight.description?.html || isLWorAF) && <div className={classes.description}>
+          {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm
@@ -322,16 +388,30 @@ export const SpotlightItem = ({
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
           className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade,
+            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
+            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
           })}
         />}
-        {hideBanner && <div className={classes.closeButtonWrapper}>
-          <LWTooltip title="Hide this spotlight" placement="right">
-            <Button className={classes.closeButton} onClick={hideBanner}>
-              <CloseIcon className={classes.closeIcon} />
-            </Button>
-          </LWTooltip>
-        </div>}
+        {hideBanner && (
+          isFriendlyUI
+            ? (
+              <ForumIcon
+                icon="Close"
+                onClick={hideBanner}
+                className={classes.hideButton}
+              />
+            )
+            : (
+              <div className={classes.closeButtonWrapper}>
+                <LWTooltip title="Hide this spotlight" placement="right">
+                  <Button className={classes.closeButton} onClick={hideBanner}>
+                    <ForumIcon icon="Close" />
+                  </Button>
+                </LWTooltip>
+              </div>
+            )
+          )
+        }
         <div className={classes.editAllButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>

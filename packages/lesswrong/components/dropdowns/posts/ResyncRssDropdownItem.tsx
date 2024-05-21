@@ -37,7 +37,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,
-  closeMenu: ()=>void,
+  closeMenu: () => void,
   classes: ClassesType,
 }) => {
   const { openDialog } = useDialog();
@@ -67,7 +67,7 @@ const ResyncRssDropdownItem = ({post, closeMenu, classes}: {
 }
 
 const ResyncRssDialog = ({onClose, post, classes}: {
-  onClose: ()=>void,
+  onClose: () => void,
   post: PostsList|SunshinePostsList,
   classes: ClassesType,
 }) => {
@@ -94,6 +94,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   const { mutate: updatePost } = useUpdate({
     collectionName: "Posts",
     fragmentName: "PostsEdit",
+    skipCacheUpdate: true,
   });
   const [isSaving, setIsSaving] = useState(false);
   

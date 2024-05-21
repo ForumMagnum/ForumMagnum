@@ -3,13 +3,10 @@ import { htmlToTextDefault } from "../../../lib/htmlToText";
 import ElasticClient from "./ElasticClient";
 import { collectionNameToConfig, Mappings } from "./ElasticConfig";
 import {
-  AlgoliaIndexCollectionName,
-  algoliaIndexedCollectionNames,
-} from "../../../lib/search/algoliaUtil";
-import {
-  AlgoliaIndexedCollection,
-  AlgoliaIndexedDbObject,
-} from "../utils";
+  SearchIndexCollectionName,
+  SearchIndexedCollection,
+  searchIndexedCollectionNames,
+} from "../../../lib/search/searchUtil";
 import {
   CommentsRepo,
   PostsRepo,
@@ -35,19 +32,19 @@ class ElasticExporter {
   ) {}
 
   async configureIndexes() {
-    for (const collectionName of algoliaIndexedCollectionNames) {
+    for (const collectionName of searchIndexedCollectionNames) {
       await this.configureIndex(collectionName);
     }
   }
 
   async exportAll() {
-    await Promise.all(algoliaIndexedCollectionNames.map(
+    await Promise.all(searchIndexedCollectionNames.map(
       (collectionName) => this.exportCollection(collectionName),
     ));
   }
 
   private isBackingIndexName(name: string): boolean {
-    for (const collectionName of algoliaIndexedCollectionNames) {
+    for (const collectionName of searchIndexedCollectionNames) {
       if (
         name.indexOf(collectionName.toLowerCase()) === 0 &&
         /[a-z]+_\d+/.exec(name)?.length
@@ -110,10 +107,9 @@ class ElasticExporter {
    * will continue to work but not all the documents are available - this is
    * currently ~45 seconds for EA forum prod as of 2023-06-22.
    */
-  async configureIndex(collectionName: AlgoliaIndexCollectionName) {
+  async configureIndex(collectionName: SearchIndexCollectionName) {
     const client = this.client.getClient();
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const collection = getCollection(collectionName) as SearchIndexedCollection;
 
     const aliasName = this.getIndexName(collection);
     const newIndexName = `${aliasName}_${Date.now()}`;
@@ -164,9 +160,8 @@ class ElasticExporter {
     }
   }
 
-  async deleteIndex(collectionName: AlgoliaIndexCollectionName) {
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+  async deleteIndex(collectionName: SearchIndexCollectionName) {
+    const collection = getCollection(collectionName) as SearchIndexedCollection;
     const aliasName = this.getIndexName(collection);
     const indexName = await this.getExistingAliasTarget(aliasName);
     if (!indexName) {
@@ -182,7 +177,7 @@ class ElasticExporter {
     });
   }
 
-  private formatDocument(document: AlgoliaDocument) {
+  private formatDocument(document: SearchDocument) {
     const id = document._id;
     // @ts-ignore
     delete document._id;
@@ -198,7 +193,7 @@ class ElasticExporter {
   }
 
   async updateDocument(
-    collectionName: AlgoliaIndexCollectionName,
+    collectionName: SearchIndexCollectionName,
     documentId: string,
   ): Promise<void> {
     const index = collectionName.toLowerCase();
@@ -223,7 +218,7 @@ class ElasticExporter {
 
   private async createIndex(
     indexName: string,
-    collectionName: AlgoliaIndexCollectionName,
+    collectionName: SearchIndexCollectionName,
   ): Promise<void> {
     const client = this.client.getClient();
     const mappings = this.getCollectionMappings(collectionName);
@@ -319,6 +314,12 @@ class ElasticExporter {
                   ],
                 },
               },
+              normalizer: {
+                fm_sortable_keyword: {
+                  type: "custom",
+                  filter: ["lowercase", "trim"],
+                },
+              },
             },
           },
         },
@@ -330,7 +331,7 @@ class ElasticExporter {
   }
 
   private getCollectionMappings(
-    collectionName: AlgoliaIndexCollectionName,
+    collectionName: SearchIndexCollectionName,
   ): Mappings {
     const config = collectionNameToConfig(collectionName);
     const result: Mappings = {
@@ -341,7 +342,7 @@ class ElasticExporter {
     return result;
   }
 
-  private getRepoByCollectionName(collectionName: AlgoliaIndexCollectionName) {
+  private getRepoByCollectionName(collectionName: SearchIndexCollectionName) {
     switch (collectionName) {
     case "Posts":
       return new PostsRepo();
@@ -358,9 +359,8 @@ class ElasticExporter {
     }
   }
 
-  async exportCollection(collectionName: AlgoliaIndexCollectionName) {
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+  async exportCollection(collectionName: SearchIndexCollectionName) {
+    const collection = getCollection(collectionName) as SearchIndexedCollection;
     const repo = this.getRepoByCollectionName(collectionName);
 
     const indexName = this.getIndexName(collection);
@@ -376,7 +376,7 @@ class ElasticExporter {
 
     const batchSize = 1000;
     const totalBatches = Math.ceil(total / batchSize);
-    const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
+    const totalErrors: OnDropDocument<SearchDocument>[] = [];
     for (let i = 0; ; i++) {
       const offset = batchSize * i;
       // eslint-disable-next-line no-console
@@ -398,22 +398,22 @@ class ElasticExporter {
     }
   }
 
-  private getIndexName(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>) {
+  private getIndexName(collection: SearchIndexedCollection) {
     return collection.collectionName.toLowerCase();
   }
 
   private async createDocuments(
-    collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
-    documents: AlgoliaDocument[],
-  ): Promise<OnDropDocument<AlgoliaDocument>[]> {
+    collection: SearchIndexedCollection,
+    documents: SearchDocument[],
+  ): Promise<OnDropDocument<SearchDocument>[]> {
     if (!documents.length) {
       return [];
     }
     const _index = this.getIndexName(collection);
-    const erroredDocuments: OnDropDocument<AlgoliaDocument>[] = [];
+    const erroredDocuments: OnDropDocument<SearchDocument>[] = [];
     await this.client.getClient().helpers.bulk({
       datasource: documents,
-      onDocument: (document: AlgoliaDocument) => {
+      onDocument: (document: SearchDocument) => {
         const {id: _id} = this.formatDocument(document);
         return [
           {
@@ -444,17 +444,16 @@ class ElasticExporter {
   }
 
   async updateSynonyms(synonyms: string[]): Promise<void> {
-    await Promise.all(algoliaIndexedCollectionNames.map(
+    await Promise.all(searchIndexedCollectionNames.map(
       (collectionName) => this.updateSynonymsForCollection(collectionName, synonyms),
     ));
   }
 
   private async updateSynonymsForCollection(
-    collectionName: AlgoliaIndexCollectionName,
+    collectionName: SearchIndexCollectionName,
     synonyms: string[],
   ) {
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const collection = getCollection(collectionName) as SearchIndexedCollection;
     const index = this.getIndexName(collection);
     await this.updateSynonymsForIndex(index, synonyms);
   }
@@ -483,19 +482,19 @@ class ElasticExporter {
   }
 }
 
-Globals.elasticConfigureIndex = (collectionName: AlgoliaIndexCollectionName) =>
+Globals.elasticConfigureIndex = (collectionName: SearchIndexCollectionName) =>
   new ElasticExporter().configureIndex(collectionName);
 
 Globals.elasticConfigureIndexes = () =>
   new ElasticExporter().configureIndexes();
 
-Globals.elasticExportCollection = (collectionName: AlgoliaIndexCollectionName) =>
+Globals.elasticExportCollection = (collectionName: SearchIndexCollectionName) =>
   new ElasticExporter().exportCollection(collectionName);
 
 Globals.elasticExportAll = () =>
   new ElasticExporter().exportAll();
 
-Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
+Globals.elasticDeleteIndex = (collectionName: SearchIndexCollectionName) =>
   new ElasticExporter().deleteIndex(collectionName);
 
 Globals.elasticDeleteIndexByName = (indexName: string) =>

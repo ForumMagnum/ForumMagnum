@@ -11,14 +11,14 @@ let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
 export class EmailTokenType
 {
   name: string
-  onUseAction: (user: DbUser, params: any, args: any)=>any
+  onUseAction: (user: DbUser, params: any, args: any) => any
   resultComponentName: string
   reusable: boolean
   path: string
   
   constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
     name: string,
-    onUseAction: (user: DbUser, params: any, args: any)=>any,
+    onUseAction: (user: DbUser, params: any, args: any) => any,
     resultComponentName: keyof ComponentTypes,
     reusable?: boolean,
     path?: string,
@@ -70,7 +70,7 @@ export class EmailTokenType
 
 async function getAndValidateToken(token: string): Promise<{tokenObj: DbEmailTokens, tokenType: EmailTokenType}> {
   const results = await EmailTokens.find({ token }).fetch();
-  if (results.length != 1)
+  if (results.length !== 1)
     throw new Error("Invalid email token");
   const tokenObj = results[0];
   

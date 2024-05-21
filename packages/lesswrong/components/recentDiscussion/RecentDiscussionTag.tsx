@@ -6,10 +6,11 @@ import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -90,10 +91,9 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: tag.lastVisitedAt,
+    highlightDate: tag.lastVisitedAt ?? undefined,
     tag: tag,
     condensed: true,
-    replyFormStyle: "default",
   }
   
   const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;

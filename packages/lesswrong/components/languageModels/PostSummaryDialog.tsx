@@ -6,7 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 
 const PostSummaryDialog = ({post, onClose}: {
   post: PostsList|SunshinePostsList,
-  onClose?: ()=>void,
+  onClose?: () => void,
 }) => {
   const { Loading, LWDialog } = Components;
   const { document: postWithSummary, loading } = useSingle({

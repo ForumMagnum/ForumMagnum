@@ -159,7 +159,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 }
 
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes} : {
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
   postStatus: DigestPost,
   statusIconsDisabled: boolean,
@@ -253,8 +253,7 @@ const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickS
         </div>
         <div className={classes.postIcons}>
           <div className={classes.karma}>{post.baseScore} karma</div>
-          {/* @ts-ignore I just want to clear out the curatedDate :( */}
-          <PostsItemDate post={{...post, curatedDate: null}} noStyles includeAgo />
+          <PostsItemDate post={post} noStyles includeAgo useCuratedDate={false} />
           <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.hiddenIcon]: !post.url})} />
           <div className={classNames(classes.questionIcon, {[classes.hiddenIcon]: !post.question})}>Q</div>
           <ForumIcon icon="Star" className={classNames(classes.curatedIcon, {[classes.hiddenIcon]: !post.curatedDate})} />

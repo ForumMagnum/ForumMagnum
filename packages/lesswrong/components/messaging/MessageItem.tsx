@@ -3,8 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { PROFILE_IMG_DIAMETER, PROFILE_IMG_DIAMETER_MOBILE } from './ProfilePhoto';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,10 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     columnGap: 10,
     maxWidth: '95%',
-    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px 1fr`,
+    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
     gridTemplateAreas: '"image message"',
     [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px 1fr`,
+      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
     }
   },
   rootCurrentUserWithImages: {
@@ -32,6 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius:5,
     wordWrap: "break-word",
+    overflowWrap: "break-word",
+    whiteSpace: "normal",
     flexGrow: 1,
     gridArea: 'message',
   },
@@ -48,10 +50,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   messageBody: {
     '& a': {
-      color: theme.palette.primary.light
+      color: theme.palette.primary.light,
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
     },
     '& img': {
       maxWidth: '100%',
+    },
+    // Workaround to make sure links don't overflow the message box
+    '& .LWTooltip-root': {
+      display: 'inline',
     },
   },
   profileImg: {
@@ -79,15 +88,14 @@ const MessageItem = ({message, classes}: {
   const isCurrentUser = (currentUser && message.user) && currentUser._id === message.user._id
   const htmlBody = {__html: html};
   const colorClassName = classNames({[classes.whiteMeta]: isCurrentUser})
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
 
   let profilePhoto: React.ReactNode|null = null;
-  if (!isCurrentUser && isEAForum) {
+  if (!isCurrentUser && isFriendlyUI) {
     profilePhoto = <Components.ProfilePhoto user={message.user} className={classes.profileImg} />
   }
   
   return (
-    <div className={classNames(classes.root, {[classes.rootWithImages]: isEAForum, [classes.rootCurrentUserWithImages]: isEAForum && isCurrentUser})}>
+    <div className={classNames(classes.root, {[classes.rootWithImages]: isFriendlyUI, [classes.rootCurrentUserWithImages]: isFriendlyUI && isCurrentUser})}>
       {profilePhoto}
       <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>

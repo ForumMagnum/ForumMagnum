@@ -22,13 +22,15 @@ import { getParentPath } from '../../lib/vulcan-forms/path_utils';
 import { convertSchema, formProperties, getEditableFields, getInsertableFields } from '../../lib/vulcan-forms/schema_utils';
 import { getSimpleSchema } from '../../lib/utils/getSchema';
 import { isEmptyValue } from '../../lib/vulcan-forms/utils';
-import { intlShape } from '../../lib/vulcan-i18n';
-import { getErrors, mergeWithComponents, registerComponent, runCallbacksList } from '../../lib/vulcan-lib';
+import { getErrors, mergeWithComponents, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
+import { isFunction } from '../../lib/utils/typeGuardUtils';
+import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
+import classNames from 'classnames';
 
 /** FormField in the process of being created */
-type FormFieldUnfinished<T extends DbObject> = Partial<FormField<T>>
+type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
 
 // props that should trigger a form reset
 const RESET_PROPS = [
@@ -54,7 +56,7 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
   );
 };
 
-const getInitialStateFromProps = (nextProps: SmartFormProps): FormState => {
+const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
   const collection = nextProps.collection;
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
@@ -121,8 +123,8 @@ interface FormState {
  * This is not in the Components table and is not registered with
  * registerComponent because you aren't supposed to use it without FormWrapper.
  */
-export class Form<T extends DbObject> extends Component<SmartFormProps,FormState> {
-  constructor(props: SmartFormProps) {
+export class Form<N extends CollectionNameString> extends Component<SmartFormProps<N>,FormState> {
+  constructor(props: SmartFormProps<N>) {
     super(props);
 
     this.formRef = React.createRef<HTMLFormElement>();
@@ -150,7 +152,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   };
 
   /** Get a list of all insertable fields */
-  getInsertableFields = (schema: SchemaType<T>) => {
+  getInsertableFields = (schema: SchemaType<N>) => {
     return getInsertableFields(
       schema || this.state.schema,
       this.props.currentUser??null
@@ -158,7 +160,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   };
 
   /** Get a list of all editable fields */
-  getEditableFields = (schema: SchemaType<T>) => {
+  getEditableFields = (schema: SchemaType<N>) => {
     return getEditableFields(
       schema || this.state.schema,
       this.props.currentUser??null,
@@ -167,7 +169,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   };
 
   /** Get a list of all mutable (insertable/editable depending on current form type) fields */
-  getMutableFields = (schema: SchemaType<T>) => {
+  getMutableFields = (schema: SchemaType<N>) => {
     return this.getFormType() === 'edit'
       ? this.getEditableFields(schema)
       : this.getInsertableFields(schema);
@@ -245,7 +247,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     // for each group, add relevant fields
     groups = groups.map(group => {
-      group.label = group.label || this.context.intl.formatMessage({ id: group.name });
+      group.label = group.label || formatMessage({ id: group.name });
       group.fields = fields.filter(field => {
         return field.group && field.group.name === group.name;
       })
@@ -330,9 +332,9 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   // TODO: fieldSchema is actually a slightly added-to version of
   // CollectionFieldSpecification, see convertSchema in schema_utils, but in
   // this function, it acts like CollectionFieldSpecification
-  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<T>) => {
+  initField = (fieldName: string, fieldSchema: CollectionFieldSpecification<N>) => {
     // intialize properties
-    let field: FormFieldUnfinished<T> = {
+    let field: FormFieldUnfinished<N> = {
       ...pick(fieldSchema, formProperties),
       document: this.state.initialDocument,
       name: fieldName,
@@ -353,7 +355,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     for (const prop in inputProperties) {
       const property = inputProperties[prop];
       (field as AnyBecauseTodo)[prop] =
-        typeof property === 'function'
+        isFunction(property)
           ? property.call(fieldSchema, this.props)
           : property;
     }
@@ -364,7 +366,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     }
     return field;
   };
-  handleFieldPath = (field: FormFieldUnfinished<T>, fieldName: string, parentPath?: string): FormFieldUnfinished<T> => {
+  handleFieldPath = (field: FormFieldUnfinished<N>, fieldName: string, parentPath?: string): FormFieldUnfinished<N> => {
     const fieldPath = parentPath ? `${parentPath}.${fieldName}` : fieldName;
     field.path = fieldPath;
     if (field.defaultValue) {
@@ -372,7 +374,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     }
     return field;
   };
-  handleFieldParent = (field: FormFieldUnfinished<T>, parentFieldName?: string) => {
+  handleFieldParent = (field: FormFieldUnfinished<N>, parentFieldName?: string) => {
     // if field has a parent field, pass it on
     if (parentFieldName) {
       field.parentFieldName = parentFieldName;
@@ -380,14 +382,14 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     return field;
   };
-  handlePermissions = (field: FormFieldUnfinished<T>, fieldName: string, mutableFields: any) => {
+  handlePermissions = (field: FormFieldUnfinished<N>, fieldName: string, mutableFields: any) => {
     // if field is not creatable/updatable, disable it
     if (!mutableFields.includes(fieldName)) {
       field.disabled = true;
     }
     return field;
   };
-  handleFieldChildren = (field: FormFieldUnfinished<T>, fieldName: string, fieldSchema: any, mutableFields: any, schema: any) => {
+  handleFieldChildren = (field: FormFieldUnfinished<N>, fieldName: string, fieldSchema: any, mutableFields: any, schema: any) => {
     // array field
     if (fieldSchema.field) {
       field.arrayFieldSchema = fieldSchema.field;
@@ -428,13 +430,13 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
    */
   createField = (fieldName: string, schema: any, mutableFields: any, parentFieldName?: string, parentPath?: string) => {
     const fieldSchema = schema[fieldName];
-    let field: FormFieldUnfinished<T> = this.initField(fieldName, fieldSchema);
+    let field: FormFieldUnfinished<N> = this.initField(fieldName, fieldSchema);
     field = this.handleFieldPath(field, fieldName, parentPath);
     field = this.handleFieldParent(field, parentFieldName);
     field = this.handlePermissions(field, fieldName, mutableFields);
     field = this.handleFieldChildren(field, fieldName, fieldSchema, mutableFields, schema);
     // Now that it's done being constructed, all the required fields will be set
-    return field as FormField<T>;
+    return field as FormField<N>;
   };
   createArraySubField = (fieldName: AnyBecauseTodo, subFieldSchema: AnyBecauseTodo, mutableFields: AnyBecauseTodo) => {
     const subFieldName = `${fieldName}.$`;
@@ -455,13 +457,13 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
    */
   getLabel = (fieldName: string, fieldLocale?: any): string => {
     const collectionName = this.props.collectionName.toLowerCase();
-    const label = this.context.intl.formatLabel({
+    const label = formatLabel({
       fieldName: fieldName,
       collectionName: collectionName,
       schema: this.state.flatSchema,
     });
     if (fieldLocale) {
-      const intlFieldLocale = this.context.intl.formatMessage({
+      const intlFieldLocale = formatMessage({
         id: `locales.${fieldLocale}`,
         defaultMessage: fieldLocale,
       });
@@ -593,7 +595,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
 
   */
-  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps<N>) {
     for (const prop of RESET_PROPS) {
       const prev = this.props[prop];
       const next = nextProps[prop];
@@ -713,6 +715,8 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
   // check for route change, prevent form content loss
   checkRouteChange = () => {
+    // TODO FIXME: This was a casualty of upgrading react router v5->v6
+    /*
     // @see https://github.com/ReactTraining/react-router/issues/4635#issuecomment-297828995
     // @see https://github.com/ReactTraining/history#blocking-transitions
     if (this.getWarnUnsavedChanges()) {
@@ -720,16 +724,9 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
         // return the message that will pop into a window.confirm alert
         // if returns nothing, the message won't appear and the user won't be blocked
         return this.handleRouteLeave();
-
-        /*
-            // React-router 3 implementtion
-            const routes = this.props.router.routes;
-            const currentRoute = routes[routes.length - 1];
-            this.props.router.setRouteLeaveHook(currentRoute, this.handleRouteLeave);
-
-            */
       });
     }
+     */
   }
   // check for browser closing
   checkBrowserClosing = () => {
@@ -841,15 +838,15 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
     }
   };
 
-  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -858,9 +855,10 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     // call the clear form method (i.e. trigger setState) only if the form has not been unmounted
     // (we are in an async callback, everything can happen!)
+    // avoid doing this if we're autosaving a new post without reloading
     if (this.formRef.current) {
       this.clearForm({
-        document: mutationType === 'edit' ? document : undefined
+        document: mutationType === 'edit' || submitOptions?.noReload ? document : undefined
       });
     }
 
@@ -977,7 +975,7 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   */
   deleteDocument = () => {
     const document = this.getDocument();
-    const documentId = this.props.document._id;
+    const documentId = this.props.document?._id;
     const documentTitle = document.title || document.name || '';
 
     const deleteDocumentConfirm = "Delete document?";
@@ -1008,7 +1006,11 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
 
     return (
       <form
-        className={'vulcan-form document-' + this.getFormType()}
+        className={classNames(
+          'vulcan-form',
+          `document-${this.getFormType()}`,
+          this.props?.formProps?.formClassName,
+        )}
         id={this.props.id}
         onSubmit={this.submitForm}
         ref={this.formRef}
@@ -1098,10 +1100,6 @@ export class Form<T extends DbObject> extends Component<SmartFormProps,FormState
   ...callbackProps,
 
   currentUser: PropTypes.object,
-};
-
-(Form as any).contextTypes = {
-  intl: intlShape
 };
 
 (Form as any).childContextTypes = {

@@ -4,6 +4,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
 import { useNotifyMe } from '../hooks/useNotifyMe';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -17,6 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5
     }
   },
+  icon: isFriendlyUI ? {
+    color: theme.palette.grey[900],
+    fontSize: 16,
+    marginRight: 6,
+  } : {},
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
@@ -39,6 +45,8 @@ const NotifyMeButton = ({
   hideLabel = false,
   hideLabelOnMobile = false,
   hideIfNotificationsDisabled = false,
+  hideForLoggedOutUsers = false,
+  hideFlashes = false,
   asButton = false,
   componentIfSubscribed,
 }: {
@@ -54,6 +62,9 @@ const NotifyMeButton = ({
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
   hideIfNotificationsDisabled?: boolean,
+  // by default, we show the button to logged out users so that we can prompt them to login/sign up when they click it
+  hideForLoggedOutUsers?: boolean,
+  hideFlashes?: boolean,
   // uses <a> by default, set this to use <button>
   asButton?: boolean,
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
@@ -63,18 +74,22 @@ const NotifyMeButton = ({
     document,
     overrideSubscriptionType,
     hideIfNotificationsDisabled,
+    hideForLoggedOutUsers,
+    hideFlashes,
   });
 
   if (disabled) {
     return null;
   }
 
+  const {LWTooltip, Loading, ForumIcon, MenuItem, EAButton} = Components;
+
   const icon = showIcon && <ListItemIcon>
     {loading
-      ? <Components.Loading/>
+      ? <Loading/>
       : (isSubscribed
-        ? <Components.ForumIcon icon="Bell" />
-        : <Components.ForumIcon icon="BellBorder" />
+        ? <ForumIcon icon="Bell" className={classes.icon} />
+        : <ForumIcon icon="BellBorder" className={classes.icon} />
       )
     }
   </ListItemIcon>
@@ -93,23 +108,31 @@ const NotifyMeButton = ({
     {message}
   </>
 
-  const {MenuItem} = Components;
-  const maybeMenuItemButton = asMenuItem ?
-    <MenuItem onClick={onSubscribe}>
+  // Determine if this component should look like a link (default), menu item, or button
+  let maybeMenuItemButton = null;
+  if (asMenuItem) {
+    maybeMenuItemButton = <MenuItem onClick={onSubscribe}>
       <a className={classNames(classes.root, className)}>
         {button}
       </a>
-    </MenuItem> : asButton ?
-    <button onClick={onSubscribe} className={classNames(className, classes.root)}>
-      {button}
-    </button> :
-    <a onClick={onSubscribe} className={classNames(className, classes.root)}>
+    </MenuItem>
+  } else if (asButton) {
+    maybeMenuItemButton = isFriendlyUI ? (
+      <EAButton style="grey" onClick={onSubscribe}>{button}</EAButton>
+    ) : (
+      <button onClick={onSubscribe} className={classNames(className, classes.root)}>
+        {button}
+      </button>
+    )
+  } else {
+    maybeMenuItemButton = <a onClick={onSubscribe} className={classNames(className, classes.root)}>
       {button}
     </a>
+  }
 
-  const maybeToolipButton = tooltip ? <Components.LWTooltip title={tooltip}>
+  const maybeToolipButton = tooltip ? <LWTooltip title={tooltip}>
       {maybeMenuItemButton}
-    </Components.LWTooltip> :
+    </LWTooltip> :
     maybeMenuItemButton
 
   return componentIfSubscribed && isSubscribed

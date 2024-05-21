@@ -1,12 +1,24 @@
 import React from 'react';
 
-// Given a hook function, return a higher-order component which calls it and
-// adds the result as extra props. If componentPropsToHookParams is given, calls
-// it on the component's props and passes the result as an argument to hookFn;
-// otherwise hookFn is assumed to take no arguments.
-export function hookToHoc(hookFn: any, componentPropsToHookParams?: (props:Record<string,any>)=>Record<string,any>) {
-  return (Component: AnyBecauseTodo) => (props: AnyBecauseTodo) => {
-    const hookProps = componentPropsToHookParams ? hookFn(componentPropsToHookParams(props)) : hookFn();
-    return <Component {...props} {...hookProps}/>;
+/**
+ * Given a hook function, return a higher-order component which calls it and
+ * adds the result as extra props. If componentPropsToHookParams is given, calls
+ * it on the component's props and passes the result as an argument to hookFn;
+ * otherwise hookFn is assumed to take no arguments.
+ *
+ * Components may or may not accept a ref. If they are, we need to forward the
+ * ref to the underlying component, so we use forwardRef here.
+ */
+export function hookToHoc<P, HP, HR>(
+  hookFn: (hookParams?: HP) => HR,
+  componentPropsToHookParams?: (props: P) => HP
+) {
+  return (Component: React.ComponentType<P & HR>) => {
+    const WithHook = (props: P, ref: React.Ref<any>) => {
+      const hookParams = componentPropsToHookParams ? componentPropsToHookParams(props) : undefined;
+      const hookProps = hookParams !== undefined ? hookFn(hookParams) : hookFn();
+      return <Component ref={ref} {...props} {...hookProps} />;
+    };
+    return React.forwardRef(WithHook);
   }
 }

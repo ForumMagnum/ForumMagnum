@@ -18,7 +18,7 @@ registerMigration({
   }
 })
 
-const recomputeCollectionScores = async (collectionName:CollectionNameString, includeAf = false) => {
+const recomputeCollectionScores = async (collectionName: CollectionNameString, includeAf = false) => {
   const collection = getCollection(collectionName);
   const newScores = await Votes.aggregate([
     {
@@ -137,7 +137,7 @@ const recomputeUserKarma = async () => {
   console.log(`Finished updating User karma. Updated ${newScores.length} users.`)
 }
 
-const chunkArray = <T>(arr: T[], size: number):T[][] => {
+const chunkArray = <T>(arr: T[], size: number): T[][] => {
   return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
     arr.slice((i * size), (i * size) + size)
   );

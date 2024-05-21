@@ -1,16 +1,13 @@
-import type { FilterTag } from './filterSettings';
-import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
+import type {FilterTag} from './filterSettings'
+import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
+import {forumSelect} from './forumTypeUtils'
+import {isEAForum} from './instanceSettings'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
-
-export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
-  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
-  registeredSettings[settingName] = settingType
-}
 
 /* 
   A setting which is stored in the database in the "databasemedata" collection, in a record with the `name` field set to "publicSettings" 
@@ -34,13 +31,24 @@ export class DatabasePublicSetting<SettingValueType> {
     private defaultValue: SettingValueType
   ) {
     initializeSetting(settingName, "public")
+
+    // Affords for a more convenient lazy usage, 
+    // so you can refer to setting getter as `setting.get` vs having to wrap it in a function like `() => setting.get()`
+    this.get = this.get.bind(this)
+    this.getOrThrow = this.getOrThrow.bind(this)
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (!getPublicSettingsLoaded()) throw Error("Tried to access public setting before it was initialized")
+    if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
+  }
+
+  getOrThrow(): SettingValueType {
+    const value = this.get()
+    if (value === null || value === undefined) throw Error(`Tried to access public setting ${this.settingName} but it was not set`)
+    return value
   }
 }
 
@@ -50,10 +58,9 @@ export class DatabasePublicSetting<SettingValueType> {
 
 export const googleTagManagerIdSetting = new DatabasePublicSetting<string | null>('googleTagManager.apiKey', null) // Google Tag Manager ID
 export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>('reCaptcha.apiKey', null) // ReCaptcha API Key
-// Algolia Search Settings
-export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
-export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)
-export const algoliaPrefixSetting = new DatabasePublicSetting<string | null>('algolia.indexPrefix', null)
+
+// Despite the name, this setting is also used to set the index prefix for Elasticsearch for legacy reasons
+export const algoliaPrefixSetting = new DatabasePublicSetting<string>('algolia.indexPrefix', '')
 
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null) // Websocket URL for CKEditor (for collaboration)
@@ -91,8 +98,7 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
-// You will need to restart your server after changing these at present;
-// FrontpageReviewWidget reads them at startup.
+export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
 export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
 // The following dates cut off their phase at the end of the day
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
@@ -103,10 +109,81 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
+export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
+
+export type ReviewWinnerSectionName = 'rationality' | 'optimization' | 'modeling' | 'ai' | 'practical' | 'misc';
+export type ReviewWinnerYear = 2018 | 2019 | 2020 | 2021 | 2022;
+export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & {
+  leftHeightPct?: number;
+  middleHeightPct?: number;
+  rightHeightPct?: number;
+};
+
+export interface ReviewSectionInfo {
+  title?: string;
+  imgUrl: string;
+  order: number;
+  coords: CoordinateInfo;
+  tag: string | null;
+}
+
+export interface ReviewYearGroupInfo {
+  title?: string;
+  imgUrl: string;
+  coords: CoordinateInfo;
+}
+
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
+
+
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
+type AccountInfo = {
+  username: string,
+  email: string,
+};
+export const adminAccountSetting = new DatabasePublicSetting<AccountInfo|null>('adminAccount', null);
 
 export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>('crosspostKarmaThreshold', 100);
 
 export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tracingSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100) // Sample rate for backend traces, between 0 and 100
+
+/** Will we show our logo prominently, such as in the header */
+export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
+
+export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
+
+export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
+
+export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
+
+export type Auth0ClientSettings = {
+  domain: string,
+  clientId: string,
+  connection: string,
+}
+export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings | null>("auth0", null);
+
+// Null means requests are disabled
+export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);
+
+export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
+
+export const showSubscribeReminderInFeed = new DatabasePublicSetting<boolean>(
+  'feed.showSubscribeReminder', 
+  forumSelect({EAForum: true, LWAF: true, default: false})
+);
+
+export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
+
+
+export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
+export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
+
+export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+
+export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)
+
+export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);

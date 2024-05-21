@@ -5,7 +5,7 @@ import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '..
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
-type ComparisonFn = (prev: any, next: any)=>boolean
+type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
@@ -56,7 +56,7 @@ interface ComponentsTableEntry {
 
 const componentsProxyHandler = {
   get: function(obj: {}, prop: string) {
-    if (prop == "__isProxy") {
+    if (prop === "__isProxy") {
       return true;
     } else if (prop in PreparedComponents) {
       return PreparedComponents[prop];
@@ -78,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-export const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,() => void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -86,22 +86,22 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const classNameProxy = (componentName: string) => {
+const classNameProxy = (prefix: string) => {
   return new Proxy({}, {
     get: function(obj: any, prop: any) {
       // Check that the prop is really a string. This isn't an error that comes
       // up normally, but apparently React devtools will try to query for non-
       // string properties sometimes when using the component debugger.
       if (typeof prop === "string")
-        return `${componentName}-${prop}`;
+        return prefix+prop;
       else
-        return `${componentName}-invalid`;
+        return prefix+'invalid';
     }
   });
 }
 
 const addClassnames = (componentName: string, styles: any) => {
-  const classesProxy = classNameProxy(componentName);
+  const classesProxy = classNameProxy(componentName+'-');
   return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
@@ -113,8 +113,8 @@ const addClassnames = (componentName: string, styles: any) => {
   })
 }
 
-export const useStyles = (styles: (theme: ThemeType)=>JssStyles, componentName: keyof ComponentTypes) => {
-  return classNameProxy(componentName);
+export const useStyles = (styles: (theme: ThemeType) => JssStyles, componentName: keyof ComponentTypes) => {
+  return classNameProxy(componentName+'-');
 };
 
 // Register a component. Takes a name, a raw component, and ComponentOptions
@@ -164,7 +164,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: ()=>void) {
+export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
   if (Array.isArray(componentName)) {
     for (let name of componentName) {
       DeferredComponentsTable[name] = importFn;
@@ -180,7 +180,7 @@ export function importAllComponents() {
   }
 }
 
-function prepareComponent(componentName: string): any
+export function prepareComponent(componentName: string): any
 {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];

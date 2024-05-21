@@ -58,11 +58,9 @@ import InsertQuery from "../../lib/sql/InsertQuery"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Digests.isPostgres() || !DigestPosts.isPostgres()) return
-
   await createTable(db, Digests)
   await createTable(db, DigestPosts)
-  
+
   // insert a digest to start
   const now = new Date()
   const newDigest = {
@@ -71,14 +69,12 @@ export const up = async ({db}: MigrationContext) => {
     startDate: now,
     createdAt: now,
   }
-  const query = new InsertQuery(Digests.table, newDigest as DbDigest)
+  const query = new InsertQuery(Digests.getTable(), newDigest as DbDigest)
   const {sql, args} = query.compile()
   await db.none(sql, args)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Digests.isPostgres() || !DigestPosts.isPostgres()) return
-
   await dropTable(db, DigestPosts)
   await dropTable(db, Digests)
 }

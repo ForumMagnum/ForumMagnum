@@ -99,10 +99,12 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   showCloseIcon?: boolean,
   classes: ClassesType,
 }) => {
-  const { Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle } = Components
+  const {
+    Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip
+  } = Components;
 
   const { firstPost } = collection;
-  
+
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
@@ -137,12 +139,12 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
           </div> : description}
         </ContentStyles>
         {firstPost && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost.postId}/>} tooltip={false}>
+          First Post: <PostsTooltip inlineBlock postId={firstPost.postId}>
             <Link to={firstPost.postUrl}>{firstPost.postTitle}</Link>
-          </LWTooltip>
+          </PostsTooltip>
         </div>}
       </div>
-      
+
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} style={{width: collection.imageWidth || 130}}/>}
 
       {showCloseIcon && <Tooltip title="Hide this for the next month">

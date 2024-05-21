@@ -6,6 +6,7 @@ import { siteImageSetting } from "../vulcan-core/App";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Link } from "../../lib/reactRouterWrapper";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import { usePostContents } from "../hooks/useForeignCrosspost";
 import moment from "moment";
 import classNames from "classnames";
 
@@ -81,8 +82,8 @@ const styles = (theme: ThemeType) => ({
     marginBottom: "auto",
   },
   postListItemImage: {
-    height: "auto",
-    maxWidth: 170,
+    width: 170,
+    height: 121,
     objectFit: "cover",
     marginLeft: 16,
     borderRadius: theme.borderRadius.small,
@@ -116,9 +117,16 @@ const EALargePostsItem = ({
   const {onClick} = useClickableCell({href: postLink});
 
   const {eventHandlers} = useHover({
-    pageElementContext: "postListItem",
-    documentId: post._id,
-    documentSlug: post.slug,
+    eventProps: {
+      pageElementContext: "postListItem",
+      documentId: post._id,
+      documentSlug: post.slug,
+    },
+  });
+
+  const {postContents, loading, error} = usePostContents({
+    post: post,
+    fragmentName: "PostsPage",
   });
 
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
@@ -131,7 +139,10 @@ const EALargePostsItem = ({
     imageUrl = siteImageSetting.get();
   }
 
-  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper} = Components;
+  const description = postContents?.plaintextDescription ??
+    post?.contents?.plaintextDescription;
+
+  const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading, TimeTag} = Components;
   return (
     <AnalyticsContext documentSlug={post.slug}>
       <div
@@ -163,8 +174,10 @@ const EALargePostsItem = ({
               </InteractionWrapper>
             </div>
             &nbsp;·&nbsp;
-            {timeFromNow}
-            {ago}
+            <TimeTag dateTime={post.postedAt}>
+              {timeFromNow}
+              {ago}
+            </TimeTag>
             &nbsp;·&nbsp;
             {post.readTimeMinutes}m read
             <div>
@@ -182,7 +195,8 @@ const EALargePostsItem = ({
             </div>
           </div>
           <div className={classes.postListItemPreview}>
-            {post.contents?.plaintextDescription}
+            {description}
+            {loading && !error && !description && <Loading />}
           </div>
         </div>
         {imageUrl && <img className={classes.postListItemImage} src={imageUrl} />}

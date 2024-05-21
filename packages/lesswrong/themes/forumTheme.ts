@@ -5,6 +5,24 @@ import { getUserTheme } from './userThemes/index';
 import { getSiteTheme } from './siteThemes/index';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
+import { forumSelect } from '../lib/forumTypeUtils';
+import capitalize from 'lodash/capitalize';
+
+/**
+ * Is this Forum a muted, dignified book-like experience, or a modern, friendly
+ * site with more rounded corners?
+ *
+ * There are some decisions like "what do you call bookmarked posts" that also
+ * hinge on this setting, making a bit like a, "which tribe are you" question,
+ * in addition to controlling the basic UI style.
+ */
+export const siteUIStyle = forumSelect<"book"|"friendly">({
+  LWAF: "book",
+  EAForum: "friendly",
+  default: "friendly",
+})
+export const isBookUI = siteUIStyle === "book";
+export const isFriendlyUI = siteUIStyle === "friendly";
 
 const themeCache = new Map<string,ThemeType>();
 
@@ -20,14 +38,19 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
   if (!themeCache.has(themeCacheKey)) {
     const siteTheme = getSiteTheme(forumType);
     const userTheme = getUserTheme(themeOptions.name);
-    const theme = buildTheme(userTheme, siteTheme, forumType);
+    const theme = buildTheme(userTheme, siteTheme, forumType, themeOptions);
     themeCache.set(themeCacheKey, theme);
   }
   
   return themeCache.get(themeCacheKey)! as any;
 }
 
-const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpecification, forumType: ForumTypeString): ThemeType => {
+const buildTheme = (
+  userTheme: UserThemeSpecification,
+  siteTheme: SiteThemeSpecification,
+  forumType: ForumTypeString,
+  themeOptions: ThemeOptions,
+): ThemeType => {
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
   if (userTheme.shadePalette) shadePalette = deepmerge(shadePalette, userTheme.shadePalette);
@@ -47,5 +70,13 @@ const buildTheme = (userTheme: UserThemeSpecification, siteTheme: SiteThemeSpeci
     ...combinedTheme,
     palette
   };
-  return createMuiTheme(themeWithPalette as any) as any;
+  const theme = createMuiTheme(themeWithPalette as any) as any;
+  theme.themeOptions = themeOptions;
+  return theme;
 }
+
+/**
+ * Convert heading to sentence case in Friendly UI sites, leave as is on LW (will usually be "start case" e.g. "Set Topics").
+ * In the event of edge cases (e.g. "EA Forum" -> "Ea forum"), it's probably best to do an inline forumTypeSetting check
+ */
+export const preferredHeadingCase = isFriendlyUI ? capitalize : (s: string) => s;

@@ -1,7 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib'
-import { InstantSearch, Configure } from 'react-instantsearch-dom';
-import { getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
+import { Configure } from 'react-instantsearch-dom';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 
@@ -53,7 +54,7 @@ const SearchAutoComplete = ({
   facetFilters?: Record<string, boolean>,
 }) => {
   if (!isSearchEnabled()) {
-    // Fallback for when Algolia is unavailable (ie, local development installs).
+    // Fallback for when search is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.
     return <input type="text" placeholder={noSearchPlaceholder} onKeyPress={ev => {

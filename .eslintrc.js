@@ -1,3 +1,26 @@
+
+const restrictedImportsPaths = [
+  { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
+  { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
+  { name: "@material-ui", message: "Don't import all of material-ui/icons" },
+  { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
+  { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
+  { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
+  { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
+  { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
+  { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
+  { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
+  { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
+  { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
+  { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
+  { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
+  { name: "react-no-ssr", message: "Don't import react-no-ssr, use ForumNoSSR" },
+  { name: "@material-ui/core/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
+];
+const clientRestrictedImportPaths = [
+  { name: "cheerio", message: "Don't import cheerio on the client" },
+]
+
 module.exports = {
   "extends": [
     "eslint:recommended",
@@ -45,6 +68,7 @@ module.exports = {
     "eol-last": 1,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
+    "eqeqeq": [1, "always", {"null": "ignore"}],
     "key-spacing": 0,
     "no-extra-boolean-cast": 0,
     "no-undef": 1,
@@ -65,18 +89,48 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
-    "no-mixed-operators": 1,
+    "react/no-unknown-property": ["error", {ignore: ["test-id"]}],
+
+    // Differs from no-mixed-operators default only in that "??" is added to the first group
+    "no-mixed-operators": ["warn", {
+      "groups": [
+        ["??", "+", "-", "*", "/", "%", "**"],
+        ["&", "|", "^", "~", "<<", ">>", ">>>"],
+        ["==", "!=", "===", "!==", ">", ">=", "<", "<="],
+        ["&&", "||"],
+        ["in", "instanceof"]
+      ],
+      "allowSamePrecedence": true
+    }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "import/no-unresolved": 1,
-    "import/named": 1,
-    "import/default": 1,
-    "import/namespace": 1,
     "import/no-dynamic-require": 1,
     "import/no-self-import": 1,
     "import/export": 1,
-    "import/no-named-as-default-member": 1,
-    "import/no-deprecated": 1,
+
+    // Lint rules against importing things that don't exist as exports.
+    // Disabled because Typescript already checks this, and eslint is
+    // having false-positives on imports in node_modules with a few specific
+    // libraries (underscore, hot-shots, recombee-api-client).
+    "import/default": 0,
+    "import/namespace": 0,
+    "import/named": 0,
+
+    // import/no-named-as-default-member: Would prevent importing a package
+    // with a default import and then using something as a field on it, eg
+    //     import React from 'react'
+    //     const foo = React.createContext()
+    // because some bundlers don't like this, but it seems to work fine in
+    // esbuild, and we're doing it a bunch.
+    "import/no-named-as-default-member": 0,
+
+    // Cheerio is annotated as having its default export deprecated, which is
+    // what we're using. Fixing a Typescript interaction with eslint made this
+    // lint rule start being applied where before it wasn't.
+    // TODO: Fix our usage of cheerio, and then turn this back on.
+    "import/no-deprecated": 0,
+
     "import/no-extraneous-dependencies": 0,
     "import/no-duplicates": 1,
     "import/extensions": 0,
@@ -104,25 +158,12 @@ module.exports = {
         message: "server cannot be imported into themes - move the shared code into lib",
       },
     ]}],
-    "no-restricted-imports": ["error", {"paths": [
-      { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
-      { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
-      { name: "@material-ui", message: "Don't import all of material-ui/icons" },
-      { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
-      { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
-      { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
-      { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
-      { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
-      { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
-      { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
-      { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
-      { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
-      { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
-      { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
-    ],
-    patterns: [
-      "@material-ui/core/colors/*"
-    ]}],
+    "no-restricted-imports": ["error", {
+      "paths": restrictedImportsPaths,
+      patterns: [
+        "@material-ui/core/colors/*"
+      ]
+    }],
 
     // Warn on missing await
     // The ignoreVoid option makes it so that
@@ -230,7 +271,28 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
+    "@typescript-eslint/type-annotation-spacing": 1
   },
+  "overrides": [
+    {
+      "files": [
+        "packages/lesswrong/client/**/*.ts",
+        "packages/lesswrong/client/**/*.tsx",
+        "packages/lesswrong/components/**/*.ts",
+        "packages/lesswrong/components/**/*.tsx",
+        "packages/lesswrong/lib/**/*.ts",
+        "packages/lesswrong/lib/**/*.tsx",
+        "packages/lesswrong/themes/**/*.ts",
+        "packages/lesswrong/themes/**/*.tsx",
+      ],
+      "rules": {
+        "no-restricted-imports": ["error", {"paths": [
+          ...restrictedImportsPaths,
+          ...clientRestrictedImportPaths
+        ]}],
+      }
+    }
+  ],
   "env": {
     "browser": true,
     "commonjs": true,
@@ -250,6 +312,11 @@ module.exports = {
       "sinon-chai",
       "chai-enzyme",
     ],
+    "import/resolver": {
+      typescript: {
+        project: "./tsconfig.json"
+      }
+    },
     "react": {
       "version": "16.4.1"
     }

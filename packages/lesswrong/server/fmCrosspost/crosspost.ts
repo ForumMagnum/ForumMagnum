@@ -3,16 +3,17 @@ import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { UpdateCallbackProperties } from "../mutationCallbacks";
-import { DenormalizedCrosspostData, denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
+import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
 import { signToken } from "./tokens";
 import type { Crosspost, CrosspostPayload, UpdateCrosspostPayload } from "./types";
+import { DenormalizedCrosspostData } from "./types";
 
 export async function performCrosspost<T extends Crosspost>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
-  // TODO; validate userId owns foreignPost && currentUser === userId || currentUser.isAdmin
+  // TODO: validate userId owns foreignPost && currentUser === userId || currentUser.isAdmin
   if (!post.fmCrosspost || !post.userId || post.draft) {
     logger('post is not a crosspost or is a draft, returning')
     return post;
@@ -88,7 +89,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 
 export async function handleCrosspostUpdate(
   data: Partial<DbPost>,
-  {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<DbPost>
+  {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
 ): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')
@@ -147,11 +148,15 @@ export async function handleCrosspostUpdate(
     return data;
   }
 
+  /**
+   * TODO: Null is made legal value for fields but database types are incorrectly generated without null. 
+   * Hacky fix for now. Search 84b2 to find all instances of this casting.
+   */
   return performCrosspost({
     _id,
     userId,
     fmCrosspost,
     ...extractDenormalizedData(newDocument),
     ...data,
-  });
+  }) as Partial<DbPost>; 
 }

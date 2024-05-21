@@ -5,15 +5,16 @@ import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+
 import Tooltip from '@material-ui/core/Tooltip';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     cursor: "pointer",
-    "& .SectionTitle-title": isEAForum
+    "& .SectionTitle-title": isFriendlyUI
       ? {
         color: theme.palette.grey[1000],
         textTransform: "none",
@@ -30,19 +31,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const timeframes = {
-  allTime: 'All time',
-  daily: 'Daily',
-  weekly: 'Weekly',
-  monthly: 'Monthly',
-  yearly: 'Yearly',
-}
-
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
 const formatSort = (sorting: PostSortingMode) => {
   const sort = SORT_ORDER_OPTIONS[sorting].label
-  return isEAForum ? sort : `Sorted by ${sort}`;
+  return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
 const AllPostsPage = ({classes}: {classes: ClassesType}) => {
@@ -91,14 +84,14 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
           >
             <div className={classes.title} onClick={toggleSettings}>
               <SectionTitle title={preferredHeadingCase("All Posts")}>
-                {isEAForum ?
+                {isFriendlyUI ?
                   <SortButton label={formatSort(currentSorting)} /> :
                   <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
                 }
               </SectionTitle>
             </div>
           </Tooltip>
-          {isEAForum && !showSettings && <hr className={classes.divider} />}
+          {isFriendlyUI && !showSettings && <hr className={classes.divider} />}
           <PostsListSettings
             hidden={!showSettings}
             currentTimeframe={currentTimeframe}

@@ -65,6 +65,12 @@ module.exports = {
         timeOfDayGMT: 12,
         dayOfWeekGMT: "Monday",
     },
+    notificationSubscribedSequencePost: {
+        channel: "onsite",
+        batchingFrequency: "realtime",
+        timeOfDayGMT: 12,
+        dayOfWeekGMT: "Monday",
+    },
     notificationPrivateMessage: {
         channel: "both",
         batchingFrequency: "realtime",
@@ -113,4 +119,12 @@ module.exports = {
     schemaVersion: 1,
     afCommentCount: 0,
     commentCount: 0,
+    hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false,
+    revealChecksToAdmins: false,
+    showDialoguesList: true,
+    showMyDialogues: true,
+    showMatches: true,
+    showRecommendedPartners: true,
+    abTestKey: "test-user-ab-test-key",
 }

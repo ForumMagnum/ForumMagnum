@@ -10,7 +10,7 @@ import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import { gql, useMutation } from '@apollo/client';
-import { forumTypeSetting, isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
 
@@ -19,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12
   },
   rsvpItem: {
-    width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",
+    width:  isFriendlyUI ? "33%" : "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -106,7 +106,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "block"
     },
   },
-  rsvpMessage: isEAForum
+  rsvpMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }
@@ -123,7 +123,7 @@ const RSVPs = ({post, classes}: {
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
-  const openRSVPForm = useCallback((initialResponse) => {
+  const openRSVPForm = useCallback((initialResponse: string) => {
     openDialog({
       componentName: "RSVPForm",
       componentProps: { post, initialResponse }
@@ -171,7 +171,7 @@ const RSVPs = ({post, classes}: {
         </span>)}
       </div>
       <div className={classes.rsvpBlock}>
-        {post.rsvps.map((rsvp:RSVPType) => {
+        {post.rsvps.map((rsvp: RSVPType) => {
           const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
           return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
             <div>

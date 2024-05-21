@@ -4,11 +4,11 @@ import { useTagBySlug } from '../useTag';
 import { useLocation } from '../../../lib/routeUtil';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   feed: {
     ...theme.typography.body2,

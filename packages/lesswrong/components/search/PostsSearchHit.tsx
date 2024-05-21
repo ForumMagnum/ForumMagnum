@@ -37,7 +37,7 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
 }
 
 const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
-  const post = (hit as AlgoliaPost);
+  const post = (hit as SearchPost);
   const { Typography, LWTooltip } = Components;
 
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"

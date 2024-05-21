@@ -1,9 +1,9 @@
 import React from 'react';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { useNavigation } from '../../lib/routeUtil';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,8 +22,8 @@ export const EditPaymentInfoPage = ({classes}: {
   const { SectionTitle, Error404, ContentStyles } = Components
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
-  const { history } = useNavigation();
-  
+  const navigate = useNavigate();
+
   if (!currentUser) return <Error404/>
   return <ContentStyles contentType="comment" className={classes.root}>
       <SectionTitle title={`Edit Payment for ${currentUser.displayName}`}/>
@@ -38,7 +38,7 @@ export const EditPaymentInfoPage = ({classes}: {
         fields={['paymentEmail', 'paymentInfo']}
         successCallback={async (user: UsersMinimumInfo | DbUser | null) => {
           flash(`Payment Info for "${userGetDisplayName(user)}" edited`);
-          history.push(userGetProfileUrl(user));
+          navigate(userGetProfileUrl(user));
         }}
         // cancelCallback={cancelCallback}
         showRemove={false}

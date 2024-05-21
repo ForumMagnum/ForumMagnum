@@ -27,7 +27,7 @@ export const ModeratorMessageCount = ({classes, userId}: {
   const { loading, totalCount } = useMulti({
     terms: {view: "moderatorConversations", userId},
     collectionName: "Conversations",
-    fragmentName: 'conversationIdFragment',
+    fragmentName: 'ConversationsMinimumInfo',
     fetchPolicy: 'cache-and-network',
     enableTotal: true
   });

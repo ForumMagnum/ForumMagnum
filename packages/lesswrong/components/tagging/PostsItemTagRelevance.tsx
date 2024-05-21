@@ -2,10 +2,10 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useVote } from '../votes/withVote';
 import { useCurrentUser } from '../common/withUser';
-import { userCanVote } from '../../lib/collections/users/helpers';
-import { isEAForum } from '../../lib/instanceSettings';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -21,13 +21,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   vertLayoutVoteUp: {
     position: "absolute",
-    left: isEAForum ? 9 : 8,
+    left: isFriendlyUI ? 9 : 8,
     top: -15,
   },
   vertLayoutVoteDown: {
     position: "absolute",
-    left: isEAForum ? 9 : 8,
-    top: isEAForum ? 10 : 9,
+    left: isFriendlyUI ? 9 : 8,
+    top: isFriendlyUI ? 10 : 9,
   },
   score: {
     width: "100%",
@@ -42,7 +42,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   const { OverallVoteButton, PostsItem2MetaInfo } = Components;
   const voteProps = useVote(tagRel, "TagRels");
   const currentUser = useCurrentUser();
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
   
   const tooltip = <div>
@@ -51,7 +51,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
     {!canVote && whyYouCantVote}
   </div>
 
-  const solidArrow = !isEAForum;
+  const solidArrow = isBookUI;
 
   return <PostsItem2MetaInfo className={classes.root}>
     <Tooltip title={tooltip} placement="left-end">

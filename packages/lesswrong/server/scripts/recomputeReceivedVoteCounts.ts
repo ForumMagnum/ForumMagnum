@@ -3,6 +3,7 @@ import { Users } from '../../lib/collections/users/collection';
 import { Votes } from "../../lib/collections/votes";
 import { collectionsThatAffectKarma } from "../callbacks/votingCallbacks";
 import { Globals } from "../vulcan-lib";
+import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 
 type UserVoteFields = {
   voteReceivedCount: number;
@@ -44,14 +45,14 @@ async function recalculateReceivedVoteCounts() {
         collectionName: { $in: collectionsThatAffectKarma }
       }).fetch();
       // filter out votes that are self votes
-      const filteredUserVotes = userVotes.filter(vote => !vote.authorIds.includes(vote.userId));
+      const filteredUserVotes = userVotes.filter(vote => !vote.authorIds?.includes(vote.userId));
       const userIdSet = new Set(userIds);
 
       // calculate the vote received counts for each user in the batch
       const batchUserVoteCounts = filteredUserVotes.reduce((agg, vote) => {
         // make sure to only make changes to users in the *current* batch
         // (ex. we ignore other post authors since we didn't get all their received votes above)
-        const authorsInBatch = vote.authorIds.filter(authorId => userIdSet.has(authorId));
+        const authorsInBatch = vote.authorIds?.filter(authorId => userIdSet.has(authorId)) ?? [];
 
         // update each vote author (i.e. the users who received the vote)
         authorsInBatch.forEach(authorId => {

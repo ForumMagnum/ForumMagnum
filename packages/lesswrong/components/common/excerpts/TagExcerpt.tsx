@@ -1,13 +1,32 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { CommonExcerptProps } from "./ContentExcerpt";
 
-const TagExcerpt = ({tag, lines = 3, className}: {
-  tag: TagRecentDiscussion,
-  lines?: number,
-  className?: string,
+type ExcerptableTag =
+  TagRecentDiscussion |
+  TagPreviewFragment |
+  TagSectionPreviewFragment;
+
+export const getTagDescriptionHtml = (tag: ExcerptableTag) => {
+  if (!tag.description) {
+    return undefined;
+  }
+
+  if ("htmlHighlight" in tag.description) {
+    return tag.description.htmlHighlight;
+  }
+
+  return tag.description.htmlHighlightStartingAtHash;
+}
+
+const TagExcerpt = ({
+  tag,
+  ...commonExcerptProps
+}: CommonExcerptProps & {
+  tag: ExcerptableTag,
 }) => {
-  const contentHtml = tag.description?.htmlHighlight;
+  const contentHtml = getTagDescriptionHtml(tag);
   if (!contentHtml) {
     return null;
   }
@@ -18,8 +37,7 @@ const TagExcerpt = ({tag, lines = 3, className}: {
       contentHtml={contentHtml}
       moreLink={tagGetUrl(tag)}
       contentType="tag"
-      lines={lines}
-      className={className}
+      {...commonExcerptProps}
     />
   );
 }

@@ -1,10 +1,10 @@
 import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
-import { graphql } from '@apollo/client/react/hoc';
 import * as _ from 'underscore';
-import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
+import { extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { camelCaseify } from '../vulcan-lib/utils';
+import { apolloSSRFlag } from '../helpers';
 
-// Template of a GraphQL query for withSingle/useSingle. A sample query might look
+// Template of a GraphQL query for useSingle. A sample query might look
 // like:
 //
 // query singleMovieQuery($input: SingleMovieInput) {
@@ -67,84 +67,9 @@ export function getGraphQLQueryFromOptions({ extraVariables, collection, fragmen
  * is part of the API given to external sites like GreaterWrong, so this should
  * not be changed.
  */
-export function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
+export function getResolverNameFromOptions<N extends CollectionNameString>(collection: CollectionBase<N>): string {
   const typeName = collection.options.typeName;
   return camelCaseify(typeName);
-}
-
-/**
- * HoC for querying a collection for a single document. DEPRECATEDS: you
- * probably want to be using the hook version, useSingle, instead.
- */
-export function withSingle({
-  collectionName, collection,
-  fragmentName, fragment,
-  extraVariables, fetchPolicy, propertyName = 'document',
-}: {
-  collectionName?: CollectionNameString,
-  collection?: any,
-  fragmentName?: FragmentName,
-  fragment?: any,
-  extraVariables?: any,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  propertyName?: string,
-}) {
-  ({ collectionName, collection } = extractCollectionInfo({ collectionName, collection }));
-  ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
-
-  const query = getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName })
-  const resolverName = getResolverNameFromOptions(collection)
-  const typeName = collection.options.typeName
-  
-  return graphql(query, {
-    alias: `with${typeName}`,
-
-    options(props) {
-      const { documentId, slug, selector = { documentId, slug }, ...rest } = props as any;
-      // OpenCrud backwards compatibility
-      // From the provided arguments, pick the key-value pairs where the key is also in extraVariables option
-      const extraVariablesValues = _.pick(rest, Object.keys(extraVariables || {}))  
-      const graphQLOptions: any = {
-        variables: {
-          input: {
-            selector,
-          },
-          ...extraVariablesValues
-        }
-      };
-
-      if (fetchPolicy) {
-        graphQLOptions.fetchPolicy = fetchPolicy;
-      }
-
-      return graphQLOptions;
-    },
-    props: (returnedProps: any) => {
-      const { /* ownProps, */ data } = returnedProps;
-
-      const props = {
-        loading: data.loading,
-        refetch: data.refetch,
-        // document: Utils.convertDates(collection, data[singleResolverName]),
-        [propertyName]: data[resolverName] && data[resolverName].result,
-        fragmentName,
-        fragment,
-        data
-      };
-
-      if (data.error) {
-        // This error was already caught by the apollo middleware, but the
-        // middleware had no idea who  made the query. To aid in debugging, log a
-        // stack trace here.
-        // eslint-disable-next-line no-console
-        console.error(data.error.message)
-        // get graphQL error (see https://github.com/thebigredgeek/apollo-errors/issues/12)
-        props.error = data.error.graphQLErrors[0];
-      }
-
-      return props;
-    }
-  });
 }
 
 type TSuccessReturn<FragmentTypeName extends keyof FragmentTypes> = {loading: false, error: undefined, document: FragmentTypes[FragmentTypeName]};
@@ -173,10 +98,11 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
     extraVariables?: Record<string,any>,
     extraVariablesValues?: any,
     fetchPolicy?: WatchQueryFetchPolicy,
+    nextFetchPolicy?: WatchQueryFetchPolicy,
     notifyOnNetworkStatusChange?: boolean,
     allowNull?: boolean,
     skip?: boolean,
-    
+    ssr?: boolean,
     /**
      * Optional Apollo client instance to use for this request. If not provided,
      * uses the default client provided by React context. This should only be
@@ -202,12 +128,14 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables,
   extraVariablesValues,
   fetchPolicy,
+  nextFetchPolicy,
   notifyOnNetworkStatusChange,
   allowNull,
   skip=false,
+  ssr=true,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
   // TODO: Properly type this generic query
@@ -220,8 +148,9 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
       ...extraVariablesValues
     },
     fetchPolicy,
+    nextFetchPolicy,
     notifyOnNetworkStatusChange,
-    ssr: true,
+    ssr: apolloSSRFlag(ssr),
     skip: skip || (!documentId && !slug),
     client: apolloClient,
   })

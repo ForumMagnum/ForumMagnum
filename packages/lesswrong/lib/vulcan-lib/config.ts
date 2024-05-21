@@ -48,7 +48,42 @@ SimpleSchema.extendOptions([
   'unique', // field can be used as part of a selectorUnique when querying for data
 
   'tooltip', // if not empty, the field will provide a tooltip when hovered over
+
+  // canAutofillDefault: Marks a field where, if its value is null, it should
+  // be auto-replaced with defaultValue in migration scripts.
+  'canAutofillDefault',
+
+  // denormalized: In a schema entry, denormalized:true means that this field can
+  // (in principle) be regenerated from other fields. For now, it's a glorified
+  // machine-readable comment; in the future, it may have other infrastructure
+  // attached.
+  'denormalized',
+
+  // foreignKey: In a schema entry, this is either an object {collection,field},
+  // or just a string, in which case the string is the collection name and field
+  // is _id. Indicates that if this field is present and not null, its value
+  // must correspond to an existing row in the named collection. For example,
+  //
+  //   foreignKey: 'Users'
+  //   means that the value of this field must be the _id of a user;
+  //
+  //   foreignKey: {
+  //     collection: 'Posts',
+  //     field: 'slug'
+  //   }
+  //   means that the value of this field must be the slug of a post.
+  //
+   'foreignKey',
+
+  // nullable: In a schema entry, this boolean indicates whether the type system
+  // should treat this field as nullable 
+   'nullable',
+
+  // Define a static vector size for use in Postgres - this should only be
+  // used on array fields
+   'vectorSize'
 ]);
+
 
 // eslint-disable-next-line no-undef
 export default Globals;

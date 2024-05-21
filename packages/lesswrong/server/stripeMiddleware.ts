@@ -1,13 +1,12 @@
 import { DatabaseServerSetting } from './databaseSettings';
 import Stripe from 'stripe';
-import type { app } from './expressServer';
 import type { Request, Response } from 'express-serve-static-core';
-
+import type { AddMiddlewareType } from './apolloServer';
 
 const stripePrivateKeySetting = new DatabaseServerSetting<null|string>('stripe.privateKey', null)
 const stripeURLRedirect = new DatabaseServerSetting<null|string>('stripe.redirectTarget', 'https://lesswrong.com')
 
-export const addStripeMiddleware = (addMiddleware: typeof app.use) => {
+export const addStripeMiddleware = (addMiddleware: AddMiddlewareType) => {
   const stripePrivateKey = stripePrivateKeySetting.get()
   const stripe = stripePrivateKey && new Stripe(stripePrivateKey, {apiVersion: '2020-08-27'})
   

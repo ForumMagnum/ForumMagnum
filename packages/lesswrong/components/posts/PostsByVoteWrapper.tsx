@@ -2,10 +2,13 @@ import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
-const PostsByVoteWrapper = ({voteType, year, showMostValuableCheckbox=false}: {
+const PostsByVoteWrapper = ({voteType, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   voteType: string,
   year: number | '≤2020',
-  showMostValuableCheckbox?: boolean
+  limit?: number,
+  showMostValuableCheckbox?: boolean,
+  hideEmptyStateText?: boolean,
+  postItemClassName?: string,
 }) => {
   const { PostsByVote, ErrorBoundary, Loading, Typography } = Components
 
@@ -30,7 +33,14 @@ const PostsByVoteWrapper = ({voteType, year, showMostValuableCheckbox=false}: {
   const postIds = (votes ?? []).map(vote=>vote.documentId)
 
   return <ErrorBoundary>
-    <PostsByVote postIds={postIds} year={year} showMostValuableCheckbox={showMostValuableCheckbox} />
+    <PostsByVote
+      postIds={postIds}
+      year={year}
+      limit={limit}
+      showMostValuableCheckbox={showMostValuableCheckbox}
+      hideEmptyStateText={hideEmptyStateText}
+      postItemClassName={postItemClassName}
+    />
   </ErrorBoundary>
 }
 

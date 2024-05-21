@@ -12,6 +12,7 @@ import { randomId } from '../lib/random';
 import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
+import { UserRateLimits } from '../lib/collections/userRateLimits';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -170,7 +171,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     userId: user_._id,
     title: randomId(),
     "contents_latest": randomId(),
-    "moderationGuidelines_latest": randomId(),
     fmCrosspost: {isCrosspost: false},
     createdAt: new Date(),
   }
@@ -279,13 +279,25 @@ export const createDummyLocalgroup = async (data?: any) => {
   return groupResponse.data
 }
 
-const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
+const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>): DbVote => {
   const defaultData = {
     _id: randomId(),
+    documentId: randomId(),
+    collectionName: "Posts" as const,
+    voteType: "smallUpvote",
     userId: user._id,
     authorIds: [],
+    power: 1,
     cancelled: false,
     isUnvote: false,
+    votedAt: new Date(),
+    silenceNotification: false,
+    documentIsAf: false,
+    createdAt: new Date(),
+    schemaVersion: 1,
+    extendedVoteType: null,
+    afPower: null,
+    legacyData: null,
   };
   return {...defaultData, ...data};
 }
@@ -316,6 +328,7 @@ export const createManyDummyVotes = async (count: number, user: DbUser, data?: P
 export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
   const defaultData = {
     _id: randomId(),
+    name: "Test Tag",
     userId: user._id,
     deleted: false,
     adminOnly: false,
@@ -338,6 +351,8 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     userId: user._id,
     inactive: false,
     editedAt: new Date(Date.now()),
+    version: "1.0.0",
+    changeMetrics: {} // not nullable field
   };
   const revisionData = {...defaultData, ...data};
   const newRevisionResponse = await createMutator({
@@ -347,6 +362,16 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     validate: false,
   });
   return newRevisionResponse.data;
+}
+
+export const createDummyUserRateLimit = async (user: DbUser, data: Partial<DbUserRateLimit>) => {
+  const userRateLimit = await createMutator({
+    collection: UserRateLimits,
+    document: data,
+    currentUser: user,
+    validate: false,
+  });
+  return {...userRateLimit};
 }
 
 export const clearDatabase = async () => {

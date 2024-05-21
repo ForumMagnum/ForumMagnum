@@ -2,7 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import AddLocationIcon from '@material-ui/icons/AddLocation';
 import { useDialog } from '../common/withDialog'
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const GroupFormLink = ({documentId, isOnline}: {
   documentId?: string
@@ -37,4 +38,3 @@ declare global {
     GroupFormLink: typeof GroupFormLinkComponent
   }
 }
-

@@ -4,7 +4,8 @@ import { useDialog } from '../../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   const currentUser = useCurrentUser();

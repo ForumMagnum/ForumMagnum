@@ -7,23 +7,13 @@ import schema from './schema';
 import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
 
-type getUrlOptions = {
-  edit?: boolean, 
-  flagId?: string
-}
-interface ExtendedTagsCollection extends TagsCollection {
-  // From search/utils.ts
-  toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
-}
-
 export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
 export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
 export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
 
-export const Tags: ExtendedTagsCollection = createCollection({
+export const Tags = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
@@ -43,7 +33,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
       if (!user.isAdmin) {  // skip further checks for admins
         // If canEditUserIds is set only those users can edit the tag
         const restricted = tag && tag.canEditUserIds
-        if (restricted && !tag.canEditUserIds.includes(user._id)) return false;
+        if (restricted && !tag.canEditUserIds?.includes(user._id)) return false;
         if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
       }
       return userCanCreateTags(user);

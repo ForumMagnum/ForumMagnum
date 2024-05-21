@@ -1,7 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }
@@ -29,25 +30,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const AnswersList = ({post, answers, classes}: {
+const AnswersList = ({post, answersTree, classes}: {
   post: PostsList,
-  answers: CommentsList[],
+  answersTree: CommentTreeNode<CommentsList>[],
   classes: ClassesType,
 }) => {
   const location = useLocation();
   const { query } = location;
   const { Answer, SectionTitle, AnswersSorting } = Components
 
-  if (answers && answers.length) {
+  if (answersTree?.length) {
     return <div className={classes.root}>
       <SectionTitle title={
-        <div><span>{ answers.length } Answers </span>
+        <div><span>{ answersTree.length } Answers </span>
         <span className={classes.answersSorting}>sorted by <AnswersSorting post={post}/></span>
       </div>}/>
 
       <div className={classes.answersList}>
-        { answers.map((comment, i) => {
-          return <Answer comment={comment} post={post} key={comment._id} />
+        { answersTree.map((answerNode, i) => {
+          return <Answer
+            key={answerNode.item._id}
+            comment={answerNode.item}
+            post={post}
+            childComments={answerNode.children}
+          />
           })
         }
       </div>
@@ -64,4 +70,3 @@ declare global {
     AnswersList: typeof AnswersListComponent
   }
 }
-

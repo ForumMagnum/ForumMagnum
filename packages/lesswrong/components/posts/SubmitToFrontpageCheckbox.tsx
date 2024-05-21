@@ -1,38 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, FC } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import InputLabel from '@material-ui/core/InputLabel';
-
-const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
-  <p>LW moderators will consider this post for frontpage</p>
-  <p className={classes.guidelines}>Things to aim for:</p>
-  <ul>
-    <li className={classes.guidelines}>
-      Usefulness, novelty and fun
-    </li>
-    <li className={classes.guidelines}>
-      Timeless content (minimize reference to current events)
-    </li>
-    <li className={classes.guidelines}>
-      Explain rather than persuade
-    </li>
-  </ul>
-</div>
-
-const defaultTooltipEAF = () =>
-  "Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.";
-
-const forumDefaultTooltip: ForumOptions<(classes?: ClassesType) => JSX.Element | string> = {
-  LessWrong: defaultTooltipLWAF,
-  AlignmentForum: defaultTooltipLWAF,
-  EAForum: defaultTooltipEAF,
-  default: defaultTooltipEAF,
-}
-
-const defaultTooltip = forumSelect(forumDefaultTooltip)
 
 const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpageWrapper: {
@@ -80,6 +52,36 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const defaultTooltipLWAF = ({classes}: {classes: ClassesType<typeof styles>}) => <div className={classes.tooltip}>
+  <p>LW moderators will consider this post for frontpage</p>
+  <p className={classes.guidelines}>Things to aim for:</p>
+  <ul>
+    <li className={classes.guidelines}>
+      Usefulness, novelty and fun
+    </li>
+    <li className={classes.guidelines}>
+      Timeless content (minimize reference to current events)
+    </li>
+    <li className={classes.guidelines}>
+      Explain rather than persuade
+    </li>
+  </ul>
+</div>
+
+const defaultTooltipEAF = () =>
+  <>
+    Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.
+  </>
+
+const forumDefaultTooltip: ForumOptions<FC<{classes?: ClassesType<typeof styles>}>> = {
+  LessWrong: defaultTooltipLWAF,
+  AlignmentForum: defaultTooltipLWAF,
+  EAForum: defaultTooltipEAF,
+  default: defaultTooltipEAF,
+}
+
+const defaultTooltip = forumSelect(forumDefaultTooltip)
+
 export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
   fieldName?: string,
   currentValues: any,
@@ -89,6 +91,8 @@ export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
 }
 
 class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps> {
+  declare context: AnyBecauseTodo
+
   handleClick = () => {
     const { fieldName = "submitToFrontpage" } = this.props
     const { updateCurrentValues } = this.context

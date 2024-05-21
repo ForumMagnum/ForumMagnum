@@ -1,31 +1,28 @@
 import { Components as C, registerComponent } from '../../lib/vulcan-lib';
-import { withUpdate } from '../../lib/crud/withUpdate';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
-import withUser from '../common/withUser';
-import withHover from '../common/withHover'
+import { useCurrentUser } from '../common/withUser';
+import { useHover } from '../common/withHover'
 import ClearIcon from '@material-ui/icons/Clear';
 import DoneIcon from '@material-ui/icons/Done';
 import withErrorBoundary from '../common/withErrorBoundary'
 import * as _ from 'underscore';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
-interface ExternalProps {
+const AFSuggestUsersItem = ({user}: {
   user: SuggestAlignmentUser,
-}
-interface AFSuggestUsersItemProps extends ExternalProps, WithUserProps, WithHoverProps, WithUpdateUserProps {
-}
-interface AFSuggestUsersItemState {
-  show: boolean,
-}
-
-class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUsersItemState> {
+}) => {
+  const currentUser = useCurrentUser();
+  const [show, setShow] = useState(true);
+  const { mutate: updateUser } = useUpdate({
+    collectionName: "Users",
+    fragmentName: 'SunshineUsersList',
+  });
+  
   // TODO This shouldn't be necessary, but for some weird reason this particular sidebar item doesn't update when you edit it and remove itself from the sidebar. (If you don't manually set the state it doesn't disappear until refresh )
 
-  state: AFSuggestUsersItemState = {show:true}
-
-  handleReview = () => {
-    const { currentUser, user, updateUser } = this.props
+  const handleReview = () => {
     void updateUser({
       selector: { _id: user._id },
       data: {
@@ -33,22 +30,22 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
         groups: _.unique([...(user.groups || []), 'alignmentForum'])
       }
     })
-    this.setState({show:false})
+    setShow(false);
   }
 
-  handleIgnore = () => {
-    const { currentUser, user, updateUser } = this.props
+  const handleIgnore = () => {
     void updateUser({
       selector: { _id: user._id },
       data: { reviewForAlignmentForumUserId: currentUser!._id }
     })
-    this.setState({show:false})
+    setShow(false);
   }
 
-  render () {
-    const { user, hover, anchorEl } = this.props
-    if (this.state.show) {
-      return (
+  const { hover, anchorEl, eventHandlers } = useHover();
+
+  if (show) {
+    return (
+        <span {...eventHandlers}>
           <C.SunshineListItem hover={hover}>
             <C.SidebarHoverOver hover={hover} anchorEl={anchorEl} width={250}>
               <C.Typography variant="body2">
@@ -81,29 +78,23 @@ class AFSuggestUsersItem extends Component<AFSuggestUsersItemProps,AFSuggestUser
               { user.reviewForAlignmentForumUserId }
             </div>
             { hover && <C.SidebarActionMenu>
-              <C.SidebarAction title="Approve for AF" onClick={this.handleReview}>
+              <C.SidebarAction title="Approve for AF" onClick={handleReview}>
                 <DoneIcon />
               </C.SidebarAction>
-              <C.SidebarAction warningHighlight={true} title="Ignore" onClick={this.handleIgnore}>
+              <C.SidebarAction warningHighlight={true} title="Ignore" onClick={handleIgnore}>
                 <ClearIcon/>
               </C.SidebarAction>
             </C.SidebarActionMenu>}
           </C.SunshineListItem>
-      )
-    } else {
-      return null
-    }
+        </span>
+    )
+  } else {
+    return null
   }
 }
 
-const AFSuggestUsersItemComponent = registerComponent<ExternalProps>('AFSuggestUsersItem', AFSuggestUsersItem, {
-  hocs: [
-    withUpdate({
-      collectionName: "Users",
-      fragmentName: 'SunshineUsersList',
-    }),
-    withUser, withHover(), withErrorBoundary
-  ]
+const AFSuggestUsersItemComponent = registerComponent('AFSuggestUsersItem', AFSuggestUsersItem, {
+  hocs: [withErrorBoundary]
 });
 
 declare global {

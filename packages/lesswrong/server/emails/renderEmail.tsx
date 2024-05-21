@@ -12,7 +12,7 @@ import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
@@ -42,7 +42,7 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 // handling the top-level table layout; some of it looks like workarounds for
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
-const emailGlobalCss = `
+const emailGlobalCss = () => `
   .ReadMsgBody { width: 100%; background-color: #ebebeb;}
   .ExternalClass {width: 100%; background-color: #ebebeb;}
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
@@ -72,7 +72,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${forumTypeSetting.get() === 'EAForum' ? '#0C869B' : '#5f9b65'}
+    color: ${getForumTheme({name: "default"}).palette.primary.main};
   }
   blockquote {
     border-left: solid 3px #e0e0e0;
@@ -99,7 +99,7 @@ function addEmailBoilerplate({ css, title, body }: {
    
       <title>${title}</title>
       <style>
-        ${emailGlobalCss}
+        ${emailGlobalCss()}
         ${css}
       </style>
     </head>
@@ -135,7 +135,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
-  boilerplateGenerator?: (props: {css:string, title: string, body: string})=>string,
+  boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");
@@ -230,8 +230,9 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
   });
 }
 
-export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
+export const wrapAndSendEmail = async ({user, force = false, to, from, subject, body}: {
   user: DbUser|null,
+  force?: boolean,
   to?: string,
   from?: string,
   subject: string,
@@ -240,7 +241,14 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
   const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");
-  
+
+  const _reasonUserCantReceiveEmails = user && reasonUserCantReceiveEmails(user)
+  if(!force && user && !!_reasonUserCantReceiveEmails) {
+    //eslint-disable-next-line no-console
+    console.log(`Skipping user ${user.username} when emailing: ${_reasonUserCantReceiveEmails}`);
+    return false
+  }
+
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body });
     const succeeded = await sendEmail(email);
@@ -269,7 +277,7 @@ function validateSheets(sheetsRegistry: typeof SheetsRegistry)
 
 
 const enableDevelopmentEmailsSetting = new DatabaseServerSetting<boolean>('enableDevelopmentEmails', false)
-export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
+async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 {
   if (process.env.NODE_ENV === 'production' || enableDevelopmentEmailsSetting.get()) {
     console.log("//////// Sending email..."); //eslint-disable-line
@@ -322,9 +330,11 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
 // null if there is no such reason and we can email them.
 export function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
+  if (user.deleted)
+    return "User is deactivated"
   if (!user.email)
     return "No email address";
-  if (!userEmailAddressIsVerified(user) && forumTypeSetting.get() !== 'EAForum')
+  if (!userEmailAddressIsVerified(user))
     return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";

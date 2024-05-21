@@ -1,11 +1,13 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
+import type { CommonExcerptProps } from "./ContentExcerpt";
 
-const CommentExcerpt = ({comment, lines = 3, className}: {
+const CommentExcerpt = ({
+  comment,
+  ...commonExcerptProps
+}: CommonExcerptProps & {
   comment: CommentsList|CommentsListWithParentMetadata,
-  lines?: number,
-  className?: string,
 }) => {
   const contentHtml = comment.contents?.html;
   if (!contentHtml) {
@@ -22,9 +24,8 @@ const CommentExcerpt = ({comment, lines = 3, className}: {
         postSlug: "postSlug" in comment ? comment.postSlug as string : undefined,
       })}
       contentType="comment"
-      lines={lines}
       alwaysExpandInPlace
-      className={className}
+      {...commonExcerptProps}
     />
   );
 }

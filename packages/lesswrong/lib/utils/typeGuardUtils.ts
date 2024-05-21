@@ -2,7 +2,7 @@ export function fieldIn<T extends {}>(field: string | number | symbol, ...object
   return objects.every(object => field in object);
 }
 
-type Literal<T> = string|number extends T ? never : T;
+type Literal<T> = string extends T ? number extends T ? never : never : T;
 type Tuple<T extends ReadonlyArray<string|number>> = Literal<T[number]> extends never ? never : T;
 
 /**
@@ -55,3 +55,31 @@ export type UnionOf<T extends TupleSet<any>> = TupleOf<T>[number];
 export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
   return arr.filter(x=>x!=null && x!==undefined) as T[];
 }
+
+export function isFunction<T>(input: T): input is Extract<T, Function> {
+  return typeof input === 'function';
+};
+
+//type for filterWhereFieldsNotNull that is the same field as T but no nullable values in the specified fields
+export type FieldsNotNull<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>> & {
+  [P in K]-?: NonNullable<T[P]>;
+}; 
+
+export function areFieldsNotNull<T, K extends keyof T>(item: T, ...fields: [K, ...K[]]): item is T & FieldsNotNull<T, K> {
+  return fields.some((field) => item[field] !== null && item[field] !== undefined);
+}
+
+function areFieldsNotNullCurry<T, K extends keyof T>(...fields: [K, ...K[]]): (item: T) => item is T & FieldsNotNull<T, K> {
+  return ((item) => fields.some((field) => item[field] !== null && item[field] !== undefined)) as (item: T) => item is T & FieldsNotNull<T, K>;
+}
+
+export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: [K, ...K[]]): FieldsNotNull<T, K>[] {
+  return arr.filter(areFieldsNotNullCurry(...fields));
+}
+
+export const isNotNullOrUndefined = <T>(value: T | null | undefined): value is T =>
+  value !== null && value !== undefined
+
+export const objectKeys = <K extends string | number | symbol, V>(
+  obj: Partial<Record<K, V>>,
+): K[] => Object.keys(obj) as K[];

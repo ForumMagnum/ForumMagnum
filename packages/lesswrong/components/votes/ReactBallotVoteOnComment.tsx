@@ -185,14 +185,14 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   
-  return <div className={classNames(classes.voteButton, classes.standaloneReaction, {[classes.voteButtonSelected]: isSelected})} onClick={ev => {
+  return <div className={classNames(classes.voteButton, classes.standaloneReaction, {[classes.voteButtonSelected]: isSelected})} onClick={async ev => {
     if(!currentUser){
       openDialog({
         componentName: "LoginPopup",
         componentProps: {}
       });
     } else {
-      voteProps.vote({
+      await voteProps.vote({
         document: voteProps.document,
         voteType: voteProps.document.currentUserVote || null,
         extendedVote: {

@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, PropsWithChildren } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
@@ -6,11 +6,12 @@ import StarIcon from '@material-ui/icons/Star';
 import SubjectIcon from '@material-ui/icons/Subject';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
-import { forumTitleSetting, isEAForum, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
 import { curatedUrl } from '../../recommendations/RecommendationsAndCurated';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
 import { getAllTagsPath } from '../../../lib/routes';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -292,12 +293,12 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
   }
 }
 
-const ContentTypeWrapper: FC<{classes: ClassesType, className?: string}> = ({
+const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType, className?: string}>> = ({
   classes,
   className,
   children,
 }) =>
-  isEAForum
+  isFriendlyUI
     ? <>{children}</>
     : <Components.Typography
       variant="body1"
@@ -323,8 +324,8 @@ const ContentType = ({classes, className, type, label}: {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }
 
-  const innerComponent = isEAForum
-    ? <SectionTitle title={label} className={classes.sectionTitle} noBottomPadding />
+  const innerComponent = isFriendlyUI
+    ? <SectionTitle title={label} className={classNames(classes.sectionTitle, className)} noTopMargin noBottomPadding />
     : <span>
       <contentData.Icon className={classes.icon} />{label ? " "+label : ""}
     </span>;

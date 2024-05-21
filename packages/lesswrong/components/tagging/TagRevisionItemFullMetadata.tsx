@@ -3,13 +3,13 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: isEAForum ? 12 : undefined,
+    marginBottom: isFriendlyUI ? 12 : undefined,
   },
-  tagName: isEAForum
+  tagName: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 16,
@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "block",
       fontSize: "1.75rem",
     },
-  metadata: isEAForum
+  metadata: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
@@ -40,14 +40,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       ...theme.typography.commentStyle
     },
   metadataText: {
-    fontStyle: isEAForum ? "italic" : undefined,
+    fontStyle: isFriendlyUI ? "italic" : undefined,
   },
   username: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
   },
   changeMetrics: {
-    marginRight: isEAForum ? 8 : undefined,
+    marginRight: isFriendlyUI ? 8 : undefined,
   },
 });
 
@@ -75,10 +75,10 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
         {" "}
         <ChangeMetricsDisplay
           changeMetrics={revision.changeMetrics}
-          showCharacters={isEAForum}
+          showCharacters={isFriendlyUI}
           className={classes.changeMetrics}
         />
-        {!isEAForum &&
+        {!isFriendlyUI &&
           <>
             {" "}
             <FormatDate

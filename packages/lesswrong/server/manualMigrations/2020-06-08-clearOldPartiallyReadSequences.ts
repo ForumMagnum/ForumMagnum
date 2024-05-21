@@ -24,6 +24,7 @@ registerMigration({
         const updates: Array<any> = [];
         
         for (const user of users) {
+          if (!user.partiallyReadSequences) continue;
           const newPartiallyRead = excludeOld(user.partiallyReadSequences, dateCutoff);
           
           updates.push({

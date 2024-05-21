@@ -23,11 +23,12 @@ const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 const makeCredentialsPath = (fileName: string) =>
   join("..", "..", "ForumCredentials", fileName);
 
-const readSettingsFile = (mode: Mode): Settings => {
+const readSettingsFile = (mode: Mode, settingsPath: string|undefined): Settings => {
   if (mode === "xpost") {
     mode = "dev";
   }
-  const path = makeCredentialsPath(`load${capitalize(mode)}DbSettings.js`);
+  // We are in root/scripts
+  const path = settingsPath ? join('..', settingsPath) : makeCredentialsPath(`load${capitalize(mode)}DbSettings.js`);
   const data = require(path);
   if (!data.databasePublicSettings || !data.databaseServerSettings) {
     throw new Error("Malformed settings file");
@@ -49,7 +50,7 @@ const insert = async (db: Database, id: string, name: string, data: Record<strin
   await db.none(`
     INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
     VALUES ($1, $2, $3)
-    ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE SET "value" = $3
+    ON CONFLICT (name) DO UPDATE SET "value" = $3
   `, [ id, name, data ]);
 }
 
@@ -57,7 +58,7 @@ const setDatabaseId = async (db: Database, id: string, databaseId: string) => {
   await db.none(`
     INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
     VALUES ($1, $2, TO_JSONB($3::TEXT))
-    ON CONFLICT (COALESCE("name", ''::TEXT)) DO UPDATE
+    ON CONFLICT (name) DO UPDATE
     SET "value" = TO_JSONB($3::TEXT)
   `, [ id, "databaseId", databaseId ]);
 }
@@ -79,9 +80,10 @@ const deleteByName = async (db: Database, name: string) => {
   if (!isMode(mode)) {
     throw new Error(`Invalid mode: ${mode}`);
   }
+  const settingsPath = process.argv[3] // optional
 
-  const settings = readSettingsFile(mode);
-  const connectionString = await readPgUrl(mode);
+  const settings = readSettingsFile(mode, settingsPath);
+  const connectionString = process.argv[4] ?? await readPgUrl(mode);
 
   const db = pgPromiseLib({
     connectionString,

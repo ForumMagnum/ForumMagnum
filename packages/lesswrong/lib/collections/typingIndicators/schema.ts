@@ -1,6 +1,6 @@
 import { userOwns } from '../../vulcan-users/permissions';
 
-const schema: SchemaType<DbTypingIndicator> = {
+const schema: SchemaType<"TypingIndicators"> = {
   userId: {
     type: String,
     nullable: false,

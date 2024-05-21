@@ -62,7 +62,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
     {...eventHandlers}
   >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
-    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
+    <span className={hideLabelOnMobile ? classes.hideOnMobile : undefined}>{text}</span>
     {!loading && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}
     <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>

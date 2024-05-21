@@ -40,10 +40,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howICanHelpOthers {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     profileTagIds
     profileTags {
@@ -83,7 +83,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -105,7 +107,6 @@ registerFragment(`
     services
     acceptedTos
     pageUrl
-    voteBanned
     banned
     isReviewed
     nullifyVotes
@@ -115,6 +116,7 @@ registerFragment(`
     expandedFrontpageSections
     hidePostsRecommendations
     currentFrontpageFilter
+    frontpageSelectedTab
     frontpageFilterSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
@@ -130,13 +132,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    biography {
-      ...RevisionEdit
-    }
     moderationStyle
-    moderationGuidelines {
-      ...RevisionEdit
-    }
     noKibitz
     showHideKarmaOption
     markDownPostEditor
@@ -204,11 +200,24 @@ registerFragment(`
     notificationSubforumUnread
     subforumPreferredLayout
     
-    experiencedIn
-    interestedIn
+    hideJobAdUntil
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
+
+    hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
+    notificationNewDialogueChecks
+    notificationYourTurnMatchForm
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
+    hideActiveDialogueUsers
+
+    hideSunshineSidebar
   }
 `);
 
@@ -255,14 +264,27 @@ registerFragment(`
         scoreChange
         title
         slug
+        addedReacts {
+          reactionType
+          userId
+        }
+        eaAddedReacts
       }
       comments {
         _id
         scoreChange
         description
         postId
+        postTitle
+        postSlug
         tagSlug
+        tagName
         tagCommentType
+        addedReacts {
+          reactionType
+          userId
+        }
+        eaAddedReacts
       }
       tagRevisions {
         _id
@@ -270,6 +292,11 @@ registerFragment(`
         tagId
         tagSlug
         tagName
+        addedReacts {
+          reactionType
+          userId
+        }
+        eaAddedReacts
       }
     }
   }
@@ -316,7 +343,6 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
-    voteBanned
     nullifyVotes
     deleteContent
     
@@ -379,7 +405,7 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersEdit on User {
-    ...UsersProfile
+    ...UsersCurrent
     biography {
       ...RevisionEdit
     }
@@ -421,7 +447,6 @@ registerFragment(`
     showHideKarmaOption
 
     # Ban & Purge
-    voteBanned
     nullifyVotes
     deleteContent
     banned
@@ -440,6 +465,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review
@@ -460,7 +486,9 @@ registerFragment(`
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
+    notificationSubscribedUserComment
     notificationSubscribedTagPost
+    notificationSubscribedSequencePost
     notificationPostsInGroups
     notificationPrivateMessage
     notificationSharedWithMe
@@ -472,6 +500,8 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -545,3 +575,21 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+  }
+`);
+
+registerFragment(`
+  fragment UserOnboardingAuthor on User {
+    _id
+    displayName
+    profileImageId
+    karma
+    jobTitle
+    organization
+  }
+`);

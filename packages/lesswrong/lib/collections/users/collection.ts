@@ -4,17 +4,12 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
-interface ExtendedUsersCollection extends UsersCollection {
-  // Fron search/utils.ts
-  toAlgolia: (user: DbUser) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Users: ExtendedUsersCollection = createCollection({
+export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
@@ -36,8 +31,10 @@ export const Users: ExtendedUsersCollection = createCollection({
     removeCheck: () => false
   }),
   logChanges: true,
+  dependencies: [
+    {type: "extension", name: "pg_trgm"},
+  ],
 });
-
 
 addGraphQLResolvers({
   Query: {
@@ -69,6 +66,7 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
@@ -127,9 +125,9 @@ makeEditable({
   options: {
     commentEditor: true,
     commentStyles: true,
-    hidden: forumTypeSetting.get() === "EAForum",
-    order: forumTypeSetting.get() === "EAForum" ? 6 : 40,
-    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    hidden: isEAForum,
+    order: isEAForum ? 6 : 40,
+    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",
     hintText: "Tell us about yourself",
@@ -141,11 +139,7 @@ makeEditable({
   }
 });
 
-// TODO: When everything is migrated to Postgres, we can come up with a much nicer
-// way to define this, but for now there's a lot of cruft around CollectionBase/
-// MongoCollection/PgCollection and casting here seems to be the simplest thing to
-// do.
-(Users as unknown as CollectionBase<DbUser>).postProcess = (user: DbUser): DbUser => {
+Users.postProcess = (user: DbUser): DbUser => {
   // The `node-postgres` library is smart enough to automatically convert string
   // representations of dates into Javascript Date objects when we have columns
   // of type TIMESTAMPTZ, however, it can't do this automatic conversion when the

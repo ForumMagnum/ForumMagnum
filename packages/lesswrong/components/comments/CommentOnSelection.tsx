@@ -1,20 +1,22 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import CommentIcon from '@material-ui/icons/ModeComment';
-import { userHasCommentOnSelection } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
+import { hasSideComments } from '../../lib/betas';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
+  toolbarWrapper: {
+    position: "absolute",
+  },
   toolbar: {
-    background: theme.palette.panelBackground.darken03,
+    display: "flex",
     borderRadius: 8,
     color: theme.palette.icon.dim,
-    position: "absolute",
     zIndex: theme.zIndexes.lwPopper,
     padding: 8,
+    paddingBottom: 6,
     cursor: "pointer",
     
     "&:hover": {
@@ -23,7 +25,7 @@ const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
 
     // Hide on mobile to avoid horizontal scrolling
     [theme.breakpoints.down('xs')]: {
-      display: isEAForum ? "none" : "initial",
+      display: hasSideComments ? "none" : "initial",
     },
   },
 });
@@ -146,19 +148,24 @@ const CommentOnSelectionPageWrapper = ({children}: {
  *   the page is scrolled to the top.
  */
 const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
-  onClickComment: (ev: React.MouseEvent)=>void,
+  onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
   classes: ClassesType,
 }) => {
+  const { LWTooltip } = Components;
   const { captureEvent } = useTracking()
 
-  return <div className={classes.toolbar} style={{left: x, top: y}}>
-    <AnalyticsContext pageElementContext="selectedTextToolbar">
-      <CommentIcon onClick={ev => {
-        captureEvent("commentOnSelectionClicked");
-        onClickComment(ev);
-      }}/>
-    </AnalyticsContext>
+  return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
+    <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
+      <div className={classes.toolbar}>
+        <AnalyticsContext pageElementContext="selectedTextToolbar">
+          <CommentIcon onClick={ev => {
+            captureEvent("commentOnSelectionClicked");
+            onClickComment(ev);
+          }}/>
+        </AnalyticsContext>
+      </div>
+    </LWTooltip>
   </div>
 }
 
@@ -172,7 +179,7 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
  * See CommentOnSelectionPageWrapper for notes on implementation details.
  */
 const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
-  onClickComment: (html: string)=>void,
+  onClickComment: (html: string) => void,
   children: React.ReactNode,
 }) => {
   const wrapperDivRef = useRef<HTMLDivElement|null>(null);
@@ -189,7 +196,7 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
     }
   }, [onClickComment]);
   
-  if (!userHasCommentOnSelection(currentUser)) {
+  if (!hasSideComments) {
     return <>{children}</>;
   }
   
@@ -205,7 +212,7 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
  *
  * Client-side only.
  */
-function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement)=>boolean): HTMLElement|null {
+function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement) => boolean): HTMLElement|null {
   if (!start)
     return null;
   

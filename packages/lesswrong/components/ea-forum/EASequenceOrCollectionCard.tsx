@@ -2,6 +2,7 @@ import React, { FC, MouseEvent, ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { Link } from "../../lib/reactRouterWrapper";
+import classNames from "classnames";
 
 const SEQUENCE_CARD_IMAGE_HEIGHT = 162;
 const Z_IMAGE = 1;
@@ -78,17 +79,18 @@ const styles = (theme: ThemeType) => ({
 const EASequenceOrCollectionCard = ({
   title,
   author,
-  hoverOver,
+  TitleWrapper,
   postCount,
   readCount,
   imageId,
   href,
   eventHandlers,
+  className,
   classes,
 }: {
   title: string,
   author: UsersMinimumInfo | null,
-  hoverOver?: ReactNode,
+  TitleWrapper: FC<{children: ReactNode}>,
   postCount: number,
   readCount: number,
   imageId: string,
@@ -97,22 +99,18 @@ const EASequenceOrCollectionCard = ({
     onMouseOver: (event: MouseEvent<HTMLDivElement>) => void,
     onMouseLeave: () => void,
   },
+  className?: string,
   classes: ClassesType,
 }) => {
   const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;
-  const {CloudinaryImage2, UsersNameDisplay, LWTooltip} = Components;
-
-  const TitleWrapper: FC<{children: ReactNode}> = hoverOver
-    ? ({children}) => (
-      <LWTooltip title={hoverOver} tooltip={false} placement="bottom">
-        {children}
-      </LWTooltip>
-    )
-    : ({children}) => <>{children}</>;
-
+  const {CloudinaryImage2, UsersNameDisplay} = Components;
   return (
-    <div {...eventHandlers} onClick={onClick} className={classes.root}>
+    <div
+      {...eventHandlers}
+      onClick={onClick}
+      className={classNames(classes.root, className)}
+    >
       <div className={classes.sequenceCardImageWrapper}>
         <CloudinaryImage2
           publicId={imageId}
@@ -147,7 +145,7 @@ const EASequenceOrCollectionCard = ({
 const EASequenceOrCollectionCardComponent = registerComponent(
   "EASequenceOrCollectionCard",
   EASequenceOrCollectionCard,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

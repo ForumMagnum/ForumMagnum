@@ -9,10 +9,10 @@ export interface VoteDocTuple {
   vote: DbVote
 }
 export const voteCallbacks = {
-  cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.sync"),
-  cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser]>("votes.cancel.async"),
-  castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<DbVoteableType>,DbUser]>("votes.castVote.sync"),
-  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<DbVoteableType>,DbUser,ResolverContext]>("votes.castVote.async"),
+  cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.sync"),
+  cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.async"),
+  castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.castVote.sync"),
+  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<VoteableCollectionName>,DbUser,ResolverContext]>("votes.castVote.async"),
 };
 
 
@@ -20,15 +20,15 @@ export const voteCallbacks = {
 // the user has voted and the scores are updated appropriately.
 const addVoteClient = ({ document, collection, voteType, extendedVote, user, votingSystem }: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<CollectionNameString>,
   voteType: string,
   extendedVote: any,
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }) => {
-  const power = getVotePower({user, voteType, document});
+  const power = getVotePower({user, voteType: voteType ?? "neutral", document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType ?? "neutral") : 0;
 
   const newDocument = {
     ...document,
@@ -64,7 +64,7 @@ const addVoteClient = ({ document, collection, voteType, extendedVote, user, vot
 // the current user's vote is removed and the score is adjusted accordingly.
 const cancelVoteClient = ({document, collection, user, votingSystem}: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<CollectionNameString>,
   user: UsersCurrent,
   votingSystem: VotingSystem,
 }): VoteableTypeClient => {
@@ -76,9 +76,9 @@ const cancelVoteClient = ({document, collection, user, votingSystem}: {
   // points based on the user's new vote weight, which will then be corrected
   // when the server responds.
   const voteType = document.currentUserVote;
-  const power = getVotePower({user, voteType, document});
+  const power = getVotePower({user, voteType: voteType ?? "neutral", document});
   const isAfVote = (document.af && userCanDo(user, "votes.alignment"))
-  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType) : 0;
+  const afPower = isAfVote ? calculateVotePower(user.afKarma, voteType ?? "neutral") : 0;
   
   const newDocument = {
     ...document,
@@ -123,7 +123,7 @@ export const getVotePower = ({ user, voteType, document }: {
 // Optimistic response for votes
 export const setVoteClient = async ({ document, collection, voteType = 'neutral', extendedVote=null, user, votingSystem }: {
   document: VoteableTypeClient,
-  collection: CollectionBase<DbVoteableType>
+  collection: CollectionBase<CollectionNameString>
   voteType: string,
   extendedVote?: any,
   user: UsersCurrent,

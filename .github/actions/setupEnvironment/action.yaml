@@ -32,6 +32,10 @@ runs:
           ${{ inputs.cypress-cache-folder }}
         key: forum-env-cache-${{ hashFiles('yarn.lock') }}
 
+    - name: Setup node-gyp
+      shell: bash
+      run: yarn global add node-gyp
+
     - name: Install dependencies
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash

@@ -1,13 +1,9 @@
 import { getCollection, Vulcan } from "./vulcan-lib";
 import {
-  timeDecayExpr,
-  postScoreModifiers,
-  commentScoreModifiers,
   TIME_DECAY_FACTOR,
   getSubforumScoreBoost,
   SCORE_BIAS,
 } from '../lib/scoring';
-import * as _ from 'underscore';
 import { Posts } from "../lib/collections/posts";
 import { runSqlQuery } from "../lib/sql/sqlClient";
 import chunk from "lodash/chunk";
@@ -17,113 +13,9 @@ import compact from "lodash/compact";
 //      and posts can become inactive
 const INACTIVITY_THRESHOLD_DAYS = 30;
 
-const getSingleVotePower = () =>
-  // score increase amount of a single vote after n days (for n=100, x=0.000040295)
-  1 / Math.pow((INACTIVITY_THRESHOLD_DAYS * 24) + SCORE_BIAS, TIME_DECAY_FACTOR.get());
-
 interface BatchUpdateParams {
   inactive?: boolean;
   forceUpdate?: boolean;
-}
-
-const getMongoCollectionProjections = (collectionName: CollectionNameString) => {
-  const collectionProjections: Partial<Record<CollectionNameString, any>> = {
-    Posts: {
-      frontpageDate: 1,
-      curatedDate: 1,
-      scoreDate: {$cond: {if: "$frontpageDate", then: "$frontpageDate", else: "$postedAt"}},
-      baseScore: { // Add optional bonuses to baseScore of posts
-        $add: [
-          "$baseScore",
-          ...postScoreModifiers(),
-        ],
-      },
-    },
-    Comments: {
-      baseScore: { // Add optional bonuses to baseScore of comments
-        $add: [
-          "$baseScore",
-          ...commentScoreModifiers(),
-        ],
-      },
-    },
-  };
-  return collectionProjections[collectionName] ?? {};
-}
-
-const getBatchItemsMongo = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean) => {
-  const x = getSingleVotePower();
-
-  const inactiveFilter = inactive
-    ? {inactive: true}
-    : {
-      $or: [
-        {inactive: false},
-        {inactive: {$exists: false}},
-      ],
-    };
-
-  const items = await collection.aggregate([
-    {
-      $match: {
-        $and: [
-          {postedAt: {$exists: true}},
-          {postedAt: {$lte: new Date()}},
-          inactiveFilter,
-        ]
-      }
-    },
-    {
-      $project: {
-        postedAt: 1,
-        scoreDate: "$postedAt",
-        score: 1,
-        baseScore: 1,
-        ...(getMongoCollectionProjections(collection.options.collectionName)),
-      }
-    },
-    {
-      $project: {
-        postedAt: 1,
-        scoreDate: 1,
-        baseScore: 1,
-        score: 1,
-        newScore: {
-          $divide: [
-            '$baseScore',
-            timeDecayExpr(),
-          ]
-        }
-      }
-    },
-    {
-      $project: {
-        postedAt: 1,
-        scoreDate: 1,
-        baseScore: 1,
-        score: 1,
-        newScore: 1,
-        scoreDiffSignificant: {
-          $gt: [
-            {$abs: {$subtract: ['$score', '$newScore']}},
-            x
-          ]
-        },
-        oldEnough: { // Only set a post as inactive if it's older than n days
-          $gt: [
-            {$divide: [
-              {
-                $subtract: [new Date(), '$scoreDate'] // Difference in miliseconds
-              },
-              60 * 60 * 1000 //Difference in hours
-            ]},
-            INACTIVITY_THRESHOLD_DAYS*24]
-        }
-      }
-    },
-  ]);
-
-  return items.toArray();
 }
 
 const getPgCollectionProjections = (collectionName: CollectionNameString) => {
@@ -157,7 +49,7 @@ const getPgCollectionProjections = (collectionName: CollectionNameString) => {
   return Object.values(proj);
 }
 
-const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) => {
+const getBatchItemsPg = async <N extends CollectionNameString>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
   const {collectionName} = collection;
   if (!["Posts", "Comments"].includes(collectionName)) {
     return [];
@@ -165,6 +57,7 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
 
   const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
   return runSqlQuery(`
+    -- updateScores.getBatchItemsPg
     SELECT
       q.*,
       ns."newScore",
@@ -187,12 +80,11 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
   `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()], "read");
 }
 
-const getBatchItems = async <T extends DbObject>(collection: CollectionBase<T>, inactive: boolean, forceUpdate: boolean) =>
-  Posts.isPostgres()
-    ? getBatchItemsPg(collection, inactive, forceUpdate)
-    : getBatchItemsMongo(collection, inactive);
+const getBatchItems = <N extends CollectionNameString>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
+  return getBatchItemsPg(collection, inactive, forceUpdate)
+}
 
-export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<DbObject> }) => {
+export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<CollectionNameString> }) => {
   const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
 

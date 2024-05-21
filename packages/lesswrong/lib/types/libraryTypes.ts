@@ -3,10 +3,6 @@ declare module "deepmerge" {
   export default function deepmerge(a: any, b: any, options?: {isMergeableObject: any}): any
 }
 
-declare module "@shelf/jest-mongodb/setup" {
-  export default function jestMongoSetup(): Promise<void>
-}
-
 declare module "draft-js-buttons" {
   export const createBlockStyleButton: AnyBecauseObsolete
   export const ItalicButton: AnyBecauseObsolete
@@ -40,10 +36,6 @@ declare module "mathjax-node" {
 }
 declare module "mathjax-node-page" {
   export const mjpage: AnyBecauseTodo
-}
-
-declare module "pg-formatter" {
-  export const format: AnyBecauseTodo
 }
 
 declare module "react-jss/lib/jss" {

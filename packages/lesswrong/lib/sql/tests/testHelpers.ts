@@ -1,6 +1,8 @@
 import { registerCollection } from "../../vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
+import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
+import { registerFragment } from "../../vulcan-lib";
 
 export type DbTestObject = {
   _id: string,
@@ -17,6 +19,7 @@ export type DbTestObject = {
 
 export const TestCollection = {
   collectionName: "TestCollection",
+  typeName: "TestCollection",
   _schemaFields: {
     _id: {
       type: String,
@@ -41,15 +44,18 @@ export const TestCollection = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
+export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
+(TestCollection as any).getTable = () => testTable;
+registerCollection(TestCollection);
 
 testTable.addIndex({a: 1, b: 1});
 testTable.addIndex({a: 1, "c.d": 1});
 testTable.addIndex({a: 1, b: 1}, {unique: true});
 testTable.addIndex({a: 1, b: 1}, {partialFilterExpression: {a: {$gt: 3}, b: "test"}});
 testTable.addIndex({b: 1}, {collation: {locale: "en", strength: 2}});
+testTable.addIndex({a: 1, c: 1}, {concurrently: true});
 
 export type DbTestObject2 = {
   _id: string,
@@ -59,6 +65,7 @@ export type DbTestObject2 = {
 
 export const TestCollection2 = {
   collectionName: "TestCollection2",
+  typeName: "TestCollection2",
   _schemaFields: {
     _id: {
       type: String,
@@ -70,9 +77,18 @@ export const TestCollection2 = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject2>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable2 = Table.fromCollection(TestCollection2);
+registerFragment(`
+  fragment TestCollection2DefaultFragment on TestCollection2 {
+    _id
+    data
+  }
+`);
+
+export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
+(TestCollection2 as any).getTable = () => testTable2;
+registerCollection(TestCollection2);
 
 export type DbTestObject3 = {
   _id: string,
@@ -82,6 +98,7 @@ export type DbTestObject3 = {
 
 export const TestCollection3 = {
   collectionName: "TestCollection3",
+  typeName: "TestCollection3",
   _schemaFields: {
     _id: {
       type: String,
@@ -94,13 +111,84 @@ export const TestCollection3 = {
       type: Number,
     }
   }
-} as unknown as CollectionBase<DbTestObject3>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable3 = Table.fromCollection(TestCollection3);
-
-registerCollection(TestCollection);
-registerCollection(TestCollection2);
+export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
+(TestCollection3 as any).getTable = () => testTable3;
 registerCollection(TestCollection3);
+
+registerFragment(`
+  fragment TestCollection3DefaultFragment on TestCollection3 {
+    _id
+    notNullData
+  }
+`);
+
+export type DbTestObject4 = {
+  _id: string,
+  testCollection3Id: string,
+  schemaVersion: number
+};
+
+export const TestCollection4 = {
+  collectionName: "TestCollection4",
+  typeName: "TestCollection4",
+  _schemaFields: {
+    _id: {
+      type: String,
+    },
+    testCollection3Id: {
+      ...foreignKeyField({
+        idFieldName: "testCollection3Id",
+        resolverName: "testCollection3",
+        collectionName: "TestCollection3" as CollectionNameString,
+        type: "TestCollection3",
+        nullable: true,
+        autoJoin: true,
+      }),
+    },
+    testCollection2: resolverOnlyField({
+      type: "TestCollection2",
+      graphQLtype: "TestCollection2",
+      graphqlArguments: "testCollection2Id: String",
+      resolver: async () => null,
+      sqlResolver: ({resolverArg, join}) => join({
+        table: "TestCollection2" as CollectionNameString,
+        type: "left",
+        on: {
+          _id: resolverArg("testCollection2Id"),
+        },
+        resolver: (testCollection2Field) => testCollection2Field("*"),
+      }),
+    }),
+    schemaVersion: {
+      type: Number,
+    },
+  },
+} as unknown as CollectionBase<CollectionNameString>;
+
+export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
+(TestCollection4 as any).getTable = () => testTable4;
+registerCollection(TestCollection4);
+
+registerFragment(`
+  fragment TestCollection4DefaultFragment on TestCollection4 {
+    _id
+    testCollection3Id
+    testCollection3 {
+      ...TestCollection3DefaultFragment
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TestCollection4ArgFragment on TestCollection4 {
+    _id
+    testCollection2(testCollection2Id: $testCollection2Id) {
+      ...TestCollection2DefaultFragment
+    }
+  }
+`);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 
@@ -127,7 +215,8 @@ export const runTestCases = (tests: TestCase[]) => {
         const query = test.getQuery();
         const {sql, args} = query.compile();
         const normalizedSql = normalizeWhitespace(sql);
-        expect(normalizedSql).toBe(test.expectedSql);
+        const normalizedExpectedSql = normalizeWhitespace(test.expectedSql);
+        expect(normalizedSql).toBe(normalizedExpectedSql);
         expect(args).toStrictEqual(test.expectedArgs);
       }
     });

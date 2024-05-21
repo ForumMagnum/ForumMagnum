@@ -4,12 +4,10 @@ import { hookToHoc } from '../../lib/hocUtils';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 
-export type CloseableComponents = {
-  [T in keyof ComponentTypes]: FromPartial<ComponentTypes[T]['propTypes']> extends { onClose: any } | undefined ? T : never
-}[keyof ComponentTypes];
+export type CloseableComponent = ComponentWithProps<{ onClose?: any }>
 
 export interface OpenDialogContextType {
-  openDialog: <T extends CloseableComponents>({componentName, componentProps, noClickawayCancel}: {
+  openDialog: <T extends CloseableComponent>({componentName, componentProps, noClickawayCancel}: {
     componentName: T,
     componentProps?: Omit<React.ComponentProps<typeof Components[T]>,"onClose"|"classes">,
     noClickawayCancel?: boolean,
@@ -23,26 +21,23 @@ export const OpenDialogContext = React.createContext<OpenDialogContextType|null>
 export const DialogManager = ({children}: {
   children: React.ReactNode,
 }) => {
-  const [componentName,setComponentName] = useState<CloseableComponents|null>(null);
-  const [componentProps,setComponentProps] = useState<any>(null);
+  const [componentNameWithProps, setComponentNameWithProps] = useState<{componentName: CloseableComponent, componentProps: any} | null>(null);
   const [noClickawayCancel, setNoClickawayCancel] = useState<any>(false);
   const [closeOnNavigate, setCloseOnNavigate] = useState<boolean>(false);
   const {captureEvent} = useTracking();
-  const isOpen = !!componentName;
+  const isOpen = !!componentNameWithProps?.componentName;
   
   const closeDialog = useCallback(() => {
-    captureEvent("dialogBox", {open: false, dialogName: componentName})
-    setComponentName(null);
-    setComponentProps(null);
-  }, [captureEvent, componentName]);
+    captureEvent("dialogBox", {open: false, dialogName: componentNameWithProps?.componentName})
+    setComponentNameWithProps(null);
+  }, [captureEvent, componentNameWithProps?.componentName]);
 
-  const ModalComponent = isOpen ? (Components[componentName]) : null;
+  const ModalComponent = isOpen ? (Components[componentNameWithProps?.componentName]) : null;
   
   const providedContext = useMemo((): OpenDialogContextType => ({
     openDialog: ({componentName, componentProps, noClickawayCancel, closeOnNavigate}) => {
       captureEvent("dialogBox", {open: true, dialogName: componentName})
-      setComponentName(componentName);
-      setComponentProps(componentProps);
+      setComponentNameWithProps({componentName, componentProps});
       setNoClickawayCancel(noClickawayCancel || false)
       setCloseOnNavigate(closeOnNavigate || false)
     },
@@ -55,8 +50,13 @@ export const DialogManager = ({children}: {
 
   const { LWClickAwayListener } = Components
 
-  const modal = (ModalComponent && isOpen) && <ModalComponent {...componentProps} onClose={closeDialog} />
-  const withClickaway = isOpen && (noClickawayCancel ? modal : <LWClickAwayListener onClickAway={closeDialog}>{modal}</LWClickAwayListener>);
+  const modal = (ModalComponent && isOpen) && <ModalComponent {...componentNameWithProps?.componentProps} onClose={closeDialog} />
+  const withClickaway = isOpen && (noClickawayCancel
+    ? modal
+    : <LWClickAwayListener onClickAway={closeDialog}>
+        <>{modal}</>
+      </LWClickAwayListener>
+  );
   return (
     <OpenDialogContext.Provider value={providedContext}>
       {children}

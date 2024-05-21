@@ -1,10 +1,11 @@
 import SimpleSchema from 'simpl-schema';
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbBan> = {
+const schema: SchemaType<"Bans"> = {
   expirationDate: {
     type: Date,
-    optional: true,
+    optional: false,
+    nullable: true,
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -22,6 +23,7 @@ const schema: SchemaType<DbBan> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true,
   },
   ip: {
@@ -47,6 +49,7 @@ const schema: SchemaType<DbBan> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     label: 'Comment (shown to other mods)',
+    ...schemaDefaultValue(""),
   },
   properties: {
     type: Object,

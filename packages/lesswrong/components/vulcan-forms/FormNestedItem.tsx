@@ -25,7 +25,7 @@ const FormNestedItem = ({ nestedFields, name, path, removeItem, itemIndex, formC
   nestedFields: any
   name: string
   path: string
-  removeItem: (i: string)=>void
+  removeItem: (i: string) => void
   itemIndex: number
   formComponents: ComponentTypes
   hideRemove: boolean

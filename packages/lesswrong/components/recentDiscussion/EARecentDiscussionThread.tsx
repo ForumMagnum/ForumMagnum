@@ -49,19 +49,19 @@ const getItemProps = (
   post: PostsRecentDiscussion,
   comments: CommentsList[] = [],
 ): EARecentDiscussionItemProps => {
-  if (post.isEvent) {
-    // It's a new event
-    return {
-      icon: "Calendar",
-      iconVariant: "grey",
-      user: post.user,
-      action: "scheduled",
-      post,
-      timestamp: post.postedAt,
-    };
-  }
-
   if (!comments?.length) {
+    // It's a new event
+    if (post.isEvent) {
+      return {
+        icon: "Calendar",
+        iconVariant: "grey",
+        user: post.user,
+        action: "scheduled",
+        post,
+        timestamp: post.postedAt,
+      };
+    }
+
     // We're displaying the post as a new post
     return {
       icon: post.question ? "Q" : "DocumentFilled",
@@ -119,8 +119,8 @@ const EARecentDiscussionThread = ({
   }
 
   const {
-    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode, PostExcerpt,
-    PostsItemTooltipWrapper, LinkPostMessage, EAKarmaDisplay, PostsTitle,
+    EARecentDiscussionItem, EAPostMeta, ForumIcon, CommentsNode,
+    PostExcerpt, LinkPostMessage, EAKarmaDisplay, PostsTitle,
   } = Components;
   return (
     <EARecentDiscussionItem {...getItemProps(post, comments)}>
@@ -129,13 +129,12 @@ const EARecentDiscussionThread = ({
           <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
         }
         <div className={classes.postInfo}>
-          <PostsItemTooltipWrapper post={post}>
-            <PostsTitle
-              post={post}
-              read={post.isRead}
-              className={classes.postTitle}
-            />
-          </PostsItemTooltipWrapper>
+          <PostsTitle
+            post={post}
+            read={post.isRead ?? undefined}
+            className={classes.postTitle}
+            linkEventProps={{intent: 'expandPost'}}
+          />
           <EAPostMeta post={post} useEventStyles />
         </div>
         {!post.isEvent &&

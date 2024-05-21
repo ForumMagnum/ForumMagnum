@@ -9,7 +9,6 @@ import { clearVotesServer } from './voteServer';
 import { Posts } from '../lib/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Comments } from '../lib/collections/comments'
-import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
 import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
@@ -19,8 +18,11 @@ import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
-import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
+import ReadStatusesRepo from './repos/ReadStatusesRepo';
+import Sequences from '../lib/collections/sequences/collection';
+import { UsersRepo } from './repos';
+import { syncDocumentWithLatestRevision } from './editor/utils';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -35,12 +37,6 @@ getCollectionHooks("Messages").newAsync.add(async function updateConversationAct
     currentUser: user,
     validate: false,
   });
-});
-
-getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    await nullifyVotesForUser(user);
-  }
 });
 
 getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
@@ -58,24 +54,36 @@ getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNa
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+getCollectionHooks("Users").updateAsync.add(async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+  if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
+    await nullifyVotesForUser(newDocument);
+  }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
+  const currentBanDate = user.banned
+  const previousBanDate = oldUser.banned
+  const now = new Date()
+  const updatedUserIsBanned = !!(currentBanDate && new Date(currentBanDate) > now)
+  const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
+  
+  if (updatedUserIsBanned && !previousUserWasBanned) {
     void userIPBanAndResetLoginTokens(user);
   }
 });
 
-const reverseVote = async (vote: DbVote, context: ResolverContext) => {
+/**
+ * Reverse the given vote, without triggering any karma change notifications
+ */
+export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({document, collection, user, context})
+    await clearVotesServer({ document, collection, user, silenceNotification: true, context });
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
@@ -88,9 +96,20 @@ export const nullifyVotesForUser = async (user: DbUser) => {
   }
 }
 
-const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
+interface DateRange {
+  after?: Date;
+  before?: Date;
+}
+
+export const nullifyVotesForUserByTarget = async (user: DbUser, targetUserId: string, dateRange: DateRange) => {
+  for (let collection of VoteableCollections) {
+    await nullifyVotesForUserAndCollectionByTarget(user, collection, targetUserId, dateRange);
+  }
+}
+
+const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<VoteableCollectionName>) => {
   const collectionName = capitalize(collection.collectionName);
-  const context = await createAdminContext();
+  const context = createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -99,10 +118,37 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
   for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    await reverseVote(vote, context);
+    await silentlyReverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
+}
+
+const nullifyVotesForUserAndCollectionByTarget = async (
+  user: DbUser,
+  collection: CollectionBase<VoteableCollectionName>,
+  targetUserId: string,
+  dateRange: DateRange,
+) => {
+  const collectionName = capitalize(collection.collectionName);
+  const context = createAdminContext();
+  const votes = await Votes.find({
+    collectionName: collectionName,
+    userId: user._id,
+    cancelled: false,
+    authorIds: targetUserId,
+    power: { $ne: 0 },
+    ...(dateRange.after ? { votedAt: { $gt: dateRange.after } } : {}),
+    ...(dateRange.before ? { votedAt: { $lt: dateRange.before } } : {})
+  }).fetch();
+  for (let vote of votes) {
+    const { documentId, collectionName, authorIds, extendedVoteType, power, cancelled, votedAt } = vote;
+    //eslint-disable-next-line no-console
+    console.log("reversing vote: ", { documentId, collectionName, authorIds, extendedVoteType, power, cancelled, votedAt });
+    await silentlyReverseVote(vote, context);
+  };
+  //eslint-disable-next-line no-console
+  console.info(`Nullified ${votes.length} votes for user ${user.username} in collection ${collectionName}`);
 }
 
 export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
@@ -199,6 +245,20 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
     await commentReportPurgeAsSpam(comment);
   }
   
+  const sequences = await Sequences.find({userId: user._id}).fetch();
+  //eslint-disable-next-line no-console
+  console.info("Deleting sequences: ", sequences);
+  for (let sequence of sequences) {
+    await updateMutator({
+      collection: Sequences,
+      documentId: sequence._id,
+      set: {isDeleted: true},
+      unset: {},
+      currentUser: deletingUser,
+      validate: false,
+    })
+  }
+  
   if (deleteTags) {
     await deleteUserTagsAndRevisions(user, deletingUser)
   }
@@ -236,9 +296,12 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
-    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    if (!revision.collectionName) {
+      continue;
+    }
+    const collection = getCollectionsByName()[revision.collectionName];
     const document = await collection.findOne({_id: revision.documentId})
-    if (document) {
+    if (document && revision.fieldName) {
       await syncDocumentWithLatestRevision(
         collection,
         document,
@@ -287,12 +350,12 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  await Users.rawUpdateOne({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  await new UsersRepo().clearLoginTokens(user._id);
 }
 
 
 getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event: DbLWEvent) {
-  if (event.userId && event.documentId) {
+  if (event.userId && event.documentId && event.name === "post-view") {
     // Upsert. This operation is subtle and fragile! We have a unique index on
     // (postId,userId,tagId). If two copies of a page-view event fire at the
     // same time, this creates a race condition. In order to not have this throw
@@ -302,18 +365,7 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     // index's keys.
     //
     // EDIT 2022-09-16: This is still the case in postgres ^
-    await ReadStatuses.rawUpdateOne({
-      postId: event.documentId,
-      userId: event.userId,
-      tagId: null,
-    }, {
-      $set: {
-        isRead: true,
-        lastUpdated: event.createdAt
-      }
-    }, {
-      upsert: true
-    });
+    const readStatus = await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);
   }
   return event;
 });

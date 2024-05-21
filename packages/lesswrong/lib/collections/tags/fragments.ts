@@ -213,7 +213,7 @@ registerFragment(`
     tableOfContents
     postsDefaultSortOrder
     subforumIntroPost {
-      ...PostsList
+      ...PostsListWithVotes
     }
     subforumWelcomeText {
       _id
@@ -247,7 +247,7 @@ registerFragment(`
     tableOfContents(version: $version)
     postsDefaultSortOrder
     subforumIntroPost {
-      ...PostsList
+      ...PostsListWithVotes
     }
     subforumWelcomeText {
       _id
@@ -288,6 +288,7 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
+    parentTagId
     parentTag {
       ...TagBasicInfo
     }
@@ -327,5 +328,15 @@ registerFragment(`
     user {
       ...UsersMinimumInfo
     }
+  }
+`);
+
+registerFragment(`
+  fragment UserOnboardingTag on Tag {
+    _id
+    name
+    slug
+    bannerImageId
+    squareImageId
   }
 `);

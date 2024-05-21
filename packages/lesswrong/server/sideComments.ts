@@ -1,10 +1,6 @@
 import cheerio from 'cheerio';
 import { cheerioParse, cheerioParseAndMarkOffsets, tokenizeHtml } from './utils/htmlUtil';
-import { Comments } from '../lib/collections/comments/collection';
-import type { SideCommentsResolverResult } from '../lib/collections/posts/schema';
-import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import groupBy from 'lodash/groupBy';
-import some from 'lodash/some';
 
 export interface QuoteShardSettings {
   minLength: number
@@ -102,6 +98,9 @@ interface MarkedInterval {
  *   <p>Lorem <span ...>ipsum <em>dolor</em> sit</span> amet adipiscing
  */
 export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]): string {
+  if (!intervals.length) {
+    return html;
+  }
   let intervalsByStart = groupBy(intervals, interval=>interval.start);
   let intervalsByEnd = groupBy(intervals, interval=>interval.end);
   let sb: string[] = [];
@@ -212,7 +211,7 @@ export function getCommentQuotedBlockID(postHTML: string, commentHTML: string, o
   
   const parsedPost = cheerioParse(postHTML);
   
-  const match = findQuoteInPost(parsedPost, quoteShards);
+  const match = findQuoteInPost(parsedPost)(quoteShards);
   return match?.firstMatchingBlockID ?? null;
 }
 
@@ -297,96 +296,63 @@ interface QuoteInPost {
  * quote shards, return the ID of the first block which matches a quote shard
  * (or null if no match is found).
  */
-function findQuoteInPost(parsedPost: AnyBecauseTodo, quoteShards: QuoteShard[]): QuoteInPost|null {
+const findQuoteInPost = (parsedPost: AnyBecauseTodo) => {
   let markedElements = parsedPost(matchableBlockElementSelector);
-  let firstMatchingBlockID: string|null = null;
-  let matchingSpans: {start: number, end: number}[] = [];
-  
+  const markedElementBlockHtml: (string|null)[] = [];
   for (let i=0; i<markedElements.length; i++) {
-    const blockID = cheerio(markedElements[i]).attr("id");
+    // This is a for loop instead of a map because markedElmeents (the result of
+    // a cheerio selector) isn't actually an array
+    const markedElement = markedElements[i];
+    const blockID = cheerio(markedElement).attr("id");
     if (blockID) {
-      const blockStartOffset = markedElements[i].offset;
-      const markedHtml = parsedPost.html(cheerio(markedElements[i]))||"";
-      
-      for (let quoteShard of quoteShards) {
-        const quoteShardOffset = markedHtml.indexOf(quoteShard.text);
-        if (quoteShardOffset >= 0) {
-          if (!firstMatchingBlockID) {
-            firstMatchingBlockID = blockID;
+      markedElementBlockHtml.push(parsedPost.html(cheerio(markedElement))||"");
+    } else {
+      markedElementBlockHtml.push(null);
+    }
+  }
+
+  return (quoteShards: QuoteShard[]): QuoteInPost|null => {
+    let firstMatchingBlockID: string|null = null;
+    let matchingSpans: {start: number, end: number}[] = [];
+    
+    for (let i=0; i<markedElements.length; i++) {
+      const blockID = cheerio(markedElements[i]).attr("id");
+      if (blockID) {
+        const blockStartOffset = markedElements[i].offset;
+        const markedHtml = markedElementBlockHtml[i];
+        if (!markedHtml) continue;
+        
+        for (let quoteShard of quoteShards) {
+          const quoteShardOffset = markedHtml.indexOf(quoteShard.text);
+          if (quoteShardOffset >= 0) {
+            if (!firstMatchingBlockID) {
+              firstMatchingBlockID = blockID;
+            }
+            // FIXME: This assumes that a parse-and-serialize roundtrip through cheerio doesn't change any offsets, but this assumption is not valid.
+            matchingSpans.push({
+              start: blockStartOffset + quoteShardOffset,
+              end: blockStartOffset + quoteShardOffset + quoteShard.text.length,
+            });
           }
-          // FIXME: This assumes that a parse-and-serialize roundtrip through cheerio doesn't change any offsets, but this assumption is not valid.
-          matchingSpans.push({
-            start: blockStartOffset + quoteShardOffset,
-            end: blockStartOffset + quoteShardOffset + quoteShard.text.length,
-          });
         }
       }
     }
-  }
-  
-  if (firstMatchingBlockID) {
-    return { firstMatchingBlockID, matchingSpans };
-  } else {
-    return null;
+    
+    if (firstMatchingBlockID) {
+      return { firstMatchingBlockID, matchingSpans };
+    } else {
+      return null;
+    }
   }
 }
 
 // A comment, reduced to only the fields that affect side-comment placement.
-// Used to split getSideComments from matchSideComments, for unit testability.
 interface CommentForSideComment {
   _id: string
   html: string
 }
 
-/**
- * Given a post, fetch all the comments on that post, check them for blockquotes,
- * line those quotes up to sections of the post, and return a mapping from block
- * IDs to arrays of comment IDs.
- *
- * This function is potentially quite slow, if there are a lot of comments and/or
- * the post is very long. FIXME: Build caching for this.
- */
-export async function getSideComments(context: ResolverContext, postId: string, html: string): Promise<SideCommentsResolverResult> {
-  //const startTimeMs = new Date().getTime();
-  
-  const comments = await Comments.find({
-    ...getDefaultViewSelector("Comments"),
-    postId,
-  }).fetch();
-  
-  const {html: annotatedHtml, sideCommentsByBlock} = matchSideComments({
-    postId, html,
-    comments: comments.map(comment => ({
-      _id: comment._id,
-      html: comment.contents?.html,
-    }))
-  });
-  
-  const minKarma = 10;
-  const highKarmaComments: DbComment[] = comments.filter(comment => comment.baseScore >= minKarma)
-  const highKarmaCommentIds: Set<string> = new Set(highKarmaComments.map(c => c._id));
-  
-  let highKarmaCommentsByBlock: Record<string,string[]> = {};
-  for (let blockID of Object.keys(sideCommentsByBlock)) {
-    const commentsIdsHere = sideCommentsByBlock[blockID];
-    const highKarmaCommentIdsHere = commentsIdsHere.filter(commentId => highKarmaCommentIds.has(commentId));
-    if (highKarmaCommentIdsHere.length > 0) {
-      highKarmaCommentsByBlock[blockID] = highKarmaCommentIdsHere;
-    }
-  }
-  
-  //const endTimeMs = new Date().getTime();
-  //console.log(`Matched ${comments.length} comments in ${endTimeMs-startTimeMs}ms`);
-  
-  return {
-    html: annotatedHtml,
-    commentsByBlock: sideCommentsByBlock,
-    highKarmaCommentsByBlock,
-  };
-}
-
-export function matchSideComments({postId, html, comments, quoteShardSettings}: {
-  postId: string,
+export function matchSideComments({html, comments, quoteShardSettings}: {
   html: string,
   comments: CommentForSideComment[]
   quoteShardSettings?: QuoteShardSettings,
@@ -395,14 +361,23 @@ export function matchSideComments({postId, html, comments, quoteShardSettings}: 
   sideCommentsByBlock: Record<string,string[]>,
 } {
   const htmlWithBlockIDs = addBlockIDsToHTML(html);
+  if (!comments.length) {
+    return {
+      html: htmlWithBlockIDs,
+      sideCommentsByBlock: {},
+    };
+  }
+
   const parsedPost = cheerioParseAndMarkOffsets(htmlWithBlockIDs);
   
   let sideCommentsByBlock: Record<string,string[]> = {};
   let markedSpans: MarkedInterval[] = [];
+  const findQuoteInPostPartialApplication = findQuoteInPost(parsedPost);
   
   for (let comment of comments) {
     const quoteShards = commentToQuoteShards(comment.html, quoteShardSettings);
-    const match = findQuoteInPost(parsedPost, quoteShards);
+    if (!quoteShards.length) continue;
+    const match = findQuoteInPostPartialApplication(quoteShards);
     
     if (match) {
       const blockID = match?.firstMatchingBlockID ?? null;
@@ -426,4 +401,3 @@ export function matchSideComments({postId, html, comments, quoteShardSettings}: 
     sideCommentsByBlock
   };
 }
-

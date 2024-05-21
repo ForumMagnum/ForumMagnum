@@ -14,7 +14,7 @@ export const isCommentActionActive = (moderatorAction: DbCommentModeratorAction)
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 }
 
-const schema: SchemaType<DbCommentModeratorAction> = {
+const schema: SchemaType<"CommentModeratorActions"> = {
   commentId: {
     ...foreignKeyField({
       idFieldName: "commentId",
@@ -27,9 +27,11 @@ const schema: SchemaType<DbCommentModeratorAction> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
   },
   type: {
     type: String,
+    nullable: false,
     control: 'select',
     allowedValues: Object.keys(COMMENT_MODERATOR_ACTION_TYPES),
     options: () => Object.entries(COMMENT_MODERATOR_ACTION_TYPES).map(([value, label]) => ({ value, label })),
@@ -48,6 +50,7 @@ const schema: SchemaType<DbCommentModeratorAction> = {
   },
   active: resolverOnlyField({
     type: Boolean,
+    graphQLtype: 'Boolean!',
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     resolver: (doc) => isCommentActionActive(doc)
   })

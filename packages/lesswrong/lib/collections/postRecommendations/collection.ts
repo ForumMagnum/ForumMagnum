@@ -1,14 +1,16 @@
 import { createCollection } from "../../vulcan-lib";
 import { addUniversalFields } from "../../collectionUtils"
-import { isEAForum } from "../../instanceSettings";
 import { ensureIndex } from "../../collectionIndexUtils";
 import { schema } from "./schema";
 
 export const PostRecommendations: PostRecommendationsCollection = createCollection({
   collectionName: "PostRecommendations",
   typeName: "PostRecommendation",
-  collectionType: "pg",
   schema,
+  dependencies: [
+    {type: "extension", name: "vector"},
+    {type: "extension", name: "intarray"},
+  ],
 });
 addUniversalFields({collection: PostRecommendations});
 

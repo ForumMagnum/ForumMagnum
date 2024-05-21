@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import type { CoreReadingCollection } from '../sequences/LWCoreReading';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit*1.5
   },
   title: {
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   mergeTitle: {
     display: "inline",
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
     display: "inline-block",
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },

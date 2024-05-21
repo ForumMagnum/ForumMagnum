@@ -4,15 +4,15 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
-    fontWeight: isEAForum ? 600 : 500,
+    fontWeight: isFriendlyUI ? 600 : 500,
     fontSize: "16px",
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
   },
 
   selected: {

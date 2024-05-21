@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import { useItemsRead } from '../hooks/useRecordPostView';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const postProgressBoxStyles = (theme: ThemeType) => ({
   border: theme.palette.border.normal,
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   read: {
     ...(
-      forumTypeSetting.get() === "EAForum"
+      isFriendlyUI
         ? {
           backgroundColor: theme.palette.primary.main,
           border: theme.palette.primary.dark,
@@ -61,7 +61,7 @@ const BooksProgressBar = ({ book, classes }: {
   book: BookPageFragment,
   classes: ClassesType
 }) => {
-  const { LWTooltip, PostsPreviewTooltip, LoginToTrack } = Components;
+  const { LWTooltip, PostsTooltip, LoginToTrack } = Components;
 
   const { postsRead: clientPostsRead } = useItemsRead();
 
@@ -84,12 +84,12 @@ const BooksProgressBar = ({ book, classes }: {
     <div className={classes.bookProgress}>
       {
         bookPosts.map(post => (
-          <LWTooltip key={post._id} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+          <PostsTooltip post={post} key={post._id}>
             <Link to={postGetPageUrl(post)}>
               <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
             </Link>
-          </LWTooltip>
-          ))
+          </PostsTooltip>
+        ))
       }
     </div>
     <div className={classNames(classes.sequence, classes.progressText)}>

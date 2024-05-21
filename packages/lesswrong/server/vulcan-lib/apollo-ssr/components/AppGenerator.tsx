@@ -10,32 +10,35 @@ import { CookiesProvider } from 'react-cookie';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../../../../lib/abTestImpl';
 import { ServerRequestStatusContextType } from '../../../../lib/vulcan-core/appContext';
 import { getAllCookiesFromReq } from '../../../utils/httpUtil';
-import type { TimeOverride } from '../../../../lib/utils/timeUtil';
+import type { SSRMetadata } from '../../../../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLayoutOptions';
 
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, timeOverride }: {
+const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, ssrMetadata }: {
   req: Request,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
-  timeOverride: TimeOverride,
+  ssrMetadata: SSRMetadata,
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
-        <StaticRouter location={req.url} context={{}}>
+        <StaticRouter location={req.url}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>
                 <Components.App
                   apolloClient={apolloClient}
                   serverRequestStatus={serverRequestStatus}
-                  timeOverride={timeOverride}
+                  timeOverride={{
+                    currentTime: new Date(ssrMetadata.renderedAt),
+                    ...ssrMetadata
+                  }}
                 />
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>

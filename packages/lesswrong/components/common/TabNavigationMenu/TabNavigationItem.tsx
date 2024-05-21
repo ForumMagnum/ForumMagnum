@@ -3,8 +3,9 @@ import React from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { forumSelect } from '../../../lib/forumTypeUtils';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCurrentUser } from '../withUser';
 
 export const iconWidth = 30
 
@@ -14,26 +15,31 @@ const iconTransform = forumSelect({
   default: undefined,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   selected: {
     '& $icon': {
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[isEAForum ? 1000 : 900],
+      color: theme.palette.grey[isFriendlyUI ? 1000 : 900],
       fontWeight: 600,
     },
   },
   menuItem: {
-    width: 190,
+    width: isFriendlyUI ? 210 : 190,
+  },
+  desktopOnly: {
+    [theme.breakpoints.down("xs")]: {
+      display: "none !important",
+    },
   },
   navButton: {
     '&:hover': {
-      opacity: isEAForum ? 1 : 0.6,
-      color: isEAForum ? theme.palette.grey[800] : undefined,
+      opacity: isFriendlyUI ? 1 : 0.6,
+      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
       backgroundColor: 'transparent' // Prevent MUI default behavior of rendering solid background on hover
     },
-    color: theme.palette.grey[isEAForum ? 600 : 800],
+    color: theme.palette.grey[isFriendlyUI ? 600 : 800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -56,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: 0,
     '&:hover': {
       backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      opacity: isEAForum ? 1 : undefined,
+      opacity: isFriendlyUI ? 1 : undefined,
     }
   },
   icon: {
@@ -66,14 +72,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 16,
     display: "inline",
     "& svg": {
-      fill: isEAForum ? undefined : "currentColor",
-      color: isEAForum ? undefined : theme.palette.icon.navigationSidebarIcon,
+      fill: isFriendlyUI ? undefined : "currentColor",
+      color: isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
       transform: iconTransform,
     },
   },
   selectedIcon: {
     "& svg": {
-      color: isEAForum ? theme.palette.grey[1000] : undefined,
+      color: isFriendlyUI ? theme.palette.grey[1000] : undefined,
     },
   },
   navText: {
@@ -89,20 +95,37 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   tooltip: {
-    maxWidth: isEAForum ? 190 : undefined,
+    maxWidth: isFriendlyUI ? 190 : undefined,
   },
-})
+  flag: {
+    padding: "2px 4px",
+    marginLeft: 10,
+    fontSize: 11,
+    fontWeight: 600,
+    lineHeight: "110%",
+    letterSpacing: "0.33px",
+    textTransform: "uppercase",
+    background: theme.palette.primary.main,
+    borderRadius: theme.borderRadius.small,
+    color: theme.palette.text.alwaysWhite,
+  },
+});
 
-type TabNavigationItemProps = {
+export type TabNavigationItemProps = {
   tab: MenuTabRegular,
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void,
-  classes: ClassesType,
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }
 
-const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
-  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components
-  const { pathname } = useLocation()
-  
+const TabNavigationItem = ({tab, onClick, className, classes}: TabNavigationItemProps) => {
+  const {pathname} = useLocation();
+  const currentUser = useCurrentUser();
+
+  if (tab.betaOnly && !currentUser?.beta) {
+    return null;
+  }
+
   // Due to an issue with using anchor tags, we use react-router links, even for
   // external links, we just use window.open to actuate the link.
   const externalLink = /https?:\/\//.test(tab.link);
@@ -121,6 +144,7 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
     ? tab.selectedIconComponent ?? tab.iconComponent
     : tab.iconComponent;
 
+  const { TabNavigationSubItem, LWTooltip, MenuItemLink } = Components;
   return <LWTooltip
     placement='right-start'
     title={tab.tooltip || ''}
@@ -133,10 +157,11 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
       // entire sidebar fail on iOS. True story.
       to={tab.link}
       disableGutters
-      rootClass={classNames(classes.menuItem, {
+      rootClass={classNames(classes.menuItem, className, {
         [classes.navButton]: !tab.subItem,
         [classes.subItemOverride]: tab.subItem,
         [classes.selected]: isSelected,
+        [classes.desktopOnly]: tab.desktopOnly,
       })}
       disableTouchRipple
     >
@@ -155,6 +180,7 @@ const TabNavigationItem = ({tab, onClick, classes}: TabNavigationItemProps) => {
           {tab.title}
         </span>
       }
+      {tab.flag && <span className={classes.flag}>{tab.flag}</span>}
     </MenuItemLink>
   </LWTooltip>
 }

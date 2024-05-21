@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
   commentCount: number,
   small: boolean,
-  onClick?: ()=>void,
+  onClick?: () => void,
   unreadComments: boolean,
   newPromotedComments: boolean,
   classes: ClassesType,

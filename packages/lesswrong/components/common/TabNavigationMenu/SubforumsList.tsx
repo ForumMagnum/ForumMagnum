@@ -36,7 +36,7 @@ const styles = ((theme: ThemeType): JssStyles => ({
 const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }: {
-  onClick: ()=>void
+  onClick: () => void
   classes: ClassesType
 }) => {
   const { results } = useMulti({
@@ -49,7 +49,7 @@ const SubforumsList = ({ onClick, classes }: {
   })
   const [showAll, setShowAll] = useState(false)
 
-  const onClickShowMoreOrLess = useCallback((e) => {
+  const onClickShowMoreOrLess = useCallback((e: React.MouseEvent) => {
     e.preventDefault() // Prevent ripple
     setShowAll(!showAll)
   }, [showAll])

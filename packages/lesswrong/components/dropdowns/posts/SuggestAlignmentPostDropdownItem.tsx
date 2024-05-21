@@ -4,7 +4,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { postSuggestForAlignment, postUnSuggestForAlignment } from '../../../lib/alignment-forum/posts/helpers';
 import { userCanSuggestPostForAlignment } from '../../../lib/alignment-forum/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
 
 const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -14,7 +14,7 @@ const SuggestAlignmentPostDropdownItem = ({post}: {post: PostsBase}) => {
   });
 
   if (
-    isEAForum ||
+    !isLWorAF ||
     !currentUser ||
     !userCanSuggestPostForAlignment({currentUser, post})
   ) {

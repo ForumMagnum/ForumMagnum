@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -11,7 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: theme.palette.border.commentBorder,
-    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -28,15 +28,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: isEAForum
+    borderRadius: isFriendlyUI
       ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
       : "2px 0 0 2px",
   },
   new: {
     '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
+      borderLeft: `solid 5px ${theme.palette.secondary.light}${isFriendlyUI ? '' : '8c'}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}`
+        borderLeft: `solid 5px ${theme.palette.secondary.main}${isFriendlyUI ? '' : '8c'}`
       },
     }
   },
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   shortformTop: {
     '&&': {
-      marginTop: isEAForum ? theme.spacing.unit*2 : theme.spacing.unit*4,
+      marginTop: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
       marginBottom: 0,
     }
   },
@@ -120,7 +120,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       left: 1,
       boxSizing: "border-box",
       backgroundColor: theme.palette.panelBackground.default,
-      borderRadius: isEAForum ? theme.borderRadius.small : 0,
+      borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
     },
     position: "relative",
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
@@ -153,7 +153,7 @@ const CommentFrame = ({
 }: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
-  onClick?: (event: any)=>void,
+  onClick?: (event: any) => void,
   id?: string,
   
   nestingLevel: number,
@@ -171,32 +171,31 @@ const CommentFrame = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const { condensed, postPage } = treeOptions;
+  const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
+  const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
     "comments-node",
-    nestingLevelToClass(nestingLevel, classes),
+    nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
     className,
-    {
-      "af":comment.af,
-      [classes.highlightAnimation]: highlighted,
-      [classes.child]: isChild,
-      [classes.new]: isNewComment,
-      [classes.deleted]: comment.deleted,
-      [classes.isPinnedOnProfile]: isEAForum && showPinnedOnProfile && comment.isPinnedOnProfile,
-      [classes.isAnswer]: comment.answer,
-      [classes.answerChildComment]: isReplyToAnswer,
-      [classes.childAnswerComment]: isChild && isReplyToAnswer,
-      [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && isReplyToAnswer,
-      [classes.answerLeafComment]: !hasChildren,
-      [classes.isSingleLine]: isSingleLine,
-      [classes.condensed]: condensed,
-      [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
-      [classes.hoverPreview]: hoverPreview,
-      [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
-      [classes.promoted]: comment.promoted
-    }
+    comment.af && "af",
+    highlighted && classes.highlightAnimation,
+    isChild && classes.child,
+    isNewComment && classes.new,
+    comment.deleted && classes.deleted,
+    isFriendlyUI && showPinnedOnProfile && comment.isPinnedOnProfile && classes.isPinnedOnProfile,
+    comment.answer && classes.isAnswer,
+    isReplyToAnswer && classes.answerChildComment,
+    isChild && isReplyToAnswer && classes.childAnswerComment,
+    (effectiveNestingLevel % 2 !== 0) && isReplyToAnswer && classes.oddAnswerComment,
+    !hasChildren && classes.answerLeafComment,
+    isSingleLine && classes.isSingleLine,
+    condensed && classes.condensed,
+    postPage && shortform && (effectiveNestingLevel===1) && classes.shortformTop,
+    hoverPreview && classes.hoverPreview,
+    comment.hideModeratorHat ? false : comment.moderatorHat && classes.moderatorHat,
+    comment.promoted && classes.promoted,
   )
   
   return <div className={nodeClass} onClick={onClick} id={id}>
@@ -205,21 +204,21 @@ const CommentFrame = ({
 }
 
 const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string => {
-  return classNames({
-    [classes.commentsNodeRoot] : nestingLevel === 1,
-    "comments-node-root" : nestingLevel === 1,
-    "comments-node-even" : nestingLevel % 2 === 0,
-    "comments-node-odd"  : nestingLevel % 2 !== 0,
-    "comments-node-its-getting-nested-here": nestingLevel > 8,
-    "comments-node-so-take-off-all-your-margins": nestingLevel > 12,
-    "comments-node-im-getting-so-nested": nestingLevel > 16,
-    "comments-node-im-gonna-drop-my-margins": nestingLevel > 20,
-    "comments-node-what-are-you-even-arguing-about": nestingLevel > 24,
-    "comments-node-are-you-sure-this-is-a-good-idea": nestingLevel > 28,
-    "comments-node-seriously-what-the-fuck": nestingLevel > 32,
-    "comments-node-are-you-curi-and-lumifer-specifically": nestingLevel > 36,
-    "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho": nestingLevel > 40,
-  });
+  return classNames(
+    (nestingLevel === 1)   && classes.commentsNodeRoot,
+    (nestingLevel === 1)   && "comments-node-root" ,
+    (nestingLevel%2 === 0) && "comments-node-even" ,
+    (nestingLevel%2 !== 0) && "comments-node-odd"  ,
+    (nestingLevel > 8)  && "comments-node-its-getting-nested-here",
+    (nestingLevel > 12) && "comments-node-so-take-off-all-your-margins",
+    (nestingLevel > 16) && "comments-node-im-getting-so-nested",
+    (nestingLevel > 20) && "comments-node-im-gonna-drop-my-margins",
+    (nestingLevel > 24) && "comments-node-what-are-you-even-arguing-about",
+    (nestingLevel > 28) && "comments-node-are-you-sure-this-is-a-good-idea",
+    (nestingLevel > 32) && "comments-node-seriously-what-the-fuck",
+    (nestingLevel > 36) && "comments-node-are-you-curi-and-lumifer-specifically",
+    (nestingLevel > 40) && "comments-node-cuz-i-guess-that-makes-sense-but-like-really-tho",
+  );
 }
 
 
@@ -230,4 +229,3 @@ declare global {
     CommentFrame: typeof CommentFrameComponent,
   }
 }
-

@@ -9,10 +9,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { timeframes as defaultTimeframes } from './AllPostsPage'
-import { ForumOptions, forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { timeframeLabels, timeframeSettings as defaultTimeframes } from './timeframeUtils'
+import type { TimeframeSettingType } from './timeframeUtils';
+import pick from 'lodash/pick';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
@@ -98,11 +101,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: isEAForum ? 10 : undefined,
+    marginTop: isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: isEAForum ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -115,7 +118,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     padding: "1px 12px 0 0",
-    paddingRight: isEAForum ? 6 : undefined,
+    paddingRight: isFriendlyUI ? 6 : undefined,
   },
   checkboxGroup: {
     display: "flex",
@@ -146,7 +149,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
   currentHideCommunity?: boolean,
-  timeframes?: any,
+  timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
   classes: ClassesType,
@@ -168,7 +171,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         {showTimeframe && <SettingsColumn
           type={'timeframe'}
           title={'Timeframe:'}
-          options={timeframes}
+          options={pick(timeframeLabels, timeframes)}
           currentOption={currentTimeframe}
           setSetting={setSetting}
           nofollow

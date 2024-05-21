@@ -7,6 +7,8 @@ import { accessFilterMultiple } from '../../utils/schemaUtils';
 import { loadByIds } from '../../loaders';
 import keyBy from 'lodash/keyBy';
 import * as _ from 'underscore';
+import type { RouterLocation } from '../../vulcan-lib/routes';
+import type { Request, Response } from 'express';
 
 interface SequencePostId {
   sequenceId: string,
@@ -15,7 +17,7 @@ interface SequencePostId {
 
 // TODO: Make these functions able to use loaders for caching.
 
-export const sequenceGetPageUrl = function(sequence: SequencesPageTitleFragment, isAbsolute = false){
+export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   return `${prefix}/s/${sequence._id}`;
@@ -38,12 +40,13 @@ export const sequenceGetAllPostIDs = async (sequenceId: string, context: Resolve
   // Filter by user access
   const posts = await loadByIds(context, "Posts", validPostIds);
   const accessiblePosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
-  return accessiblePosts.map(post => post._id);
+  return accessiblePosts.map(post => post._id!);
 }
 
-export const sequenceGetAllPosts = async (sequenceId: string, context: ResolverContext): Promise<Array<DbPost>> => {
+export const sequenceGetAllPosts = async (sequenceId: string | null, context: ResolverContext): Promise<Array<DbPost>> => {
   // Get the set of post IDs in the sequence (by joining against the Chapters
   // table), sorted in reading order
+  if (!sequenceId) return [];
   const allPostIds = await sequenceGetAllPostIDs(sequenceId, context);
   
   // Retrieve those posts
@@ -147,7 +150,7 @@ export const sequenceGetPrevPostID = async function(sequenceId: string, postId: 
   if (postIndex < 0) {
     // Post is not in this sequence
     return null;
-  } else if (postIndex==0) {
+  } else if (postIndex===0) {
     // Post is the first post in this sequence
     return null;
   } else {
@@ -160,4 +163,10 @@ export const sequenceContainsPost = async function(sequenceId: string, postId: s
   const postIDs = await sequenceGetAllPostIDs(sequenceId, context);
   const postIndex = _.indexOf(postIDs, postId);
   return postIndex >= 0;
+}
+
+export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
+  const sequenceId = parsedRoute.params._id;
+  if (!sequenceId) return false;
+  return await context.repos.sequences.sequenceRouteWillDefinitelyReturn200(sequenceId);
 }

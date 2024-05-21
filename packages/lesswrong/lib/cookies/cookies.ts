@@ -37,7 +37,13 @@ export const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
 export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   name: 'show_quick_takes_section',
   type: "necessary",
-  description: "Whether to show the Quick takes section on the EA Forum home page",
+  description: "Whether to show the quick takes section on the EA Forum home page",
+})
+
+export const SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE = registerCookie({
+  name: 'show_quick_takes_community',
+  type: "necessary",
+  description: "Whether to include quick takes tagged with community in the home page quick takes section",
 })
 
 export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
@@ -51,8 +57,6 @@ export const HIDE_HANDBOOK_COOKIE = registerCookie({
   type: "necessary",
   description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
-
-export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "necessary", description: 'Controls whether job ads are hidden'});
 
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
@@ -86,6 +90,14 @@ registerCookie({
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
+export const HIDE_FORUM_EVENT_BANNER_PREFIX = "hide_forum_event_banner_";
+registerCookie({
+  name: `${HIDE_FORUM_EVENT_BANNER_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(HIDE_FORUM_EVENT_BANNER_PREFIX),
+  type: "necessary",
+  description: "Stores whether a forum event banner has been hidden",
+});
+
 export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   name: "show_recommendations_section",
   type: "necessary",
@@ -108,6 +120,36 @@ export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   name: "hide_new_post_how_to_guide",
   type: "necessary",
   description: "Don't show the how-to guide on the new post page",
+});
+
+export const HIDE_2021_BOOK_BANNER_COOKIE = registerCookie({
+  name: "hide_2021_book_banner",
+  type: "necessary",
+  description: "Don't show the 2021 book banner",
+});
+
+export const LAST_VISITED_FRONTPAGE_COOKIE = registerCookie({
+  name: "last_visited_frontpage",
+  type: "functional",
+  description: "Stores the date of the user's last visit to the frontpage",
+});
+
+export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
+  name: "admin_recombee_settings",
+  type: "functional",
+  description: "Stores recombee settings for admins experimenting with latest posts"
+});
+
+export const NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE = registerCookie({
+  name: "new_posts_list_view_toggle",
+  type: "necessary",
+  description: "Tracks whether or not to show the \"NEW\" flag on the posts list view toggle"
+});
+
+export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
+  name: "posts_list_view_type",
+  type: "necessary",
+  description: "Whether to display post lists as list items or card items"
 });
 
 // Third party cookies
@@ -242,4 +284,3 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
-

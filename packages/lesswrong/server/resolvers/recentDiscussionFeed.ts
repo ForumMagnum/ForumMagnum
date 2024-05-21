@@ -6,7 +6,7 @@ import {
   Tags,
 } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { viewFieldAllowAny } from '../vulcan-lib';
 
 const communityFilters = {
@@ -134,7 +134,7 @@ defineFeedResolver<Date>({
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",
-          index: forumTypeSetting.get() === 'EAForum' ? 3 : 6,
+          index: isEAForum ? 3 : 6,
           result: {},
         }),
         // Suggestion to subscribe to meetups

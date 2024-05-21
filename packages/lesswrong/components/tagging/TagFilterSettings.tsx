@@ -6,7 +6,8 @@ import { tagStyle } from './FooterTag';
 import { filteringStyles } from './FilterMode';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
-import { isEAForum, taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,20 +16,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         marginTop: 8,
       } : {
+        gap: "4px",
         marginBottom: 4,
       }),
-  },
-  showPersonalBlogposts: {
-    ...tagStyle(theme),
-    display: "inline-block",
-    marginBottom: 4,
-    marginRight: 4,
-    border: theme.palette.border.slightlyIntense,
-    backgroundColor: theme.palette.tag.hollowTagBackground,
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -49,7 +43,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-
+    ...(isFriendlyUI ? {} : {
+      gap: "4px",
+      display: "flex",
+      alignItems: "center"
+    }),
   }
 });
 
@@ -64,12 +62,14 @@ const TagFilterSettings = ({
   setPersonalBlogFilter,
   setTagFilter,
   removeTagFilter,
+  flexWrapEndGrow = true,
   classes
 }: {
   filterSettings: FilterSettings,
   setPersonalBlogFilter: (filterMode: FilterMode) => void,
   setTagFilter: (args: {tagId: string, tagName?: string, filterMode: FilterMode}) => void,
   removeTagFilter: (tagId: string) => void,
+  flexWrapEndGrow?: boolean,
   classes: ClassesType,
 }) => {
   const { AddTagButton, FilterMode, LWTooltip } = Components
@@ -124,7 +124,7 @@ const TagFilterSettings = ({
           </AddTagButton>
       </LWTooltip>}
     </div>
-    <div className={classes.flexWrapEndGrow} />
+    {flexWrapEndGrow && <div className={classes.flexWrapEndGrow} />}
   </span>
 }
 

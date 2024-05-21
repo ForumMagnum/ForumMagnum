@@ -12,6 +12,7 @@ import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
+import type { Editor as CKEditorType } from "@ckeditor/ckeditor5-core";
 
 const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
@@ -175,7 +176,7 @@ export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Doc
 
 export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
-export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
+export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?: string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName},
   markdown: {name: 'Markdown'},
@@ -236,7 +237,7 @@ interface EditorProps {
   accessLevel?: CollaborativeEditingAccessLevel,
 
   value: EditorContents,
-  onChange: (change: EditorChangeEvent)=>void,
+  onChange: (change: EditorChangeEvent) => void,
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   placeholder?: string,
   commentStyles?: boolean,
@@ -247,6 +248,7 @@ interface EditorProps {
   hideControls?: boolean,
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
+  document?: any,
   _classes: ClassesType,
 }
 
@@ -342,8 +344,8 @@ export const shouldSubmitContents = (editorRef: Editor) => {
 }
 
 export class Editor extends Component<EditorProps,EditorComponentState> {
-  throttledSetCkEditor: any
-  debouncedCheckMarkdownImgErrs: any
+  throttledSetCkEditor;
+  debouncedCheckMarkdownImgErrs;
   debouncedValidateEditor: typeof this.validateCkEditor
 
   constructor(props: EditorProps) {
@@ -375,8 +377,14 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   clear(currentUser: UsersCurrent | null) {
     const editorType = getUserDefaultEditor(currentUser)
     const contents = getBlankEditorContents(editorType);
+
     this.props.onChange({
-      contents,
+      // @RobertM - We assign a space here because empirically it seems to be the only way to reliably clear the contents of a form
+      // The use-case where this was discovered was adding a "cancel" button to the expanded quick takes entry form when adopting quick takes on LW
+      // The previous implementation failed for reasons that seem similar to those gestured at by the comment in `EditorFormComponent` -> `cleanupSuccessForm`
+      // However, trying something similar to the workaround there _didn't_ work.
+      // I still don't understand why this works (and results in an empty form, rather than one with a space character).
+      contents: { ...contents, value: ' ' },
       autosave: true,
     });
   }
@@ -535,6 +543,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       formType,
       isCollaborative,
       onFocus,
+      document,
       _classes: classes,
     } = this.props;
     const { Loading } = Components
@@ -563,7 +572,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           }
         },
         onFocus,
-        onInit: (editor: any) => this.setState({ckEditorReference: editor})
+        onInit: (editor: any) => this.setState({ckEditorReference: editor}),
+        document,
       }
 
       // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)

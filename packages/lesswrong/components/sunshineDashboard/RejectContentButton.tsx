@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {Components, registerComponent} from '../../lib/vulcan-lib';
 import RejectedIcon from "@material-ui/icons/NotInterested";
-import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
 import ReplayIcon from '@material-ui/icons/Replay';
@@ -34,7 +33,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent } = useRejectContent(contentWrapper);
   const [showRejectionDialog, setShowRejectionDialog] = useState(false);
-  const { LWPopper, RejectContentDialog, LWTooltip, MetaInfo } = Components;
+  const { LWPopper, LWClickAwayListener, RejectContentDialog, LWTooltip, MetaInfo } = Components;
   const { content } = contentWrapper;
 
   const handleRejectContent = (reason: string) => {
@@ -51,7 +50,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
     {!content.rejected && content.authorIsUnreviewed && <span className={classes.button} onClick={() => setShowRejectionDialog(true)}>
       <RejectedIcon className={classes.icon}/> <MetaInfo>Reject</MetaInfo>
     </span>}
-    {showRejectionDialog && <ClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
+    {showRejectionDialog && <LWClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
       <LWPopper
         open={showRejectionDialog}
         anchorEl={anchorEl}
@@ -62,7 +61,7 @@ export const RejectContentButton = ({contentWrapper, classes}: {
       >
         <RejectContentDialog rejectContent={handleRejectContent}/>
       </LWPopper>
-    </ClickAwayListener>}
+    </LWClickAwayListener>}
   </span>
 }
 

@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
-import NoSSR from 'react-no-ssr';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: ClassesType}) => {
+const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes: ClassesType}) => {
   const [expanded, setExpanded] = useState(false);
   const currentUser = useCurrentUser()
 
@@ -32,14 +33,14 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
   
   if (user.reviewedByUserId && !user.snoozedUntilContentCount && !expanded) {
     return <div className={classes.root} onClick={() => setExpanded(true)}>
-      <SectionButton>Expand</SectionButton>
+      <SectionButton>{preferredHeadingCase("Expand Moderation Tools")}</SectionButton>
     </div>
   }
   
   return <div className={classes.root}>
-    <NoSSR>
+    <ForumNoSSR>
       <SunshineNewUsersInfo user={user} currentUser={currentUser} refetch={refetch}/>
-    </NoSSR>
+    </ForumNoSSR>
   </div>
 }
 
@@ -50,5 +51,3 @@ declare global {
     SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfoComponent
   }
 }
-
-

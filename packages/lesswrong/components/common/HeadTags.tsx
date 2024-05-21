@@ -1,10 +1,10 @@
 import React from 'react';
-import { Helmet } from 'react-helmet';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { combineUrls, getBasePath, getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { taglineSetting, tabTitleSetting, tabLongTitleSetting, noIndexSetting } from '../../lib/instanceSettings';
 import { toEmbeddableJson } from '../../lib/utils/jsonUtils';
+import { Helmet } from '../../lib/utils/componentsWithChildren';
 
 const HeadTags = ({
   ogUrl: ogUrlProp,
@@ -57,8 +57,9 @@ const HeadTags = ({
           <meta name='description' content={description}/>
           <meta name='viewport' content='width=device-width, initial-scale=1'/>
 
-          {/* twitter */}
-          <meta name='twitter:card' content={useSmallImage ? 'summary' : 'summary_large_image'}/>
+          {/* The twitter:card meta tag is in apollo-ssr/components/Head.tsx
+            * instead of here because it involves a user-agent sniffing hack :( */}
+          
           {image && <meta name='twitter:image:src' content={image}/>}
           { /* <meta name='twitter:title' content={title}/> */ }
           <meta name='twitter:description' content={description}/>
@@ -69,6 +70,8 @@ const HeadTags = ({
           {image && <meta property='og:image' content={image}/>}
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
+
+          <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
 
           {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>

@@ -1,31 +1,33 @@
-import { preferredHeadingCase } from "../../forumTypeUtils";
-import { forumTypeSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
+import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
+import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
-const isEAForum = forumTypeSetting.get() === "EAForum";
-
-export const formGroups: Partial<Record<string,FormGroupType>> = {
+export const formGroups: Record<string, FormGroupType<"Posts">> = {
   default: {
     name: "default",
     order: 0,
-    paddingStyle: true,
+    layoutComponentProps: {
+      paddingStyling: true,
+    }
   },
   category: {
     name: "category",
     order: -20,
-    paddingStyle: true,
-    defaultStyle: true,
+    layoutComponent: "FormGroupPostTopBar",
   },
   title: {
     name: "title",
     order: -10,
-    paddingStyle: true,
-    defaultStyle: true,
-    flexAlignTopStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+      flexAlignTopStyling: true
+    }
   },
   coauthors: {
     order: 21,
     name: "coauthors",
-    label: "Coauthors"
+    label: "Coauthors",
+    hideHeader: true,
   },
   event: {
     name: "event details",
@@ -37,7 +39,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
     name: "socialPreview",
     order: 23,
     label: preferredHeadingCase("Edit Link Preview"),
-    startCollapsed: !isEAForum,
+    startCollapsed: !isFriendlyUI,
   },
   highlight: {
     order: 24,
@@ -54,22 +56,26 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   moderationGroup: {
     order: 60,
     name: "moderation",
-    label: preferredHeadingCase("Moderation Guidelines"),
-    helpText: "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
+    label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation Guidelines"),
+    helpText: isFriendlyUI ? undefined : "We prefill these moderation guidelines based on your user settings. But you can adjust them for each post.",
     startCollapsed: true,
   },
   options: {
     order:10,
     name: "options",
-    defaultStyle: true,
-    paddingStyle: true,
-    flexStyle: true
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+      flexStyling: true,
+    }
   },
   content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
-    defaultStyle: true,
-    paddingStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+    }
   },
   canonicalSequence: {
     order:30,

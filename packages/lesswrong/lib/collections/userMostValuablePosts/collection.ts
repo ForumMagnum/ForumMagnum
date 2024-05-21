@@ -6,7 +6,6 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 export const UserMostValuablePosts: UserMostValuablePostsCollection = createCollection({
   collectionName: 'UserMostValuablePosts',
   typeName: 'UserMostValuablePost',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('UserMostValuablePosts'),
   mutations: getDefaultMutations('UserMostValuablePosts'),

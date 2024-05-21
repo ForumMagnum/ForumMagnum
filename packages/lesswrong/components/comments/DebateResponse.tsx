@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/votingSystems';
 import {Comments} from '../../lib/collections/comments';
-import {lwReactStyles} from './CommentsItem/CommentsItem';
+import type { ContentItemBody } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType): JssStyles => ({
   innerDebateComment: {
@@ -51,22 +51,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   editForm: {
     width: '100%'
   },
-  greenBorder: {
-    borderColor: theme.palette.border.debateComment
+  border0: {
+    borderColor: theme.palette.text.debateComment[1],
   },
-  redBorder: {
-    borderColor: theme.palette.border.debateComment2
+  border1: {
+    borderColor: theme.palette.text.debateComment[2],
   },
-  blueBorder: {
-    borderColor: theme.palette.border.debateComment3
+  border2: {
+    borderColor: theme.palette.text.debateComment[3],
   },
-  purpleBorder: {
-    borderColor: theme.palette.border.debateComment4
+  border3: {
+    borderColor: theme.palette.text.debateComment[4],
   },
-  yellowBorder: {
-    borderColor: theme.palette.border.debateComment5
+  border4: {
+    borderColor: theme.palette.text.debateComment[5],
   },
-  lwReactStyling: lwReactStyles(theme),
+  border5: {
+    borderColor: theme.palette.text.debateComment[6],
+  },
   bottomUI: {
     position: 'absolute',
     right: 10,
@@ -76,23 +78,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const getParticipantBorderStyle = (participantIndex: number) => {
-  switch (participantIndex) {
-    case 0:
-      return 'greenBorder';
-    case 1:
-      return 'redBorder';
-    case 2:
-      return 'blueBorder';
-    case 3:
-      return 'purpleBorder';
-    default:
-      return 'yellowBorder';
-  }
-};
+const getParticipantBorderStyle = (
+  classes: ClassesType<typeof styles>,
+  participantIndex: number
+) => classes[`border${participantIndex}`] ?? classes.border0;
 
 export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, responses, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   comment: CommentsList,
   replies: CommentsList[],
   idx: number,
@@ -109,7 +101,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const votingSystemName = comment.votingSystem || "default";
     const votingSystem = getVotingSystemByName(votingSystemName);
     const voteProps = useVote(comment, "Comments", votingSystem);
-    const commentItemRef = useRef<HTMLDivElement|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
+    const commentBodyRef = useRef<ContentItemBody|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
 
     const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
@@ -129,7 +121,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
     const showReplyLink = replies.length > 0 || showInlineReplyForm;
     const addBottomMargin = isLastCommentInBlock;
-    const borderStyle = getParticipantBorderStyle(commentParticipantIndex);
+    const borderStyle = getParticipantBorderStyle(classes, commentParticipantIndex);
 
     const header = showHeader && <>
       <CommentUserName comment={comment} className={classes.username} />
@@ -152,8 +144,8 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         className={classes.editForm}
         formProps={{ post }}
       />
-    : <div ref={commentItemRef}>
-        <CommentBody comment={comment} voteProps={voteProps} commentItemRef={commentItemRef}/>
+    : <div>
+        <CommentBody comment={comment} voteProps={voteProps} commentBodyRef={commentBodyRef}/>
       </div>;
 
     const replyLink = showReplyLink && <a className={classNames("comments-item-reply-link", classes.replyLink)} onClick={e => setShowReplyState(!showReplyState)}>
@@ -168,7 +160,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         newForm={showInlineReplyForm}
         newFormProps={{
           parentComment: comment,
-          replyFormStyle: 'minimalist',
+          formStyle: 'minimalist',
         }}
       />;
 
@@ -178,7 +170,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
       <div
         key={`debate-comment-${comment._id}`}
         id={`debate-comment-${comment._id}`}
-        className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin }, classes.lwReactStyling)}
+        className={classNames(classes.innerDebateComment, borderStyle, { [classes.blockMargin]: addBottomMargin })}
       >
         {header}
         {menu}
@@ -192,7 +184,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
             hideKarma={post.hideCommentKarma}
             collection={Comments}
             votingSystem={votingSystem}
-            commentItemRef={commentItemRef}
+            commentBodyRef={commentBodyRef}
             voteProps={voteProps}
             post={post}
           />}

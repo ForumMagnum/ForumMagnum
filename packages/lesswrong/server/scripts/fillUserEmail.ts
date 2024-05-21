@@ -14,6 +14,7 @@ Vulcan.fillUserEmail = wrapVulcanAsyncScript('fillUserEmail', async () => {
   // eslint-disable-next-line no-console
   console.log('userSlugs', userSlugs)
   for (const user of users) {
+    if (!user.emails || !user.emails.length) continue
     await Users.rawUpdateOne({_id: user._id}, {$set: {email: user.emails[0].address}})
   }
 })

@@ -12,6 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 class MuiInput extends Component<any,any> {
+  declare context: AnyBecauseTodo
+
   constructor(props: any, context: any) {
     super(props,context);
     this.state = {

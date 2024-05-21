@@ -12,7 +12,6 @@ registerMigration({
   idempotent: true,
   action: async () => {
     const db = getSqlClientOrThrow();
-    if (!Subscriptions.isPostgres()) return // at time of writing, Subscriptions has been migrated to postgres
 
     // fetch all the subforum tags
     const subforumTags = await db.any(`SELECT _id, "slug" FROM "Tags" where "isSubforum" is true`)

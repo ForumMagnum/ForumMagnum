@@ -18,12 +18,12 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   const { results, totalCount, loadMoreProps, refetch } = useMulti({
     terms: {view:"sunshineSidebarReports", limit: 30},
     collectionName: "Reports",
-    fragmentName: 'unclaimedReportsList',
+    fragmentName: 'UnclaimedReportsList',
     enableTotal: true,
   });
   const { mutate: updateReport } = useUpdate({
     collectionName: "Reports",
-    fragmentName: 'unclaimedReportsList',
+    fragmentName: 'UnclaimedReportsList',
   });
   
   if (results && results.length) {

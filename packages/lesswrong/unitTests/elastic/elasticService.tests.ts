@@ -9,7 +9,7 @@ beforeEach(() => {
 });
 
 describe("ElasticService", () => {
-  it("Can parse facet and numeric filters", () => {
+  it("Can parse facet, numeric, and exists filters", () => {
     const service = new ElasticService();
     const result = service.parseFilters(
       [
@@ -24,6 +24,7 @@ describe("ElasticService", () => {
         "g>=6",
         "h=7",
       ],
+      ['j', 'k']
     );
     expect(result).toStrictEqual([
       {type: "facet", field: "a", value: true, negated: false},
@@ -35,6 +36,8 @@ describe("ElasticService", () => {
       {type: "numeric", field: "f", value: 5, op: "gt"},
       {type: "numeric", field: "g", value: 6, op: "gte"},
       {type: "numeric", field: "h", value: 7, op: "eq"},
+      {type: "exists", field: "j"},
+      {type: "exists", field: "k"},
     ]);
   });
 });

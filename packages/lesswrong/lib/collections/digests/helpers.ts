@@ -13,13 +13,23 @@ export type StatusField = 'emailDigestStatus'|'onsiteDigestStatus'
 /**
  * Returns the digest name in our standard format
  */
-export const getDigestName = ({digest, includeDates=true}: {digest: DigestsMinimumInfo, includeDates?: boolean}) => {
-  const name = `EA Forum Digest #${digest.num}`
-  if (!includeDates) return name
-  
-  const digestStartDateFormatted = moment(digest.startDate).format('MMM D')
-  const digestEndDateFormatted = digest.endDate ? moment(digest.endDate).format('MMM D') : 'now'
-  return `${name} (${digestStartDateFormatted} - ${digestEndDateFormatted})`
+export const getDigestName = (digest: DigestsMinimumInfo) => {
+  return `EA Forum Digest #${digest.num}`
+}
+
+/**
+ * Returns the digest name and dates
+ */
+export const getDigestInfo = (digest: DigestsMinimumInfo) => {
+  const name = getDigestName(digest)
+  const start = moment(digest.startDate).format('MMM D')
+  const end = digest.endDate ? moment(digest.endDate).format('MMM D') : 'now'
+
+  return {
+    name,
+    start,
+    end
+  }
 }
 
 /**

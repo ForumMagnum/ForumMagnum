@@ -18,13 +18,11 @@ import {addField, dropField} from './meta/utils'
 export const acceptsSchemaHash = "f74d70468a0d76011ef39059dc9584d5";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) await addField(db, Users, 'notificationNewMention')
-
-  if (Comments.isPostgres()) await addField(db, Comments, 'pingbacks')
+  await addField(db, Users, 'notificationNewMention')
+  await addField(db, Comments, 'pingbacks')
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) await dropField(db, Users, 'notificationNewMention')
-
-  if (Comments.isPostgres()) await dropField(db, Comments, 'pingbacks')
+  await dropField(db, Users, 'notificationNewMention')
+  await dropField(db, Comments, 'pingbacks')
 }

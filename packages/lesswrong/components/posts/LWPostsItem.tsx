@@ -5,7 +5,7 @@ import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
@@ -13,9 +13,10 @@ import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
 
-export const KARMA_WIDTH = 32
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const KARMA_WIDTH = 32;
+
+export const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -50,6 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     position: "relative",
     padding: 10,
+    paddingLeft: 6,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -69,6 +71,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       top: -5,
     }
   },
+  hasSequenceImage: {
+    paddingRight: 0,
+  },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
   },
@@ -81,13 +86,16 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   karma: {
     width: KARMA_WIDTH,
-    justifyContent: "center",
+    marginRight: 4,
     [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
       marginLeft: 2,
       marginRight: theme.spacing.unit
     }
+  },
+  karmaPredictedReviewWinner: {
+    color: theme.palette.review.winner
   },
   title: {
     minHeight: 26,
@@ -191,6 +199,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
     flexGrow: 1,
+    height: 24,
   },
   mobileActions: {
     cursor: "pointer",
@@ -296,7 +305,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit*1.5,
     position: "relative",
-    top: 2,
+    height: 22,
   },
   isRead: {
     // this is just a placeholder, enabling easier theming.
@@ -334,7 +343,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
@@ -346,8 +355,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     resumeReading,
     sticky,
     renderComments,
+    renderDialogueMessages,
     condensedAndHiddenComments,
     toggleComments,
+    toggleDialogueMessages,
     showAuthor,
     showDate,
     showTrailingButtons,
@@ -356,6 +367,9 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    useCuratedDate,
+    annualReviewMarketInfo,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -376,6 +390,9 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     curatedIconLeft,
     strikethroughTitle,
     bookmark,
+    isRecommendation,
+    showRecommendationIcon,
+    emphasizeIfNew,
     className,
   } = usePostsItem(props);
 
@@ -386,9 +403,9 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   const {
     PostsItemComments, KarmaDisplay, PostsTitle, PostsUserAndCoauthors, LWTooltip,
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
-    PostMostValuableCheckbox, PostsItemTrailingButtons,
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
+    AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
+    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
   } = Components;
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
@@ -418,21 +435,26 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               classes.postsItem,
               classes.withGrayHover, {
                 [classes.dense]: dense,
-                [classes.withRelevanceVoting]: !!tagRel
+                [classes.withRelevanceVoting]: !!tagRel,
+                [classes.hasSequenceImage]: !!resumeReading,
               }
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && <PostsItem2MetaInfo className={classes.karma}>
+            {showKarma && <PostsItem2MetaInfo className={classNames(
+              classes.karma, {
+                [classes.karmaPredictedReviewWinner]: !!marketLink
+              })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} />
+                : <KarmaDisplay document={post} linkItem={marketLink}/>
               }
             </PostsItem2MetaInfo>}
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
               <AnalyticsTracker
                   eventType={"postItem"}
+                  eventProps={{mountedPostId: post._id, mountedPostScore: post.score, mountedPostBaseScore: post.baseScore}}
                   captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                   captureOnClick={false}
               >
@@ -445,6 +467,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                   {...(showPersonalIcon ? {showPersonalIcon} : {})}
                   curatedIconLeft={curatedIconLeft}
                   strikethroughTitle={strikethroughTitle}
+                  showRecommendationIcon={isRecommendation && showRecommendationIcon}
                 />
               </AnalyticsTracker>
             </span>
@@ -475,22 +498,22 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             </PostsItem2MetaInfo>}
 
             {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
-              <div className={classes.unreadDebateResponseCount} onClick={toggleComments}>
+              <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
                 <DebateIcon className={classes.unreadDebateResponsesIcon}/>
                 {post.unreadDebateResponseCount}
               </div>
             </PostsItem2MetaInfo>}
 
-            {showDate && <PostsItemDate post={post} />}
+            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} emphasizeIfNew={emphasizeIfNew} />}
 
             <div className={classes.mobileSecondRowSpacer}/>
 
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostActionsButton post={post} />}
-            </div>}
-
             {showIcons && <div className={classes.nonMobileIcons}>
               <PostsItemIcons post={post}/>
+            </div>}
+
+            {<div className={classes.mobileActions}>
+              {!resumeReading && <PostActionsButton post={post} autoPlace />}
             </div>}
 
             {!resumeReading && <div className={classes.commentsIcon}>
@@ -557,10 +580,14 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt ?? undefined,
                 condensed: condensedAndHiddenComments,
               }}
             />
+          </div>}
+
+          {renderDialogueMessages && <div className={classes.newCommentsSection} onClick={toggleDialogueMessages}>
+            <PostsItemNewDialogueResponses postId={post._id} unreadCount={post.unreadDebateResponseCount} />
           </div>}
         </div>
         {showMostValuableCheckbox && <div className={classes.mostValuableCheckbox}>

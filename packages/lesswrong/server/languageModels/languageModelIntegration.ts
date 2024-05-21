@@ -1,26 +1,23 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { Configuration as OpenAIApiConfiguration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
 import drop from 'lodash/drop';
 import take from 'lodash/take';
 
-const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
-const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
-
-let openAIApi: OpenAIApi|null = null;
-export async function getOpenAI(): Promise<OpenAIApi|null> {
+let openAIApi: OpenAI|null = null;
+export async function getOpenAI(): Promise<OpenAI|null> {
   if (!openAIApi){
     const apiKey = openAIApiKey.get();
     const organizationId = openAIOrganizationId.get();
     
     if (apiKey) {
-      openAIApi = new OpenAIApi(new OpenAIApiConfiguration({
+      openAIApi = new OpenAI({
         apiKey,
         organization: organizationId ?? undefined,
-      }));
+      });
     }
   }
   return openAIApi;
@@ -110,8 +107,10 @@ export async function wikiSlugToTemplate(slug: string): Promise<LanguageModelTem
 export function wikiPageToTemplate(wikiPage: DbTag): LanguageModelTemplate {
   let header: Record<string,string> = {};
   let body = "";
+
+  if (!wikiPage.description?.originalContents?.type) throw new Error("Missing description type")
   
-  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description?.originalContents?.type);
+  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description.originalContents.type);
   const lines = descriptionMarkdown
     .trim()
     .split('\n')
@@ -290,12 +289,12 @@ async function languageModelExecute(job: LanguageModelJob): Promise<string> {
         template: job.template,
         variables: job.inputs
       });
-      const response = await api.createCompletion({
+      const response = await api.completions.create({
         model: job.model,
         prompt: prompt,
         max_tokens: job.maxTokens,
       });
-      const topResult = response.data.choices[0].text;
+      const topResult = response.choices[0].text;
       if (topResult) return topResult;
       else throw new Error("API did not return a top result");
     }

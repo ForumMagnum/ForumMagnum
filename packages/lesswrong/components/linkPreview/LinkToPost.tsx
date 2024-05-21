@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { linkStyle } from './PostLinkPreview';
-import { useHover } from '../common/withHover';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -18,27 +17,17 @@ const LinkToPost = ({post, classes}: {
   post: PostsList|null,
   classes: ClassesType
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { anchorEl, hover, eventHandlers } = useHover();
-
   if (!post) {
     return <span>[Deleted]</span>
   }
-  
+
+  const {PostsTooltip} = Components;
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        clickable={false}
-      >
-        <PostsPreviewTooltip post={post} />
-      </LWPopper>
+    <PostsTooltip post={post} placement="bottom-start" clickable>
       <Link className={classes.link} to={postGetPageUrl(post)}>
         {post.title}
       </Link>
-    </span>
+    </PostsTooltip>
   );
 }
 

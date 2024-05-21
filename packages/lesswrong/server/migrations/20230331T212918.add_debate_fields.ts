@@ -47,21 +47,11 @@ import Posts from "../../lib/collections/posts/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Posts.isPostgres()) {
-    await addField(db, Posts, 'debate');
-  }
-
-  if (Comments.isPostgres()) {
-    await addField(db, Comments, 'debateResponse');
-  }
+  await addField(db, Posts, 'debate');
+  await addField(db, Comments, 'debateResponse');
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Posts.isPostgres()) {
-    await dropField(db, Posts, 'debate');
-  }
-
-  if (Comments.isPostgres()) {
-    await dropField(db, Comments, 'debateResponse');
-  }
+  await dropField(db, Posts, 'debate');
+  await dropField(db, Comments, 'debateResponse');
 }

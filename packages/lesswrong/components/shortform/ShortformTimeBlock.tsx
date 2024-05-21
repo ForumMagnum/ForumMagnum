@@ -1,11 +1,11 @@
 import React, { FC, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (_: ThemeType): JssStyles => ({
   shortformGroup: {
-    marginTop: isEAForum ? -10 : 12,
+    marginTop: isFriendlyUI ? 20 : 12,
   },
   subtitle: {
     marginTop: 6,
@@ -20,7 +20,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   if (!comment.post) {
     return null;
   }
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return (
       <Components.QuickTakesListItem quickTake={comment} />
     );
@@ -37,15 +37,20 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
-  reportEmpty: ()=>void,
+const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
+  reportEmpty: () => void,
+  before: string
+  after: string
   terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {
   const {LoadMore, ContentType} = Components;
 
   const {totalCount, loadMore, loading, results: comments} = useMulti({
-    terms,
+    terms: {
+      ...terms,
+      before, after,
+    },
     collectionName: "Comments",
     fragmentName: 'ShortformComments',
     fetchPolicy: 'cache-and-network',
@@ -67,7 +72,7 @@ const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
       <div className={classes.subtitle}>
         <ContentType
           type="shortform"
-          label={isEAForum ? "Quick takes" : "Shortform"}
+          label={preferredHeadingCase("Quick Takes")}
         />
       </div>
       {comments.map((comment) =>

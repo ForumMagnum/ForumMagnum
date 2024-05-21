@@ -302,7 +302,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Hidden = ({classes}: ClassesType) => {
+const Hidden = ({classes}: {classes: ClassesType}) => {
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>

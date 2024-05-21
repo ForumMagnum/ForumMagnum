@@ -53,8 +53,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
   open: boolean,
-  handleOpen: ()=>void,
-  handleClose: ()=>void,
+  handleOpen: () => void,
+  handleClose: () => void,
   toc: ToCData|null,
   classes: ClassesType,
 }) => {
@@ -79,7 +79,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
       </div>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
-          sectionData={toc}
+          tocSections={toc.sections}
           title={null}
           onClickSection={() => handleClose()}
         />

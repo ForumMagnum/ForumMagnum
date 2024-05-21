@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Menu from '@material-ui/core/Menu';
 import { QueryLink } from '../../lib/reactRouterWrapper';
-import { isEAForum } from '../../lib/instanceSettings';
 import Button from '@material-ui/core/Button';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     textAlign: "center",
-    ...(!isEAForum && {
+    ...(!isFriendlyUI && {
       "& button:hover": {
         backgroundColor: "transparent",
       },
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 12,
     paddingRight: 6,
     backgroundColor: "transparent",
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       color: "inherit",
       "&:hover": {
         backgroundColor: theme.palette.grey[250],
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }),
   },
   openButton: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       backgroundColor: theme.palette.grey[250],
       color: theme.palette.grey[1000],
     }),
@@ -49,10 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(isEAForum && { width: 16, height: 16, marginLeft: 4, padding: 1}),
-  },
-  padding: {
-    width: 10,
+    ...(isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
   },
   selectedIcon: {
     verticalAlign: "middle",
@@ -65,7 +62,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   menu: {
     marginTop: 28,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
+      "& .MuiPopover-paper": {
+        backgroundColor: theme.palette.dropdown.background,
+        border: `1px solid ${theme.palette.dropdown.border}`,
+      },
       "& a:hover": {
         opacity: "inherit",
       },
@@ -80,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 46
   },
   menuItem: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       color: theme.palette.grey[1000],
       borderRadius: theme.borderRadius.small,
       padding: "6px 8px",
@@ -96,25 +97,48 @@ const styles = (theme: ThemeType): JssStyles => ({
       outline: "none",
     },
   },
+  iconLabel: {
+    width: "16px !important",
+  },
+  optionIcon: {
+    color: theme.palette.grey[600],
+    marginRight: 12,
+    width: "16px !important",
+  },
 });
 
-const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}:{
+const ForumDropdownMultiselect = ({
+  values,
+  options,
+  queryParam,
+  onSelect,
+  paddingSize = 10,
+  useIconLabel,
+  classes,
+  className,
+}: {
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,
   onSelect?: (value: string) => void,
-  classes: ClassesType,
+  paddingSize?: number,
+  useIconLabel?: boolean,
+  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const label = values.reduce((prev, next) => {
-    const nextLabel = options[next].shortLabel || options[next].label
-    if (!prev) return nextLabel
-    return `${prev}, ${nextLabel}`
-  }, '')
-  const { MenuItem, ForumIcon } = Components;
 
-  const dropdownIcon = isEAForum ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
+  const {MenuItem, ForumIcon} = Components;
+
+  const label = useIconLabel
+    ? <ForumIcon icon={options[values[0]].icon!} className={classes.iconLabel} />
+    : values.reduce((prev, next) => {
+      const nextLabel = options[next].shortLabel || options[next].label
+      if (!prev) return nextLabel
+      return `${prev}, ${nextLabel}`
+    }, '');
+
+  const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
     <div className={classNames(classes.root, className)}>
       <Button
@@ -128,24 +152,29 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
       </Button>
       <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
         {Object.keys(options).map((option) => {
+          const {icon, label} = options[option];
           const menuItem = <MenuItem
             key={option}
             value={option}
             onClick={() => {
-              setAnchorEl(null);
+              // setTimeout here is a fix for a bug where clicking an option opened a dialog,
+              // and then the LWClickAwayListener was triggered immediately, closing the dialog.
+              // I don't understand exactly why this fixes it
+              setTimeout(() => setAnchorEl(null), 0);
               onSelect?.(option);
             }}
             className={classes.menuItem}
           >
-            {options[option].label}
-            {values.includes(option) && isEAForum && (
+            {icon && <ForumIcon icon={icon} className={classes.optionIcon} />}
+            {label}
+            {values.includes(option) && isFriendlyUI && (
               <>
-                <div className={classes.padding}></div>
+                <div style={{width: paddingSize}} />
                 <ForumIcon icon="Check" className={classes.selectedIcon} />
               </>
             )}
           </MenuItem>
-          
+
           if (queryParam) {
             return <QueryLink key={option} query={{ [queryParam]: option }} merge>
               {menuItem}
@@ -158,7 +187,11 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
   );
 }
 
-const ForumDropdownMultiselectComponent = registerComponent('ForumDropdownMultiselect', ForumDropdownMultiselect, {styles});
+const ForumDropdownMultiselectComponent = registerComponent(
+  'ForumDropdownMultiselect',
+  ForumDropdownMultiselect,
+  {styles, stylePriority: -2},
+);
 
 declare global {
   interface ComponentTypes {

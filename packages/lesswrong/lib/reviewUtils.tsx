@@ -1,14 +1,12 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { forumTypeSetting } from "./instanceSettings"
+import { isEAForum, isLWorAF } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 
-const isEAForum = forumTypeSetting.get() === "EAForum"
-const isLWForum = forumTypeSetting.get() === "LessWrong"
-
-export const reviewYears = [2018, 2019, 2020, 2021] as const
+export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
 const years = new TupleSet(reviewYears);
 export type ReviewYear = UnionOf<typeof years>;
 
@@ -21,7 +19,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 }
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2021
+export const REVIEW_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
@@ -40,7 +38,17 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
+const reviewPhaseCache = memoizeWithExpiration<ReviewPhase>(() => recomputeReviewPhase(), 1000);
+
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (reviewYear) {
+    return recomputeReviewPhase(reviewYear);
+  } else {
+    return reviewPhaseCache.get();
+  }
+}
+
+function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
@@ -93,16 +101,16 @@ export function reviewIsActive(): boolean {
   return getReviewPhase() !== "COMPLETE"
 }
 
-export function eligibleToNominate (currentUser: UsersCurrent|null) {
+export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
-  if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
 }
 
 export function postEligibleForReview (post: PostsBase) {
   if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWForum && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isLWorAF && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
   return true
 }
 
@@ -121,7 +129,7 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
+  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
 }
@@ -145,7 +153,7 @@ interface CostData {
   tooltip: JSX.Element | null;
 }
 
-export const getCostData = ({costTotal=500}:{costTotal?:number}): Record<number, CostData> => {
+export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<number, CostData> => {
   const divider = costTotal > 500 ? costTotal/500 : 1
   const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
   return ({

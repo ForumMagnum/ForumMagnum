@@ -6,10 +6,10 @@ import Input from '@material-ui/core/Input';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
-import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export type RsvpResponse = "yes"|"maybe"|"no";
 export const responseToText: Record<RsvpResponse,string> = {
@@ -19,7 +19,7 @@ export const responseToText: Record<RsvpResponse,string> = {
 }
 
 const styles = (theme: ThemeType): JssStyles => ({
-  emailMessage: isEAForum
+  emailMessage: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const [registerRSVP] = useMutation(gql`
@@ -42,7 +42,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
     }
     ${getFragment("PostsDetails")}
   `)
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const currentUser = useCurrentUser()
   const [name, setName] = useState(currentUser?.displayName || "")
   const [email, setEmail] = useState(currentUser?.email ?? "")
@@ -55,7 +55,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
       title={`RSVP to ${post.title}`}
       open={true}
       onClose={() => {
-        history.push({...location, search: ``})
+        navigate({...location, search: ``})
         if (onClose)
           onClose()
       }}

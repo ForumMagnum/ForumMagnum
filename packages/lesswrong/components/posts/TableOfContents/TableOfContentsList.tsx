@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
-import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import { useLocation } from '../../../lib/routeUtil';
 import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
+import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export interface ToCDisplayOptions {
   /**
@@ -32,50 +34,15 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const isRegularClick = (ev: React.MouseEvent) => {
-  if (!ev) return false;
-  return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
-}
-
-const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions}: {
-  sectionData: ToCData,
+const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
+  tocSections: ToCSection[],
   title: string|null,
-  onClickSection?: ()=>void,
+  onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
 }) => {
-  const [currentSection,setCurrentSection] = useState<string|null>(topSection);
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-
-  useEffect(() => {
-    window.addEventListener('scroll', updateHighlightedSection);
-    updateHighlightedSection();
-    
-    return () => {
-      window.removeEventListener('scroll', updateHighlightedSection);
-    };
-  });
-
-
-  // Return the screen-space current section mark - that is, the spot on the
-  // screen where the current-post will transition when its heading passes.
-  const getCurrentSectionMark = () => {
-    return window.innerHeight/3
-  }
-
-  // Return the screen-space Y coordinate of an anchor. (Screen-space meaning
-  // if you've scrolled, the scroll is subtracted from the effective Y
-  // position.)
-  const getAnchorY = (anchorName: string): number|null => {
-    let anchor = window.document.getElementById(anchorName);
-    if (anchor) {
-      let anchorBounds = anchor.getBoundingClientRect();
-      return anchorBounds.top + (anchorBounds.height/2);
-    } else {
-      return null
-    }
-  }
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
@@ -83,7 +50,7 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     const anchorY = getAnchorY(anchor);
     if (anchorY !== null) {
       delete query.commentId;
-      history.push({
+      navigate({
         search: isEmpty(query) ? '' : `?${qs.stringify(query)}`,
         hash: `#${anchor}`,
       });
@@ -92,69 +59,33 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
     }
   }
 
-  const jumpToY = (y: number) => {
-    if (isServer) return;
-
-    try {
-      window.scrollTo({
-        top: y - getCurrentSectionMark() + 1,
-        behavior: "smooth"
-      });
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.warn("scrollTo not supported, using link fallback", e)
-    }
-  }
-
-  const updateHighlightedSection = () => {
-    let newCurrentSection = getCurrentSection();
-    if(newCurrentSection !== currentSection) {
-      setCurrentSection(newCurrentSection);
-    }
-  }
-
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
-  if (!sectionData)
-    return <div/>
-
-  let filteredSections = (displayOptions?.maxHeadingDepth)
-    ? filter(sectionData.sections, s=>s.level <= displayOptions.maxHeadingDepth!)
-    : sectionData.sections;
+  let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
+    ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
+    : tocSections;
 
   if (displayOptions?.addedRows) {
     filteredSections = [...filteredSections, ...displayOptions.addedRows];
   }
-
-  const getCurrentSection = (): string|null => {
-    if (isServer)
-      return null;
-    if (!filteredSections)
-      return null;
-
-    // The current section is whichever section a spot 1/3 of the way down the
-    // window is inside. So the selected section is the section whose heading's
-    // Y is as close to the 1/3 mark as possible without going over.
-    let currentSectionMark = getCurrentSectionMark();
-
-    let currentSection: string|null = null;
-    for(let i=0; i<filteredSections.length; i++)
+  
+  const { landmarkName: currentSection } = useScrollHighlight([
+    ...filteredSections.map((section): ScrollHighlightLandmark => ({
+      landmarkName: section.anchor,
+      elementId: section.anchor,
+      position: "centerOfElement"
+    })),
     {
-      let sectionY = getAnchorY(filteredSections[i].anchor);
+      landmarkName: "comments",
+      elementId: "postBody",
+      position: "bottomOfElement"
+    },
+  ]);
 
-      if(sectionY && sectionY < currentSectionMark)
-        currentSection = filteredSections[i].anchor;
-    }
+  if (!tocSections)
+    return <div/>
 
-    if (currentSection === null) {
-      // Was above all the section headers, so return the special "top" section
-      return topSection;
-    }
-
-    return currentSection;
-  }
-
-  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
+  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: () => void): Promise<void> => {
     ev.preventDefault();
     if (onClickSection) {
       onClickSection();
@@ -175,15 +106,6 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
   if (answersSorting === "newest" || answersSorting === "oldest") {
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
-  
-  function adjustHeadingText(text: string|undefined) {
-    if (!text) return "";
-    if (displayOptions?.downcaseAllCapsHeadings) {
-      return downcaseIfAllCaps(text.trim());
-    } else {
-      return text.trim();
-    }
-  }
 
   return <div>
     <TableOfContentsRow key="postTitle"
@@ -191,12 +113,12 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
       onClick={ev => {
         if (isRegularClick(ev)) {
           void handleClick(ev, () => {
-            history.push("#");
+            navigate("#");
             jumpToY(0)
           });
         }
       }}
-      highlighted={currentSection === topSection}
+      highlighted={currentSection === "above" || currentSection === null}
       title
     >
       {title?.trim()}
@@ -229,21 +151,49 @@ const TableOfContentsList = ({sectionData, title, onClickSection, displayOptions
   </div>
 }
 
-const TableOfContentsListComponent = registerComponent(
-  "TableOfContentsList", TableOfContentsList, {
-    hocs: [withErrorBoundary]
+export function isRegularClick(ev: React.MouseEvent) {
+  if (!ev) return false;
+  return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
+}
+
+/**
+ * Return the screen-space Y coordinate of an anchor. (Screen-space meaning
+ * if you've scrolled, the scroll is subtracted from the effective Y
+ * position.)
+ */
+export function getAnchorY(anchorName: string): number|null {
+  let anchor = window.document.getElementById(anchorName);
+  if (anchor) {
+    let anchorBounds = anchor.getBoundingClientRect();
+    return anchorBounds.top + (anchorBounds.height/2);
+  } else {
+    return null
   }
-);
+}
+
+export function jumpToY(y: number) {
+  if (isServer) return;
+
+  try {
+    window.scrollTo({
+      top: y - getCurrentSectionMark() + 1,
+      behavior: "smooth"
+    });
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.warn("scrollTo not supported, using link fallback", e)
+  }
+}
 
 
 /**
  * Returns a shallow copy of the ToC sections with question answers sorted by date,
  * without changing the position of other sections.
  */
-const sectionsWithAnswersSorted = (
+export function sectionsWithAnswersSorted(
   sections: ToCSection[],
   sorting: "newest" | "oldest"
-) => {
+) {
   const answersSectionsIndexes = sections
     .map((section, index) => [section, index] as const)
     .filter(([section, _]) => !!section.answer);
@@ -282,6 +232,21 @@ function downcaseIfAllCaps(text: string) {
   }
   return tokens.map(tok => downcaseToken(tok)).join(' ');
 }
+
+export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDisplayOptions) {
+  if (!text) return "";
+  if (displayOptions?.downcaseAllCapsHeadings) {
+    return downcaseIfAllCaps(text.trim());
+  } else {
+    return text.trim();
+  }
+}
+
+const TableOfContentsListComponent = registerComponent(
+  "TableOfContentsList", TableOfContentsList, {
+    hocs: [withErrorBoundary]
+  }
+);
 
 declare global {
   interface ComponentTypes {

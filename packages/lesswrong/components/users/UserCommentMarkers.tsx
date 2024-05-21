@@ -1,9 +1,10 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isEAForum, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isNewUser } from "../../lib/collections/users/helpers";
+import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconWrapper: {
     margin: "0 3px",
   },
@@ -29,13 +30,13 @@ const UserCommentMarkers = ({
   user?: UsersMinimumInfo|null,
   isPostAuthor?: boolean,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   if (!user) {
     return null;
   }
 
-  const showAuthorIcon = isEAForum && isPostAuthor;
+  const showAuthorIcon = isFriendlyUI && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
 
   if (!showAuthorIcon && !showNewUserIcon) {

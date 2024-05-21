@@ -3,6 +3,7 @@ import type { SimpleSchema } from 'simpl-schema';
 import { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import { permissionGroups } from "../permissions";
+import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -10,9 +11,9 @@ declare global {
 
 type PermissionGroups = typeof permissionGroups[number];
 
-type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
+type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
-type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
+type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any) => boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {
@@ -23,7 +24,89 @@ interface CollectionFieldPermissions {
 
 type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
-interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
+type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
+
+type SqlFieldFunction<N extends CollectionNameString> = (fieldName: FieldName<N>) => string;
+
+type SqlJoinType = "inner" | "full" | "left" | "right";
+
+type SqlJoinBase<N extends CollectionNameString> = {
+  table: N,
+  type?: SqlJoinType,
+  on: Partial<Record<FieldName<N>, string>>,
+}
+
+type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
+  /**
+   * By default, the `table` value in `SqlJoinBase` must be a table associated
+   * with a collection, and when this is the case we get type safety for the
+   * values in `on` and for the `field` argument to `resolver`.
+   * Setting `isNonCollectionJoin` to true allows us to join on anything that
+   * isn't a collection (like a custom table or a view for instance) at the
+   * expense of type-safety as we don't have schemas for these objects so
+   * everything just becomes strings.
+   */
+  isNonCollectionJoin?: false,
+  resolver: (field: SqlFieldFunction<N>) => string,
+}
+
+type SqlNonCollectionJoinBase = {
+  table: string,
+  type?: SqlJoinType,
+  on: Record<string, string>,
+}
+
+type SqlNonCollectionJoin = SqlNonCollectionJoinBase & {
+  isNonCollectionJoin: true,
+  resolver: (field: (fieldName: string) => string) => string,
+}
+
+type SqlJoinFunction = <N extends CollectionNameString>(
+  args: SqlResolverJoin<N> | SqlNonCollectionJoin,
+) => string;
+
+type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> =
+  (SqlJoinBase<N> | SqlNonCollectionJoinBase) & {
+    prefix: string,
+  };
+
+type SqlResolverArgs<N extends CollectionNameString> = {
+  field: SqlFieldFunction<N>,
+  currentUserField: SqlFieldFunction<'Users'>,
+  join: SqlJoinFunction,
+  arg: (value: unknown) => string,
+  resolverArg: (name: string) => string,
+}
+
+type SqlResolver<N extends CollectionNameString> = (args: SqlResolverArgs<N>) => string;
+
+type SqlPostProcess<N extends CollectionNameString> = (
+  /** The value returned by the sql resolver */
+  value: AnyBecauseHard,
+  /** The entire database object (complete with sql resolver fields) */
+  root: ObjectsByCollectionName[N],
+  context: ResolverContext,
+) => AnyBecauseHard;
+
+type CollectionFieldResolveAs<N extends CollectionNameString> = {
+  type: string | GraphQLScalarType,
+  description?: string,
+  fieldName?: string,
+  addOriginalField?: boolean,
+  arguments?: string|null,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
+  sqlResolver?: SqlResolver<N>,
+  /**
+   * `sqlPostProcess` is run on the result of the database call, in addition
+   * to the `sqlResolver`. It should return the value of this `field`, generally
+   * by performing some operation on the value returned by the `sqlResolver`.
+   * Most of the time this is an anti-pattern which should be avoided, but
+   * sometimes it's unavoidable.
+   */
+  sqlPostProcess?: SqlPostProcess<N>,
+}
+
+interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
   optional?: boolean,
@@ -32,20 +115,13 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   typescriptType?: string,
   /** Use the following information in the GraphQL schema and at query-time to
    * calculate a response */
-  resolveAs?: {
-    type: string|GraphQLScalarType,
-    description?: string,
-    fieldName?: string,
-    addOriginalField?: boolean,
-    arguments?: string|null,
-    resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
-  },
+  resolveAs?: CollectionFieldResolveAs<N>,
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,
   canAutofillDefault?: boolean,
-  needsUpdate?: (doc: Partial<T>) => boolean,
-  getValue?: (doc: T, context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
   nullable?: boolean,
@@ -56,7 +132,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: MaybeFunction<any,SmartFormProps>,
+  options?: (props: SmartFormProps<N>) => any,
   allowedValues?: string[],
   vectorSize?: number,
   
@@ -80,7 +156,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
    *
    * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  form?: MaybeFunction<any,SmartFormProps>,
+  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
@@ -92,8 +168,8 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
-  hidden?: MaybeFunction<boolean,SmartFormProps>,
-  group?: FormGroupType<T>,
+  hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
+  group?: FormGroupType<N>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -106,25 +182,29 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
   //
-  /** DEPRECATED */
-  onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
-  onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
-  /** DEPRECATED */
-  onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
-  onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
-  onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
+  /**
+   * @deprecated
+   */
+  onInsert?: (doc: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null) => any,
+  onCreate?: (args: {data: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, document: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], schema: SchemaType<N>, fieldName: string}) => any,
+  /**
+   * @deprecated
+   */
+  onEdit?: (modifier: any, oldDocument: ObjectsByCollectionName[N], currentUser: DbUser|null, newDocument: ObjectsByCollectionName[N]) => any,
+  onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>, fieldName: string}) => any,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
 }
 
 /** Field specification for a Form field, created from the collection schema */
-type FormField<T extends DbObject> = Pick<
-  CollectionFieldSpecification<T>,
+type FormField<N extends CollectionNameString> = Pick<
+  CollectionFieldSpecification<N>,
   typeof formProperties[number]
 > & {
   document: any
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
   label: string
   help: string
   path: string
@@ -137,20 +217,25 @@ type FormField<T extends DbObject> = Pick<
   nestedFields: any
 }
 
-type FormGroupType<T extends DbObject = DbObject> = {
-  name?: string,
+type FormGroupType<N extends CollectionNameString> = {
+  name: string,
   order: number,
   label?: string,
-  paddingStyle?: boolean,
   startCollapsed?: boolean,
-  defaultStyle?: boolean,
   helpText?: string,
-  flexStyle?: boolean,
-  flexAlignTopStyle?: boolean,
-  fields?: FormField<T>[]
+  hideHeader?: boolean,
+  layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  layoutComponentProps?: Partial<FormGroupLayoutProps>,
+  fields?: FormField<N>[]
 }
 
-type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
-type SimpleSchemaType<T extends DbObject> = SimpleSchema & {_schema: SchemaType<T>};
+// Using FormGroupType as part of the props of a function causes a circular reference (because ComponentWithProps<T>
+// needs to know the prop types of all registered components), omit `layoutComponent` to fix this
+type FormGroupSafeType<N extends CollectionNameString> = Omit<FormGroupType<N>, "layoutComponent"> & {
+  layoutComponent?: string;
+};
+
+type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>;
+type SimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
 
 }

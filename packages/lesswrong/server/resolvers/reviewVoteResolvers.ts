@@ -1,8 +1,12 @@
 import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib/graphql';
+import { addGraphQLQuery, addGraphQLSchema } from "../vulcan-lib";
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { Posts } from '../../lib/collections/posts/collection'
 import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
+import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { TARGET_REVIEW_NUM } from '../../components/review/ReviewVotingProgressBar';
 
 addGraphQLResolvers({
   Mutation: {
@@ -64,3 +68,104 @@ addGraphQLResolvers({
   }
 });
 addGraphQLMutation('submitReviewVote(postId: String, qualitativeScore: Int, quadraticChange: Int, newQuadraticScore: Int, comment: String, year: String, dummy: Boolean, reactions: [String]): Post');
+
+addGraphQLSchema(`
+  type GivingSeasonHeart {
+    userId: String!
+    displayName: String!
+    x: Float!
+    y: Float!
+    theta: Float!
+  }
+`);
+
+const givingSeasonResolvers = {
+  Query: {
+    GivingSeasonHearts: async (
+      _root: void,
+      {electionName}: {electionName: string},
+      context: ResolverContext,
+    ): Promise<GivingSeasonHeart[]> => {
+      if (electionName !== 'reviewVoting2022') {
+        throw new Error('Invalid electionName!');
+      }
+      
+      return context.repos.databaseMetadata.getGivingSeasonHearts(electionName);
+    },
+  },
+  Mutation: {
+    AddGivingSeasonHeart: async (
+      _root: void,
+      {electionName, x, y, theta}: {
+        electionName: string,
+        x: number,
+        y: number,
+        theta: number,
+      },
+      context: ResolverContext,
+    ): Promise<GivingSeasonHeart[]> => {
+      if (!context.currentUser) {
+        throw new Error("Permission denied");
+      }
+      if (
+        electionName !== 'reviewVoting2022' || 
+        typeof x !== "number" || x < 0 || x > 1 ||
+        typeof y !== "number" || y < 0 || y > 1 ||
+        typeof theta !== "number" || theta < -25 || theta > 25
+      ) {
+        throw new Error(`Invalid parameters: ${{electionName, x, y, theta}}`);
+      }
+
+      const voteCount = await ReviewVotes.find({
+        userId: context.currentUser._id,
+        year: REVIEW_YEAR+""
+      }).count();
+
+      if (voteCount < TARGET_REVIEW_NUM) {
+        throw new Error(`User has not voted enough times: ${voteCount}`)
+      }
+
+      return context.repos.databaseMetadata.addGivingSeasonHeart(
+        electionName,
+        context.currentUser._id,
+        x,
+        y,
+        theta,
+      );
+    },
+    RemoveGivingSeasonHeart: (
+      _root: void,
+      {electionName}: {electionName: string},
+      context: ResolverContext,
+    ) => {
+      if (!context.currentUser) {
+        throw new Error("Permission denied");
+      }
+
+      if (electionName !== 'reviewVoting2022') {
+        throw new Error('Invalid electionName!');
+      }
+
+      return context.repos.databaseMetadata.removeGivingSeasonHeart(
+        electionName,
+        context.currentUser._id,
+      );
+    },
+  },
+};
+
+addGraphQLResolvers(givingSeasonResolvers);
+addGraphQLQuery(`
+  GivingSeasonHearts(electionName: String!): [GivingSeasonHeart!]!
+`);
+addGraphQLMutation(`
+  AddGivingSeasonHeart(
+    electionName: String!,
+    x: Float!,
+    y: Float!,
+    theta: Float!
+  ): [GivingSeasonHeart!]!
+`);
+addGraphQLMutation(`
+  RemoveGivingSeasonHeart(electionName: String!): [GivingSeasonHeart!]!
+`);

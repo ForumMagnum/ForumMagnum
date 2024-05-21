@@ -5,8 +5,8 @@ import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
 import { LoadMoreCallback } from '../../lib/crud/withMulti';
 import { useIsFirstRender } from "../hooks/useFirstRender";
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
     minHeight: 20,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontSize: 14,
         fontWeight: 600,
@@ -93,12 +93,9 @@ const LoadMore = ({
 }) => {
   const { captureEvent } = useTracking()
 
-  /**
-   * To avoid hydration errors, set loading to false if this is the initial render and we have
-   * a non-zero count that graphql cached during SSR.
-   */
+  // Don't show the loading animation on the initial render
   const isFirstRender = useIsFirstRender();
-  loading = loading && !(isFirstRender && (count ?? 0) > 0);
+  loading = loading && !isFirstRender;
 
   const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {

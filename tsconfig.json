@@ -15,7 +15,13 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strictBindCallApply": true,
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./packages/lesswrong/*"],
+    }
   },
   "include": [
     "packages/lesswrong",

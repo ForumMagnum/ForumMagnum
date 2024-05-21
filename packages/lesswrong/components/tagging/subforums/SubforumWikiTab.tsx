@@ -6,13 +6,14 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { EditTagForm } from '../EditTagPage';
 import { useApolloClient } from '@apollo/client/react';
 import truncateTagDescription from "../../../lib/utils/truncateTagDescription";
-import { forumTypeSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
+import { taggingNamePluralSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { tagPageHeaderStyles, tagPostTerms } from '../TagPage';
 import { useOnSearchHotkey } from '../../common/withGlobalKeydown';
 import { MAX_COLUMN_WIDTH } from '../../posts/PostsPage/PostsPage';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../../common/withUser';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   centralColumn: {
@@ -35,8 +36,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   ...tagPageHeaderStyles(theme),
 });
-
-const isEAForum = forumTypeSetting.get() === 'EAForum'
 
 const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   tag: TagPageFragment | TagPageWithRevisionFragment,
@@ -82,7 +81,7 @@ const SubforumWikiTab = ({tag, revision, truncated, setTruncated, classes}: {
   const htmlWithAnchors = tag.tableOfContents?.html ?? tag.description?.html ?? ""
   let description = htmlWithAnchors;
   // EA Forum wants to truncate much less than LW
-  if(isEAForum) {
+  if(isFriendlyUI) {
     description = truncated
       ? truncateTagDescription(htmlWithAnchors, tag.descriptionTruncationCount)
       : htmlWithAnchors;

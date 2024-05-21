@@ -11,6 +11,7 @@ import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
 import * as _ from 'underscore';
 import fs from 'fs';
+import type { AddMiddlewareType } from './apolloServer';
 
 // Log unhandled promise rejections, eg exceptions escaping from async
 // callbacks. The default node behavior is to silently ignore these exceptions,
@@ -57,7 +58,7 @@ onStartup(() => {
   checkForCoreDumps();
 });
 
-export const addSentryMiddlewares = (addConnectHandler: (handler: any)=>void) => {
+export const addSentryMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(Sentry.Handlers.requestHandler());
   addConnectHandler(Sentry.Handlers.errorHandler());
 }

@@ -1,21 +1,21 @@
-
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { useLocation, useNavigation } from '../../../lib/routeUtil';
+import { SOCIAL_MEDIA_PROFILE_FIELDS, userGetProfileUrl } from '../../../lib/collections/users/helpers';
+import { useLocation } from '../../../lib/routeUtil';
 import ArrowBack from '@material-ui/icons/ArrowBack'
 import pick from 'lodash/pick';
-import { CAREER_STAGES, SOCIAL_MEDIA_PROFILE_FIELDS } from '../../../lib/collections/users/schema';
+import { CAREER_STAGES } from '../../../lib/collections/users/schema';
 import Input from '@material-ui/core/Input';
 import { useGoogleMaps } from '../../form-components/LocationFormComponent';
 import { pickBestReverseGeocodingResult } from '../../../lib/geocoding';
 import classNames from 'classnames';
 import { markdownToHtmlSimple } from '../../../lib/editor/utils';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
-import { Link } from '../../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
+import { useSingle } from '../../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -201,11 +201,33 @@ type EditorFormComponentRefType = {
 }
 
 
-const EAGApplicationImportForm = ({classes}: {
+// Wrapper around EAGApplicationImportForm which fetches the current user with
+// the UsersEdit fragment so that it will have all the fields to be able to
+// edit bio, howICanHelpOthers.
+const EAGApplicationImportFormWrapper = () => {
+  const currentUser = useCurrentUser()
+  const { Loading, EAGApplicationImportForm } = Components;
+  const { document: currentUserEdit, loading } = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersEdit",
+    skip: !currentUser,
+  });
+  
+  if (!currentUser || !currentUserEdit) {
+    return <Loading/>
+  }
+  
+  return <EAGApplicationImportForm
+    currentUser={currentUserEdit}
+  />
+}
+
+const EAGApplicationImportForm = ({currentUser, classes}: {
+  currentUser: UsersEdit,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser()
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const { pathname } = useLocation()
   const { flash } = useMessages()
   const { captureEvent } = useTracking()
@@ -455,7 +477,7 @@ const EAGApplicationImportForm = ({classes}: {
           return prev
         }
       }, updatedFormData)
-      history.push(userGetProfileUrl(currentUser))
+      navigate(userGetProfileUrl(currentUser))
     }, (e) => {
       // eslint-disable-next-line no-console
       console.error(e)
@@ -723,10 +745,12 @@ const EAGApplicationImportForm = ({classes}: {
 }
 
 
+const EAGApplicationImportFormWrapperComponent = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportForm);
 const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm, {styles});
 
 declare global {
   interface ComponentTypes {
+    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapperComponent
     EAGApplicationImportForm: typeof EAGApplicationImportFormComponent
   }
 }
