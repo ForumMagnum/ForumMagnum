@@ -585,7 +585,7 @@ const Layout = ({currentUser, children, classes}: {
                         <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
                           <div className={classes.bannerText}>
                             <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
-                            <p>May 31st to June 2nd, Berkely CA</p>
+                            <p>May 31st to June 2nd, Berkeley CA</p>
                             <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
                           </div>
                         </AnalyticsContext>
