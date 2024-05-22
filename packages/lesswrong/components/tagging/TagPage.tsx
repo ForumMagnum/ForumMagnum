@@ -10,7 +10,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useOnSearchHotkey } from '../common/withGlobalKeydown';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, defineStyles, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { MAX_COLUMN_WIDTH } from '../posts/PostsPage/PostsPage';
 import { EditTagForm } from './EditTagPage';
@@ -37,8 +37,7 @@ export const tagPageHeaderStyles = (theme: ThemeType) => ({
   },
 });
 
-// Also used in TagCompareRevisions, TagDiscussionPage
-export const styles = (theme: ThemeType): JssStyles => ({
+export const classes = defineStyles("TagPage", theme => ({
   rootGivenImage: {
     marginTop: 185,
     [theme.breakpoints.down('sm')]: {
@@ -165,8 +164,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   nextLink: {
     ...theme.typography.commentStyle
   },
+  description: {},
   ...tagPageHeaderStyles(theme),
-});
+}));
 
 export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, query: any) => {
   if (!tag) return
@@ -181,8 +181,7 @@ export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, que
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
-  classes: ClassesType,
-}> = ({tag, query, classes}) => {
+}> = ({tag, query}) => {
   const {SectionTitle, PostsListSortDropdown} = Components;
   if (isFriendlyUI) {
     return (
@@ -203,9 +202,7 @@ const PostsListHeading: FC<{
   );
 }
 
-const TagPage = ({classes}: {
-  classes: ClassesType
-}) => {
+const TagPage = () => {
   const {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
@@ -447,7 +444,7 @@ const TagPage = ({classes}: {
           />}
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            <PostsListHeading tag={tag} query={query} classes={classes} />
+            <PostsListHeading tag={tag} query={query} />
             <PostsList2
               terms={terms}
               enableTotal
@@ -463,7 +460,7 @@ const TagPage = ({classes}: {
   </AnalyticsContext>
 }
 
-const TagPageComponent = registerComponent("TagPage", TagPage, {styles});
+const TagPageComponent = registerComponent("TagPage", TagPage);
 
 declare global {
   interface ComponentTypes {

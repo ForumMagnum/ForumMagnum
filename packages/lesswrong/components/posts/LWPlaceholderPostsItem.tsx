@@ -1,11 +1,10 @@
 import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib";
-import { styles } from './LWPostsItem';
+import { classes } from './LWPostsItem';
 
-const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
+const LWPlaceholderPostsItem = ({showBottomBorder}: {
   showBottomBorder?: boolean,
-  classes: ClassesType,
 }) => {
   return <div className={classes.row}>
     <div className={classNames(
@@ -21,7 +20,7 @@ const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
   </div>
 }
 
-const LWPlaceholderPostsItemComponent = registerComponent('LWPlaceholderPostsItem', LWPlaceholderPostsItem, {styles});
+const LWPlaceholderPostsItemComponent = registerComponent('LWPlaceholderPostsItem', LWPlaceholderPostsItem);
 
 declare global {
   interface ComponentTypes {

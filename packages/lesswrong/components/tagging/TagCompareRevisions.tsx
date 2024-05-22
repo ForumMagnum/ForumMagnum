@@ -2,13 +2,11 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
-import { styles } from './TagPage';
+import { classes } from './TagPage';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 
-const TagCompareRevisions = ({classes}: {
-  classes: ClassesType
-}) => {
+const TagCompareRevisions = () => {
   const { params, query } = useLocation();
   const { slug } = params;
   const versionBefore = query.before;
@@ -39,7 +37,7 @@ const TagCompareRevisions = ({classes}: {
   </SingleColumnSection>
 }
 
-const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions, {styles});
+const TagCompareRevisionsComponent = registerComponent("TagCompareRevisions", TagCompareRevisions);
 
 
 declare global {

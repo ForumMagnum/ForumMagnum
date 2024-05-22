@@ -1,4 +1,4 @@
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, defineStyles, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
@@ -16,7 +16,7 @@ import DebateIcon from '@material-ui/icons/Forum';
 
 export const KARMA_WIDTH = 32;
 
-export const styles = (theme: ThemeType) => ({
+export const classes = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -338,15 +338,13 @@ export const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   }
+}), {
+  stylePriority: 1,
 })
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
-export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType<typeof styles>,
-};
-
-const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
+const LWPostsItem = (props: PostsItemConfig) => {
   const {
     post,
     postLink,
@@ -599,8 +597,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 };
 
 const LWPostsItemComponent = registerComponent('LWPostsItem', LWPostsItem, {
-  styles,
-  stylePriority: 1,
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",

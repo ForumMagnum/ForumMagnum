@@ -1,11 +1,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { styles } from './LWPostsItem';
+import { classes } from './LWPostsItem';
 
-const PostsListPlaceholder = ({count, classes}: {
+const PostsListPlaceholder = ({count}: {
   count: number,
-  classes: ClassesType
 }) => {
   let placeholders: Array<JSX.Element> = [];
   for(let i=0; i<count; i++) {
@@ -15,9 +14,7 @@ const PostsListPlaceholder = ({count, classes}: {
         classes.background
       )}>
         <div className={classes.postsItem}>
-          <span className={classes.title}>
-            <span className={classes.titlePlaceholder}>{" "}</span>
-          </span>
+          <span className={classes.title}>{" "}</span>
         </div>
       </div>
     )
@@ -25,7 +22,7 @@ const PostsListPlaceholder = ({count, classes}: {
   return <React.Fragment>{placeholders}</React.Fragment>;
 }
 
-const PostsListPlaceholderComponent = registerComponent("PostsListPlaceholder", PostsListPlaceholder, {styles});
+const PostsListPlaceholderComponent = registerComponent("PostsListPlaceholder", PostsListPlaceholder);
 
 declare global {
   interface ComponentTypes {
