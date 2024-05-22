@@ -69,7 +69,8 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     res.end(result);
   } else {
     const payload = {
-      iss: environmentId,
+      aud: environmentId,
+      iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: user ? {
         id: user._id,
         name: userGetDisplayName(user)
