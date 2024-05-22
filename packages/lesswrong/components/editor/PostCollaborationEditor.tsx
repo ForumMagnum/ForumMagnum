@@ -89,6 +89,7 @@ const PostCollaborationEditor = ({ classes }: {
     return <ForeignCrosspostEditForm post={post} />;
   }
 
+  console.log(`Rendering PostCollaborationEditor postId=${postId}, access=${post.myEditorAccess}`);
   return <SingleColumnSection>
     <div className={classes.title}>{post.title}</div>
     <Components.PostsAuthors post={post}/>

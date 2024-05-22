@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
@@ -22,7 +21,8 @@ import type { Node, RootElement, Writer, Element as CKElement, Selection, Docume
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
-import {cloudinaryConfig} from '../../lib/editor/cloudinaryConfig'
+import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -390,7 +390,7 @@ const CKPostEditor = ({
     setLayoutReady(true)
   }, [])
 
-  const editorRef = useRef<CKEditor>(null)
+  const editorRef = useRef<CKEditor<any>>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
@@ -405,7 +405,7 @@ const CKPostEditor = ({
   `);
 
   const dialogueParticipantNotificationCallback = async () => {
-  const editorContents =  editorRef?.current?.editor.getData()
+    const editorContents =  editorRef?.current?.editor?.getData()
 
     await sendNewDialogueMessageNotification({
       variables: {
@@ -459,7 +459,7 @@ const CKPostEditor = ({
     setCollaborationMode(mode);
     collaborationModeRef.current = mode;
   }
-  
+
   return <div>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
@@ -497,7 +497,7 @@ const CKPostEditor = ({
       onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={(editor: Editor) => {
+      onReady={(editor: Editor) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
