@@ -51,7 +51,7 @@ export const useRecentOpportunities =<
   }));
 
   const now = useCurrentTime();
-  const dateCutoff = moment(now).subtract(maxAgeInDays, "days").startOf('hour').toISOString();
+  const dateCutoff = moment(now).subtract(maxAgeInDays*24, "hours").startOf('hour').toISOString();
   const { results, ...useMultiResult } = useMulti<FragmentTypeName, "Posts">({
     collectionName: "Posts",
     terms: {

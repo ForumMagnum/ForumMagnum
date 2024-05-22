@@ -32,7 +32,9 @@ import { ContextWatchdogContext } from './ckeditorcontext';
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor>, {}> {
+export default class CKEditor<TEditor extends Editor> extends React.Component<Props<TEditor> & {
+  isCollaborative: boolean
+}, {}> {
 	/**
 	 * Contains a promise that resolves when the editor destruction is finished.
 	 */
@@ -55,7 +57,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 */
 	private instance: Editor | undefined | null;
 
-	constructor( props: Props<TEditor> ) {
+	constructor( props: Props<TEditor> & { isCollaborative: boolean } ) {
 		super( props );
 
 		const { CKEDITOR_VERSION } = window;
@@ -277,6 +279,23 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
 	 * @param nextProps React's properties.
 	 */
 	private _shouldUpdateEditor( nextProps: Readonly<Props<TEditor>> ): boolean {
+    // HACK: In collaborative editing mode, ignore prop changes to `data`.
+    // In collab editing mode, that will crash the editor with
+    //   `realtimecollaborationclient-editor-setdata-and-editor-data-set-are-forbidden-in-real-time-collaborat ion`
+    //
+    // In theory, the `data` prop getting passed around and the document
+    // state inside the editor are supposed to be kept in sync. In practice,
+    // due to debouncing and subtleties of render timing, there are race
+    // conditions/corner cases where they aren't.
+    //
+    // This means that changing the editor contents from outside the editor
+    // won't work (eg, clearing the input, restoring from local storage). In
+    // practice, scenarios where this is supposed to happen don't overlap
+    // much with scenarios where this is in collaborative editing mode.
+		if (this.props.isCollaborative) {
+			return false;
+		}
+
 		// Check whether `nextProps.data` is equal to `this.props.data` is required if somebody defined the `#data`
 		// property as a static string and updated a state of component when the editor's content has been changed.
 		// If we avoid checking those properties, the editor's content will back to the initial value because

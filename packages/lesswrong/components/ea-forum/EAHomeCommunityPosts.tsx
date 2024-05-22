@@ -33,7 +33,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
   const now = useCurrentTime();
   const {filterSettings: userFilterSettings} = useFilterSettings()
 
-  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').startOf('hour').toISOString()
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     view: "magic",
@@ -59,22 +59,19 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
       toggleExpanded={toggleExpanded}
       title="Posts tagged community"
       afterTitleTo="/topics/community"
-      Content={() => (
-        <>
-          <AnalyticsContext listContext={"communityPosts"}>
-            <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
-          </AnalyticsContext>
-          <SectionFooter>
-            <Link
-              to="/topics/community"
-              className={classes.readMoreLinkMobile}
-            >
-              View more
-            </Link>
-          </SectionFooter>
-        </>
-      )}
-    />
+    >
+      <AnalyticsContext listContext={"communityPosts"}>
+        <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
+      </AnalyticsContext>
+      <SectionFooter>
+        <Link
+          to="/topics/community"
+          className={classes.readMoreLinkMobile}
+        >
+          View more
+        </Link>
+      </SectionFooter>
+    </ExpandableSection>
   );
 }
 

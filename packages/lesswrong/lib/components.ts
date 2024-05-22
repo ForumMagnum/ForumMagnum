@@ -91,7 +91,6 @@ importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/use
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
 importComponent("EAUsersProfileTabbedSection", () => require('../components/ea-forum/users/modules/EAUsersProfileTabbedSection'))
 importComponent("EAPopularCommentsSection", () => require('../components/ea-forum/EAPopularCommentsSection'))
-importComponent("EAEmojisHeader", () => require('../components/ea-forum/EAEmojisHeader'))
 
 // Messaging
 importComponent("ConversationTitleEditForm", () => require('../components/messaging/ConversationTitleEditForm'));
@@ -610,8 +609,8 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 
 // comments
 
-importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
-importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
+importComponent("CommentsItem", () => require('@/components/comments/CommentsItem/CommentsItem'));
+importComponent("CommentsItemMeta", () => require('@/components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));

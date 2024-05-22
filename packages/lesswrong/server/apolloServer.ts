@@ -52,8 +52,9 @@ import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener 
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 import { createAnonymousContext } from './vulcan-lib/query';
-import { DatabaseServerSetting } from './databaseSettings';
 import { randomId } from '../lib/random';
+import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
+import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 
 /**
@@ -73,28 +74,6 @@ const trySetResponseStatus = ({ response, status }: { response: express.Response
   }
 
   return response;
-}
-
-const cloudfrontExperimentEnabledSetting = new DatabaseServerSetting<boolean>('cloudfrontExperiment.enabled', false);
-const cloudfrontExperimentLoggedOutCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontExperiment.loggedOutCacheControl', "s-max-age=1, stale-while-revalidate=86400");
-const cloudfrontCachingExperimentLoggedInCacheControlSetting = new DatabaseServerSetting<string>('cloudfrontCachingExperiment.loggedInCacheControl', "no-cache, no-store, must-revalidate, max-age=0");
-/**
- * For experimenting on staging to find out how CloudFront handles different cache-control headers set by the origin. The crux
- * is to figure out whether setting origin headers is sufficient to make it so responses are never cached for logged in users, but are cached
- * for logged out
- */
-const cloudfrontCachingExperiment = ({ response, user }: { response: express.Response, user: DbUser | null; }) => {
-  // TODO remove before this, the hard cutoff is just in case we forget
-  if (!cloudfrontExperimentEnabledSetting.get() || new Date() > new Date('2024-05-07')) return;
-
-  const loggedInCacheControl = cloudfrontCachingExperimentLoggedInCacheControlSetting.get();
-  const loggedOutCacheControl = cloudfrontExperimentLoggedOutCacheControlSetting.get();
-
-  if (user) {
-    response.setHeader("Cache-Control", loggedInCacheControl);
-  } else {
-    response.setHeader("Cache-Control", loggedOutCacheControl);
-  }
 }
 
 /**
@@ -218,6 +197,7 @@ export function startWebserver() {
   addAdminRoutesMiddleware(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
+  addCacheControlMiddleware(addMiddleware);
   addClientIdMiddleware(addMiddleware);
   if (isDatadogEnabled) {
     app.use(datadogMiddleware);
@@ -262,7 +242,7 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
+    const {hash: bundleHash, content: bundleBuffer, brotli: bundleBrotliBuffer} = getClientBundle().resource;
     let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
@@ -327,7 +307,7 @@ export function startWebserver() {
       return
     }
     
-    const currentUser = await getUserFromReq(req)
+    const currentUser = getUserFromReq(req)
     if (!currentUser) {
       res.status(403).send("Not logged in")
       return
@@ -370,7 +350,7 @@ export function startWebserver() {
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
 
-    const {bundleHash} = getClientBundle();
+    const bundleHash = getClientBundle().resource.hash;
     const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
@@ -382,22 +362,19 @@ export function startWebserver() {
       location: parsePath(request.url)
     });
     
-    const user = await getUserFromReq(request);
+    const user = getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
     const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
-
-    // TODO remove and replace with a permanent version
-    cloudfrontCachingExperiment({ user, response })
     
     const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
 
     // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable.
-    const tabId = randomId();
-    const tabIdHeader = `<script>var tabId = "${tabId}"</script>`;
+    // it into a global variable. If the response is cacheable (same html may be used
+    // by multiple tabs), this is generated in `clientStartup.ts` instead.
+    const tabId = responseIsCacheable(response) ? null : randomId();
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -414,7 +391,7 @@ export function startWebserver() {
         + faviconHeader
         // Embedded script tags that must precede the client bundle
         + publicSettingsHeader
-        + tabIdHeader
+        + embedAsGlobalVar("tabId", tabId)
         // The client bundle. Because this uses <script async>, its load order
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.
@@ -445,6 +422,8 @@ export function startWebserver() {
       status,
       redirectUrl,
       renderedAt,
+      timezone,
+      cacheFriendly,
       allAbTestGroups,
     } = renderResult;
     
@@ -458,6 +437,11 @@ export function startWebserver() {
       trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
     } else {
       trySetResponseStatus({ response, status: status || 200 });
+      const ssrMetadata: SSRMetadata = {
+        renderedAt: renderedAt.toISOString(),
+        cacheFriendly,
+        timezone
+      }
 
       response.write(
         (prefetchingResources ? '' : prefetchPrefix)
@@ -468,7 +452,8 @@ export function startWebserver() {
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
           + ssrBody + '\n'
         + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
+        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
         + serializedApolloState + '\n'
         + serializedForeignApolloState + '\n'
         + '</html>\n')
