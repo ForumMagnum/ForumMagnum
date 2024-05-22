@@ -37,20 +37,6 @@ function getWebpackConfig(mode) {
 			libraryExport: (mode==="cloud") ? 'default' : 'Editors'
 		},
 	
-		optimization: {
-			minimizer: [
-				new UglifyJsWebpackPlugin( {
-					sourceMap: true,
-					uglifyOptions: {
-						output: {
-							// Preserve CKEditor 5 license comments.
-							comments: /^!/
-						}
-					}
-				} )
-			]
-		},
-	
 		plugins: [
 			new CKEditorTranslationsPlugin( {
 				// UI language. Language codes follow the https://en.wikipedia.org/wiki/ISO_639-1 format.
