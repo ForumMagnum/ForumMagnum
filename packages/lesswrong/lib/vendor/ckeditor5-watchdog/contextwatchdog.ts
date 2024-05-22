@@ -302,7 +302,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
 							return;
 						}
 
-						this._actionQueues.enqueue( item.id, () => new Promise<void>( res => {
+						void this._actionQueues.enqueue( item.id, () => new Promise<void>( res => {
 							const rethrowRestartEventOnce = () => {
 								watchdog.off( 'restart', rethrowRestartEventOnce );
 
@@ -381,6 +381,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
 
 			return this._destroy()
 				.catch( err => {
+					// eslint-disable-next-line no-console
 					console.error( 'An error happened during destroying the context or items.', err );
 				} )
 				.then( () => this._create() )

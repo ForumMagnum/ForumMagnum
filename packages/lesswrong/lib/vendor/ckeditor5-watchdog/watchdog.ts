@@ -234,7 +234,7 @@ export default abstract class Watchdog {
 			this._fire( 'error', { error, causesRestart } );
 
 			if ( causesRestart ) {
-				this._restart();
+				void this._restart();
 			} else {
 				this.state = 'crashedPermanently';
 				this._fire( 'stateChange' );

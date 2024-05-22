@@ -6,6 +6,7 @@
  * commit 93d7c69b64a5d13dcac79a17794dc278f4d06fb7
  */
 /* eslint-disable no-tabs */
+/* eslint-disable no-console */
 
 /* globals window */
 

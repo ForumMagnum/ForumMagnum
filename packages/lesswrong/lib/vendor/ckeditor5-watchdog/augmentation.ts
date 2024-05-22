@@ -7,7 +7,6 @@
  */
 /* eslint-disable no-tabs */
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 import type { EditorData } from './editorwatchdog';
 
 declare module '@ckeditor/ckeditor5-core' {
@@ -19,5 +18,13 @@ declare module '@ckeditor/ckeditor5-core' {
 		 * @internal
 		 */
 		_watchdogInitialData?: EditorData;
+
+		/**
+		 * These editor config options are mentioned in editorwatchdog, but mentioned nowhere else
+		 * (even inside node_modules) perhaps they correspond to some plugin we aren't using, which
+		 * would have added them to EditorConfig with an augmentation so that they typecheck.
+		 */
+		rootsAttributes?: any
+		lazyRoots?: any
 	}
 }

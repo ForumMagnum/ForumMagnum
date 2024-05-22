@@ -16,7 +16,7 @@ import sortBy from 'lodash/sortBy'
 import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
-import type { Editor } from '@ckeditor/ckeditor5-core';
+import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -459,6 +459,50 @@ const CKPostEditor = ({
     setCollaborationMode(mode);
     collaborationModeRef.current = mode;
   }
+  
+  // This is AnyBecauseHard because it contains plugin-specific configs that are
+  // added to the EditorConfig type via augmentations, but we don't get those
+  // augmentations because we're only importing those in the CkEditor bundle.
+  const editorConfig: AnyBecauseHard = {
+    ...(post.collabEditorDialogue ? {blockToolbar: [
+      'imageUpload',
+      'insertTable',
+      'horizontalLine',
+      'mathDisplay',
+      'mediaEmbed',
+      'footnote',
+    ]} : {}),
+    autosave: {
+      save (editor: any) {
+        return onSave && onSave(editor.getData())
+      }
+    },
+    cloudServices: ckEditorCloudConfigured ? {
+      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
+      uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
+      webSocketUrl: webSocketUrl,
+      documentId: getCKEditorDocumentId(documentId, userId, formType),
+      bundleVersion: ckEditorBundleVersion,
+    } : undefined,
+    collaboration: ckEditorCloudConfigured ? {
+      channelId: getCKEditorDocumentId(documentId, userId, formType),
+    } : undefined,
+    comments: {
+      editorConfig: {
+      },
+    },
+    sidebar: {
+      container: sidebarRef.current
+    },
+    presenceList: {
+      container: hiddenPresenceListRef.current
+    },
+    initialData: initData,
+    placeholder: placeholder ?? defaultEditorPlaceholder,
+    mention: mentionPluginConfiguration,
+    dialogues: dialogueConfiguration,
+    ...cloudinaryConfig,
+  };
 
   return <div>
     {isBlockOwnershipMode && <>
@@ -509,9 +553,9 @@ const CKPostEditor = ({
           
           applyCollabModeToCkEditor(editor, collaborationMode);
           
-          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+          editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread');
 
-          editorRef.current?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+          (editorRef.current as AnyBecauseHard)?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
             handleSubmitWithoutNewline(editor, currentUser, event);
           }, { capture: true });
           
@@ -614,46 +658,7 @@ const CKPostEditor = ({
 
         if (onInit) onInit(editor)
       }}
-      config={{
-        ...(post.collabEditorDialogue ? {blockToolbar: [
-          'imageUpload',
-          'insertTable',
-          'horizontalLine',
-          'mathDisplay',
-          'mediaEmbed',
-          'footnote',
-        ]} : {}),
-        autosave: {
-          save (editor: any) {
-            return onSave && onSave(editor.getData())
-          }
-        },
-        cloudServices: ckEditorCloudConfigured ? {
-          tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
-          uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
-          webSocketUrl: webSocketUrl,
-          documentId: getCKEditorDocumentId(documentId, userId, formType),
-          bundleVersion: ckEditorBundleVersion,
-        } : undefined,
-        collaboration: ckEditorCloudConfigured ? {
-          channelId: getCKEditorDocumentId(documentId, userId, formType),
-        } : undefined,
-        comments: {
-          editorConfig: {
-          },
-        },
-        sidebar: {
-          container: sidebarRef.current
-        },
-        presenceList: {
-          container: hiddenPresenceListRef.current
-        },
-        initialData: initData,
-        placeholder: placeholder ?? defaultEditorPlaceholder,
-        mention: mentionPluginConfiguration,
-        dialogues: dialogueConfiguration,
-        ...cloudinaryConfig,
-      }}
+      config={editorConfig}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>

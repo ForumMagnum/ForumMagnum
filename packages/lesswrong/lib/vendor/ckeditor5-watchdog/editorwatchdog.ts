@@ -6,6 +6,8 @@
  * commit 93d7c69b64a5d13dcac79a17794dc278f4d06fb7
  */
 /* eslint-disable no-tabs */
+/* eslint-disable no-console */
+/* eslint-disable eqeqeq */
 
 /**
  * @module watchdog/editorwatchdog
@@ -13,10 +15,7 @@
 
 /* globals console */
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 import type { CKEditorError } from '@ckeditor/ckeditor5-utils';
-
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 import type { Editor, EditorConfig, Context, EditorReadyEvent } from '@ckeditor/ckeditor5-core';
 
 //import type { RootAttributes } from '@ckeditor/ckeditor5-editor-multi-root';
@@ -32,7 +31,6 @@ import throttle from 'lodash/throttle';
 import cloneDeepWith from 'lodash/cloneDeepWith';
 import isElement from 'lodash/isElement';
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 //import type { Node, Text, Element, Writer } from 'ckeditor5/src/engine';
 import type { Node, Text, Element, Writer } from '@ckeditor/ckeditor5-engine';
 

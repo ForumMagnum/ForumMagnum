@@ -62,7 +62,6 @@ const CKCommentEditor = ({
     <CKEditor
       editor={CommentEditor}
       onReady={(editor: any) => {
-        console.log("CKCommentEditor.onReady");
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         if (onInit) onInit(editor)
