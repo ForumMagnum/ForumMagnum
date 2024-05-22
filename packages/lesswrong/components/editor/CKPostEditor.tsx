@@ -459,7 +459,7 @@ const CKPostEditor = ({
     setCollaborationMode(mode);
     collaborationModeRef.current = mode;
   }
-
+  
   return <div>
     {isBlockOwnershipMode && <>
      {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
@@ -636,8 +636,12 @@ const CKPostEditor = ({
           bundleVersion: ckEditorBundleVersion,
         } : undefined,
         collaboration: ckEditorCloudConfigured ? {
-          channelId: getCKEditorDocumentId(documentId, userId, formType)
+          channelId: getCKEditorDocumentId(documentId, userId, formType),
         } : undefined,
+        comments: {
+          editorConfig: {
+          },
+        },
         sidebar: {
           container: sidebarRef.current
         },
