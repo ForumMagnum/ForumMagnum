@@ -4,6 +4,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -31,13 +32,11 @@ const styles = (_theme: ThemeType) => ({
  */
 const UserNotifyDropdown = ({
   user,
-  isFriendlyUI=true,
   popperPlacement="bottom-start",
   className,
   classes,
 }: {
   user: UsersProfile,
-  isFriendlyUI?: boolean,
   popperPlacement?: PopperPlacementType,
   className?: string,
   classes: ClassesType<typeof styles>,
