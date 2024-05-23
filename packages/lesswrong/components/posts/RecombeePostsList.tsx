@@ -160,7 +160,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
     const data = { postId: post._id, scenario: loggedScenario };
 
     if (generatedAt) {
-      return {...data, generatedAt: generatedAt.toISOString()};
+      return {...data, generatedAt: new Date(generatedAt).toISOString()};
     }
 
     return data;
