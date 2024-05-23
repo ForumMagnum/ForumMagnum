@@ -612,8 +612,8 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 
 // comments
 
-importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
-importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
+importComponent("CommentsItem", () => require('@/components/comments/CommentsItem/CommentsItem'));
+importComponent("CommentsItemMeta", () => require('@/components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));
