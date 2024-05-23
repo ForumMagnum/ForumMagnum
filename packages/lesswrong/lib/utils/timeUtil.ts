@@ -39,7 +39,7 @@ export function useCurrentTime(): Date {
 
 export const useSsrRenderedAt = () => {
   const currentTime = useCurrentTime();
-  return typeof window === "undefined"
+  return typeof window === "undefined" || !window.ssrMetadata
     ? currentTime
     : new Date(window.ssrMetadata.renderedAt);
 }

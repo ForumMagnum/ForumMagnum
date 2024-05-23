@@ -415,7 +415,7 @@ const helpers = {
       return [{ ...recResponse, scenario }];
     }
 
-    const { userId } = recRequest;
+    const { userId, count } = recRequest;
 
     const cachedRecommendations = await context.repos.recommendationsCaches.getUserRecommendationsFromSource(userId, 'recombee', scenario);
 
@@ -423,7 +423,7 @@ const helpers = {
     const unexpiredRecommendations = cachedRecommendations.filter(rec => currentTimestampMs < (rec.createdAt.getTime() + rec.ttlMs));
 
     let formattedRecommendations: RecResponse[]; 
-    if (unexpiredRecommendations.length < (recRequest.count / 2)) {
+    if (unexpiredRecommendations.length <= (count / 2)) {
       const recResponse = await helpers.sendRecRequestWithPerfMetrics(recRequest, batch);
       formattedRecommendations = [{
         ...recResponse,
@@ -437,7 +437,7 @@ const helpers = {
         .entries(groupBy(unexpiredRecommendations, (rec) => rec.attributionId))
         .map(([attributionId, recs]) => ({
           recommId: attributionId,
-          recomms: recs.map(rec => ({ id: rec.postId, generatedAt: rec.createdAt })),
+          recomms: recs.map(rec => ({ id: rec.postId, generatedAt: rec.createdAt })).slice(0, count),
           scenario: recs[0].scenario,
         }));
     }
@@ -446,7 +446,7 @@ const helpers = {
       .sendRecRequestWithPerfMetrics(recRequest, true)
       .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context));
 
-    return formattedRecommendations.slice(0, recRequest.count);
+    return formattedRecommendations;
   },
 
   openRecombeeBatchRecsPerfMetric<T extends RecRequest>(firstRequest: T, secondRequest: T) {

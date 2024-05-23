@@ -16,7 +16,12 @@
     "skipLibCheck": true,
     "strictBindCallApply": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./packages/lesswrong/*"],
+    }
   },
   "include": [
     "packages/lesswrong",
