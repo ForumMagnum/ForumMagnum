@@ -2,17 +2,17 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';
-import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../lib/sql/sqlClient';
+import { setSqlClient, closeSqlClient, getSqlClientOrThrow } from '../server/sql/sqlClient';
 import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
 import { Collections } from '../lib/vulcan-lib';
-import PgCollection from '../lib/sql/PgCollection';
+import PgCollection from '../server/sql/PgCollection';
+import { waitUntilCallbacksFinished } from './utils';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).

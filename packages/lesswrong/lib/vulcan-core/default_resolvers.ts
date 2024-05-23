@@ -7,7 +7,7 @@ import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
 import type { FieldNode, GraphQLResolveInfo } from 'graphql';
 import { FragmentSpreadNode } from 'graphql';
 import SelectFragmentQuery from '../sql/SelectFragmentQuery';
-import { getSqlClientOrThrow } from '../sql/sqlClient';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { maxAllowedApiSkip } from '../instanceSettings';
 
 interface DefaultResolverOptions {

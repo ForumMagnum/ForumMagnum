@@ -1,5 +1,5 @@
 import { registerMigration } from "./migrationUtils";
-import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
+import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 
 registerMigration({
   name: "renameShortformToQuicktakes",

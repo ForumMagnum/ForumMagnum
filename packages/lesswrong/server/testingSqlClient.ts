@@ -1,5 +1,5 @@
 import { Application, json, Request, Response } from "express";
-import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
+import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "@/server/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { testServerSetting } from "../lib/instanceSettings";
 import { readFile } from "fs/promises";
