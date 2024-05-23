@@ -65,6 +65,6 @@ class CloudinaryAdapter implements UploadAdapter {
 
 export function CloudinaryAdapterPlugin(editor: Editor) {
 	const options = editor.config.get('cloudinary') as CloudinaryCkEditorPluginConfig
-	editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
+	editor.plugins.get('FileRepository').createUploadAdapter = (loader: AnyBecauseTodo) =>
 		new CloudinaryAdapter(loader, options.getCloudName, options.getUploadPreset)
 }
