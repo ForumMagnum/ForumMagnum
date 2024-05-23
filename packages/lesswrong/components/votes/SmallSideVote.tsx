@@ -1,13 +1,12 @@
 import React from 'react';
-import { getCollection, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getVotingSystemByName } from '../../lib/voting/votingSystems';
 
 const SmallSideVote = ({document, hideKarma=false, collectionName}: {
   document: CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics,
   hideKarma?: boolean,
-  collectionName: CollectionNameString,
+  collectionName: VoteableCollectionName,
 }) => {
-  const collection = getCollection(collectionName);
   const votingSystemName = (document as any)?.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
 
@@ -17,7 +16,7 @@ const SmallSideVote = ({document, hideKarma=false, collectionName}: {
       <VotingComponent
         document={document}
         hideKarma={hideKarma}
-        collection={collection}
+        collectionName={collectionName}
         votingSystem={votingSystem}
       />
     )

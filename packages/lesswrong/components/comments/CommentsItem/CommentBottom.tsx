@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Comments } from '../../../lib/collections/comments/collection';
 import { hideUnreviewedAuthorCommentsSettings } from '../../../lib/publicSettings';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
@@ -10,7 +9,6 @@ import type { VotingProps } from '../../votes/votingProps';
 import type { CommentTreeOptions } from '../commentTree';
 import type { VotingSystem } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody } from '../../common/ContentItemBody';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
@@ -77,7 +75,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
       {VoteBottomComponent && <VoteBottomComponent
         document={comment}
         hideKarma={treeOptions.post?.hideCommentKarma}
-        collection={Comments}
+        collectionName="Comments"
         votingSystem={votingSystem}
         commentBodyRef={commentBodyRef}
         voteProps={voteProps}
