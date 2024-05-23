@@ -51,7 +51,6 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       paddingRight: 16,
-      // marginBottom: 4
     }
   },
   postMetaInfo: {

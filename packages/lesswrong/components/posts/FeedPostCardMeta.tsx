@@ -1,12 +1,8 @@
 import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
-import { DateWithoutTime } from "../posts/PostsItemMeta";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
-import { separatorBulletStyles } from "../common/SectionFooter";
-import { sep } from "path";
-import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
 
@@ -44,7 +40,6 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.9
   },
   karma: {
-    // minWidth:20,
     textAlign: "center",
     display: "inline-block",
   },

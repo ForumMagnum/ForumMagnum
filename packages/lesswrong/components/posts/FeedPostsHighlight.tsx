@@ -67,7 +67,7 @@ const FeedPostHighlightBody = ({
   setExpanded: (value: boolean) => void,
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { htmlHighlight = "", wordCount = 0 } = post.contents ?? {};
 
@@ -122,7 +122,7 @@ const FeedForeignPostsHighlightBody = ({post, maxCollapsedLengthWords, forceSeeM
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
   loading: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const apolloClient = useForeignApolloClient();
@@ -170,7 +170,7 @@ const FeedLocalPostsHighlight = ({post, maxCollapsedLengthWords, forceSeeMore=fa
   maxCollapsedLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const {document: expandedDocument, loading: expandedLoading} = useSingle({
