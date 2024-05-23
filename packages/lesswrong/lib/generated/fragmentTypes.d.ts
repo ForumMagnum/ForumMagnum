@@ -18,7 +18,7 @@ interface CollectionsDefaultFragment { // fragment on Collections
 }
 
 interface ClientIdsDefaultFragment { // fragment on ClientIds
-  readonly clientId: string | null,
+  readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string> | null,
@@ -26,7 +26,7 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly _id: string,
-  readonly clientId: string | null,
+  readonly clientId: string,
   readonly createdAt: Date,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
@@ -3132,7 +3132,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
-  readonly clientId: string | null,
+  readonly clientId: string,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string> | null,
