@@ -22,7 +22,7 @@ export class ClientCollection<
     return false;
   }
 
-  isVoteable() {
+  isVoteable(): this is ClientCollection<VoteableCollectionName> {
     return this.voteable;
   }
 
@@ -30,7 +30,7 @@ export class ClientCollection<
     this.voteable = true;
   }
 
-  hasSlug() {
+  hasSlug(): this is ClientCollection<CollectionNameWithSlug> {
     return !!this._schemaFields.slug;
   }
 

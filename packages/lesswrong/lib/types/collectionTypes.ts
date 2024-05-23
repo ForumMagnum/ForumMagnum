@@ -38,10 +38,10 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   isConnected: () => boolean
 
-  isVoteable: () => this is CollectionBase<VoteableCollectionName>
+  isVoteable: () => this is CollectionBase<VoteableCollectionName>;
   makeVoteable: () => void
 
-  hasSlug: () => this is CollectionBase<CollectionNameWithSlug>
+  hasSlug: () => boolean
 
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
 

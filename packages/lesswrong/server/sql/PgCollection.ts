@@ -65,7 +65,7 @@ class PgCollection<
     return !!getSqlClient();
   }
 
-  isVoteable() {
+  isVoteable(): this is PgCollection<VoteableCollectionName> {
     return this.voteable;
   }
 
@@ -73,7 +73,7 @@ class PgCollection<
     this.voteable = true;
   }
 
-  hasSlug() {
+  hasSlug(): this is PgCollection<CollectionNameWithSlug> {
     return !!this._schemaFields.slug;
   }
 
