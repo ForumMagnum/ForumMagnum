@@ -330,7 +330,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true
     }, {
       id: 'community',
-      title: 'Groups',
+      title: 'Join a group',
       link: communityPath,
       iconComponent: GroupsIcon,
       selectedIconComponent: GroupsSelectedIcon,
