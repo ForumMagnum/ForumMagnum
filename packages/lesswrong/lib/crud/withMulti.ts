@@ -2,7 +2,7 @@ import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useAp
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
-import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
+import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify, collectionNameToTypeName } from '../vulcan-lib';
 import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
 import { useNavigate } from '../reactRouterWrapper';
@@ -36,14 +36,13 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   }
 }`;
 
-function getGraphQLQueryFromOptions({collectionName, collection, fragmentName, fragment, extraVariables}: {
+function getGraphQLQueryFromOptions({collectionName, typeName, fragmentName, fragment, extraVariables}: {
   collectionName: CollectionNameString,
-  collection: any,
+  typeName: string,
   fragmentName: FragmentName,
   fragment: any,
   extraVariables: any,
 }) {
-  const typeName = collection.options.typeName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragmentName, fragment }, collectionName));
 
   let extraVariablesString = ''
@@ -154,9 +153,10 @@ export function useMulti<
   const [ lastTerms, setLastTerms ] = useState(_.clone(terms));
   
   const collection = getCollection(collectionName);
+  const typeName = collectionNameToTypeName(collectionName);
   const fragment = getFragment(fragmentName);
   
-  const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
+  const query = getGraphQLQueryFromOptions({ collectionName, typeName, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
   const graphQLVariables = useMemo(() => ({

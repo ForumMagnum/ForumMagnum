@@ -1,14 +1,12 @@
 import React from 'react';
 import { Components, registerComponent, sanitizeAllowedTags } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Comments } from '../../lib/collections/comments'
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 import type { Column } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
-import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: JssStyles) => ({
   root: {

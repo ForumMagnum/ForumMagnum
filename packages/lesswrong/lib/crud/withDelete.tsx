@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { getCollection, extractFragmentInfo } from '../vulcan-lib';
+import { extractFragmentInfo, collectionNameToTypeName } from '../vulcan-lib';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
@@ -45,10 +45,9 @@ export const useDelete = <CollectionName extends CollectionNameString>(options: 
   called: boolean,
   data: ObjectsByCollectionName[CollectionName],
 } => {
-  const collection = getCollection(options.collectionName);
+  const typeName = collectionNameToTypeName(options.collectionName);
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
-  const typeName = collection.options.typeName;
   const query = gql`
     ${deleteClientTemplate({ typeName, fragmentName })}
     ${fragment}
