@@ -363,28 +363,26 @@ export const AnalyticsGraph = ({
       {dateOptionDropdown}
       <div className={classes.controls}>
         <div className={classes.overallStatContainer}>
-          <div className={classes.overallStat}>
+          <LWTooltip
+            title="When someone clicks on your post it’s counted as a view"
+            placement="bottom"
+            tooltip={false}
+            popperClassName={classes.overallStatTooltip}
+            className={classes.overallStat}
+          >
             <div className={classes.overallStatCount}>{overallStats.views}</div>
-            <LWTooltip
-              title="When someone clicks on your post it’s counted as a view"
-              placement="bottom"
-              tooltip={false}
-              popperClassName={classes.overallStatTooltip}
-            >
-              Views
-            </LWTooltip>
-          </div>
-          <div className={classes.overallStat}>
+            <div>Views</div>
+          </LWTooltip>
+          <LWTooltip
+            title="When someone views your post for longer than 30 sec it’s counted as a read"
+            placement="bottom"
+            tooltip={false}
+            popperClassName={classes.overallStatTooltip}
+            className={classes.overallStat}
+          >
             <div className={classes.overallStatCount}>{overallStats.reads}</div>
-            <LWTooltip
-              title="When someone views your post for longer than 30 sec it’s counted as a read"
-              placement="bottom"
-              tooltip={false}
-              popperClassName={classes.overallStatTooltip}
-            >
-              Reads
-            </LWTooltip>
-          </div>
+            <div>Reads</div>
+          </LWTooltip>
         </div>
         <div className={classes.controlFields}>
           {analyticsFieldsList.map((field) => (
