@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   widgetClosed: {
     opacity: 0.8,
     background: "none",
-    textShadow: "2px 2px 20px #fff"
+    textShadow: `2px 2px 20px ${theme.palette.background.default}`
   },
   titleRow: {
     display: "flex",
