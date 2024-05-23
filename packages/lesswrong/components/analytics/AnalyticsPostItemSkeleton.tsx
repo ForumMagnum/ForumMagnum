@@ -28,11 +28,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsPostItemSkeleton = ({classes}: {
+export const AnalyticsPostItemSkeleton = ({className, classes}: {
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, className)}>
       <div className={classNames(classes.title, classes.placeholder)} />
       <div className={classNames(classes.info, classes.placeholder)} />
     </div>
@@ -42,7 +43,7 @@ export const AnalyticsPostItemSkeleton = ({classes}: {
 const AnalyticsPostItemSkeletonComponent = registerComponent(
   "AnalyticsPostItemSkeleton",
   AnalyticsPostItemSkeleton,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

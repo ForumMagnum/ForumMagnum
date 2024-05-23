@@ -68,6 +68,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
+    marginLeft: 14,
   },
   grid: {
     display: "grid",
@@ -85,9 +86,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     padding: "12px 4px 12px 0",
     fontWeight: 500,
+    marginLeft: 14,
     [theme.breakpoints.down("xs")]: {
       fontSize: 11,
     },
+  },
+  postItem: {
+    marginLeft: 14,
   },
   dateHeader: {
     justifyContent: "flex-start",
@@ -113,7 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   loadMore: {
     marginTop: 10,
-    marginLeft: 4,
+    marginLeft: 28,
   },
   sortArrow: {
     color: theme.palette.grey[600],
@@ -302,11 +307,15 @@ const AuthorAnalyticsPage = ({ classes }: {
             {renderHeaderCell("commentCount", "Comments")}
           </div>
           {posts.map((post) => (
-            <AnalyticsPostItem key={post._id} post={post} />
+            <AnalyticsPostItem
+              key={post._id}
+              post={post}
+              className={classes.postItem}
+            />
           ))}
           {analyticsLoading &&
             range(0, placeholderCount).map((i) => (
-              <AnalyticsPostItemSkeleton key={i} />
+              <AnalyticsPostItemSkeleton key={i} className={classes.postItem} />
             ))
           }
           <LoadMore className={classes.loadMore} {...loadMoreProps} hideLoading />

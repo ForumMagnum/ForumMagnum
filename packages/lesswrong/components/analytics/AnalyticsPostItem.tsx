@@ -10,6 +10,7 @@ import {
   smTitleWidth,
   xsTitleWidth,
 } from "./AuthorAnalyticsPage";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -57,8 +58,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsPostItem = ({post, classes}: {
+export const AnalyticsPostItem = ({post, className, classes}: {
   post: PostAnalytics2Result,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
@@ -69,7 +71,7 @@ export const AnalyticsPostItem = ({post, classes}: {
   const postAnalyticsLink = `/postAnalytics?postId=${post._id}`;
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, className)}>
       <div className={classes.postTitleCell}>
         <div className={classes.postTitle}>
           <Link to={postGetPageUrl(post)}>{post.title}</Link>
@@ -92,7 +94,7 @@ export const AnalyticsPostItem = ({post, classes}: {
 const AnalyticsPostItemComponent = registerComponent(
   "AnalyticsPostItem",
   AnalyticsPostItem,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

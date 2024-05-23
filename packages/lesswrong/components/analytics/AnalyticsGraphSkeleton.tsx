@@ -3,8 +3,13 @@ import { registerComponent } from "../../lib/vulcan-lib";
 import { GRAPH_HEIGHT, styles as analyticsGraphStyles } from "./AnalyticsGraph";
 import classNames from "classnames";
 
+const LEFT_MARGIN = 14;
+
 const styles = (theme: ThemeType) => ({
   ...analyticsGraphStyles(theme),
+  rootSkeleton: {
+    overflow: "hidden !important",
+  },
   placeholder: {
     height: 10,
     background: theme.palette.panelBackground.placeholderGradient,
@@ -27,7 +32,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 20,
   },
   graphContainer: {
-    width: "100%",
+    width: `calc(100% - ${LEFT_MARGIN}px)`,
+    marginLeft: LEFT_MARGIN,
     height: `${GRAPH_HEIGHT}px !important`,
     marginTop: 20,
     marginBottom: 2,
@@ -50,7 +56,7 @@ export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   );
 
   return (
-    <div className={classes.root}>
+    <div className={classNames(classes.root, classes.rootSkeleton)}>
       <div className={classes.dateDropdownWrapper}>
         {dateOptionDropdown}
       </div>

@@ -39,6 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     minHeight: 40,
     marginBottom: 24,
+    marginLeft: 14,
     fontSize: 32,
     fontWeight: "700",
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -51,9 +52,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     margin: '8px 0px',
     color: theme.palette.grey[1000],
+    marginLeft: 14,
   },
   table: {
-    marginBottom: 32,
+    marginBottom: 40,
+    marginLeft: 14,
   },
   placeholder: {
     height: 10,
