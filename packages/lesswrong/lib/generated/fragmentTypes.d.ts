@@ -18,7 +18,7 @@ interface CollectionsDefaultFragment { // fragment on Collections
 }
 
 interface ClientIdsDefaultFragment { // fragment on ClientIds
-  readonly clientId: string,
+  readonly clientId: string | null,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string> | null,
@@ -26,7 +26,7 @@ interface ClientIdsDefaultFragment { // fragment on ClientIds
 
 interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly _id: string,
-  readonly clientId: string,
+  readonly clientId: string | null,
   readonly createdAt: Date,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
@@ -1490,7 +1490,6 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
-  readonly swrCachingEnabled: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -3133,7 +3132,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds
-  readonly clientId: string,
+  readonly clientId: string | null,
   readonly firstSeenReferrer: string | null,
   readonly firstSeenLandingPage: string,
   readonly userIds: Array<string> | null,
