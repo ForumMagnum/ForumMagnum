@@ -8,9 +8,9 @@ import { useForeignCrosspost, isPostWithForeignId, PostWithForeignId } from "../
 import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import { captureException }from "@sentry/core";
 import classNames from 'classnames';
-import { truncateWithGrace } from '../common/ContentItemTruncated';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { useTracking } from '../../lib/analyticsEvents';
+import { truncateWithGrace } from '../../lib/editor/ellipsize';
 
 const styles = (theme: ThemeType) => ({
   root: {

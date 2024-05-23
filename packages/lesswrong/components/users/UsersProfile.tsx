@@ -194,7 +194,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
       Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown } = Components
 
@@ -296,7 +296,6 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </NewConversationButton> }
               { <UserNotifyDropdown 
                 user={user} 
-                isFriendlyUI={false} 
                 popperPlacement="bottom-end"
                 className={classes.subscribeButton} 
               /> }

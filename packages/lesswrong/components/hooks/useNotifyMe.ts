@@ -12,7 +12,7 @@ import {
 import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
-import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
+import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -186,19 +186,21 @@ export const useNotifyMe = ({
     }
   }
 
+  // In some cases we know what the state will be and don't want to load/wait on another network request
+  const stateIsFixed = userSubscriptionStateIsFixed({user: currentUser, subscriptionType, documentId: document._id});
+  if (stateIsFixed) {
+    return {
+      loading: false,
+      disabled: true,
+      isSubscribed,
+    };
+  }
+
   if (loading) {
     return {
       loading: true,
     };
   };
-
-  // Can't subscribe to yourself, unless it's for your feed
-  if (collectionName === 'Users' && document._id === currentUser?._id && subscriptionType !== 'newActivityForFeed') {
-    return {
-      disabled: true,
-      loading: false,
-    };
-  }
 
   if (hideIfNotificationsDisabled && !isSubscribed) {
     return {

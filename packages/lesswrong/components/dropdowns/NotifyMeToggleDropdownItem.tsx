@@ -37,7 +37,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
   useCheckboxIcon,
   classes,
 }: NotifyMeToggleDropdownItemInternalProps) => {
-  const {isSubscribed, onSubscribe, loading, disabled } = useNotifyMe({
+  const {isSubscribed, onSubscribe, disabled} = useNotifyMe({
     document,
     overrideSubscriptionType: subscriptionType,
     hideFlashes: true,
@@ -65,7 +65,6 @@ export const NotifyMeToggleDropdownItemInternal = ({
       title={title}
       onClick={toggleSubscribed}
       afterIcon={afterIcon}
-      loading={loading}
       disabled={disabled}
       menuItemClassName={useCheckboxIcon ? classes.menuItemCheckbox : undefined}
     />

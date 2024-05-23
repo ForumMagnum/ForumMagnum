@@ -48,3 +48,17 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       return false;
   }
 }
+
+export function userSubscriptionStateIsFixed({user, subscriptionType, documentId}: {
+  user: DbUser|UsersCurrent,
+  subscriptionType: SubscriptionType,
+  documentId: string,
+}): boolean {
+  switch(subscriptionType) {
+    case subscriptionTypes.newUserComments:
+    case subscriptionTypes.newPosts:
+      return user?._id === documentId;
+    default:
+      return false;
+  }
+}
