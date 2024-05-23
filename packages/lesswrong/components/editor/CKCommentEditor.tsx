@@ -19,7 +19,7 @@ const CKCommentEditor = ({
   onSave,
   onChange,
   onFocus,
-  onInit,
+  onReady,
   placeholder,
 }: {
   data?: any,
@@ -28,7 +28,7 @@ const CKCommentEditor = ({
   onSave?: any,
   onChange?: any,
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
-  onInit?: any,
+  onReady: (editor: CKEditor<any>) => void,
   placeholder?: string,
 }) => {
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
@@ -61,10 +61,10 @@ const CKCommentEditor = ({
   return <div>
     <CKEditor
       editor={CommentEditor}
-      onReady={(editor: any) => {
+      onReady={(editor: CKEditor<any>) => {
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
-        if (onInit) onInit(editor)
+        onReady(editor)
         return editor
       }}
       onChange={onChange}
