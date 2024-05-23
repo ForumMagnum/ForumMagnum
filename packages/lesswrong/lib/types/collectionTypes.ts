@@ -103,8 +103,6 @@ type CollectionOptions<N extends CollectionNameString> = {
   schema: SchemaType<N>,
   generateGraphQLSchema?: boolean,
   collection?: any,
-  singleResolverName: string,
-  multiResolverName: string,
   resolvers?: any,
   mutations?: any,
   interfaces?: string[],
