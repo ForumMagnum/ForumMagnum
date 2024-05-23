@@ -1,10 +1,13 @@
-import PgCollection from '../sql/PgCollection';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
 export * from './getCollection';
+
+const Collection = bundleIsServer
+  ? require("@/server/PgCollection")
+  : require("./ClientCollection");
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a search with mongo's `field:null`, except
@@ -40,7 +43,7 @@ export const createCollection = <N extends CollectionNameString>(
   } = options;
 
   // initialize new collection
-  const collection = new PgCollection<N>(
+  const collection: CollectionBase<N> = new Collection(
     dbCollectionName ?? collectionName.toLowerCase(),
     {
       ...options,

@@ -78,11 +78,7 @@ class PgCollection<
   }
 
   getTable() {
-    if (bundleIsServer) {
-      return this.table;
-    } else {
-      throw new Error("Attempted to run postgres query on the client");
-    }
+    return this.table;
   }
 
   buildPostgresTable() {
