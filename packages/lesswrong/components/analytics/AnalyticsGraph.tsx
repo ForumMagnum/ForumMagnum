@@ -236,11 +236,13 @@ export const AnalyticsGraph = ({
   userId,
   postIds,
   initialDisplayFields = ["views", "reads"],
+  disclaimerEarliestDate,
   classes,
 }: {
   initialDisplayFields?: AnalyticsField[];
   userId?: string;
   postIds?: string[];
+  disclaimerEarliestDate?: Date,
   classes: ClassesType<typeof styles>;
 }) => {
   const {Typography, ForumDropdown, LWTooltip} = Components;
@@ -335,9 +337,10 @@ export const AnalyticsGraph = ({
     />
   );
 
+  const {AnalyticsGraphSkeleton, AnalyticsDisclaimers} = Components;
   if (loading || (!userId && !postIds?.length)) {
     return (
-      <Components.AnalyticsGraphSkeleton dateOptionDropdown={dateOptionDropdown} />
+      <AnalyticsGraphSkeleton dateOptionDropdown={dateOptionDropdown} />
     );
   }
 
@@ -413,11 +416,18 @@ export const AnalyticsGraph = ({
           ))}
         </LineChart>
       </ResponsiveContainer>
+      <AnalyticsDisclaimers
+        earliestDate={disclaimerEarliestDate ?? displayStartDate ?? new Date(0)}
+      />
     </div>
   );
 };
 
-const AnalyticsGraphComponent = registerComponent("AnalyticsGraph", AnalyticsGraph, { styles });
+const AnalyticsGraphComponent = registerComponent(
+  "AnalyticsGraph",
+  AnalyticsGraph,
+  {styles},
+);
 
 declare global {
   interface ComponentTypes {

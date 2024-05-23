@@ -93,12 +93,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const overallStats = postAnalytics?.posts?.[0];
 
   const {
-    SingleColumnSection,
-    LoginForm,
-    HeadTags,
-    Typography,
-    AnalyticsGraph,
-    AnalyticsDisclaimers,
+    SingleColumnSection, LoginForm, HeadTags, Typography, AnalyticsGraph,
     LWTooltip,
   } = Components;
 
@@ -204,8 +199,10 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
             </TableRow>
           </TableBody>
         </Table>
-        <AnalyticsGraph postIds={post ? [post._id] : []} />
-        <AnalyticsDisclaimers earliestDate={post?.createdAt ?? new Date()} />
+        <AnalyticsGraph
+          postIds={post ? [post._id] : []}
+          disclaimerEarliestDate={post?.createdAt ?? new Date()}
+        />
       </SingleColumnSection>
     </>
   );

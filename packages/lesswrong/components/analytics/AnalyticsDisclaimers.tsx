@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 const missingClientRangeText = forumSelect({
   EAForum: "Jan 11th - Jun 14th of 2021",
@@ -14,22 +15,29 @@ const missingClientLastDay = forumSelect({
   default: null,
 });
 const dataCollectionFirstDay = forumSelect({
-  EAForum: "Feb 19th, 2020",
+  EAForum: "on Feb 19th, 2020",
   LWAF: "around the start of 2020",
   default: null,
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {}
+const styles = (theme: ThemeType) => ({
+  root: isFriendlyUI
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      margin: "0 14px",
+    }
+    : {},
 });
 
-const AnalyticsDisclaimers = ({ earliestDate }: { earliestDate: Date }) => {
-  const { Typography } = Components;
-
+const AnalyticsDisclaimers = ({earliestDate, classes}: {
+  earliestDate: Date,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {Typography} = Components;
   return (
     <>
       {missingClientLastDay && moment(earliestDate) < moment(missingClientLastDay) && (
-        <Typography variant="body1" gutterBottom>
+        <Typography variant="body1" gutterBottom className={classes.root}>
           <em>
             Note: For figures that rely on detecting unique devices, we were mistakenly not collecting that data from{" "}
             {missingClientRangeText}.
@@ -37,15 +45,19 @@ const AnalyticsDisclaimers = ({ earliestDate }: { earliestDate: Date }) => {
         </Typography>
       )}
       {dataCollectionFirstDay && moment(earliestDate) < moment("2020-02-19") && (
-        <Typography variant="body1" gutterBottom>
-          <em>Note 2: Data collection began on {dataCollectionFirstDay}.</em>
+        <Typography variant="body1" gutterBottom className={classes.root}>
+          <em>Note 2: Data collection began {dataCollectionFirstDay}.</em>
         </Typography>
       )}
     </>
   );
 };
 
-const AnalyticsDisclaimersComponent = registerComponent("AnalyticsDisclaimers", AnalyticsDisclaimers, { styles });
+const AnalyticsDisclaimersComponent = registerComponent(
+  "AnalyticsDisclaimers",
+  AnalyticsDisclaimers,
+  {styles},
+);
 
 declare global {
   interface ComponentTypes {
