@@ -9,7 +9,11 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+
+// These server imports are safe as they use `import type`
+// eslint-disable-next-line import/no-restricted-paths
 import type Table from '@/server/sql/Table';
+// eslint-disable-next-line import/no-restricted-paths
 import type { BulkWriterResult } from '@/server/sql/BulkWriter';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration

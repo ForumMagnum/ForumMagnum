@@ -6,8 +6,9 @@ import { pluralize } from './pluralize';
 export * from './getCollection';
 
 const Collection = bundleIsServer
-  ? require("@/server/PgCollection")
-  : require("./ClientCollection");
+  // eslint-disable-next-line import/no-restricted-paths
+  ? require("@/server/sql/PgCollection").default
+  : require("./ClientCollection").default;
 
 // When used in a view, set the query so that it returns rows where a field is
 // null or is missing. Equivalent to a search with mongo's `field:null`, except

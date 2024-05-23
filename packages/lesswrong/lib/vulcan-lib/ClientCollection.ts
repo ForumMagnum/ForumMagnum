@@ -1,4 +1,4 @@
-export class ClientCollection<
+class ClientCollection<
   N extends CollectionNameString = CollectionNameString
 > implements CollectionBase<N> {
   collectionName: N;
@@ -90,3 +90,5 @@ export class ClientCollection<
     this.views[viewName] = view;
   }
 }
+
+export default ClientCollection;

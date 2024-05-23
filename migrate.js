@@ -24,7 +24,7 @@ const initGlobals = (args, isProd) => {
 const fetchImports = (args, isProd) => {
   initGlobals(args, isProd);
 
-  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
+  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/server/sql/sqlClient");
   const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
