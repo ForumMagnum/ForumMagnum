@@ -14,8 +14,6 @@ import React from 'react';
 //import PropTypes, { type InferProps, type Validator } from 'prop-types';
 import PropTypes, { InferProps, Validator } from 'prop-types';
 
-import uid from '@ckeditor/ckeditor5-utils/src/uid';
-
 import type { EventInfo } from '@ckeditor/ckeditor5-utils';
 import type { Editor, EditorConfig } from '@ckeditor/ckeditor5-core';
 import type { DocumentChangeEvent } from '@ckeditor/ckeditor5-engine';
@@ -28,6 +26,7 @@ import type { WatchdogConfig } from '../ckeditor5-watchdog/watchdog';
 import type { EditorCreatorFunction } from '../ckeditor5-watchdog/editorwatchdog';
 
 import { ContextWatchdogContext } from './ckeditorcontext';
+import { randomId } from '@/lib/random';
 
 const REACT_INTEGRATION_READ_ONLY_LOCK_ID = 'Lock from React integration (@ckeditor/ckeditor5-react)';
 
@@ -399,7 +398,7 @@ export class EditorWatchdogAdapter<TEditor extends Editor> {
 	 */
 	constructor( contextWatchdog: ContextWatchdog ) {
 		this._contextWatchdog = contextWatchdog;
-		this._id = uid();
+		this._id = randomId();
 	}
 
 	/**
