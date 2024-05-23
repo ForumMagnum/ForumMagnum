@@ -167,9 +167,6 @@ export const styles = (theme: ThemeType) => ({
     fontSize: 32,
     fontWeight: 700,
   },
-  overallStatDescription: {
-    cursor: "pointer",
-  },
   overallStatTooltip: {
     maxWidth: 150,
     color: theme.palette.grey[0],
@@ -424,7 +421,6 @@ export const AnalyticsGraph = ({
               placement="bottom"
               tooltip={false}
               popperClassName={classes.overallStatTooltip}
-              className={classes.overallStatDescription}
             >
               Views
             </LWTooltip>
@@ -436,7 +432,6 @@ export const AnalyticsGraph = ({
               placement="bottom"
               tooltip={false}
               popperClassName={classes.overallStatTooltip}
-              className={classes.overallStatDescription}
             >
               Reads
             </LWTooltip>
