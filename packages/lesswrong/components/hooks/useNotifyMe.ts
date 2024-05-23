@@ -200,7 +200,7 @@ export const useNotifyMe = ({
     return {
       loading: true,
     };
-  };
+  }
 
   if (hideIfNotificationsDisabled && !isSubscribed) {
     return {
