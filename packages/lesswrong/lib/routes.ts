@@ -683,10 +683,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => communityPath
     },
     {
-      name: 'Groups & people',
+      name: 'GroupsHome',
       path: communityPath,
       componentName: 'Community',
-      title: 'Groups & people',
+      title: 'Groups',
       description: "Discover local and online EA groups, or browse the members of the forum to find people to connect with.",
       ...communitySubtitle
     },
