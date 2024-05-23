@@ -449,7 +449,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
                 href={`/profile/${user.slug}/edit`}
                 className={classes.editProfileButton}
               >
-                Edit profile
+                Edit public profile
               </Button>
             </div>
           }
