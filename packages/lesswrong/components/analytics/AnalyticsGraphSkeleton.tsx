@@ -34,8 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const AnalyticsGraphSkeleton = ({title, dateOptionDropdown, classes}: {
-  title?: ReactNode,
+export const AnalyticsGraphSkeleton = ({dateOptionDropdown, classes}: {
   dateOptionDropdown?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -52,7 +51,6 @@ export const AnalyticsGraphSkeleton = ({title, dateOptionDropdown, classes}: {
 
   return (
     <div className={classes.root}>
-      {title}
       <div className={classes.dateDropdownWrapper}>
         {dateOptionDropdown}
       </div>

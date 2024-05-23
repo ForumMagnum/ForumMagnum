@@ -8,7 +8,6 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
-import classNames from "classnames";
 
 const CONTROLS_BREAKPOINT = 700;
 
@@ -28,34 +27,6 @@ export const styles = (theme: ThemeType) => ({
     "& .recharts-cartesian-axis-tick-value": {
       fontWeight: 500,
     },
-  },
-  graphHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    flexDirection: "row",
-    marginBottom: 12,
-    [theme.breakpoints.down('xs')]: {
-      flexDirection: "column",
-      minHeight: 56,
-      marginBottom: 0,
-    }
-  },
-  graphHeaderSmallerTitle: {
-    [theme.breakpoints.down('xs')]: {
-      minHeight: 42,
-    }
-  },
-  graphHeading: {
-    fontSize: 32,
-    fontWeight: "600",
-    color: theme.palette.grey[1000],
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    [theme.breakpoints.down('xs')]: {
-      lineHeight: '1.2em',
-    }
-  },
-  smallerTitle: {
-    fontSize: 20,
   },
   fetchingLatest: {
     fontSize: 14,
@@ -265,15 +236,11 @@ export const AnalyticsGraph = ({
   userId,
   postIds,
   initialDisplayFields = ["views", "reads"],
-  title,
-  smallerTitle = false,
   classes,
 }: {
   initialDisplayFields?: AnalyticsField[];
   userId?: string;
   postIds?: string[];
-  title?: string;
-  smallerTitle?: boolean;
   classes: ClassesType<typeof styles>;
 }) => {
   const {Typography, ForumDropdown, LWTooltip} = Components;
@@ -368,26 +335,9 @@ export const AnalyticsGraph = ({
     />
   );
 
-  const titleNode = title
-    ? (
-      <div className={classNames(classes.graphHeader, {
-        [classes.graphHeaderSmallerTitle]: smallerTitle},
-        )}>
-        <Typography variant="headline" className={classNames(classes.graphHeading, {
-          [classes.smallerTitle]: smallerTitle,
-          })}>
-          {title}
-        </Typography>
-      </div>
-    )
-    : undefined;
-
   if (loading || (!userId && !postIds?.length)) {
     return (
-      <Components.AnalyticsGraphSkeleton
-        title={titleNode}
-        dateOptionDropdown={dateOptionDropdown}
-      />
+      <Components.AnalyticsGraphSkeleton dateOptionDropdown={dateOptionDropdown} />
     );
   }
 
@@ -410,7 +360,6 @@ export const AnalyticsGraph = ({
 
   return (
     <div className={classes.root}>
-      {titleNode}
       {dateOptionDropdown}
       <div className={classes.controls}>
         <div className={classes.overallStatContainer}>

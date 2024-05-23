@@ -201,11 +201,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
             </TableRow>
           </TableBody>
         </Table>
-        <AnalyticsGraph
-          postIds={post ? [post._id] : []}
-          title="Daily stats"
-          smallerTitle
-        />
+        <AnalyticsGraph postIds={post ? [post._id] : []} />
         <AnalyticsDisclaimers earliestDate={post?.createdAt ?? new Date()} />
       </SingleColumnSection>
     </>
