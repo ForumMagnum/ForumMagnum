@@ -144,8 +144,8 @@ const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[])
 };
 
 const defaultRecombeeConfig: RecombeeConfiguration = {
-  rotationRate: 0.1,
-  rotationTime: 12,
+  rotationRate: 0.2,
+  rotationTime: 24 * 30,
 };
 
 
