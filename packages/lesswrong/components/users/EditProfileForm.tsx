@@ -9,6 +9,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
+import { preferredHeadingCase } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -118,7 +119,7 @@ const EditProfileForm = ({classes}: {
   return (
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        {isEAForum ? "Edit profile" : "Edit Public Profile"}
+        {preferredHeadingCase("Edit Public Profile")}
       </Typography>
 
       {!isEAForum &&

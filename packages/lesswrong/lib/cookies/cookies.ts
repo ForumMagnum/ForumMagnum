@@ -152,6 +152,12 @@ export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
   description: "Whether to display post lists as list items or card items"
 });
 
+export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
+  name: "hide_subscribed_feed_suggested_users",
+  type: "necessary",
+  description: "Whether to hide the suggested users section on the subscribed tab feed"
+});
+
 // Third party cookies
 
 // Intercom

@@ -439,10 +439,10 @@ const Community = ({classes}: {
           />
           
           <div className={classes.localGroupsBtns}>
-            <Button href="https://resources.eagroups.org/start-a-group"
+            <Button href="https://resources.eagroups.org"
               variant="outlined" color="primary" target="_blank" rel="noopener noreferrer" className={classes.localGroupsBtn}
             >
-              Start your own group
+              Start a new group
               <OpenInNewIcon className={classes.localGroupsBtnIcon} />
             </Button>
             <Button href="https://docs.google.com/forms/d/e/1FAIpQLScMolewy1P1z9XNyFIN1mQFZQ1LE64QXJrIaX6enrfItWR9LQ/viewform"

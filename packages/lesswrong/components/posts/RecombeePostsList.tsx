@@ -145,7 +145,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
 
   const postIds = results?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied }) => {
+  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied, generatedAt }) => {
     let loggedScenario = scenario;
     if (!loggedScenario) {
       if (curated) {
@@ -156,8 +156,14 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
         loggedScenario = 'hacker-news';
       }
     }
-    
-    return { postId: post._id, scenario: loggedScenario };
+
+    const data = { postId: post._id, scenario: loggedScenario };
+
+    if (generatedAt) {
+      return {...data, generatedAt: generatedAt.toISOString()};
+    }
+
+    return data;
   }) ?? [];
 
   useOnMountTracking({

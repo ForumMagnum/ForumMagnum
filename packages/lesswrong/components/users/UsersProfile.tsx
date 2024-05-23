@@ -95,6 +95,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   copyIcon: {
     fontSize: 14
+  },
+  subscribeButton: {
+    display: "flex",
   }
 })
 
@@ -191,9 +194,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -290,17 +293,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
-              </NewConversationButton>}
-              { <NotifyMeButton
-                document={user}
-                subscribeMessage="Subscribe to posts"
-                unsubscribeMessage="Unsubscribe from posts"
-              /> }
-              { allowSubscribeToUserComments && <NotifyMeButton
-                document={user}
-                subscribeMessage="Subscribe to comments"
-                unsubscribeMessage="Unsubscribe from comments"
-                subscriptionType={subscriptionTypes.newUserComments}
+              </NewConversationButton> }
+              { <UserNotifyDropdown 
+                user={user} 
+                popperPlacement="bottom-end"
+                className={classes.subscribeButton} 
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 {preferredHeadingCase("Account Settings")}
