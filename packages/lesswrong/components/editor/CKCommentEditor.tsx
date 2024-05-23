@@ -8,6 +8,7 @@ import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
 import { mentionPluginConfiguration } from "../../lib/editor/mentionsConfig";
 import { cloudinaryConfig } from '../../lib/editor/cloudinaryConfig'
 import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
+import type { Editor } from '@ckeditor/ckeditor5-core';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -28,7 +29,7 @@ const CKCommentEditor = ({
   onSave?: any,
   onChange?: any,
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
-  onReady: (editor: CKEditor<any>) => void,
+  onReady: (editor: Editor) => void,
   placeholder?: string,
 }) => {
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
@@ -61,7 +62,7 @@ const CKCommentEditor = ({
   return <div>
     <CKEditor
       editor={CommentEditor}
-      onReady={(editor: CKEditor<any>) => {
+      onReady={(editor: Editor) => {
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         onReady(editor)

@@ -350,7 +350,7 @@ const CKPostEditor = ({
   documentId?: string,
   userId?: string,
   formType?: "new"|"edit",
-  onReady: (editor: CKEditor<any>) => void,
+  onReady: (editor: Editor) => void,
   // Whether this is the contents field of a collaboratively-edited post
   isCollaborative?: boolean,
   // If this is the contents field of a collaboratively-edited post, the access level the
