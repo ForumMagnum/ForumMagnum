@@ -57,7 +57,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
 
       return <ToggleSwitch value={subscribed} className={classes.toggle} smallVersion />
     },
-    [subscribed, useCheckboxIcon, ToggleSwitch, classes.toggle ],
+    [subscribed, useCheckboxIcon, ToggleSwitch, classes.toggle],
   );
 
   return (

@@ -98,7 +98,6 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.4,
     },
     marginRight: -8,
-    // marginTop: -8,
   },
   commentsList: {
     paddingBottom: 16,
@@ -156,8 +155,6 @@ const FeedPostCommentsCard = ({
       <div className={classNames(classes.root, classes.plainBackground)}>
 
         <div className={classes.cardHeader}>
-          {/* TODO: this will break styling probably, need to test with actual example of groups*/}
-          {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
           <div className={classes.titleAndActions}>
             <Link to={postGetPageUrl(post)} className={classes.title} eventProps={{intent: 'expandPost'}}>
               {post.title}
@@ -196,7 +193,7 @@ const FeedPostCommentsCard = ({
   )
 };
 
-const FeedPostCommentsCardComponent = registerComponent( 'FeedPostCommentsCard', FeedPostCommentsCard, {
+const FeedPostCommentsCardComponent = registerComponent('FeedPostCommentsCard', FeedPostCommentsCard, {
     styles,
     hocs: [withErrorBoundary],
     areEqual: {

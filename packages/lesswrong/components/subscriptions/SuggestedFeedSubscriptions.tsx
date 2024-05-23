@@ -10,7 +10,6 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import classNames from 'classnames';
-import _ from 'underscore';
 
 const styles = (theme: ThemeType) => ({
   root: {

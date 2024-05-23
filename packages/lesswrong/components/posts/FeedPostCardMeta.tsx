@@ -133,13 +133,13 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
   </span>
 
   const authorsListElement = <InteractionWrapper className={classes.interactionWrapper}>
-        <TruncatedAuthorsList
-          post={post}
-          expandContainer={authorExpandContainer}
-          className={classes.authorsList}
-        />
-      {separatorElement}
-      </InteractionWrapper>
+    <TruncatedAuthorsList
+      post={post}
+      expandContainer={authorExpandContainer}
+      className={classes.authorsList}
+    />
+    {separatorElement}
+  </InteractionWrapper>
 
   return (
     <div

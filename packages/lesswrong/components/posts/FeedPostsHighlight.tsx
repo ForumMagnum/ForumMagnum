@@ -14,9 +14,7 @@ import { truncateWithGrace } from '../../lib/editor/ellipsize';
 
 const styles = (theme: ThemeType) => ({
   root: {
-
     '& .read-more-button': {
-      // color: theme.palette.primary.main,
       opacity: 0.7,
     }
   },
@@ -24,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 10,
   },
   highlightContinue: {
-    marginTop:theme.spacing.unit*2,
+    marginTop: theme.spacing.unit*2,
     fontFamily: theme.palette.fonts.sansSerifStack,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
@@ -71,7 +69,7 @@ const FeedPostHighlightBody = ({
   expandedDocument?: PostsExpandedHighlight,
   classes: ClassesType,
 }) => {
-  const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
+  const { htmlHighlight = "", wordCount = 0 } = post.contents ?? {};
 
   const { recordPostView } = useRecordPostView(post); 
   const { captureEvent } = useTracking();
@@ -86,11 +84,11 @@ const FeedPostHighlightBody = ({
 
   const maxLengthWords = expanded ? 1000 : maxCollapsedLengthWords;
 
-  const html = expandedDocument?.contents?.html || htmlHighlight
+  const html = expandedDocument?.contents?.html ?? htmlHighlight
   const rawWordCount = wordCount ?? 0;
   const readMoreId = `feed-post-read-more-${post._id}`;
 
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
+  const styles = html.match(/<style[\s\S]*?<\/style>/g) ?? ""
   const suffix = expanded ? undefined : `... <span id="${readMoreId}" class="read-more-button">(read more)</span>${styles}`
 
   useEffect(() => {
@@ -138,16 +136,16 @@ const FeedForeignPostsHighlightBody = ({post, maxCollapsedLengthWords, forceSeeM
   return loading
     ? <Components.Loading />
     : <FeedPostHighlightBody {...{
-      post,
-      maxCollapsedLengthWords,
-      forceSeeMore,
-      smallerFonts,
-      expanded,
-      setExpanded,
-      expandedLoading,
-      expandedDocument,
-      classes,
-    }} />
+        post,
+        maxCollapsedLengthWords,
+        forceSeeMore,
+        smallerFonts,
+        expanded,
+        setExpanded,
+        expandedLoading,
+        expandedDocument,
+        classes,
+      }}/>
 }
 
 const FeedForeignPostsHighlight = ({post, maxCollapsedLengthWords, forceSeeMore=false, smallerFonts, classes}: {
@@ -210,8 +208,5 @@ declare global {
   interface ComponentTypes {
     FeedPostsHighlight: typeof FeedPostsHighlightComponent
   }
-}
-function useEventCapture(): { captureEvent: any; } {
-  throw new Error('Function not implemented.');
 }
 
