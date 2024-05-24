@@ -157,10 +157,7 @@ const ForumDropdownMultiselect = ({
             key={option}
             value={option}
             onClick={() => {
-              // setTimeout here is a fix for a bug where clicking an option opened a dialog,
-              // and then the LWClickAwayListener was triggered immediately, closing the dialog.
-              // I don't understand exactly why this fixes it
-              setTimeout(() => setAnchorEl(null), 0);
+              setAnchorEl(null);
               onSelect?.(option);
             }}
             className={classes.menuItem}
