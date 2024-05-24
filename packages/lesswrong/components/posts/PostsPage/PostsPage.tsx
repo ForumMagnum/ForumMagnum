@@ -417,7 +417,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         componentProps: {
           post: fullPost,
         },
-        noClickawayCancel: true,
         closeOnNavigate: true,
       });
     }
@@ -584,7 +583,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       componentProps: {
         post, initialHtml: html
       },
-      noClickawayCancel: true,
     })
   }, [openDialog, post]);
 
