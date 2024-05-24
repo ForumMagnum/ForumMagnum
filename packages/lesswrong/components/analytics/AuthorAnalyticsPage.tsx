@@ -11,6 +11,7 @@ import { useNavigate } from "../../lib/reactRouterWrapper";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 import range from "lodash/range";
+import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 
 export const mdTitleWidth = 60;
 export const smTitleWidth = 50;
@@ -33,16 +34,24 @@ const styles = (theme: ThemeType) => ({
   },
   section: {
     background: theme.palette.grey[0],
-    padding: "24px 24px",
+    padding: 24,
     marginBottom: 24,
     borderRadius: theme.borderRadius.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("xs")]: {
-      padding: 16,
+      padding: "16px 8px",
+    },
+  },
+  postsSection: {
+    [theme.breakpoints.down("xs")]: {
+      marginRight: GRAPH_LEFT_MARGIN,
     },
   },
   pageHeader: {
     margin: "24px 36px",
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: GRAPH_LEFT_MARGIN,
+    },
   },
   pageHeaderText: {
     fontSize: 32,
@@ -68,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
   },
   grid: {
     display: "grid",
@@ -86,13 +95,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     padding: "12px 4px 12px 0",
     fontWeight: 500,
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
     [theme.breakpoints.down("xs")]: {
       fontSize: 11,
     },
   },
   postItem: {
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
   },
   dateHeader: {
     justifyContent: "flex-start",
@@ -109,7 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   valueHeaderLabel: {
     cursor: "pointer",
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
     display: "flex",
     alignItems: "center",
     [theme.breakpoints.down("xs")]: {
@@ -286,7 +295,7 @@ const AuthorAnalyticsPage = ({ classes }: {
         <div className={classes.section}>
           <AnalyticsGraph userId={user?._id} />
         </div>
-        <div className={classes.section}>
+        <div className={classNames(classes.section, classes.postsSection)}>
           <div className={classes.allYourPosts}>All {getUserHeading(false)} posts</div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>

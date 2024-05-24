@@ -13,6 +13,13 @@ const CONTROLS_BREAKPOINT = 700;
 
 export const GRAPH_HEIGHT = 300;
 
+/**
+ * The garph is rendered as an SVG which includes a built-in left margin - this
+ * constant is the offset we need to apply to other elements to make them
+ * line up nicely with the graph.
+ */
+export const GRAPH_LEFT_MARGIN = 14;
+
 export const styles = (theme: ThemeType) => ({
   root: {
     overflow: "auto hidden",

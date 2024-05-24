@@ -1,9 +1,11 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
-import { GRAPH_HEIGHT, styles as analyticsGraphStyles } from "./AnalyticsGraph";
+import {
+  GRAPH_HEIGHT,
+  GRAPH_LEFT_MARGIN,
+  styles as analyticsGraphStyles,
+} from "./AnalyticsGraph";
 import classNames from "classnames";
-
-const LEFT_MARGIN = 14;
 
 const styles = (theme: ThemeType) => ({
   ...analyticsGraphStyles(theme),
@@ -30,10 +32,11 @@ const styles = (theme: ThemeType) => ({
   fieldLabel: {
     width: 68,
     marginLeft: 20,
+    marginTop: 8,
   },
   graphContainer: {
-    width: `calc(100% - ${LEFT_MARGIN}px)`,
-    marginLeft: LEFT_MARGIN,
+    width: `calc(100% - ${GRAPH_LEFT_MARGIN}px)`,
+    marginLeft: GRAPH_LEFT_MARGIN,
     height: `${GRAPH_HEIGHT}px !important`,
     marginTop: 20,
     marginBottom: 2,

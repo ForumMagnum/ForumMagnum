@@ -11,6 +11,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import { Link } from "../../lib/reactRouterWrapper";
+import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 import classNames from "classnames";
 
 function formatBounceRate(denominator?: number, numerator?: number) {
@@ -31,7 +32,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
-      paddingTop: 16,
+      paddingTop: 24,
+    },
+    [theme.breakpoints.down("xs")]: {
+      paddingLeft: 8,
+      paddingRight: 8,
     },
   },
   title: {
@@ -39,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     minHeight: 40,
     marginBottom: 24,
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
     fontSize: 32,
     fontWeight: "700",
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -52,11 +57,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 20,
     margin: '8px 0px',
     color: theme.palette.grey[1000],
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
+  },
+  tableContainer: {
+    overflow: "hidden",
+    width: "100%",
+    paddingRight: 36,
+    [theme.breakpoints.down("xs")]: {
+      paddingRight: 30,
+    },
   },
   table: {
     marginBottom: 40,
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
   },
   placeholder: {
     height: 10,
@@ -143,62 +156,64 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
         <Typography variant="display2" className={classes.subheading}>
           Overall stats
         </Typography>
-        <Table className={classes.table}>
-          <TableBody>
-            <TableRow>
-              <TableCell>Views</TableCell>
-              <TableCell>
-                {overallStats ? overallStats.views : statPlaceholder}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <LWTooltip title="Unique views 30s or longer">Reads</LWTooltip>
-              </TableCell>
-              <TableCell>
-                {overallStats ? overallStats.reads : statPlaceholder}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Karma</TableCell>
-              <TableCell>
-                {overallStats ? overallStats.karma : statPlaceholder}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>Comments</TableCell>
-              <TableCell>
-                {overallStats ? overallStats.comments : statPlaceholder}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <LWTooltip title="Percentage of unique views less than 30s">
-                  Bounce Rate
-                </LWTooltip>
-              </TableCell>
-              <TableCell>
-                {overallStats
-                  ? formatBounceRate(overallStats.uniqueViews, overallStats.reads)
-                  : statPlaceholder
-                }
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <LWTooltip title="Note: includes time spent reading and writing comments">
-                  Mean reading time
-                </LWTooltip>
-              </TableCell>
-              <TableCell>
-                {overallStats
-                  ? readableReadingTime(overallStats.meanReadingTime)
-                  : statPlaceholder
-                }
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+        <div className={classes.tableContainer}>
+          <Table className={classes.table}>
+            <TableBody>
+              <TableRow>
+                <TableCell>Views</TableCell>
+                <TableCell>
+                  {overallStats ? overallStats.views : statPlaceholder}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <LWTooltip title="Unique views 30s or longer">Reads</LWTooltip>
+                </TableCell>
+                <TableCell>
+                  {overallStats ? overallStats.reads : statPlaceholder}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Karma</TableCell>
+                <TableCell>
+                  {overallStats ? overallStats.karma : statPlaceholder}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>Comments</TableCell>
+                <TableCell>
+                  {overallStats ? overallStats.comments : statPlaceholder}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <LWTooltip title="Percentage of unique views less than 30s">
+                    Bounce Rate
+                  </LWTooltip>
+                </TableCell>
+                <TableCell>
+                  {overallStats
+                    ? formatBounceRate(overallStats.uniqueViews, overallStats.reads)
+                    : statPlaceholder
+                  }
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell>
+                  <LWTooltip title="Note: includes time spent reading and writing comments">
+                    Mean reading time
+                  </LWTooltip>
+                </TableCell>
+                <TableCell>
+                  {overallStats
+                    ? readableReadingTime(overallStats.meanReadingTime)
+                    : statPlaceholder
+                  }
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </div>
         <AnalyticsGraph
           postIds={post ? [post._id] : []}
           disclaimerEarliestDate={post?.createdAt ?? new Date()}

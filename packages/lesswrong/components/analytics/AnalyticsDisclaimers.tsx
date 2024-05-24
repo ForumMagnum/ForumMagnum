@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import moment from "moment";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isFriendlyUI } from "@/themes/forumTheme";
+import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 
 const missingClientRangeText = forumSelect({
   EAForum: "Jan 11th - Jun 14th of 2021",
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
-      margin: "0 14px",
+      margin: `0 ${GRAPH_LEFT_MARGIN}px`,
     }
     : {},
 });
