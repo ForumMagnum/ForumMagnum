@@ -42,6 +42,28 @@ export const truncate = (
   return styles + truncatedHtml;
 }
 
+export const truncateWithGrace = (html: string, maxLengthWords: number, graceWords: number, rawWordCount: number, suffix?: string): {
+  truncatedHtml: string,
+  wasTruncated: boolean,
+  wordsLeft: number,
+} => {
+  const truncatedHtml = truncate(html, maxLengthWords, "words", suffix);
+  const wordsLeft = (truncatedHtml===html) ? 0 : rawWordCount-maxLengthWords;
+  
+  if (truncatedHtml === html || wordsLeft<graceWords) {
+    return {
+      truncatedHtml: html,
+      wasTruncated: false,
+      wordsLeft: 0,
+    };
+  }
+  
+  return {
+    truncatedHtml, wordsLeft,
+    wasTruncated: true,
+  };
+}
+
 export function getTruncationCharCount (comment: CommentsList, currentUser?: UsersCurrent|null, postPage?: boolean) {
   // Do not truncate for users who have disabled it in their user settings. Might want to do someting more elegant here someday.
   if (currentUser && currentUser.noCollapseCommentsPosts && postPage) {

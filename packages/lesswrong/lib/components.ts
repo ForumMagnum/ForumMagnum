@@ -390,6 +390,7 @@ importComponent("SocialMediaIcon", () => require('../components/icons/SocialMedi
 // posts
 
 importComponent("PostsHighlight", () => require('../components/posts/PostsHighlight'));
+importComponent("FeedPostsHighlight", () => require('../components/posts/FeedPostsHighlight'));
 importComponent("PostsListPlaceholder", () => require('../components/posts/PostsListPlaceholder'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage'));
 importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect'));
@@ -609,8 +610,8 @@ importComponent("GatherTown", () => require('../components/walledGarden/GatherTo
 
 // comments
 
-importComponent("CommentsItem", () => require('../components/comments/CommentsItem/CommentsItem'));
-importComponent("CommentsItemMeta", () => require('../components/comments/CommentsItem/CommentsItemMeta'));
+importComponent("CommentsItem", () => require('@/components/comments/CommentsItem/CommentsItem'));
+importComponent("CommentsItemMeta", () => require('@/components/comments/CommentsItem/CommentsItemMeta'));
 importComponent("CommentUserName", () => require('../components/comments/CommentsItem/CommentUserName'));
 importComponent("CommentShortformIcon", () => require('../components/comments/CommentsItem/CommentShortformIcon'));
 importComponent("CommentDiscussionIcon", () => require('../components/comments/CommentsItem/CommentDiscussionIcon'));
@@ -666,6 +667,8 @@ importComponent("TopicSuggestion", () => require('../components/dialogues/Dialog
 importComponent("CommentView", () => require('../components/dialogues/DialogueRecommendationRow'));
 importComponent("CalendlyIFrame", () => require('../components/dialogues/CalendlyIFrame'));
 importComponent("ActiveDialogues", () => require('../components/dialogues/ActiveDialogues'));
+importComponent("FeedPostCommentsCard", () => require('../components/recentDiscussion/FeedPostCommentsCard'));
+importComponent("FeedPostCardMeta", () => require('../components/posts/FeedPostCardMeta'));
 
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));

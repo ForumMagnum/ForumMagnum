@@ -63,8 +63,9 @@ const loadClientBundle = (): CachedClientBundle => {
   const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
   const lastModified = fs.statSync(bundlePath).mtimeMs;
 
-  const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  const bundleBuffer = Buffer.from(bundleText, 'utf8');
+  // The bundle is already in UTF-8, so if we read it with no character set specifier,
+  // we get it in ready-to-serve form.
+  const bundleBuffer = fs.readFileSync(bundlePath);
 
   return {
     resource: brotliCompressResource(bundleBuffer),
@@ -85,8 +86,7 @@ let serverBundleHash: string|null = null;
 export const getServerBundleHash = (): string => {
   if (!serverBundleHash) {
     const serverBundlePath = path.join(__dirname, "../../server/js/serverBundle.js");
-    const serverBundleText = fs.readFileSync(serverBundlePath, 'utf8');
-    const serverBundleBuffer = Buffer.from(serverBundleText, 'utf8');
+    const serverBundleBuffer = fs.readFileSync(serverBundlePath);
     serverBundleHash = crypto.createHash('sha256').update(serverBundleBuffer).digest('hex');
   }
   return serverBundleHash;
