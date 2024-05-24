@@ -36,21 +36,32 @@ abstract class IAuth0BackendClient {
 
 /**
  * We replace the real `Auth0Client` (defined below) with this mock client for
- * end-to-end Cypress tests. This bypasses auth0 completely. Note that the mock
+ * end-to-end Playwright tests. This bypasses auth0 completely. Note that the mock
  * client will always login the user, whether or not their password is correct.
  */
 class MockAuth0Client extends IAuth0BackendClient {
+  private assertIsE2E() {
+    if (!isE2E) {
+      throw new Error("Using mock auth0 backend outside of E2E tests");
+    }
+  }
+
   getUserById(_userId: string): Promise<Auth0User> {
+    this.assertIsE2E();
     throw new Error("getUserById not implemented for tests");
   }
 
   updateUserById(_userId: string, _data: UpdateUserData): Promise<Auth0User> {
+    this.assertIsE2E();
     throw new Error("updateUserById not implemented for tests");
   }
 
-  async signupUser(_email: string, _password: string): Promise<void> {}
+  async signupUser(_email: string, _password: string): Promise<void> {
+    this.assertIsE2E();
+  }
 
   async loginUser(email: string, _password: string): Promise<string | null> {
+    this.assertIsE2E();
     return `access-token-${email}`;
   }
 }

@@ -399,6 +399,9 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   // This is a mock method used in playwright tests - it gets overwritten below
   // for actual servers
   let profileFromAccessToken: ProfileFromAccessToken = async (token: string) => {
+    if (!isE2E) {
+      throw new Error("Using mock auth0 backend outside of E2E tests");
+    }
     const email = token.replace("access-token-", "");
     return {
       provider: "auth0",
