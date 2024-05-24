@@ -258,7 +258,7 @@ Both commands support a `-watch` suffix to watch the file system, and a `-covera
 ### Playwright
 
 There is some one-time setup before you can run the playwright tests:
- * Install `docker` (`brew install --cask docker` on OSX)
+ * Install `docker` (`brew install --cask docker` on OSX) and start the daemon
  * Download the Postgres `docker` image with `yarn playwright-db` (you can Ctrl+C to exit the container once it has successfully downloaded and started)
  * Install the browsers with `yarn playwright install`
 
