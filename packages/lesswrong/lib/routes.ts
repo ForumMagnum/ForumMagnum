@@ -722,6 +722,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: "userAnalytics",
       path:'/users/:slug/stats',
       componentName: "AuthorAnalyticsPage",
+      background: "white",
     },
     {
       name: "myAnalytics",

@@ -790,7 +790,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   async getPostsAndCommentsFromSubscriptions(userId: string, numDays: number): Promise<Array<PostAndCommentsResultRow >> {
     return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
       WITH user_subscriptions AS (
-      SELECT DISTINCT "displayName", type, "documentId" AS "userId"
+      SELECT DISTINCT type, "documentId" AS "userId"
       FROM "Subscriptions" s
                LEFT JOIN "Users" u ON u._id = s."documentId"
       WHERE state = 'subscribed'
@@ -812,13 +812,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       posts_with_comments_from_subscribees AS (
           SELECT
              "postId",
-             ARRAY_AGG(c._id ORDER BY c."postedAt" DESC) AS "commentIds",
+             (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
              MAX(c."postedAt") AS last_updated,
             TRUE as "subscribedComments"
           FROM "Comments" c
                JOIN user_subscriptions us USING ("userId")
           WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
-          AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
+          -- TODO: maybe reintroduce this filter?
+          -- AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE
@@ -842,6 +843,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND p."hiddenRelatedQuestion" IS NOT TRUE
         AND p.unlisted IS NOT TRUE
         AND p."isFuture" IS NOT TRUE
+        AND p."isEvent" IS NOT TRUE
       ORDER BY GREATEST(last_updated, combined."postedAt") DESC;
     `, [
       userId,
