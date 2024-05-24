@@ -27,7 +27,7 @@ export const AUTH0_SCOPE = "profile email openid offline_access";
 
 type Auth0User = User<AppMetadata, UserMetadata>;
 
-abstract class IAuth0Client {
+abstract class IAuth0BackendClient {
   abstract getUserById(userId: string): Promise<Auth0User>;
   abstract updateUserById(userId: string, data: UpdateUserData): Promise<Auth0User>;
   abstract signupUser(email: string, password: string): Promise<void>;
@@ -39,7 +39,7 @@ abstract class IAuth0Client {
  * end-to-end Cypress tests. This bypasses auth0 completely. Note that the mock
  * client will always login the user, whether or not their password is correct.
  */
-class MockAuth0Client extends IAuth0Client {
+class MockAuth0Client extends IAuth0BackendClient {
   getUserById(_userId: string): Promise<Auth0User> {
     throw new Error("getUserById not implemented for tests");
   }
@@ -60,7 +60,7 @@ class MockAuth0Client extends IAuth0Client {
  * For this to work, we must authorize the forum application in Auth0:
  * Applications -> APIs -> Auth0 Management API -> Machine to Machine Applications
  */
-class Auth0Client extends IAuth0Client {
+class Auth0Client extends IAuth0BackendClient {
   private settings = new DatabaseServerSetting<Auth0Settings|null>("oAuth.auth0", null);
   private managementClient?: ManagementClient;
   private authClient?: AuthenticationClient;
@@ -128,7 +128,7 @@ class Auth0Client extends IAuth0Client {
   }
 }
 
-const auth0Client: IAuth0Client = isE2E
+const auth0Client: IAuth0BackendClient = isE2E
   ? new MockAuth0Client()
   : new Auth0Client();
 
