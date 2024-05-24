@@ -1,7 +1,7 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
+import { userCanComment, userCanDo, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
 import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 

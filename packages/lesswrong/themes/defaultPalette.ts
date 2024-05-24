@@ -429,7 +429,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
-    graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    graphTooltip: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {

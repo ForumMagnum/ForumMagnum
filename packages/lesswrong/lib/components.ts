@@ -31,6 +31,9 @@ import '../components/vulcan-forms/components';
 importComponent("AlignmentForumHome", () => require('../components/alignment-forum/AlignmentForumHome'));
 
 importComponent("AnalyticsGraph", () => require('../components/analytics/AnalyticsGraph'))
+importComponent("AnalyticsGraphSkeleton", () => require('../components/analytics/AnalyticsGraphSkeleton'))
+importComponent("AnalyticsPostItem", () => require('../components/analytics/AnalyticsPostItem'))
+importComponent("AnalyticsPostItemSkeleton", () => require('../components/analytics/AnalyticsPostItemSkeleton'))
 importComponent("AuthorAnalyticsPage", () => require('../components/analytics/AuthorAnalyticsPage'))
 importComponent("MyAnalyticsPage", () => require('../components/analytics/MyAnalyticsPage'))
 importComponent("PostsAnalyticsPage", () => require('../components/analytics/PostsAnalyticsPage'));
