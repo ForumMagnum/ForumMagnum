@@ -9,7 +9,7 @@ import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
 
-const CONTROLS_BREAKPOINT = 700;
+const CONTROLS_BREAKPOINT = 650;
 
 export const GRAPH_HEIGHT = 300;
 
@@ -88,18 +88,19 @@ export const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     marginBottom: -6,
     [`@media(max-width: ${CONTROLS_BREAKPOINT}px)`]: {
+      flexWrap: "wrap",
       marginLeft: -14,
-    },
-    [theme.breakpoints.down('xs')]: {
-      width: '100%',
-      display: "grid",
-      // Flow into grid with 2 per row on large screens, 1 per row on small screens. Ideally never 3 per row.
-      gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
     },
   },
   fieldLabel: {
     display: "flex",
     alignItems: "center",
+    ["@media(max-width: 440px)"]: {
+      flexBasis: "50%",
+    },
+    ["@media(max-width: 290px)"]: {
+      flexBasis: "100%",
+    },
   },
   checkbox: {
     padding: '8px 6px 8px 16px',
