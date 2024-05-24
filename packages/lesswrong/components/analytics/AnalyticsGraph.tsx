@@ -94,7 +94,7 @@ export const styles = (theme: ThemeType) => ({
       width: '100%',
       display: "grid",
       // Flow into grid with 2 per row on large screens, 1 per row on small screens. Ideally never 3 per row.
-      gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+      gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))",
     },
   },
   fieldLabel: {
