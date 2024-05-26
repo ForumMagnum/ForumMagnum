@@ -96,7 +96,7 @@ const Callbacks: Record<string,any> = {};
  * @param {String} hook - The name of the hook
  * @param {Function} callback - The callback function
  */
-export const addCallback = function (hook: string, callback: AnyBecauseTodo) {
+const addCallback = function (hook: string, callback: AnyBecauseTodo) {
 
   const formattedHook = formatHookName(hook);
 
