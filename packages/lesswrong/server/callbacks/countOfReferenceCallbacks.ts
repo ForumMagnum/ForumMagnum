@@ -1,7 +1,6 @@
 import { getSchema } from "@/lib/utils/getSchema";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection";
-import { addCallback } from "@/lib/vulcan-lib/callbacks";
 import { getCollectionHooks } from "../mutationCallbacks";
 
 

@@ -139,7 +139,7 @@ const removeCallback = function (hookName: string, callback: AnyBecauseTodo) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks = function <N extends CollectionNameString> (this: any, options: {
+const runCallbacks = function <N extends CollectionNameString> (this: any, options: {
   name: string,
   iterator?: any,
   // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
@@ -307,7 +307,7 @@ export const runCallbacksList = function (this: any, options: {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
-export const runCallbacksAsync = function <N extends CollectionNameString> (options: {
+const runCallbacksAsync = function <N extends CollectionNameString> (options: {
   name: string,
   // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
   properties: [CallbackPropertiesBase<N>]|any[]
@@ -458,5 +458,3 @@ export function printInProgressCallbacks() {
   // eslint-disable-next-line no-console
   console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!==1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
 }
-
-export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");
