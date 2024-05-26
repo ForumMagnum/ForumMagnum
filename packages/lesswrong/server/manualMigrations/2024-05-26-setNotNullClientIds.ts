@@ -1,7 +1,7 @@
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
-const idxName = 'idx_idx_ClientIds_clientId_unique'
+export const idxName = 'idx_idx_ClientIds_clientId_unique'
 
 registerMigration({
   name: "setNotNullClientIds",
@@ -31,11 +31,12 @@ registerMigration({
     }
 
     // Update index
-    const indexIsCorrect = await sql.oneOrNone(`
+    const indexQuery = await sql.oneOrNone(`
       SELECT indexdef
       FROM pg_indexes
       WHERE schemaname = 'public' AND tablename = 'ClientIds' AND indexname = '${idxName}'
-    `) === `CREATE UNIQUE INDEX "${idxName}" ON public."ClientIds" USING btree ("clientId");`;
+    `)
+    const indexIsCorrect = indexQuery?.indexdef === `CREATE UNIQUE INDEX "${idxName}" ON public."ClientIds" USING btree ("clientId")`;
 
     if (!indexIsCorrect) {
       const tempIndexName = `${idxName}_temp`;

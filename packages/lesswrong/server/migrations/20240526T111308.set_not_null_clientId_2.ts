@@ -1,5 +1,6 @@
 import { ClientIds } from "@/lib/collections/clientIds/collection";
 import { updateIndexes } from "./meta/utils";
+import { idxName } from "../manualMigrations/2024-05-26-setNotNullClientIds";
 
 /**
  * Generated on 2024-05-26T11:13:08.146Z by `yarn makemigrations`
@@ -57,17 +58,18 @@ export const up = async ({db}: MigrationContext) => {
     WHERE table_name = 'ClientIds' AND column_name = 'clientId' AND is_nullable = 'NO'
   `) !== null;
 
-  const indexIsCorrect = await db.oneOrNone(`
-      SELECT indexdef
-      FROM pg_indexes
-      WHERE schemaname = 'public' AND tablename = 'ClientIds' AND indexname = 'idx_idx_ClientIds_clientId_unique'
-    `) === `CREATE UNIQUE INDEX "idx_idx_ClientIds_clientId_unique" ON public."ClientIds" USING btree ("clientId")`;
+  const indexQuery = await db.oneOrNone(`
+    SELECT indexdef
+    FROM pg_indexes
+    WHERE schemaname = 'public' AND tablename = 'ClientIds' AND indexname = '${idxName}'
+  `)
+  const indexIsCorrect = indexQuery?.indexdef === `CREATE UNIQUE INDEX "${idxName}" ON public."ClientIds" USING btree ("clientId")`;
 
   if (!clientIdsNotNull || !indexIsCorrect) {
-    const notNullMessage = !clientIdsNotNull ? "'clientId' is missing NOT NULL constraint, " : ''
-    const indexMessage = !indexIsCorrect ? "'idx_idx_ClientIds_clientId_unique' has not been created correctly, " : ''
-    const cta = "run \"./scripts/serverShellCommand.sh 'Globals.migrations.setNotNullClientIds()'\" to fix."
-    throw new Error(notNullMessage + indexMessage + cta)
+    const notNullMessage = !clientIdsNotNull ? "'clientId' is missing NOT NULL constraint, " : "";
+    const indexMessage = !indexIsCorrect ? `'${idxName}' has not been created correctly, ` : "";
+    const cta = "run \"./scripts/serverShellCommand.sh 'Globals.migrations.setNotNullClientIds()'\" to fix.";
+    throw new Error(notNullMessage + indexMessage + cta);
   }
 }
 
