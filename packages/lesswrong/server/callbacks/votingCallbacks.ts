@@ -5,7 +5,6 @@ import Users from '../../lib/collections/users/collection';
 import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
-import { postPublishedCallback } from '../notificationCallbacks';
 import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
@@ -125,7 +124,7 @@ voteCallbacks.castVoteAsync.add(async function checkAutomod ({newDocument, vote}
 });
 
 
-postPublishedCallback.add(async (publishedPost: DbPost) => {
+export async function updateScoreOnPostPublish(publishedPost: DbPost, context: ResolverContext) {
   // When a post is published (undrafted), update its score. (That is, recompute
   // the time-decaying score used for sorting, since the time that's computed
   // relative to has just changed).
@@ -138,7 +137,7 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
   }
   
   await batchUpdateScore({collection: Posts});
-});
+}
 
 // When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.

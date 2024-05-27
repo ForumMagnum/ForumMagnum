@@ -40,12 +40,6 @@ import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from './curationEmails/cron';
 import { useCurationEmailsCron } from '../lib/betas';
 
-// Callback for a post being published. This is distinct from being created in
-// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
-// moderator approval because they're a user's first post (but does fire when
-// they're approved).
-export const postPublishedCallback = new CallbackHook<[DbPost, ResolverContext]>("post.published");
-
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
     collection: Notifications,
@@ -66,8 +60,7 @@ function postIsPublic (post: DbPost) {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 }
 
-// Export for testing
-/** create notifications for a new post being published */
+/** Create notifications for a new post being published */
 export async function postsNewNotifications (post: DbPost) {
   if (postIsPublic(post)) {
     // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
@@ -118,8 +111,6 @@ export async function postsNewNotifications (post: DbPost) {
     await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
-
-postPublishedCallback.add(postsNewNotifications);
 
 function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
   const oldLocation = oldPost.googleLocation?.geometry?.location;

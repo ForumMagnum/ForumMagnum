@@ -9,7 +9,6 @@ import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
 import { cheerioParse } from '../utils/htmlUtil'
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { postPublishedCallback } from '../notificationCallbacks';
 import moment from 'moment';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import { performCrosspost, handleCrosspostUpdate } from "../fmCrosspost/crosspost";
@@ -34,11 +33,23 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { postsNewNotifications } from '../notificationCallbacks';
+import { updateScoreOnPostPublish } from './votingCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
 const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
 const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
+
+// Callback for a post being published. This is distinct from being created in
+// that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
+// moderator approval because they're a user's first post (but does fire when
+// they're approved).
+export async function onPostPublished(post: DbPost, context: ResolverContext) {
+  updateRecombeeWithPublishedPost(post, context);
+  await postsNewNotifications(post);
+  await updateScoreOnPostPublish(post, context);
+}
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
@@ -173,7 +184,7 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
 
 getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
   if (!post.authorIsUnreviewed && !post.draft) {
-    void postPublishedCallback.runCallbacksAsync([post, context]);
+    void onPostPublished(post, context);
   }
 });
 
@@ -262,7 +273,7 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([document, context]);
+    await onPostPublished(document, context);
   }
 });
 
@@ -604,7 +615,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 
 /* Recombee callbacks */
 
-postPublishedCallback.add((post, context) => {
+function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
   if (post.shortform || post.unlisted) return;
 
   if (recombeeEnabledSetting.get()) {
@@ -618,7 +629,7 @@ postPublishedCallback.add((post, context) => {
       // eslint-disable-next-line no-console
       .catch(e => console.log('Error when sending published post to google vertex', { e }));
   }
-});
+}
 
 getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
   // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
