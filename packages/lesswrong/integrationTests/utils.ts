@@ -1,4 +1,5 @@
-import { createMutator, runQuery, setOnGraphQLError, waitUntilCallbacksFinished } from '../server/vulcan-lib';
+import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
+import { waitUntilCallbacksFinished } from '../server/utils/callbackHooks';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'

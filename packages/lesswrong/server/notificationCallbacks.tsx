@@ -18,7 +18,6 @@ import { Components } from '../lib/vulcan-lib/components';
 import { updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
-import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 
 import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';

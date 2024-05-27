@@ -8,7 +8,7 @@ import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
+import { waitUntilCallbacksFinished } from '../server/utils/callbackHooks';
 import { slugify } from '../lib/vulcan-lib/utils';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";

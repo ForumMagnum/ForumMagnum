@@ -6,7 +6,7 @@ import {
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
 } from '../utils'
-import { waitUntilCallbacksFinished } from '../../lib/vulcan-lib';
+import { waitUntilCallbacksFinished } from "../../server/utils/callbackHooks";
 import Posts from '../../lib/collections/posts/collection';
 import * as _ from 'underscore';
 

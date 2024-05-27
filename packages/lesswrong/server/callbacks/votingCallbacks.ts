@@ -11,12 +11,13 @@ import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments';
-import { CallbackChainHook, CallbackHook, createAdminContext } from '../vulcan-lib';
+import { createAdminContext } from '../vulcan-lib/query';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { CallbackChainHook, CallbackHook } from '../utils/callbackHooks';
 
 export const voteCallbacks = {
   cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.sync"),

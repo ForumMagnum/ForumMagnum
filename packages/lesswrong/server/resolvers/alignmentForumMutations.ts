@@ -1,5 +1,5 @@
 import { addGraphQLMutation, addGraphQLResolvers } from '../../lib/vulcan-lib';
-import { CallbackHook } from '../../lib/vulcan-lib/callbacks';
+import { CallbackHook } from '../utils/callbackHooks';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { userCanMakeAlignmentPost } from '../../lib/alignment-forum/users/helpers';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
