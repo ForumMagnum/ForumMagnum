@@ -3,7 +3,7 @@ import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import type { VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
@@ -11,13 +11,40 @@ import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
 import { createMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments';
-import { createAdminContext } from '../vulcan-lib';
-import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import { CallbackChainHook, CallbackHook, createAdminContext } from '../vulcan-lib';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
+
+export const voteCallbacks = {
+  cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.sync"),
+  cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.async"),
+  castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.castVote.sync"),
+  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<VoteableCollectionName>,DbUser,ResolverContext]>("votes.castVote.async"),
+};
+
+export async function onVoteCancel(newDocument: DbVoteableType, vote: DbVote, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<void> {
+  await voteCallbacks.cancelSync.runCallbacks({
+    iterator: {newDocument, vote},
+    properties: [collection, user]
+  });
+  await voteCallbacks.cancelAsync.runCallbacksAsync(
+    [{newDocument, vote}, collection, user]
+  );
+}
+export async function onCastVoteSync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser): Promise<VoteDocTuple> {
+  return await voteCallbacks.castVoteSync.runCallbacks({
+    iterator: voteDocTuple,
+    properties: [collection, user]
+  });
+}
+export async function onCastVoteAsync(voteDocTuple: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext): Promise<void> {
+  void voteCallbacks.castVoteAsync.runCallbacksAsync(
+    [voteDocTuple, collection, user, context]
+  );
+}
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -146,6 +173,7 @@ const reviewUserBot = reviewUserBotSetting.get()
 
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
+  const { addOrUpvoteTag } = require('../tagging/tagsGraphQL');
   if (!tag) {
     const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
     const tagData = {

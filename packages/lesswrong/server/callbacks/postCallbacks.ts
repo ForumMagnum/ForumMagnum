@@ -3,7 +3,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
 import { clearVotesServer, performVoteServer } from '../voteServer';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import type { VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
 import { getDefaultPostLocationFields } from '../posts/utils'
@@ -34,7 +34,7 @@ import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { postsNewNotifications } from '../notificationCallbacks';
-import { updateScoreOnPostPublish } from './votingCallbacks';
+import { updateScoreOnPostPublish, voteCallbacks } from './votingCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 

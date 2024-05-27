@@ -8,7 +8,7 @@ import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
@@ -33,6 +33,7 @@ import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
 import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
+import { voteCallbacks } from './votingCallbacks';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000

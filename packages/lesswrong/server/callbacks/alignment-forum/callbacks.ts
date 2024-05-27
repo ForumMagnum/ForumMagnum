@@ -5,7 +5,8 @@ import { commentsAlignmentAsync, postsAlignmentAsync } from '../../resolvers/ali
 import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
-import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
+import type { VoteDocTuple } from '../../../lib/voting/vote';
+import { voteCallbacks } from "../votingCallbacks";
 import { ensureIndex } from "../../../lib/collectionIndexUtils";
 import { UsersRepo } from "../../repos";
 

@@ -2,13 +2,13 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { voteCallbacks } from '../../lib/voting/vote';
 import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 import { updatePostDenormalizedTags } from './helpers';
+import { voteCallbacks } from '../callbacks/votingCallbacks';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
