@@ -25,15 +25,16 @@ export async function initDatadog() {
     site: 'datadoghq.com',
     service:'eaforum-client',
     env: ddEnv,
-    // version: '1.0.0',
-    tracingSampleRate: ddTracingSampleRate.get(),
-    sampleRate: ddRumSampleRate.get(),
+    version: '2.0.0',
+    traceSampleRate: ddTracingSampleRate.get(),
+    sessionSampleRate: ddRumSampleRate.get(),
     sessionReplaySampleRate: ddSessionReplaySampleRate.get(),
-    trackInteractions: true,
+    trackUserInteractions: true,
     trackResources: true,
     trackLongTasks: true,
     defaultPrivacyLevel:'mask-user-input',
-    allowedTracingOrigins: [
+    startSessionReplayRecordingManually: true,
+    allowedTracingUrls: [
       "http://localhost:3000",
       "https://forum.effectivealtruism.org",
       "https://forum-staging.effectivealtruism.org"
