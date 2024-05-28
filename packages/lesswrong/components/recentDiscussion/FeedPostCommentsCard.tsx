@@ -173,7 +173,7 @@ const FeedPostCommentsCard = ({
             </div>
           : null}
 
-        {nestedComments?.length && <div className={classes.commentsList}>
+        {nestedComments.length > 0 && <div className={classes.commentsList}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
             <div key={comment.item._id}>
               <CommentsNode
