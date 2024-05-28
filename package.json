@@ -76,7 +76,7 @@
     "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.12.1",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
-    "@datadog/browser-rum": "^4.26.0",
+    "@datadog/browser-rum": "^5.18.0",
     "@dqbd/tiktoken": "^1.0.7",
     "@elastic/elasticsearch": "^8.7.0",
     "@google-cloud/discoveryengine": "^1.4.1",
