@@ -2,7 +2,7 @@ import type { Request } from "express";
 import Posts from "../../lib/collections/posts/collection";
 import Users from "../../lib/collections/users/collection";
 import { getGraphQLQueryFromOptions, getResolverNameFromOptions } from "../../lib/crud/withSingle";
-import { getCollection, Utils } from "../../lib/vulcan-lib";
+import { Utils } from "../../lib/vulcan-lib";
 import { createClient } from "../vulcan-lib/apollo-ssr/apolloClient";
 import { createAnonymousContext } from "../vulcan-lib/query";
 import { extractDenormalizedData } from "./denormalizedFields";
@@ -108,14 +108,13 @@ export const onUpdateCrosspostRequest: PostRouteOf<'updateCrosspost'> = async (r
 export const onGetCrosspostRequest: PostRouteOf<'getCrosspost'> = async (req) => {
   const { collectionName, extraVariables, extraVariablesValues, fragmentName, documentId } = req;
   const apolloClient = await createClient(createAnonymousContext());
-  const collection = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({
     extraVariables,
-    collection,
+    collectionName,
     fragmentName,
     fragment: undefined,
   });
-  const resolverName = getResolverNameFromOptions(collection);
+  const resolverName = getResolverNameFromOptions(collectionName);
 
   const { data } = await apolloClient.query({
     query,

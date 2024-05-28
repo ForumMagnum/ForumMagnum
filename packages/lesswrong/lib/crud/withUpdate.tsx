@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
-import { getCollection, extractFragmentInfo } from '../vulcan-lib';
+import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
+import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { updateCacheAfterUpdate } from './cacheUpdates';
 
 // Update mutation query used on the client
@@ -66,10 +67,9 @@ export const useUpdate = <CollectionName extends CollectionNameString>(options: 
   called: boolean,
   data: ObjectsByCollectionName[CollectionName],
 }=> {
-  const collection = getCollection(options.collectionName);
   const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
-  const typeName = collection.options.typeName;
+  const typeName = collectionNameToTypeName(options.collectionName);
   const query = gql`
     ${updateClientTemplate({ typeName, fragmentName })}
     ${fragment}
