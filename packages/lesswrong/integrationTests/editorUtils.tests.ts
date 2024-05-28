@@ -37,11 +37,23 @@ describe("syncDocumentWithLatestRevision", () => {
     await updatePost(user, post._id, '<p>Post version 2</p>')
     await updatePost(user, post._id, '<p>Post version 3</p>')
 
+    const postAfterUpdate = await fetchFragmentSingle({
+      collectionName: "Posts",
+      fragmentName: "PostsOriginalContents",
+      currentUser: null,
+      selector: {_id: post._id},
+    });
+    if (!postAfterUpdate) {
+      throw new Error("Lost post after update")
+    }
+
+    expect(postAfterUpdate.contents?.originalContents?.data).toMatch(/version 3/);
+
     const revisions = await Revisions.find({documentId: post._id}, {sort: {editedAt: 1}}).fetch()
     const lastRevision = revisions[revisions.length-1]
     expect(lastRevision?.originalContents?.data).toMatch(/version 3/)
     await Revisions.rawRemove({_id: lastRevision._id})
-    
+
     // Function we're actually testing
     await syncDocumentWithLatestRevision(Posts, post, 'contents')
 
@@ -52,7 +64,7 @@ describe("syncDocumentWithLatestRevision", () => {
       selector: {_id: post._id},
     });
     if (!postAfterSync) {
-      throw new Error("Lost post")
+      throw new Error("Lost post after sync")
     }
     expect(postAfterSync.contents?.originalContents?.data).toMatch(/version 2/);
   });

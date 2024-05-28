@@ -4,7 +4,6 @@ import Revisions, { ChangeMetrics } from '../../lib/collections/revisions/collec
 import { diff } from "../vendor/node-htmldiff/htmldiff";
 import { cheerioParse } from '../utils/htmlUtil'
 import cheerio from 'cheerio'
-import pick from "lodash/pick";
 import { extractVersionsFromSemver } from '../../lib/editor/utils';
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
@@ -157,18 +156,6 @@ export function getNextVersion(previousRevision: DbRevision | null, updateType: 
   }
 }
 
-
-const revisionFieldsToCopy: (keyof DbRevision)[] = [
-  "originalContents",
-  "updateType",
-  "commitMessage",
-  "html",
-  "version",
-  "userId",
-  "editedAt",
-  "wordCount",
-];
-
 /**
  * Make an editable document reflect the latest revision available
  *
@@ -200,7 +187,6 @@ export async function syncDocumentWithLatestRevision<N extends CollectionNameStr
   }
   await collection.rawUpdateOne(document._id, {
     $set: {
-      [fieldName]: pick(latestRevision, revisionFieldsToCopy),
       [`${fieldName}_latest`]: latestRevision._id
     }
   })

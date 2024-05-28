@@ -13,12 +13,12 @@ import {
 import {getCollection} from '../../lib/vulcan-lib/getCollection'
 import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
-import * as _ from 'underscore'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments'
+import isEqual from 'lodash/isEqual'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -39,7 +39,7 @@ function getInitialVersion(document: DbPost|DbObject) {
 function versionIsDraft(semver: string, collectionName: CollectionNameString) {
   if (collectionName === "Tags")
     return false;
-  const { major, minor, patch } = extractVersionsFromSemver(semver)
+  const {major} = extractVersionsFromSemver(semver)
   return major===0;
 }
 
@@ -74,7 +74,7 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): 
   if (!previousVersion)
     return true;
 
-  if (!_.isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
+  if (!isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
     return true;
   }
 
@@ -286,6 +286,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
           document: {
             userId: currentUser._id,
             postId: newDoc._id,
+            // TODO For normalization!!
             contents: (newDoc as DbPost)[fieldName as keyof DbPost],
             debateResponse: true,
           },
@@ -315,6 +316,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
    * It's fine to leave it here just in case though
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
+    // TODO: For normalization!!
     const hasChanged = (oldDoc as AnyBecauseHard)?.[fieldName]?.html !== (doc as AnyBecauseHard)?.[fieldName]?.html;
     
     if (!hasChanged) return;
