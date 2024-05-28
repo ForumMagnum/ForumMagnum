@@ -1,6 +1,7 @@
 import { ClientIds } from "@/lib/collections/clientIds/collection";
 import { updateIndexes } from "./meta/utils";
-import { idxName } from "../manualMigrations/2024-05-26-setNotNullClientIds";
+
+const idxName = 'idx_idx_ClientIds_clientId_unique'
 
 /**
  * Generated on 2024-05-26T11:13:08.146Z by `yarn makemigrations`

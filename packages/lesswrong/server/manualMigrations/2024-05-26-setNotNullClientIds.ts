@@ -1,7 +1,7 @@
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
-export const idxName = 'idx_idx_ClientIds_clientId_unique'
+const idxName = 'idx_idx_ClientIds_clientId_unique'
 
 registerMigration({
   name: "setNotNullClientIds",
