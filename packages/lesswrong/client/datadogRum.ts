@@ -37,7 +37,8 @@ export async function initDatadog() {
     allowedTracingUrls: [
       "http://localhost:3000",
       "https://forum.effectivealtruism.org",
-      "https://forum-staging.effectivealtruism.org"
+      "https://forum-staging.effectivealtruism.org",
+      "https://beta.effectivealtruism.org",
       // TODO add LW domains here if they want to use datadog
     ]
   });
