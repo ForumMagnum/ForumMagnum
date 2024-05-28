@@ -578,7 +578,6 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
-    swrCachingEnabled
   }
 `);
 

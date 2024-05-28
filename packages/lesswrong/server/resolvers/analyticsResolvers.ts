@@ -1,6 +1,6 @@
 import { PostAnalyticsResult } from "../../components/hooks/usePostAnalytics";
 import { isEAForum } from "../../lib/instanceSettings";
-import { getAnalyticsConnection, getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
+import { getAnalyticsConnection } from "../analytics/postgresConnection";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
@@ -191,7 +191,6 @@ addGraphQLResolvers({
       const INDIRECTLY_SORTABLE_FIELDS = ["views", "reads"];
 
       const { currentUser } = context;
-      const analyticsDb = getAnalyticsConnectionOrThrow();
 
       const directlySortable = DIRECTLY_SORTABLE_FIELDS.includes(sortBy);
 
@@ -280,7 +279,6 @@ addGraphQLResolvers({
       context: ResolverContext
     ): Promise<AnalyticsSeriesValue[]> {
       const { currentUser } = context;
-      const analyticsDb = getAnalyticsConnectionOrThrow();
 
       if (!userId && (!postIds || !postIds.length)) {
         throw new Error("Must provide either userId or postIds");

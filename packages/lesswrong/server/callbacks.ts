@@ -153,7 +153,7 @@ const nullifyVotesForUserAndCollectionByTarget = async (
 
 export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {
   //eslint-disable-next-line no-console
-  console.warn("Deleting all content of user: ", user)
+  console.log("Deleting all content of user: ", user)
   const posts = await Posts.find({userId: user._id}).fetch();
   //eslint-disable-next-line no-console
   console.info("Deleting posts: ", posts);

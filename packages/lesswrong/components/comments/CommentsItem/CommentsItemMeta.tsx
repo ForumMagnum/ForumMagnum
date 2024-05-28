@@ -5,7 +5,6 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink } from "./useCommentLink";
-import { Comments } from "../../../lib/collections/comments";
 import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -284,7 +283,7 @@ export const CommentsItemMeta = ({
       }
       {!comment.debateResponse && !comment.rejected && <SmallSideVote
         document={comment}
-        collection={Comments}
+        collectionName="Comments"
         hideKarma={post?.hideCommentKarma}
       />}
 

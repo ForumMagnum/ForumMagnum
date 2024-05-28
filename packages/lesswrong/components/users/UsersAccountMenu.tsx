@@ -40,12 +40,14 @@ const EAUsersAccountMenu = ({classes}: {
       <EAButton
         style="grey"
         onClick={onLogin}
+        data-testid="user-login-button"
         className={classes.login}
       >
         Login
       </EAButton>
       <EAButton
         onClick={onSignup}
+        data-testid="user-signup-button"
         className={classes.signUp}
       >
         Sign up

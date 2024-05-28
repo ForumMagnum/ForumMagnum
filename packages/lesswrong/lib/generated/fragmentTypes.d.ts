@@ -1484,7 +1484,6 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
-  readonly swrCachingEnabled: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
