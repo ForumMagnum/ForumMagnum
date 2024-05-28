@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import chunk from 'lodash/fp/chunk';
 import max from 'lodash/fp/max';
@@ -29,7 +30,6 @@ async function assertTableIntegrity(dataDb: SqlClient) {
 
   // Check if there is more than one combination
   if (dateCombinations.length > 1) {
-    // eslint-disable-next-line no-console
     console.error(`UserActivities table has rows with different start and end dates. Dropping rows to fix this.`);
     console.error('Date combinations and their counts:');
     for (let i = 0; i < dateCombinations.length; i++) {
@@ -175,7 +175,6 @@ async function concatNewActivity({
   log,
 }: ConcatNewActivityParams) {
   if (updateEndDate.getTime() <= updateStartDate.getTime()) {
-    // eslint-disable-next-line no-console
     log('No new activity data to update');
     return;
   }
@@ -310,7 +309,6 @@ export async function updateUserActivities(props?: {
   randomWait?: boolean,
   silent?: boolean,
 }) {
-  // eslint-disable-next-line no-console
   const log = props?.silent || isAnyTest ? console.log : () => {};
 
   const dataDb = getSqlClientOrThrow();
