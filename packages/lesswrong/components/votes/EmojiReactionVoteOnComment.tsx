@@ -152,8 +152,8 @@ const EmojiReactionsAxis = ({voteProps, classes}: {
   </span>
 }
 
-const EmojiReactionVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem)
+const EmojiReactionVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: EmojiReactionVoteOnCommentProps) => {
+  const voteProps = useVote(document, collectionName, votingSystem)
   
   const { OverallVoteAxis } = Components
   

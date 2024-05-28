@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { Comments } from "../../lib/collections/comments";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
@@ -206,7 +205,7 @@ const LWPopularComment = ({comment, classes}: {
   const votingElement = !comment.debateResponse && !comment.rejected && (
     <SmallSideVote
       document={comment}
-      collection={Comments}
+      collectionName="Comments"
       hideKarma={comment.post?.hideCommentKarma}
     />
   );

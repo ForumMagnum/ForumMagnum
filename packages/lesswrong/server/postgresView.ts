@@ -1,6 +1,6 @@
 import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
-import type { CronJobSpec } from "./cronUtil";
+import { addCronJob, CronJobSpec } from "./cronUtil";
 
 type PostgresViewRefreshSpec = {
   interval: string,
@@ -39,7 +39,7 @@ export class PostgresView {
     }
   }
 
-  registerCronJob(addCronJob: (options: CronJobSpec) => void) {
+  registerCronJob() {
     if (this.refreshSpec) {
       addCronJob({
         name: `refreshPostgresView-${this.name}`,
@@ -83,3 +83,15 @@ export const getPostgresViewByName = (name: string): PostgresView => {
 }
 
 export const getAllPostgresViews = (): PostgresView[] => postgresViews;
+
+
+export function registerViewCronJobs() {
+  try {
+    for (const view of getAllPostgresViews()) {
+      view.registerCronJob();
+    }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to ensure Postgres views exist:", e);
+  }
+}

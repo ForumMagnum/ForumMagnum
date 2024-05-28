@@ -8,12 +8,25 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
-import classNames from "classnames";
 
-const GRAPH_HEIGHT = 300;
+const CONTROLS_BREAKPOINT = 650;
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const GRAPH_HEIGHT = 300;
+
+/**
+ * The garph is rendered as an SVG which includes a built-in left margin - this
+ * constant is the offset we need to apply to other elements to make them
+ * line up nicely with the graph.
+ */
+export const GRAPH_LEFT_MARGIN = 14;
+
+export const styles = (theme: ThemeType) => ({
   root: {
+    overflow: "auto hidden",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "12px",
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   graphContainer: {
@@ -21,39 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& .recharts-cartesian-axis-tick-value": {
       fontWeight: 500,
     },
-  },
-  graphHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    flexDirection: "row",
-    marginBottom: 12,
-    [theme.breakpoints.down('xs')]: {
-      flexDirection: "column",
-      minHeight: 56,
-      marginBottom: 0,
-    }
-  },
-  graphHeaderSmallerTitle: {
-    [theme.breakpoints.down('xs')]: {
-      minHeight: 42,
-    }
-  },
-  graphHeaderNoTitle: {
-    [theme.breakpoints.down('xs')]: {
-      minHeight: 0,
-    }
-  },
-  graphHeading: {
-    fontSize: 32,
-    fontWeight: "600",
-    color: theme.palette.grey[1000],
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    [theme.breakpoints.down('xs')]: {
-      lineHeight: '1.2em',
-    }
-  },
-  smallerTitle: {
-    fontSize: 20,
   },
   fetchingLatest: {
     fontSize: 14,
@@ -68,6 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   tooltip: {
     backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.dropdown.border}`,
     boxShadow: theme.palette.boxShadow.graphTooltip,
     padding: 10,
     borderRadius: theme.borderRadius.small,
@@ -84,14 +65,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   notEnoughDataMessage: {
     color: theme.palette.grey[500],
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   controls: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexDirection: "row",
-    [theme.breakpoints.down('xs')]: {
+    alignItems: "flex-end",
+    gap: "32px",
+    width: "100%",
+    paddingLeft: 18,
+    paddingRight: 28,
+    [`@media(max-width: ${CONTROLS_BREAKPOINT}px)`]: {
       flexDirection: "column",
+      alignItems: "flex-start",
+      gap: "20px",
     }
   },
   controlFields: {
@@ -100,16 +86,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[900],
     fontSize: 14,
     fontWeight: 500,
-    [theme.breakpoints.down('xs')]: {
-      width: '100%',
-      display: "grid",
-      // Flow into grid with 2 per row on large screens, 1 per row on small screens. Ideally never 3 per row.
-      gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    marginBottom: -6,
+    [`@media(max-width: ${CONTROLS_BREAKPOINT}px)`]: {
+      flexWrap: "wrap",
+      marginLeft: -14,
     },
   },
   fieldLabel: {
     display: "flex",
     alignItems: "center",
+    ["@media(max-width: 440px)"]: {
+      flexBasis: "50%",
+    },
+    ["@media(max-width: 290px)"]: {
+      flexBasis: "100%",
+    },
   },
   checkbox: {
     padding: '8px 6px 8px 16px',
@@ -131,9 +122,41 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.8,
   },
   dateDropdown: {
-    alignSelf: "flex-start",
-    margin: '4px 20px 0 0',
-  }
+    marginLeft: 4,
+    marginBottom: 16,
+    color: theme.palette.grey[1000],
+    "& .MuiButton-label": {
+      fontSize: 18,
+      fontWeight: 600,
+    },
+  },
+  overallStat: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    fontSize: 13,
+    fontWeight: 500,
+  },
+  overallStatContainer: {
+    display: "flex",
+    gap: "32px",
+    flexGrow: 1,
+  },
+  overallStatCount: {
+    fontSize: 32,
+    fontWeight: 700,
+  },
+  overallStatTooltip: {
+    maxWidth: 150,
+    color: theme.palette.grey[0],
+    background: theme.palette.grey[1000],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    borderRadius: theme.borderRadius.default,
+    padding: "6px 10px",
+    textAlign: "center",
+    fontSize: 12,
+    fontWeight: 500,
+  },
 });
 
 const LINE_COLORS: Record<AnalyticsField, string> = {
@@ -199,7 +222,7 @@ const startEndDateFromOption = (option: string) => {
 
 interface ColoredCheckboxProps extends CheckboxProps {
   fillColor: string;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }
 
 const ColoredCheckbox: React.FC<ColoredCheckboxProps> = ({ fillColor, classes, ...props }: ColoredCheckboxProps) => {
@@ -221,18 +244,16 @@ export const AnalyticsGraph = ({
   userId,
   postIds,
   initialDisplayFields = ["views", "reads"],
-  title,
-  smallerTitle = false,
+  disclaimerEarliestDate,
   classes,
 }: {
   initialDisplayFields?: AnalyticsField[];
   userId?: string;
   postIds?: string[];
-  title?: string;
-  smallerTitle?: boolean;
-  classes: ClassesType;
+  disclaimerEarliestDate?: Date,
+  classes: ClassesType<typeof styles>;
 }) => {
-  const { Typography, ForumDropdown } = Components;
+  const {Typography, ForumDropdown, LWTooltip} = Components;
 
   const [displayFields, setDisplayFields] = useState<AnalyticsField[]>(initialDisplayFields);
   const [dateOption, setDateOption] = useState<string>(dateOptions.last30Days.value);
@@ -243,7 +264,7 @@ export const AnalyticsGraph = ({
 
   const { openDialog } = useDialog();
 
-  const { analyticsSeries: dataSeries } = useAnalyticsSeries({
+  const {analyticsSeries: dataSeries, loading} = useAnalyticsSeries({
     userId,
     postIds,
     startDate: displayStartDate,
@@ -292,7 +313,13 @@ export const AnalyticsGraph = ({
     };
   });
 
-  const getTooltipContent = useCallback(({ active, payload, label }: TooltipProps<string, string>) => {
+  const overallStats = dataSeries.reduce((totals, dataPoint) => {
+    totals.views += dataPoint.views ?? 0;
+    totals.reads += dataPoint.reads ?? 0;
+    return totals;
+  }, {views: 0, reads: 0});
+
+  const getTooltipContent = useCallback(({ active, payload }: TooltipProps<string, string>) => {
     if (!(active && payload && payload.length)) return null;
 
     const date = new Date(payload[0].payload["date"]);
@@ -309,6 +336,22 @@ export const AnalyticsGraph = ({
     );
   }, [classes.date, classes.tooltip, classes.tooltipLabel, displayFields]);
 
+  const dateOptionDropdown = (
+    <ForumDropdown
+      value={dateOption}
+      options={dateOptions}
+      onSelect={handleDateOptionChange}
+      className={classes.dateDropdown}
+    />
+  );
+
+  const {AnalyticsGraphSkeleton, AnalyticsDisclaimers} = Components;
+  if (loading || (!userId && !postIds?.length)) {
+    return (
+      <AnalyticsGraphSkeleton dateOptionDropdown={dateOptionDropdown} />
+    );
+  }
+
   if (!dataSeriesToDisplay?.length || dataSeriesToDisplay.length === 1) {
     return (
       <Typography variant="body1" className={classes.notEnoughDataMessage}>
@@ -321,19 +364,37 @@ export const AnalyticsGraph = ({
     const currentMaxValue = Math.max(...displayFields.map(field => dataPoint[field as AnalyticsField] ?? 0));
     return Math.max(maxVal, currentMaxValue);
   }, 0);
-  
+
   // Unfortunately this is the best workaround, see here: https://github.com/recharts/recharts/issues/2027
   const yAxisWidth = 26 + Math.ceil(maxValue.toLocaleString().length * 6);
   const strokeWidth = dataSeriesToDisplay.length > 180 ? 2 : 2;
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle, [classes.graphHeaderNoTitle]: !title})}>
-        <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
-          {title}
-        </Typography>
-      </div>
+      {dateOptionDropdown}
       <div className={classes.controls}>
+        <div className={classes.overallStatContainer}>
+          <LWTooltip
+            title="When someone clicks on your post it’s counted as a view"
+            placement="bottom"
+            tooltip={false}
+            popperClassName={classes.overallStatTooltip}
+            className={classes.overallStat}
+          >
+            <div className={classes.overallStatCount}>{overallStats.views}</div>
+            <div>Views</div>
+          </LWTooltip>
+          <LWTooltip
+            title="When someone views your post for longer than 30 sec it’s counted as a read"
+            placement="bottom"
+            tooltip={false}
+            popperClassName={classes.overallStatTooltip}
+            className={classes.overallStat}
+          >
+            <div className={classes.overallStatCount}>{overallStats.reads}</div>
+            <div>Reads</div>
+          </LWTooltip>
+        </div>
         <div className={classes.controlFields}>
           {analyticsFieldsList.map((field) => (
             <label key={field} className={classes.fieldLabel}>
@@ -347,7 +408,6 @@ export const AnalyticsGraph = ({
             </label>
           ))}
         </div>
-        <ForumDropdown value={dateOption} options={dateOptions} className={classes.dateDropdown} onSelect={handleDateOptionChange} />
       </div>
       <ResponsiveContainer width="100%" height={GRAPH_HEIGHT} className={classes.graphContainer}>
         <LineChart data={dataSeriesToDisplay} height={300} margin={{ right: 30 }}>
@@ -364,11 +424,18 @@ export const AnalyticsGraph = ({
           ))}
         </LineChart>
       </ResponsiveContainer>
+      <AnalyticsDisclaimers
+        earliestDate={disclaimerEarliestDate ?? displayStartDate ?? new Date(0)}
+      />
     </div>
   );
 };
 
-const AnalyticsGraphComponent = registerComponent("AnalyticsGraph", AnalyticsGraph, { styles });
+const AnalyticsGraphComponent = registerComponent(
+  "AnalyticsGraph",
+  AnalyticsGraph,
+  {styles},
+);
 
 declare global {
   interface ComponentTypes {
