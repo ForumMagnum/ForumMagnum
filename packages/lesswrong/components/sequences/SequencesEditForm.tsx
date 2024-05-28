@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import Sequences from '../../lib/collections/sequences/collection';
 import { styles } from './SequencesNewForm';
 
 const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback, classes }: {

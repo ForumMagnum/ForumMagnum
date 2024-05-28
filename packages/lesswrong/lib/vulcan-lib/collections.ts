@@ -25,7 +25,7 @@ export const collectionNameToGraphQLType = (collectionName: CollectionNameString
 
 type CreateCollectionOptions <N extends CollectionNameString> = Omit<
   CollectionOptions<N>,
-  "singleResolverName" | "multiResolverName" | "interfaces" | "description"
+  "interfaces" | "description"
 >;
 
 export const createCollection = <N extends CollectionNameString>(
@@ -40,14 +40,7 @@ export const createCollection = <N extends CollectionNameString>(
   } = options;
 
   // initialize new collection
-  const collection = new PgCollection<N>(
-    dbCollectionName ?? collectionName.toLowerCase(),
-    {
-      ...options,
-      singleResolverName: camelCaseify(typeName),
-      multiResolverName: camelCaseify(pluralize(typeName)),
-    },
-  );
+  const collection = new PgCollection<N>(dbCollectionName ?? collectionName.toLowerCase(), options);
 
   // add typeName if missing
   collection.typeName = typeName;

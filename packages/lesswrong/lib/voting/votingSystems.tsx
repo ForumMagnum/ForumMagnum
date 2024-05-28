@@ -17,7 +17,7 @@ type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChang
 export type CommentVotingComponentProps<T extends VotingPropsDocument = VotingPropsDocument> = {
   document: T,
   hideKarma?: boolean,
-  collection: any,
+  collectionName: VoteableCollectionName,
   votingSystem: VotingSystem,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
   voteProps?: VotingProps<VoteableTypeClient>,

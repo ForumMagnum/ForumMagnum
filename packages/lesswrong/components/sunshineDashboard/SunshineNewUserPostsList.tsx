@@ -1,6 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Posts } from '../../lib/collections/posts';
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
 import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -60,7 +59,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
             <div>
               <span className={classes.meta}>
                 <span className={classes.vote}>
-                  <SmallSideVote document={post} collection={Posts}/>
+                  <SmallSideVote document={post} collectionName="Posts"/>
                 </span>
                 <MetaInfo>
                   <FormatDate date={post.postedAt}/>
