@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -35,7 +35,7 @@ import { getEAGApplicationData } from './zohoUtils';
 import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCypressRoutes } from './testingSqlClient';
+import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
@@ -56,6 +56,25 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
+
+/**
+ * End-to-end tests automate interactions with the page. If we try to, for
+ * instance, click on a button before the page has been hydrated then the "click"
+ * will occur but nothing will happen as the event listener won't be attached
+ * yet which leads to flaky tests. To avoid this we add some static styles to
+ * the top of the SSR'd page which are then manually deleted _after_ React
+ * hydration has finished. Be careful editing this - it would ve very bad for
+ * this to end up in production builds.
+ */
+const ssrInteractionDisable = isE2E
+  ? `
+    <style id="ssr-interaction-disable">
+      #react-app * {
+        display: none;
+      }
+    </style>
+  `
+  : "";
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -323,7 +342,7 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addCypressRoutes(app);
+  addTestingRoutes(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -387,6 +406,7 @@ export function startWebserver() {
       + '<head>\n'
         + jssStylePreload
         + externalStylesPreload
+        + ssrInteractionDisable
         + instanceSettingsHeader
         + faviconHeader
         // Embedded script tags that must precede the client bundle

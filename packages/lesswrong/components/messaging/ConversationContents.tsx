@@ -126,7 +126,7 @@ const ConversationContents = ({
     if (!results?.length) return null;
 
     return (
-      <div>
+      <div data-testid="conversation-messages">
         {results.map((message) => (
           <MessageItem key={message._id} message={message} />
         ))}

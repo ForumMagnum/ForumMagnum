@@ -12,7 +12,6 @@ import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
 import ClearIcon from '@material-ui/icons/Clear';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
-import { Posts } from '../../lib/collections/posts';
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -146,7 +145,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
           </Typography>
           <div className={classes.metaInfoRow}>
             <span className={classes.vote}>
-              <SmallSideVote document={post} collection={Posts}/>
+              <SmallSideVote document={post} collectionName="Posts"/>
             </span>
             <MetaInfo>
               <FormatDate date={post.postedAt}/>

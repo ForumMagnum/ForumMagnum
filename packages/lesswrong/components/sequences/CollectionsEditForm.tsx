@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import Collections from '../../lib/collections/collections/collection';
 import classNames from 'classnames';
 
 export const styles = (theme: ThemeType): JssStyles => ({

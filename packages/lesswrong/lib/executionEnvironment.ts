@@ -3,7 +3,7 @@ import * as _ from 'underscore';
 declare global {
   let bundleIsServer: boolean;
   let bundleIsTest: boolean;
-  let bundleIsCypress: boolean;
+  let bundleIsE2E: boolean;
   let bundleIsProduction: boolean;
   let bundleIsMigrations: boolean;
   let defaultSiteAbsoluteUrl: string;
@@ -18,7 +18,7 @@ export const isDevelopment = !bundleIsProduction
 export const isProduction = bundleIsProduction
 export const isMigrations = bundleIsMigrations
 export const isAnyTest = bundleIsTest
-export const isCypress = bundleIsCypress
+export const isE2E = bundleIsE2E
 export const isPackageTest = bundleIsTest
 
 export interface CommandLineArguments {
