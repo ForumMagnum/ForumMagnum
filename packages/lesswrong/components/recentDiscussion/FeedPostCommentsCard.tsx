@@ -181,7 +181,6 @@ const FeedPostCommentsCard = ({
                 startThreadTruncated={true}
                 expandAllThreads={expandAllThreads}
                 expandNewComments={false}
-                nestingLevel={0}
                 comment={comment.item}
                 childComments={comment.children}
                 key={comment.item._id}
