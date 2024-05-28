@@ -217,7 +217,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postBody: {
     width: "max-content",
   },
-  postContent: { //Used by a Cypress test
+  postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
@@ -774,7 +774,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && post.commentCount < 1 &&
+          {isFriendlyUI && Math.max(post.commentCount, results?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>

@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: Run tests
 on:
   push:
   pull_request:
@@ -26,6 +26,53 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
+  runPlaywrightTests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox]
+    services:
+      postgres:
+        image: ankane/pgvector
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
+      SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Setup database
+      run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+    - name: Install browsers
+      run: yarn playwright install ${{ matrix.project }} --with-deps
+    - name: Run playwright tests
+      run: yarn playwright test --project ${{ matrix.project }}
+    - name: Upload playwright report
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Playwright report ${{ matrix.project }}
+        path: playwright-report
+    - name: Upload playwright test results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Playwright test results ${{ matrix.project }}
+        path: test-results
+
   runUnitTests:
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +81,7 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: Upload schema to accept
@@ -66,6 +113,7 @@ jobs:
     env:
       PG_URL: postgres://postgres:postgres@localhost:5432/postgres
       NODE_OPTIONS: "--max_old_space_size=4096"
+      SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

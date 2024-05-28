@@ -32,12 +32,15 @@ export function hydrateClient() {
     />
   );
 
-  const root = hydrateRoot(
+  hydrateRoot(
     document.getElementById('react-app')!,
     <Main />,
   );
   setTimeout(() => {
     apolloClient.disableNetworkFetches = false;
     foreignApolloClient.disableNetworkFetches = false;
+    // Remove the SSR interaction disable styles (which are only added in E2E
+    // tests) - see `apolloServer.ts`
+    document.getElementById("ssr-interaction-disable")?.remove();
   });
 };
