@@ -2,7 +2,6 @@ import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib'
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
-import { clearVotesServer, performVoteServer } from '../voteServer';
 import type { VoteDocTuple } from '../../lib/voting/vote';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { PostRelations } from '../../lib/collections/postRelations/index';
@@ -34,7 +33,6 @@ import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { postsNewNotifications } from '../notificationCallbacks';
-import { updateScoreOnPostPublish, voteCallbacks } from './votingCallbacks';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -48,6 +46,7 @@ const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type
 export async function onPostPublished(post: DbPost, context: ResolverContext) {
   updateRecombeeWithPublishedPost(post, context);
   await postsNewNotifications(post);
+  const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
 }
 
@@ -125,7 +124,7 @@ getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedS
   return data;
 });
 
-voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
+export async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
     const post = newDocument as DbPost;
     if (post.baseScore > (post.maxBaseScore || 0)) {
@@ -151,7 +150,7 @@ voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocumen
       await Posts.rawUpdateOne({_id: post._id}, {$set: {maxBaseScore: post.baseScore, ...thresholdTimestamp}})
     }
   }
-});
+}
 
 getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultLocation(post: DbPost): Promise<DbPost> {
   return {...post, ...(await getDefaultPostLocationFields(post))}
@@ -171,6 +170,7 @@ getCollectionHooks("Posts").newSync.add(async function PostsNewDefaultTypes(post
 getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(post: DbPost): Promise<DbPost> {
  var postAuthor = await Users.findOne(post.userId);
  if (!postAuthor) throw new Error(`Could not find user: ${post.userId}`);
+ const { performVoteServer } = require("../voteServer");
  const {modifiedDocument: votedPost} = await performVoteServer({
    document: post,
    voteType: 'bigUpvote',
@@ -528,6 +528,7 @@ async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {
 async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: DbTagRel[], currentUser: DbUser, context: ResolverContext}) {
   const clearOneTag = async (tagRel: DbTagRel) => {
     try {
+      const { clearVotesServer } = require("../voteServer");
       await clearVotesServer({ document: tagRel, collection: TagRels, user: currentUser, context})
     } catch(e) {
       captureException(e)
@@ -651,7 +652,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   }
 });
 
-voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
+export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
   if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
 
   if (recombeeEnabledSetting.get()) {
@@ -661,7 +662,7 @@ voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, contex
   }
   
   // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
-});
+}
 
 getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
   modifier: MongoModifier<DbPost>,

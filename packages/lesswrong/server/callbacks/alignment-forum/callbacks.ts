@@ -6,7 +6,6 @@ import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import type { VoteDocTuple } from '../../../lib/voting/vote';
-import { voteCallbacks } from "../votingCallbacks";
 import { ensureIndex } from "../../../lib/collectionIndexUtils";
 import { UsersRepo } from "../../repos";
 
@@ -52,11 +51,9 @@ async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: Db
   }
 }
 
-async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocTuple) {
+export async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocTuple) {
   return await updateAlignmentKarmaServer(newDocument, vote)
 }
-
-voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
 async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId !== vote.userId)) {
@@ -76,22 +73,18 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
   }
 }
 
-async function updateAlignmentUserServerCallback ({newDocument, vote}: VoteDocTuple) {
+export async function updateAlignmentUserServerCallback ({newDocument, vote}: VoteDocTuple) {
   await updateAlignmentUserServer(newDocument, vote, 1)
 }
 
-voteCallbacks.castVoteAsync.add(updateAlignmentUserServerCallback);
-
-async function cancelAlignmentUserKarmaServer ({newDocument, vote}: VoteDocTuple) {
+export async function cancelAlignmentUserKarmaServer ({newDocument, vote}: VoteDocTuple) {
   await updateAlignmentUserServer(newDocument, vote, -1)
 
 }
 
-voteCallbacks.cancelAsync.add(cancelAlignmentUserKarmaServer);
-
-voteCallbacks.cancelSync.add(function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocTuple) {
+export function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocTuple) {
   void updateAlignmentKarmaServer(newDocument, vote)
-});
+}
 
 
 async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {

@@ -2,13 +2,11 @@ import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { performVoteServer } from '../voteServer';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 import { updatePostDenormalizedTags } from './helpers';
-import { voteCallbacks } from '../callbacks/votingCallbacks';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -109,6 +107,7 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   // When you add a tag, vote for it as relevant
   var tagCreator = await Users.findOne(tagRel.userId);
   if (!tagCreator) throw new Error(`Could not find user ${tagRel.userId}`);
+  const { performVoteServer } = require('../voteServer');
   const {modifiedDocument: votedTagRel} = await performVoteServer({
     document: tagRel,
     voteType: 'smallUpvote',
@@ -121,7 +120,7 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   return {...tagRel, ...votedTagRel} as DbTagRel;
 });
 
-function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
+export function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {
   let postId: string;
   if ("postId" in newDocument) { // is a tagRel
     // Applying human knowledge here
@@ -134,10 +133,7 @@ function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableTyp
   void updatePostDenormalizedTags(postId);
 }
 
-voteCallbacks.cancelSync.add(voteUpdatePostDenormalizedTags);
-voteCallbacks.castVoteAsync.add(voteUpdatePostDenormalizedTags);
-
-async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
+export async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: DbVote) {
   if (vote.collectionName !== "Revisions") return;
   if (votedRevision.collectionName !== "Tags") return;
   
@@ -145,11 +141,3 @@ async function recomputeContributorScoresFor(votedRevision: DbRevision, vote: Db
   if (!tag) return;
   await updateDenormalizedContributorsList(tag);
 }
-
-voteCallbacks.castVoteAsync.add(async ({newDocument: revision, vote}: {newDocument: DbRevision, vote: DbVote}) => {
-  await recomputeContributorScoresFor(revision, vote);
-});
-
-voteCallbacks.cancelAsync.add(async ({newDocument: revision, vote}: {newDocument: DbRevision, vote: DbVote}) => {
-  await recomputeContributorScoresFor(revision, vote);
-});
