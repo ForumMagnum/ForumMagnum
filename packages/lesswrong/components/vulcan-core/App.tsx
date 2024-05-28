@@ -19,7 +19,6 @@ import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
-import { onUserChanged } from '@/client/logging';
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
@@ -41,12 +40,18 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   const locale = localeSetting.get();
 
   useEffect(() => {
-    onUserChanged(currentUser);
+    if (!bundleIsServer) {
+      const { onUserChanged } = require('@/client/logging');
+      onUserChanged(currentUser);
+    }
     moment.locale(locale);
   }, [currentUser, locale]);
 
   useEffect(() => {
-    onUserChanged(currentUser);
+    if (!bundleIsServer) {
+      const { onUserChanged } = require('@/client/logging');
+      onUserChanged(currentUser);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id]);
 

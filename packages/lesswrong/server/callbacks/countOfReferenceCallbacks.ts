@@ -7,7 +7,7 @@ import { getCollectionHooks } from "../mutationCallbacks";
 export function addCountOfReferenceCallbacks() {
   for (let collection of getAllCollections()) {
     const collectionName = collection.collectionName;
-    const schema = getSchema(collectionName);
+    const schema = getSchema(collection);
     for (let fieldName of Object.keys(schema)) {
       const countOfReferencesOptions = schema[fieldName].countOfReferences;
       if (!countOfReferencesOptions) {

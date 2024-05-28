@@ -306,6 +306,10 @@ SimpleSchema.extendOptions(['canAutoDenormalize'])
 // the collection and the denormalized option is false.
 SimpleSchema.extendOptions(['logChanges'])
 
+// For fields that are automatically updated counts of references (see
+// addCountOfReferenceCallbacks).
+SimpleSchema.extendOptions(['countOfReferences']);
+
 
 // Helper function to add all the correct callbacks and metadata for a field
 // which is denormalized, where its denormalized value is a function only of
