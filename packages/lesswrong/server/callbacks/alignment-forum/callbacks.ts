@@ -1,7 +1,6 @@
 import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes';
-import { commentsAlignmentAsync, postsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
@@ -87,7 +86,7 @@ export function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocT
 }
 
 
-async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
+export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
       $inc: {afKarma: document.afBaseScore ?? 0},
@@ -114,6 +113,4 @@ async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocume
 }
 ensureIndex(Votes, {documentId:1});
 
-commentsAlignmentAsync.add(MoveToAFUpdatesUserAFKarma);
-getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
-postsAlignmentAsync.add(MoveToAFUpdatesUserAFKarma);
+getCollectionHooks("Posts").editAsync.add(moveToAFUpdatesUserAFKarma);
