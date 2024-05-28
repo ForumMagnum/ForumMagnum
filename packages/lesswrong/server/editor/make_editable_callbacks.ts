@@ -19,6 +19,7 @@ import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-noti
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments'
 import isEqual from 'lodash/isEqual'
+import { fetchFragmentSingle } from '../fetchFragment'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -181,6 +182,17 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
       delete docData[fieldName].dataWithDiscardedSuggestions
 
+      const oldRevisionId = document?.[`${fieldName}_latest`];
+      const oldRevision = oldRevisionId
+        ? await fetchFragmentSingle({
+          collectionName: "Revisions",
+          fragmentName: "RevisionEdit",
+          selector: {_id: oldRevisionId},
+          currentUser: null,
+          skipFiltering: true,
+        })
+        : null;
+
       const revision = await buildRevision({
         originalContents: newDocument[fieldName].originalContents,
         dataWithDiscardedSuggestions,
@@ -188,9 +200,11 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       });
       const { html, wordCount } = revision;
 
-      const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
+      const defaultUpdateType = docData[fieldName].updateType ||
+        (!oldRevision && 'initial') ||
+        'minor';
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
-      const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
+      const { major } = extractVersionsFromSemver(oldRevision?.version ?? null);
       const beingUndrafted = isBeingUndrafted(document as MaybeDrafteable, newDocument as MaybeDrafteable)
       const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
       const userId = currentUser._id
