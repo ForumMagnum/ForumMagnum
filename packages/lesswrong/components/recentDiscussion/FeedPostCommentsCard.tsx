@@ -163,13 +163,15 @@ const FeedPostCommentsCard = ({
           <FeedPostCardMeta post={post} />
         </div>
 
-        {post.contents?.wordCount && <div className={classNames(classes.postHighlight, { [classes.noComments]: !nestedComments.length })}>
-          <FeedPostsHighlight 
-            post={post} 
-            initiallyExpanded={expandPost}
-            maxCollapsedLengthWords={lastVisitedAt ? 70 : maxCollapsedLengthWords} 
-          />
-        </div>}
+        {post.contents?.wordCount
+          ? <div className={classNames(classes.postHighlight, { [classes.noComments]: !nestedComments.length })}>
+              <FeedPostsHighlight 
+                post={post} 
+                initiallyExpanded={expandPost}
+                maxCollapsedLengthWords={lastVisitedAt ? 70 : maxCollapsedLengthWords} 
+              />
+            </div>
+          : null}
 
         {nestedComments?.length && <div className={classes.commentsList}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
