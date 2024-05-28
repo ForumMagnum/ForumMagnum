@@ -275,6 +275,12 @@ inspector or debugger) with `PWDEBUG=console yarn playwright test`. It's strongl
 recommended to use the `-g` to only run a single test, as each test will open
 in a separate browser window.
 
+Warning: The current playwright implementation is new and there are still some
+teething problems with starting the server correctly. If the tests routinely
+fail to start, remove the `webservers` section from `playwright.config.ts` and
+instead run `yarn playwright-db` and `yarn start-playwright` in separate
+terminals while running the tests.
+
 ### Where to branch off of
 
 Branch off of `master` and submit to `master`. Deploys occur when `master` is
