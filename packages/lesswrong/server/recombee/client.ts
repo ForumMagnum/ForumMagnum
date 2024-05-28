@@ -443,7 +443,7 @@ const helpers = {
     }
 
     void helpers
-      .sendRecRequestWithPerfMetrics(recRequest, true)
+      .sendRecRequestWithPerfMetrics(recRequest, batch, true)
       .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context));
 
     return formattedRecommendations;

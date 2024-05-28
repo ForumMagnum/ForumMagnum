@@ -1,6 +1,5 @@
 import React from 'react';
 import AppGenerator from './AppGenerator';
-import { onStartup } from '../lib/executionEnvironment';
 
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
@@ -8,7 +7,7 @@ import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
 import { hydrateRoot } from 'react-dom/client';
 
-onStartup(() => {
+export function hydrateClient() {
   populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
@@ -33,13 +32,15 @@ onStartup(() => {
     />
   );
 
-  const root = hydrateRoot(
+  hydrateRoot(
     document.getElementById('react-app')!,
     <Main />,
   );
   setTimeout(() => {
     apolloClient.disableNetworkFetches = false;
     foreignApolloClient.disableNetworkFetches = false;
+    // Remove the SSR interaction disable styles (which are only added in E2E
+    // tests) - see `apolloServer.ts`
+    document.getElementById("ssr-interaction-disable")?.remove();
   });
-// Order 100 to make this execute last
-}, 100);
+};

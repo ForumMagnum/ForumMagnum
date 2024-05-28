@@ -25,7 +25,7 @@ addStaticRoute('/out', async ({ query }, _req, res, _next) => {
         const client = await createClient(null, true);
         const result = await client.query({
           query: getGraphQLQueryFromOptions({
-            collection: Posts,
+            collectionName: "Posts",
             fragmentName: "PostsBase",
             fragment: undefined,
             extraVariables: undefined,
