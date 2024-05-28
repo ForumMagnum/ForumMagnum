@@ -4,8 +4,8 @@ import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
 import { useVote } from './withVote';
 
 
-const VoteOnComment = ({document, hideKarma=false, collection, votingSystem}: CommentVotingComponentProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+const VoteOnComment = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
+  const voteProps = useVote(document, collectionName, votingSystem);
   return <Components.OverallVoteAxis
     document={document}
     hideKarma={hideKarma}

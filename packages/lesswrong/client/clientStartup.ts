@@ -1,7 +1,6 @@
 import '../client/publicSettings' // Must come first
 
 // Imports required for this file:
-import { runStartupFunctions } from '../lib/executionEnvironment';
 import { filterConsoleLogSpam } from '../lib/consoleFilters';
 import { DeferredComponentsTable, prepareComponent } from '../lib/vulcan-lib';
 import { randomId } from '../lib/random';
@@ -9,6 +8,11 @@ import { randomId } from '../lib/random';
 // Imports required for the whole app:
 import '../client';
 import { CLIENT_ID_COOKIE } from '../lib/cookies/cookies';
+import { initAutoRefresh } from './autoRefresh';
+import { rememberScrollPositionOnPageReload } from './scrollRestoration';
+import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
+import { initLegacyRoutes } from '@/lib/routes';
+import { hydrateClient } from './start';
 
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
@@ -36,7 +40,12 @@ async function clientStartup() {
 
   filterConsoleLogSpam();
   require('../deferred-client-scripts.js');
-  await runStartupFunctions();
+
+  initAutoRefresh();
+  rememberScrollPositionOnPageReload();
+  addClickHandlerToCheckboxLabels();
+  initLegacyRoutes();
+  hydrateClient();
 }
 
 // Starting up too early is known to compete for resources with rendering the page, causing the

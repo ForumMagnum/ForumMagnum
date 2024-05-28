@@ -31,6 +31,6 @@ export const datadogMiddleware = (req: AnyBecauseTodo, res: AnyBecauseTodo, next
     rootSpan.setTag('client.ip', ip)
   }
 
-  res.setHeader( 'Access-Control-Allow-Headers', 'x-datadog-trace-id, x-datadog-parent-id, x-datadog-origin, x-datadog-sampling-priority' );
+  res.setHeader( 'Access-Control-Allow-Headers', 'x-datadog-trace-id, x-datadog-parent-id, x-datadog-origin, x-datadog-sampling-priority, traceparent' );
   next();
 }
