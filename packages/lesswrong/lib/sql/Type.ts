@@ -4,6 +4,7 @@ import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
+import { editableFieldIsNormalized } from "../editor/make_editable";
 
 const forceNonResolverFields = [
   "contents",
@@ -19,25 +20,13 @@ const forceNonResolverFields = [
   "postPageDescription",
 ];
 
-// TODO: This is temporary hacky garbage - delete it when we finish normalizing
-// editable fields
-const normalizedEditableFields: {
-  collectionName: CollectionNameString,
-  fieldName: string,
-}[] = [
-  {collectionName: "Posts", fieldName: "moderationGuidelines"},
-  {collectionName: "Posts", fieldName: "contents"},
-];
-
 export const isResolverOnly = <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   fieldName: string,
   schema: CollectionFieldSpecification<N>,
 ) => {
-  for (const {collectionName, fieldName: fieldName_} of normalizedEditableFields) {
-    if (collection.collectionName === collectionName && fieldName === fieldName_) {
-      return true;
-    }
+  if (editableFieldIsNormalized(collection.collectionName, fieldName)) {
+    return true;
   }
   return schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 }
