@@ -62,9 +62,17 @@ interface LatLng {
   lng: number;
 }
 
-const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
+const SearchResultsMap = ({
+  center = defaultCenter,
+  zoom = 2,
+  from = "community_members_tab",
+  hits,
+  className,
+  classes,
+}: {
   center?: LatLng,
   zoom?: number,
+  from?: string,
   hits: Array<Hit<SearchUser>>,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -135,7 +143,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
           {(activeResultId === hit._id) && <StyledMapPopup
             lat={markerLocations[hit._id].lat}
             lng={markerLocations[hit._id].lng}
-            link={`/users/${hit.slug}?from=community_members_tab`}
+            link={`/users/${hit.slug}?from=${from}`}
             title={<div className={classes.popupTitle}>
               {hit.profileImageId && <Components.CloudinaryImage2
                 height={50}

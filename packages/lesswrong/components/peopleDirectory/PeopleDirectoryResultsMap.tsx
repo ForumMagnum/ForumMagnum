@@ -16,6 +16,7 @@ export const PeopleDirectoryResultsMap = ({classes}: {
   return (
     <RawSearchResultsMap
       hits={results as AnyBecauseTodo[]}
+      from="people_directory"
       className={classes.root}
     />
   );
