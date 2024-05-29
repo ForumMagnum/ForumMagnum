@@ -63,8 +63,8 @@ interface LatLng {
 }
 
 const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
-  center: LatLng,
-  zoom: number,
+  center?: LatLng,
+  zoom?: number,
   hits: Array<Hit<SearchUser>>,
   className?: string,
   classes: ClassesType,
@@ -103,6 +103,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
     setMarkerLocations(locations)
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hits])
+  console.log(hits);
   
   
   const { StyledMapPopup } = Components
@@ -170,9 +171,11 @@ type SearchResultsMapProps = {
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)
 const SearchResultsMapComponent = registerComponent("SearchResultsMap", ConnectedSearchResultsMap, { styles });
+const RawSearchResultsMapComponent = registerComponent("RawSearchResultsMap", SearchResultsMap, { styles });
 
 declare global {
   interface ComponentTypes {
     SearchResultsMap: typeof SearchResultsMapComponent
+    RawSearchResultsMap: typeof RawSearchResultsMapComponent
   }
 }

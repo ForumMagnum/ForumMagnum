@@ -1,17 +1,23 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { usePeopleDirectory } from "./usePeopleDirectory";
 
 const styles = (_theme: ThemeType) => ({
   root: {
+    height: 842,
   },
 });
 
 export const PeopleDirectoryResultsMap = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {results} = usePeopleDirectory();
+  const {RawSearchResultsMap} = Components;
   return (
-    <div className={classes.root}>
-    </div>
+    <RawSearchResultsMap
+      hits={results as AnyBecauseTodo[]}
+      className={classes.root}
+    />
   );
 }
 
