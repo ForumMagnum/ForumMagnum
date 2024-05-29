@@ -7,8 +7,8 @@ import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
 import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
+import { useMapStyle } from '@/components/hooks/useMapStyle';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -103,9 +103,9 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
     setMarkerLocations(locations)
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hits])
-  console.log(hits);
-  
-  
+
+  const mapStyle = useMapStyle();
+
   const { StyledMapPopup } = Components
   
   return <div className={classNames(classes.root, className)}>
@@ -116,7 +116,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      mapStyle={mapStyle}
       onViewportChange={viewport => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
     >
