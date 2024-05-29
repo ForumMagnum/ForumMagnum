@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { createStyles } from '@material-ui/core/styles';
 import BadlyTypedReactMapGL, { Marker as BadlyTypedMarker } from 'react-map-gl';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
@@ -9,11 +8,12 @@ import type { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
 import { useMapStyle } from '@/components/hooks/useMapStyle';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
 
-const styles = createStyles((theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
   },
@@ -28,7 +28,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     display: 'flex',
     columnGap: 10,
     alignItems: 'center',
-    color: theme.palette.text.alwaysBlack,
+    color: isFriendlyUI ? undefined : theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
@@ -53,7 +53,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
   }
-}))
+});
 
 const defaultCenter = {lat: 18.586392, lng: -11.334020}
 
@@ -67,7 +67,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   zoom?: number,
   hits: Array<Hit<SearchUser>>,
   className?: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [activeResultId, setActiveResultId] = useState('')
   
