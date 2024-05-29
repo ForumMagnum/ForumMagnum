@@ -10,12 +10,16 @@ import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import qs from "qs";
 
+type PeopleDirectoryView = "list" | "map";
+
 type PeopleDirectorySorting = {
   field: string,
   direction: "asc" | "desc",
 }
 
 type PeopleDirectoryContext = {
+  view: PeopleDirectoryView,
+  setView: (view: PeopleDirectoryView) => void,
   query: string,
   setQuery: (query: string) => void,
   clearSearch: () => void,
@@ -41,6 +45,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
   const navigate = useNavigate();
   const {location, query: urlQuery} = useLocation();
+  const [view, setView] = useState<PeopleDirectoryView>("list");
   const [query, setQuery_] = useState(urlQuery.query ?? "");
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
   // We store the results in an 2D-array, where the index in the first array
@@ -219,6 +224,8 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
 
   return (
     <peopleDirectoryContext.Provider value={{
+      view,
+      setView,
       query,
       setQuery,
       clearSearch,

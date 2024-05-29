@@ -1130,6 +1130,7 @@ importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
 importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));
 importComponent("PeopleDirectoryMainSearch", () => require('../components/peopleDirectory/PeopleDirectoryMainSearch'));
+importComponent("PeopleDirectoryViewToggle", () => require('../components/peopleDirectory/PeopleDirectoryViewToggle'));
 importComponent("PeopleDirectoryFilters", () => require('../components/peopleDirectory/PeopleDirectoryFilters'));
 importComponent("PeopleDirectoryFilterDropdown", () => require('../components/peopleDirectory/PeopleDirectoryFilterDropdown'));
 importComponent("PeopleDirectoryStaticFilter", () => require('../components/peopleDirectory/PeopleDirectoryStaticFilter'));
