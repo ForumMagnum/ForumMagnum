@@ -338,6 +338,11 @@ interface EditableFieldContents {
 // or revision, ie, the parts of a revision which are not auto-generated.
 type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage"|"googleDocMetadata">
 
+type EditableFieldUpdate = EditableFieldInsertion & {
+  dataWithDiscardedSuggestions?: string,
+  updateType?: DbRevision['updateType'],
+};
+
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
 

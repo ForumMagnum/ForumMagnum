@@ -20,6 +20,7 @@ import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, May
 import { Comments } from '../../lib/collections/comments'
 import isEqual from 'lodash/isEqual'
 import { fetchFragmentSingle } from '../fetchFragment'
+import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -90,6 +91,15 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   collection: CollectionBase<N>,
   options: MakeEditableOptions<N>,
 }) {
+  // The type of the DbObject containing this field
+  type DbType = ObjectsByCollectionName[N];
+
+  // The type of the object that is used to update this object.
+  // TODO: This should also include a list of the editable resolver-only fields
+  // but we don't currently have a way to do that - it probably needs some
+  // additions to the type generation script.
+  type UpdateData = Partial<DbType>;
+
   const {
     fieldName = "contents",
     pingbacks = false,
@@ -99,13 +109,14 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc: AnyBecauseTodo, { currentUser, context }: AnyBecauseTodo)
+    async function editorSerializationBeforeCreate (doc: DbType, {currentUser, context})
   {
-    if (doc[fieldName]?.originalContents) {
+    const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
+    if (editableField?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
-      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
-      const commitMessage = doc[fieldName].commitMessage;
-      const googleDocMetadata = doc[fieldName].googleDocMetadata;
+      const originalContents: DbRevision["originalContents"] = editableField.originalContents
+      const commitMessage = editableField.commitMessage ?? null;
+      const googleDocMetadata = editableField.googleDocMetadata;
       const revision = await buildRevision({
         originalContents,
         currentUser,
@@ -124,7 +135,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
           collection: Comments,
           document: {
             userId,
-            contents: doc[fieldName],
+            contents: editableField,
             debateResponse: true,
           },
           context,
@@ -158,7 +169,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         ...doc,
         ...(!normalized && {
           [fieldName]: {
-            ...doc[fieldName],
+            ...editableField,
             html, version, userId, editedAt, wordCount,
             updateType: 'initial'
           },
@@ -173,16 +184,20 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   });
 
   getCollectionHooks(collectionName).updateBefore.add(
-    async function editorSerializationEdit (docData: AnyBecauseTodo, { oldDocument: document, newDocument, currentUser }: AnyBecauseTodo)
+    async function editorSerializationEdit (
+      docData: UpdateData,
+      {oldDocument: document, newDocument, currentUser},
+    )
   {
-    if (docData[fieldName]?.originalContents) {
+    const editableField = (docData as AnyBecauseHard)[fieldName] as EditableFieldUpdate | undefined;
+    if (editableField?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
 
-      const commitMessage = docData[fieldName].commitMessage;
-      const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
-      delete docData[fieldName].dataWithDiscardedSuggestions
+      const commitMessage = editableField.commitMessage ?? null;
+      const dataWithDiscardedSuggestions = editableField.dataWithDiscardedSuggestions
+      delete editableField.dataWithDiscardedSuggestions
 
-      const oldRevisionId = document?.[`${fieldName}_latest`];
+      const oldRevisionId = (document as AnyBecauseHard)?.[`${fieldName}_latest`];
       const oldRevision = oldRevisionId
         ? await fetchFragmentSingle({
           collectionName: "Revisions",
@@ -194,13 +209,13 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         : null;
 
       const revision = await buildRevision({
-        originalContents: newDocument[fieldName].originalContents,
+        originalContents: (newDocument as AnyBecauseHard)[fieldName].originalContents,
         dataWithDiscardedSuggestions,
         currentUser,
       });
       const { html, wordCount } = revision;
 
-      const defaultUpdateType = docData[fieldName].updateType ||
+      const defaultUpdateType = editableField.updateType ||
         (!oldRevision && 'initial') ||
         'minor';
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
@@ -246,7 +261,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         ...docData,
         ...(!normalized && {
           [fieldName]: {
-            ...docData[fieldName],
+            ...editableField,
             html, version, userId, editedAt, wordCount
           },
         }),
@@ -264,10 +279,10 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc: AnyBecauseTodo)
+    async function editorSerializationAfterCreate(newDoc)
   {
     // Update revision to point to the document that owns it.
-    const revisionID = newDoc[`${fieldName}_latest`];
+    const revisionID = (newDoc as AnyBecauseHard)[`${fieldName}_latest`];
     if (revisionID) {
       await Revisions.rawUpdateOne(
         { _id: revisionID },
@@ -278,7 +293,6 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
     return newDoc;
   });
 
-
   getCollectionHooks(collectionName).createAfter.add(async (newDocument, {currentUser}) => {
     if (currentUser && pingbacks && 'pingbacks' in newDocument) {
       await notifyUsersAboutMentions(currentUser, collection.typeName, newDocument)
@@ -287,21 +301,24 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
     return newDocument
   })
 
-  if (collectionName === 'Posts') {
-    getCollectionHooks(collectionName).createAfter.add(
+  if (collectionName === 'Posts' && fieldName === 'contents') {
+    getCollectionHooks("Posts").createAfter.add(
       async function updateFirstDebateCommentPostId(newDoc, { context, currentUser })
     {
       const isFirstDebatePostComment = 'debate' in newDoc
-          ? (!!newDoc.debate && fieldName === 'contents')
+          ? !!newDoc.debate
           : false;
       if (currentUser && isFirstDebatePostComment) {
+        const revision = await getLatestContentsRevision(newDoc, context);
+        if (!revision?.html) {
+          return newDoc;
+        }
         await createMutator({
           collection: Comments,
           document: {
             userId: currentUser._id,
             postId: newDoc._id,
-            // TODO For normalization!!
-            contents: (newDoc as DbPost)[fieldName as keyof DbPost],
+            contents: revision as EditableFieldInsertion,
             debateResponse: true,
           },
           context,
@@ -330,9 +347,9 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
    * It's fine to leave it here just in case though
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
-    // TODO: For normalization!!
-    const hasChanged = (oldDoc as AnyBecauseHard)?.[fieldName]?.html !== (doc as AnyBecauseHard)?.[fieldName]?.html;
-    
+    const latestField = `${fieldName}_latest`;
+    const hasChanged = (oldDoc as AnyBecauseHard)?.[latestField] !== (doc as AnyBecauseHard)?.[latestField];
+
     if (!hasChanged) return;
 
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
