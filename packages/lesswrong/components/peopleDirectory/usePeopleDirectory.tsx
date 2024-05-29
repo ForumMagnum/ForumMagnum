@@ -152,6 +152,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     setPage(0);
     setNumPages(0);
   }, [
+    view,
     query,
     sorting,
     roles.selectedValues,
@@ -164,6 +165,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     setResultsLoading(true);
     void (async () => {
       try {
+        const isMap = view === "map";
         const sortString = sorting
           ? `_${sorting.field}:${sorting.direction}`
           : "";
@@ -173,6 +175,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           locations.selectedValues.map((location) => `mapLocationAddress:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
           ["hideFromPeopleDirectory:false"],
+          isMap ? ["_geoloc:-null"] : [],
         ];
         const response = await getSearchClient().search([
           {
@@ -182,6 +185,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
               query,
               facetFilters,
               page,
+              hitsPerPage: isMap ? 250 : undefined,
             },
           },
         ]);
@@ -214,6 +218,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   }, [
     captureSearch,
     page,
+    view,
     query,
     sorting,
     roles.selectedValues,
