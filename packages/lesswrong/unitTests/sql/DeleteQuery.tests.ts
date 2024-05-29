@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import DeleteQuery from "../../lib/sql/DeleteQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import DeleteQuery from "@/server/sql/DeleteQuery";
 
 describe("DeleteQuery", () => {
   runTestCases([
