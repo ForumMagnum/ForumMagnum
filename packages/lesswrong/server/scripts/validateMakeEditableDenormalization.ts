@@ -1,4 +1,4 @@
-import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import { editableCollections, editableCollectionsFields, editableFieldIsNormalized } from '../../lib/editor/make_editable'
 import { Vulcan, getCollection } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
@@ -17,6 +17,10 @@ Vulcan.validateMakeEditableDenormalization = async () => {
   
   for (let collectionName of editableCollections) {
     for (let editableField of editableCollectionsFields[collectionName]!) {
+      if (editableFieldIsNormalized(collectionName, editableField)) {
+        continue;
+      }
+
       // eslint-disable-next-line no-console
       console.log(`Checking ${collectionName}.${editableField}...`);
       

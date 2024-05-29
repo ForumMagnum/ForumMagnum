@@ -107,6 +107,11 @@ export const editableCollectionsFieldOptions: Record<CollectionNameString, Recor
 let editableFieldsSealed = false;
 export function sealEditableFields() { editableFieldsSealed=true }
 
+export const editableFieldIsNormalized = (
+  collectionName: CollectionNameString,
+  fieldName: string,
+) => !!editableCollectionsFieldOptions[collectionName]?.[fieldName]?.normalized;
+
 const buildEditableResolver = <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   fieldName: string,

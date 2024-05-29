@@ -285,10 +285,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getPostIdsWithoutEmbeddings
       SELECT p."_id"
       FROM "Posts" p
+      LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "PostEmbeddings" pe ON p."_id" = pe."postId"
       WHERE
         pe."embeddings" IS NULL AND
-        COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
+        COALESCE((r."wordCount")::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
   }
@@ -410,9 +411,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
-        p."contents"->>'html' AS "body",
+        revision."html" AS "body",
         NOW() AS "exportedAt"
       FROM "Posts" p
+      LEFT JOIN "Revisions" revision ON p."contents_latest" = revision."_id"
       LEFT JOIN "Users" author ON p."userId" = author."_id"
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
     `;

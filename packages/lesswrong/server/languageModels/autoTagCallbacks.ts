@@ -8,7 +8,7 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
+import { isAnyTest, isE2E, isProduction } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
@@ -251,7 +251,7 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
 async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
-    if (!isAnyTest) {
+    if (!isAnyTest && !isE2E) {
       //eslint-disable-next-line no-console
       console.log("Skipping autotagging (API not configured)");
     }
