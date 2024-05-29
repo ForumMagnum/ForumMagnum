@@ -73,6 +73,8 @@ const NewDialogueDialog = ({onClose, classes}: {
           anyoneWithLinkCan: "none",
           explicitlySharedUsersCan: "edit",
         },
+        // Contents is a resolver only field, but there is handling for it
+        // in `createMutator`/`updateMutator`
         ...({
           contents: {
             originalContents: {
