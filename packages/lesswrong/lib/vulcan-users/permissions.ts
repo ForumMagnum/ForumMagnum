@@ -82,10 +82,9 @@ export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): bo
 };
 
 // Check if a user can perform at least one of the specified actions
-export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|string[]): boolean => {
+export const userCanDo = (user: UsersProfile|DbUser|null, action: string): boolean => {
   const authorizedActions = userGetActions(user);
-  const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
-  return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
+  return userIsAdmin(user) || authorizedActions.includes(action);
 };
 
 export type OwnableDocument = HasUserIdType|DbUser|UsersMinimumInfo;

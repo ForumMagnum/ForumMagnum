@@ -22,8 +22,8 @@ export const Users = createCollection({
   
       // OpenCRUD backwards compatibility
       return userOwns(user, document)
-        ? userCanDo(user, ['user.update.own', 'users.edit.own'])
-        : userCanDo(user, ['user.update.all', 'users.edit.all']);
+        ? userCanDo(user, 'users.edit.own')
+        : userCanDo(user, 'users.edit.all');
     },
     // Anyone can create users
     newCheck: () => true,
