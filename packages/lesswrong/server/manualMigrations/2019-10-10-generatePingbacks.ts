@@ -1,7 +1,8 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
+import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { getCollection } from '../../lib/vulcan-lib';
 import { htmlToPingbacks } from '../pingbacks';
+import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 import Revisions from '@/lib/collections/revisions/collection';
 
 registerMigration({

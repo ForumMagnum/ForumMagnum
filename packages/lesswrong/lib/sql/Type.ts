@@ -4,7 +4,7 @@ import SimpleSchema from "simpl-schema";
 import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
-import { editableFieldIsNormalized } from "../editor/make_editable";
+import { editableFieldIsNormalized } from "../editor/makeEditableOptions";
 
 const forceNonResolverFields = [
   "contents",

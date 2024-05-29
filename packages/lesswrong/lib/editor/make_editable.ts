@@ -5,6 +5,7 @@ import { accessFilterMultiple, addFieldsDict } from '../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema'
 import { getWithLoader } from '../loaders';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { EditableFieldName, MakeEditableOptions, editableCollectionsFieldOptions } from './makeEditableOptions';
 
 export const RevisionStorageType = new SimpleSchema({
   originalContents: {type: ContentType, optional: true},
@@ -20,38 +21,6 @@ export const RevisionStorageType = new SimpleSchema({
   // information.
   dataWithDiscardedSuggestions: {type: String, optional: true, nullable: true}
 })
-
-type EditableFieldName<N extends CollectionNameString> =
-  keyof ObjectsByCollectionName[N] & string;
-
-type MakeEditableOptionsFieldName<N extends CollectionNameString> = {
-  fieldName?: EditableFieldName<N>,
-  normalized?: false,
-} | {
-  fieldName?: string,
-  normalized: true,
-};
-
-export type MakeEditableOptions<N extends CollectionNameString> = {
-  commentEditor?: boolean,
-  commentStyles?: boolean,
-  commentLocalStorage?: boolean,
-  getLocalStorageId?: null | ((doc: any, name: string) => {id: string, verify: boolean}),
-  formGroup?: any,
-  permissions?: {
-    canRead?: any,
-    canUpdate?: any,
-    canCreate?: any,
-  },
-  label?: string,
-  order?: number,
-  hideControls?: boolean,
-  hintText?: string,
-  pingbacks?: boolean,
-  revisionsHaveCommitMessages?: boolean,
-  hidden?: boolean,
-  hasToc?: boolean,
-} & MakeEditableOptionsFieldName<N>;
 
 export const defaultEditorPlaceholder = isFriendlyUI ?
 `Highlight text to format it. Type # to reference a post, @ to mention someone.` :  
@@ -103,14 +72,8 @@ const defaultOptions: MakeEditableOptions<CollectionNameString> = {
 
 export const editableCollections = new Set<CollectionNameString>()
 export const editableCollectionsFields: Record<CollectionNameString,Array<string>> = {} as any;
-export const editableCollectionsFieldOptions: Record<CollectionNameString, Record<string, MakeEditableOptions<CollectionNameString>>> = {} as any;
 let editableFieldsSealed = false;
 export function sealEditableFields() { editableFieldsSealed=true }
-
-export const editableFieldIsNormalized = (
-  collectionName: CollectionNameString,
-  fieldName: string,
-) => !!editableCollectionsFieldOptions[collectionName]?.[fieldName]?.normalized;
 
 const buildEditableResolver = <N extends CollectionNameString>(
   collection: CollectionBase<N>,

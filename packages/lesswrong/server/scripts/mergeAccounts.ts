@@ -1,7 +1,7 @@
 import Users from '../../lib/collections/users/collection';
 import { Vulcan, updateMutator, getCollection, Utils } from '../vulcan-lib';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { editableCollectionsFields, editableFieldIsNormalized } from '../../lib/editor/make_editable'
+import { editableCollectionsFields } from '../../lib/editor/make_editable'
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
@@ -10,6 +10,7 @@ import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
+import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string

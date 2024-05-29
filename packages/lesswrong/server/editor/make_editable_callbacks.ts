@@ -5,9 +5,7 @@ import {ensureIndex} from '../../lib/collectionIndexUtils'
 import {htmlToPingbacks} from '../pingbacks'
 import {
   editableCollections,
-  editableCollectionsFieldOptions,
   editableCollectionsFields,
-  MakeEditableOptions,
   sealEditableFields,
 } from '../../lib/editor/make_editable'
 import {getCollection} from '../../lib/vulcan-lib/getCollection'
@@ -21,6 +19,7 @@ import { Comments } from '../../lib/collections/comments'
 import isEqual from 'lodash/isEqual'
 import { fetchFragmentSingle } from '../fetchFragment'
 import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers'
+import { MakeEditableOptions, editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
