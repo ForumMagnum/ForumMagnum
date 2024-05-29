@@ -30,6 +30,6 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
   }
 }
 
-recordPerfMetrics(ClientIdsRepo);
+recordPerfMetrics(ClientIdsRepo, { excludeMethods: ['ensureClientId'] });
 
 export default ClientIdsRepo;

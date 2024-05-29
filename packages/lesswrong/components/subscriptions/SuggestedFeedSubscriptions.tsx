@@ -171,21 +171,21 @@ export const SuggestedFeedSubscriptions = ({classes}: {
   const availableUsers = suggestedUsers ?? results ?? [];
 
   const subscribeToUser = async (user: UsersMinimumInfo, dismiss=false) => {
-      const newSubscription = {
-        state: dismiss ? 'suppressed' : 'subscribed',
-        documentId: user._id,
-        collectionName: "Users",
-        type: "newActivityForFeed",
-      } as const;
+    const newSubscription = {
+      state: dismiss ? 'suppressed' : 'subscribed',
+      documentId: user._id,
+      collectionName: "Users",
+      type: "newActivityForFeed",
+    } as const;
 
-      void createSubscription({data: newSubscription}).then(() => refetch());
-      captureEvent("subscribedToUserFeedActivity", {subscribedUserId: user._id, state: newSubscription.state})
-      
-      const username = userGetDisplayName(user)
-      const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
-      flash({messageString: successMessage});
+    void createSubscription({data: newSubscription}).then(() => refetch());
+    captureEvent("subscribedToUserFeedActivity", {subscribedUserId: user._id, state: newSubscription.state})
+    
+    const username = userGetDisplayName(user)
+    const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
+    flash({messageString: successMessage});
 
-      setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
+    setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
   }
 
   return <div className={classNames(classes.root, {[classes.widgetOpen]: widgetOpen, [classes.widgetClosed]: !widgetOpen})}>
@@ -203,7 +203,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
       </div>}
     </div>
     {widgetOpen && <div className={classes.userSubscribeButtons}>
-      {availableUsers && availableUsers?.slice(0,12).map((user) => <SubscriptionButton 
+      {availableUsers.slice(0,12).map((user) => <SubscriptionButton 
         user={user} 
         key={user._id} 
         handleSubscribeOrDismiss={subscribeToUser}
