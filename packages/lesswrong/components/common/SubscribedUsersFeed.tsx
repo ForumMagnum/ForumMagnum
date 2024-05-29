@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
+import { ObservableQuery } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -11,13 +12,23 @@ const SubscribedUsersFeed = ({classes}: {
 }) => {
   const { MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
   
+  const refetchRef = useRef<null | ObservableQuery['refetch']>(null);
+  const refetch = useCallback(() => {
+    if (refetchRef.current) {
+      void refetchRef.current();
+    }
+  }, [refetchRef]);
+  
   return <div className={classes.root}>
-    <SuggestedFeedSubscriptions />
+    <SuggestedFeedSubscriptions refetchFeed={refetch} />
     <MixedTypeFeed
       resolverName={"SubscribedFeed"}
+      refetchRef={refetchRef}
       firstPageSize={10}
       pageSize={20}
       sortKeyType="Date"
+      nextFetchPolicy={'cache-and-network'}
+      reorderOnRefetch
       renderers={{
         postCommented: {
           fragmentName: "SubscribedPostAndCommentsFeed",

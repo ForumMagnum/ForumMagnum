@@ -94,11 +94,11 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
   </div>
 
   const linkPostIcon =  post.url && <span className={classNames(classes.linkPost, classes.info)}>
-    <Link to={postGetPageUrl(post)}>
-        <LWTooltip title={linkPostMessage} placement="left">
-          <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
-        </LWTooltip>
-    </Link>
+    {/* <Link to={postGetPageUrl(post)}> */}
+      <LWTooltip title={linkPostMessage} placement="left">
+        <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
+      </LWTooltip>
+    {/* </Link> */}
   </span>
 
   const dateElement = post.postedAt && !post.isEvent && <div className={classes.info}>

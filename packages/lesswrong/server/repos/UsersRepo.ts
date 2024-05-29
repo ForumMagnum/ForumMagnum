@@ -780,7 +780,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           AND "authorId" != $1
           AND es."userId" IS NULL
       ORDER BY (
-        COALESCE(summed_power*3,0) + COALESCE(posts_read*2, 0)
+        COALESCE(summed_power*3, 0) + COALESCE(posts_read*2, 0)
       ) DESC NULLS LAST
       LIMIT $2
     `, [userId, limit]);

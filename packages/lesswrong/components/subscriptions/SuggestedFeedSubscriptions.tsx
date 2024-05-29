@@ -4,12 +4,14 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { useMessages } from '../common/withMessages';
 import { useCreate } from '../../lib/crud/withCreate';
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import classNames from 'classnames';
+import { apolloSSRFlag } from '@/lib/helpers';
+import { ObservableQuery } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -136,9 +138,11 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, classes}: {
   </div>;
 }
 
-export const SuggestedFeedSubscriptions = ({classes}: {
+export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
+  refetchFeed: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { Loading, UserSelect } = Components;
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS])
   const [widgetOpen, setWidgetOpen] = useState(cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS] !== "true");
@@ -148,11 +152,12 @@ export const SuggestedFeedSubscriptions = ({classes}: {
     setCookie(HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, widgetOpen ? "true" : "false")
   }
 
-  const { results, refetch } = usePaginatedResolver({
+  const { results, loading } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
     resolverName: "SuggestedFeedSubscriptionUsers",
     limit: 15,
-    itemsPerPage: 10,
+    // itemsPerPage: 10,
+    ssr: apolloSSRFlag(false),
   });
 
   const [suggestedUsers, setSuggestedUsers] = useState<UsersMinimumInfo[]>();
@@ -170,7 +175,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
 
   const availableUsers = suggestedUsers ?? results ?? [];
 
-  const subscribeToUser = async (user: UsersMinimumInfo, dismiss=false) => {
+  const subscribeToUser = (user: HasIdType & UserDisplayNameInfo, dismiss = false) => {
     const newSubscription = {
       state: dismiss ? 'suppressed' : 'subscribed',
       documentId: user._id,
@@ -178,7 +183,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
       type: "newActivityForFeed",
     } as const;
 
-    void createSubscription({data: newSubscription}).then(() => refetch());
+    void createSubscription({data: newSubscription});
     captureEvent("subscribedToUserFeedActivity", {subscribedUserId: user._id, state: newSubscription.state})
     
     const username = userGetDisplayName(user)
@@ -186,7 +191,10 @@ export const SuggestedFeedSubscriptions = ({classes}: {
     flash({messageString: successMessage});
 
     setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
-  }
+    if (!dismiss) {
+      void refetchFeed();
+    }
+  };
 
   return <div className={classNames(classes.root, {[classes.widgetOpen]: widgetOpen, [classes.widgetClosed]: !widgetOpen})}>
     <div className={classes.titleRow}>
@@ -202,7 +210,8 @@ export const SuggestedFeedSubscriptions = ({classes}: {
         </Link>
       </div>}
     </div>
-    {widgetOpen && <div className={classes.userSubscribeButtons}>
+    {widgetOpen && loading && <Loading />}
+    {widgetOpen && !loading && <div className={classes.userSubscribeButtons}>
       {availableUsers.slice(0,12).map((user) => <SubscriptionButton 
         user={user} 
         key={user._id} 
@@ -210,6 +219,7 @@ export const SuggestedFeedSubscriptions = ({classes}: {
         classes={classes}
       />)}
     </div>}
+    {widgetOpen && <UserSelect value={null} setValue={(_, user) => user && subscribeToUser(user)} label='Subscribe to user' />}
   </div>;
 }
 
