@@ -2,7 +2,7 @@ import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
-import { isClient, isServer, isDevelopment, isAnyTest } from './executionEnvironment';
+import { isClient, isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
@@ -59,6 +59,9 @@ function getShowAnalyticsDebug() {
 export type EventProps = AnalyticsProps | Record<string, Json | undefined>;
 
 export function captureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
+  if (isE2E) {
+    return;
+  }
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few

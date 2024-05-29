@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Comments } from "../../lib/collections/comments";
 import classNames from 'classnames';
 
 const CommentsEditForm = ({ comment, successCallback, cancelCallback, className, formProps = {} }: {

@@ -250,6 +250,9 @@ export const darkModeTheme: UserThemeSpecification = {
       mentionsBaloon: shadePalette.grey[100],
       eaButtonGreyOutline: "#5F5F5F",
     },
+    boxShadow: {
+      graphTooltip: "none",
+    },
     buttons: {
       mentions: {
         hover: shadePalette.grey[100],

@@ -1,6 +1,6 @@
 import later from 'later';
 import * as _ from 'underscore';
-import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
+import { isAnyTest } from '../../../lib/executionEnvironment';
 import { CronHistories } from '../../../lib/collections/cronHistories';
 
 // A package for running jobs synchronized across multiple processes
@@ -64,7 +64,7 @@ function createLogger(prefix: string) {
 
 var log: any;
 
-onStartup(function() {
+export function initSyncedCron() {
   if (isAnyTest) return;
   var options = SyncedCron.options;
 
@@ -86,7 +86,7 @@ onStartup(function() {
 
   // collection holding the job history records
   SyncedCron._collection = CronHistories;
-});
+}
 
 var scheduleEntry = function(entry: any) {
   var schedule = entry.schedule(later.parse);
