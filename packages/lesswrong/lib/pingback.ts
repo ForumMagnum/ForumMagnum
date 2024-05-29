@@ -1,6 +1,7 @@
 import {PingbackDocument, RouterLocation} from './vulcan-lib'
 import {Posts} from './collections/posts'
 import {Users} from './collections/users/collection'
+import {Tags} from './collections/tags/collection'
 
 export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'
@@ -40,6 +41,12 @@ export async function getUserPingbackBySlug(parsedUrl: RouterLocation): Promise<
   if (!user) return null
  
   return ({collectionName: 'Users', documentId: user._id})
+}
+
+export const getTagPingbackBySlug = async (parsedUrl: RouterLocation): Promise<PingbackDocument | null> => {
+  const tag = await Tags.findOne({slug: parsedUrl.params.slug})
+  if (!tag) return null
+  return ({collectionName: 'Tags', documentId: tag._id})
 }
 
 interface ValidationUserPartial {
