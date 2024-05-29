@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
+import { waitUntilCallbacksFinished } from "../server/utils/callbackHooks";
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
 import { createVoteableUnionType } from '../server/votingGraphQL';

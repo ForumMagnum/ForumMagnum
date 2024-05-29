@@ -2,7 +2,7 @@ import "./integrationTestSetup";
 import { updateDenormalizedContributorsList } from '../server/resolvers/tagResolvers';
 import { createDummyUser, createDummyTag, createDummyRevision } from './utils';
 import { performVoteServer } from '../server/voteServer';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
+import { waitUntilCallbacksFinished } from "../server/utils/callbackHooks";
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection'
 

@@ -23,7 +23,6 @@ import { getAllRepos, UsersRepo } from '../../repos';
 import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
-import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
 import { asyncLocalStorage } from '../../perfMetrics';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
@@ -63,11 +62,6 @@ const setupAuthToken = async (user: DbUser|null): Promise<{
   currentUser: DbUser|null,
 }> => {
   if (user) {
-    // identify user to any server-side analytics providers
-    await userChangedCallback.runCallbacks({
-      iterator: user,
-      properties: [],
-    });
     return {
       userId: user._id,
       currentUser: user,

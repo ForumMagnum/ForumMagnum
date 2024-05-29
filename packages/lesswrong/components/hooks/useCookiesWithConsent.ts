@@ -2,7 +2,7 @@ import { useCookies } from "react-cookie";
 import { CookieSetOptions } from "universal-cookie/cjs/types";
 import { ALL_COOKIES, COOKIE_CONSENT_TIMESTAMP_COOKIE, COOKIE_PREFERENCES_COOKIE, CookieType, ONLY_NECESSARY_COOKIES, isCookieAllowed, isValidCookieTypeArray } from "../../lib/cookies/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { cookiePreferencesChangedCallbacks } from "../../lib/cookies/callbacks";
+import { cookiePreferencesChanged } from "../../lib/cookies/callbacks";
 import { getExplicitConsentRequiredAsync, getExplicitConsentRequiredSync } from "../common/CookieBanner/geolocation";
 import { useTracking } from "../../lib/analyticsEvents";
 import moment from "moment";
@@ -60,7 +60,7 @@ export function useCookiePreferences(): {
     if (JSON.stringify(fallbackPreferences) !== JSON.stringify(preferencesCookieValue)) {
       cookiePreferencesAutoUpdatedTime = new Date();
       setCookie(COOKIE_PREFERENCES_COOKIE, cookiePreferences, { path: "/", expires: moment().add(2, 'years').toDate()  });
-      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: { cookiePreferences, explicitlyChanged: false }, properties: []});
+      cookiePreferencesChanged({ cookiePreferences, explicitlyChanged: false });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [explicitConsentRequired, JSON.stringify(cookiePreferences), JSON.stringify(preferencesCookieValue), setCookie]);
@@ -72,7 +72,7 @@ export function useCookiePreferences(): {
       })
       setCookie(COOKIE_CONSENT_TIMESTAMP_COOKIE, new Date(), { path: "/", expires: moment().add(2, 'years').toDate() });
       setCookie(COOKIE_PREFERENCES_COOKIE, newPreferences, { path: "/", expires: moment().add(2, 'years').toDate() });
-      void cookiePreferencesChangedCallbacks.runCallbacks({iterator: { cookiePreferences: newPreferences, explicitlyChanged: true }, properties: []});
+      void cookiePreferencesChanged({ cookiePreferences: newPreferences, explicitlyChanged: true });
     },
     [captureEvent, setCookie]
   );

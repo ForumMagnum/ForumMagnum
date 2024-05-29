@@ -1,11 +1,10 @@
 import Users from "../../../lib/collections/users/collection";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { Votes } from '../../../lib/collections/votes';
-import { commentsAlignmentAsync, postsAlignmentAsync } from '../../resolvers/alignmentForumMutations';
 import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
-import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
+import type { VoteDocTuple } from '../../../lib/voting/vote';
 import { ensureIndex } from "../../../lib/collectionIndexUtils";
 import { UsersRepo } from "../../repos";
 
@@ -51,11 +50,9 @@ async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: Db
   }
 }
 
-async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocTuple) {
+export async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocTuple) {
   return await updateAlignmentKarmaServer(newDocument, vote)
 }
-
-voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
 async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
   if (newDocument.af && (newDocument.userId !== vote.userId)) {
@@ -75,25 +72,21 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
   }
 }
 
-async function updateAlignmentUserServerCallback ({newDocument, vote}: VoteDocTuple) {
+export async function updateAlignmentUserServerCallback ({newDocument, vote}: VoteDocTuple) {
   await updateAlignmentUserServer(newDocument, vote, 1)
 }
 
-voteCallbacks.castVoteAsync.add(updateAlignmentUserServerCallback);
-
-async function cancelAlignmentUserKarmaServer ({newDocument, vote}: VoteDocTuple) {
+export async function cancelAlignmentUserKarmaServer ({newDocument, vote}: VoteDocTuple) {
   await updateAlignmentUserServer(newDocument, vote, -1)
 
 }
 
-voteCallbacks.cancelAsync.add(cancelAlignmentUserKarmaServer);
-
-voteCallbacks.cancelSync.add(function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocTuple) {
+export function cancelAlignmentKarmaServerCallback({newDocument, vote}: VoteDocTuple) {
   void updateAlignmentKarmaServer(newDocument, vote)
-});
+}
 
 
-async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
+export async function moveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
       $inc: {afKarma: document.afBaseScore ?? 0},
@@ -120,6 +113,4 @@ async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocume
 }
 ensureIndex(Votes, {documentId:1});
 
-commentsAlignmentAsync.add(MoveToAFUpdatesUserAFKarma);
-getCollectionHooks("Posts").editAsync.add(MoveToAFUpdatesUserAFKarma);
-postsAlignmentAsync.add(MoveToAFUpdatesUserAFKarma);
+getCollectionHooks("Posts").editAsync.add(moveToAFUpdatesUserAFKarma);

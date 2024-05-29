@@ -6,7 +6,6 @@ import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
 import { configureDatadogRum } from './datadogRum';
-import { userChangedCallback } from '../lib/vulcan-lib/callbacks';
 
 const sentryUrl = sentryUrlSetting.get()
 const sentryEnvironment = sentryEnvironmentSetting.get()
@@ -38,15 +37,14 @@ if (sentryUrl && sentryEnvironment && sentryRelease) {
 
 
 // Initializing sentry on the client browser
-
-userChangedCallback.add(function identifyUserToSentry(user: UsersCurrent | null) {
+function identifyUserToSentry(user: UsersCurrent | null) {
   // Set user in sentry scope, or clear user if they have logged out
   Sentry.configureScope((scope) => {
     scope.setUser(user ? {id: user._id, email: getUserEmail(user), username: user.username} : null);
   });
-});
+}
 
-userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
+function addUserIdToGoogleAnalytics(user: UsersCurrent | null) {
   const dataLayer = (window as any).dataLayer
   if (!dataLayer) {
     // eslint-disable-next-line no-console
@@ -54,9 +52,14 @@ userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent |
   } else {
     dataLayer.push({userId: user ? user._id : null})
   }
-});
+}
 
-userChangedCallback.add(configureDatadogRum);
+
+export function onUserChanged(user: UsersCurrent) {
+  identifyUserToSentry(user);
+  addUserIdToGoogleAnalytics(user);
+  configureDatadogRum(user);
+}
 
 window.addEventListener('load', ev => {
   const urlParams = new URLSearchParams(document.location?.search)

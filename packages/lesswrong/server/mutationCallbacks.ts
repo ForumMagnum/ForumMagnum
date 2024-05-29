@@ -1,4 +1,4 @@
-import { CallbackHook, CallbackChainHook, CallbackPropertiesBase } from '../lib/vulcan-lib/callbacks';
+import { CallbackHook, CallbackChainHook, CallbackPropertiesBase } from './utils/callbackHooks';
 import { getCollection } from '../lib/vulcan-lib/getCollection';
 
 type CallbackValidationErrors = Array<any>;
