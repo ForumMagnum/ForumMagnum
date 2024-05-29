@@ -6,20 +6,10 @@ import { getSchema } from'../utils/getSchema';
 import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
 
 class Group {
-  actions: Array<string>
+  actions: string[]
 
-  constructor() {
-    this.actions = [];
-  }
-
-  can(actions: string|string[]) {
-    actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = this.actions.concat(actions);
-  }
-
-  cannot(actions: string|string[]) {
-    actions = Array.isArray(actions) ? actions : [actions];
-    this.actions = _.difference(this.actions, actions);
+  constructor(allowedActions: string[]) {
+    this.actions = allowedActions;
   }
 }
 
@@ -27,8 +17,8 @@ export const userGroups: Record<string,Group> = {};
 
 
 // Create a new group
-export const createGroup = (groupName: string): Group => {
-  userGroups[groupName] = new Group();
+export const createGroup = (groupName: string, allowedActions: string[]): Group => {
+  userGroups[groupName] = new Group(allowedActions);
   return userGroups[groupName];
 };
 
@@ -62,7 +52,7 @@ export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<strin
 };
 
 // Get a list of all the actions a user can perform
-export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> => {
+const userGetActions = (user: UsersProfile|DbUser|null): Array<string> => {
   let groups = userGetGroups(user);
   if (!groups.includes('guests')) {
     // always give everybody permission for guests actions, too
@@ -92,7 +82,7 @@ export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): bo
 };
 
 // Check if a user can perform at least one of the specified actions
-export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|Array<string>): boolean => {
+export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: string|string[]): boolean => {
   const authorizedActions = userGetActions(user);
   const actions = Array.isArray(actionOrActions) ? actionOrActions : [actionOrActions];
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
@@ -343,36 +333,3 @@ export const userCanUpdateField = <N extends CollectionNameString>(
   }
   return false;
 };
-
-////////////////////
-// Initialize     //
-////////////////////
-
-// initialize the 3 out-of-the-box groups
-export const guestsGroup = createGroup('guests'); // non-logged-in users
-export const membersGroup = createGroup('members'); // regular users
-
-const membersActions = [
-  'user.create',
-  'user.update.own',
-  // OpenCRUD backwards compatibility
-  'users.new',
-  'users.edit.own',
-  'users.remove.own',
-];
-userGroups.members.can(membersActions);
-
-export const adminsGroup = createGroup('admins'); // admin users
-
-const adminActions = [
-  'user.create',
-  'user.update.all',
-  'user.delete.all',
-  'setting.update',
-  // OpenCRUD backwards compatibility
-  'users.new',
-  'users.edit.all',
-  'users.remove.all',
-  'settings.edit',
-];
-userGroups.admins.can(adminActions);
