@@ -108,7 +108,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     alignItems: "center",
     gap: "4px",
-    background: theme.palette.grey[400],
+    border: theme.palette.border.normal,
     height: "100%",
     borderRadius: 4,
     padding: 5,
@@ -205,6 +205,8 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
+  const displayedSuggestionLimit = 12;
+
   const toggleWidgetOpen = () => {
     setWidgetOpen(!widgetOpen);
     setCookie(HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, widgetOpen ? "true" : "false")
@@ -217,8 +219,6 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
     itemsPerPage: 10,
     ssr: apolloSSRFlag(false),
   });
-
-  const displayedSuggestionLimit = 12;
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',

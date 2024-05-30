@@ -95,10 +95,10 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   user: UsersMinimumInfo,
 }) => {
 
-  const { FormatDate } = Components
+  const { FormatDate, ForumIcon, ContentStyles, TagSmallPostLink, FollowUserButton, Loading } = Components
 
-  const { htmlBio } = user
   const {
+    htmlBio,
     displayName,
     createdAt,
     karma,
@@ -106,8 +106,6 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
     postCount,
     commentCount,
   } = user;
-  const { ForumIcon, ContentStyles, TagSmallPostLink, FollowUserButton, Loading } = Components;
-
 
   const {loading, results} = useMulti({
     terms: {
