@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [ea-card-view]
+    branches: [floating-audio-player]
 jobs:
   deploy:
     runs-on: ubuntu-latest

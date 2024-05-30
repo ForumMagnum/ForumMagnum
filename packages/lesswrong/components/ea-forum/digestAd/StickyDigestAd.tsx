@@ -46,6 +46,10 @@ const styles = (theme: ThemeType) => ({
       maxWidth: '90%',
     },
   },
+  // When the floating audio player is visible, move this ad above it
+  'body.t3a-sticky-player-visible .StickyDigestAd-root': {
+    bottom: 78
+  },
   textCol: {
     flexGrow: 1,
   },
