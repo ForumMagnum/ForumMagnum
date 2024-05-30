@@ -350,6 +350,8 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
   /*
     Styles for the TYPE III AUDIO player "heading play button" feature.
     See https://docs.type3.audio/ for documentation.
+    This is mostly unchanged from the default values, other than the
+    colors for .t3a-heading-play-button and the margins for .t3a-heading-play-icon.
   */
   /* Heading play button should not be shown on small screens */
   '.t3a-heading-play-button': {
@@ -378,7 +380,7 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
       /* Colour of the play button icon. */
       color: theme.palette.grey[0],
       '&:hover': {
-        backgroundColor: theme.palette.grey[700],
+        backgroundColor: theme.palette.grey[400],
       },
       '&:focus': {
         outline: 'none',
@@ -388,7 +390,7 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      marginLeft: 2,
+      marginRight: -1, // The margins here have been changed from the default to fit the EA Forum
     },
     /* Refine this to match the dimensions of your heading typeface */
     'h2 .t3a-heading-play-button': { marginTop: 9 },
