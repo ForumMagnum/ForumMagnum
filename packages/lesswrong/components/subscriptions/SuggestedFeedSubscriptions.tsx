@@ -11,8 +11,6 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies'
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import classNames from 'classnames';
 import { apolloSSRFlag } from '@/lib/helpers';
-import { useMulti } from '@/lib/crud/withMulti';
-import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,6 +52,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 5,
     display: "block",
     fontSize: "1.5rem",
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "1.3rem",
+    }
   },
   manageSubscriptionsLink: {
     padding: 8,
@@ -81,34 +82,39 @@ const styles = (theme: ThemeType) => ({
   userSubscribeButtons: {
     display: "flex",
     flexWrap: "wrap",
-    flexDirection: "column",
-    alignContent: "space-between",
-  },
-  smallSuggestionsContainer: {
-    // TODO: change for mobile if needed?
-    // 102 = (30 * 3) + (gap * 2)
-    height: 102,
-  },
-  largeSuggestionsContainer: {
-    // TODO: change for mobile if needed?
-    // 102 = (30 * 6) + (gap * 5)
-    height: 210,
+    overflow: "hidden",
+    alignContent: "start",
+    gap: "4px",
+    height: 164,
+    ['@media(max-width: 409px)']: {
+      width: 302,
+    },
   },
   suggestedUserListItem: {
-    position: "relative",
-    height: 30,
     transition: "all .5s ease-out",
     listStyle: "none",
-    marginBottom: 4,
+    height: 80,
+    width: 118,
+    ['@media(max-width: 409px)']: {
+      width: 98,
+    },
   },
   removedSuggestedUserListItem: {
-    height: 0,
+    width: 0,
     opacity: 0,
-    marginBottom: 0,
   },
   suggestedUser: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
+    gap: "4px",
+    background: theme.palette.grey[400],
+    height: "100%",
+    borderRadius: 4,
+    padding: 5,
+  },
+  suggestedUserButtons: {
+    display: "flex",
     gap: "4px",
   },
   subscribeButton: {
@@ -116,17 +122,33 @@ const styles = (theme: ThemeType) => ({
     padding: 5,
     borderRadius: 4,
     alignItems: "center",
+    justifyContent: "center",
     ...theme.typography.commentStyle,
-    fontSize: "0.9rem",
+    fontSize: "0.8rem",
     opacity: 0.9,
     background: theme.palette.grey[200],
+    cursor: "pointer",
+    width: 52,
+    ['@media(max-width: 409px)']: {
+      width: 42,
+    },
   },
   buttonDisplayName: {
     ...theme.typography.commentStyle,
-    marginLeft: 5,
-    marginRight: 5,
-    // TODO: change for mobile if needed?
-    width: 150,
+    width: "100%",
+    flexGrow: 1,
+  },
+  clampedUserName: {
+    // This entire setup allows us to do a graceful truncation after 2 lines (which some longer display names hit)
+    // Browser support is _basically_ good: https://caniuse.com/?search=line-clamp
+    height: "2lh",
+    display: "-webkit-box",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    '-webkit-line-clamp': 2,
+    '-webkit-box-orient': "vertical",
+    // Some single-word display names are longer than the width of the container
+    overflowWrap: "break-word",
   },
   icon: {
     width: 17,
@@ -145,24 +167,24 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   hidden?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, ForumIcon, LWTooltip } = Components;
+  const { UsersName } = Components;
 
   return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
     <div className={classes.suggestedUser}>
       <div className={classes.buttonDisplayName} >
-        <UsersName user={user} />
+        <UsersName user={user} className={classes.clampedUserName} />
       </div>
-      <div className={classes.subscribeButton}>
-        <div onClick={() => handleSubscribeOrDismiss(user)}>
-          <LWTooltip title={`Subscribe to ${userGetDisplayName(user)}`} placement="bottom">
-            Subscribe
-          </LWTooltip>
+      <div className={classes.suggestedUserButtons}>
+        <div className={classes.subscribeButton}>
+          <div onClick={() => handleSubscribeOrDismiss(user)}>
+            Follow
+          </div>
         </div>
-      </div>
-      <div onClick={() => handleSubscribeOrDismiss(user, true)}>
-        <LWTooltip title="Dismiss" placement="bottom">
-          <ForumIcon icon='Close' className={classes.icon} />
-        </LWTooltip>
+        <div className={classes.subscribeButton}>
+          <div onClick={() => handleSubscribeOrDismiss(user, true)}>
+            Dismiss
+          </div>
+        </div>
       </div>
     </div>
   </li>);
@@ -173,8 +195,6 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, UserSelect } = Components;
-
-  const currentUser = useCurrentUser();
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS])
   const [widgetOpen, setWidgetOpen] = useState(cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS] !== "true");
@@ -198,21 +218,7 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
     ssr: apolloSSRFlag(false),
   });
 
-  const { totalCount: currentSubscriptionCount } = useMulti({
-    terms: {
-      view: "subscriptionsOfType",
-      userId: currentUser?._id,
-      collectionName: "Users",
-      subscriptionType: "newActivityForFeed",
-      limit: 50
-    },
-    collectionName: "Subscriptions",
-    fragmentName: "SubscriptionState",
-    enableTotal: true,
-  });
-
-  const showLargerSuggestionBox = !currentSubscriptionCount;
-  const displayedSuggestionLimit = showLargerSuggestionBox ? 12 : 6;
+  const displayedSuggestionLimit = 12;
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -267,11 +273,7 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
       </div>}
     </div>
     {widgetOpen && loading && <Loading />}
-    {widgetOpen && !loading && <div className={classNames(
-      classes.userSubscribeButtons, {
-        [classes.smallSuggestionsContainer]: !showLargerSuggestionBox,
-        [classes.largeSuggestionsContainer]: showLargerSuggestionBox
-    })}>
+    {widgetOpen && !loading && <div className={classes.userSubscribeButtons}>
       {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SubscriptionButton 
         user={user} 
         key={user._id}
