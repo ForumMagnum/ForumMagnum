@@ -309,8 +309,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
       flag: "beta",
-      desktopOnly: true,
-      betaOnly: true,
     }, {
       id: 'takeAction',
       title: 'Take action',
