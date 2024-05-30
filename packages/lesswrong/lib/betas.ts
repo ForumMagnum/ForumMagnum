@@ -57,7 +57,7 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
-  isEAForum && !!user?.beta;
+  isEAForum;
 
 export const userHasSubscribeTabFeed = isLW ? isAdmin : disabled;
 
