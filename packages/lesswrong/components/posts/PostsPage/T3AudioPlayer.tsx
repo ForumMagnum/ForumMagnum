@@ -12,52 +12,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   hideEmbeddedPlayer: {
     display: "none"
-  },
-  /*
-    Styles for the TYPE III AUDIO player "heading play button" feature.
-  */
-  /* Heading play button should not be shown on small screens */
-  '.t3a-heading-play-button': {
-    display: 'none'
-  },
-  /* Set minimum width at which heading play button should be shown */
-  '@media screen and (min-width: 850px)': {
-    '.t3a-heading-play-button': {
-      display: 'block',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      marginLeft: -34,
-      marginRight: 10,
-      borderRadius: 9999,
-      border: 'none',
-      width: '1.5rem',
-      height: '1.5rem',
-      outline: 'none',
-      cursor: 'pointer',
-      transform: 'translate(0, 0)',
-      zIndex: 10,
-  
-      /* Colour of the play button */
-      backgroundColor: theme.palette.grey[310],
-      /* Colour of the play button icon. */
-      color: theme.palette.grey[0],
-      '&:hover': {
-        backgroundColor: theme.palette.grey[700],
-      },
-      '&:focus': {
-        outline: 'none',
-      }
-    },
-    '.t3a-heading-play-icon': {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginLeft: 2,
-    },
-    /* Refine this to match the dimensions of your heading typeface */
-    'h2 .t3a-heading-play-button': { marginTop: 9 },
-    'h3 .t3a-heading-play-button': { marginTop: 3 },
   }
 });
 
