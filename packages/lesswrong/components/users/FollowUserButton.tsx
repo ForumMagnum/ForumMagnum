@@ -43,7 +43,7 @@ export const FollowUserButton = ({user, classes}: {
     captureEvent("followUserButtonClick", {subcribedToUser: user._id, subscribed: !subscribed})
   }
 
-  const followTooltip = `${userGetDisplayName(user)}}'s content will appear in your subscribed tab feed`
+  const followTooltip = `${userGetDisplayName(user)}'s content will appear in your subscribed tab feed`
 
   if (disabled) {
     return null;
