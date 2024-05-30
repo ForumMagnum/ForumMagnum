@@ -11,7 +11,8 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies'
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import classNames from 'classnames';
 import { apolloSSRFlag } from '@/lib/helpers';
-import { ObservableQuery } from '@apollo/client';
+import { useMulti } from '@/lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,24 +80,53 @@ const styles = (theme: ThemeType) => ({
   },
   userSubscribeButtons: {
     display: "flex",
-    gap: "6px",
     flexWrap: "wrap",
+    flexDirection: "column",
+    alignContent: "space-between",
+  },
+  smallSuggestionsContainer: {
+    // TODO: change for mobile if needed?
+    // 102 = (30 * 3) + (gap * 2)
+    height: 102,
+  },
+  largeSuggestionsContainer: {
+    // TODO: change for mobile if needed?
+    // 102 = (30 * 6) + (gap * 5)
+    height: 210,
+  },
+  suggestedUserListItem: {
+    position: "relative",
+    height: 30,
+    transition: "all .5s ease-out",
+    listStyle: "none",
+    marginBottom: 4,
+  },
+  removedSuggestedUserListItem: {
+    height: 0,
+    opacity: 0,
+    marginBottom: 0,
+  },
+  suggestedUser: {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
   },
   subscribeButton: {
     display: "flex",
-    padding: 2,
-    borderRadius: 8,
-    minWidth: 60,
+    padding: 5,
+    borderRadius: 4,
     alignItems: "center",
-    justifyContent: "space-between",
     ...theme.typography.commentStyle,
     fontSize: "0.9rem",
     opacity: 0.9,
-    background: theme.palette.grey[200]
+    background: theme.palette.grey[200],
   },
   buttonDisplayName: {
+    ...theme.typography.commentStyle,
     marginLeft: 5,
     marginRight: 5,
+    // TODO: change for mobile if needed?
+    width: 150,
   },
   icon: {
     width: 17,
@@ -109,33 +139,33 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const SubscriptionButton = ({user, handleSubscribeOrDismiss, classes}: {
+const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   user: UsersMinimumInfo, 
-  handleSubscribeOrDismiss: (user: UsersMinimumInfo, dismiss?: boolean) => void, 
+  handleSubscribeOrDismiss: (user: UsersMinimumInfo, dismiss?: boolean) => void,
+  hidden?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { UsersName, ForumIcon, LWTooltip } = Components;
 
-  const nameLengthLimit = 20;
-  const completeName = userGetDisplayName(user)
-
-  return <div className={classes.subscribeButton}>
-    <div onClick={() => handleSubscribeOrDismiss(user)}>
-      <LWTooltip title={`Subscribe to ${userGetDisplayName(user)}`} placement="bottom">
-        <ForumIcon icon='Check' className={classes.icon} />
-      </LWTooltip>
+  return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
+    <div className={classes.suggestedUser}>
+      <div className={classes.buttonDisplayName} >
+        <UsersName user={user} />
+      </div>
+      <div className={classes.subscribeButton}>
+        <div onClick={() => handleSubscribeOrDismiss(user)}>
+          <LWTooltip title={`Subscribe to ${userGetDisplayName(user)}`} placement="bottom">
+            Subscribe
+          </LWTooltip>
+        </div>
+      </div>
+      <div onClick={() => handleSubscribeOrDismiss(user, true)}>
+        <LWTooltip title="Dismiss" placement="bottom">
+          <ForumIcon icon='Close' className={classes.icon} />
+        </LWTooltip>
+      </div>
     </div>
-
-    <span className={classes.buttonDisplayName} >
-      <UsersName user={user} />
-    </span>
-
-    <div onClick={() => handleSubscribeOrDismiss(user, true)}>
-      <LWTooltip title="Dismiss" placement="bottom">
-        <ForumIcon icon='Close' className={classes.icon} />
-      </LWTooltip>
-    </div>
-  </div>;
+  </li>);
 }
 
 export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
@@ -144,8 +174,16 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
 }) => {
   const { Loading, UserSelect } = Components;
 
+  const currentUser = useCurrentUser();
+
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS])
   const [widgetOpen, setWidgetOpen] = useState(cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS] !== "true");
+
+  const [suggestedUsers, setSuggestedUsers] = useState<UsersMinimumInfo[]>();
+  const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
+
+  const { captureEvent } = useTracking();
+  const { flash } = useMessages();
 
   const toggleWidgetOpen = () => {
     setWidgetOpen(!widgetOpen);
@@ -156,13 +194,25 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
     fragmentName: "UsersMinimumInfo",
     resolverName: "SuggestedFeedSubscriptionUsers",
     limit: 15,
-    // itemsPerPage: 10,
+    itemsPerPage: 10,
     ssr: apolloSSRFlag(false),
   });
 
-  const [suggestedUsers, setSuggestedUsers] = useState<UsersMinimumInfo[]>();
-  const { captureEvent } = useTracking();
-  const { flash } = useMessages();
+  const { totalCount: currentSubscriptionCount } = useMulti({
+    terms: {
+      view: "subscriptionsOfType",
+      userId: currentUser?._id,
+      collectionName: "Users",
+      subscriptionType: "newActivityForFeed",
+      limit: 50
+    },
+    collectionName: "Subscriptions",
+    fragmentName: "SubscriptionState",
+    enableTotal: true,
+  });
+
+  const showLargerSuggestionBox = !currentSubscriptionCount;
+  const displayedSuggestionLimit = showLargerSuggestionBox ? 12 : 6;
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -175,7 +225,7 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
 
   const availableUsers = suggestedUsers ?? results ?? [];
 
-  const subscribeToUser = (user: HasIdType & UserDisplayNameInfo, dismiss = false) => {
+  const subscribeToUser = (user: HasIdType & UserDisplayNameInfo, index?: number, dismiss = false) => {
     const newSubscription = {
       state: dismiss ? 'suppressed' : 'subscribed',
       documentId: user._id,
@@ -190,7 +240,13 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
     const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
     flash({messageString: successMessage});
 
-    setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
+    // This plus the conditional styling on the list items is to allow for a smoother collapse animation
+    // General approach taken from https://css-tricks.com/animation-techniques-for-adding-and-removing-items-from-a-stack/#aa-the-collapse-animation
+    setHiddenSuggestionIdx(index);
+    setTimeout(() => {
+      setHiddenSuggestionIdx(undefined);
+      setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
+    }, 700);
     if (!dismiss) {
       void refetchFeed();
     }
@@ -211,11 +267,16 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
       </div>}
     </div>
     {widgetOpen && loading && <Loading />}
-    {widgetOpen && !loading && <div className={classes.userSubscribeButtons}>
-      {availableUsers.slice(0,12).map((user) => <SubscriptionButton 
+    {widgetOpen && !loading && <div className={classNames(
+      classes.userSubscribeButtons, {
+        [classes.smallSuggestionsContainer]: !showLargerSuggestionBox,
+        [classes.largeSuggestionsContainer]: showLargerSuggestionBox
+    })}>
+      {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SubscriptionButton 
         user={user} 
-        key={user._id} 
-        handleSubscribeOrDismiss={subscribeToUser}
+        key={user._id}
+        hidden={idx === hiddenSuggestionIdx}
+        handleSubscribeOrDismiss={(user, dismiss) => subscribeToUser(user, idx, dismiss)}
         classes={classes}
       />)}
     </div>}
