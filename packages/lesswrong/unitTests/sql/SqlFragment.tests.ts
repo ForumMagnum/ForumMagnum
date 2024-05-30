@@ -1,4 +1,4 @@
-import SqlFragment from "../../lib/sql/SqlFragment";
+import SqlFragment from "@/server/sql/SqlFragment";
 
 describe("SqlFragment", () => {
   it("can parse field entries", () => {

@@ -281,8 +281,8 @@ export function reactionVoteIsMatch(react: UserVoteOnSingleReaction, name: Emoji
 }
 
 
-const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+const NamesAttachedReactionsVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: CommentVotingComponentProps & WithStylesProps) => {
+  const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
   return <span className={classes.root}>

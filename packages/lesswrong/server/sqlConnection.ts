@@ -1,10 +1,10 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
-import Query from "../lib/sql/Query";
+import Query from "@/server/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries } from "../lib/sql/sqlClient";
+import { logAllQueries } from "@/server/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
 // Setting this to -1 disables slow query logging

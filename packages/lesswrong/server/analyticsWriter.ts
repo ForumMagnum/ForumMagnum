@@ -1,4 +1,4 @@
-import { isDevelopment, onStartup } from '../lib/executionEnvironment';
+import { isDevelopment } from '../lib/executionEnvironment';
 import { randomId } from '../lib/random';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting, performanceMetricLoggingBatchSize } from '../lib/instanceSettings';
@@ -212,7 +212,7 @@ function serverWriteEvent({type, timestamp, props}: AnyBecauseTodo) {
   }]);
 }
 
-onStartup(() => {
+export function startAnalyticsWriter() {
   AnalyticsUtil.serverWriteEvent = serverWriteEvent;
   
   const deferredEvents = AnalyticsUtil.serverPendingEvents;
@@ -220,4 +220,4 @@ onStartup(() => {
   for (let event of deferredEvents) {
     serverWriteEvent(event);
   }
-});
+}

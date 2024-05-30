@@ -1,4 +1,4 @@
-import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
+import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 import { registerMigration } from './migrationUtils';
 
 // Postgres tables have weird casing because of legacy requirements

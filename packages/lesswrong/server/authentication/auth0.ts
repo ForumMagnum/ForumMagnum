@@ -1,5 +1,12 @@
 import { DatabaseServerSetting } from "../databaseSettings";
-import { AuthenticationClient, ManagementClient } from "auth0";
+import {
+  AppMetadata,
+  AuthenticationClient,
+  ManagementClient,
+  UpdateUserData,
+  User,
+  UserMetadata,
+} from "auth0";
 import Profile from "passport-auth0/lib/Profile";
 import { getAuth0Id } from "../../lib/collections/users/helpers";
 import { Profile as Auth0Profile } from 'passport-auth0';
@@ -7,6 +14,7 @@ import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
 import { auth0ClientSettings } from "../../lib/publicSettings";
 import { UsersRepo } from "../repos";
+import { isE2E } from "../../lib/executionEnvironment";
 
 type Auth0Settings = {
   appId: string;
@@ -17,12 +25,53 @@ type Auth0Settings = {
 
 export const AUTH0_SCOPE = "profile email openid offline_access";
 
+type Auth0User = User<AppMetadata, UserMetadata>;
+
+abstract class IAuth0BackendClient {
+  abstract getUserById(userId: string): Promise<Auth0User>;
+  abstract updateUserById(userId: string, data: UpdateUserData): Promise<Auth0User>;
+  abstract signupUser(email: string, password: string): Promise<void>;
+  abstract loginUser(email: string, password: string): Promise<string | null>;
+}
+
+/**
+ * We replace the real `Auth0Client` (defined below) with this mock client for
+ * end-to-end Playwright tests. This bypasses auth0 completely. Note that the mock
+ * client will always login the user, whether or not their password is correct.
+ */
+class MockAuth0Client extends IAuth0BackendClient {
+  private assertIsE2E() {
+    if (!isE2E) {
+      throw new Error("Using mock auth0 backend outside of E2E tests");
+    }
+  }
+
+  getUserById(_userId: string): Promise<Auth0User> {
+    this.assertIsE2E();
+    throw new Error("getUserById not implemented for tests");
+  }
+
+  updateUserById(_userId: string, _data: UpdateUserData): Promise<Auth0User> {
+    this.assertIsE2E();
+    throw new Error("updateUserById not implemented for tests");
+  }
+
+  async signupUser(_email: string, _password: string): Promise<void> {
+    this.assertIsE2E();
+  }
+
+  async loginUser(email: string, _password: string): Promise<string | null> {
+    this.assertIsE2E();
+    return `access-token-${email}`;
+  }
+}
+
 /**
  * Auth0 Management API Client
  * For this to work, we must authorize the forum application in Auth0:
  * Applications -> APIs -> Auth0 Management API -> Machine to Machine Applications
  */
-const auth0Client = new class Auth0Client {
+class Auth0Client extends IAuth0BackendClient {
   private settings = new DatabaseServerSetting<Auth0Settings|null>("oAuth.auth0", null);
   private managementClient?: ManagementClient;
   private authClient?: AuthenticationClient;
@@ -39,7 +88,7 @@ const auth0Client = new class Auth0Client {
     return {clientId, clientSecret, domain};
   }
 
-  getManagementClient() {
+  private getManagementClient() {
     if (!this.managementClient) {
       this.managementClient = new ManagementClient({
         ...this.getSettings(),
@@ -49,25 +98,61 @@ const auth0Client = new class Auth0Client {
     return this.managementClient;
   }
 
-  getAuthClient() {
+  private getAuthClient() {
     if (!this.authClient) {
       this.authClient = new AuthenticationClient(this.getSettings());
     }
     return this.authClient;
   }
+
+  getUserById(userId: string): Promise<Auth0User> {
+    const client = this.getManagementClient();
+    return client.getUser({id: userId});
+  }
+
+  updateUserById(userId: string, data: UpdateUserData): Promise<Auth0User> {
+    const client = this.getManagementClient();
+    return client.updateUser({id: userId}, data);
+  }
+
+  async signupUser(email: string, password: string): Promise<void> {
+    const client = this.getAuthClient();
+    if (!client.database) {
+      throw new Error("Database authenticator not initialized");
+    }
+    await client.database.signUp({
+      email,
+      password,
+      connection: getAuth0Connection(),
+    });
+  }
+
+  async loginUser(email: string, password: string): Promise<string | null> {
+    const client = this.getAuthClient();
+    const grant = await client.passwordGrant({
+      username: email,
+      password,
+      realm: getAuth0Connection(),
+      scope: AUTH0_SCOPE,
+    });
+    return grant?.access_token ?? null;
+  }
 }
+
+const auth0Client: IAuth0BackendClient = isE2E
+  ? new MockAuth0Client()
+  : new Auth0Client();
 
 // TODO: Probably good to fix this, IM(JP)O. It works because we only use it in
 // a context where we're guaranteed to have an email/password user.
 /** Warning! Only returns profiles of users who do not use OAuth */
 export const getAuth0Profile = async (user: DbUser) => {
-  const result = await auth0Client.getManagementClient().getUser({id: getAuth0Id(user)});
+  const result = await auth0Client.getUserById(getAuth0Id(user));
   return new Profile(result, JSON.stringify(result));
 }
 
 export const updateAuth0Email = (user: DbUser, newEmail: string) => {
-  const id = getAuth0Id(user);
-  return auth0Client.getManagementClient().updateUser({id}, {email: newEmail});
+  return auth0Client.updateUserById(getAuth0Id(user), {email: newEmail});
 }
 
 class Auth0Error extends Error {
@@ -118,7 +203,7 @@ const getAuthError = async (
   return new Auth0Error(message, policy);
 }
 
-type ProfileFromAccessToken = (token: string) => Promise<Auth0Profile|undefined>;
+export type ProfileFromAccessToken = (token: string) => Promise<Auth0Profile|undefined>;
 
 /**
  * Note that some Auth0 endpoints call this the `connection`, and others call
@@ -143,21 +228,15 @@ export const loginAuth0User = async (
   email: string,
   password: string,
 ): Promise<{user: DbUser, token: string}> => {
-  const client = auth0Client.getAuthClient();
   try {
-    const grant = await client.passwordGrant({
-      username: email,
-      password,
-      realm: getAuth0Connection(),
-      scope: AUTH0_SCOPE,
-    });
+    const accessToken = await auth0Client.loginUser(email, password);
 
     // This should never happen, but better be safe
-    if (!grant.access_token) {
+    if (!accessToken) {
       throw new Error("Incorrect email or password");
     }
 
-    const profile = await profileFromAccessToken(grant.access_token);
+    const profile = await profileFromAccessToken(accessToken);
     if (!profile) {
       throw new Error("Profile not found");
     }
@@ -174,7 +253,7 @@ export const loginAuth0User = async (
 
     return {
       user,
-      token: grant.access_token,
+      token: accessToken,
     };
   } catch (e) {
     throw await getAuthError(e, "Login failed", email);
@@ -192,16 +271,8 @@ export const signupAuth0User = async (
   email: string,
   password: string,
 ): Promise<{user: DbUser, token: string}> => {
-  const client = auth0Client.getAuthClient();
   try {
-    if (!client.database) {
-      throw new Error("Database authenticator not initialized");
-    }
-    await client.database.signUp({
-      email,
-      password,
-      connection: getAuth0Connection(),
-    });
+    await auth0Client.signupUser(email, password);
     return loginAuth0User(profileFromAccessToken, email, password);
   } catch (e) {
     throw await getAuthError(e, "Signup failed", email);

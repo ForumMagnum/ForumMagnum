@@ -1,6 +1,10 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from '../../lib/analyticsEvents';
+import { userHasSubscribeTabFeed } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
+import { PopperPlacementType } from '@material-ui/core/Popper/Popper';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -28,14 +32,20 @@ const styles = (_theme: ThemeType) => ({
  */
 const UserNotifyDropdown = ({
   user,
+  popperPlacement="bottom-start",
+  className,
   classes,
 }: {
   user: UsersProfile,
+  popperPlacement?: PopperPlacementType,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
+
+  const currentUser = useCurrentUser();
 
   const handleSetOpen = useCallback((open: boolean) => {
     captureEvent("subscribeClick", {open, itemType: "user", userId: user._id});
@@ -47,10 +57,8 @@ const UserNotifyDropdown = ({
     NotifyMeToggleDropdownItem,
   } = Components;
 
-  return (
-    <div>
-      <div ref={anchorEl}>
-        <EAButton
+  const ButtonComponent = isFriendlyUI 
+    ?  <EAButton
           style="grey"
           onClick={() => handleSetOpen(!isOpen)}
         >
@@ -63,23 +71,42 @@ const UserNotifyDropdown = ({
             />
           </span>
         </EAButton>
+    : <div>
+        <a onClick={() => handleSetOpen(!isOpen)}>
+          Subscribe
+        </a>
+    </div>
+  
+
+  return (
+    <div className={className}>
+      <div ref={anchorEl}>
+        {ButtonComponent}
       </div>
       <PopperCard
         open={isOpen}
         anchorEl={anchorEl.current}
-        placement="bottom-start"
+        placement={popperPlacement}
         className={classes.dropdownWrapper}
       >
         <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
           <DropdownMenu className={classes.dropdown}>
+            {userHasSubscribeTabFeed(currentUser) && <NotifyMeToggleDropdownItem
+              document={user}
+              title="Include in my feeds"
+              useCheckboxIcon={!isFriendlyUI}
+              subscriptionType="newActivityForFeed"
+            />}
             <NotifyMeToggleDropdownItem
               document={user}
-              title="New posts"
+              title={isFriendlyUI ? "New posts" : "Notify on posts"}
+              useCheckboxIcon={!isFriendlyUI}
               subscriptionType="newPosts"
             />
             <NotifyMeToggleDropdownItem
               document={user}
-              title="New comments"
+              title={isFriendlyUI ? "New comments" : "Notify on comments"}
+              useCheckboxIcon={!isFriendlyUI}
               subscriptionType="newUserComments"
             />
           </DropdownMenu>

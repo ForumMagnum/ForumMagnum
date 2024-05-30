@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetRevisionLink } from '../../lib/collections/tags/helpers';
-import { Revisions } from '../../lib/collections/revisions/collection';
 
 const styles = (theme: ThemeType): JssStyles => ({
   username: {
@@ -48,7 +47,7 @@ const TagRevisionItemShortMetadata = ({tag, revision, classes}: {
     {" "}
     <MetaInfo><SmallSideVote
       document={revision}
-      collection={Revisions}
+      collectionName="Revisions"
     /></MetaInfo>
   </>;
 }

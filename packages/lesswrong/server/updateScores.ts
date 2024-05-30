@@ -4,8 +4,7 @@ import {
   getSubforumScoreBoost,
   SCORE_BIAS,
 } from '../lib/scoring';
-import { Posts } from "../lib/collections/posts";
-import { runSqlQuery } from "../lib/sql/sqlClient";
+import { runSqlQuery } from "@/server/sql/sqlClient";
 import chunk from "lodash/chunk";
 import compact from "lodash/compact";
 

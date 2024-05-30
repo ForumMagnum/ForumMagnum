@@ -1,5 +1,5 @@
 import { Globals } from "../vulcan-lib";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import RecommendationService from "../recommendations/RecommendationService";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";

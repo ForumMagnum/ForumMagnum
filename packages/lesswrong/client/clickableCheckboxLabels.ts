@@ -1,6 +1,5 @@
-import { onStartup } from '../lib/executionEnvironment';
 
-function addClickHandlerToCheckboxLabels() {
+export function addClickHandlerToCheckboxLabels() {
   /*
     HTML provides two ways to associate a label with its associated checkbox: 1) specify the checkbox's
     id in the label's `for` attribute, or 2) nest the checkbox inside the <label> element.
@@ -22,7 +21,3 @@ function addClickHandlerToCheckboxLabels() {
     checkbox.click();
   })
 }
-
-onStartup(() => {
-  addClickHandlerToCheckboxLabels();
-});

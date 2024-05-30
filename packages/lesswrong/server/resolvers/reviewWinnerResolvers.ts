@@ -1,7 +1,6 @@
 import moment from "moment";
 import { restrictViewableFieldsSingle } from "../../lib/vulcan-users";
 import { defineQuery } from "../utils/serverGraphqlUtil";
-import { onStartup } from "../../lib/executionEnvironment";
 import { createAnonymousContext } from "../vulcan-lib";
 import Posts from "../../lib/collections/posts/collection";
 import { updateSplashArtCoordinateCache } from "../../lib/collections/splashArtCoordinates/cache";
@@ -9,7 +8,7 @@ import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost, updateReviewWinnerCache } fr
 import { isLWorAF } from "../../lib/instanceSettings";
 
 
-onStartup(async () => {
+export async function initReviewWinnerCache() {
   if (isLWorAF) {
     const context = createAnonymousContext();
     await Promise.all([
@@ -17,7 +16,7 @@ onStartup(async () => {
       updateSplashArtCoordinateCache(context),
     ]);
   }
-});
+}
 
 function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
   return reviewWinners.map(({ reviewWinner, ...post }) => ({

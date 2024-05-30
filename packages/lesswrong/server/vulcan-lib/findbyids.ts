@@ -1,4 +1,4 @@
-import { runSqlQuery } from "../../lib/sql/sqlClient";
+import { runSqlQuery } from "@/server/sql/sqlClient";
 
 /**
  * @summary Find by ids, for DataLoader, inspired by https://github.com/tmeasday/mongo-find-by-ids/blob/master/index.js

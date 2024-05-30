@@ -35,7 +35,7 @@
 export const acceptsSchemaHash = "ea10555b6fef67efb7ab0cbbdfdb8772";
 
 import Users from "../../lib/collections/users/collection"
-import UpdateQuery from "../../lib/sql/UpdateQuery";
+import UpdateQuery from "../../server/sql/UpdateQuery";
 import { updateDefaultValue } from "./meta/utils"
 
 const newDefaultValue = {"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}
