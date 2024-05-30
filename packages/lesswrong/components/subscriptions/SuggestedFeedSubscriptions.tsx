@@ -21,21 +21,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 16,
     paddingBottom: 12,
     marginBottom: 10,
-    // width: "100%",
   },
-  // widgetOpen: {
-  //   paddingTop: 12,
-  //   paddingLeft: 16,
-  //   paddingRight: 16,
-  //   paddingBottom: 12,
-  //   marginBottom: 10,
-  //   width: "100%",
-  // },
-  // widgetClosed: {
-  //   opacity: 0.8,
-  //   background: "none",
-  //   textShadow: `2px 2px 20px ${theme.palette.background.default}`
-  // },
   titleRow: {
     display: "flex",
     flexDirection: "row-reverse",
