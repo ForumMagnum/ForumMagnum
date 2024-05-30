@@ -779,6 +779,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           (u.banned IS NULL OR u.banned < current_date)
           AND "authorId" != $1
           AND es."userId" IS NULL
+          AND u."deleted" IS NOT TRUE
       ORDER BY (
         COALESCE(summed_power*3, 0) + COALESCE(posts_read*2, 0)
       ) DESC NULLS LAST

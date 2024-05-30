@@ -365,6 +365,7 @@ importComponent("UsersProfileImage", () => require('../components/users/UsersPro
 importComponent("UsersSingle", () => require('../components/users/UsersSingle'));
 importComponent("UsersEmailVerification", () => require('../components/users/UsersEmailVerification'));
 importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
+importComponent("FollowUserButton", () => require('../components/users/FollowUserButton'));
 importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage'));
 importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox'));
 importComponent("LoginPage", () => require('../components/users/LoginPage'));
