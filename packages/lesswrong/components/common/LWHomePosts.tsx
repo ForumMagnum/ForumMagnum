@@ -261,7 +261,7 @@ function useSuggestedUsers() {
   const currentUser = useCurrentUser();
   const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
 
-  const { results, loading } = usePaginatedResolver({
+  const { results, loading, loadMore } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
     resolverName: "SuggestedFeedSubscriptionUsers",
     limit: 15,
@@ -275,7 +275,7 @@ function useSuggestedUsers() {
     setAvailableUsers(results ?? []);
   }, [results]);
 
-  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading };
+  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };
 }
 
 const LWHomePosts = ({children, classes}: {
@@ -293,7 +293,7 @@ const LWHomePosts = ({children, classes}: {
   const { query } = useLocation();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
-  const { availableUsers, setAvailableUsers, loadingSuggestedUsers } = useSuggestedUsers();
+  const { availableUsers, setAvailableUsers, loadingSuggestedUsers, loadMoreSuggestedUsers } = useSuggestedUsers();
 
   const { count: countBookmarks } = useMulti({
     collectionName: "Posts",
@@ -429,6 +429,7 @@ const LWHomePosts = ({children, classes}: {
         availableUsers={availableUsers}
         setAvailableUsers={setAvailableUsers}
         loadingSuggestedUsers={loadingSuggestedUsers}
+        loadMoreSuggestedUsers={loadMoreSuggestedUsers}
         refetchFeed={refetchSubscriptionContent}
       />
     </div>

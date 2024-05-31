@@ -76,6 +76,7 @@ const styles = (theme: ThemeType) => ({
     alignContent: "start",
     gap: "6px",
     height: 180,
+    marginTop: 8,
   },
   suggestedUserListItem: {
     transition: "all .5s ease-out",
@@ -218,10 +219,11 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   </li>);
 }
 
-export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, refetchFeed, classes }: {
+export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, loadMoreSuggestedUsers, refetchFeed, classes }: {
   availableUsers: UsersMinimumInfo[],
   loadingSuggestedUsers: boolean,
   setAvailableUsers: (updatedUsers: UsersMinimumInfo[]) => void,
+  loadMoreSuggestedUsers: () => void,
   refetchFeed: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -253,6 +255,10 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
     const username = userGetDisplayName(user)
     const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
     flash({messageString: successMessage});
+
+    if (availableUsers.length < displayedSuggestionLimit + 2) {
+      void loadMoreSuggestedUsers();
+    }
 
     // This plus the conditional styling on the list items is to allow for a smoother collapse animation
     // General approach taken from https://css-tricks.com/animation-techniques-for-adding-and-removing-items-from-a-stack/#aa-the-collapse-animation
