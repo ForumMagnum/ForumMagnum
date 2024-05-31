@@ -61,7 +61,7 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
   const infoClasses = classNames(infoClassName, classes.info);
 
   return <div className={classes.root}>
-      {karma && <div className={infoClasses}>
+      {(karma !== 0) && <div className={infoClasses}>
         <ForumIcon icon="Star" className={classes.icon} />
         <div>{karma}</div>
       </div>}
@@ -69,11 +69,11 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
         <div className={classes.omegaIcon}>Ω</div>
         <div>{afKarma}</div>
       </div>}
-      {!!postCount && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+      {(postCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
         <DescriptionIcon className={classes.icon} /> 
         {postCount}
       </div>}
-      {!!commentCount && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+      {(commentCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
         <MessageIcon className={classes.icon} />
         {commentCount}
       </div>}
