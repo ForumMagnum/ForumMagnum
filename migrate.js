@@ -10,7 +10,7 @@ const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUt
 const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
   global.bundleIsTest = false;
-  global.bundleIsCypress = false;
+  global.bundleIsE2E = false;
   global.bundleIsProduction = isProd;
   global.bundleIsMigrations = true;
   global.defaultSiteAbsoluteUrl = "";
@@ -24,7 +24,7 @@ const initGlobals = (args, isProd) => {
 const fetchImports = (args, isProd) => {
   initGlobals(args, isProd);
 
-  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
+  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/server/sql/sqlClient");
   const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { Revisions } from '../../lib/collections/revisions/collection';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -93,7 +92,7 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
       </span>
       <SmallSideVote
         document={revision}
-        collection={Revisions}
+        collectionName="Revisions"
       />
       {" "}
       {revision.commitMessage}

@@ -1,4 +1,4 @@
-import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { registerMigration } from './migrationUtils';
 
 // This has to be done as a manual migration because of a bootstrapping issue (typeerrors block the automatic migration from running)

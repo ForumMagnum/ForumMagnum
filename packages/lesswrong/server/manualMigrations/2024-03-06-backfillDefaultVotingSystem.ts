@@ -1,5 +1,5 @@
 import { getDefaultVotingSystem } from "../../lib/collections/posts/schema";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
 registerMigration({

@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases, testTable3 } from "../../lib/sql/tests/testHelpers";
-import SelectQuery, { isGroupByAggregateExpression } from "../../lib/sql/SelectQuery";
+import { DbTestObject, testTable, runTestCases, testTable3 } from "@/server/sql/tests/testHelpers";
+import SelectQuery, { isGroupByAggregateExpression } from "@/server/sql/SelectQuery";
 
 describe("SelectQuery", () => {
   runTestCases([

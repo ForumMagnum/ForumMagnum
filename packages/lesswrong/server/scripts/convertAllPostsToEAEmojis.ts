@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { pgPromiseLib } from "../sqlConnection";
 import { Globals } from "../vulcan-lib";
 

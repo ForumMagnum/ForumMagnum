@@ -2995,8 +2995,7 @@ const schema: SchemaType<"Posts"> = {
   },
 
   /**
-   * Setting to enable stale-while-revalidate caching for this post. Remove this field once
-   * swr caching is enabled on all posts.
+   * @deprecated Remove after 2024-06-14
    */
   swrCachingEnabled: {
     type: Boolean,
