@@ -316,7 +316,11 @@ const LWHomePosts = ({children, classes}: {
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
-      && (!feed.adminOnly || (userIsAdmin(currentUser) || query.experimentalTabs === 'true')) 
+      && (
+        !feed.adminOnly ||
+        (userIsAdmin(currentUser) || query.experimentalTabs === 'true') ||
+        (feed.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser))
+      ) 
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
