@@ -3,7 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
-import { postGetLink, postGetLinkTarget } from "../../lib/collections/posts/helpers";
+import { postGetCommentCountStr, postGetLink, postGetLinkTarget } from "../../lib/collections/posts/helpers";
+import { CommentsLink } from "./PostsPage/PostsPagePostHeader";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
   info: {
     display: "flex",
     color: theme.palette.text.dim3,
-    marginRight: 8,
+    marginRight: 4,
     fontSize: "1.1rem",
     textWrap: "nowrap",
     ...theme.typography.commentStyle,
@@ -61,6 +62,11 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
     marginLeft: 4,
     fontWeight: 600,
+  },
+  hideOnSmallScreens: {
+    ['@media (max-width: 500px)']: {
+      display: "none",
+    }
   }
 });
 
@@ -99,7 +105,7 @@ const FeedPostCardMeta = ({post, className, classes}: {
 
   const dateElement = post.postedAt && !post.isEvent && <div className={classes.info}>
         <FormatDate date={post.postedAt}/>
-        {post.url && separatorElement}
+        {(post.url || (post.commentCount > 0)) && separatorElement}
       </div>
   
   const baseScoreElement = !post.shortform && !post.isEvent && <span className={classes.info}>
@@ -132,6 +138,13 @@ const FeedPostCardMeta = ({post, className, classes}: {
     {separatorElement}
   </InteractionWrapper>
 
+  const commentCountElement = post.commentCount && <span className={classNames(classes.info, classes.hideOnSmallScreens)}>
+    <CommentsLink anchor="#comments"> 
+      {postGetCommentCountStr(post, post.commentCount)}
+    </CommentsLink>
+    {post.url && separatorElement}
+  </span>
+
   return (
     <div
       className={classNames(classes.root, className)}
@@ -141,6 +154,7 @@ const FeedPostCardMeta = ({post, className, classes}: {
       {afScoreElement}
       {authorsListElement}
       {dateElement}
+      {commentCountElement}
       {linkPostIcon}
     </div>
   );
