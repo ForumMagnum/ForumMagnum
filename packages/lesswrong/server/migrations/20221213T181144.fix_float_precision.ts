@@ -19,7 +19,7 @@ export const acceptsSchemaHash = "9ff9e6371051f8d49cac5770b07dc0d8";
 export const up = async () => {}
 
 /*
-import { FloatType } from "../../lib/sql/Type";
+import { FloatType } from "../../server/sql/Type";
 import { getAllCollections } from "../vulcan-lib";
 import { updateFieldType } from "./meta/utils";
 

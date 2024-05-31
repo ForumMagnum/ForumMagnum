@@ -1,5 +1,5 @@
 import { useMulti } from "../../../lib/crud/withMulti";
-import { isCypress } from "../../../lib/executionEnvironment";
+import { isE2E } from "../../../lib/executionEnvironment";
 import { filterNonnull } from "../../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
 
@@ -38,7 +38,7 @@ export const useSuggestedSubscriptions = () => {
       view: "tagsByTagIds",
       tagIds: subscribeTagIds,
     },
-    skip: isCypress,
+    skip: isE2E,
   });
   const tagsById = keyBy(rawTags, "_id");
   const tags = filterNonnull(subscribeTagIds.map((_id) => tagsById[_id]));
@@ -51,7 +51,7 @@ export const useSuggestedSubscriptions = () => {
       view: "usersByUserIds",
       userIds: subscribeUserIds,
     },
-    skip: isCypress,
+    skip: isE2E,
   });
   const usersById = keyBy(rawUsers, "_id");
   const users = filterNonnull(subscribeUserIds.map((_id) => usersById[_id]));

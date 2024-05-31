@@ -1,5 +1,4 @@
 import React from 'react';
-import { GardenCodes } from '../../lib/collections/gardencodes/collection';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { gardenForm } from './GardenCodeWidget';
 

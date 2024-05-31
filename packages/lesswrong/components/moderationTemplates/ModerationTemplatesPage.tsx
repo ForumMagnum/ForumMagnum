@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
-import { ModerationTemplates } from "../../lib/collections/moderationTemplates";
 import { userCanDo } from "../../lib/vulcan-users";
 import { useCurrentUser } from "../common/withUser";
 import {useMulti} from "../../lib/crud/withMulti";

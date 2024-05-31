@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable no-useless-escape */
+import { isE2E } from "../../lib/executionEnvironment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { Globals } from "../vulcan-lib";
 
@@ -57,6 +58,11 @@ GROUP BY
 `;
 
 const triggerWrappedRefresh = async (recreateViews = false) => {
+  // Analytics DB is not available in e2e tests
+  if (isE2E) {
+    return [];
+  }
+
   const analyticsDb = getAnalyticsConnectionOrThrow();
 
   // Check if the view already exists

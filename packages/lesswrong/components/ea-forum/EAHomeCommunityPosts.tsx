@@ -61,7 +61,7 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
       afterTitleTo="/topics/community"
     >
       <AnalyticsContext listContext={"communityPosts"}>
-        <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
+        <PostsList2 terms={recentPostsTerms} showLoadMore={false} hideHiddenFrontPagePosts />
       </AnalyticsContext>
       <SectionFooter>
         <Link

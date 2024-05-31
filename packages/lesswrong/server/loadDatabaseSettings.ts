@@ -1,6 +1,6 @@
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
 import { DatabaseMetadataRepo } from "./repos";
-import { getSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClient } from './sql/sqlClient';
 import { isAnyTest } from '../lib/executionEnvironment';
 
 let databaseIdPreloaded = false;

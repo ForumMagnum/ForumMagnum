@@ -45,7 +45,6 @@ import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
-import './server/scripts/fixSSCDrafts';
 import './server/scripts/fillUserEmail';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
@@ -187,6 +186,7 @@ import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
+import './server/resolvers/defaultResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

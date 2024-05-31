@@ -1,5 +1,4 @@
 import { DocumentServiceClient, UserEventServiceClient, v1beta, protos } from "@google-cloud/discoveryengine";
-import { onStartup } from "../../lib/executionEnvironment";
 import { googleRecommendationsCredsPath } from "../../lib/instanceSettings";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { loadByIds } from "../../lib/loaders";
@@ -14,7 +13,7 @@ import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from "../perfMet
 
 const { RecommendationServiceClient } = v1beta;
 
-onStartup(() => {
+export function initGoogleVertex() {
   // This is a weird hack which is necessary because this was the least crazy way to authenticate with Google Cloud from the outside.
   // The tl;dr is that Google's client libraries will read process.env.GOOGLE_APPLICATION_CREDENTIALS and expect to find a filepath to the credentials file.
   // The easiest way I thought of to solve the problem of differing relative paths between local env and production
@@ -26,7 +25,7 @@ onStartup(() => {
     const settingsFileDirectory = path.dirname(settingsFileName);
     process.env.GOOGLE_APPLICATION_CREDENTIALS = path.join(settingsFileDirectory, credsPath);
   }
-});
+}
 
 const getGoogleClientInstanceOrThrow = <T extends new () => InstanceType<T>, Deps extends ClientSettingDependencies>(
   constructor: T,

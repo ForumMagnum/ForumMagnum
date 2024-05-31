@@ -1,4 +1,4 @@
-import CreateExtensionQuery from "../../lib/sql/CreateExtensionQuery";
+import CreateExtensionQuery from "@/server/sql/CreateExtensionQuery";
 
 describe("CreateExtensionQuery", () => {
   it("can build a create extension query", () => {

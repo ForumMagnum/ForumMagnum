@@ -4,7 +4,6 @@ import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
-import { Comments } from "../../lib/collections/comments";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
@@ -164,7 +163,7 @@ const FriendlyPopularComment = ({comment, classes}: {
           {!comment.debateResponse && !comment.rejected &&
             <SmallSideVote
               document={comment}
-              collection={Comments}
+              collectionName="Comments"
               hideKarma={comment.post?.hideCommentKarma}
             />
           }

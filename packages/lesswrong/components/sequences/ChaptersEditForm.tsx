@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React, { useCallback, useState } from 'react';
-import Chapters from '../../lib/collections/chapters/collection';
 import { useDialog } from '../common/withDialog';
 import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';

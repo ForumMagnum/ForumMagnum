@@ -1,6 +1,6 @@
-import ProjectionContext from "../../lib/sql/ProjectionContext";
-import PgCollection from "../../lib/sql/PgCollection";
-import { TestCollection as RawTestCollection } from "../../lib/sql/tests/testHelpers";
+import ProjectionContext from "@/server/sql/ProjectionContext";
+import PgCollection from "@/server/sql/PgCollection";
+import { TestCollection as RawTestCollection } from "@/server/sql/tests/testHelpers";
 
 describe("ProjectionContext", () => {
   const TestCollection = RawTestCollection as PgCollection<CollectionNameString>;

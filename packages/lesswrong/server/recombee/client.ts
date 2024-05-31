@@ -12,7 +12,7 @@ import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
-import { performQueryFromViewParameters } from '../../lib/vulcan-core/default_resolvers';
+import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 
@@ -441,7 +441,7 @@ const helpers = {
     }
 
     void helpers
-      .sendRecRequestWithPerfMetrics(recRequest, true)
+      .sendRecRequestWithPerfMetrics(recRequest, batch, true)
       .then((recResponse) => helpers.backfillRecommendationsCache(userId, scenario, recResponse, context));
 
     return formattedRecommendations;

@@ -17,7 +17,6 @@ const EAOnboardingFlow = ({viewAsAdmin}: {
    * to create a new account and _not_ set the display name, then comment out all
    * of the preceding stages in this list.
    */
-
   return (
     <OnboardingFlow stages={{
       user: <EAOnboardingUserStage/>,

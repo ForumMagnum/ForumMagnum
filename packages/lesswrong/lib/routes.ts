@@ -1,7 +1,6 @@
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
@@ -554,7 +553,7 @@ addRoute(
 );
 
 
-onStartup(() => {
+export function initLegacyRoutes() {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
   addRoute(
     // Legacy (old-LW, also old-EAF) routes
@@ -575,7 +574,7 @@ onStartup(() => {
       // TODO: Pingback comment
     }
   );
-});
+}
 
 const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
   EAForum: [
@@ -722,6 +721,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: "userAnalytics",
       path:'/users/:slug/stats',
       componentName: "AuthorAnalyticsPage",
+      background: "white",
     },
     {
       name: "myAnalytics",

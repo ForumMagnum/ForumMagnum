@@ -129,12 +129,12 @@ const ViewSubscriptionsPage = ({classes}: {
   
   return <SingleColumnSection>
     {userHasSubscribeTabFeed(currentUser) && <SubscriptionsList
-      title="Subscribed to Users for Susbscribed Activity Feed"
+      title="Subscribed to Users for Subscribed Activity Feed"
       collectionName="Users"
       subscriptionType="newActivityForFeed"
       fragmentName="UsersMinimumInfo"
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
-      noSubscriptionsMessage="You are not subscribed to any users' on your Subscribed Feed."
+      noSubscriptionsMessage="You are not subscribed to any users on your Subscribed Feed."
     />}
     <SubscriptionsList
       title="Subscribed to Posts By Users"

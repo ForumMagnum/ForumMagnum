@@ -15,7 +15,7 @@ const execAsync = promisify(exec);
 const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
   global.bundleIsTest = false;
-  global.bundleIsCypress = false;
+  global.bundleIsE2E = false;
   global.bundleIsProduction = isProd;
   global.bundleIsMigrations = true;
   global.defaultSiteAbsoluteUrl = "";

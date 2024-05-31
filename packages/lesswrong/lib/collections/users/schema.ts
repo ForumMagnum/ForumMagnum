@@ -2205,7 +2205,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.siteCustomizations,
-    label: "Opt into experimental features",
+    label: "Opt into experimental (beta) features",
     order: 70,
   },
   reviewVotesQuadratic: {

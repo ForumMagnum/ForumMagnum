@@ -182,7 +182,7 @@ export const EAOnboardingStage = ({
               <a
                 onClick={onSkip}
                 className={classes.skip}
-                test-id={`ea-onboarding-skip-${stageName}`}
+                data-testid={`onboarding-skip-${stageName}`}
               >
                 Skip for now
               </a>
@@ -191,6 +191,7 @@ export const EAOnboardingStage = ({
               <EAButton
                 onClick={wrappedOnContinue}
                 disabled={!canContinue || nextStageIsLoading}
+                data-testid={`onboarding-continue-${stageName}`}
                 className={classes.continue}
               >
                 {nextStageIsLoading
