@@ -110,8 +110,6 @@ const styles = (theme: ThemeType) => ({
   buttonUserInfo: {
     display: "flex",
     flexDirection: "column",
-    // gap: "4px",
-    // flexGrow: 1,
   },
   subscribeButton: {
     display: "flex",
@@ -212,7 +210,6 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
 
   return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
     <div className={classes.suggestedUser}>
-
       <div className={classes.buttonUserInfo} >
         <div className={classes.buttonDisplayNameAndDismiss} >
           <div className={classes.buttonDisplayName} >

@@ -1,4 +1,4 @@
-import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
+import { getSqlClientOrThrow } from '../../server/sql/sqlClient';
 import { registerMigration } from './migrationUtils';
 
 // This updates the functions created in packages/lesswrong/server/manualMigrations/2023-01-13-createViewUpdater.ts

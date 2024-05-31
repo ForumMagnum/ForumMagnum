@@ -1,4 +1,4 @@
-import { RandIntCallback, randomId, seededRandInt } from "../random";
+import { RandIntCallback, randomId, seededRandInt } from "@/lib/random";
 import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
 

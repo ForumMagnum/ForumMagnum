@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { BoolType } from "../../lib/sql/Type";
+import { BoolType } from "../../server/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 
 export const acceptsSchemaHash = "8b861e3bf25c8edf6522b62bea9bf389";

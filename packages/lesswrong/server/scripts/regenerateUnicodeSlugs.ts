@@ -1,4 +1,4 @@
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { Globals, Utils, slugify } from "../vulcan-lib";
 
 Globals.regenerateUnicodeSlugs = async () => {

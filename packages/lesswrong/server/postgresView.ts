@@ -1,4 +1,4 @@
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { queryWithLock } from "./queryWithLock";
 import { addCronJob, CronJobSpec } from "./cronUtil";
 

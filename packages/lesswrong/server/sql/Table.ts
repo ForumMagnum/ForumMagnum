@@ -1,7 +1,7 @@
 import { Type, IdType, isResolverOnly } from "./Type";
 import TableIndex from "./TableIndex";
-import { expectedIndexes } from "../collectionIndexUtils";
-import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
+import { expectedIndexes } from "@/lib/collectionIndexUtils";
+import { forumTypeSetting, ForumTypeString } from "@/lib/instanceSettings";
 
 /**
  * Table represents the collection schema as it exists in Postgres,

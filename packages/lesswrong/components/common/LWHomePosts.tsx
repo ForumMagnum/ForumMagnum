@@ -24,6 +24,7 @@ import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSet
 import { ObservableQuery, gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { userHasSubscribeTabFeed } from '@/lib/betas';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -267,8 +268,7 @@ function useSuggestedUsers() {
     limit: 15,
     itemsPerPage: 10,
     ssr: false,
-    // TODO: feature-gate this as well?
-    skip: !currentUser,
+    skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
   });
 
   useEffect(() => {
