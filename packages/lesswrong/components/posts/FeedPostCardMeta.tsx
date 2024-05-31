@@ -3,8 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
-import { Link } from '../../lib/reactRouterWrapper';
-import { postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { postGetLink, postGetLinkTarget } from "../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -65,17 +64,16 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
+const FeedPostCardMeta = ({post, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
-  useCuratedDate?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
 
   const {
-    TruncatedAuthorsList, PostsItemDate, ForumIcon, LWTooltip, EventTime, FormatDate
+    TruncatedAuthorsList, ForumIcon, LWTooltip, FormatDate
   } = Components;
 
   // TODO: Think about styling for events
@@ -94,11 +92,9 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
   </div>
 
   const linkPostIcon =  post.url && <span className={classNames(classes.linkPost, classes.info)}>
-    {/* <Link to={postGetPageUrl(post)}> */}
-      <LWTooltip title={linkPostMessage} placement="left">
-        <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
-      </LWTooltip>
-    {/* </Link> */}
+    <LWTooltip title={linkPostMessage} placement="left">
+      <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
+    </LWTooltip>
   </span>
 
   const dateElement = post.postedAt && !post.isEvent && <div className={classes.info}>

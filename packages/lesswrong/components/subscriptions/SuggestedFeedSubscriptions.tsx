@@ -7,7 +7,6 @@ import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/u
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import { apolloSSRFlag } from '@/lib/helpers';
 import CloseIcon from '@material-ui/icons/Close';
 
 const styles = (theme: ThemeType) => ({
@@ -107,8 +106,6 @@ const styles = (theme: ThemeType) => ({
   buttonUserInfo: {
     display: "flex",
     flexDirection: "column",
-    // gap: "4px",
-    // flexGrow: 1,
   },
   subscribeButton: {
     display: "flex",
@@ -192,7 +189,6 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
 
   return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
     <div className={classes.suggestedUser}>
-
       <div className={classes.buttonUserInfo} >
         <div className={classes.buttonDisplayNameAndDismiss} >
           <div className={classes.buttonDisplayName} >

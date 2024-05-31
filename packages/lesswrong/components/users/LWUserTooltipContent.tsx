@@ -12,7 +12,6 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 450,
     lineHeight: "19.5px",
-    // fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 16,
     color: theme.palette.text.primary,
     background: theme.palette.panelBackground.default,
@@ -40,14 +39,12 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.1rem",
   },
   bio: {
-    // borderTop: theme.palette.border.extraFaint,
     marginTop: 8,
     lineHeight: "1.3rem",
   },
   bioText: {
     fontSize: "1.1rem",
   },
-
   posts: {
     marginTop: 8,
     paddingTop: 8,
@@ -66,7 +63,7 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
 
   const { htmlBio, displayName } = user;
 
-  const {loading, results} = useMulti({
+  const { loading, results } = useMulti({
     terms: {
       userId: user._id,
       view: "userPosts",

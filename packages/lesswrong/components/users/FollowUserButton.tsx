@@ -3,7 +3,6 @@ import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React from 'react';
 import { useNotifyMe } from '../hooks/useNotifyMe';
 import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
-import { commentBodyStyles } from '@/themes/stylePiping';
 import classNames from 'classnames';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 
@@ -11,7 +10,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     color: theme.palette.primary.main,
-    //add style to indicate item is clickable
     cursor: "pointer",
   },
   subscribed: {
@@ -27,7 +25,7 @@ export const FollowUserButton = ({user, classes}: {
   const { LWTooltip } = Components;
   const { captureEvent } = useTracking();
 
-  const {isSubscribed, onSubscribe, disabled } = useNotifyMe({
+  const { isSubscribed, onSubscribe, disabled } = useNotifyMe({
     document: user,
     overrideSubscriptionType: "newActivityForFeed",
     hideFlashes: true,
