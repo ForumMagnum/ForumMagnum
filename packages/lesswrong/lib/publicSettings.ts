@@ -188,4 +188,4 @@ export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('
 
 export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
 
-export const agendraTakeoverSetting = new DatabasePublicSetting<boolean>('agendraTakeover', false);
+export const alternateHomePageSetting = new DatabasePublicSetting<boolean>('alternateHomePage', false);
