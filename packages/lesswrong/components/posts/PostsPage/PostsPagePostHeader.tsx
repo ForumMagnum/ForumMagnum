@@ -198,7 +198,7 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-export const CommentsLink: FC<{
+const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
   className?: string,
