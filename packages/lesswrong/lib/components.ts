@@ -360,6 +360,7 @@ importComponent("UserCommentMarkers", () => require('../components/users/UserCom
 importComponent("LWUserTooltipContent", () => require('../components/users/LWUserTooltipContent'));
 importComponent("EAUserTooltipContent", () => require('../components/users/EAUserTooltipContent'));
 importComponent("UserTooltip", () => require('../components/users/UserTooltip'));
+importComponent("UserMetaInfo", () => require('../components/users/UserMetaInfo'));
 importComponent("UsersNamePending", () => require('../components/users/UsersNamePending'));
 importComponent("UsersProfileImage", () => require('../components/users/UsersProfileImage'));
 importComponent("UsersSingle", () => require('../components/users/UsersSingle'));

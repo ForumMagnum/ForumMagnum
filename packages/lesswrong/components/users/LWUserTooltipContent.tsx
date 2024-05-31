@@ -1,10 +1,6 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
-import DescriptionIcon from '@material-ui/icons/Description';
-import MessageIcon from '@material-ui/icons/Message';
-import TagIcon from '@material-ui/icons/LocalOffer';
-import classNames from 'classnames';
 import { useMulti } from '@/lib/crud/withMulti';
 
 const styles = (theme: ThemeType) => ({
@@ -23,7 +19,6 @@ const styles = (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.lwTagHoverOver,
     ...theme.typography.postStyle
   },
-
   header: {
     display: "flex",
     flexDirection: "column",
@@ -42,10 +37,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     alignItems: "center",
     color: theme.palette.grey["600"],
-  },
-  stats: {
-    display: "flex",
-    alignItems: "center",
+    fontSize: "1.1rem",
   },
   bio: {
     // borderTop: theme.palette.border.extraFaint,
@@ -55,32 +47,7 @@ const styles = (theme: ThemeType) => ({
   bioText: {
     fontSize: "1.1rem",
   },
-  icon: {
-    height: "1rem",
-    width: "1rem",
-    position: "relative",
-  },
-  omegaIcon: {
-    fontWeight: 600,
-    marginTop: -4,
-    height: "1rem",
-    width: "1rem",
-    position: "relative",
-    fontFamily: ['Palatino',
-      '"Palatino Linotype"',
-      '"Palatino LT STD"',
-      '"Book Antiqua"',
-      'Georgia',
-      'serif'].join(','),
-  },
-  info: {
-    display: "flex",
-    alignItems: "center",
-    marginRight: 8,
-    fontSize: "1.1rem",
-    textWrap: "nowrap",
-    ...theme.typography.commentStyle,
-  },
+
   posts: {
     marginTop: 8,
     paddingTop: 8,
@@ -95,17 +62,9 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   user: UsersMinimumInfo,
 }) => {
 
-  const { FormatDate, ForumIcon, ContentStyles, TagSmallPostLink, FollowUserButton, Loading } = Components
+  const { ContentStyles, TagSmallPostLink, FollowUserButton, UserMetaInfo, Loading } = Components
 
-  const {
-    htmlBio,
-    displayName,
-    createdAt,
-    karma,
-    afKarma,
-    postCount,
-    commentCount,
-  } = user;
+  const { htmlBio, displayName } = user;
 
   const {loading, results} = useMulti({
     terms: {
@@ -120,38 +79,13 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   });
 
   const truncatedBio = truncate(htmlBio, 500)
-  const wikiContributionCount = user.tagRevisionCount
 
   return (
     <div className={classes.root}>
       <div className={classes.header}>
         <div className={classes.name}>{displayName}</div>
         <div className={classes.metaRow}>
-          <div className={classes.stats}>
-            {karma && <div className={classes.info}>
-              <ForumIcon icon="Star" className={classes.icon} />
-              <div>{karma}</div>
-            </div>}
-            {afKarma > 0 && <div className={classes.info}>
-              <div className={classes.omegaIcon}>Ω</div>
-              <div>{afKarma}</div>
-            </div>}
-            {!!postCount && <div className={classes.info}>
-              <DescriptionIcon className={classes.icon} /> 
-              {postCount}
-            </div>}
-            { !!commentCount && <div className={classes.info}>
-              <MessageIcon className={classes.icon} />
-              {commentCount}
-            </div>}
-            { !!wikiContributionCount && <div className={classes.info}>
-              <TagIcon className={classes.icon}  /> 
-              {wikiContributionCount}
-            </div>}
-            <div className={classes.info}>
-              <FormatDate date={createdAt}/>
-            </div>
-          </div>
+          <UserMetaInfo user={user} />
           {!hideFollowButton && <FollowUserButton user={user} />}
         </div>
       </div>
@@ -164,7 +98,6 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
           <TagSmallPostLink
             key={post._id}
             post={post}
-            // widerSpacing={postCount > 3}
             hideAuthor
           />
         )}

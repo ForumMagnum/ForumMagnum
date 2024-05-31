@@ -11,6 +11,7 @@ import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies'
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import classNames from 'classnames';
 import { apolloSSRFlag } from '@/lib/helpers';
+import CloseIcon from '@material-ui/icons/Close';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -79,24 +80,24 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.7,
     }
   },
-  userSubscribeButtons: {
+  userSubscribeCards: {
     display: "flex",
     flexWrap: "wrap",
     overflow: "hidden",
     alignContent: "start",
-    gap: "4px",
-    height: 164,
-    ['@media(max-width: 409px)']: {
-      width: 302,
-    },
+    gap: "6px",
+    height: 180,
   },
   suggestedUserListItem: {
     transition: "all .5s ease-out",
     listStyle: "none",
-    height: 80,
-    width: 118,
-    ['@media(max-width: 409px)']: {
-      width: 98,
+    height: 85,
+    minWidth: 145,
+    flexGrow: 1,
+    flexBasis: 145,
+    ['@media(max-width: 500px)']: {
+      minWidth: 98,
+      flexBasis: 98,
     },
   },
   removedSuggestedUserListItem: {
@@ -106,16 +107,18 @@ const styles = (theme: ThemeType) => ({
   suggestedUser: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
+    justifyContent: "space-between",
+    background: theme.palette.grey[100],
     gap: "4px",
-    border: theme.palette.border.normal,
     height: "100%",
     borderRadius: 4,
-    padding: 5,
+    padding: 8,
   },
-  suggestedUserButtons: {
+  buttonUserInfo: {
     display: "flex",
-    gap: "4px",
+    flexDirection: "column",
+    // gap: "4px",
+    // flexGrow: 1,
   },
   subscribeButton: {
     display: "flex",
@@ -124,24 +127,52 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     ...theme.typography.commentStyle,
-    fontSize: "0.8rem",
-    opacity: 0.9,
-    background: theme.palette.grey[200],
+    fontSize: "0.9rem",
     cursor: "pointer",
-    width: 52,
-    ['@media(max-width: 409px)']: {
-      width: 42,
-    },
+  },
+  followButton: {
+    width: 70,
+    color: theme.palette.grey['A400'],
+    background: theme.palette.grey[300],
+    '&:hover': {
+      color: theme.palette.grey['A700'],
+    }
+  },
+  buttonDisplayNameAndDismiss: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  dismissButton: {
+    width: 16,
+    height: 16,
+    color: theme.palette.grey[400],
+    cursor: "pointer",
+    '&:hover': {
+      color: theme.palette.grey[900],
+    }
   },
   buttonDisplayName: {
     ...theme.typography.commentStyle,
+    fontSize: "1rem",
     width: "100%",
-    flexGrow: 1,
+    marginBottom: 4,
+  },
+  buttonMetaInfo: {
+    color: theme.palette.grey[600],
+    fontSize: "0.8rem",
+  },
+  buttonInfo: {
+    "&&": {
+      fontSize: "0.8rem",
+      marginRight: 6,
+      color: theme.palette.grey[600],
+    }
   },
   clampedUserName: {
     // This entire setup allows us to do a graceful truncation after 2 lines (which some longer display names hit)
     // Browser support is _basically_ good: https://caniuse.com/?search=line-clamp
-    height: "2lh",
+    height: "1lh",
     display: "-webkit-box",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -167,23 +198,31 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   hidden?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName } = Components;
+  const { UsersName, UserMetaInfo } = Components;
 
   return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
     <div className={classes.suggestedUser}>
-      <div className={classes.buttonDisplayName} >
-        <UsersName user={user} className={classes.clampedUserName} />
-      </div>
-      <div className={classes.suggestedUserButtons}>
-        <div className={classes.subscribeButton}>
-          <div onClick={() => handleSubscribeOrDismiss(user)}>
-            Follow
+
+      <div className={classes.buttonUserInfo} >
+        <div className={classes.buttonDisplayNameAndDismiss} >
+          <div className={classes.buttonDisplayName} >
+            <UsersName user={user} className={classes.clampedUserName} />
           </div>
+          <CloseIcon onClick={() => handleSubscribeOrDismiss(user, true)} className={classes.dismissButton} />
         </div>
-        <div className={classes.subscribeButton}>
-          <div onClick={() => handleSubscribeOrDismiss(user, true)}>
-            Dismiss
-          </div>
+        <div className={classes.buttonMetaInfo}>
+          <UserMetaInfo 
+            user={user} 
+            infoClassName={classes.buttonInfo} 
+            hideAfKarma 
+            hideWikiContribution 
+            hideInfoOnSmallScreen
+          />
+        </div>
+      </div>
+      <div className={classNames(classes.subscribeButton, classes.followButton)}>
+        <div onClick={() => handleSubscribeOrDismiss(user)}>
+          Follow
         </div>
       </div>
     </div>
@@ -273,7 +312,7 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
       </div>}
     </div>
     {widgetOpen && loading && <Loading />}
-    {widgetOpen && !loading && <div className={classes.userSubscribeButtons}>
+    {widgetOpen && !loading && <div className={classes.userSubscribeCards}>
       {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SubscriptionButton 
         user={user} 
         key={user._id}
