@@ -2,8 +2,8 @@
 import { format as sqlFormatter } from 'sql-formatter';
 import { Vulcan } from "../vulcan-lib";
 import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
-import Table from "../../lib/sql/Table";
-import CreateTableQuery from "../../lib/sql/CreateTableQuery";
+import Table from "@/server/sql/Table";
+import CreateTableQuery from "@/server/sql/CreateTableQuery";
 import md5 from 'md5';
 import { unlink, writeFile } from 'node:fs/promises'
 import path from 'path';
@@ -13,12 +13,12 @@ import { existsSync } from 'node:fs';
 import { ForumTypeString } from '../../lib/instanceSettings';
 import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
 import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
-import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
-import CreateIndexQuery from '../../lib/sql/CreateIndexQuery';
-import { sqlInterpolateArgs } from '../../lib/sql/Type';
+import CreateExtensionQuery from '@/server/sql/CreateExtensionQuery';
+import CreateIndexQuery from '@/server/sql/CreateIndexQuery';
+import { sqlInterpolateArgs } from '@/server/sql/Type';
 import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
 import { PostgresView, getAllPostgresViews } from '../postgresView';
-import TableIndex from '../../lib/sql/TableIndex';
+import TableIndex from '@/server/sql/TableIndex';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");

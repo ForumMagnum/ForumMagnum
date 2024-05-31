@@ -1,7 +1,7 @@
 import Query, { Atom } from "./Query";
 import Table from "./Table";
-import { DefaultValueType, Type } from "./Type";
-import { randomId } from '../random';
+import { Type } from "./Type";
+import { randomId } from '@/lib/random';
 
 export type InsertQueryData<T> = T & Partial<{
   $max: Partial<T>,

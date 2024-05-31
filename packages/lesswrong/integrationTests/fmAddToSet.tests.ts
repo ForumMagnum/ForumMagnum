@@ -1,5 +1,5 @@
 import "./integrationTestSetup";
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../server/sql/sqlClient";
 
 describe("fm_add_to_set", () => {
   describe("Native Postgres sets", () => {

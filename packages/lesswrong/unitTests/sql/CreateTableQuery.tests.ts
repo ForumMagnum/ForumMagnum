@@ -1,5 +1,5 @@
-import { testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import CreateTableQuery from "../../lib/sql/CreateTableQuery";
+import { testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import CreateTableQuery from "@/server/sql/CreateTableQuery";
 
 describe("CreateTableQuery", () => {
   runTestCases([
