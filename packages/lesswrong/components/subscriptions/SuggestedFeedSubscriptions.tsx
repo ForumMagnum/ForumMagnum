@@ -182,12 +182,6 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[300],
     }
   },
-  subscriptionSearchRoot: {
-    // display: "flex",
-    // flexDirection: "column",
-    // gap: 6,
-    // width: "100%",
-  },
   followUserSearchButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -197,8 +191,8 @@ const styles = (theme: ThemeType) => ({
   },
   followUserSearchIcon: {
     width: 18,
-    marginBottom: -3,
-    marginRight: 2,
+    marginBottom: -4,
+    marginRight: 4,
   },
   hideOnSmallScreens: {
     ['@media(max-width: 500px)']: {
@@ -208,7 +202,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
+const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   user: UsersMinimumInfo, 
   handleSubscribeOrDismiss: (user: UsersMinimumInfo, dismiss?: boolean) => void,
   hidden?: boolean,
@@ -222,7 +216,7 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
       <div className={classes.buttonUserInfo} >
         <div className={classes.buttonDisplayNameAndDismiss} >
           <div className={classes.buttonDisplayName} >
-            <UsersName user={user} className={classes.clampedUserName} />
+            <UsersName user={user} className={classes.clampedUserName} hideFollowButton/>
           </div>
           <CloseIcon onClick={() => handleSubscribeOrDismiss(user, true)} className={classes.dismissButton} />
         </div>
@@ -364,7 +358,7 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
     </div>
     {loadingSuggestedUsers && <Loading />}
     {!loadingSuggestedUsers && <div className={classes.userSubscribeCards}>
-      {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SubscriptionButton 
+      {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SuggestedFollowCard 
         user={user} 
         key={user._id}
         hidden={idx === hiddenSuggestionIdx}
