@@ -3,8 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
-import { postGetCommentCountStr, postGetLink, postGetLinkTarget } from "../../lib/collections/posts/helpers";
-import { CommentsLink } from "./PostsPage/PostsPagePostHeader";
+import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,7 +48,6 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
   },
   linkPost: {
-    marginLeft: -4
   },
   info: {
     display: "flex",
@@ -138,10 +137,10 @@ const FeedPostCardMeta = ({post, className, classes}: {
     {separatorElement}
   </InteractionWrapper>
 
-  const commentCountElement = post.commentCount && <span className={classNames(classes.info, classes.hideOnSmallScreens)}>
-    <CommentsLink anchor="#comments"> 
-      {postGetCommentCountStr(post, post.commentCount)}
-    </CommentsLink>
+  const commentCountElement = (post.commentCount > 0) && <span className={classNames(classes.info, classes.hideOnSmallScreens)}>
+    <Link to={`${postGetPageUrl(post)}#comments`}>
+      {postGetCommentCountStr(post)}
+    </Link>
     {post.url && separatorElement}
   </span>
 
