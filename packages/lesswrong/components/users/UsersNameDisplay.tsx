@@ -36,6 +36,7 @@ const UsersNameDisplay = ({
   nofollow=false,
   simple=false,
   nowrap=false,
+  hideFollowButton=false,
   tooltipPlacement="left",
   pageSectionContext,
   className,
@@ -51,6 +52,8 @@ const UsersNameDisplay = ({
   simple?: boolean,
   /** If set, usernames with spaces are not allowed to wrap. Default false. */
   nowrap?: boolean,
+  /** If set, the follow button is hidden (relevant to LWTooltip. */
+  hideFollowButton?: boolean,
   /** Positioning of the tooltip, if there is one */
   tooltipPlacement?: PopperPlacementType,
   /** If provided, a tracking string added to the link */
@@ -109,6 +112,7 @@ const UsersNameDisplay = ({
           user={user}
           placement={tooltipPlacement}
           inlineBlock={false}
+          hideFollowButton={hideFollowButton}
         >
           <Link
             to={profileUrl}

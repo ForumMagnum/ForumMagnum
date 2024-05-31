@@ -9,24 +9,39 @@ const styles = () => ({
       padding: 12,
       top: 2,
     }
-    : {},
+    : {
+      padding: 0,
+      background: "unset",
+    },
+  overrideTooltip: isFriendlyUI
+  ? {}
+  : {
+    padding: 0,
+    background: "unset"
+  }
 });
 
-const UserTooltip = ({user, placement, inlineBlock, children, classes}: {
+const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, classes}: {
   user: UsersMinimumInfo,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
+  // LW specific
+  hideFollowButton?: boolean,
   children: ReactNode,
   classes: ClassesType,
 }) => {
   const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
-  const Content = isFriendlyUI ? EAUserTooltipContent : LWUserTooltipContent;
+  const content = isFriendlyUI 
+    ? <EAUserTooltipContent user={user} />
+    : <LWUserTooltipContent user={user} hideFollowButton={hideFollowButton} />;
   return (
     <HoverOver
-      title={<Content user={user} />}
+      title={content}
       placement={placement}
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
+      className={classes.overrideTooltip}
+      clickable={!isFriendlyUI}
     >
       {children}
     </HoverOver>
