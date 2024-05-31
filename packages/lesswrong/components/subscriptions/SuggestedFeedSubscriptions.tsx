@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { useMessages } from '../common/withMessages';
 import { useCreate } from '../../lib/crud/withCreate';
 import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS } from '../../lib/cookies/cookies';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import classNames from 'classnames';
 import { apolloSSRFlag } from '@/lib/helpers';
 import CloseIcon from '@material-ui/icons/Close';
@@ -21,19 +18,11 @@ const styles = (theme: ThemeType) => ({
     marginTop: 10,
     background: theme.palette.panelBackground.recentDiscussionThread,
     borderRadius: 3,
-  },
-  widgetOpen: {
     paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 12,
     marginBottom: 10,
-    width: "100%",
-  },
-  widgetClosed: {
-    opacity: 0.8,
-    background: "none",
-    textShadow: `2px 2px 20px ${theme.palette.background.default}`
   },
   titleRow: {
     display: "flex",
@@ -229,16 +218,15 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   </li>);
 }
 
-export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
+export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, refetchFeed, classes }: {
+  availableUsers: UsersMinimumInfo[],
+  loadingSuggestedUsers: boolean,
+  setAvailableUsers: (updatedUsers: UsersMinimumInfo[]) => void,
   refetchFeed: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, UserSelect } = Components;
 
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS])
-  const [widgetOpen, setWidgetOpen] = useState(cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS] !== "true");
-
-  const [suggestedUsers, setSuggestedUsers] = useState<UsersMinimumInfo[]>();
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
 
   const { captureEvent } = useTracking();
@@ -246,29 +234,10 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
 
   const displayedSuggestionLimit = 12;
 
-  const toggleWidgetOpen = () => {
-    setWidgetOpen(!widgetOpen);
-    setCookie(HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, widgetOpen ? "true" : "false")
-  }
-
-  const { results, loading } = usePaginatedResolver({
-    fragmentName: "UsersMinimumInfo",
-    resolverName: "SuggestedFeedSubscriptionUsers",
-    limit: 15,
-    itemsPerPage: 10,
-    ssr: apolloSSRFlag(false),
-  });
-
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
     fragmentName: 'SubscriptionState',
   });
-
-  useEffect(() => {
-    setSuggestedUsers(results);
-  }, [results]);
-
-  const availableUsers = suggestedUsers ?? results ?? [];
 
   const subscribeToUser = (user: HasIdType & UserDisplayNameInfo, index?: number, dismiss = false) => {
     const newSubscription = {
@@ -290,29 +259,26 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
     setHiddenSuggestionIdx(index);
     setTimeout(() => {
       setHiddenSuggestionIdx(undefined);
-      setSuggestedUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
+      setAvailableUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
     }, 700);
     if (!dismiss) {
       void refetchFeed();
     }
   };
 
-  return <div className={classNames(classes.root, {[classes.widgetOpen]: widgetOpen, [classes.widgetClosed]: !widgetOpen})}>
+  return <div className={classes.root}>
     <div className={classes.titleRow}>
-      <div className={classes.hideButton} onClick={toggleWidgetOpen}>
-        {widgetOpen ? "Hide" : "Show Suggested Users"}
-      </div>
-      {widgetOpen && <div className={classes.titleAndManageLink}>
+      <div className={classes.titleAndManageLink}>
         <div className={classes.sectionTitle}>
           Suggested Users for You
         </div>
         <Link to="/manageSubscriptions" className={classes.manageSubscriptionsLink}>
           {preferredHeadingCase("Manage Subscriptions")}
         </Link>
-      </div>}
+      </div>
     </div>
-    {widgetOpen && loading && <Loading />}
-    {widgetOpen && !loading && <div className={classes.userSubscribeCards}>
+    {loadingSuggestedUsers && <Loading />}
+    {!loadingSuggestedUsers && <div className={classes.userSubscribeCards}>
       {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SubscriptionButton 
         user={user} 
         key={user._id}
@@ -321,7 +287,7 @@ export const SuggestedFeedSubscriptions = ({refetchFeed, classes}: {
         classes={classes}
       />)}
     </div>}
-    {widgetOpen && <UserSelect value={null} setValue={(_, user) => user && subscribeToUser(user)} label='Subscribe to user' />}
+    {<UserSelect value={null} setValue={(_, user) => user && subscribeToUser(user)} label='Subscribe to user' />}
   </div>;
 }
 
