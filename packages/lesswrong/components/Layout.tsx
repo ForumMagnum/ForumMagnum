@@ -11,7 +11,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, agendraTakeoverSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { DatabasePublicSetting, alternateHomePageSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -129,7 +129,7 @@ const styles = (theme: ThemeType) => ({
       display: 'block'
     }
   },
-  agendraTakeoverLayout: {
+  alternateHomePageLayout: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
@@ -381,9 +381,9 @@ const Layout = ({currentUser, children, classes}: {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
-  const agendraTakeoverLayout = isLW && agendraTakeoverSetting.get() && currentRoute?.name === 'home';
-  // Client-side prefetch of the agendra homepage, in case someone navigates to it after SSRing some other page
-  useDisplayedPost('MJMdLrCJMiu4q8BQg', null, undefined, { ssr: false, skip: agendraTakeoverLayout });
+  const alternateHomePageLayout = isLW && alternateHomePageSetting.get() && currentRoute?.name === 'home';
+  // Client-side prefetch of the alternate homepage, in case someone navigates to it after SSRing some other page
+  useDisplayedPost('FtsyWwJLdTapN3c6h', null, undefined, { ssr: false, skip: alternateHomePageLayout });
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -417,7 +417,7 @@ const Layout = ({currentUser, children, classes}: {
   // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = currentRoute?.background === "white" || agendraTakeoverLayout;
+  const useWhiteBackground = currentRoute?.background === "white" || alternateHomePageLayout;
   
   const { captureEvent } = useTracking();
   
@@ -492,7 +492,7 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
-    const shouldUseGridLayout = (overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout) && !agendraTakeoverLayout
+    const shouldUseGridLayout = (overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout) && !alternateHomePageLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
@@ -550,7 +550,7 @@ const Layout = ({currentUser, children, classes}: {
 
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
-                standaloneNavigationPresent={standaloneNavigation && !agendraTakeoverLayout}
+                standaloneNavigationPresent={standaloneNavigation && !alternateHomePageLayout}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={!!currentRoute?.staticHeader}
@@ -569,7 +569,7 @@ const Layout = ({currentUser, children, classes}: {
               }
               )}>
                 {isFriendlyUI && <AdminToggle />}
-                {standaloneNavigation && !agendraTakeoverLayout &&
+                {standaloneNavigation && !alternateHomePageLayout &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
@@ -602,7 +602,7 @@ const Layout = ({currentUser, children, classes}: {
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ?
-                      agendraTakeoverLayout
+                      alternateHomePageLayout
                         ? <></>
                         :
                           <div className={classes.imageColumn}>

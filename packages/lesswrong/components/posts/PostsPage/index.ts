@@ -28,4 +28,4 @@ importComponent("RSVPForm", () => require('./RSVPForm'));
 importComponent("WelcomeBox", () => require('./WelcomeBox'));
 importComponent("CrosspostHeaderIcon", () => require('./CrosspostHeaderIcon'));
 importComponent("CollapsedFootnotes", () => require('./CollapsedFootnotes'));
-importComponent(["AgendraHomePage", "AgendraSplashHeader"], () => require('./AgendraHomePage'));
+importComponent(["AlternateHomePage", "AlternateSplashHeader"], () => require('./AlternateHomePage'));

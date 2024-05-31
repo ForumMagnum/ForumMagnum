@@ -13,7 +13,7 @@ import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { agendraTakeoverSetting, hasProminentLogoSetting } from '../../lib/publicSettings';
+import { alternateHomePageSetting, hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -308,7 +308,7 @@ const Header = ({
     setSearchOpenState(isOpen);
   }, [captureEvent]);
 
-  const agendraTakeoverLayout = isLW && agendraTakeoverSetting.get() && currentRoute?.name === 'home';
+  const alternateHomePageLayout = isLW && alternateHomePageSetting.get() && currentRoute?.name === 'home';
 
   const navigationMenuButton = (
     // The navigation menu button either toggles a free floating sidebar, opens
@@ -440,7 +440,7 @@ const Header = ({
             style={backgroundColor ? {backgroundColor} : {}}
           >
             <Toolbar disableGutters={isFriendlyUI}>
-              {!agendraTakeoverLayout && navigationMenuButton}
+              {!alternateHomePageLayout && navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
