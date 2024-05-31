@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
@@ -7,8 +7,10 @@ import { UserDisplayNameInfo, userGetDisplayName } from '../../lib/collections/u
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import classNames from 'classnames';
-import { apolloSSRFlag } from '@/lib/helpers';
 import CloseIcon from '@material-ui/icons/Close';
+import { PopperPlacementType } from '@material-ui/core/Popper';
+import { useCurrentUser } from '../common/withUser';
+import Paper from '@material-ui/core/Paper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -29,19 +31,20 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "row-reverse",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    marginBottom: 5,
   },
   titleAndManageLink: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "baseline",
+    alignItems: "center",
     flexGrow: 1
   },
   sectionTitle: {
     ...theme.typography.postStyle,
-    marginBottom: 5,
     display: "block",
     fontSize: "1.5rem",
+    flexGrow: 1,
     [theme.breakpoints.down('xs')]: {
       fontSize: "1.3rem",
     }
@@ -178,6 +181,29 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
     }
+  },
+  subscriptionSearchRoot: {
+    // display: "flex",
+    // flexDirection: "column",
+    // gap: 6,
+    // width: "100%",
+  },
+  followUserSearchButton: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    display: "inline-block",
+    textAlign: "center",
+    "@media print": { display: "none" },
+  },
+  followUserSearchIcon: {
+    width: 18,
+    marginBottom: -3,
+    marginRight: 2,
+  },
+  hideOnSmallScreens: {
+    ['@media(max-width: 500px)']: {
+      display: "none",
+    }
   }
 });
 
@@ -219,6 +245,57 @@ const SubscriptionButton = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   </li>);
 }
 
+
+const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end", classes}: {
+  onUserSelected: (user: UsersMinimumInfo ) => void,
+  tooltipPlacement?: PopperPlacementType,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const anchorEl = useRef<HTMLAnchorElement|null>(null);
+  const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
+  const { LWPopper, FollowUserSearch, LWClickAwayListener, ForumIcon } = Components
+
+  if(!currentUser) {
+    return null;
+  }
+
+  return <a
+    onClick={() => {
+      setIsOpen(true);
+      captureEvent("followUserSearchClicked")
+    }}
+    className={classes.followUserSearchButton}
+    ref={anchorEl}
+  >
+      <span className={classes.followUserSearchButton}>
+        <ForumIcon icon="Search" className={classes.followUserSearchIcon}/>
+      </span>
+    <LWPopper
+      open={isOpen}
+      anchorEl={anchorEl.current}
+      placement={tooltipPlacement}
+      allowOverflow
+    >
+      <LWClickAwayListener
+        onClickAway={() => setIsOpen(false)}
+      >
+        <Paper>
+          <FollowUserSearch
+            currentUser={currentUser}
+            onUserSelected={(user: UsersMinimumInfo) => {
+              setIsOpen(false);
+              onUserSelected(user);
+            }}
+          />
+        </Paper>
+      </LWClickAwayListener>
+    </LWPopper>
+  </a>;
+}
+
+
 export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, loadMoreSuggestedUsers, refetchFeed, classes }: {
   availableUsers: UsersMinimumInfo[],
   loadingSuggestedUsers: boolean,
@@ -227,7 +304,7 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
   refetchFeed: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, UserSelect } = Components;
+  const { Loading } = Components;
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
 
@@ -278,8 +355,10 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
         <div className={classes.sectionTitle}>
           Suggested Users for You
         </div>
+        <FollowUserSearchButton onUserSelected={subscribeToUser} classes={classes} />
         <Link to="/manageSubscriptions" className={classes.manageSubscriptionsLink}>
-          {preferredHeadingCase("Manage Subscriptions")}
+          {preferredHeadingCase("Manage")}
+          <span className={classes.hideOnSmallScreens}>{preferredHeadingCase(" Subscriptions")}</span>
         </Link>
       </div>
     </div>
@@ -293,7 +372,7 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
         classes={classes}
       />)}
     </div>}
-    {<UserSelect value={null} setValue={(_, user) => user && subscribeToUser(user)} label='Subscribe to user' />}
+
   </div>;
 }
 
