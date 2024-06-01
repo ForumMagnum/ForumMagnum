@@ -144,17 +144,17 @@ const SideCommentIcon = ({commentIds, post, classes}: {
       </span>}
       {isOpen && <span className={classes.extendHoverTarget}/>}
     </span>
-    {isOpen && <LWClickAwayListener onClickAway={onClickAway}>
-      <LWPopper
+    <LWPopper
         open={isOpen} anchorEl={anchorEl}
         className={classes.popper}
         clickable={true}
         allowOverflow={true}
         placement={"bottom-start"}
       >
+      <LWClickAwayListener onClickAway={onClickAway}>
         <SideCommentHover post={post} commentIds={commentIds}/>
-      </LWPopper>
-    </LWClickAwayListener>}
+      </LWClickAwayListener>
+    </LWPopper>
   </div>
 }
 

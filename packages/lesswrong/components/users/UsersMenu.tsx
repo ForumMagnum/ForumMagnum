@@ -187,7 +187,7 @@ const UsersMenu = ({classes}: {
         ? (
           <DropdownItem
             title={preferredHeadingCase("New Quick Take")}
-            onClick={() => openDialog({componentName:"NewShortformDialog", noClickawayCancel: true})}
+            onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
       : null,
