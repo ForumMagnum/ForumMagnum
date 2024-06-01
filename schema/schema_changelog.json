@@ -668,10 +668,5 @@
     "acceptsSchemaHash": "4a1206bafcc5c4d63fca651ad906d213",
     "acceptedByMigration": "20240517T093146.add_swrCachingEnabled.ts",
     "timestamp": "2024-05-17T09:31:46.000Z"
-  },
-  {
-    "acceptsSchemaHash": "6fc595baf02ccdf4ffdf8777a5981d32",
-    "acceptedByMigration": "20240526T111308.set_not_null_clientId_2.ts",
-    "timestamp": "2024-05-26T11:13:08.000Z"
   }
 ]
