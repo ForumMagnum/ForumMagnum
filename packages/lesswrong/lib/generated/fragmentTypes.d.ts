@@ -935,6 +935,15 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
+interface CronHistoriesDefaultFragment { // fragment on CronHistories
+  readonly _id: string,
+  readonly intendedAt: Date,
+  readonly name: string,
+  readonly startedAt: Date,
+  readonly finishedAt: Date | null,
+  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -949,6 +958,12 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly votedAt: Date,
   readonly documentIsAf: boolean,
   readonly silenceNotification: boolean,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
 }
 
 interface LWEventsDefaultFragment { // fragment on LWEvents
@@ -1014,27 +1029,6 @@ interface SessionsDefaultFragment { // fragment on Sessions
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly expires: Date | null,
   readonly lastModified: Date | null,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
-}
-
-interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
-  readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
-  readonly endedAt: Date | null,
-}
-
-interface CronHistoriesDefaultFragment { // fragment on CronHistories
-  readonly _id: string,
-  readonly intendedAt: Date,
-  readonly name: string,
-  readonly startedAt: Date,
-  readonly finishedAt: Date | null,
-  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -3550,6 +3544,12 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
   readonly description: RevisionEdit|null,
 }
 
+interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
+  readonly userId: string,
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
+  readonly endedAt: Date | null,
+}
+
 interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
@@ -3905,7 +3905,9 @@ interface FragmentTypes {
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
+  MessagesDefaultFragment: MessagesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
   newEventFragment: newEventFragment
   lastEventFragment: lastEventFragment
@@ -3913,9 +3915,6 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
-  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
-  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsTopItemInfo: PostsTopItemInfo
   PostsBase: PostsBase
@@ -4099,6 +4098,7 @@ interface FragmentTypes {
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
+  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
@@ -4160,13 +4160,12 @@ interface FragmentTypesByCollection {
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
+  CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
+  Messages: "MessagesDefaultFragment"|"messageListFragment"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
-  Messages: "MessagesDefaultFragment"|"messageListFragment"
-  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
-  CronHistories: "CronHistoriesDefaultFragment"
   Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
@@ -4188,6 +4187,7 @@ interface FragmentTypesByCollection {
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunch"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
   Spotlights: "SpotlightsDefaultFragment"|"SpotlightMinimumInfo"|"SpotlightHeaderEventSubtitle"|"SpotlightDisplay"|"SpotlightEditQueryFragment"
+  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
@@ -4227,7 +4227,9 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
+  MessagesDefaultFragment: "Messages"
   LWEventsDefaultFragment: "LWEvents"
   newEventFragment: "LWEvents"
   lastEventFragment: "LWEvents"
@@ -4235,9 +4237,6 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
-  MessagesDefaultFragment: "Messages"
-  ModeratorActionsDefaultFragment: "ModeratorActions"
-  CronHistoriesDefaultFragment: "CronHistories"
   PostsMinimumInfo: "Posts"
   PostsTopItemInfo: "Posts"
   PostsBase: "Posts"
@@ -4421,6 +4420,7 @@ interface CollectionNamesByFragmentName {
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
+  ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentModeratorActionDisplay: "CommentModeratorActions"
