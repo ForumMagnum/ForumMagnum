@@ -1,9 +1,9 @@
-import { getCollection } from "../vulcan-lib/getCollection";
+import { getCollection } from "@/lib/vulcan-lib/getCollection";
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from "simpl-schema";
-import { ID_LENGTH } from "../random";
-import { DeferredForumSelect } from "../forumTypeUtils";
-import { ForumTypeString } from "../instanceSettings";
+import { ID_LENGTH } from "@/lib/random";
+import { DeferredForumSelect } from "@/lib/forumTypeUtils";
+import { ForumTypeString } from "@/lib/instanceSettings";
 
 const forceNonResolverFields = [
   "contents",

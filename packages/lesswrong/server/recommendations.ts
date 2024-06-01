@@ -13,12 +13,12 @@ import {
   recommendationsAlgorithmHasStrategy,
 } from '../lib/collections/users/recommendationSettings';
 import { isEAForum } from '../lib/instanceSettings';
-import SelectQuery from "../lib/sql/SelectQuery";
+import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
 import RecommendationService from './recommendations/RecommendationService';
-import PgCollection from '../lib/sql/PgCollection';
+import PgCollection from './sql/PgCollection';
 
 const MINIMUM_BASE_SCORE = 50
 

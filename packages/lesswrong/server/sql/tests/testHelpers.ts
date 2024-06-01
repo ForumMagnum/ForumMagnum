@@ -1,8 +1,8 @@
-import { registerCollection } from "../../vulcan-lib/getCollection";
+import { registerCollection } from "@/lib/vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
-import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
-import { registerFragment } from "../../vulcan-lib";
+import { foreignKeyField, resolverOnlyField } from "@/lib/utils/schemaUtils";
+import { registerFragment } from "@/lib/vulcan-lib";
 
 export type DbTestObject = {
   _id: string,

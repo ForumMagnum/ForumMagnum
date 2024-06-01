@@ -15,6 +15,7 @@ import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { createPaginatedResolver } from './paginatedResolver';
+import shuffle from 'lodash/shuffle';
 
 
 addGraphQLSchema(`
@@ -357,6 +358,8 @@ createPaginatedResolver({
       throw new Error("You must be logged to get suggsted users to subscribe to.");
     }
 
-    return await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit);
+    const suggestedUsers = await context.repos.users.getSubscriptionFeedSuggestedUsers(currentUser._id, limit * 3);
+
+    return shuffle(suggestedUsers).slice(0, limit);
   }
 });

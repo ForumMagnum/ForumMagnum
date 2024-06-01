@@ -65,7 +65,7 @@ class PgCollection<
     return !!getSqlClient();
   }
 
-  isVoteable() {
+  isVoteable(): this is PgCollection<VoteableCollectionName> {
     return this.voteable;
   }
 
@@ -73,16 +73,12 @@ class PgCollection<
     this.voteable = true;
   }
 
-  hasSlug() {
+  hasSlug(): this is PgCollection<CollectionNameWithSlug> {
     return !!this._schemaFields.slug;
   }
 
   getTable() {
-    if (bundleIsServer) {
-      return this.table;
-    } else {
-      throw new Error("Attempted to run postgres query on the client");
-    }
+    return this.table;
   }
 
   buildPostgresTable() {

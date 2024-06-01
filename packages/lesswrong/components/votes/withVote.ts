@@ -38,7 +38,6 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     openDialog({
       componentName: "VotingPatternsWarningPopup",
       componentProps: {},
-      noClickawayCancel: true,
       closeOnNavigate: true,
     });
   }, [openDialog]);

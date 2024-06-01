@@ -57,10 +57,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
+const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing}: {
   classes: ClassesType,
   post: PostsList,
   hideMeta?: boolean,
+  hideAuthor?: boolean,
   wrap?: boolean,
   widerSpacing?: boolean
 }) => {
@@ -80,7 +81,7 @@ const TagSmallPostLink = ({classes, post, hideMeta, wrap, widerSpacing}: {
           >
             {post.title}
           </Link>
-          {!hideMeta && post.user &&
+          {!hideMeta && !hideAuthor && post.user &&
             <MetaInfo className={classes.author}>
               <UsersName user={post.user} nowrap={!wrap} />
             </MetaInfo>

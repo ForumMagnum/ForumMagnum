@@ -35,14 +35,12 @@ import React, {
   FunctionComponent
 } from 'react';
 
-type FocusEvents = 'focusin' | 'focusout';
 type MouseEvents = 'click' | 'mousedown' | 'mouseup';
 type TouchEvents = 'touchstart' | 'touchend';
-export type ClickAwayEvent = FocusEvent | MouseEvent | TouchEvent;
+export type ClickAwayEvent = MouseEvent | TouchEvent;
 
 interface Props extends HTMLAttributes<HTMLElement> {
   onClickAway: (event: ClickAwayEvent) => void;
-  focusEvent?: FocusEvents;
   mouseEvent?: MouseEvents;
   touchEvent?: TouchEvents;
   children: ReactElement<any>;
@@ -61,7 +59,6 @@ const eventTypeMapping = {
 const ClickAwayListener: FunctionComponent<Props> = ({
   children,
   onClickAway,
-  focusEvent = 'focusin',
   mouseEvent = 'click',
   touchEvent = 'touchend'
 }) => {
@@ -85,8 +82,9 @@ const ClickAwayListener: FunctionComponent<Props> = ({
 
   const handleBubbledEvents =
     (type: string) =>
-    (event: ClickAwayEvent): void => {
-      bubbledEventTarget.current = event.target;
+    (event: ClickAwayEvent | {nativeEvent: Event}): void => {
+      // Events from MUI form components have the base event under the "nativeEvent" field
+      bubbledEventTarget.current = ('nativeEvent' in event) ? event.nativeEvent.target : event.target;
 
       const handler = children?.props[type];
 
@@ -115,11 +113,11 @@ const ClickAwayListener: FunctionComponent<Props> = ({
     const handleEvents = (event: ClickAwayEvent): void => {
       if (!mountedRef.current) return;
 
-      if (
-        (node.current && node.current.contains(event.target as Node)) ||
-        bubbledEventTarget.current === event.target ||
-        !nodeDocument.contains(event.target as Node)
-      ) {
+      const isContainedByNode = node.current && node.current.contains(event.target as Node);
+      const isBubbledEventTarget = bubbledEventTarget.current === event.target;
+      const notContainedInDocument = !nodeDocument.contains(event.target as Node);
+
+      if (isContainedByNode || isBubbledEventTarget || notContainedInDocument) {
         return;
       }
 
@@ -128,23 +126,19 @@ const ClickAwayListener: FunctionComponent<Props> = ({
 
     nodeDocument.addEventListener(mouseEvent, handleEvents);
     nodeDocument.addEventListener(touchEvent, handleEvents);
-    nodeDocument.addEventListener(focusEvent, handleEvents);
 
     return () => {
       nodeDocument.removeEventListener(mouseEvent, handleEvents);
       nodeDocument.removeEventListener(touchEvent, handleEvents);
-      nodeDocument.removeEventListener(focusEvent, handleEvents);
     };
-  }, [focusEvent, mouseEvent, onClickAway, touchEvent]);
+  }, [mouseEvent, onClickAway, touchEvent]);
 
   const mappedMouseEvent = eventTypeMapping[mouseEvent];
   const mappedTouchEvent = eventTypeMapping[touchEvent];
-  const mappedFocusEvent = eventTypeMapping[focusEvent];
 
   return React.Children.only(
     cloneElement(children as ReactElement<any>, {
       ref: handleChildRef,
-      [mappedFocusEvent]: handleBubbledEvents(mappedFocusEvent),
       [mappedMouseEvent]: handleBubbledEvents(mappedMouseEvent),
       [mappedTouchEvent]: handleBubbledEvents(mappedTouchEvent)
     })
