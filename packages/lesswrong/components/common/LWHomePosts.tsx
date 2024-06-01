@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Components, capitalize, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -18,11 +18,13 @@ import { useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
+import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
-import { gql, useMutation } from '@apollo/client';
+import { ObservableQuery, gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { userHasSubscribeTabFeed } from '@/lib/betas';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -110,28 +112,95 @@ const styles = (theme: ThemeType) => ({
   },
   tagFilterSettingsButton: {
   },
-})
+});
 
-export const filterSettingsToggleLabels =  {
+export const filterSettingsToggleLabels = {
   desktopVisible: "Customize (Hide)",
   desktopHidden: "Customize",
   mobileVisible: "Customize (Hide)",
   mobileHidden: "Customize",
-}
+};
+
+const subscribedFeedProps = {
+  resolverName: 'SubscribedFeed',
+  firstPageSize: 10,
+  pageSize: 20,
+  sortKeyType: 'Date',
+  nextFetchPolicy: 'cache-and-network',
+  reorderOnRefetch: true,
+  renderers: {
+    postCommented: {
+      fragmentName: "SubscribedPostAndCommentsFeed",
+      render: (postCommented: SubscribedPostAndCommentsFeed) => {
+        return <Components.FeedPostCommentsCard
+          key={postCommented.post._id}
+          post={postCommented.post}
+          comments={postCommented.comments}
+          maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
+          refetch={()=>{} /*TODO*/}
+        />
+      },
+    }
+  }
+} as const;
 
 const advancedSortingText = "Advanced Sorting/Filtering";
 
 const defaultLimit = 13;
 
-const getDefaultDesktopFilterSettingsVisibility = (currentUser: UsersCurrent | null, selectedAlgorithm?: string) => {
+function getDefaultDesktopFilterSettingsVisibility(currentUser: UsersCurrent | null) {
   if (!currentUser) {
     return true
   }
 
   // Hide unless user has explicitly set it to visible
   return currentUser?.hideFrontpageFilterSettingsDesktop === false;
+}
+
+type Platform = 'mobile' | 'desktop';
+
+type PlatformSettingsVisibility<T extends Platform> = {
+  [k in T as `${k}SettingsVisible`]: boolean;
 };
 
+type PlatformSettingsVisibilityToggle<T extends Platform> = {
+  [k in T as `toggle${Capitalize<k>}SettingsVisible`]: (newVisibilityState: boolean) => void;
+};
+
+type PlatformSettingsVisibilityState<T extends Platform> = PlatformSettingsVisibility<T> & PlatformSettingsVisibilityToggle<T>;
+
+function useDefaultSettingsVisibility<T extends Platform>(currentUser: UsersCurrent | null, platform: T, selectedAlgorithm?: string): PlatformSettingsVisibilityState<T> {
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS]);
+  const [filterSettingsVisible, setFilterSettingsVisible] = useState(
+    platform === 'mobile'
+      ? false
+      : getDefaultDesktopFilterSettingsVisibility(currentUser)
+  );
+
+  const subscriptionSettingsVisibleCookie = cookies[HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS];
+  const [subscriptionSettingsVisible, setSubscriptionSettingsVisible] = useState(subscriptionSettingsVisibleCookie !== 'true');
+
+  const settingsVisible = useMemo(() => (
+    selectedAlgorithm === 'forum-subscribed-authors'
+      ? subscriptionSettingsVisible
+      : filterSettingsVisible
+  ), [filterSettingsVisible, subscriptionSettingsVisible, selectedAlgorithm]);
+
+  const toggleSettingsVisible = useCallback((newVisibilityState: boolean) => {
+    if (selectedAlgorithm === 'forum-subscribed-authors') {
+      setCookie(HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, !newVisibilityState ? 'true' : 'false');
+      setSubscriptionSettingsVisible(newVisibilityState);
+    } else {
+      setFilterSettingsVisible(newVisibilityState);
+    }
+  }, [selectedAlgorithm, setCookie]);
+
+  return {
+    [`${platform}SettingsVisible`]: settingsVisible,
+    [`toggle${capitalize(platform)}SettingsVisible`]: toggleSettingsVisible
+  } as PlatformSettingsVisibilityState<T>;
+};
+ 
 const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) => {
   const defaultTab = homepagePostFeedsSetting.get()[0].name;
 
@@ -147,7 +216,6 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
   rotationRate: 0.2,
   rotationTime: 24 * 30,
 };
-
 
 function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) {
   const [cookies, setCookie] = useCookiesWithConsent();
@@ -190,13 +258,33 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
+function useSuggestedUsers() {
+  const currentUser = useCurrentUser();
+  const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
+
+  const { results, loading, loadMore } = usePaginatedResolver({
+    fragmentName: "UsersMinimumInfo",
+    resolverName: "SuggestedFeedSubscriptionUsers",
+    limit: 15,
+    itemsPerPage: 10,
+    ssr: false,
+    skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
+  });
+
+  useEffect(() => {
+    setAvailableUsers(results ?? []);
+  }, [results]);
+
+  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };
+}
+
 const LWHomePosts = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem, SubscribedUsersFeed } = Components;
+    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
 
   const { captureEvent } = useTracking() 
 
@@ -204,7 +292,8 @@ const LWHomePosts = ({children, classes}: {
   const updateCurrentUser = useUpdateCurrentUser();
   const { query } = useLocation();
   const now = useCurrentTime();
-  const { continueReading } = useContinueReading()
+  const { continueReading } = useContinueReading();
+  const { availableUsers, setAvailableUsers, loadingSuggestedUsers, loadMoreSuggestedUsers } = useSuggestedUsers();
 
   const { count: countBookmarks } = useMulti({
     collectionName: "Posts",
@@ -227,7 +316,11 @@ const LWHomePosts = ({children, classes}: {
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
   const enabledTabs = availableTabs
     .filter(feed => !feed.disabled
-      && (!feed.adminOnly || (userIsAdmin(currentUser) || query.experimentalTabs === 'true')) 
+      && (
+        !feed.adminOnly ||
+        (userIsAdmin(currentUser) || query.experimentalTabs === 'true') ||
+        (feed.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser))
+      ) 
       && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
@@ -248,21 +341,27 @@ const LWHomePosts = ({children, classes}: {
   }
 
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
-  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
-  const defaultDesktopFilterSettingsVisibility = getDefaultDesktopFilterSettingsVisibility(currentUser, selectedTab);
-  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(defaultDesktopFilterSettingsVisibility);
-  const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
+  const { filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
+  const { desktopSettingsVisible, toggleDesktopSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'desktop', selectedTab);
+  const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
 
   const changeShowTagFilterSettingsDesktop = () => {
-    setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
-    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
+    toggleDesktopSettingsVisible(!desktopSettingsVisible);
+    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: desktopSettingsVisible})
     
     captureEvent("filterSettingsClicked", {
       settings: filterSettings,
-      filterSettingsVisible: filterSettingsVisibleDesktop,
+      filterSettingsVisible: desktopSettingsVisible,
       pageSectionContext: "HomePosts",
     })
   };
+
+  const refetchSubscriptionContentRef = useRef<null | ObservableQuery['refetch']>(null);
+  const refetchSubscriptionContent = useCallback(() => {
+    if (refetchSubscriptionContentRef.current) {
+      void refetchSubscriptionContentRef.current();
+    }
+  }, [refetchSubscriptionContentRef]);
 
 
   /* Intended behavior for filter settings button visibility:
@@ -276,8 +375,13 @@ const LWHomePosts = ({children, classes}: {
   */
 
 
-  const showSettingsButton = (selectedTab === 'forum-classic') || (userIsAdmin(currentUser) && selectedTab.includes('recombee'));
-  const desktopSettingsButtonLabel = filterSettingsVisibleMobile ? 'Hide' : 'Customize'
+  const showSettingsButton = (
+    selectedTab === 'forum-classic' ||
+    selectedTab === 'forum-subscribed-authors' ||
+    (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
+  );
+
+  const desktopSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
 
   const settingsButton = (<>
     {/* Desktop button */}
@@ -293,9 +397,9 @@ const LWHomePosts = ({children, classes}: {
         label={!currentUser ? desktopSettingsButtonLabel : undefined}
         showIcon={!!currentUser}
         onClick={() => {
-          setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+          toggleMobileSettingsVisible(!mobileSettingsVisible)
           captureEvent("filterSettingsClicked", {
-            settingsVisible: !filterSettingsVisibleMobile,
+            settingsVisible: !mobileSettingsVisible,
             settings: filterSettings,
             pageSectionContext: "latestPosts",
             mobile: true
@@ -304,15 +408,14 @@ const LWHomePosts = ({children, classes}: {
       </div>
   </>);
 
+  const settingsVisibileClassName = classNames({
+    [classes.hideOnDesktop]: !desktopSettingsVisible,
+    [classes.hideOnMobile]: !mobileSettingsVisible,
+  });
 
-  let settings = null;
-
-  if (selectedTab === 'forum-classic') { 
-    settings = <AnalyticsContext pageSectionContext="tagFilterSettings">
-      <div className={classNames({
-        [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-        [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-      })}>
+  const filterSettingsElement = (
+    <AnalyticsContext pageSectionContext="tagFilterSettings">
+      <div className={settingsVisibileClassName}>
         <TagFilterSettings
           filterSettings={filterSettings} 
           setPersonalBlogFilter={setPersonalBlogFilter} 
@@ -322,13 +425,33 @@ const LWHomePosts = ({children, classes}: {
         />
       </div>
     </AnalyticsContext>
-  } else if (selectedTab.includes('recombee')) {
-    settings = <div className={classNames({
-      [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
-      [classes.hideOnMobile]: !filterSettingsVisibleMobile,
-    })}>
+  );
+
+  const subscriptionSettingsElement = (
+    <div className={settingsVisibileClassName}>
+      <SuggestedFeedSubscriptions
+        availableUsers={availableUsers}
+        setAvailableUsers={setAvailableUsers}
+        loadingSuggestedUsers={loadingSuggestedUsers}
+        loadMoreSuggestedUsers={loadMoreSuggestedUsers}
+        refetchFeed={refetchSubscriptionContent}
+      />
+    </div>
+  );
+
+  const recombeeSettingsElement = (
+    <div className={settingsVisibileClassName}>
       {userIsAdmin(currentUser) && <RecombeePostsListSettings settings={scenarioConfig} updateSettings={updateScenarioConfig} />}
     </div>
+  );
+
+  let settings = null;
+  if (selectedTab === 'forum-classic') { 
+    settings = filterSettingsElement;
+  } else if (selectedTab === 'forum-subscribed-authors') {
+    settings = subscriptionSettingsElement;
+  } else if (selectedTab.includes('recombee')) {
+    settings = recombeeSettingsElement;
   }
 
   const limit = parseInt(query.limit) || defaultLimit;
@@ -423,7 +546,10 @@ const LWHomePosts = ({children, classes}: {
 
               {/* SUBSCRIBED */}
               {(selectedTab === 'forum-subscribed-authors') && <AnalyticsContext feedType={selectedTab}>
-                <SubscribedUsersFeed />
+                <MixedTypeFeed
+                  refetchRef={refetchSubscriptionContentRef}
+                  {...subscribedFeedProps}
+                />
                </AnalyticsContext>}
 
               {/* CHRONOLIGCAL FEED */}
