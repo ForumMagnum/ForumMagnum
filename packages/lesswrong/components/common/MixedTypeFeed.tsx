@@ -113,7 +113,7 @@ const MixedTypeFeed = (args: {
   reorderOnRefetch?: boolean,
   
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, nextFetchPolicy, reorderOnRefetch='cache-only' } = args;
+  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, nextFetchPolicy="cache-only", reorderOnRefetch='cache-only' } = args;
   
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
