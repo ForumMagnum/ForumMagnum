@@ -1,4 +1,4 @@
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { registerMigration } from "./migrationUtils";
 
 const idxName = 'idx_idx_ClientIds_clientId_unique'
