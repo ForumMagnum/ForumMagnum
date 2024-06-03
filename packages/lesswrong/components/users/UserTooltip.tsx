@@ -17,7 +17,7 @@ const styles = () => ({
   ? {}
   : {
     padding: 0,
-    background: "unset"
+    maxWidth: "none",
   }
 });
 
@@ -40,7 +40,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
       placement={placement}
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
-      className={classes.overrideTooltip}
+      titleClassName={classes.overrideTooltip}
       clickable={!isFriendlyUI}
     >
       {children}
