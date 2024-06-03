@@ -187,5 +187,3 @@ export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarT
 export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)
 
 export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
-
-export const agendraTakeoverSetting = new DatabasePublicSetting<boolean>('agendraTakeover', true);

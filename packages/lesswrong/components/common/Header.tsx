@@ -10,10 +10,10 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting, isEAForum, isLW } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
-import { agendraTakeoverSetting, hasProminentLogoSetting } from '../../lib/publicSettings';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
@@ -242,7 +242,7 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash, currentRoute } = useLocation();
+  const { pathname, hash } = useLocation();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -307,8 +307,6 @@ const Header = ({
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);
   }, [captureEvent]);
-
-  const agendraTakeoverLayout = isLW && agendraTakeoverSetting.get() && currentRoute?.name === 'home';
 
   const navigationMenuButton = (
     // The navigation menu button either toggles a free floating sidebar, opens
@@ -440,7 +438,7 @@ const Header = ({
             style={backgroundColor ? {backgroundColor} : {}}
           >
             <Toolbar disableGutters={isFriendlyUI}>
-              {!agendraTakeoverLayout && navigationMenuButton}
+              {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
