@@ -508,7 +508,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const AlternateSplashHeaderInner = ({post, classes}: {
+const AgendraSplashHeaderInner = ({post, classes}: {
   post: (PostsWithNavigation|PostsWithNavigationAndRevision) & { reviewWinner: ReviewWinnerAll },
   classes: ClassesType<typeof headerStyles>,
 }) => {
@@ -613,7 +613,7 @@ const AlternateSplashHeaderInner = ({post, classes}: {
   </div>
 }
 
-export const AlternateHomePage = ({fullPost, postPreload, classes}: {
+export const AgendraHomePage = ({fullPost, postPreload, classes}: {
   classes: ClassesType<typeof styles>,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
@@ -621,7 +621,7 @@ export const AlternateHomePage = ({fullPost, postPreload, classes}: {
 )) => {
   const {
     PostsPagePostFooter, PostBodyPrefix, PostCoauthorRequest, ToCColumn, TableOfContents, RSVPs,
-    CloudinaryImage2, ContentStyles, PostBody, PostsAudioPlayerWrapper, AlternateSplashHeader
+    CloudinaryImage2, ContentStyles, PostBody, PostsAudioPlayerWrapper, AgendraSplashHeader
   } = Components;
 
   const post = fullPost ?? postPreload;
@@ -795,7 +795,7 @@ export const AlternateHomePage = ({fullPost, postPreload, classes}: {
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && <AlternateSplashHeader
+    {fullPost && showSplashPageHeader && <AgendraSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
       // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
       post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
@@ -828,12 +828,12 @@ export const AlternateHomePage = ({fullPost, postPreload, classes}: {
   </AnalyticsContext>
 }
 
-const AlternateSplashHeaderComponent = registerComponent('AlternateSplashHeader', AlternateSplashHeaderInner, {styles: headerStyles});
-const AlternateHomePageComponent = registerComponent('AlternateHomePage', AlternateHomePage, {styles});
+const AgendraSplashHeaderComponent = registerComponent('AgendraSplashHeader', AgendraSplashHeaderInner, {styles: headerStyles});
+const AgendraHomePageComponent = registerComponent('AgendraHomePage', AgendraHomePage, {styles});
 
 declare global {
   interface ComponentTypes {
-    AlternateSplashHeader: typeof AlternateSplashHeaderComponent
-    AlternateHomePage: typeof AlternateHomePageComponent
+    AgendraSplashHeader: typeof AgendraSplashHeaderComponent
+    AgendraHomePage: typeof AgendraHomePageComponent
   }
 }

@@ -2,7 +2,7 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { alternateHomePageSetting, showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { agendraTakeoverSetting, showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -13,17 +13,17 @@ import { useApolloClient } from '@apollo/client';
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
-    QuickTakesSection, LWHomePosts, AlternateHomePage, Loading
+    QuickTakesSection, LWHomePosts, AgendraHomePage, Loading
   } = Components
 
   const apolloClient = useApolloClient();
   const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
     fragment: getFragment("PostsListWithVotes"),
     fragmentName: "PostsListWithVotes",
-    id: 'Post:FtsyWwJLdTapN3c6h',
+    id: 'Post:MJMdLrCJMiu4q8BQg',
   });
   
-  const { document: fullPost, loading } = useDisplayedPost('FtsyWwJLdTapN3c6h', null);
+  const { document: fullPost, loading } = useDisplayedPost('MJMdLrCJMiu4q8BQg', null);
 
   let mungedPost = fullPost;
   if (fullPost) {
@@ -72,9 +72,9 @@ const LWHome = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
           <UpdateLastVisitCookie />
-          {alternateHomePageSetting.get() && loading && <Loading />}
-          {alternateHomePageSetting.get() && !loading
-            ? <AlternateHomePage fullPost={mungedPost} postPreload={postPreload ?? undefined} />
+          {agendraTakeoverSetting.get() && loading && <Loading />}
+          {agendraTakeoverSetting.get() && !loading
+            ? <AgendraHomePage fullPost={mungedPost} postPreload={postPreload ?? undefined} />
             :
             <>
               {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
