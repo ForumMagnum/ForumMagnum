@@ -11,7 +11,7 @@ import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { DatabasePublicSetting, alternateHomePageSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
@@ -36,6 +36,7 @@ import moment from 'moment';
 
 import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
+import { useDisplayedPost } from './posts/usePost';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -60,7 +61,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
  */
 const allowedIncompletePaths: string[] = ["termsOfUse"];
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   main: {
     paddingTop: theme.spacing.mainLayoutPaddingTop,
     paddingBottom: 15,
@@ -121,6 +122,24 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, 1fr)
         minmax(0, min-content)
         minmax(0, ${isLW ? 7 : 1}fr)
+        minmax(0, min-content)
+      `,
+    },
+    [theme.breakpoints.down('md')]: {
+      display: 'block'
+    }
+  },
+  alternateHomePageLayout: {
+    '@supports (grid-template-areas: "title")': {
+      display: 'grid',
+      gridTemplateAreas: `
+        "navSidebar ... main imageGap sunshine"
+      `,
+      gridTemplateColumns: `
+        minmax(0, min-content)
+        minmax(0, 1fr)
+        minmax(0, min-content)
+        minmax(0, 1fr)
         minmax(0, min-content)
       `,
     },
@@ -362,6 +381,9 @@ const Layout = ({currentUser, children, classes}: {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
+  const alternateHomePageLayout = isLW && alternateHomePageSetting.get() && currentRoute?.name === 'home';
+  // Client-side prefetch of the alternate homepage, in case someone navigates to it after SSRing some other page
+  useDisplayedPost('FtsyWwJLdTapN3c6h', null, undefined, { ssr: false, skip: alternateHomePageLayout });
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -395,7 +417,7 @@ const Layout = ({currentUser, children, classes}: {
   // also have a `useEffect` which adds a class to `<body>`. (This has to be a useEffect because
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
-  const useWhiteBackground = currentRoute?.background === "white";
+  const useWhiteBackground = currentRoute?.background === "white" || alternateHomePageLayout;
   
   const { captureEvent } = useTracking();
   
@@ -470,7 +492,7 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
-    const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
+    const shouldUseGridLayout = (overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout) && !alternateHomePageLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
@@ -528,7 +550,7 @@ const Layout = ({currentUser, children, classes}: {
 
               {!currentRoute?.standalone && <Header
                 searchResultsArea={searchResultsAreaRef}
-                standaloneNavigationPresent={standaloneNavigation}
+                standaloneNavigationPresent={standaloneNavigation && !alternateHomePageLayout}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={!!currentRoute?.staticHeader}
@@ -547,7 +569,7 @@ const Layout = ({currentUser, children, classes}: {
               }
               )}>
                 {isFriendlyUI && <AdminToggle />}
-                {standaloneNavigation &&
+                {standaloneNavigation && !alternateHomePageLayout &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
@@ -579,18 +601,21 @@ const Layout = ({currentUser, children, classes}: {
                 </div>
                 { isLW && <>
                   {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
-                        <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
-                          <div className={classes.bannerText}>
-                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
-                            <p>May 31st to June 2nd, Berkeley CA</p>
-                            <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
-                          </div>
-                        </AnalyticsContext>
-                        <div className={classes.backgroundGradient}/>
-                      </div> 
+                    currentRoute?.name === 'home' ?
+                      alternateHomePageLayout
+                        ? <></>
+                        :
+                          <div className={classes.imageColumn}>
+                            <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
+                            <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
+                              <div className={classes.bannerText}>
+                                <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
+                                <p>May 31st to June 2nd, Berkeley CA</p>
+                                <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
+                              </div>
+                            </AnalyticsContext>
+                            <div className={classes.backgroundGradient}/>
+                          </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
