@@ -21,7 +21,6 @@ import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
 import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
-import { getSiteUrl } from '../lib/vulcan-lib/utils';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
@@ -365,10 +364,6 @@ export function startWebserver() {
   });
 
   app.get('*', async (request, response) => {
-    if(await prefilterHandleRequest(request, response)) {
-      return;
-    }
-
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
@@ -501,25 +496,4 @@ export function startWebserver() {
   addStaticRoute('/api/ready', ({query}, _req, res, next) => {
     res.end('true');
   });
-}
-
-async function prefilterHandleRequest(req: express.Request, res: express.Response): Promise<boolean> {
-  const url = req.url;
-  const baseUrl = getSiteUrl();
-  const parsedUrl = new URL(url, baseUrl);
-
-  // If the URL is of the form ...?commentId=id, serve a redirect to ...#commentId
-  const commentId = parsedUrl.searchParams.get('commentId');
-  if (commentId) {
-    // Side-effectfully transform parsedUrl
-    parsedUrl.searchParams.delete("commentId");
-    parsedUrl.hash = commentId;
-
-    res.status(301);
-    res.redirect(parsedUrl.toString());
-    res.end();
-    return true;
-  }
-
-  return false;
 }
