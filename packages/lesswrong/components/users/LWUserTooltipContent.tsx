@@ -10,7 +10,6 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     width: 350,
-    // maxWidth: "unset",
     fontSize: 14,
     fontWeight: 450,
     lineHeight: "19.5px",
