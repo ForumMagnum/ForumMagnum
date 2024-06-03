@@ -213,7 +213,7 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
       <div className={classes.buttonUserInfo} >
         <div className={classes.buttonDisplayNameAndDismiss} >
           <div className={classes.buttonDisplayName} >
-            <UsersName user={user} className={classes.clampedUserName} hideFollowButton/>
+            <UsersName user={user} className={classes.clampedUserName} hideFollowButton tooltipClickable />
           </div>
           <CloseIcon onClick={() => handleSubscribeOrDismiss(user, true)} className={classes.dismissButton} />
         </div>

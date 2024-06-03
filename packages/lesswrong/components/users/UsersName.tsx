@@ -25,6 +25,7 @@ const UsersName = ({
   /** Makes it not a link, and removes the tooltip. */
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
+  tooltipClickable?: boolean,
   nowrap?: boolean,
   noTooltip?: boolean,
   color?: boolean,

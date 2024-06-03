@@ -17,6 +17,7 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
   nowrap?: boolean,
   className?: string,
   tooltipPlacement?: PopperPlacementType,
+  tooltipClickable?: boolean,
 }) => {
   const { document, loading } = useSingle({
     documentId,

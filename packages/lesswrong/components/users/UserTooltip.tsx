@@ -2,6 +2,8 @@ import React, { ReactNode } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import type { LWTooltipProps } from "../common/LWTooltip";
+import type { FriendlyHoverOverProps } from "../common/FriendlyHoverOver";
 
 const styles = () => ({
   root: isFriendlyUI
@@ -21,15 +23,15 @@ const styles = () => ({
   }
 });
 
-const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, classes}: {
+export type HoverPassthroughProps = Pick<LWTooltipProps & FriendlyHoverOverProps, 'placement' | 'inlineBlock' | 'clickable'>;
+
+const UserTooltip = ({user, placement, inlineBlock, clickable, hideFollowButton, children, classes}: {
   user: UsersMinimumInfo,
-  placement?: PopperPlacementType,
-  inlineBlock?: boolean,
   // LW specific
   hideFollowButton?: boolean,
   children: ReactNode,
   classes: ClassesType,
-}) => {
+} & HoverPassthroughProps) => {
   const {HoverOver, EAUserTooltipContent, LWUserTooltipContent} = Components;
   const content = isFriendlyUI 
     ? <EAUserTooltipContent user={user} />
@@ -41,7 +43,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, children, 
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
       className={classes.overrideTooltip}
-      clickable={!isFriendlyUI}
+      clickable={clickable}
     >
       {children}
     </HoverOver>
