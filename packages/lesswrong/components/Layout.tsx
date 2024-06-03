@@ -36,7 +36,6 @@ import moment from 'moment';
 
 import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
-import { useDisplayedPost } from './posts/usePost';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -369,7 +368,7 @@ const StickyWrapper: FC<{
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
@@ -382,8 +381,6 @@ const Layout = ({currentUser, children, classes}: {
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
   const {headerVisible, headerAtTop} = useHeaderVisible();
   const agendraTakeoverLayout = isLW && agendraTakeoverSetting.get() && currentRoute?.name === 'home';
-  // Client-side prefetch of the agendra homepage, in case someone navigates to it after SSRing some other page
-  useDisplayedPost('MJMdLrCJMiu4q8BQg', null, undefined, { ssr: false, skip: agendraTakeoverLayout });
 
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
@@ -564,6 +561,7 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
+                // [classes.agendraTakeoverLayout]: agendraTakeoverLayout,
                 [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
                 [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
