@@ -38,6 +38,7 @@ const UsersNameDisplay = ({
   nowrap=false,
   hideFollowButton=false,
   tooltipPlacement="left",
+  tooltipClickable,
   pageSectionContext,
   className,
   classes,
@@ -56,6 +57,8 @@ const UsersNameDisplay = ({
   hideFollowButton?: boolean,
   /** Positioning of the tooltip, if there is one */
   tooltipPlacement?: PopperPlacementType,
+  /** Should the tooltip be clickable? */
+  tooltipClickable?: boolean,
   /** If provided, a tracking string added to the link */
   pageSectionContext?: string,
   /** An additional class to apply to the text */
@@ -113,6 +116,7 @@ const UsersNameDisplay = ({
           placement={tooltipPlacement}
           inlineBlock={false}
           hideFollowButton={hideFollowButton}
+          clickable={tooltipClickable}
         >
           <Link
             to={profileUrl}
