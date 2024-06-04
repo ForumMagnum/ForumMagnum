@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useMulti } from '@/lib/crud/withMulti';
+import { userHasSubscribeTabFeed } from '@/lib/betas';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -61,7 +63,10 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
 
   const { ContentStyles, TagSmallPostLink, FollowUserButton, UserMetaInfo, Loading } = Components
 
+  const currentUser = useCurrentUser();
+
   const { htmlBio, displayName } = user;
+  const truncatedBio = truncate(htmlBio, 500)
 
   const { loading, results } = useMulti({
     terms: {
@@ -75,7 +80,6 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
     limit: 3,
   });
 
-  const truncatedBio = truncate(htmlBio, 500)
 
   return (
     <div className={classes.root}>
@@ -83,7 +87,7 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
         <div className={classes.name}>{displayName}</div>
         <div className={classes.metaRow}>
           <UserMetaInfo user={user} />
-          {!hideFollowButton && <FollowUserButton user={user} />}
+          {!hideFollowButton && userHasSubscribeTabFeed(currentUser) && <FollowUserButton user={user} />}
         </div>
       </div>
 
