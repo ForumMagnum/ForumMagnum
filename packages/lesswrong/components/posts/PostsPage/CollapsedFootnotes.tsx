@@ -6,6 +6,8 @@ import { InteractionWrapper } from "../../common/useClickableCell";
 import Collapse from "@material-ui/core/Collapse";
 import classNames from "classnames";
 
+const TRANSITION_DURATION = 200;
+
 export const EXPAND_FOOTNOTES_EVENT = "expand-footnotes";
 
 export const locationHashIsFootnote = (hash: string) =>
@@ -77,10 +79,15 @@ const CollapsedFootnotes = ({
   const ref = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    const handler = () => setCollapsed(false);
+    const handler = (e: AnyBecauseTodo) => {
+      setCollapsed(false);
+      setTimeout(() => {
+        document.querySelector(e.detail)?.scrollIntoView();
+      }, fullyExpanded ? 0 : TRANSITION_DURATION);
+    };
     window.addEventListener(EXPAND_FOOTNOTES_EVENT, handler);
     return () => window.removeEventListener(EXPAND_FOOTNOTES_EVENT, handler);
-  }, []);
+  }, [fullyExpanded]);
 
   useOnSearchHotkey(() => setCollapsed(false));
 
@@ -98,6 +105,7 @@ const CollapsedFootnotes = ({
       <Collapse
         in={!collapsed}
         onEntered={() => setFullyExpanded(true)}
+        timeout={TRANSITION_DURATION}
         className={classNames(
           classes.collapse,
           {[classes.fullyExpanded]: fullyExpanded},
