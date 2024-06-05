@@ -131,6 +131,7 @@ import { LabBeakerIcon } from "../icons/LabBeakerIcon";
 import { SparkleIcon } from "../icons/sparkleIcon";
 import { ListViewIcon } from "../icons/ListViewIcon";
 import { CardViewIcon } from "../icons/CardViewIcon";
+import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -191,6 +192,7 @@ export type ForumIconName =
   "Plus" |
   "Check" |
   "CheckCircle" |
+  "CheckSmall" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -299,6 +301,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
     CheckCircle: CheckCircleIcon,
+    CheckSmall: CheckSmallIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -394,6 +397,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
     CheckCircle: CheckCircleIcon,
+    CheckSmall: CheckSmallIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
