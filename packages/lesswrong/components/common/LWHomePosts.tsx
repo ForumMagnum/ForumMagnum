@@ -131,7 +131,7 @@ const subscribedFeedProps = {
     postCommented: {
       fragmentName: "SubscribedPostAndCommentsFeed",
       render: (postCommented: SubscribedPostAndCommentsFeed) => {
-        const expandOnlyCommentIds = postCommented.commentIds ? new Set<string>(postCommented.commentIds) : undefined;
+        const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
         return <Components.FeedPostCommentsCard
           key={postCommented.post._id}
           post={postCommented.post}
