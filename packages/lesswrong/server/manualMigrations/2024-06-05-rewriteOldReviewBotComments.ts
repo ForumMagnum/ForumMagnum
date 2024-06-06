@@ -24,13 +24,11 @@ registerMigration({
 
     for (const comment of oldReviewBotComments) {
       if (!comment.contents?.html) throw new Error("oh no!", String(comment.contents));
-      const manifoldIframeMatch = comment.contents.html.match(`data-oembed-url="([^"]+)"`);
-      if (!manifoldIframeMatch || manifoldIframeMatch.length < 2) continue
-      const manifoldUrl = manifoldIframeMatch[1];
+      const manifoldUrl = comment.contents.html.match(/https:\/\/manifold.markets\/LessWrong\/([A-Za-z\d-])+/)?.[0];
+      const year = comment.contents.html.match(`but will be at the end of (\\d+)`)?.[1];
+      if (!manifoldUrl || !year) continue
 
-      // Some comments have already been edited, and we don't want to edit them again
-      const unlinkedQuestionIndex = comment.contents.html.indexOf('Will this post make the top fifty?</p>');
-      const newContent = unlinkedQuestionIndex > 0 ? comment.contents.html.slice(0, unlinkedQuestionIndex) + `<a href="${manifoldUrl}">Will this post make the top fifty?</a></p>` : comment.contents.html;
+      const newContent = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring karma. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href=${manifoldUrl}>Will this post make the top fifty?</a></p>`;
 
       if (newContent === comment.contents.html) continue;
 
