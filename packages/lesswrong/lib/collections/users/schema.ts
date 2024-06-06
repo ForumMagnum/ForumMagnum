@@ -2499,7 +2499,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    control: "ImageUpload"
+    control: "ImageUpload",
+    form: {
+      horizontal: true,
+    },
   },
   
   jobTitle: {
