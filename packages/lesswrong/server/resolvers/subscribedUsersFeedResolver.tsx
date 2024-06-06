@@ -4,13 +4,13 @@ import keyBy from "lodash/keyBy";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
-import gt from "lodash/gt";
 
 addGraphQLSchema(`
   type SubscribedPostAndComments {
     _id: String!
     post: Post!
-    comments: [Comment!]!
+    comments: [Comment!]
+    expandCommentIds: [String!]
     postIsFromSubscribedUser: Boolean!
   }
 `);
@@ -37,7 +37,7 @@ defineFeedResolver<Date>({
     const nextCutoff = isLastPage ? null : (lastFeedItem?.last_commented ?? lastFeedItem?.postedAt) ?? null;
     
     const postIds: string[] = postsAndComments.map(row => row.postId);
-    const commentIds: string[] = postsAndComments.flatMap(row => row.commentIds ?? []);
+    const commentIds: string[] = filterNonnull(postsAndComments.flatMap(row => row.fullCommentTreeIds ?? []));
     
     const [posts, comments] = await Promise.all([
       loadByIds(context, "Posts", postIds).then(posts => accessFilterMultiple(currentUser, context.Posts, posts, context)),
@@ -56,7 +56,8 @@ defineFeedResolver<Date>({
             _id: postAndCommentsRow.postId,
             post: postsById[postAndCommentsRow.postId],
             postIsFromSubscribedUser: !!postAndCommentsRow.subscribedPosts,
-            comments: postAndCommentsRow.commentIds?.map(commentId => commentsById[commentId]) ?? [],
+            comments: filterNonnull(postAndCommentsRow.fullCommentTreeIds?.map(commentId => commentsById[commentId]) ?? []),
+            expandCommentIds: postAndCommentsRow.commentIds
           }
         };
       })

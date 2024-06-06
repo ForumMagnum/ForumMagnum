@@ -119,6 +119,12 @@ export interface CommentTreeOptions {
    * If passed, never start comments collapsed to single line.
    */
   forceNotSingleLine?: boolean,
+
+  /**
+   * If passed, expand all comments in the tree whose IDs are in the set (and only those comments).
+   * This takes precedence over both `forceSingleLine` and `forceNotSingleLine`.
+   */
+  expandOnlyCommentIds?: Set<string>,
   
   /**
    * By default, every comment has its comment ID added to the DOM as an

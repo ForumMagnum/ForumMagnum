@@ -131,12 +131,14 @@ const subscribedFeedProps = {
     postCommented: {
       fragmentName: "SubscribedPostAndCommentsFeed",
       render: (postCommented: SubscribedPostAndCommentsFeed) => {
+        const expandOnlyCommentIds = postCommented.commentIds ? new Set<string>(postCommented.commentIds) : undefined;
         return <Components.FeedPostCommentsCard
           key={postCommented.post._id}
           post={postCommented.post}
           comments={postCommented.comments}
           maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
           refetch={() => {} /* TODO */}
+          commentTreeOptions={{ expandOnlyCommentIds }}
         />
       },
     }
