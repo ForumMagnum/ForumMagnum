@@ -5,7 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -1784,9 +1784,9 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: isEAForum ? formGroups.aboutMe : formGroups.siteCustomizations,
+    group: isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo,
     order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
-    label: "Public map location",
+    label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
     blackbox: true,
     optional: true,
@@ -2509,7 +2509,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 2,
     label: 'Role'
   },
@@ -2521,7 +2521,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 3,
   },
   
@@ -2532,7 +2532,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 4,
     control: 'FormComponentMultiSelect',
     label: "Career stage",
@@ -2546,7 +2546,7 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
   },
-  
+
   website: {
     type: String,
     hidden: true,
@@ -2558,7 +2558,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: 'https://'
     },
-    group: formGroups.aboutMe,
+    group: formGroups.socialMedia,
     order: 6
   },
 
@@ -2595,7 +2595,8 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 1,
   },
   facebookProfileURL: {
     type: String,
@@ -2608,7 +2609,8 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 2,
   },
   twitterProfileURL: {
     type: String,
@@ -2621,7 +2623,8 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 3,
   },
   githubProfileURL: {
     type: String,
@@ -2634,9 +2637,10 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 4,
   },
-  
+
   profileTagIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "profileTagIds",
@@ -2649,11 +2653,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    group: formGroups.activity,
-    order: 1,
+    group: formGroups.aboutMe,
+    order: 100,
     control: "TagMultiselect",
-    label: `${taggingNamePluralCapitalSetting.get()} I'm interested in`,
-    tooltip: `This will also update your frontpage ${taggingNameSetting.get()} weightings.`,
+    label: "Interests",
     placeholder: `Search for ${taggingNamePluralSetting.get()}`
   },
   'profileTagIds.$': {

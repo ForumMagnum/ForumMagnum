@@ -62,6 +62,11 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
     label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation & Moderation Guidelines"),
     startCollapsed: true,
   },
+  generalInfo: {
+    name: "generalInfo",
+    order: 90,
+    label: "General info",
+  },
   aboutMe: {
     name: 'aboutMe',
     order: 100,
@@ -75,7 +80,7 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
   activity: {
     name: 'activity',
     order: 120,
-    label: isFriendlyUI ? "Your activity" : "My Activity",
+    label: isFriendlyUI ? "Participation" : "My Activity",
   },
   deactivate: {
     order: 130,
