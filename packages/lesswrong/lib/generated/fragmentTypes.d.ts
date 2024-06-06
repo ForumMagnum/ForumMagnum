@@ -3862,8 +3862,21 @@ interface SurveysDefaultFragment { // fragment on non-collection type
   readonly name: any,
 }
 
+interface SurveyMinimumInfo { // fragment on non-collection type
+  readonly _id: any,
+  readonly name: any,
+  readonly questions: any,
+}
+
 interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
   readonly surveyId: string,
+  readonly question: string,
+  readonly format: "rank1-10" | "text" | "multilineText",
+  readonly order: number,
+}
+
+interface SurveyQuestionMinimumInfo { // fragment on SurveyQuestions
+  readonly _id: string,
   readonly question: string,
   readonly format: "rank1-10" | "text" | "multilineText",
   readonly order: number,
@@ -3886,6 +3899,18 @@ interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
   readonly endDate: Date | null,
   readonly deactivated: boolean,
   readonly clientIds: Array<string>,
+}
+
+interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
+  readonly _id: string,
+  readonly survey: SurveyMinimumInfo,
+  readonly name: string,
+  readonly minKarma: number | null,
+  readonly maxKarma: number | null,
+  readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
+  readonly startDate: Date | null,
+  readonly endDate: Date | null,
+  readonly deactivated: boolean,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -4159,9 +4184,12 @@ interface FragmentTypes {
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinates: SplashArtCoordinates
   SurveysDefaultFragment: SurveysDefaultFragment
+  SurveyMinimumInfo: SurveyMinimumInfo
   SurveyQuestionsDefaultFragment: SurveyQuestionsDefaultFragment
+  SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
   SurveyResponsesDefaultFragment: SurveyResponsesDefaultFragment
   SurveySchedulesDefaultFragment: SurveySchedulesDefaultFragment
+  SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
@@ -4229,10 +4257,10 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
-  Surveies: "SurveysDefaultFragment"
-  SurveyQuestions: "SurveyQuestionsDefaultFragment"
+  Surveies: "SurveysDefaultFragment"|"SurveyMinimumInfo"
+  SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"
-  SurveySchedules: "SurveySchedulesDefaultFragment"
+  SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4489,9 +4517,12 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinates: "SplashArtCoordinates"
   SurveysDefaultFragment: never
+  SurveyMinimumInfo: never
   SurveyQuestionsDefaultFragment: "SurveyQuestions"
+  SurveyQuestionMinimumInfo: "SurveyQuestions"
   SurveyResponsesDefaultFragment: "SurveyResponses"
   SurveySchedulesDefaultFragment: "SurveySchedules"
+  SurveyScheduleMinimumInfo: "SurveySchedules"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
 }

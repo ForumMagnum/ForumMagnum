@@ -328,9 +328,12 @@ import './collections/recommendationsCaches/collection';
 
 // Surveys
 import "./collections/surveys/collection";
+import "./collections/surveys/fragments";
 import "./collections/surveyQuestions/collection";
+import "./collections/surveyQuestions/fragments";
 import "./collections/surveyResponses/collection";
 import "./collections/surveySchedules/collection";
+import "./collections/surveySchedules/fragments";
 
 // Alignment Forum
 import './alignment-forum/permissions';
