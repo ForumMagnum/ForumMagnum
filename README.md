@@ -54,6 +54,8 @@ yarn install
 
 ### If you want to run a local database
 
+TODO improve, ideally promote docker
+
 CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
 
 Run a local postgres instance, version 15. For example, if you're on macos:
@@ -78,7 +80,6 @@ psql forummagnum -f ./schema/accepted_schema.sql
 TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
-  * Start server and run it for ~30 sec which would create DB indexes 😅
   * Then run `yarn ea-load-dev-db <settings file>` to load the database settings from the file. (TODO: example of the file)
 * You won't be able to run migrations yet. TODO: fix migrations so they can be
   run on a new db (NB: goal is still to have the db have the accepted_schema).
@@ -124,6 +125,11 @@ yarn ea-start
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
 It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
+
+### Where to branch off of
+
+Branch off of `master` and submit to `master`. Deploys occur when `master` is
+merged into `ea-deploy` and `lw-deploy`.
 
 ## Documentation
 
@@ -280,11 +286,6 @@ teething problems with starting the server correctly. If the tests routinely
 fail to start, remove the `webservers` section from `playwright.config.ts` and
 instead run `yarn playwright-db` and `yarn start-playwright` in separate
 terminals while running the tests.
-
-### Where to branch off of
-
-Branch off of `master` and submit to `master`. Deploys occur when `master` is
-merged into `ea-deploy` and `lw-deploy`.
 
 ## EA Forum-Specific
 
