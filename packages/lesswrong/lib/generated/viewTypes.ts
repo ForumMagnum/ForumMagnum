@@ -60,6 +60,10 @@ type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
 type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightForSequence";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
+type SurveyQuestionsViewName = never
+type SurveyResponsesViewName = never
+type SurveySchedulesViewName = never
+type SurveysViewName = never
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "tagsByTagIds"|"allTagsAlphabetical"|"userTags"|"currentUserSubforums"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"postTypeTags"|"coreAndSubforumTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags";
@@ -136,6 +140,10 @@ interface ViewTermsByCollectionName {
   SplashArtCoordinates: ViewTermsBase
   Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms
+  SurveyQuestions: ViewTermsBase
+  SurveyResponses: ViewTermsBase
+  SurveySchedules: ViewTermsBase
+  Surveys: ViewTermsBase
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
   Tags: TagsViewTerms

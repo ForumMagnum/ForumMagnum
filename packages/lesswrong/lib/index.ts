@@ -326,6 +326,12 @@ import './collections/curationEmails/collection';
 // Recommendations cache
 import './collections/recommendationsCaches/collection';
 
+// Surveys
+import "./collections/surveys/collection";
+import "./collections/surveyQuestions/collection";
+import "./collections/surveyResponses/collection";
+import "./collections/surveySchedules/collection";
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

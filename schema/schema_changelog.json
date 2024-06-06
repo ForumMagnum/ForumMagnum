@@ -673,5 +673,10 @@
     "acceptsSchemaHash": "6fc595baf02ccdf4ffdf8777a5981d32",
     "acceptedByMigration": "20240526T111308.set_not_null_clientId_2.ts",
     "timestamp": "2024-05-26T11:13:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "571b884f9d7f3b93fc02529131ee23d1",
+    "acceptedByMigration": "20240606T174240.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-06T17:42:40.000Z"
   }
 ]

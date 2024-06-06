@@ -96,7 +96,7 @@ type ClientIdsCollection = CollectionBase<"ClientIds">;
 
 interface DbClientId extends DbObject {
   __collectionName?: "ClientIds"
-  clientId: string | null
+  clientId: string
   firstSeenReferrer: string | null
   firstSeenLandingPage: string | null
   userIds: Array<string> | null
@@ -1205,6 +1205,56 @@ interface DbSubscription extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type SurveyQuestionsCollection = CollectionBase<"SurveyQuestions">;
+
+interface DbSurveyQuestion extends DbObject {
+  __collectionName?: "SurveyQuestions"
+  surveyId: string
+  question: string
+  format: "rank1-10" | "text" | "multilineText"
+  order: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveyResponsesCollection = CollectionBase<"SurveyResponses">;
+
+interface DbSurveyResponse extends DbObject {
+  __collectionName?: "SurveyResponses"
+  surveyId: string
+  userId: string
+  clientId: string
+  response: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveySchedulesCollection = CollectionBase<"SurveySchedules">;
+
+interface DbSurveySchedule extends DbObject {
+  __collectionName?: "SurveySchedules"
+  surveyId: string
+  name: string
+  minKarma: number | null
+  maxKarma: number | null
+  target: "allUsers" | "loggedInOnly" | "loggedOutOnly"
+  startDate: Date | null
+  endDate: Date | null
+  deactivated: boolean
+  clientIds: Array<string>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveysCollection = CollectionBase<"Surveys">;
+
+interface DbSurvey extends DbObject {
+  __collectionName?: "Surveys"
+  name: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type TagFlagsCollection = CollectionBase<"TagFlags">;
 
 interface DbTagFlag extends DbObject {
@@ -1896,6 +1946,10 @@ interface CollectionsByName {
   SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
+  SurveyQuestions: SurveyQuestionsCollection
+  SurveyResponses: SurveyResponsesCollection
+  SurveySchedules: SurveySchedulesCollection
+  Surveys: SurveysCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
@@ -1973,6 +2027,10 @@ interface ObjectsByCollectionName {
   SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
+  SurveyQuestions: DbSurveyQuestion
+  SurveyResponses: DbSurveyResponse
+  SurveySchedules: DbSurveySchedule
+  Surveys: DbSurvey
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
@@ -2050,6 +2108,10 @@ interface ObjectsByTypeName {
   SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
+  SurveyQuestion: DbSurveyQuestion
+  SurveyResponse: DbSurveyResponse
+  SurveySchedule: DbSurveySchedule
+  Survey: DbSurvey
   TagFlag: DbTagFlag
   TagRel: DbTagRel
   Tag: DbTag

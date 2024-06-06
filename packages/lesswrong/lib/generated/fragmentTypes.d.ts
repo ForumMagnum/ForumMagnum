@@ -960,12 +960,6 @@ interface VotesDefaultFragment { // fragment on Votes
   readonly silenceNotification: boolean,
 }
 
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
-}
-
 interface LWEventsDefaultFragment { // fragment on LWEvents
   readonly userId: string,
   readonly name: string,
@@ -1866,6 +1860,12 @@ interface NotificationsList { // fragment on Notifications
   readonly type: string,
   readonly viewed: boolean,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -3858,6 +3858,36 @@ interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly rightFlipped: boolean,
 }
 
+interface SurveysDefaultFragment { // fragment on non-collection type
+  readonly name: any,
+}
+
+interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
+  readonly surveyId: string,
+  readonly question: string,
+  readonly format: "rank1-10" | "text" | "multilineText",
+  readonly order: number,
+}
+
+interface SurveyResponsesDefaultFragment { // fragment on SurveyResponses
+  readonly surveyId: string,
+  readonly userId: string,
+  readonly clientId: string,
+  readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
+  readonly surveyId: string,
+  readonly name: string,
+  readonly minKarma: number | null,
+  readonly maxKarma: number | null,
+  readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
+  readonly startDate: Date | null,
+  readonly endDate: Date | null,
+  readonly deactivated: boolean,
+  readonly clientIds: Array<string>,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3907,7 +3937,6 @@ interface FragmentTypes {
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
   newEventFragment: newEventFragment
   lastEventFragment: lastEventFragment
@@ -3973,6 +4002,7 @@ interface FragmentTypes {
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
   NotificationsList: NotificationsList
+  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
@@ -4128,6 +4158,10 @@ interface FragmentTypes {
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinates: SplashArtCoordinates
+  SurveysDefaultFragment: SurveysDefaultFragment
+  SurveyQuestionsDefaultFragment: SurveyQuestionsDefaultFragment
+  SurveyResponsesDefaultFragment: SurveyResponsesDefaultFragment
+  SurveySchedulesDefaultFragment: SurveySchedulesDefaultFragment
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
@@ -4162,11 +4196,11 @@ interface FragmentTypesByCollection {
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
-  Messages: "MessagesDefaultFragment"|"messageListFragment"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
   Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
+  Messages: "MessagesDefaultFragment"|"messageListFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
@@ -4195,6 +4229,10 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
+  Surveies: "SurveysDefaultFragment"
+  SurveyQuestions: "SurveyQuestionsDefaultFragment"
+  SurveyResponses: "SurveyResponsesDefaultFragment"
+  SurveySchedules: "SurveySchedulesDefaultFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4229,7 +4267,6 @@ interface CollectionNamesByFragmentName {
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
-  MessagesDefaultFragment: "Messages"
   LWEventsDefaultFragment: "LWEvents"
   newEventFragment: "LWEvents"
   lastEventFragment: "LWEvents"
@@ -4295,6 +4332,7 @@ interface CollectionNamesByFragmentName {
   RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
   NotificationsList: "Notifications"
+  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
@@ -4450,13 +4488,17 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinates: "SplashArtCoordinates"
+  SurveysDefaultFragment: never
+  SurveyQuestionsDefaultFragment: "SurveyQuestions"
+  SurveyResponsesDefaultFragment: "SurveyResponses"
+  SurveySchedulesDefaultFragment: "SurveySchedules"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 
