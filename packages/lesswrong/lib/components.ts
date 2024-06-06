@@ -980,6 +980,7 @@ importComponent(["DatePicker","FormComponentDateTime"], () => require('../compon
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
+importComponent("FormComponentFriendlyTextInput", () => require('../components/form-components/FormComponentFriendlyTextInput'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));

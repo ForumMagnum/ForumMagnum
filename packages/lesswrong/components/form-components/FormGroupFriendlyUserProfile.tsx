@@ -2,9 +2,23 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import type { FormGroupLayoutProps } from "./FormGroupLayout";
 
+const GAP = 12;
+
 const styles = (theme: ThemeType) => ({
   root: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: `${GAP}px`,
+    rowGap: "0px",
     marginBottom: 40,
+    "& > *": {
+      flexBasis: "100%",
+    },
+    [theme.breakpoints.up("sm")]: {
+      "& > .form-component-FormComponentFriendlyTextInput": {
+        flexBasis: `calc(50% - ${GAP / 2}px)`,
+      },
+    },
   },
   label: {
     color: theme.palette.grey[1000],

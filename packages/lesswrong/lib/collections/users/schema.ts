@@ -2514,7 +2514,8 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.generalInfo,
     order: 2,
-    label: 'Role'
+    label: 'Role',
+    control: "FormComponentFriendlyTextInput",
   },
   
   organization: {
@@ -2526,6 +2527,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.generalInfo,
     order: 3,
+    control: "FormComponentFriendlyTextInput",
   },
   
   careerStage: {
