@@ -106,14 +106,11 @@ const MixedTypeFeed = (args: {
   // up by a bunch.)
   refetchRef?: {current: null|ObservableQuery['refetch']},
 
-  // Used to override the nextFetchPolicy
-  nextFetchPolicy?: WatchQueryFetchPolicy,
-
   // By default, MixedTypeFeed preserves the order of elements that persist across refetches.  If you don't want that, pass in true.
   reorderOnRefetch?: boolean,
   
 }) => {
-  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, nextFetchPolicy="cache-only", reorderOnRefetch='cache-only' } = args;
+  const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef, reorderOnRefetch=false } = args;
   
   // Reference to a bottom-marker used for checking scroll position.
   const bottomRef = useRef<HTMLDivElement|null>(null);
@@ -135,7 +132,7 @@ const MixedTypeFeed = (args: {
       limit: firstPageSize,
     },
     fetchPolicy: "cache-and-network",
-    nextFetchPolicy,
+    nextFetchPolicy: "cache-only",
     ssr: true,
   });
   

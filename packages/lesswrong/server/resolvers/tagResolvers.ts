@@ -67,7 +67,7 @@ const subforumFeedSortings: Record<SubforumSorting, SubforumFeedSort> = {
   },
 }
 
-const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({
+const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: SubforumFeedSort) => async ({
   limit = 20, cutoff, offset, args: {tagId, af}, context,
 }: {
   limit?: number,
