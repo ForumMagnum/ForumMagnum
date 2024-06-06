@@ -30,11 +30,13 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
-type PostAndCommentsResultRow = {
+export type PostAndCommentsResultRow = {
   postId: string
   commentIds: string[]|null
   subscribedPosts: boolean|null
   subscribedComments: boolean|null
+  postedAt: Date|null
+  last_commented: Date|null
 };
 
 class PostsRepo extends AbstractRepo<"Posts"> {
@@ -787,7 +789,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     [userId, limit]);
   }
   
-  async getPostsAndCommentsFromSubscriptions(userId: string, numDays: number): Promise<Array<PostAndCommentsResultRow >> {
+  async getPostsAndCommentsFromSubscriptions(userId: string, maxAgeDays: number): Promise<Array<PostAndCommentsResultRow >> {
     return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
       WITH user_subscriptions AS (
       SELECT DISTINCT type, "documentId" AS "userId"
@@ -797,7 +799,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND s.deleted IS NOT TRUE
         AND "collectionName" = 'Users'
         AND "type" = 'newActivityForFeed'
-        AND "userId" = $1
+        AND "userId" = $(userId)
       ),
       posts_by_subscribees AS (
            SELECT
@@ -806,18 +808,18 @@ class PostsRepo extends AbstractRepo<"Posts"> {
               TRUE as "subscribedPosts"
            FROM "Posts" p
                     JOIN user_subscriptions us USING ("userId")
-           WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
+           WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
            ORDER BY p."postedAt" DESC
        ),
       posts_with_comments_from_subscribees AS (
           SELECT
              "postId",
              (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
-             MAX(c."postedAt") AS last_updated,
+             MAX(c."postedAt") AS last_commented,
             TRUE as "subscribedComments"
           FROM "Comments" c
                JOIN user_subscriptions us USING ("userId")
-          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
+          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
           -- TODO: maybe reintroduce this filter?
           -- AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
           AND c.deleted IS NOT TRUE
@@ -844,11 +846,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND p.unlisted IS NOT TRUE
         AND p."isFuture" IS NOT TRUE
         AND p."isEvent" IS NOT TRUE
-      ORDER BY GREATEST(last_updated, combined."postedAt") DESC;
-    `, [
+      ORDER BY GREATEST(last_commented, combined."postedAt") DESC;
+    `, {
       userId,
-      `${numDays} days`
-    ]);
+      maxAgeDays: `${maxAgeDays} days`,
+    });
   }
 }
 
