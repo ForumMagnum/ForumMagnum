@@ -2493,7 +2493,7 @@ const schema: SchemaType<"Users"> = {
   profileImageId: {
     hidden: true,
     order: isLWorAF ? 40 : 1, // would use isFriendlyUI but that's not available here
-    group: isEAForum ? formGroups.aboutMe : formGroups.default,
+    group: formGroups.default,
     type: String,
     optional: true,
     canRead: ['guests'],

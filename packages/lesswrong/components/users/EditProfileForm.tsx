@@ -9,7 +9,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
-import { preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -75,7 +75,9 @@ const EditProfileForm = ({classes}: {
     HIDE_IMPORT_EAG_PROFILE,
   ]);
 
-  const {Typography, ForumIcon, WrappedSmartForm} = Components
+  const {
+    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile,
+  } = Components;
 
   let terms: {slug?: string, documentId?: string} = {}
   if (params.slug) {
@@ -119,7 +121,7 @@ const EditProfileForm = ({classes}: {
   return (
     <div className={classes.root}>
       <Typography variant="display3" className={classes.heading} gutterBottom>
-        {preferredHeadingCase("Edit Public Profile")}
+        {preferredHeadingCase(isFriendlyUI ? "Edit Profile" : "Edit Public Profile")}
       </Typography>
 
       {!isEAForum &&
@@ -166,6 +168,9 @@ const EditProfileForm = ({classes}: {
           'organizerOfGroupIds',
           'programParticipation',
         ]}
+        formComponents={{
+          FormGroupLayout: isFriendlyUI ? FormGroupFriendlyUserProfile : undefined,
+        }}
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}
         mutationFragment={getFragment('UsersProfileEdit')}
