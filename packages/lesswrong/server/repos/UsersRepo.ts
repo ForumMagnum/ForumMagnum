@@ -738,108 +738,56 @@ class UsersRepo extends AbstractRepo<"Users"> {
         FROM "Votes"
         WHERE
           "userId" = $1
-          AND cancelled IS NOT TRUE
-          AND "isUnvote" IS NOT TRUE
-          AND power > 0
-          AND NOT "userId" = ANY("authorIds")
+          AND cancelled IS FALSE
+          AND NOT ("authorIds" @> ARRAY["userId"])
         ORDER BY "votedAt"
-        ),
-        most_upvoted_authors AS (
-          SELECT
-            "authorId",
-            SUM(power) AS summed_power
-          FROM votes
-          GROUP BY "authorId"
-          ORDER BY summed_power DESC
-        ),
-        reads AS (
-          SELECT
-            "postId",
-            "lastUpdated",
-          p."userId" AS "authorId"
-          FROM "ReadStatuses" rs
-          JOIN "Posts" p ON p."_id" = rs."postId"
-          WHERE 
-            rs."userId" = $1
-            AND "isRead" = TRUE
-        ),
-        most_read_authors AS (
-          SELECT
-            "authorId",
-            COUNT(*) AS posts_read
-          FROM reads
-          GROUP BY "authorId"
-          ORDER BY COUNT(*) DESC
-        ),
-        recent_posts AS (
-          SELECT
-            "userId" AS "authorId",
-            "postedAt"
-          FROM "Posts" p
-          WHERE 
-            "postedAt" > current_date - INTERVAL '30 days'
-            AND p.draft IS NOT TRUE
-            AND p.status = 2
-            AND p.rejected IS NOT TRUE
-            AND p."authorIsUnreviewed" IS NOT TRUE
-            AND p."hiddenRelatedQuestion" IS NOT TRUE
-            AND p.unlisted IS NOT TRUE
-            AND p."isFuture" IS NOT TRUE
-            AND "baseScore" > 20
-        ),
-        most_active_posters AS (
-          SELECT 
-            "authorId", 
-            COUNT(*) AS num_posts_written
-          FROM recent_posts
-          GROUP BY 1
-          ORDER BY num_posts_written DESC
-        ),
-        recent_comments AS (
-          SELECT
-            "userId" AS "authorId",
-            "postedAt"
-          FROM "Comments" c
-          WHERE 
-            "postedAt" > current_date - INTERVAL '30 days'
-            AND c.deleted IS NOT TRUE
-            AND c."baseScore" >= 5
-        ),
-        most_active_commenters AS (
-          SELECT 
-            "authorId", 
-            COUNT(*) AS num_comments_written
-          FROM recent_comments
-          GROUP BY 1
-          ORDER BY num_comments_written DESC
-        ),
-        activity_scores AS (
-          SELECT
-            *,
-            COALESCE(num_posts_written, 0) * 5 + COALESCE(num_comments_written, 0) AS "activity_score"
-          FROM most_active_posters
-          FULL OUTER JOIN most_active_commenters USING ("authorId")
-        )
+      ),
+      most_upvoted_authors AS (
         SELECT
-          u.*
-        FROM most_upvoted_authors
-        FULL OUTER JOIN most_read_authors USING ("authorId")
-        LEFT JOIN activity_scores USING ("authorId")
-        JOIN "Users" u ON u."_id" = "authorId"
-        LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
-        WHERE
-            (u.banned IS NULL OR u.banned < current_date)
-            AND "authorId" != $1
-            AND es."userId" IS NULL
-            AND activity_score >= 5
-        ORDER BY (
-          COALESCE(summed_power*3,0) + COALESCE(posts_read*2, 0)
-        ) DESC NULLS LAST
-        LIMIT $2
+          "authorId",
+          SUM(power) AS summed_power
+        FROM votes
+        GROUP BY "authorId"
+        ORDER BY summed_power DESC
+      ),
+      reads AS (
+        SELECT
+          "postId",
+          "lastUpdated",
+        p."userId" AS "authorId"
+        FROM "ReadStatuses" rs
+        JOIN "Posts" p ON p."_id" = rs."postId"
+        WHERE 
+          rs."userId" = $1
+          AND "isRead" IS TRUE
+      ),
+      most_read_authors AS (
+        SELECT
+          "authorId",
+          COUNT(*) AS posts_read
+        FROM reads
+        GROUP BY "authorId"
+        ORDER BY COUNT(*) DESC
+      )
+      SELECT
+        u.*
+      FROM most_upvoted_authors
+      FULL OUTER JOIN most_read_authors USING ("authorId")
+      JOIN "Users" u ON u."_id" = "authorId"
+      LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
+      WHERE
+          (u.banned IS NULL OR u.banned < current_date)
+          AND "authorId" != $1
+          AND es."userId" IS NULL
+          AND u."deleted" IS NOT TRUE
+      ORDER BY (
+        COALESCE(summed_power*3, 0) + COALESCE(posts_read*2, 0)
+      ) DESC NULLS LAST
+      LIMIT $2
     `, [userId, limit]);
   }
 }
 
-recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken', 'getActiveDialogues'] });
 
 export default UsersRepo;

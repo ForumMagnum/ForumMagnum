@@ -1,10 +1,10 @@
-import { Subscriptions } from "../../lib/collections/subscriptions";
 import { defineFeedResolver } from "../utils/feedUtil";
 import { addGraphQLSchema } from "../vulcan-lib";
 import keyBy from "lodash/keyBy";
 import { loadByIds } from "../../lib/loaders";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { accessFilterMultiple } from "../../lib/utils/schemaUtils";
+import gt from "lodash/gt";
 
 addGraphQLSchema(`
   type SubscribedPostAndComments {
@@ -33,6 +33,8 @@ defineFeedResolver<Date>({
     const postsAndCommentsAll = await context.repos.posts.getPostsAndCommentsFromSubscriptions(currentUser._id, 30);
     const postsAndComments = postsAndCommentsAll.slice(offset, (offset??0)+limit);
     const isLastPage = postsAndComments.length < limit;
+    const lastFeedItem = postsAndComments.at(-1);
+    const nextCutoff = isLastPage ? null : (lastFeedItem?.last_commented ?? lastFeedItem?.postedAt) ?? null;
     
     const postIds: string[] = postsAndComments.map(row => row.postId);
     const commentIds: string[] = postsAndComments.flatMap(row => row.commentIds ?? []);
@@ -45,7 +47,7 @@ defineFeedResolver<Date>({
     const commentsById = keyBy(filterNonnull(comments), c=>c._id);
     
     return {
-      cutoff: isLastPage ? null : new Date(),
+      cutoff: nextCutoff,
       endOffset: (offset??0)+postsAndComments.length,
       results: postsAndComments.map(postAndCommentsRow => {
         return {

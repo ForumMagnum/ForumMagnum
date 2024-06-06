@@ -3,8 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
-import { Link } from '../../lib/reactRouterWrapper';
-import { postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,12 +48,11 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
   },
   linkPost: {
-    marginLeft: -4
   },
   info: {
     display: "flex",
     color: theme.palette.text.dim3,
-    marginRight: 8,
+    marginRight: 4,
     fontSize: "1.1rem",
     textWrap: "nowrap",
     ...theme.typography.commentStyle,
@@ -62,20 +61,24 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
     marginLeft: 4,
     fontWeight: 600,
+  },
+  hideOnSmallScreens: {
+    ['@media (max-width: 500px)']: {
+      display: "none",
+    }
   }
 });
 
-const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
+const FeedPostCardMeta = ({post, className, classes}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
-  useCuratedDate?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const authorExpandContainer = useRef(null);
 
   const {
-    TruncatedAuthorsList, PostsItemDate, ForumIcon, LWTooltip, EventTime, FormatDate
+    TruncatedAuthorsList, ForumIcon, LWTooltip, FormatDate
   } = Components;
 
   // TODO: Think about styling for events
@@ -94,16 +97,14 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
   </div>
 
   const linkPostIcon =  post.url && <span className={classNames(classes.linkPost, classes.info)}>
-    <Link to={postGetPageUrl(post)}>
-        <LWTooltip title={linkPostMessage} placement="left">
-          <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
-        </LWTooltip>
-    </Link>
+    <LWTooltip title={linkPostMessage} placement="left">
+      <a href={postGetLink(post)}><ForumIcon icon="Link" className={classes.linkIcon}/></a>
+    </LWTooltip>
   </span>
 
   const dateElement = post.postedAt && !post.isEvent && <div className={classes.info}>
         <FormatDate date={post.postedAt}/>
-        {post.url && separatorElement}
+        {(post.url || (post.commentCount > 0)) && separatorElement}
       </div>
   
   const baseScoreElement = !post.shortform && !post.isEvent && <span className={classes.info}>
@@ -136,6 +137,13 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
     {separatorElement}
   </InteractionWrapper>
 
+  const commentCountElement = (post.commentCount > 0) && <span className={classNames(classes.info, classes.hideOnSmallScreens)}>
+    <Link to={`${postGetPageUrl(post)}#comments`}>
+      {postGetCommentCountStr(post)}
+    </Link>
+    {post.url && separatorElement}
+  </span>
+
   return (
     <div
       className={classNames(classes.root, className)}
@@ -145,6 +153,7 @@ const FeedPostCardMeta = ({post, useCuratedDate=true, className, classes}: {
       {afScoreElement}
       {authorsListElement}
       {dateElement}
+      {commentCountElement}
       {linkPostIcon}
     </div>
   );

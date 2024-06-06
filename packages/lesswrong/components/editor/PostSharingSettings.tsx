@@ -166,7 +166,6 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         },
         initialShareWithUsers: document.shareWithUsers || [],
       },
-      noClickawayCancel: true,
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
 

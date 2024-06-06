@@ -354,9 +354,66 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
+  // When the floating audio player is visible, move this ad above it
+  'body.t3a-sticky-player-visible .StickyDigestAd-root': {
+    bottom: 78
+  },
+  /*
+    Styles for the TYPE III AUDIO player "heading play button" feature.
+    See https://docs.type3.audio/ for documentation.
+    This is mostly unchanged from the default values, other than the
+    colors for .t3a-heading-play-button and the margins for .t3a-heading-play-icon.
+  */
+  /* Heading play button should not be shown on small screens */
+  '.t3a-heading-play-button': {
+    display: 'none'
+  },
+  /* Set minimum width at which heading play button should be shown */
+  '@media screen and (min-width: 850px)': {
+    '.t3a-heading-play-button': {
+      display: 'block',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      marginLeft: -34,
+      marginRight: 10,
+      borderRadius: 9999,
+      border: 'none',
+      width: '1.5rem',
+      height: '1.5rem',
+      outline: 'none',
+      cursor: 'pointer',
+      transform: 'translate(0, 0)',
+      zIndex: 10,
+  
+      /* Colour of the play button */
+      backgroundColor: theme.palette.grey[310],
+      /* Colour of the play button icon. */
+      color: theme.palette.grey[0],
+      '&:hover': {
+        backgroundColor: theme.palette.grey[400],
+      },
+      '&:focus': {
+        outline: 'none',
+      }
+    },
+    '.t3a-heading-play-icon': {
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: -1, // The margins here have been changed from the default to fit the EA Forum
+    },
+    /* Refine this to match the dimensions of your heading typeface */
+    'h2 .t3a-heading-play-button': { marginTop: 9 },
+    'h3 .t3a-heading-play-button': { marginTop: 3 },
+  }
+})
+
 export const globalStyles = (theme: ThemeType): JssStyles => ({
   ...clearStyle(theme),
   ...globalStyle(theme),
   ...commentsStyle(theme),
-  ...dialogueStyle(theme)
+  ...dialogueStyle(theme),
+  ...audioPlayerStyles(theme),
 });
