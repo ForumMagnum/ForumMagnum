@@ -18,6 +18,7 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { useCurrentFrontpageSurvey } from '../hooks/useCurrentFrontpageSurvey';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -152,6 +153,8 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
+
+  const {survey} = useCurrentFrontpageSurvey();
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">

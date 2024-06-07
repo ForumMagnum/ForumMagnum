@@ -16,25 +16,27 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
     clientId: string,
   ): Promise<SurveyScheduleWithSurvey | null> {
     const isLoggedIn = !!currentUser;
-
+    const userJoin = isLoggedIn
+      ? `LEFT JOIN "Users" u ON u."_id" = $3`
+      : "";
     const karmaClause = isLoggedIn
       ? `
         CASE ss."minKarma"
           WHEN NULL THEN TRUE
-          ELSE ss."minKarma" < COALSCE(u."karma", 0)
+          ELSE ss."minKarma" < COALESCE(u."karma", 0)
         END AND
         CASE ss."maxKarma"
           WHEN NULL THEN TRUE
-          ELSE ss."maxKarma" > COALSCE(u."karma", 0)
+          ELSE ss."maxKarma" > COALESCE(u."karma", 0)
         END AND
       `
       : ""
-
     // TODO: Filter out surveys the user has already responded to
     return this.getRawDb().oneOrNone(`
       SELECT ss.*, ROW_TO_JSON(s.*) "survey"
       FROM "SurveySchedules" ss
       JOIN "Surveys" s ON s."_id" = ss."surveyId"
+      ${userJoin}
       WHERE
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND
         (ss."startDate" IS NULL OR ss."startDate" < CURRENT_TIMESTAMP) AND
@@ -50,7 +52,7 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
         "endDate" ASC,
         "_id" DESC
       LIMIT 1
-    `, [isLoggedIn, clientId]);
+    `, [isLoggedIn, clientId, currentUser?._id]);
   }
 
   async assignClientToSurveySchedule(

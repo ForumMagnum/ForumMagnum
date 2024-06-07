@@ -6,6 +6,7 @@ import {
 } from "@/lib/vulcan-lib";
 import { createMutator, updateMutator } from "../vulcan-lib";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { hasSurveys } from "@/lib/betas";
 import SurveyQuestions from "@/lib/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
 
@@ -25,12 +26,12 @@ type EditSurveyArgs = {
 
 addGraphQLResolvers({
   Query: {
-    async getCurrentFrontpageSurvey(
+    async CurrentFrontpageSurvey(
       _root: void,
       _args: void,
       {currentUser, clientId, repos: {surveySchedules}}: ResolverContext,
     ): Promise<DbSurvey | null> {
-      if (!clientId) {
+      if (!hasSurveys || !clientId) {
         return null;
       }
       const survey = await surveySchedules.getCurrentFrontpageSurvey(
@@ -88,5 +89,5 @@ addGraphQLResolvers({
   },
 });
 
-addGraphQLQuery("getCurrentFrontpageSurvey: Survey");
+addGraphQLQuery("CurrentFrontpageSurvey: Survey");
 addGraphQLMutation("editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey");
