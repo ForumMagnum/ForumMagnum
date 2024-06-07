@@ -25,6 +25,7 @@ import { ObservableQuery, gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
+import { useSingle } from '@/lib/crud/withSingle';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -112,6 +113,9 @@ const styles = (theme: ThemeType) => ({
   },
   tagFilterSettingsButton: {
   },
+  subscribedAnnouncementPost: {
+    marginBottom: 10,
+  }
 });
 
 export const filterSettingsToggleLabels = {
@@ -263,9 +267,10 @@ const LWHomePosts = ({children, classes}: {
 ) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
+    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
 
   const { captureEvent } = useTracking() 
+
 
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -443,8 +448,16 @@ const LWHomePosts = ({children, classes}: {
     </AnalyticsContext>
   );
 
+  const { document: subscribedTabAnnouncementPost } = useSingle({
+    documentId: '5rygaBBH7B4LNqQkz', 
+    collectionName: 'Posts', 
+    fragmentName: 'PostsListWithVotes',
+    skip: selectedTab !== 'forum-subscribed-authors'
+  });
+
   const subscriptionSettingsElement = (
     <div className={settingsVisibileClassName}>
+      {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} />}
       <SuggestedFeedSubscriptions
         availableUsers={availableUsers}
         setAvailableUsers={setAvailableUsers}

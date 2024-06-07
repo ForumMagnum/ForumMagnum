@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    marginTop: 10,
+    marginTop: 6,
     background: theme.palette.panelBackground.recentDiscussionThread,
     borderRadius: 3,
     paddingTop: 12,
