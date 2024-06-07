@@ -3,6 +3,7 @@ import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { createMutator } from "../vulcan-lib";
+import { adminAccountSetting } from "@/lib/publicSettings";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
 export type DmTriggeringEvent = UnionOf<typeof dmTriggeringEvents>;
@@ -13,6 +14,8 @@ const followSubscriptionStartDate = forumSelect({
 })
 
 const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
+    const adminEmail = adminAccountSetting.get()?.email ?? "";
+
   switch (eventType) {
     case "newFollowSubscription":
       return {
@@ -21,7 +24,7 @@ const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
           <p>You just followed a user for the first time!</p>
           <p>The posts and comments of people you follow appear in your Subscribed Tab (tabs are on homepage above the posts list). (You will also see comments from other users that people you follow are responding to.)</p>
           <p>You can manage who you follow on the <a href="/manageSubscriptions">Manage Subscriptions page</a>.</p>
-          <p>Feel free to ask us questions via Intercom or <a href="mailto:team@lesswrong.com">email</a>. This is an automated message, but we're happy to help!</p>
+          <p>Feel free to ask us questions via Intercom or <a href="mailto:${adminEmail}">email</a>. This is an automated message, but we're happy to help!</p>
           <p>Happy following!</p>
         </div>`
       }
@@ -74,10 +77,10 @@ defineMutation({
         createdAt: {$gt: followSubscriptionStartDate}
       }).count();
 
-      if (numUsersFollows > 1) {
-        // already has followed and received a DM
-        return false;
-      }
+      // if (numUsersFollows > 1) {
+      //   // already has followed and received a DM
+      //   return false;
+      // }
     }
 
     const { title, message } = getTriggeredDmContents(eventType); 
