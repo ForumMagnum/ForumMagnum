@@ -133,15 +133,33 @@ merged into `ea-deploy` and `lw-deploy`.
 
 ## Deploying
 
-There are 3 basic components you need to deploy a ForumMagnum instance:
+The basic components you need to deploy a ForumMagnum instance:
 - A fork of this repo
 - A credentials repo (Note: you can get away with just a settings file, but a separate credentials repo is the pattern LessWrong and the EA Forum use)
 - A server
 - A database
+  - In the Railway project: New > Template > Search "pgvector" > Deploy this template
   - Execute schema against the db and run migrations
+    - PG_URL=postgres://postgres:[password]@viaduct.proxy.rlwy.net:22871/railway yarn exec-accepted-schema
+    - PG_URL=postgres://postgres:[password]@viaduct.proxy.rlwy.net:22871/railway SETTINGS_FILE=sample_settings.json yarn migrate up
+      - It was able to run with just the sample_settings.json file
+    - PG_URL=postgres://postgres:[password]@viaduct.proxy.rlwy.net:22871/railway yarn start-local-db will then run it aginst the Railway db (TODO maybe it shouldn't be called local, but just yarn start)
 - ElasticSearch
   - ...not mentioned in the readme so far
+- Authentication
 - (Not covered: DNS)
+
+Chronological steps for setting up on Railway:
+- Create database in Railway (can also create a local database, but may as well do it in Railway)
+- Bootstrap the database
+  - PG_URL=postgres://postgres:[password]@viaduct.proxy.rlwy.net:22871/railway yarn exec-accepted-schema
+  - PG_URL=postgres://postgres:[password]@viaduct.proxy.rlwy.net:22871/railway SETTINGS_FILE=sample_settings.json yarn migrate up
+- You do then need a settings file, run `cp sample_settings.json settings-dev.json` to create one for running locally
+- Then `PG_URL=postgres://postgres:DSQmlkmLw_~nG3iuC04krKcvpwALHRbq@viaduct.proxy.rlwy.net:22871/railway yarn start-local-db` will run the server locally, against the Railway db
+- To run remotely, create a credentials repo which has your settings file in it
+  - TODO try making it so the settings file can live not in a credentials repo (if the credentials repo is not given)
+  - TODO you also need to run the load script
+- Then you can create 
 
 We recommend you use [Railway](https://railway.app/), which can run the server 
 
