@@ -26,6 +26,7 @@ const PostsTooltip = ({
   children,
   pageElementContext,
   pageElementSubContext,
+  disabled,
   className,
 }: {
   post?: PostsList | SunshinePostsList | null,
@@ -44,6 +45,8 @@ const PostsTooltip = ({
   children?: ReactNode,
   pageElementContext?: string,
   pageElementSubContext?: string,
+  //bypasses the component and just returns the children
+  disabled?: boolean,
   className?: string,
 }) => {
   const renderTitle = useCallback(() => {
@@ -85,6 +88,12 @@ const PostsTooltip = ({
     }
     return null;
   }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
+
+  if (disabled) {
+    return <>
+    {children};
+    </>
+  }
 
   const {HoverOver} = Components;
   return (

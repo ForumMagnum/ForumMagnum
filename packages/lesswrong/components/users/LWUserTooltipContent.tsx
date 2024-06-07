@@ -102,6 +102,7 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
             key={post._id}
             post={post}
             hideAuthor
+            disableHoverPreview
           />
         )}
       </div>}
