@@ -19,10 +19,9 @@ const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
         title: "Congrats on your first follow!",
         message: `<div>
           <p>You just followed a user for the first time!</p>
-          <p>The posts and comments of people you follow appear in your Subscribed Tab feed on the homepage. (You will also see comments from other users that people you follow are responding to.)</p>
-          <br>
+          <p>The posts and comments of people you follow appear in your Subscribed Tab (tabs are on homepage above the posts list). (You will also see comments from other users that people you follow are responding to.)</p>
           <p>You can manage who you follow on the <a href="/manageSubscriptions">Manage Subscriptions page</a>.</p>
-          <p>Feel free to ask us questions via Intercom or email (team@lesswrong.com). This is an automated message, but we're happy to help!</p>
+          <p>Feel free to ask us questions via Intercom or <a href="mailto:team@lesswrong.com">email</a>. This is an automated message, but we're happy to help!</p>
           <p>Happy following!</p>
         </div>`
       }
@@ -46,7 +45,7 @@ defineMutation({
 defineMutation({
   name: "sendEventTriggeredDM",
   resultType: "Boolean!",
-  argTypes: "(userId: String!, eventType: String!)",
+  argTypes: "(eventType: String!)",
   fn: async (_, {eventType}: {eventType: string}, context) => {
 
     const { currentUser, Subscriptions, Conversations, Messages } = context;
@@ -71,7 +70,7 @@ defineMutation({
       //check if this is a user's first follow
       const numUsersFollows = await Subscriptions.find({
         userId: currentUser._id,
-        type: "NewActivityForFeed",
+        type: "newActivityForFeed",
         createdAt: {$gt: followSubscriptionStartDate}
       }).count();
 
