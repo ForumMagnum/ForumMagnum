@@ -217,6 +217,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postBody: {
     width: "max-content",
   },
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
+  },
   postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
@@ -683,7 +689,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
