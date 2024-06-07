@@ -20,7 +20,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, isAF } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
@@ -34,7 +34,6 @@ import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
-import { isAF } from '../../lib/instanceSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
