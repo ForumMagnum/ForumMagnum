@@ -227,11 +227,8 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
           />
         </div>
       </div>
-      <div 
-        className={classNames(classes.subscribeButton, classes.followButton)} 
-        onClick={() => handleSubscribeOrDismiss(user)}
-      >
-        <div>
+      <div className={classNames(classes.subscribeButton, classes.followButton)}>
+        <div onClick={() => handleSubscribeOrDismiss(user)}>
           Follow
         </div>
       </div>
