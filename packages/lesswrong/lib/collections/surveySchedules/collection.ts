@@ -4,7 +4,7 @@ import { getDefaultMutations } from "../../vulcan-core/default_mutations";
 import schema from "./schema";
 
 export const SurveySchedules = createCollection({
-  collectionName: "SurveySchedules" as CollectionNameString,
+  collectionName: "SurveySchedules",
   typeName: "SurveySchedule",
   schema,
   resolvers: getDefaultResolvers("SurveySchedules"),

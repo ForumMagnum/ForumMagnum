@@ -1,5 +1,4 @@
 import { arrayOfForeignKeysField, foreignKeyField } from "@/lib/utils/schemaUtils";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 
 const commonFields = ({nullable = false}: {
   nullable?: boolean,
@@ -11,13 +10,13 @@ const commonFields = ({nullable = false}: {
   nullable,
 });
 
-const surveyScheduleTargets = new TupleSet([
-  "allUsers",
-  "loggedInOnly",
-  "loggedOutOnly",
-] as const);
+const surveyScheduleTargets = [
+  {value: "allUsers", label: "All users"},
+  {value: "loggedInOnly", label: "Logged-in users only"},
+  {value: "loggedOutOnly", label: "Logged-out users only"},
+] as const;
 
-export type SurveyScheduleTarget = UnionOf<typeof surveyScheduleTargets>;
+export type SurveyScheduleTarget = typeof surveyScheduleTargets[number]["value"];
 
 const schema: SchemaType<"SurveySchedules"> = {
   surveyId: {
@@ -33,6 +32,7 @@ const schema: SchemaType<"SurveySchedules"> = {
   name: {
     ...commonFields(),
     type: String,
+    label: "Schedule name",
   },
   minKarma: {
     ...commonFields({nullable: true}),
@@ -45,21 +45,29 @@ const schema: SchemaType<"SurveySchedules"> = {
   target: {
     ...commonFields(),
     type: String,
-    allowedValues: Array.from(surveyScheduleTargets),
+    allowedValues: surveyScheduleTargets.map(({value}) => value),
     defaultValue: "allUsers",
+    control: "select",
+    form: {
+      options: () => surveyScheduleTargets,
+      hideClear: true,
+    },
   },
   startDate: {
     ...commonFields({nullable: true}),
     type: Date,
+    control: "datetime",
   },
   endDate: {
     ...commonFields({nullable: true}),
     type: Date,
+    control: "datetime",
   },
   deactivated: {
     ...commonFields(),
     type: Boolean,
     defaultValue: false,
+    optional: true,
   },
   clientIds: {
     ...commonFields(),
@@ -69,6 +77,7 @@ const schema: SchemaType<"SurveySchedules"> = {
       collectionName: "ClientIds",
       type: "ClientId"
     }),
+    hidden: true,
   },
   "clientIds.$": {
     type: String,

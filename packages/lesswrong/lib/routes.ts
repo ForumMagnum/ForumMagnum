@@ -1667,6 +1667,20 @@ if (hasSurveys) {
       title: "Edit survey",
       isAdmin: true,
     },
+    {
+      name: "newSurveySchedule",
+      path: "/surveySchedule",
+      componentName: "SurveyScheduleEditPage",
+      title: "New survey schedule",
+      isAdmin: true,
+    },
+    {
+      name: "editSurveySchedule",
+      path: "/surveySchedule/:id",
+      componentName: "SurveyScheduleEditPage",
+      title: "Edit survey schedule",
+      isAdmin: true,
+    },
   );
 }
 

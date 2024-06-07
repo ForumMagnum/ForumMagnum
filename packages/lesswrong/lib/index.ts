@@ -335,6 +335,7 @@ import "./collections/surveyQuestions/fragments";
 import "./collections/surveyResponses/collection";
 import "./collections/surveySchedules/collection";
 import "./collections/surveySchedules/fragments";
+import "./collections/surveySchedules/views";
 
 // Alignment Forum
 import './alignment-forum/permissions';

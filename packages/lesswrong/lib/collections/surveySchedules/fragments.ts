@@ -3,6 +3,7 @@ import { registerFragment } from "@/lib/vulcan-lib";
 registerFragment(`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
+    surveyId
     survey {
       ...SurveyMinimumInfo
     }
@@ -13,5 +14,6 @@ registerFragment(`
     startDate
     endDate
     deactivated
+    createdAt
   }
 `);

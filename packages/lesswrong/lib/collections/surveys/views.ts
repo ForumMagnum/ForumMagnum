@@ -1,4 +1,4 @@
-import Surveys from "./collection"
+import Surveys from "./collection";
 
 declare global {
   interface SurveysViewTerms extends ViewTermsBase {
@@ -6,9 +6,8 @@ declare global {
   }
 }
 
-Surveys.addView("surveysByCreatedAt", function (_terms: SurveysViewTerms) {
+Surveys.addView("surveysByCreatedAt", (_terms: SurveysViewTerms) => {
   return {
-    selector: {},
     options: {
       sort: {
         createdAt: -1,

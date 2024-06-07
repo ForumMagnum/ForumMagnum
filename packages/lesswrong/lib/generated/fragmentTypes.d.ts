@@ -929,6 +929,10 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly rightFlipped: boolean,
 }
 
+interface SurveysDefaultFragment { // fragment on Surveys
+  readonly name: string,
+}
+
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly userId: string,
   readonly documentId: string,
@@ -3858,10 +3862,6 @@ interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly rightFlipped: boolean,
 }
 
-interface SurveysDefaultFragment { // fragment on Surveys
-  readonly name: string,
-}
-
 interface SurveyMinimumInfo { // fragment on Surveys
   readonly _id: string,
   readonly name: string,
@@ -3904,6 +3904,7 @@ interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
 
 interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly _id: string,
+  readonly surveyId: string,
   readonly survey: SurveyMinimumInfo,
   readonly name: string,
   readonly minKarma: number | null,
@@ -3912,6 +3913,7 @@ interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly startDate: Date | null,
   readonly endDate: Date | null,
   readonly deactivated: boolean,
+  readonly createdAt: Date,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -3960,6 +3962,7 @@ interface FragmentTypes {
   ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
+  SurveysDefaultFragment: SurveysDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
@@ -4184,7 +4187,6 @@ interface FragmentTypes {
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinates: SplashArtCoordinates
-  SurveysDefaultFragment: SurveysDefaultFragment
   SurveyMinimumInfo: SurveyMinimumInfo
   SurveyQuestionsDefaultFragment: SurveyQuestionsDefaultFragment
   SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
@@ -4222,6 +4224,7 @@ interface FragmentTypesByCollection {
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
+  Surveys: "SurveysDefaultFragment"|"SurveyMinimumInfo"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -4258,7 +4261,6 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
-  Surveys: "SurveysDefaultFragment"|"SurveyMinimumInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"
   SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"
@@ -4293,6 +4295,7 @@ interface CollectionNamesByFragmentName {
   ReviewWinnersDefaultFragment: "ReviewWinners"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
+  SurveysDefaultFragment: "Surveys"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
@@ -4517,7 +4520,6 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinates: "SplashArtCoordinates"
-  SurveysDefaultFragment: "Surveys"
   SurveyMinimumInfo: "Surveys"
   SurveyQuestionsDefaultFragment: "SurveyQuestions"
   SurveyQuestionMinimumInfo: "SurveyQuestions"

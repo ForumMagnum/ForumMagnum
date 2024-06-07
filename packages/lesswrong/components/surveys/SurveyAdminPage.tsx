@@ -1,8 +1,8 @@
 import React, { FormEvent, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
-import { useMulti } from "@/lib/crud/withMulti";
 import { useCreate } from "@/lib/crud/withCreate";
+import { useMulti } from "@/lib/crud/withMulti";
 import { Link } from "@/lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
@@ -25,7 +25,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 16,
   },
   link: {
-    display: "block",
     color: theme.palette.primary.main,
     fontWeight: 500,
   },
@@ -43,7 +42,12 @@ const SurveysEditor = ({classes}: {
   const [showCreateSurveyModal, setShowCreateSurveyModal] = useState(false);
   const [newSurveyName, setNewSurveyName] = useState("");
 
-  const {results: surveys, loading: loadingSurveys, refetch} = useMulti({
+  const {
+    results: surveys,
+    loading: loadingSurveys,
+    loadMoreProps: loadMoreSurveysProps,
+    refetch: refetchSurveys,
+  } = useMulti({
     collectionName: "Surveys",
     fragmentName: "SurveyMinimumInfo",
     terms: {
@@ -60,6 +64,18 @@ const SurveysEditor = ({classes}: {
     fragmentName: "SurveyMinimumInfo",
   });
 
+  const {
+    results: surveySchedules,
+    loading: loadingSurveySchedules,
+    loadMoreProps: loadMoreSurveySchedulesProps,
+  } = useMulti({
+    collectionName: "SurveySchedules",
+    fragmentName: "SurveyScheduleMinimumInfo",
+    terms: {
+      view: "surveySchedulesByCreatedAt",
+    },
+  });
+
   const onOpenCreateSurveyModal = useCallback(() => {
     setShowCreateSurveyModal(true);
   }, []);
@@ -74,10 +90,10 @@ const SurveysEditor = ({classes}: {
         name: newSurveyName,
       },
     });
-    await refetch();
+    await refetchSurveys();
     setNewSurveyName("");
     setShowCreateSurveyModal(false);
-  }, [createSurvey, refetch, newSurveyName]);
+  }, [createSurvey, refetchSurveys, newSurveyName]);
 
   const onNewSurveySubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -88,31 +104,59 @@ const SurveysEditor = ({classes}: {
 
   const {
     SingleColumnSection, SectionTitle, Loading, EAButton, FormatDate,
-    BlurredBackgroundModal, EAOnboardingInput,
+    BlurredBackgroundModal, EAOnboardingInput, LoadMore,
   } = Components;
   return (
     <SingleColumnSection className={classes.root}>
+
       <SectionTitle title="Surveys" />
       {!!surveys && surveys.length > 0 &&
         <div className={classes.surveyList}>
-          {surveys?.map((s) =>
-            <Link
-              key={s._id}
-              to={`/survey/${s._id}/edit`}
-              className={classes.link}
-            >
-              {s.name} (<FormatDate date={s.createdAt} includeAgo />)
-            </Link>
+          {surveys.map(({_id, name, createdAt}) =>
+            <div key={_id}>
+              <Link
+                to={`/survey/${_id}/edit`}
+                className={classes.link}
+              >
+                {name} (<FormatDate date={createdAt} includeAgo />)
+              </Link>
+            </div>
           )}
         </div>
       }
       {!loadingSurveys && !!surveys && surveys.length < 1 &&
         <div className={classes.secondaryText}>No surveys found</div>
       }
+      <LoadMore {...loadMoreSurveysProps} />
       {loadingSurveys && <Loading />}
       <EAButton onClick={onOpenCreateSurveyModal}>
         New survey
       </EAButton>
+
+      <SectionTitle title="Survey schedules" />
+      {!!surveySchedules && surveySchedules.length > 0 &&
+        <div className={classes.surveyList}>
+          {surveySchedules.map(({_id, name, survey, createdAt}) =>
+            <div key={_id}>
+              <Link
+                to={`/surveySchedule/${_id}`}
+                className={classes.link}
+              >
+                {name} ({survey.name}) (<FormatDate date={createdAt} includeAgo />)
+              </Link>
+            </div>
+          )}
+        </div>
+      }
+      {!loadingSurveySchedules && !!surveySchedules && surveySchedules.length < 1 &&
+        <div className={classes.secondaryText}>No survey schedules found</div>
+      }
+      <LoadMore {...loadMoreSurveySchedulesProps} />
+      {loadingSurveySchedules && <Loading />}
+      <EAButton href="/surveySchedule">
+        New survey schedule
+      </EAButton>
+
       <BlurredBackgroundModal
         open={showCreateSurveyModal}
         onClose={onCloseCreateSurveyModal}
