@@ -131,6 +131,34 @@ It will start out with an empty database. (This means that some of the hardcoded
 Branch off of `master` and submit to `master`. Deploys occur when `master` is
 merged into `ea-deploy` and `lw-deploy`.
 
+## Deploying
+
+There are 3 basic components you need to deploy a ForumMagnum instance:
+- A fork of this repo
+- A credentials repo (Note: you can get away with just a settings file, but a separate credentials repo is the pattern LessWrong and the EA Forum use)
+- A server
+- A database
+  - Execute schema against the db and run migrations
+- ElasticSearch
+  - ...not mentioned in the readme so far
+- (Not covered: DNS)
+
+We recommend you use [Railway](https://railway.app/), which can run the server 
+
+### Server
+
+#### Railway
+
+- Need to use at least Hobby plan ($5/mo) to get enough RAM
+
+#### Elastic Beanstalk
+
+[Elastic Beanstalk](https://aws.amazon.com/elasticbeanstalk/) is what LessWrong and the EA Forum run on. This is largely for historical reasons, and we don't recommend you use it if you are aiming to set up a low-maintenance instance. It does provide more control over the exact hardware used so can be better for performance.
+
+### Database
+
+Any postgres database will with [pgvector](https://github.com/pgvector/pgvector) support will work
+
 ## Documentation
 
 ### Read the Docs

@@ -22,7 +22,7 @@ const [opts, args] = cliopts.parse(
   ["lint", "Run the linter on site refresh"],
 );
 
-const defaultServerPort = 3000;
+const defaultServerPort = process.env.IS_DOCKER ? 8080 : 3000;
 
 const getServerPort = () => {
   if (opts.command) {
