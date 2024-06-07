@@ -11,7 +11,7 @@ const commonFields = ({nullable = false}: {
 });
 
 export const surveyQuestionFormats = {
-  rank1To10: "Rank 1-10",
+  rank0To10: "Rank 0-10",
   text: "Text",
   multilineText: "Multiline text",
 } as const;

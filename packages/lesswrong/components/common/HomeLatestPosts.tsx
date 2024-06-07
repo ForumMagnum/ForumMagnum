@@ -125,6 +125,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
     CuratedPostsList, SectionTitle, StickiedPosts, PostsListViewToggle,
+    SurveyPostsItem,
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
@@ -206,6 +207,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
+          {survey && <SurveyPostsItem survey={survey} />}
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>

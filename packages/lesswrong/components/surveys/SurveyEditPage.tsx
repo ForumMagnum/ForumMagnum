@@ -149,7 +149,7 @@ const SurveyForm = ({survey, refetch, classes}: {
   const onAddQuestion = useCallback(() => {
     setQuestions((questions) => [...questions, {
       question: "New question?",
-      format: "rank1To10",
+      format: "rank0To10",
     }]);
   }, []);
 

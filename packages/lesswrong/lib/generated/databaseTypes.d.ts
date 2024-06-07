@@ -1211,7 +1211,7 @@ interface DbSurveyQuestion extends DbObject {
   __collectionName?: "SurveyQuestions"
   surveyId: string
   question: string
-  format: "rank1To10" | "text" | "multilineText"
+  format: "rank0To10" | "text" | "multilineText"
   order: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
