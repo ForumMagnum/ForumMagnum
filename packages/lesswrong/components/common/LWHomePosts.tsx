@@ -341,6 +341,7 @@ const LWHomePosts = ({children, classes}: {
     }
   }, [refetchSubscriptionContentRef]);
 
+  // TODO: refactor to pass this through SuggestedFeedSubscriptions > FollowUserSearch instead of calling it there, if we keep it here
   const { results: userSubscriptions } = useMulti({
     terms: {
       view: "subscriptionsOfType",
