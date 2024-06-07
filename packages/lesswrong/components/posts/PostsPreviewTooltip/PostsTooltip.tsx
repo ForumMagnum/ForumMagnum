@@ -91,9 +91,9 @@ const PostsTooltip = ({
 
   if (disabled) {
     return <>
-    {children};
+    {children}
     </>
-  }
+  };
 
   const {HoverOver} = Components;
   return (
