@@ -121,30 +121,6 @@ export const filterSettingsToggleLabels = {
   mobileHidden: "Customize",
 };
 
-const subscribedFeedProps = {
-  resolverName: 'SubscribedFeed',
-  firstPageSize: 10,
-  pageSize: 20,
-  sortKeyType: 'Date',
-  reorderOnRefetch: true,
-  renderers: {
-    postCommented: {
-      fragmentName: "SubscribedPostAndCommentsFeed",
-      render: (postCommented: SubscribedPostAndCommentsFeed) => {
-        const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
-        return <Components.FeedPostCommentsCard
-          key={postCommented.post._id}
-          post={postCommented.post}
-          comments={postCommented.comments}
-          maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
-          refetch={() => {} /* TODO */}
-          commentTreeOptions={{ expandOnlyCommentIds }}
-        />
-      },
-    }
-  }
-} as const;
-
 const advancedSortingText = "Advanced Sorting/Filtering";
 
 const defaultLimit = 13;
@@ -365,6 +341,43 @@ const LWHomePosts = ({children, classes}: {
     }
   }, [refetchSubscriptionContentRef]);
 
+  const { results: userSubscriptions } = useMulti({
+    terms: {
+      view: "subscriptionsOfType",
+      userId: currentUser?._id,
+      collectionName: "Users",
+      subscriptionType: "newActivityForFeed",
+      limit: 1000
+    },
+    collectionName: "Subscriptions",
+    fragmentName: "SubscriptionState",
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
+  });
+
+  const subscribedFeedProps = {
+    resolverName: 'SubscribedFeed',
+    firstPageSize: 10,
+    pageSize: 20,
+    sortKeyType: 'Date',
+    reorderOnRefetch: true,
+    renderers: {
+      postCommented: {
+        fragmentName: "SubscribedPostAndCommentsFeed",
+        render: (postCommented: SubscribedPostAndCommentsFeed) => {
+          const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
+          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ userId }) => userId)) : undefined;
+          return <Components.FeedPostCommentsCard
+            key={postCommented.post._id}
+            post={postCommented.post}
+            comments={postCommented.comments}
+            maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
+            refetch={() => {} /* TODO */}
+            commentTreeOptions={{ expandOnlyCommentIds, deemphasizeCommentsExcludingUserIds }}
+          />
+        },
+      }
+    }
+  } as const;
 
   /* Intended behavior for filter settings button visibility:
   - DESKTOP
