@@ -4,6 +4,7 @@ import { truncate } from '../../lib/editor/ellipsize';
 import { useMulti } from '@/lib/crud/withMulti';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';
+import { commentBodyStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,7 +46,8 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.3rem",
   },
   bioText: {
-    fontSize: "1.1rem",
+    ...commentBodyStyles(theme),
+    marginTop: 0
   },
   posts: {
     marginTop: 8,
