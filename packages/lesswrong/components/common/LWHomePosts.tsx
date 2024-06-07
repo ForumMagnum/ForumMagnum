@@ -366,7 +366,7 @@ const LWHomePosts = ({children, classes}: {
         fragmentName: "SubscribedPostAndCommentsFeed",
         render: (postCommented: SubscribedPostAndCommentsFeed) => {
           const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
-          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ userId }) => userId)) : undefined;
+          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ documentId }) => documentId)) : undefined;
           return <Components.FeedPostCommentsCard
             key={postCommented.post._id}
             post={postCommented.post}
