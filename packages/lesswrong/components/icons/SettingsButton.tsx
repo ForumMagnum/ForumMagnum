@@ -57,11 +57,11 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
 
   if (label) {
     return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
-      {showIcon && <ForumIcon icon={iconType} className={classNames(classes.icon, classes.iconWithLabel, {[classes.rotate180]: useChevron==='up'})}/>}
+      {showIcon && <ForumIcon icon={iconType} className={classNames(classes.icon, classes.iconWithLabel, {[classes.rotate180]: useArrow==='up'})}/>}
       <span className={classNames(classes.label, {[classes.textShadow]: textShadow})}>{ label }</span>
     </span>
   }
-  return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useChevron==='up'})} onClick={onClick}/>
+  return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
 }
 
 const SettingsButtonComponent = registerComponent('SettingsButton', SettingsButton, {
