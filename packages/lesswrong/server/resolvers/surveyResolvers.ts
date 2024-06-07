@@ -1,12 +1,13 @@
 import {
+  addGraphQLQuery,
   addGraphQLMutation,
   addGraphQLResolvers,
   addGraphQLSchema,
 } from "@/lib/vulcan-lib";
 import { createMutator, updateMutator } from "../vulcan-lib";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import SurveyQuestions from "@/lib/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
-import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 addGraphQLSchema(`
   input SurveyQuestionInfo {
@@ -23,12 +24,32 @@ type EditSurveyArgs = {
 }
 
 addGraphQLResolvers({
+  Query: {
+    async getCurrentFrontpageSurvey(
+      _root: void,
+      _args: void,
+      {currentUser, clientId, repos: {surveySchedules}}: ResolverContext,
+    ): Promise<DbSurvey | null> {
+      if (!clientId) {
+        return null;
+      }
+      const survey = await surveySchedules.getCurrentFrontpageSurvey(
+        currentUser,
+        clientId,
+      );
+      if (survey) {
+        void surveySchedules.assignClientToSurveySchedule(survey._id, clientId);
+        return survey.survey;
+      }
+      return null;
+    },
+  },
   Mutation: {
     async editSurvey(
       _root: void,
       {surveyId, name, questions}: EditSurveyArgs,
       context: ResolverContext,
-    ) {
+    ): Promise<DbSurvey> {
       const {currentUser} = context;
       if (!currentUser?.isAdmin) {
         throw new Error("Permission denied");
@@ -67,4 +88,5 @@ addGraphQLResolvers({
   },
 });
 
+addGraphQLQuery("getCurrentFrontpageSurvey: Survey");
 addGraphQLMutation("editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey");
