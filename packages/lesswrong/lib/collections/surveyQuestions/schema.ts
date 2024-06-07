@@ -1,5 +1,4 @@
 import { foreignKeyField } from "@/lib/utils/schemaUtils";
-import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 
 const commonFields = ({nullable = false}: {
   nullable?: boolean,
@@ -11,13 +10,13 @@ const commonFields = ({nullable = false}: {
   nullable,
 });
 
-const surveyQuestionFormats = new TupleSet([
-  "rank1-10",
-  "text",
-  "multilineText",
-] as const);
+export const surveyQuestionFormats = {
+  rank1To10: "Rank 1-10",
+  text: "Text",
+  multilineText: "Multiline text",
+} as const;
 
-export type SurveyQuestionFormat = UnionOf<typeof surveyQuestionFormats>;
+export type SurveyQuestionFormat = keyof typeof surveyQuestionFormats;
 
 const schema: SchemaType<"SurveyQuestions"> = {
   surveyId: {
@@ -37,7 +36,7 @@ const schema: SchemaType<"SurveyQuestions"> = {
   format: {
     ...commonFields(),
     type: String,
-    allowedValues: Array.from(surveyQuestionFormats),
+    allowedValues: Object.keys(surveyQuestionFormats),
   },
   order: {
     ...commonFields(),

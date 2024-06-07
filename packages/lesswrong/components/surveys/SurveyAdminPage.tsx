@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   surveyList: {
     display: "flex",
     flexDirection: "column",
-    gap: "8px",
+    gap: "6px",
     marginBottom: 16,
   },
   link: {
@@ -33,11 +33,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   error: {
-    color: theme.palette.text.error,
+    color: theme.palette.text.error2,
   },
 });
 
-const SurveyEditor = ({classes}: {
+const SurveysEditor = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const [showCreateSurveyModal, setShowCreateSurveyModal] = useState(false);
@@ -150,7 +150,7 @@ const SurveyAdminPage = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   return currentUser?.isAdmin
-    ? <SurveyEditor classes={classes} />
+    ? <SurveysEditor classes={classes} />
     : <Components.Error404 />;
 }
 

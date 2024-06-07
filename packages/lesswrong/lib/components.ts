@@ -1130,6 +1130,7 @@ importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 
 // Surveys
 importComponent("SurveyAdminPage", () => require('../components/surveys/SurveyAdminPage'));
+importComponent("SurveyEditPage", () => require('../components/surveys/SurveyEditPage'));
 
 // People directory
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));

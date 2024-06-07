@@ -28,6 +28,7 @@ export const EAOnboardingInput = ({
   As="input",
   rows,
   inputRef,
+  disabled,
   className,
   classes,
 }: {
@@ -37,6 +38,7 @@ export const EAOnboardingInput = ({
   As?: "input" | "textarea",
   rows?: number,
   inputRef?: RefObject<HTMLInputElement> | RefObject<HTMLTextAreaElement>,
+  disabled?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -53,6 +55,7 @@ export const EAOnboardingInput = ({
       placeholder={placeholder}
       rows={rows}
       ref={inputRef as AnyBecauseHard}
+      disabled={disabled}
       className={classNames(classes.root, className)}
     />
   );

@@ -9,7 +9,7 @@ import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, 
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
-import { hasPostRecommendations } from './betas';
+import { hasPostRecommendations, hasSurveys } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
@@ -763,13 +763,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAForumWrappedPage',
       title: 'EA Forum Wrapped',
       noFooter: true,
-    },
-    {
-      name: "Surveys",
-      path: "/admin/surveys",
-      componentName: "SurveyAdminPage",
-      title: "Surveys",
-      isAdmin: true,
     },
     {
       name: 'Digests',
@@ -1657,5 +1650,24 @@ addRoute(
     isAdmin: true,
   }
 );
+
+if (hasSurveys) {
+  addRoute(
+    {
+      name: "surveys",
+      path: "/admin/surveys",
+      componentName: "SurveyAdminPage",
+      title: "Surveys",
+      isAdmin: true,
+    },
+    {
+      name: "editSurvey",
+      path: "/survey/:id/edit",
+      componentName: "SurveyEditPage",
+      title: "Edit survey",
+      isAdmin: true,
+    },
+  );
+}
 
 forumSpecificRoutes();

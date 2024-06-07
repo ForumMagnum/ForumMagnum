@@ -3872,14 +3872,14 @@ interface SurveyMinimumInfo { // fragment on Surveys
 interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
   readonly surveyId: string,
   readonly question: string,
-  readonly format: "rank1-10" | "text" | "multilineText",
+  readonly format: "rank1To10" | "text" | "multilineText",
   readonly order: number,
 }
 
 interface SurveyQuestionMinimumInfo { // fragment on SurveyQuestions
   readonly _id: string,
   readonly question: string,
-  readonly format: "rank1-10" | "text" | "multilineText",
+  readonly format: "rank1To10" | "text" | "multilineText",
   readonly order: number,
 }
 

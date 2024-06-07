@@ -12,7 +12,7 @@ const schema: SchemaType<"Surveys"> = {
   },
   questions: resolverOnlyField({
     type: Array,
-    graphQLtype: "[SurveyQuestion]",
+    graphQLtype: "[SurveyQuestion!]!",
     canRead: ["guests"],
     resolver: async (survey: DbSurvey, _args: void, context: ResolverContext) => {
       const {currentUser, SurveyQuestions} = context;
@@ -24,12 +24,15 @@ const schema: SchemaType<"Surveys"> = {
         "surveyId",
         survey._id,
       );
-      return accessFilterMultiple(currentUser, SurveyQuestions, questions, context);
+      const ordered = questions.sort((a, b) => a.order - b.order);
+      return accessFilterMultiple(currentUser, SurveyQuestions, ordered, context);
     },
     sqlResolver: ({field}) => `(
       SELECT ARRAY_AGG(ROW_TO_JSON(sq.*))
       FROM "SurveyQuestions" sq
       WHERE sq."surveyId" = ${field("_id")}
+      GROUP BY sq."order"
+      ORDER BY sq."order" DESC
     )`,
   }),
   "questions.$": {
