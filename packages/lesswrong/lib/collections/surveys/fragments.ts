@@ -4,6 +4,9 @@ registerFragment(`
   fragment SurveyMinimumInfo on Survey {
     _id
     name
-    questions
+    questions {
+      ...SurveyQuestionMinimumInfo
+    }
+    createdAt
   }
 `);

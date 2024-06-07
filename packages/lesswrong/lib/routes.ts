@@ -765,6 +765,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       noFooter: true,
     },
     {
+      name: "Surveys",
+      path: "/admin/surveys",
+      componentName: "SurveyAdminPage",
+      title: "Surveys",
+      isAdmin: true,
+    },
+    {
       name: 'Digests',
       path: '/admin/digests',
       componentName: 'Digests',

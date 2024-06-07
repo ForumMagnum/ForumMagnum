@@ -329,6 +329,7 @@ import './collections/recommendationsCaches/collection';
 // Surveys
 import "./collections/surveys/collection";
 import "./collections/surveys/fragments";
+import "./collections/surveys/views";
 import "./collections/surveyQuestions/collection";
 import "./collections/surveyQuestions/fragments";
 import "./collections/surveyResponses/collection";

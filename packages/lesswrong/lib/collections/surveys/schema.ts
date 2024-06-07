@@ -11,7 +11,7 @@ const schema: SchemaType<"Surveys"> = {
     canUpdate: ["admins"],
   },
   questions: resolverOnlyField({
-    type: "[SurveyQuestion]",
+    type: Array,
     graphQLtype: "[SurveyQuestion]",
     canRead: ["guests"],
     resolver: async (survey: DbSurvey, _args: void, context: ResolverContext) => {
@@ -26,15 +26,15 @@ const schema: SchemaType<"Surveys"> = {
       );
       return accessFilterMultiple(currentUser, SurveyQuestions, questions, context);
     },
-    sqlResolver: ({field, join}) => join({
-      table: "SurveyQuestions",
-      type: "left",
-      on: {
-        surveyId: field("_id"),
-      },
-      resolver: (surveyQuestionsField) => surveyQuestionsField("*"),
-    }),
+    sqlResolver: ({field}) => `(
+      SELECT ARRAY_AGG(ROW_TO_JSON(sq.*))
+      FROM "SurveyQuestions" sq
+      WHERE sq."surveyId" = ${field("_id")}
+    )`,
   }),
+  "questions.$": {
+    type: "SurveyQuestion",
+  },
 };
 
 export default schema;

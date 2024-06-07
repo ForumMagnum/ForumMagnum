@@ -3858,14 +3858,15 @@ interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly rightFlipped: boolean,
 }
 
-interface SurveysDefaultFragment { // fragment on non-collection type
-  readonly name: any,
+interface SurveysDefaultFragment { // fragment on Surveys
+  readonly name: string,
 }
 
-interface SurveyMinimumInfo { // fragment on non-collection type
-  readonly _id: any,
-  readonly name: any,
-  readonly questions: any,
+interface SurveyMinimumInfo { // fragment on Surveys
+  readonly _id: string,
+  readonly name: string,
+  readonly questions: Array<SurveyQuestionMinimumInfo>,
+  readonly createdAt: Date,
 }
 
 interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
@@ -4257,7 +4258,7 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
-  Surveies: "SurveysDefaultFragment"|"SurveyMinimumInfo"
+  Surveys: "SurveysDefaultFragment"|"SurveyMinimumInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"
   SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"
@@ -4516,8 +4517,8 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinates: "SplashArtCoordinates"
-  SurveysDefaultFragment: never
-  SurveyMinimumInfo: never
+  SurveysDefaultFragment: "Surveys"
+  SurveyMinimumInfo: "Surveys"
   SurveyQuestionsDefaultFragment: "SurveyQuestions"
   SurveyQuestionMinimumInfo: "SurveyQuestions"
   SurveyResponsesDefaultFragment: "SurveyResponses"
