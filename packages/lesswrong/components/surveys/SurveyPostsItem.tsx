@@ -98,9 +98,16 @@ const QuestionReponse = ({format, onRespond, classes}: {
   }
 }
 
-const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: {
+const SurveyPostsItemInternal = ({
+  survey,
+  surveyScheduleId,
+  refetchSurvey,
+  collapse,
+  classes,
+}: {
   survey: SurveyMinimumInfo,
   surveyScheduleId?: string,
+  refetchSurvey?: () => Promise<void>,
   collapse: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -153,6 +160,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
         surveyScheduleId,
         response,
       });
+      void refetchSurvey?.();
       collapse();
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -161,6 +169,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
     }
   }, [
     collapse,
+    refetchSurvey,
     captureEvent,
     survey._id,
     surveyScheduleId,
@@ -291,9 +300,10 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
   );
 }
 
-const SurveyPostsItem = ({survey, surveyScheduleId, classes}: {
+const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   survey: SurveyMinimumInfo,
   surveyScheduleId?: string,
+  refetchSurvey?: () => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -304,6 +314,7 @@ const SurveyPostsItem = ({survey, surveyScheduleId, classes}: {
         <SurveyPostsItemInternal
           survey={survey}
           surveyScheduleId={surveyScheduleId}
+          refetchSurvey={refetchSurvey}
           collapse={collapse}
           classes={classes}
         />

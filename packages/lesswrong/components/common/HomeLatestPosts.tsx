@@ -155,7 +155,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
-  const {survey} = useCurrentFrontpageSurvey();
+  const {survey, refetch: refetchSurvey} = useCurrentFrontpageSurvey();
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -208,7 +208,11 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
           {survey &&
-            <SurveyPostsItem survey={survey.survey} surveyScheduleId={survey._id} />
+            <SurveyPostsItem
+              survey={survey.survey}
+              surveyScheduleId={survey._id}
+              refetchSurvey={refetchSurvey}
+            />
           }
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
