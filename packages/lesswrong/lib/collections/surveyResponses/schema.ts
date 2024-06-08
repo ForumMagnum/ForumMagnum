@@ -22,6 +22,16 @@ const schema: SchemaType<"SurveyResponses"> = {
       nullable: false,
     }),
   },
+  surveyScheduleId: {
+    ...commonFields(),
+    ...foreignKeyField({
+      idFieldName: "surveyScheduleId",
+      resolverName: "surveySchedule",
+      collectionName: "SurveySchedules",
+      type: "SurveySchedule",
+      nullable: true,
+    }),
+  },
   userId: {
     ...commonFields(),
     ...foreignKeyField({

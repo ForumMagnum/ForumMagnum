@@ -37,8 +37,8 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
       JOIN "Surveys" s ON
         s."_id" = ss."surveyId"
       LEFT JOIN "SurveyResponses" sr ON
-        sr."surveyId" = ss."surveyId" AND
-        sr."clientId" = $2
+        sr."surveyScheduleId" = ss."_id" AND
+        (sr."clientId" = $2 OR (sr."userId" IS NOT NULL AND sr."userId" = $3))
       ${userJoin}
       WHERE
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND

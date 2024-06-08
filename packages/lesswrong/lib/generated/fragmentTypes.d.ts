@@ -3897,6 +3897,7 @@ interface SurveyQuestionMinimumInfo { // fragment on SurveyQuestions
 
 interface SurveyResponsesDefaultFragment { // fragment on SurveyResponses
   readonly surveyId: string,
+  readonly surveyScheduleId: string,
   readonly userId: string,
   readonly clientId: string,
   readonly response: any /*{"definitions":[{"blackbox":true}]}*/,

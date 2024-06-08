@@ -1222,6 +1222,7 @@ type SurveyResponsesCollection = CollectionBase<"SurveyResponses">;
 interface DbSurveyResponse extends DbObject {
   __collectionName?: "SurveyResponses"
   surveyId: string
+  surveyScheduleId: string
   userId: string
   clientId: string
   response: any /*{"definitions":[{"blackbox":true}]}*/
