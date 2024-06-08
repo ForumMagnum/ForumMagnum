@@ -115,7 +115,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
     CLIENT_ID_COOKIE,
   ]);
   const clientId = cookies[CLIENT_ID_COOKIE];
-  const hideSurveyScheduleIds = cookies[HIDE_SURVEY_SCHEDULE_IDS] || [];
+  const hideSurveyScheduleIds = cookies[HIDE_SURVEY_SCHEDULE_IDS];
 
   const onToggleMenu = useCallback(() => {
     setIsOpen((open) => {
@@ -196,7 +196,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
   const onDismiss = useCallback(() => {
     setCookie(
       HIDE_SURVEY_SCHEDULE_IDS,
-      [...hideSurveyScheduleIds, surveyScheduleId],
+      [...(hideSurveyScheduleIds || []), surveyScheduleId],
     );
     captureEvent("surveyDismiss", {
       surveyId: survey._id,
