@@ -103,17 +103,19 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
   collapse: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const [cookies, setCookie] = useCookiesWithConsent([
-    HIDE_SURVEY_SCHEDULE_IDS,
-    CLIENT_ID_COOKIE,
-  ]);
-  const clientId = cookies[CLIENT_ID_COOKIE];
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [responses, setResponses] = useState<Record<string, QuestionResponse>>({});
+  const [_, setResponses] = useState<Record<string, QuestionResponse>>({});
+
+  const [cookies, setCookie] = useCookiesWithConsent([
+    HIDE_SURVEY_SCHEDULE_IDS,
+    CLIENT_ID_COOKIE,
+  ]);
+  const clientId = cookies[CLIENT_ID_COOKIE];
+  const hideSurveyScheduleIds = cookies[HIDE_SURVEY_SCHEDULE_IDS] || [];
 
   const onToggleMenu = useCallback(() => {
     setIsOpen((open) => {
@@ -147,7 +149,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
       captureEvent("surveySubmit", {
         surveyId: survey._id,
         surveyScheduleId,
-        responses,
+        response,
       });
       collapse();
     } catch (e) {
@@ -194,14 +196,13 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
   const onDismiss = useCallback(() => {
     setCookie(
       HIDE_SURVEY_SCHEDULE_IDS,
-      [...(cookies[HIDE_SURVEY_SCHEDULE_IDS] || []), surveyScheduleId]
+      [...hideSurveyScheduleIds, surveyScheduleId],
     );
-    // TODO: Dismiss
     captureEvent("surveyDismiss", {
       surveyId: survey._id,
       surveyScheduleId,
     });
-  }, [captureEvent, survey._id, surveyScheduleId]);
+  }, [captureEvent, survey._id, surveyScheduleId, hideSurveyScheduleIds, setCookie]);
 
   const onOptOut = useCallback(() => {
     // TODO: Opt-out
