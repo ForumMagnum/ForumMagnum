@@ -41,16 +41,30 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
         (sr."clientId" = $2 OR (sr."userId" IS NOT NULL AND sr."userId" = $3))
       ${userJoin}
       WHERE
+        -- Check the schedule is currently running
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND
         (ss."startDate" IS NULL OR ss."startDate" < CURRENT_TIMESTAMP) AND
         ss."deactivated" IS NOT TRUE AND
+        -- Check the user meets karma requirements
         ${karmaClause}
+        -- Check the user is in the target group
         CASE ss."target"
           WHEN 'loggedInOnly' THEN $1
           WHEN 'loggedOutOnly' THEN NOT $1
           ELSE TRUE
         END AND
-        sr."_id" IS NULL
+        -- Check the user hasn't already responsed to this schedule
+        sr."_id" IS NULL AND
+        -- Check the user hasn't responded to any scheduled survey in the last week
+        NOT EXISTS (
+          SELECT 1
+          FROM "SurveyResponses"
+          WHERE
+            ("clientId" = $2 OR ("userId" IS NOT NULL AND "userId" = $3)) AND
+            "createdAt" + '1 week'::INTERVAL > CURRENT_TIMESTAMP AND
+            "surveyScheduleId" IS NOT NULL
+          LIMIT 1
+        )
       ORDER BY
         ss."clientIds" @> ('{' || $2 || '}')::VARCHAR[] DESC,
         "endDate" ASC,
