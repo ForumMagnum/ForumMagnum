@@ -6,6 +6,8 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import range from "lodash/range";
 import type { SurveyQuestionFormat } from "@/lib/collections/surveyQuestions/schema";
+import { HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
+import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -97,6 +99,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
   const currentUser = useCurrentUser();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SURVEY_SCHEDULE_IDS])
 
   const onToggleMenu = useCallback(() => {
     setIsOpen((open) => {
@@ -121,6 +124,10 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
   }, [captureEvent, survey._id, surveyScheduleId]);
 
   const onDismiss = useCallback(() => {
+    setCookie(
+      HIDE_SURVEY_SCHEDULE_IDS,
+      [...(cookies[HIDE_SURVEY_SCHEDULE_IDS] || []), surveyScheduleId]
+    );
     // TODO: Dismiss
     captureEvent("surveyDismiss", {
       surveyId: survey._id,
@@ -137,6 +144,10 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
       source: "SurveyPostsItem",
     });
   }, [captureEvent, survey._id, surveyScheduleId]);
+
+  if (cookies[HIDE_SURVEY_SCHEDULE_IDS]?.includes(surveyScheduleId)) {
+    return null;
+  }
 
   const {
     LWTooltip, ForumIcon, LWClickAwayListener, DropdownMenu, DropdownItem,
@@ -164,6 +175,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
           </div>
         ))}
       </div>
+      {/* TODO; Misaligned */}
       <div ref={anchorEl}>
         <MoreVertIcon
           onClick={onToggleMenu}
