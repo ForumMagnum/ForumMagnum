@@ -205,30 +205,44 @@ const SurveyPostsItemInternal = ({
   }, [captureEvent, survey, surveyScheduleId, onSubmit]);
 
   const onDismiss = useCallback(() => {
-    setCookie(
-      HIDE_SURVEY_SCHEDULE_IDS,
-      [...(hideSurveyScheduleIds || []), surveyScheduleId],
-    );
+    collapse();
+    setTimeout(() => {
+      setCookie(
+        HIDE_SURVEY_SCHEDULE_IDS,
+        [...(hideSurveyScheduleIds || []), surveyScheduleId],
+      );
+    }, 500);
     captureEvent("surveyDismiss", {
       surveyId: survey._id,
       surveyScheduleId,
     });
-  }, [captureEvent, survey._id, surveyScheduleId, hideSurveyScheduleIds, setCookie]);
+  }, [
+    collapse,
+    captureEvent,
+    survey._id,
+    surveyScheduleId,
+    hideSurveyScheduleIds,
+    setCookie,
+  ]);
 
   const onOptOut = useCallback(() => {
-    // TODO: Still need to refresh
-    updateCurrentUser({optedOutOfSurveys: true});
-    
+    void updateCurrentUser({optedOutOfSurveys: true});
+    collapse();
+    void refetchSurvey?.();
     captureEvent("surveyOptOut", {
       surveyId: survey._id,
       surveyScheduleId,
     });
-  }, [captureEvent, survey._id, surveyScheduleId]);
+  }, [
+    captureEvent,
+    survey._id,
+    surveyScheduleId,
+    refetchSurvey,
+    collapse,
+    updateCurrentUser,
+  ]);
 
-  if (cookies[HIDE_SURVEY_SCHEDULE_IDS]?.includes(surveyScheduleId)) {
-    return null;
-  }
-  if (currentUser?.optedOutOfSurveys) {
+  if (hideSurveyScheduleIds?.includes(surveyScheduleId)) {
     return null;
   }
 

@@ -19,6 +19,9 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
     const userJoin = isLoggedIn
       ? `LEFT JOIN "Users" u ON u."_id" = $3`
       : "";
+    const optOutClause = isLoggedIn
+      ? `u."optedOutOfSurveys" IS NOT TRUE AND`
+      : "";
     const karmaClause = isLoggedIn
       ? `
         CASE
@@ -45,6 +48,8 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND
         (ss."startDate" IS NULL OR ss."startDate" < CURRENT_TIMESTAMP) AND
         ss."deactivated" IS NOT TRUE AND
+        -- Check the user hasn't opted-out of surveys
+        ${optOutClause}
         -- Check the user meets karma requirements
         ${karmaClause}
         -- Check the user is in the target group
