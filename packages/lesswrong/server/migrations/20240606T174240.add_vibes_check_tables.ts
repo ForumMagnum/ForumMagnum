@@ -15,7 +15,6 @@ export const up = async ({db}: MigrationContext) => {
   await updateIndexes(SurveyQuestions);
   await updateIndexes(SurveyResponses);
   await updateIndexes(SurveySchedules);
-  await updateCustomIndexes(db);
 }
 
 export const down = async ({db}: MigrationContext) => {
