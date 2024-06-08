@@ -23,6 +23,7 @@ import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
 import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
 import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
@@ -163,6 +164,7 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "Clock" |
   "No" |
   "Calendar" |
   "CalendarDays" |
@@ -262,6 +264,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
     No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -359,6 +362,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
     No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,

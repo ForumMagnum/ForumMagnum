@@ -297,13 +297,20 @@ const SurveyPostsItemInternal = ({
                 to={`/survey/${survey._id}/edit`}
               />
             }
+            {currentUser?.isAdmin && surveyScheduleId &&
+              <DropdownItem
+                title="Edit survey schedule"
+                icon="Clock"
+                to={`/surveySchedule/${surveyScheduleId}`}
+              />
+            }
             <DropdownItem
               title="Dismiss"
               icon="Close"
               onClick={onDismiss}
             />
             {currentUser && <DropdownItem
-              title="Opt-out of feedback"
+              title="Opt-out of surveys"
               icon="No"
               onClick={onOptOut}
             />}
