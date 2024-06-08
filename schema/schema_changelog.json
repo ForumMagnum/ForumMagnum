@@ -675,7 +675,7 @@
     "timestamp": "2024-05-26T11:13:08.000Z"
   },
   {
-    "acceptsSchemaHash": "92fb88c6e50b3638d60f569ef645128f",
+    "acceptsSchemaHash": "c0f1a39f92c51fce59af19a06cf65dc5",
     "acceptedByMigration": "20240606T174240.add_vibes_check_tables.ts",
     "timestamp": "2024-06-06T17:42:40.000Z"
   }
