@@ -59,6 +59,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     color: theme.palette.grey[400],
     fontSize: 20,
+    marginRight: -2,
     "&:hover": {
       color: theme.palette.grey[700],
     },
@@ -275,7 +276,6 @@ const SurveyPostsItemInternal = ({
           ))
         }
       </div>
-      {/* TODO; Misaligned */}
       <div ref={anchorEl}>
         <MoreVertIcon
           onClick={onToggleMenu}
