@@ -19,6 +19,9 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
   },
+  tooltip: {
+    display: "flex",
+  },
   info: {
     marginRight: 13,
     color: theme.palette.grey[600],
@@ -85,8 +88,9 @@ const QuestionReponse = ({format, onRespond, classes}: {
   }
 }
 
-const SurveyPostsItemInternal = ({survey, classes}: {
+const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
   survey: SurveyMinimumInfo,
+  surveyScheduleId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
@@ -110,26 +114,29 @@ const SurveyPostsItemInternal = ({survey, classes}: {
     // TODO: Send response to the server
     captureEvent("surveyResponse", {
       surveyId: survey._id,
+      surveyScheduleId,
       response,
       source: "SurveyPostsItem",
     });
-  }, [captureEvent, survey._id]);
+  }, [captureEvent, survey._id, surveyScheduleId]);
 
   const onDismiss = useCallback(() => {
     // TODO: Dismiss
     captureEvent("surveyDismiss", {
       surveyId: survey._id,
+      surveyScheduleId,
       source: "SurveyPostsItem",
     });
-  }, [captureEvent, survey._id]);
+  }, [captureEvent, survey._id, surveyScheduleId]);
 
   const onOptOut = useCallback(() => {
     // TODO: Opt-out
     captureEvent("surveyOptOut", {
       surveyId: survey._id,
+      surveyScheduleId,
       source: "SurveyPostsItem",
     });
-  }, [captureEvent, survey._id]);
+  }, [captureEvent, survey._id, surveyScheduleId]);
 
   const {
     LWTooltip, ForumIcon, LWClickAwayListener, DropdownMenu, DropdownItem,
@@ -137,7 +144,12 @@ const SurveyPostsItemInternal = ({survey, classes}: {
   } = Components;
   return (
     <div className={classes.root}>
-      <LWTooltip title="Some really informative stuff" placement="right">
+      <LWTooltip
+        title="Some really informative stuff"
+        placement="right"
+        inlineBlock={false}
+        className={classes.tooltip}
+      >
         <ForumIcon icon="QuestionMarkCircle" className={classes.info} />
       </LWTooltip>
       <div className={classes.questions}>
@@ -190,13 +202,18 @@ const SurveyPostsItemInternal = ({survey, classes}: {
   );
 }
 
-const SurveyPostsItem = ({survey, classes}: {
+const SurveyPostsItem = ({survey, surveyScheduleId, classes}: {
   survey: SurveyMinimumInfo,
+  surveyScheduleId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   return (
     <AnalyticsContext pageElementContext="surveyPostsItem">
-      <SurveyPostsItemInternal survey={survey} classes={classes} />
+      <SurveyPostsItemInternal
+        survey={survey}
+        surveyScheduleId={surveyScheduleId}
+        classes={classes}
+      />
     </AnalyticsContext>
   );
 }

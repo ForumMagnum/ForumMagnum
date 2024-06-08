@@ -3904,8 +3904,11 @@ interface SurveyResponsesDefaultFragment { // fragment on SurveyResponses
 
 interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly _id: string,
-  readonly surveyId: string,
   readonly survey: SurveyMinimumInfo,
+}
+
+interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on SurveySchedules
+  readonly surveyId: string,
   readonly name: string,
   readonly minKarma: number | null,
   readonly maxKarma: number | null,
@@ -4193,6 +4196,7 @@ interface FragmentTypes {
   SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
   SurveyResponsesDefaultFragment: SurveyResponsesDefaultFragment
   SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
+  SurveyScheduleEdit: SurveyScheduleEdit
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
@@ -4225,7 +4229,7 @@ interface FragmentTypesByCollection {
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
   Surveys: "SurveysDefaultFragment"|"SurveyMinimumInfo"
-  SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"
+  SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"|"SurveyScheduleEdit"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -4526,6 +4530,7 @@ interface CollectionNamesByFragmentName {
   SurveyQuestionMinimumInfo: "SurveyQuestions"
   SurveyResponsesDefaultFragment: "SurveyResponses"
   SurveyScheduleMinimumInfo: "SurveySchedules"
+  SurveyScheduleEdit: "SurveySchedules"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
 }

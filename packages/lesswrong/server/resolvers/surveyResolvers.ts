@@ -9,6 +9,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { hasSurveys } from "@/lib/betas";
 import SurveyQuestions from "@/lib/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
+import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
 
 addGraphQLSchema(`
   input SurveyQuestionInfo {
@@ -30,7 +31,7 @@ addGraphQLResolvers({
       _root: void,
       _args: void,
       {currentUser, clientId, repos: {surveySchedules}}: ResolverContext,
-    ): Promise<DbSurvey | null> {
+    ): Promise<SurveyScheduleWithSurvey | null> {
       if (!hasSurveys || !clientId) {
         return null;
       }
@@ -40,7 +41,7 @@ addGraphQLResolvers({
       );
       if (survey) {
         void surveySchedules.assignClientToSurveySchedule(survey._id, clientId);
-        return survey.survey;
+        return survey;
       }
       return null;
     },
@@ -89,5 +90,5 @@ addGraphQLResolvers({
   },
 });
 
-addGraphQLQuery("CurrentFrontpageSurvey: Survey");
+addGraphQLQuery("CurrentFrontpageSurvey: SurveySchedule");
 addGraphQLMutation("editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey");

@@ -2,7 +2,7 @@ import SurveySchedules from "@/lib/collections/surveySchedules/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-type SurveyScheduleWithSurvey = DbSurveySchedule & {
+export type SurveyScheduleWithSurvey = DbSurveySchedule & {
   survey: DbSurvey,
 };
 
@@ -11,7 +11,7 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
     super(SurveySchedules);
   }
 
-  async getCurrentFrontpageSurvey(
+  getCurrentFrontpageSurvey(
     currentUser: DbUser | null,
     clientId: string,
   ): Promise<SurveyScheduleWithSurvey | null> {
@@ -21,21 +21,24 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
       : "";
     const karmaClause = isLoggedIn
       ? `
-        CASE ss."minKarma"
-          WHEN NULL THEN TRUE
+        CASE
+          WHEN ss."minKarma" IS NULL THEN TRUE
           ELSE ss."minKarma" < COALESCE(u."karma", 0)
         END AND
-        CASE ss."maxKarma"
-          WHEN NULL THEN TRUE
+        CASE
+          WHEN ss."maxKarma" IS NULL THEN TRUE
           ELSE ss."maxKarma" > COALESCE(u."karma", 0)
         END AND
       `
       : ""
-    // TODO: Filter out surveys the user has already responded to
     return this.getRawDb().oneOrNone(`
       SELECT ss.*, ROW_TO_JSON(s.*) "survey"
       FROM "SurveySchedules" ss
-      JOIN "Surveys" s ON s."_id" = ss."surveyId"
+      JOIN "Surveys" s ON
+        s."_id" = ss."surveyId"
+      LEFT JOIN "SurveyResponses" sr ON
+        sr."surveyId" = ss."surveyId" AND
+        sr."clientId" = $2
       ${userJoin}
       WHERE
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND
@@ -46,7 +49,8 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
           WHEN 'loggedInOnly' THEN $1
           WHEN 'loggedOutOnly' THEN NOT $1
           ELSE TRUE
-        END
+        END AND
+        sr."_id" IS NULL
       ORDER BY
         ss."clientIds" @> ('{' || $2 || '}')::VARCHAR[] DESC,
         "endDate" ASC,

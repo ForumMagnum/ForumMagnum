@@ -3,10 +3,16 @@ import { registerFragment } from "@/lib/vulcan-lib";
 registerFragment(`
   fragment SurveyScheduleMinimumInfo on SurveySchedule {
     _id
-    surveyId
     survey {
       ...SurveyMinimumInfo
     }
+  }
+`);
+
+registerFragment(`
+  fragment SurveyScheduleEdit on SurveySchedule {
+    ...SurveyScheduleMinimumInfo
+    surveyId
     name
     minKarma
     maxKarma

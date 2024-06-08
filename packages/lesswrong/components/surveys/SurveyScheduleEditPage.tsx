@@ -34,8 +34,8 @@ const SurveyScheduleEditor = ({classes}: {
       <SectionTitle title={`${isNewForm ? "New" : "Edit"} survey schedule`} />
       <WrappedSmartForm
         collectionName="SurveySchedules"
-        queryFragmentName="SurveyScheduleMinimumInfo"
-        mutationFragmentName="SurveyScheduleMinimumInfo"
+        queryFragmentName="SurveyScheduleEdit"
+        mutationFragmentName="SurveyScheduleEdit"
         documentId={id}
         successCallback={onCreate}
       />

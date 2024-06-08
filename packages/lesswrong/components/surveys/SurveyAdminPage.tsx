@@ -70,7 +70,7 @@ const SurveysEditor = ({classes}: {
     loadMoreProps: loadMoreSurveySchedulesProps,
   } = useMulti({
     collectionName: "SurveySchedules",
-    fragmentName: "SurveyScheduleMinimumInfo",
+    fragmentName: "SurveyScheduleEdit",
     terms: {
       view: "surveySchedulesByCreatedAt",
     },

@@ -207,7 +207,9 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}
-          {survey && <SurveyPostsItem survey={survey} />}
+          {survey &&
+            <SurveyPostsItem survey={survey.survey} surveyScheduleId={survey._id} />
+          }
           <AnalyticsContext listContext={"latestPosts"}>
             {/* Allow hiding posts from the front page*/}
             <AllowHidingFrontPagePostsContext.Provider value={true}>
