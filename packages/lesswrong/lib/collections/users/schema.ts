@@ -3006,6 +3006,17 @@ const schema: SchemaType<"Users"> = {
     canRead: ['admins'],
     canUpdate: ['admins'],
   },
+  
+  optedOutOfSurveys: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canCreate: ["members"],
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    // TODO; user settings page
+  },
 };
 
 export default schema;

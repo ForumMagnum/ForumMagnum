@@ -435,6 +435,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
+  readonly optedOutOfSurveys: boolean | null,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -3067,6 +3068,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
   readonly hideSunshineSidebar: boolean,
+  readonly optedOutOfSurveys: boolean | null,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

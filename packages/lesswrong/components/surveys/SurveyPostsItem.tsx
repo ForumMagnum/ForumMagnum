@@ -10,6 +10,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Collapse from "@material-ui/core/Collapse";
 import range from "lodash/range";
 import type { SurveyQuestionFormat } from "@/lib/collections/surveyQuestions/schema";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -105,6 +106,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
 }) => {
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -205,7 +207,9 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
   }, [captureEvent, survey._id, surveyScheduleId, hideSurveyScheduleIds, setCookie]);
 
   const onOptOut = useCallback(() => {
-    // TODO: Opt-out
+    // TODO: Still need to refresh
+    updateCurrentUser({optedOutOfSurveys: true});
+    
     captureEvent("surveyOptOut", {
       surveyId: survey._id,
       surveyScheduleId,
@@ -213,6 +217,9 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
   }, [captureEvent, survey._id, surveyScheduleId]);
 
   if (cookies[HIDE_SURVEY_SCHEDULE_IDS]?.includes(surveyScheduleId)) {
+    return null;
+  }
+  if (currentUser?.optedOutOfSurveys) {
     return null;
   }
 
@@ -272,11 +279,11 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: 
               icon="Close"
               onClick={onDismiss}
             />
-            <DropdownItem
+            {currentUser && <DropdownItem
               title="Opt-out of feedback"
               icon="No"
               onClick={onOptOut}
-            />
+            />}
           </DropdownMenu>
         </LWClickAwayListener>
       </PopperCard>
