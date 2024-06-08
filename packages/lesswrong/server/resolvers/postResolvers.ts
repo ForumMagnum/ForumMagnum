@@ -390,6 +390,10 @@ addGraphQLResolvers({
 
       return await postIsCriticism(args)
     },
+    async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
+      const { repos } = context
+      return await repos.posts.getPostsForOnsiteDigest(num)
+    },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
       const { currentUser, repos } = context
       if (!currentUser || !currentUser.isAdmin) {
@@ -574,6 +578,7 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+addGraphQLQuery('DigestPosts(num: Int): [Post]')
 
 addGraphQLQuery("CanAccessGoogleDoc(fileUrl: String!): Boolean");
 addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");

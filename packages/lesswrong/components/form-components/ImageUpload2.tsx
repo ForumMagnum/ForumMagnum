@@ -35,14 +35,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     aspectRatio: 1.91, // TODO support other image types
     display: 'flex',
   },
+  imageBackgroundDigest: {
+    aspectRatio: 0.8,
+  },
 });
 
-const formPreviewSizeByImageType: AnyBecauseTodo = {
-  socialPreviewImageId: {
-    width: 306,
-    height: 160
-  },
-}
 
 const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
   name: string,
@@ -74,9 +71,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 
   const [imageId, setImageId] = useState(value)
 
-  const formPreviewSize = formPreviewSizeByImageType[name]
-  if (!formPreviewSize) throw new Error("Unsupported image upload type")
-
   const imageUrl = imageId ? makeCloudinaryImageUrl(imageId, {
     c: "fill",
     dpr: "auto",
@@ -89,7 +83,10 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
     <div className={classes.root}>
       <ImageUploadScript />
       <div
-        className={classes.imageBackground}
+        className={classNames(
+          classes.imageBackground,
+          name === 'onsiteDigestImageId' && classes.imageBackgroundDigest
+        )}
         style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : {}}
       >
         <div className={classes.buttonRow}>
