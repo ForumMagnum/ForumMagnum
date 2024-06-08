@@ -937,6 +937,7 @@ interface SurveysDefaultFragment { // fragment on Surveys
 interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
   readonly surveyId: string,
   readonly name: string,
+  readonly impressionsLimit: number | null,
   readonly minKarma: number | null,
   readonly maxKarma: number | null,
   readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
@@ -3922,6 +3923,7 @@ interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
 interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly surveyId: string,
   readonly name: string,
+  readonly impressionsLimit: number | null,
   readonly minKarma: number | null,
   readonly maxKarma: number | null,
   readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",

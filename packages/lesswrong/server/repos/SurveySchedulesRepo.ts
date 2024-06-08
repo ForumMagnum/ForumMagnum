@@ -44,6 +44,11 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
         (sr."clientId" = $2 OR (sr."userId" IS NOT NULL AND sr."userId" = $3))
       ${userJoin}
       WHERE
+        -- Check the impressions limit hasn't been reached yet
+        (
+          ss."impressionsLimit" IS NULL OR
+          ss."impressionsLimit" > ARRAY_LENGTH(ss."clientIds", 1)
+        ) AND
         -- Check the schedule is currently running
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND
         (ss."startDate" IS NULL OR ss."startDate" < CURRENT_TIMESTAMP) AND

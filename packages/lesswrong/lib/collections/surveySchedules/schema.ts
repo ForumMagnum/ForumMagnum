@@ -21,7 +21,6 @@ export type SurveyScheduleTarget = typeof surveyScheduleTargets[number]["value"]
 const schema: SchemaType<"SurveySchedules"> = {
   surveyId: {
     ...commonFields(),
-    canRead: ["guests"],
     ...foreignKeyField({
       idFieldName: "surveyId",
       resolverName: "survey",
@@ -29,11 +28,17 @@ const schema: SchemaType<"SurveySchedules"> = {
       type: "Survey",
       nullable: false,
     }),
+    canRead: ["guests"],
   },
   name: {
     ...commonFields(),
     type: String,
     label: "Schedule name",
+  },
+  impressionsLimit: {
+    ...commonFields({nullable: true}),
+    type: Number,
+    tooltip: "The maximum number of users who'll see this survey",
   },
   minKarma: {
     ...commonFields({nullable: true}),

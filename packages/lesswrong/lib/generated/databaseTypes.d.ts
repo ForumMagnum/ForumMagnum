@@ -1236,6 +1236,7 @@ interface DbSurveySchedule extends DbObject {
   __collectionName?: "SurveySchedules"
   surveyId: string
   name: string
+  impressionsLimit: number | null
   minKarma: number | null
   maxKarma: number | null
   target: "allUsers" | "loggedInOnly" | "loggedOutOnly"

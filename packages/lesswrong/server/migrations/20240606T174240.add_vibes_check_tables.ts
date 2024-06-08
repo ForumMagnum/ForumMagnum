@@ -5,7 +5,7 @@ import SurveyResponses from "@/lib/collections/surveyResponses/collection";
 import SurveySchedules from "@/lib/collections/surveySchedules/collection";
 import Users from "@/lib/vulcan-users";
 
-export const acceptsSchemaHash = "b3ff67e9c697554acbf204caff8f1c4e"
+export const acceptsSchemaHash = "92fb88c6e50b3638d60f569ef645128f"
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, Surveys);

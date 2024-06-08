@@ -14,6 +14,7 @@ registerFragment(`
     ...SurveyScheduleMinimumInfo
     surveyId
     name
+    impressionsLimit
     minKarma
     maxKarma
     target
