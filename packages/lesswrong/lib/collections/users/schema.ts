@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations, hasSurveys } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -904,6 +904,19 @@ const schema: SchemaType<"Users"> = {
     // note this date is hard coded as a hack
     // we originally were using petrovBeforeTime but it didn't work in this file because the database
     // public settings aren't been loaded yet.
+  },
+
+  optedOutOfSurveys: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: !hasSurveys,
+    canCreate: ["members"],
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    group: formGroups.siteCustomizations,
+    label: "Opt out of user surveys",
+    order: 97,
   },
 
   acceptedTos: {
@@ -3005,17 +3018,6 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['admins'],
     canUpdate: ['admins'],
-  },
-  
-  optedOutOfSurveys: {
-    type: Boolean,
-    optional: true,
-    nullable: true,
-    hidden: true,
-    canCreate: ["members"],
-    canRead: [userOwns, "sunshineRegiment", "admins"],
-    canUpdate: [userOwns, "sunshineRegiment", "admins"],
-    // TODO; user settings page
   },
 };
 
