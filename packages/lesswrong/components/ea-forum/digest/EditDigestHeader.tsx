@@ -121,7 +121,7 @@ export const EditDigestHeader = ({digest, classes}: {
   }
   
   const updateCurrentValues = async (data: AnyBecauseHard) => {
-    updateDigest({
+    void updateDigest({
       selector: {_id: digest._id},
       data
     });
