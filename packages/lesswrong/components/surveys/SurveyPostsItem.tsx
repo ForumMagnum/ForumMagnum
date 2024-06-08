@@ -1,6 +1,8 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
+import { captureException } from "@sentry/core";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../common/withUser";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
@@ -9,8 +11,10 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Collapse from "@material-ui/core/Collapse";
 import range from "lodash/range";
-import type { SurveyQuestionFormat } from "@/lib/collections/surveyQuestions/schema";
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import {
+  SurveyQuestionFormat,
+  surveyQuestionFormats,
+} from "@/lib/collections/surveyQuestions/schema";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +24,7 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
     padding: 14,
-    height: 80,
+    minHeight: 80,
     display: "flex",
     alignItems: "center",
   },
@@ -76,7 +80,15 @@ const QuestionReponse = ({format, onRespond, classes}: {
   onRespond: (response: QuestionResponse) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {EAButton} = Components;
+  const [value, setValue] = useState("");
+  const {EAButton, EAOnboardingInput} = Components;
+
+  useEffect(() => {
+    if (!surveyQuestionFormats[format]) {
+      captureException(new Error(`Invalid survey question format: ${format}`));
+    }
+  }, [format]);
+
   switch (format) {
   case "rank0To10":
     return (
@@ -93,9 +105,22 @@ const QuestionReponse = ({format, onRespond, classes}: {
         ))}
       </div>
     );
+  case "text": case "multilineText":
+    return (
+      <form onSubmit={onRespond.bind(null, value)}>
+        <EAOnboardingInput
+          value={value}
+          setValue={setValue}
+          placeholder="Answer here..."
+          As={format === "multilineText" ? "textarea" : "input"}
+          rows={format === "multilineText" ? 3 : 1}
+        />
+      </form>
+    );
   default:
-      // TODO
-      throw new Error("TODO: Implement other question formats");
+    return (
+      <div>Invalid format</div>
+    );
   }
 }
 

@@ -12,6 +12,7 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     fontSize: 14,
     border: "none",
+    resize: "none",
     "&::placeholder": {
       color: theme.palette.grey[600],
     },
@@ -21,7 +22,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingInput = ({
+const EAOnboardingInput = ({
   value,
   setValue,
   placeholder,
