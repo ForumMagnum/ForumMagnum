@@ -21,6 +21,7 @@ export type SurveyScheduleTarget = typeof surveyScheduleTargets[number]["value"]
 const schema: SchemaType<"SurveySchedules"> = {
   surveyId: {
     ...commonFields(),
+    canRead: ["guests"],
     ...foreignKeyField({
       idFieldName: "surveyId",
       resolverName: "survey",
