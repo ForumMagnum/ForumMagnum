@@ -333,6 +333,7 @@ import "./collections/surveys/views";
 import "./collections/surveyQuestions/collection";
 import "./collections/surveyQuestions/fragments";
 import "./collections/surveyResponses/collection";
+import "./collections/surveyResponses/fragments";
 import "./collections/surveySchedules/collection";
 import "./collections/surveySchedules/fragments";
 import "./collections/surveySchedules/views";

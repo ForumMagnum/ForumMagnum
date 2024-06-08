@@ -3903,6 +3903,15 @@ interface SurveyResponsesDefaultFragment { // fragment on SurveyResponses
   readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface SurveyResponseMinimumInfo { // fragment on SurveyResponses
+  readonly _id: string,
+  readonly surveyId: string,
+  readonly surveyScheduleId: string,
+  readonly userId: string,
+  readonly clientId: string,
+  readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
   readonly _id: string,
   readonly survey: SurveyMinimumInfo,
@@ -4196,6 +4205,7 @@ interface FragmentTypes {
   SurveyQuestionsDefaultFragment: SurveyQuestionsDefaultFragment
   SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
   SurveyResponsesDefaultFragment: SurveyResponsesDefaultFragment
+  SurveyResponseMinimumInfo: SurveyResponseMinimumInfo
   SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
   SurveyScheduleEdit: SurveyScheduleEdit
   SuggestAlignmentComment: SuggestAlignmentComment
@@ -4268,7 +4278,7 @@ interface FragmentTypesByCollection {
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
-  SurveyResponses: "SurveyResponsesDefaultFragment"
+  SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4530,6 +4540,7 @@ interface CollectionNamesByFragmentName {
   SurveyQuestionsDefaultFragment: "SurveyQuestions"
   SurveyQuestionMinimumInfo: "SurveyQuestions"
   SurveyResponsesDefaultFragment: "SurveyResponses"
+  SurveyResponseMinimumInfo: "SurveyResponses"
   SurveyScheduleMinimumInfo: "SurveySchedules"
   SurveyScheduleEdit: "SurveySchedules"
   SuggestAlignmentComment: "Comments"

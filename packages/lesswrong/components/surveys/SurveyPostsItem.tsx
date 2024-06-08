@@ -2,12 +2,14 @@ import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
+import { useCreate } from "@/lib/crud/withCreate";
+import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
+import { CLIENT_ID_COOKIE, HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
 import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Collapse from "@material-ui/core/Collapse";
 import range from "lodash/range";
 import type { SurveyQuestionFormat } from "@/lib/collections/surveyQuestions/schema";
-import { HIDE_SURVEY_SCHEDULE_IDS } from "@/lib/cookies/cookies";
-import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,6 +22,9 @@ const styles = (theme: ThemeType) => ({
     height: 80,
     display: "flex",
     alignItems: "center",
+  },
+  loading: {
+    height: "unset",
   },
   tooltip: {
     display: "flex",
@@ -62,9 +67,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+type QuestionResponse = string | number;
+
 const QuestionReponse = ({format, onRespond, classes}: {
   format: SurveyQuestionFormat,
-  onRespond: (response: string | number) => void,
+  onRespond: (response: QuestionResponse) => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {EAButton} = Components;
@@ -90,16 +97,23 @@ const QuestionReponse = ({format, onRespond, classes}: {
   }
 }
 
-const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
+const SurveyPostsItemInternal = ({survey, surveyScheduleId, collapse, classes}: {
   survey: SurveyMinimumInfo,
   surveyScheduleId?: string,
+  collapse: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const [cookies, setCookie] = useCookiesWithConsent([
+    HIDE_SURVEY_SCHEDULE_IDS,
+    CLIENT_ID_COOKIE,
+  ]);
+  const clientId = cookies[CLIENT_ID_COOKIE];
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_SURVEY_SCHEDULE_IDS])
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [responses, setResponses] = useState<Record<string, QuestionResponse>>({});
 
   const onToggleMenu = useCallback(() => {
     setIsOpen((open) => {
@@ -113,15 +127,69 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
     });
   }, [captureEvent, survey._id]);
 
-  const onRespond = useCallback((response: string | number) => {
-    // TODO: Send response to the server
+  const {create: createResponse} = useCreate({
+    collectionName: "SurveyResponses",
+    fragmentName: "SurveyResponseMinimumInfo",
+  });
+
+  const onSubmit = useCallback(async (response: Record<string, QuestionResponse>) => {
+    setIsSubmitting(true);
+    try {
+      await createResponse({
+        data: {
+          surveyId: survey._id,
+          surveyScheduleId,
+          userId: currentUser?._id,
+          clientId,
+          response,
+        },
+      });
+      captureEvent("surveySubmit", {
+        surveyId: survey._id,
+        surveyScheduleId,
+        responses,
+      });
+      collapse();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Error submitting survey:", e);
+      setIsSubmitting(false);
+    }
+  }, [
+    collapse,
+    captureEvent,
+    survey._id,
+    surveyScheduleId,
+    createResponse,
+    currentUser?._id,
+    clientId,
+  ]);
+
+  const onRespond = useCallback(async (
+    questionId: string,
+    response: QuestionResponse,
+  ) => {
+    setResponses((responses) => {
+      const newResponses = {
+        ...responses,
+        [questionId]: response,
+      };
+      if (Object.keys(newResponses).length === survey.questions.length) {
+        void onSubmit(newResponses);
+      }
+      return newResponses;
+    });
+    setResponses((responses) => ({
+      ...responses,
+      [questionId]: response,
+    }));
     captureEvent("surveyResponse", {
       surveyId: survey._id,
       surveyScheduleId,
+      questionId,
       response,
-      source: "SurveyPostsItem",
     });
-  }, [captureEvent, survey._id, surveyScheduleId]);
+  }, [captureEvent, survey, surveyScheduleId, onSubmit]);
 
   const onDismiss = useCallback(() => {
     setCookie(
@@ -132,7 +200,6 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
     captureEvent("surveyDismiss", {
       surveyId: survey._id,
       surveyScheduleId,
-      source: "SurveyPostsItem",
     });
   }, [captureEvent, survey._id, surveyScheduleId]);
 
@@ -141,7 +208,6 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
     captureEvent("surveyOptOut", {
       surveyId: survey._id,
       surveyScheduleId,
-      source: "SurveyPostsItem",
     });
   }, [captureEvent, survey._id, surveyScheduleId]);
 
@@ -151,7 +217,7 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
 
   const {
     LWTooltip, ForumIcon, LWClickAwayListener, DropdownMenu, DropdownItem,
-    PopperCard,
+    PopperCard, Loading,
   } = Components;
   return (
     <div className={classes.root}>
@@ -164,16 +230,19 @@ const SurveyPostsItemInternal = ({survey, surveyScheduleId, classes}: {
         <ForumIcon icon="QuestionMarkCircle" className={classes.info} />
       </LWTooltip>
       <div className={classes.questions}>
-        {survey.questions.map(({_id, question, format}) => (
-          <div key={_id} className={classes.question}>
-            <div className={classes.questionText}>{question}</div>
-            <QuestionReponse
-              format={format}
-              onRespond={onRespond}
-              classes={classes}
-            />
-          </div>
-        ))}
+        {isSubmitting
+          ? <Loading className={classes.loading} />
+          : survey.questions.map(({_id, question, format}) => (
+            <div key={_id} className={classes.question}>
+              <div className={classes.questionText}>{question}</div>
+              <QuestionReponse
+                format={format}
+                onRespond={onRespond.bind(null, _id)}
+                classes={classes}
+              />
+            </div>
+          ))
+        }
       </div>
       {/* TODO; Misaligned */}
       <div ref={anchorEl}>
@@ -219,14 +288,19 @@ const SurveyPostsItem = ({survey, surveyScheduleId, classes}: {
   surveyScheduleId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const collapse = useCallback(() => setIsCollapsed(true), []);
   return (
-    <AnalyticsContext pageElementContext="surveyPostsItem">
-      <SurveyPostsItemInternal
-        survey={survey}
-        surveyScheduleId={surveyScheduleId}
-        classes={classes}
-      />
-    </AnalyticsContext>
+    <Collapse in={!isCollapsed}>
+      <AnalyticsContext pageElementContext="surveyPostsItem">
+        <SurveyPostsItemInternal
+          survey={survey}
+          surveyScheduleId={surveyScheduleId}
+          collapse={collapse}
+          classes={classes}
+        />
+      </AnalyticsContext>
+    </Collapse>
   );
 }
 
