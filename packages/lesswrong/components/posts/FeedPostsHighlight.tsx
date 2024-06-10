@@ -28,6 +28,10 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
+  maxHeight: {
+    maxHeight: 600,
+    overflow: "hidden",
+  },
 })
 
 const TruncatedSuffix: FC<{
@@ -106,7 +110,7 @@ const FeedPostHighlightBody = ({
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       description={`post ${post._id}`}
       nofollow={(post.user?.karma || 0) < nofollowKarmaThreshold.get()}
-      className={classNames({[classes.expandedTextBody]: expanded})}
+      className={classNames({[classes.expandedTextBody]: expanded, [classes.maxHeight]: !expanded})}
     />
     {expanded && wasTruncated && <TruncatedSuffix
       post={post}
