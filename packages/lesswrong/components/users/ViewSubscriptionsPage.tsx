@@ -9,7 +9,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, userHasSubscribeTabFeed } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW } from '../../lib/instanceSettings';
-import { Class } from 'type-fest';
 import { commentBodyStyles } from '@/themes/stylePiping';
 import { isFriendlyUI } from '@/themes/forumTheme';
 
@@ -39,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     fontStyle: "italic",
   },
   unsubscribeButton: {
-    width: isFriendlyUI ? 87 :82,
+    minWidth: 82,
     opacity: 0.7
   },
 });
@@ -183,7 +182,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />}
     
     <SubscriptionsList
-      title="Notification of Comments on Posts"
+      title="Notifications of Comments on Posts"
       collectionName="Posts"
       subscriptionType="newComments"
       fragmentName="PostsList"
@@ -192,7 +191,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
-      title="Subscribed to Dialogues (as a reader)"
+      title="Notification of Dialogue Activity (as a reader)"
       collectionName="Posts"
       subscriptionType="newPublishedDialogueMessages"
       fragmentName="PostsList"
@@ -201,7 +200,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
-      title="Subscribed to Dialogues (as a participant)"
+      title="Notification of Dialogue Activity (as a participant)"
       collectionName="Posts"
       subscriptionType="newDialogueMessages"
       fragmentName="PostsList"
@@ -226,7 +225,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
-      title="Notification of Comment Replies"
+      title="Notifications of Comment Replies"
       collectionName="Comments"
       subscriptionType="newReplies"
       fragmentName="CommentsListWithParentMetadata"
@@ -237,7 +236,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
-      title="Subscribed to Local Groups"
+      title="Notifications of Local Groups Activity"
       collectionName="Localgroups"
       subscriptionType="newEvents"
       fragmentName="localGroupsBase"
@@ -246,7 +245,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
-      title="Subscribed to Tags"
+      title="Notification of New Posts with Tags"
       collectionName="Tags"
       subscriptionType="newTagPosts"
       fragmentName="TagPreviewFragment"
@@ -255,7 +254,7 @@ const ViewSubscriptionsPage = ({classes}: {
     />
     
     {allowSubscribeToSequencePosts && <SubscriptionsList
-      title="Subscribed to Sequences"
+      title="Notifications of New Post Added to Sequences"
       collectionName="Sequences"
       subscriptionType="newSequencePosts"
       fragmentName="SequencesPageTitleFragment"
