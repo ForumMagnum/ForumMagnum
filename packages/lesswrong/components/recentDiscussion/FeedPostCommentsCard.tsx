@@ -145,7 +145,7 @@ const FeedPostCommentsCard = ({
   });
 
   const {
-    PostsGroupDetails, CommentsNode, FeedPostsHighlight, PostActionsButton, FeedPostCardMeta
+    CommentsNode, FeedPostsHighlight, PostActionsButton, FeedPostCardMeta
   } = Components;
 
   return (

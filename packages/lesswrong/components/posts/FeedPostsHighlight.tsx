@@ -202,7 +202,7 @@ const FeedPostsHighlight = ({post, ...rest}: {
   initiallyExpanded?: boolean,
   forceSeeMore?: boolean,
   classes: ClassesType,
-}) => isPostWithForeignId(post)
+}) => isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
   ? <FeedForeignPostsHighlight post={post} {...rest} />
   : <FeedLocalPostsHighlight post={post} {...rest} />;
 
