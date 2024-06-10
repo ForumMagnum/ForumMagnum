@@ -71,7 +71,8 @@ makeEditable({
       canUpdate: ['members'],
       canCreate: ['members']
     },
-    order: 10
+    order: 10,
+    pingbacks: true,
   }
 });
 
