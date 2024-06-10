@@ -32,9 +32,16 @@ export const FollowUserButton = ({user, classes}: {
     hideFlashes: true,
   });
 
+  const onSubscribeWithDM = async (ev: React.MouseEvent<Element, MouseEvent>) => {
+    const onSubscribeNullSafe = onSubscribe ?? (() => Promise.resolve())
+
+    await onSubscribeNullSafe(ev);
+    return await sendNewFollowDM({ variables: { eventType: "newFollowSubscription" } });
+  }
+
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     isSubscribed ?? false,
-    onSubscribe ?? (() => {}),
+    onSubscribeWithDM
   );
 
   const [sendNewFollowDM] = useMutation(gql`
@@ -47,7 +54,6 @@ export const FollowUserButton = ({user, classes}: {
 
   const handleSubscribe = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     void toggleSubscribed(ev);
-    void sendNewFollowDM({variables: {eventType: "newFollowSubscription"}})
     captureEvent("followUserButtonClick", {subcribedToUser: user._id, subscribed: !subscribed})
   }
 

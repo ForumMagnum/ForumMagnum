@@ -14,7 +14,7 @@ const followSubscriptionStartDate = forumSelect({
 })
 
 const getTriggeredDmContents = (eventType: DmTriggeringEvent) => {
-    const adminEmail = adminAccountSetting.get()?.email ?? "";
+  const adminEmail = adminAccountSetting.get()?.email ?? "";
 
   switch (eventType) {
     case "newFollowSubscription":
@@ -77,10 +77,10 @@ defineMutation({
         createdAt: {$gt: followSubscriptionStartDate}
       }).count();
 
-      // if (numUsersFollows > 1) {
-      //   // already has followed and received a DM
-      //   return false;
-      // }
+      if (numUsersFollows > 1) {
+        // already has followed and received a DM
+        return false;
+      }
     }
 
     const { title, message } = getTriggeredDmContents(eventType); 
