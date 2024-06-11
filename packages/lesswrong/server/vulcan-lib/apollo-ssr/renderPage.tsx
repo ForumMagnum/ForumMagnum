@@ -5,36 +5,43 @@
  * @see https://www.apollographql.com/docs/react/features/server-side-rendering.html#renderToStringWithData
  */
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+import ReactDOM, { renderToPipeableStream } from 'react-dom/server';
 import { renderToStringWithData } from '@apollo/client/react/ssr';
-import { computeContextFromUser, configureSentryScope } from '../apollo-server/context';
+import { computeContextFromUser, configureSentryScope, getUserFromReq } from '../apollo-server/context';
 
 import { wrapWithMuiTheme } from '../../material-ui/themeProvider';
 import { Vulcan } from '../../../lib/vulcan-lib/config';
 import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
-import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
+import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation, classesForAbTestGroups } from '../../../lib/abTestImpl';
 import Head from './components/Head';
 import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
-import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
+import { parsePath, parseRoute, ServerRequestStatusContextType } from '@/lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
-import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
+import { renderJssSheetImports, renderJssSheetPreloads } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
-import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
+import { DEFAULT_TIMEZONE, SSRMetadata } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
+import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize } from '../../../lib/publicSettings';
-import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
+import { faviconUrlSetting, performanceMetricLoggingEnabled } from '@/lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
-import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
-import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
-import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
-import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
+import PriorityBucketQueue, { RequestData } from '@/lib/requestPriorityQueue';
+import { getInstanceSettings, isAnyTest, isE2E, isProduction } from '../../../lib/executionEnvironment';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { visitorGetsDynamicFrontpage } from '@/lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
+import { getPublicSettings, getPublicSettingsLoaded } from '@/lib/settingsCache';
+import { getClientBundle } from '@/server/utils/bundleUtils';
+import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
+import { randomId } from '@/lib/random';
+import express from 'express'
+import type { RouterLocation } from '@/lib/vulcan-lib/routes';
+import { createAnonymousContext } from '../query';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -78,15 +85,214 @@ interface RenderPriorityQueueSlot extends RequestData {
   renderRequestParams: RenderRequestParams;
 }
 
-export const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
-  const startTime = new Date();
+/**
+ * End-to-end tests automate interactions with the page. If we try to, for
+ * instance, click on a button before the page has been hydrated then the "click"
+ * will occur but nothing will happen as the event listener won't be attached
+ * yet which leads to flaky tests. To avoid this we add some static styles to
+ * the top of the SSR'd page which are then manually deleted _after_ React
+ * hydration has finished. Be careful editing this - it would ve very bad for
+ * this to end up in production builds.
+ */
+const ssrInteractionDisable = isE2E
+  ? `<style id="ssr-interaction-disable">
+      #react-app * {
+        display: none;
+      }
+    </style>`
+  : "";
+
+
+/**
+ * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
+ */
+const maybePrefetchResources = async ({
+  request,
+  response,
+  parsedRoute,
+  prefetchPrefix
+}: {
+  request: express.Request;
+  response: express.Response;
+  parsedRoute: RouterLocation,
+  prefetchPrefix: string;
+}) => {
+  const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
+  const prefetchResources =
+    typeof enableResourcePrefetch === "function"
+      ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
+      : enableResourcePrefetch;
+
+  if (prefetchResources) {
+    response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
+    trySetResponseStatus({ response, status: 200 });
+    response.write(prefetchPrefix);
+  }
+  return prefetchResources;
+};
+
+/**
+ * Try to set the response status, but log an error if the headers have already been sent.
+ */
+const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
+  if (!response.headersSent) {
+    response.status(status);
+  } else if (response.statusCode !== status) {
+    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
+    if (isProduction) {
+      // eslint-disable-next-line no-console
+      console.error(message);
+    } else {
+      throw new Error(message);
+    }
+  }
+
+  return response;
+}
+
+export const renderPage = async (request: Request, response: Response) => {
+  response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
+
+  if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
+  const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
+
+  const bundleHash = getClientBundle().resource.hash;
+  const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
+  const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
+
+  // Check whether the requested route has enableResourcePrefetch. If it does,
+  // we send HTTP status and headers early, before we actually rendered the
+  // page, so that the browser can get started on loading the stylesheet and
+  // JS bundle while SSR is still in progress.
+  const parsedRoute = parseRoute({
+    location: parsePath(request.url)
+  });
   
+  const user = getUserFromReq(request);
+  const themeOptions = getThemeOptionsFromReq(request, user);
+  const jssStylePreload = renderJssSheetPreloads(themeOptions);
+  const externalStylesPreload = globalExternalStylesheets.map(url =>
+    `<link rel="stylesheet" type="text/css" href="${url}">`
+  ).join("");
+  
+  const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+
+  // Inject a tab ID into the page, by injecting a script fragment that puts
+  // it into a global variable. If the response is cacheable (same html may be used
+  // by multiple tabs), this is generated in `clientStartup.ts` instead.
+  const tabId = responseIsCacheable(response) ? null : randomId();
+  
+  // The part of the header which can be sent before the page is rendered.
+  // This includes an open tag for <html> and <head> but not the matching
+  // close tags, since there's stuff inside that depends on what actually
+  // gets rendered. The browser will pick up any references in the still-open
+  // tag and start fetching the, without waiting for the closing tag.
+  const prefetchPrefix = (
+    '<!doctype html>\n'
+    + '<html lang="en">\n'
+    + '<head>\n'
+      + jssStylePreload
+      + externalStylesPreload
+      + ssrInteractionDisable
+      + instanceSettingsHeader
+      + faviconHeader
+      // Embedded script tags that must precede the client bundle
+      + publicSettingsHeader
+      + embedAsGlobalVar("tabId", tabId)
+      // The client bundle. Because this uses <script async>, its load order
+      // relative to any scripts that come later than this is undetermined and
+      // varies based on timings and the browser cache.
+      + clientScript
+  );
+
+  // Note: this may write to the response
+  const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
+
+  const renderResultPromise = performanceMetricLoggingEnabled.get()
+    ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
+    : renderWithCache(request, response, user, tabId);
+
+  const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
+
+  if (renderResult.aborted) {
+    trySetResponseStatus({ response, status: 499 });
+    response.end();
+    return;
+  }
+
+  const {
+    ssrBody,
+    headers,
+    serializedApolloState,
+    serializedForeignApolloState,
+    jssSheets,
+    status,
+    redirectUrl,
+    renderedAt,
+    timezone,
+    cacheFriendly,
+    allAbTestGroups,
+  } = renderResult;
+  
+  // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
+  const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
+  
+  // Finally send generated HTML with initial data to the client
+  if (redirectUrl) {
+    // eslint-disable-next-line no-console
+    console.log(`Redirecting to ${redirectUrl}`);
+    trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
+  } else {
+    trySetResponseStatus({ response, status: status || 200 });
+    const ssrMetadata: SSRMetadata = {
+      renderedAt: renderedAt.toISOString(),
+      cacheFriendly,
+      timezone
+    }
+
+    response.write(
+      (prefetchingResources ? '' : prefetchPrefix)
+        + headers.join('\n')
+        + themeOptionsHeader
+        + jssSheets
+      + '</head>\n'
+      + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
+        + ssrBody + '\n'
+      + '</body>\n'
+      + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+      + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
+      + serializedApolloState + '\n'
+      + serializedForeignApolloState + '\n'
+      + '</html>\n')
+    response.end();
+  }
+};
+
+const requestCanUsePageCache = (req: Request, user: DbUser|null): boolean => {
+  const url = getPathFromReq(req);
+  const userAgent = req.headers["user-agent"];
+  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
+  
+  // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
+  // because we need to render that page with a different value for the
+  // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
+  const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
+
+  // For LW, skip the cache on users who have visited the frontpage before, including logged out.
+  // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
+  const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
+  const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
+
+  return !((!isHealthCheck && (user || isExcludedFromPageCache(url))) || isSlackBot || showDynamicFrontpage);
+}
+
+const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
+  const startTime = new Date();
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
-  
   const url = getPathFromReq(req);
-  
   const clientId = getCookieFromReq(req, "clientId");
+  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
   
   const ssrEventParams = {
     url: url,
@@ -94,22 +300,9 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     userAgent: userAgent,
   };
 
-  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
   const abTestGroups = getAllUserABTestGroups(user ? {user} : {clientId});
   
-  // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
-  // because we need to render that page with a different value for the
-  // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
-  const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
-  
-  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
-  
-  const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
-  // For LW, skip the cache on users who have visited the frontpage before, including logged out. 
-  // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
-  const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
-  
-  if ((!isHealthCheck && (user || isExcludedFromPageCache(url))) || isSlackBot || showDynamicFrontpage) {
+  if (requestCanUsePageCache(req, user)) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     

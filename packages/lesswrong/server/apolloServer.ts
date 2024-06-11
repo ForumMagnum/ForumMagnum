@@ -1,8 +1,8 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
-import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
+import { isDevelopment, getServerPort } from '../lib/executionEnvironment';
+import { renderPage } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
@@ -20,26 +20,20 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
-import { getPublicSettings, getPublicSettingsLoaded } from '../lib/settingsCache';
-import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
-import { classesForAbTestGroups } from '../lib/abTestImpl';
 import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
-import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
+import { isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
-import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
 import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
@@ -49,80 +43,10 @@ import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
-import { createAnonymousContext } from './vulcan-lib/query';
-import { randomId } from '../lib/random';
-import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
-import { SSRMetadata } from '../lib/utils/timeUtil';
-import type { RouterLocation } from '../lib/vulcan-lib/routes';
+import { addCacheControlMiddleware } from './cacheControlMiddleware';
 
-/**
- * End-to-end tests automate interactions with the page. If we try to, for
- * instance, click on a button before the page has been hydrated then the "click"
- * will occur but nothing will happen as the event listener won't be attached
- * yet which leads to flaky tests. To avoid this we add some static styles to
- * the top of the SSR'd page which are then manually deleted _after_ React
- * hydration has finished. Be careful editing this - it would ve very bad for
- * this to end up in production builds.
- */
-const ssrInteractionDisable = isE2E
-  ? `
-    <style id="ssr-interaction-disable">
-      #react-app * {
-        display: none;
-      }
-    </style>
-  `
-  : "";
-
-/**
- * Try to set the response status, but log an error if the headers have already been sent.
- */
-const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
-  if (!response.headersSent) {
-    response.status(status);
-  } else if (response.statusCode !== status) {
-    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
-    if (isProduction) {
-      // eslint-disable-next-line no-console
-      console.error(message);
-    } else {
-      throw new Error(message);
-    }
-  }
-
-  return response;
-}
-
-/**
- * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
- */
-const maybePrefetchResources = async ({
-  request,
-  response,
-  parsedRoute,
-  prefetchPrefix
-}: {
-  request: express.Request;
-  response: express.Response;
-  parsedRoute: RouterLocation,
-  prefetchPrefix: string;
-}) => {
-
-  const enableResourcePrefetch = parsedRoute.currentRoute?.enableResourcePrefetch;
-  const prefetchResources =
-    typeof enableResourcePrefetch === "function"
-      ? await enableResourcePrefetch(request, response, parsedRoute, createAnonymousContext())
-      : enableResourcePrefetch;
-
-  if (prefetchResources) {
-    response.setHeader("X-Accel-Buffering", "no"); // force nginx to send start of response immediately
-    trySetResponseStatus({ response, status: 200 });
-    response.write(prefetchPrefix);
-  }
-  return prefetchResources;
-};
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -363,123 +287,7 @@ export function startWebserver() {
     res.end("");
   });
 
-  app.get('*', async (request, response) => {
-    response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
-
-    if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
-    const publicSettingsHeader = embedAsGlobalVar("publicSettings", getPublicSettings())
-
-    const bundleHash = getClientBundle().resource.hash;
-    const clientScript = `<script async src="/js/bundle.js?hash=${bundleHash}"></script>`
-    const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
-
-    // Check whether the requested route has enableResourcePrefetch. If it does,
-    // we send HTTP status and headers early, before we actually rendered the
-    // page, so that the browser can get started on loading the stylesheet and
-    // JS bundle while SSR is still in progress.
-    const parsedRoute = parseRoute({
-      location: parsePath(request.url)
-    });
-    
-    const user = getUserFromReq(request);
-    const themeOptions = getThemeOptionsFromReq(request, user);
-    const jssStylePreload = renderJssSheetPreloads(themeOptions);
-    const externalStylesPreload = globalExternalStylesheets.map(url =>
-      `<link rel="stylesheet" type="text/css" href="${url}">`
-    ).join("");
-    
-    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
-
-    // Inject a tab ID into the page, by injecting a script fragment that puts
-    // it into a global variable. If the response is cacheable (same html may be used
-    // by multiple tabs), this is generated in `clientStartup.ts` instead.
-    const tabId = responseIsCacheable(response) ? null : randomId();
-    
-    // The part of the header which can be sent before the page is rendered.
-    // This includes an open tag for <html> and <head> but not the matching
-    // close tags, since there's stuff inside that depends on what actually
-    // gets rendered. The browser will pick up any references in the still-open
-    // tag and start fetching the, without waiting for the closing tag.
-    const prefetchPrefix = (
-      '<!doctype html>\n'
-      + '<html lang="en">\n'
-      + '<head>\n'
-        + jssStylePreload
-        + externalStylesPreload
-        + ssrInteractionDisable
-        + instanceSettingsHeader
-        + faviconHeader
-        // Embedded script tags that must precede the client bundle
-        + publicSettingsHeader
-        + embedAsGlobalVar("tabId", tabId)
-        // The client bundle. Because this uses <script async>, its load order
-        // relative to any scripts that come later than this is undetermined and
-        // varies based on timings and the browser cache.
-        + clientScript
-    );
-
-    // Note: this may write to the response
-    const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
-
-    const renderResultPromise = performanceMetricLoggingEnabled.get()
-      ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
-      : renderWithCache(request, response, user, tabId);
-
-    const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
-
-    if (renderResult.aborted) {
-      trySetResponseStatus({ response, status: 499 });
-      response.end();
-      return;
-    }
-
-    const {
-      ssrBody,
-      headers,
-      serializedApolloState,
-      serializedForeignApolloState,
-      jssSheets,
-      status,
-      redirectUrl,
-      renderedAt,
-      timezone,
-      cacheFriendly,
-      allAbTestGroups,
-    } = renderResult;
-    
-    // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
-    const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
-    
-    // Finally send generated HTML with initial data to the client
-    if (redirectUrl) {
-      // eslint-disable-next-line no-console
-      console.log(`Redirecting to ${redirectUrl}`);
-      trySetResponseStatus({ response, status: status || 301 }).redirect(redirectUrl);
-    } else {
-      trySetResponseStatus({ response, status: status || 200 });
-      const ssrMetadata: SSRMetadata = {
-        renderedAt: renderedAt.toISOString(),
-        cacheFriendly,
-        timezone
-      }
-
-      response.write(
-        (prefetchingResources ? '' : prefetchPrefix)
-          + headers.join('\n')
-          + themeOptionsHeader
-          + jssSheets
-        + '</head>\n'
-        + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-          + ssrBody + '\n'
-        + '</body>\n'
-        + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
-        + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
-        + serializedApolloState + '\n'
-        + serializedForeignApolloState + '\n'
-        + '</html>\n')
-      response.end();
-    }
-  })
+  app.get('*', renderPage)
 
   // Start Server
   const port = getServerPort();

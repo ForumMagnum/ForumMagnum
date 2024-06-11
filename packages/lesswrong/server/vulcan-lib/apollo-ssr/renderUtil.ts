@@ -3,5 +3,5 @@ import { DatabaseServerSetting } from "../../databaseSettings";
 
 export const healthCheckUserAgentSetting = new DatabaseServerSetting<string>("healthCheckUserAgent", "ELB-HealthChecker/2.0");
 
-export const embedAsGlobalVar = (name: keyof Window, value: unknown): string =>
+export const embedAsGlobalVar = (name: string & keyof Window, value: unknown): string =>
   `<script>window.${name} = ${toEmbeddableJson(value)}</script>`;
