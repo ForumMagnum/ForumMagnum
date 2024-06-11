@@ -120,16 +120,12 @@ const FeedPostHighlightBody = ({
   </Components.ContentStyles>
 }
 
-const isForeignCrosspost = <T extends {fmCrosspost: PostsList["fmCrosspost"]}>(post: T): post is T & PostWithForeignId => {
-  return isPostWithForeignId(post) && !post.fmCrosspost.hostedHere;
-};
-
 const FeedPostsHighlight = ({post, ...rest}: {
   post: PostsList,
   maxCollapsedLengthWords: number,
   initiallyExpanded?: boolean,
   forceSeeMore?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
