@@ -126,18 +126,19 @@ const subscribedFeedProps = {
   firstPageSize: 10,
   pageSize: 20,
   sortKeyType: 'Date',
-  nextFetchPolicy: 'cache-and-network',
   reorderOnRefetch: true,
   renderers: {
     postCommented: {
       fragmentName: "SubscribedPostAndCommentsFeed",
       render: (postCommented: SubscribedPostAndCommentsFeed) => {
+        const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
         return <Components.FeedPostCommentsCard
           key={postCommented.post._id}
           post={postCommented.post}
           comments={postCommented.comments}
           maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
-          refetch={()=>{} /*TODO*/}
+          refetch={() => {} /* TODO */}
+          commentTreeOptions={{ expandOnlyCommentIds }}
         />
       },
     }
@@ -170,6 +171,7 @@ type PlatformSettingsVisibilityToggle<T extends Platform> = {
 type PlatformSettingsVisibilityState<T extends Platform> = PlatformSettingsVisibility<T> & PlatformSettingsVisibilityToggle<T>;
 
 function useDefaultSettingsVisibility<T extends Platform>(currentUser: UsersCurrent | null, platform: T, selectedAlgorithm?: string): PlatformSettingsVisibilityState<T> {
+  const updateCurrentUser = useUpdateCurrentUser();
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS]);
   const [filterSettingsVisible, setFilterSettingsVisible] = useState(
     platform === 'mobile'
@@ -192,8 +194,9 @@ function useDefaultSettingsVisibility<T extends Platform>(currentUser: UsersCurr
       setSubscriptionSettingsVisible(newVisibilityState);
     } else {
       setFilterSettingsVisible(newVisibilityState);
+      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: !newVisibilityState})
     }
-  }, [selectedAlgorithm, setCookie]);
+  }, [selectedAlgorithm, setCookie, updateCurrentUser]);
 
   return {
     [`${platform}SettingsVisible`]: settingsVisible,
@@ -347,7 +350,6 @@ const LWHomePosts = ({children, classes}: {
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
-    void updateCurrentUser({hideFrontpageFilterSettingsDesktop: desktopSettingsVisible})
     
     captureEvent("filterSettingsClicked", {
       settings: filterSettings,
@@ -383,12 +385,20 @@ const LWHomePosts = ({children, classes}: {
 
   const desktopSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
 
+  const getSettingsIconOverride = (selectedTab: string, settingsVisible: boolean) => {
+    if (selectedTab !== 'forum-subscribed-authors') {
+      return undefined
+    }
+    return settingsVisible ? 'up' : 'down'
+  }
+
   const settingsButton = (<>
     {/* Desktop button */}
     <div className={classNames({ [classes.hide]: !currentUser, [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser })}>
       <SettingsButton
         showIcon={!!currentUser}
         onClick={changeShowTagFilterSettingsDesktop}
+        useArrow={getSettingsIconOverride(selectedTab, desktopSettingsVisible)}
       />
     </div>
     {/* Mobile button */}
@@ -396,6 +406,7 @@ const LWHomePosts = ({children, classes}: {
       <SettingsButton
         label={!currentUser ? desktopSettingsButtonLabel : undefined}
         showIcon={!!currentUser}
+        useArrow={getSettingsIconOverride(selectedTab, mobileSettingsVisible)}
         onClick={() => {
           toggleMobileSettingsVisible(!mobileSettingsVisible)
           captureEvent("filterSettingsClicked", {

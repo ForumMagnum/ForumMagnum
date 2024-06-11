@@ -3948,6 +3948,7 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
   readonly _id: any,
   readonly post: any,
   readonly comments: any,
+  readonly expandCommentIds: any,
   readonly postIsFromSubscribedUser: any,
 }
 
