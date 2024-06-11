@@ -19,6 +19,7 @@ const restrictedImportsPaths = [
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },
+  { name: "underscore", message: "Don't import underscore on the client" },
 ]
 
 module.exports = {
