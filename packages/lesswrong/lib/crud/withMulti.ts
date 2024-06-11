@@ -8,6 +8,7 @@ import { invalidateQuery } from './cacheUpdates';
 import { useNavigate } from '../reactRouterWrapper';
 import { apolloSSRFlag } from '../helpers';
 import { getMultiResolverName } from './utils';
+import { wrappedUseQuery } from './useQuery';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -188,7 +189,7 @@ export function useMulti<
     skip,
     notifyOnNetworkStatusChange: true
   }
-  const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
+  const {data, error, loading, refetch, fetchMore, networkStatus} = wrappedUseQuery(query, useQueryArgument);
 
   const client = useApolloClient();
   const invalidateCache = useCallback(() => invalidateQuery({

@@ -24,7 +24,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
   abTestGroupsUsed: RelevantTestGroupAllocation,
   ssrMetadata: SSRMetadata,
 }) => {
-  const App = (
+  return (
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
@@ -47,6 +47,5 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
       </ForeignApolloClientProvider>
     </ApolloProvider>
   );
-  return App;
 };
 export default AppGenerator;

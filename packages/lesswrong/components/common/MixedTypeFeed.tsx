@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql, ObservableQuery, QueryHookOptions, WatchQueryFetchPolicy } from '@apollo/client';
+import { gql, ObservableQuery, useSuspenseQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
@@ -123,7 +123,7 @@ const MixedTypeFeed = (args: {
   const {Loading} = Components;
   
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
-  const {data, error, fetchMore, refetch} = useQuery(query, {
+  const queryResult = useSuspenseQuery(query, {
     variables: {
       ...resolverArgsValues,
       ...fragmentArgsValues,
@@ -135,6 +135,8 @@ const MixedTypeFeed = (args: {
     nextFetchPolicy: "cache-only",
     ssr: true,
   });
+  const {error, fetchMore, refetch} = queryResult;
+  const data = queryResult.data as any;
   
   if (refetchRef && refetch)
     refetchRef.current = refetch;

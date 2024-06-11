@@ -830,6 +830,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
+      enableSuspenseStreaming: true,
       sunshineSidebar: true, 
       ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
     },

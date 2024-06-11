@@ -149,6 +149,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   const body = (
     <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
       <div  className={classes.body}>
+        {/*FIXME performance hotspot*/}
         {htmlToTextDefault(quickTake.contents?.html)}
       </div>
     </div>

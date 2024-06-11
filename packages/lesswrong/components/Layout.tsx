@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo, Suspense} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
@@ -452,6 +452,7 @@ const Layout = ({currentUser, children, classes}: {
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
+      Loading,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -547,7 +548,7 @@ const Layout = ({currentUser, children, classes}: {
               }
               )}>
                 {isFriendlyUI && <AdminToggle />}
-                {standaloneNavigation &&
+                {standaloneNavigation && <Suspense fallback={<span/>}>
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
@@ -560,7 +561,7 @@ const Layout = ({currentUser, children, classes}: {
                       noTopMargin={friendlyHomeLayout}
                     />
                   </StickyWrapper>
-                }
+                </Suspense>}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
@@ -572,7 +573,9 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
+                    <Suspense fallback={<Loading/>}>
+                      {children}
+                    </Suspense>
                     {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}

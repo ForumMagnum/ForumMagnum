@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback, useEffect, Suspense } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -381,10 +381,12 @@ const Header = ({
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
-    {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      currentUser={currentUser}
-      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
-    />}
+    {hasKarmaChangeNotifier && <Suspense fallback={<span/>}>
+      <KarmaChangeNotifier
+        currentUser={currentUser}
+        className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      />
+    </Suspense>}
     {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
       toggle={handleNotificationToggle}
       open={notificationOpen}

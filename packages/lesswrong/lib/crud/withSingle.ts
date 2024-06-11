@@ -4,6 +4,7 @@ import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
+import { wrappedUseQuery } from './useQuery';
 
 // Template of a GraphQL query for useSingle. A sample query might look
 // like:
@@ -138,7 +139,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   const query = getGraphQLQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collectionName)
   // TODO: Properly type this generic query
-  const { data, error, ...rest } = useQuery(query, {
+  const { data, error, ...rest } = wrappedUseQuery(query, {
     variables: {
       input: {
         selector: { documentId, slug },

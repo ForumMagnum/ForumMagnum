@@ -42,6 +42,7 @@ import { randomId } from '@/lib/random';
 import express from 'express'
 import type { RouterLocation } from '@/lib/vulcan-lib/routes';
 import { createAnonymousContext } from '../query';
+import { Writable } from 'stream';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -56,7 +57,6 @@ export type RenderResult = {
   headers: Array<string>
   serializedApolloState: string
   serializedForeignApolloState: string
-  jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
@@ -170,6 +170,7 @@ export const renderPage = async (request: Request, response: Response) => {
   
   const user = getUserFromReq(request);
   const themeOptions = getThemeOptionsFromReq(request, user);
+  const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
   const jssStylePreload = renderJssSheetPreloads(themeOptions);
   const externalStylesPreload = globalExternalStylesheets.map(url =>
     `<link rel="stylesheet" type="text/css" href="${url}">`
@@ -182,6 +183,8 @@ export const renderPage = async (request: Request, response: Response) => {
   // by multiple tabs), this is generated in `clientStartup.ts` instead.
   const tabId = responseIsCacheable(response) ? null : randomId();
   
+  const jssSheets = renderJssSheetImports(themeOptions);
+
   // The part of the header which can be sent before the page is rendered.
   // This includes an open tag for <html> and <head> but not the matching
   // close tags, since there's stuff inside that depends on what actually
@@ -203,10 +206,18 @@ export const renderPage = async (request: Request, response: Response) => {
       // relative to any scripts that come later than this is undetermined and
       // varies based on timings and the browser cache.
       + clientScript
+      + themeOptionsHeader
   );
+  
+  const isStreaming = !!parsedRoute.currentRoute?.enableSuspenseStreaming;
 
   // Note: this may write to the response
   const prefetchResourcesPromise = maybePrefetchResources({ request, response, parsedRoute, prefetchPrefix });
+
+  if (isStreaming) {
+    await prefetchResourcesPromise;
+    response.write(jssSheets + "</head>");
+  }
 
   const renderResultPromise = performanceMetricLoggingEnabled.get()
     ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
@@ -225,7 +236,6 @@ export const renderPage = async (request: Request, response: Response) => {
     headers,
     serializedApolloState,
     serializedForeignApolloState,
-    jssSheets,
     status,
     redirectUrl,
     renderedAt,
@@ -233,9 +243,6 @@ export const renderPage = async (request: Request, response: Response) => {
     cacheFriendly,
     allAbTestGroups,
   } = renderResult;
-  
-  // TODO: Move this up into prefetchPrefix. Take the <link> that loads the stylesheet out of renderRequest and move that up too.
-  const themeOptionsHeader = embedAsGlobalVar("themeOptions", themeOptions);
   
   // Finally send generated HTML with initial data to the client
   if (redirectUrl) {
@@ -250,16 +257,21 @@ export const renderPage = async (request: Request, response: Response) => {
       timezone
     }
 
+    if (!isStreaming) {
+      response.write(
+        (prefetchingResources ? '' : prefetchPrefix)
+          + headers.join('\n')
+          + themeOptionsHeader
+          + jssSheets
+        + '</head>\n'
+        + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
+          + ssrBody + '\n'
+        + '</body>\n'
+      );
+    }
+    
     response.write(
-      (prefetchingResources ? '' : prefetchPrefix)
-        + headers.join('\n')
-        + themeOptionsHeader
-        + jssSheets
-      + '</head>\n'
-      + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
-        + ssrBody + '\n'
-      + '</body>\n'
-      + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
+      embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n' // TODO Remove after 2024-05-14, here for backwards compatibility
       + embedAsGlobalVar("ssrMetadata", ssrMetadata) + '\n'
       + serializedApolloState + '\n'
       + serializedForeignApolloState + '\n'
@@ -283,7 +295,15 @@ const requestCanUsePageCache = (req: Request, user: DbUser|null): boolean => {
   const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
   const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
 
-  return !((!isHealthCheck && (user || isExcludedFromPageCache(url))) || isSlackBot || showDynamicFrontpage);
+  if (!isHealthCheck) {
+    if (user)
+      return false;
+    if (isExcludedFromPageCache(url))
+      return false;
+  }
+  if (isSlackBot) return false;
+  if (showDynamicFrontpage) return false;
+  return true;
 }
 
 const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
@@ -302,7 +322,7 @@ const renderWithCache = async (req: Request, res: Response, user: DbUser|null, t
 
   const abTestGroups = getAllUserABTestGroups(user ? {user} : {clientId});
   
-  if (requestCanUsePageCache(req, user)) {
+  if (!requestCanUsePageCache(req, user)) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     
@@ -532,6 +552,30 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   return `${prefix}<div id="react-app">${htmlContent}</div>`;
 }
 
+class ResponseForwarderStream extends Writable {
+  private res: Response
+  //private _data: string[] = [];
+  
+  constructor(res: Response) {
+    super();
+    this.res = res;
+  }
+
+  _write(chunk: any, _encoding: string, callback: (error?: Error|null) => void) {
+    this.res.write(chunk);
+    //this._data.push(chunk);
+    /*console.log(`Streamed ${chunk.length}b`);
+    const decoder = new TextDecoder("utf-8");
+    console.log(decoder.decode(chunk));
+    console.log('==================');*/
+    callback();
+  }
+
+  /*public getString(): string {
+    return this._data.join('');
+  }*/
+}
+
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const cacheFriendly = responseIsCacheable(res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
@@ -583,11 +627,28 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   
   const themeOptions = getThemeOptionsFromReq(req, user);
 
-  const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
+  const WrappedApp = <div id="react-root">
+    {wrapWithMuiTheme(App, context, themeOptions)}
+  </div>;
   
   let htmlContent = '';
   try {
-    htmlContent = await renderToStringWithData(WrappedApp);
+    console.log("Starting render");
+    const stream = new ResponseForwarderStream(res);
+    await new Promise<void>((resolve) => {
+      const reactPipe = renderToPipeableStream(WrappedApp, {
+        onAllReady: () => {
+          console.log("renderToPipeableStream.onAllReady");
+          resolve();
+        },
+      })
+      console.log("Piping along");
+      reactPipe.pipe(stream);
+    });
+    htmlContent = "";
+    //htmlContent = stream.getString();
+    console.log("Wrapping up render");
+    //htmlContent = await renderToStringWithData(WrappedApp);
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
@@ -603,8 +664,6 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
-
-  const jssSheets = renderJssSheetImports(themeOptions);
 
   const finishedTime = new Date();
   const timings: RenderTimings = {
@@ -644,7 +703,6 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     headers: [head],
     serializedApolloState,
     serializedForeignApolloState,
-    jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroupsUsed,
