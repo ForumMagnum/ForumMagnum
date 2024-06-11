@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Components,
   registerComponent,
 } from '../../lib/vulcan-lib';
 
 import classNames from 'classnames';
-import { CommentTreeNode } from '../../lib/utils/unflatten';
+import { CommentTreeNode, addGapIndicators, flattenCommentBranch, unflattenComments } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
 
 import { Link } from '../../lib/reactRouterWrapper';
@@ -110,7 +110,60 @@ const styles = (theme: ThemeType) => ({
   noComments: {
     paddingBottom: 16
   },
+  showChildren: {
+    padding: 4,
+    paddingLeft: 12,
+    ...theme.typography.body2,
+    color: theme.palette.lwTertiary.main,
+    display: "block",
+    fontSize: 14,
+  },
 })
+
+const FeedPostCommentsBranch = ({ comment, treeOptions, expandAllThreads, classes }: {
+  comment: CommentTreeNode<CommentsList>,
+  treeOptions: CommentTreeOptions,
+  expandAllThreads: boolean,
+  classes: ClassesType<typeof styles>
+}) => {
+  const { CommentsNode } = Components;
+
+  const [expanded, setExpanded] = useState(expandAllThreads);
+
+  const flattenedCommentBranch = flattenCommentBranch(comment);
+  let commentBranchWithGaps = flattenedCommentBranch.slice(1);
+  let modifiedChildren;
+  const { expandOnlyCommentIds } = treeOptions;
+  if (!expanded && expandOnlyCommentIds && flattenedCommentBranch.length > 3) {
+    commentBranchWithGaps = commentBranchWithGaps.filter(({ _id }, idx) => (
+      _id === comment.item._id ||
+      expandOnlyCommentIds.has(_id) ||
+      (commentBranchWithGaps[idx + 1] && expandOnlyCommentIds.has(commentBranchWithGaps[idx + 1]._id))
+    ));
+    modifiedChildren = addGapIndicators(unflattenComments(commentBranchWithGaps));
+  }
+  const extraChildrenCount = Math.max(0, flattenedCommentBranch.length - (commentBranchWithGaps.length + 1));
+
+  const showExtraChildrenButton =
+    extraChildrenCount > 0 ? (
+      <a className={classes.showChildren} onClick={() => setExpanded(true)}>
+        Showing {commentBranchWithGaps.length} of {flattenedCommentBranch.length - 1} replies (Click to show all)
+      </a>
+    ) : null;
+
+  return <div key={comment.item._id}>
+    <CommentsNode
+      treeOptions={treeOptions}
+      startThreadTruncated={true}
+      showExtraChildrenButton={showExtraChildrenButton}
+      expandAllThreads={expanded}
+      expandNewComments={false}
+      comment={comment.item}
+      childComments={modifiedChildren ?? comment.children}
+      key={comment.item._id}
+    />
+  </div>
+};
 
 const FeedPostCommentsCard = ({
   post,
@@ -144,9 +197,7 @@ const FeedPostCommentsCard = ({
     initialExpandAllThreads,
   });
 
-  const {
-    PostsGroupDetails, CommentsNode, FeedPostsHighlight, PostActionsButton, FeedPostCardMeta
-  } = Components;
+  const { FeedPostsHighlight, PostActionsButton, FeedPostCardMeta } = Components;
 
   return (
     <AnalyticsContext pageSubSectionContext='FeedPostCommentsCard'>
@@ -174,19 +225,17 @@ const FeedPostCommentsCard = ({
           : null}
 
         {nestedComments.length > 0 && <div className={classes.commentsList}>
-          {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
-            <div key={comment.item._id}>
-              <CommentsNode
-                treeOptions={treeOptions}
-                startThreadTruncated={true}
-                expandAllThreads={expandAllThreads}
-                expandNewComments={false}
-                comment={comment.item}
-                childComments={comment.children}
-                key={comment.item._id}
-              />
-            </div>
-          )}
+          {nestedComments.map((comment: CommentTreeNode<CommentsList>) => {
+            return <FeedPostCommentsBranch
+              key={comment.item._id}
+              {...{
+                comment,
+                treeOptions,
+                expandAllThreads,
+                classes
+              }}
+            />;
+          })}
         </div>}
       </div>
     </AnalyticsContext>
