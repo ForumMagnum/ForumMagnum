@@ -125,7 +125,7 @@ export const useForeignCrosspost = <Post extends Partial<PostWithForeignId>, Fra
   }
 
   return {
-    loading,
+    loading: loading && !skip,
     error,
     localPost,
     foreignPost,
