@@ -11,7 +11,7 @@ export type PostWithForeignId = {
 };
 
 export const isPostWithForeignId =
-  <T extends {fmCrosspost: PostsList["fmCrosspost"]}>(post: T): post is T & PostWithForeignId =>
+  <T extends {fmCrosspost?: PostsList["fmCrosspost"]}>(post: T): post is T & PostWithForeignId =>
     !!post.fmCrosspost &&
     !!post.fmCrosspost.isCrosspost &&
     typeof post.fmCrosspost.hostedHere === "boolean" &&
@@ -71,20 +71,24 @@ export const crosspostFragments = [
 
 type CrosspostFragments = typeof crosspostFragments[number];
 
+type MaybeCrosspostedPost<T extends FragmentTypes[CrosspostFragments]> = T extends PostWithForeignId ? true : false;
+
+type foo = MaybeCrosspostedPost<PostsList & PostWithForeignId>;
+
 /**
  * Load foreign crosspost data from the foreign site
  */
-export const useForeignCrosspost = <Post extends Partial<PostWithForeignId>, FragmentTypeName extends CrosspostFragments>(
+export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragments], FragmentTypeName extends CrosspostFragments>(
   localPost: Post,
   fetchProps: PostFetchProps<FragmentTypeName>,
-  skip?: boolean
 ): {
   loading: boolean,
   error?: ApolloError,
   localPost: Post,
   foreignPost?: FragmentTypes[FragmentTypeName],
-  combinedPost?: Post & FragmentTypes[FragmentTypeName],
-} => {
+  combinedPost?: Post & FragmentTypes[FragmentTypeName] & PostWithForeignId,
+} {
+  const skip = isPostWithForeignId(localPost);
   // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
   // will also fail to create a local post), so this should never create a race condition - if we hit
   // this then something's actually gone seriously wrong
@@ -105,9 +109,9 @@ export const useForeignCrosspost = <Post extends Partial<PostWithForeignId>, Fra
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
-  let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
-  if (!localPost.fmCrosspost?.hostedHere) {
-    combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
+  let combinedPost: (Post & FragmentTypes[FragmentTypeName] & PostWithForeignId) | undefined;
+  if (isPostWithForeignId(localPost) && !localPost.fmCrosspost?.hostedHere) {
+    combinedPost = {...foreignPost, ...localPost};
     for (const field of overrideFields) {
       Object.assign(combinedPost, { [field]: (foreignPost as AnyBecauseTodo)?.[field] ?? (localPost as AnyBecauseTodo)[field] });
     }

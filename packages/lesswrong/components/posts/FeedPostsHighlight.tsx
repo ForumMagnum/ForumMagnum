@@ -120,8 +120,12 @@ const FeedPostHighlightBody = ({
   </Components.ContentStyles>
 }
 
+const isForeignCrosspost = <T extends {fmCrosspost: PostsList["fmCrosspost"]}>(post: T): post is T & PostWithForeignId => {
+  return isPostWithForeignId(post) && !post.fmCrosspost.hostedHere;
+};
+
 const FeedPostsHighlight = ({post, ...rest}: {
-  post: PostsList & Partial<PostWithForeignId>,
+  post: PostsList,
   maxCollapsedLengthWords: number,
   initiallyExpanded?: boolean,
   forceSeeMore?: boolean,
@@ -130,15 +134,15 @@ const FeedPostsHighlight = ({post, ...rest}: {
   const [expanded, setExpanded] = useState(false);
   const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
 
-  const { loading, error, combinedPost } = useForeignCrosspost(post, foreignFetchProps, !isForeignCrosspost);
-  post = combinedPost ?? post;
+  const { loading, error, combinedPost } = useForeignCrosspost(post, foreignFetchProps);
+  const availablePost = combinedPost ?? post;
   if (error) {
     captureException(error);
   }
 
   const apolloClient = useForeignApolloClient();
 
-  const documentId = (isForeignCrosspost && !error) ? post.fmCrosspost.foreignPostId : post._id;
+  const documentId = (isForeignCrosspost && !error) ? (availablePost.fmCrosspost.foreignPostId ?? undefined) : availablePost._id;
 
   const { document: expandedDocument, loading: expandedLoading } = useSingle({
     documentId,
