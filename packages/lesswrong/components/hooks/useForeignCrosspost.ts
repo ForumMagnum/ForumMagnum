@@ -74,9 +74,10 @@ type CrosspostFragments = typeof crosspostFragments[number];
 /**
  * Load foreign crosspost data from the foreign site
  */
-export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentTypeName extends CrosspostFragments>(
+export const useForeignCrosspost = <Post extends Partial<PostWithForeignId>, FragmentTypeName extends CrosspostFragments>(
   localPost: Post,
   fetchProps: PostFetchProps<FragmentTypeName>,
+  skip?: boolean
 ): {
   loading: boolean,
   error?: ApolloError,
@@ -87,7 +88,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
   // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
   // will also fail to create a local post), so this should never create a race condition - if we hit
   // this then something's actually gone seriously wrong
-  if (!localPost.fmCrosspost.foreignPostId) {
+  if (!localPost.fmCrosspost?.foreignPostId && !skip) {
     throw new Error("Crosspost has not been created yet");
   }
 
@@ -95,16 +96,17 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     variables: {
       args: {
         ...fetchProps,
-        documentId: localPost.fmCrosspost.foreignPostId,
+        documentId: localPost.fmCrosspost?.foreignPostId,
       },
       batchKey: crosspostBatchKey,
     },
+    skip
   });
 
   const foreignPost: FragmentTypes[FragmentTypeName] = data?.getCrosspost;
 
   let combinedPost: (Post & FragmentTypes[FragmentTypeName]) | undefined;
-  if (!localPost.fmCrosspost.hostedHere) {
+  if (!localPost.fmCrosspost?.hostedHere) {
     combinedPost = {...foreignPost, ...localPost} as Post & FragmentTypes[FragmentTypeName];
     for (const field of overrideFields) {
       Object.assign(combinedPost, { [field]: (foreignPost as AnyBecauseTodo)?.[field] ?? (localPost as AnyBecauseTodo)[field] });

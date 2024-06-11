@@ -197,14 +197,41 @@ const FeedLocalPostsHighlight = ({post, maxCollapsedLengthWords, forceSeeMore=fa
 };
 
 const FeedPostsHighlight = ({post, ...rest}: {
-  post: PostsList,
+  post: PostsList & Partial<PostWithForeignId>,
   maxCollapsedLengthWords: number,
   initiallyExpanded?: boolean,
   forceSeeMore?: boolean,
   classes: ClassesType,
-}) => isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
-  ? <FeedForeignPostsHighlight post={post} {...rest} />
-  : <FeedLocalPostsHighlight post={post} {...rest} />;
+}) => {
+  const [expanded, setExpanded] = useState(false);
+  const isForeignCrosspost = isPostWithForeignId(post) && !post.fmCrosspost.hostedHere
+
+  const {loading, error, combinedPost } = useForeignCrosspost(post, foreignFetchProps, isForeignCrosspost);
+  post = combinedPost ?? post;
+  if (error) {
+    captureException(error);
+  }
+
+  const apolloClient = useForeignApolloClient();
+
+  const {document: expandedDocument, loading: expandedLoading} = useSingle({
+    skip: !expanded && !!post.contents,
+    documentId: (isForeignCrosspost && !error) ? post.fmCrosspost.foreignPostId : post._id,
+    apolloClient: isForeignCrosspost ? apolloClient : undefined,
+    ...expandedFetchProps,
+  });
+
+  return loading
+  ? <Components.Loading />
+  : <FeedPostHighlightBody {...{
+      post,
+      expanded,
+      setExpanded,
+      expandedLoading,
+      expandedDocument,
+      ...rest
+    }}/>
+}
 
 const FeedPostsHighlightComponent = registerComponent('FeedPostsHighlight', FeedPostsHighlight, {styles});
 
