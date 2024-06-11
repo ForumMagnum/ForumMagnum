@@ -795,7 +795,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH RECURSIVE user_subscriptions AS (
         SELECT DISTINCT type, "documentId" AS "userId"
         FROM "Subscriptions" s
-          LEFT JOIN "Users" u ON u._id = s."documentId"
         WHERE state = 'subscribed'
           AND s.deleted IS NOT TRUE
           AND "collectionName" = 'Users'
@@ -808,7 +807,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           "postedAt",
           TRUE as "subscribedPosts"
         FROM "Posts" p
-          JOIN user_subscriptions us USING ("userId")
+        JOIN user_subscriptions us
+        USING ("userId")
         WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
         ORDER BY p."postedAt" DESC
       ),
@@ -819,8 +819,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           MAX(c."postedAt") AS last_commented,
           TRUE as "subscribedComments"
         FROM "Comments" c
-          JOIN user_subscriptions us USING ("userId")
+        JOIN user_subscriptions us
+        USING ("userId")
         WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
+          AND c."postId" IS NOT NULL
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE
@@ -834,7 +836,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           c."postedAt"
         FROM "Comments" c
         WHERE c._id IN (SELECT UNNEST("commentIds") FROM posts_with_comments_from_subscribees)
-        UNION ALL
+        UNION
         SELECT
           c._id,
           c."postId",
