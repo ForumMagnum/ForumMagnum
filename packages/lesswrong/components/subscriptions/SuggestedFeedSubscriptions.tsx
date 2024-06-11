@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 12,
-    marginBottom: 32,
+    marginBottom: 6,
   },
   titleRow: {
     display: "flex",

@@ -114,7 +114,7 @@ const styles = (theme: ThemeType) => ({
   tagFilterSettingsButton: {
   },
   subscribedAnnouncementPost: {
-    marginBottom: 10,
+    marginBottom: 32,
   }
 });
 
@@ -461,12 +461,11 @@ const LWHomePosts = ({children, classes}: {
     documentId: '5rygaBBH7B4LNqQkz', 
     collectionName: 'Posts', 
     fragmentName: 'PostsListWithVotes',
-    skip: selectedTab !== 'forum-subscribed-authors'
+    skip: !currentUser ||selectedTab !== 'forum-subscribed-authors'
   });
 
   const subscriptionSettingsElement = (
     <div className={settingsVisibileClassName}>
-      {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} />}
       <SuggestedFeedSubscriptions
         availableUsers={availableUsers}
         setAvailableUsers={setAvailableUsers}
@@ -474,6 +473,7 @@ const LWHomePosts = ({children, classes}: {
         loadMoreSuggestedUsers={loadMoreSuggestedUsers}
         refetchFeed={refetchSubscriptionContent}
       />
+      {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
     </div>
   );
 
