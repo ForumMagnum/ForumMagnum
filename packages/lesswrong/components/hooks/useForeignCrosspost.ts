@@ -88,7 +88,7 @@ export function useForeignCrosspost<Post extends FragmentTypes[CrosspostFragment
   foreignPost?: FragmentTypes[FragmentTypeName],
   combinedPost?: Post & FragmentTypes[FragmentTypeName] & PostWithForeignId,
 } {
-  const skip = isPostWithForeignId(localPost);
+  const skip = !isPostWithForeignId(localPost);
   // From the user's perspective crossposts are created atomically (ie; failing to create a crosspost
   // will also fail to create a local post), so this should never create a race condition - if we hit
   // this then something's actually gone seriously wrong
