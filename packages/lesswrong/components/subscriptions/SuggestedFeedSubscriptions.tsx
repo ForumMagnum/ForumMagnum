@@ -17,14 +17,14 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    marginTop: 10,
+    marginTop: 6,
     background: theme.palette.panelBackground.recentDiscussionThread,
     borderRadius: 3,
     paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 12,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   titleRow: {
     display: "flex",
@@ -227,10 +227,11 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
           />
         </div>
       </div>
-      <div className={classNames(classes.subscribeButton, classes.followButton)}>
-        <div onClick={() => handleSubscribeOrDismiss(user)}>
-          Follow
-        </div>
+      <div 
+        className={classNames(classes.subscribeButton, classes.followButton)} 
+        onClick={() => handleSubscribeOrDismiss(user)}
+      >
+        Follow
       </div>
     </div>
   </li>);
