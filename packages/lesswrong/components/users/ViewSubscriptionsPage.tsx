@@ -10,7 +10,6 @@ import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, userHasSub
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW } from '../../lib/instanceSettings';
 import { commentBodyStyles } from '@/themes/stylePiping';
-import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   subscriptionsListRoot: {
@@ -38,8 +37,9 @@ const styles = (theme: ThemeType) => ({
     fontStyle: "italic",
   },
   unsubscribeButton: {
-    minWidth: 82,
-    opacity: 0.7
+    minWidth: 83,
+    opacity: 0.7,
+    wordBreak: "keep-all"
   },
 });
 
