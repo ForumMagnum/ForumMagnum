@@ -404,12 +404,20 @@ const LWHomePosts = ({children, classes}: {
 
   const desktopSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
 
+  const getSettingsIconOverride = (selectedTab: string, settingsVisible: boolean) => {
+    if (selectedTab !== 'forum-subscribed-authors') {
+      return undefined
+    }
+    return settingsVisible ? 'up' : 'down'
+  }
+
   const settingsButton = (<>
     {/* Desktop button */}
     <div className={classNames({ [classes.hide]: !currentUser, [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser })}>
       <SettingsButton
         showIcon={!!currentUser}
         onClick={changeShowTagFilterSettingsDesktop}
+        useArrow={getSettingsIconOverride(selectedTab, desktopSettingsVisible)}
       />
     </div>
     {/* Mobile button */}
@@ -417,6 +425,7 @@ const LWHomePosts = ({children, classes}: {
       <SettingsButton
         label={!currentUser ? desktopSettingsButtonLabel : undefined}
         showIcon={!!currentUser}
+        useArrow={getSettingsIconOverride(selectedTab, mobileSettingsVisible)}
         onClick={() => {
           toggleMobileSettingsVisible(!mobileSettingsVisible)
           captureEvent("filterSettingsClicked", {
