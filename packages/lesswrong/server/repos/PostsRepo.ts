@@ -812,12 +812,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
         ORDER BY p."postedAt" DESC
       ),
-      posts_with_comments_from_subscribees AS (
+      comments_from_subscribees AS (
         SELECT
           "postId",
           (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
-          MAX(c."postedAt") AS last_commented,
-          TRUE as "subscribedComments"
+          MAX(c."postedAt") AS last_commented
         FROM "Comments" c
         JOIN user_subscriptions us
         USING ("userId")
@@ -827,6 +826,17 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE
         GROUP BY "postId"
+      ),
+      posts_with_comments_from_subscribees AS (
+        SELECT
+          c."postId",
+          ARRAY_AGG(c._id) AS "commentIds",
+          MAX(c."postedAt") AS last_commented,
+          TRUE as "subscribedComments"
+        FROM "Comments" c
+        JOIN (SELECT UNNEST("commentIds") AS _id, "postId", last_commented FROM comments_from_subscribees) un
+        ON c._id = un._id AND c."postId" = un."postId" AND c."postedAt" > un.last_commented - INTERVAL '1 week'
+        GROUP BY c."postId"
       ),
       parent_comments AS (
         SELECT
