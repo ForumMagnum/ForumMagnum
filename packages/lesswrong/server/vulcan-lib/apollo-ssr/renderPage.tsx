@@ -261,7 +261,6 @@ export const renderPage = async (request: Request, response: Response) => {
       response.write(
         (prefetchingResources ? '' : prefetchPrefix)
           + headers.join('\n')
-          + themeOptionsHeader
           + jssSheets
         + '</head>\n'
         + '<body class="'+classesForAbTestGroups(allAbTestGroups)+'">\n'
