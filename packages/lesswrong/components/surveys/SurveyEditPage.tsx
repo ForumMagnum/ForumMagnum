@@ -49,7 +49,11 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     "& .SectionTitle-root": {
       padding: 0,
-      marginRight: -20,
+    },
+    [theme.breakpoints.down("sm")]: {
+      "& .SectionTitle-root": {
+        marginRight: -20,
+      },
     },
   },
   questionButtons: {
