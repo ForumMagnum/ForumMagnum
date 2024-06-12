@@ -1,6 +1,6 @@
 # Caching in CloudFront
 
-It is possible to set up CloudFront (a CDN) to cache post pages for logged out users. In principle this could be extended quite easily to other CDNs, but currently the implementation is quite coupled to CloudFront specifically. For the EA Forum, we get a 60-70% overall hit rate (i.e. including logged in users, which always miss the cache) on post page loads.
+It is possible to set up CloudFront (a CDN) to cache post pages for logged out users. In principle this could be extended quite easily to other CDNs, but currently the implementation is quite coupled to CloudFront specifically.
 
 ## How to set up CloudFront in general (not for caching)
 
