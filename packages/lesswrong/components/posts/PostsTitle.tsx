@@ -226,7 +226,7 @@ const PostsTitle = ({
         </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
-        {isLink ? <Link to={url} eventProps={linkEventProps}>{title}</Link> : title }
+        {isLink ? <Link to={url} doOnDown={true} eventProps={linkEventProps}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
         <InteractionWrapper className={classes.interactionWrapper}>
@@ -244,7 +244,7 @@ const PostsTitle = ({
             tagSlug={currentForumEvent.tag.slug}
             className={classes.highlightedTagTooltip}
           >
-            <Link to={tagGetUrl(currentForumEvent.tag)}>
+            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)}>
               <span
                 className={classes.eventTag}
                 style={{
