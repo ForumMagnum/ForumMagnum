@@ -394,7 +394,7 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
     },
     /* Refine this to match the dimensions of your heading typeface */
     'h1 .t3a-heading-play-button': { marginTop: 10 },
-    'h2 .t3a-heading-play-button': { marginTop: 8 },
+    'h2 .t3a-heading-play-button': { marginTop: 7 },
     'h3 .t3a-heading-play-button': { marginTop: 3 },
   }
 })
