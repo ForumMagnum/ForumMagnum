@@ -26,6 +26,7 @@ import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
+import shuffle from 'lodash/shuffle';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -248,14 +249,14 @@ function useSuggestedUsers() {
   const { results, loading, loadMore } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
     resolverName: "SuggestedFeedSubscriptionUsers",
-    limit: 15,
-    itemsPerPage: 10,
+    limit: 48,
+    itemsPerPage: 16,
     ssr: false,
     skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
   });
 
   useEffect(() => {
-    setAvailableUsers(results ?? []);
+    setAvailableUsers(shuffle(results ?? []));
   }, [results]);
 
   return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };

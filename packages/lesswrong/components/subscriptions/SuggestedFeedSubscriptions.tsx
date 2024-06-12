@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
@@ -11,6 +11,8 @@ import CloseIcon from '@material-ui/icons/Close';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
+
+const DISMISS_BUTTON_WIDTH = 16;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -80,22 +82,34 @@ const styles = (theme: ThemeType) => ({
     gap: "6px",
     height: 180,
     marginTop: 8,
+    transition: "height .5s ease-in-out",
+  },
+  showMoreCards: {
+    height: 360,
   },
   suggestedUserListItem: {
     transition: "all .5s ease-out",
     listStyle: "none",
     height: 85,
-    minWidth: 145,
-    flexGrow: 1,
-    flexBasis: 145,
+    width: "178.75px",
+    ['@media(min-width: 500px) and (max-width: 780px)']: {
+      minWidth: 145,
+      flexBasis: 145,
+      flexGrow: 1,
+    },
     ['@media(max-width: 500px)']: {
       minWidth: 98,
       flexBasis: 98,
+      flexGrow: 1,
     },
   },
   removedSuggestedUserListItem: {
-    width: 0,
     opacity: 0,
+    minWidth: 0,
+    // Needed to override the dynamic width and flexBasis assigned in SuggestedFollowCard
+    width: "0 !important",
+    flexBasis: "0 !important",
+    marginLeft: -6,
   },
   suggestedUser: {
     display: "flex",
@@ -135,7 +149,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   dismissButton: {
-    width: 16,
+    width: DISMISS_BUTTON_WIDTH,
     height: 16,
     color: theme.palette.grey[400],
     cursor: "pointer",
@@ -146,7 +160,8 @@ const styles = (theme: ThemeType) => ({
   buttonDisplayName: {
     ...theme.typography.commentStyle,
     fontSize: "1rem",
-    width: "100%",
+    // Account for the dismiss button width so that sufficiently long display names don't cause it to overflow
+    width: `calc(100% - ${DISMISS_BUTTON_WIDTH}px)`,
     marginBottom: 4,
   },
   buttonMetaInfo: {
@@ -161,16 +176,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   clampedUserName: {
-    // This entire setup allows us to do a graceful truncation after 2 lines (which some longer display names hit)
-    // Browser support is _basically_ good: https://caniuse.com/?search=line-clamp
     height: "1lh",
-    display: "-webkit-box",
+    display: "flex",
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    '-webkit-line-clamp': 2,
-    '-webkit-box-orient': "vertical",
-    // Some single-word display names are longer than the width of the container
-    overflowWrap: "break-word",
   },
   icon: {
     width: 17,
@@ -196,6 +204,17 @@ const styles = (theme: ThemeType) => ({
     ['@media(max-width: 500px)']: {
       display: "none",
     }
+  },
+  showMoreContainer: {
+    display: "flex",
+    alignItems: "end",
+  },
+  showMoreButton: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.lwTertiary.main,
+    display: "inline-block",
+    minHeight: 20,
   }
 });
 
@@ -208,7 +227,26 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
 }) => {
   const { UsersName, UserMetaInfo } = Components;
 
-  return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
+  const cardRef = useRef<HTMLLIElement>(null);
+  const [additionalStyling, setAdditionalStyling] = useState<React.CSSProperties>();
+
+  // Set the width of each card to whatever width it initially renders as, depending on flexGrow.
+  // After that, we remove flexGrow to stop cards from expanding/contracting during transitions when users click follow or dismiss.
+  useEffect(() => {
+    if (cardRef.current) {
+      const fixedWidth = cardRef.current.getBoundingClientRect().width;
+
+      setAdditionalStyling({ width: fixedWidth, flexBasis: fixedWidth });
+
+      // Setting flexGrow: 0 after a bit of a delay ensures the previous styling has taken effect,
+      // which we need to prevent a weird reflow during the initial render
+      setTimeout(() => {
+        setAdditionalStyling({ width: fixedWidth, flexBasis: fixedWidth, flexGrow: 0 })
+      }, 300);
+    }
+  }, []);
+
+  return (<li ref={cardRef} className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })} style={additionalStyling}>
     <div className={classes.suggestedUser}>
       <div className={classes.buttonUserInfo} >
         <div className={classes.buttonDisplayNameAndDismiss} >
@@ -299,11 +337,17 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
   const { Loading } = Components;
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
+  const [showMore, setShowMore] = useState(false);
 
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
-  const displayedSuggestionLimit = 12;
+  const toggleShowMore = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowMore(!showMore);
+  };
+
+  const renderedSuggestionLimit = showMore ? 32 : 16;
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -325,21 +369,22 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
     const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
     flash({messageString: successMessage});
 
-    if (availableUsers.length < displayedSuggestionLimit + 2) {
-      void loadMoreSuggestedUsers();
-    }
-
     // This plus the conditional styling on the list items is to allow for a smoother collapse animation
     // General approach taken from https://css-tricks.com/animation-techniques-for-adding-and-removing-items-from-a-stack/#aa-the-collapse-animation
     setHiddenSuggestionIdx(index);
     setTimeout(() => {
       setHiddenSuggestionIdx(undefined);
       setAvailableUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
+      if (availableUsers.length < renderedSuggestionLimit + 2) {
+        void loadMoreSuggestedUsers();
+      }
     }, 700);
     if (!dismiss) {
       void refetchFeed();
     }
   };
+
+  const showLoadingState = loadingSuggestedUsers && !availableUsers.length;
 
   return <div className={classes.root}>
     <div className={classes.titleRow}>
@@ -354,17 +399,19 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
         </Link>
       </div>
     </div>
-    {loadingSuggestedUsers && <Loading />}
-    {!loadingSuggestedUsers && <div className={classes.userSubscribeCards}>
-      {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SuggestedFollowCard 
-        user={user} 
-        key={user._id}
-        hidden={idx === hiddenSuggestionIdx}
-        handleSubscribeOrDismiss={(user, dismiss) => subscribeToUser(user, idx, dismiss)}
-        classes={classes}
-      />)}
-    </div>}
-
+    {showLoadingState && <Loading />}
+    {!showLoadingState && (<>
+      <div className={classes.showMoreContainer}><a className={classes.showMoreButton} onClick={toggleShowMore}>{showMore ? 'Show Less' : 'Show More'}</a></div>
+      <div className={classNames(classes.userSubscribeCards, { [classes.showMoreCards]: showMore })}>
+        {availableUsers.slice(0, renderedSuggestionLimit).map((user, idx) => <SuggestedFollowCard 
+          user={user} 
+          key={user._id}
+          hidden={idx === hiddenSuggestionIdx}
+          handleSubscribeOrDismiss={(user, dismiss) => subscribeToUser(user, idx, dismiss)}
+          classes={classes}
+        />)}
+      </div>
+    </>)}
   </div>;
 }
 
