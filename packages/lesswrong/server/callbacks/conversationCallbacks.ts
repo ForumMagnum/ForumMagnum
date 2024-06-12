@@ -79,7 +79,7 @@ async function flagOrBlockUserOnManyDMs({
     validate: false,
   });
   
-  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK) {
+  if (allUsersEverContacted.length > MAX_ALLOWED_CONTACTS_BEFORE_BLOCK && !currentUser.reviewedAt) {
     logger('Blocking user')
     throw new Error(`You cannot message more than ${MAX_ALLOWED_CONTACTS_BEFORE_BLOCK} users before your account has been reviewed. Please contact us if you'd like to message more people.`)
   }
