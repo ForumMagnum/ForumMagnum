@@ -29,7 +29,7 @@ Assuming you are using Elastic Beanstalk to run your servers, you can set up Clo
 1. Set `swrCaching.enabled` to true. This sets the appropriate "Cache-Control" header (for logged out users) and changes the posts page to be more cache friendly (render relative dates as absolute)
 2. Add "Behaviours" in CloudFront to make it start using this header to cache post pages:
   - A behaviour for the `/posts/*` route. This requires a cache policy that uses `loginToken` as part of the cache key, and also an edge function to handle an edge case (see [here](#cache-policy--edge-function-for-posts))
-  - A behaviour for `/js/bundle.js` and `/allStyles` to cache each version with a long TTL, this means cached pages from previous deployments can get a matching bundle and stylesheet (see [here](#cache-policy--edge-function-for-jsbundlejs-and-allstyles))
+  - A behaviour for `/js/bundle.js` and `/allStyles` to cache each version with a long TTL, this means cached pages from previous deployments can get a matching bundle and stylesheet (see [here](#cache-policy-for-jsbundlejs-and-allstyles))
 3. For handling invalidations, create an IAM user that has permission to create invalidations for the CloudFront distribution (see [here](#policy-for-iam-user-to-create-invalidations-in-cloudfront) for the policy required). Then set the `swrCaching.accessKeyId` (IAM user), `swrCaching.secretAccessKey` (IAM user), and `swrCaching.distributionId` (CloudFront distribution) database settings in your ForumMagnum instance
 
 ### Cache policy + edge function for /posts
@@ -104,7 +104,7 @@ To monitor the cache hit rate, you can:
 - Set up Amazon Athena to query these logs (this makes it possible to query them with SQL)
 - Query them in [Hex](https://hex.tech/) if you have that set up
 
-_Note: I (Will H) did try fairly hard to capture the hit rate in our analytics, but because requests don't necessarily hit our servers and the client doesn't have access to the X-Cache header I concluded it was impossible_
+_Note: I (Will H) did try fairly hard to capture the hit rate directly in our standard analytics, but because requests don't necessarily hit our servers and the client doesn't have access to the X-Cache header I concluded it was impossible_
 
 ### Enabling standard logging
 
@@ -140,6 +140,6 @@ To connect Hex to Athena you will need to:
 - Create another IAM user in AWS that has the AmazonAthenaFullAccess and AmazonS3FullAccess policies (these are AWS managed policies that you can select)
 - Create a data source in Hex for the CloudFront logs with the following settings (Settings > Data sources > "+ Connection" > "Amazon Athena"):
   - Host and port: athena.us-east-1.amazonaws.com, 443 (edit as applicable for AWS region)
-  - S3 output path: s3://eaforum-output-path-that-was-created-in-athena-setup/ (NOT the CloudFront logs path)
+  - S3 output path: s3://output-path-that-was-created-in-athena-setup/ (NOT the CloudFront logs path)
   - AWS access key ID: [From the user you created]
   - AWS secret access key: [From the user you created]
