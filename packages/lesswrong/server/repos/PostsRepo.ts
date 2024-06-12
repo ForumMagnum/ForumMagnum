@@ -161,7 +161,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."draft" is not true AND
         p."deletedDraft" is not true
       ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
-      LIMIT 200
+      LIMIT 50
     `, [num], "getPostsForOnsiteDigest");
   }
 
