@@ -15,6 +15,9 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
     currentUser: DbUser | null,
     clientId: string,
   ): Promise<SurveyScheduleWithSurvey | null> {
+    if (!clientId) {
+      return Promise.resolve(null);
+    }
     const isLoggedIn = !!currentUser;
     const userJoin = isLoggedIn
       ? `LEFT JOIN "Users" u ON u."_id" = $3`
@@ -49,6 +52,12 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
           ss."impressionsLimit" IS NULL OR
           ss."impressionsLimit" > ARRAY_LENGTH(ss."clientIds", 1)
         ) AND
+        -- Check the user is in the assigned percentage group
+        CASE
+          WHEN ss."maxVisitorPercentage" IS NULL THEN TRUE
+          ELSE ABS(('x' || SUBSTR(MD5(ss."_id" || $2), 1, 16))::BIT(32)::INTEGER) % 100
+            < ss."maxVisitorPercentage"
+        END AND
         -- Check the schedule is currently running
         (ss."endDate" IS NULL OR ss."endDate" > CURRENT_TIMESTAMP) AND
         (ss."startDate" IS NULL OR ss."startDate" < CURRENT_TIMESTAMP) AND
