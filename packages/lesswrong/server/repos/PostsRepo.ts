@@ -810,7 +810,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH RECURSIVE user_subscriptions AS (
         SELECT DISTINCT type, "documentId" AS "userId"
         FROM "Subscriptions" s
-          LEFT JOIN "Users" u ON u._id = s."documentId"
         WHERE state = 'subscribed'
           AND s.deleted IS NOT TRUE
           AND "collectionName" = 'Users'
@@ -823,23 +822,36 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           "postedAt",
           TRUE as "subscribedPosts"
         FROM "Posts" p
-          JOIN user_subscriptions us USING ("userId")
+        JOIN user_subscriptions us
+        USING ("userId")
         WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
         ORDER BY p."postedAt" DESC
       ),
-      posts_with_comments_from_subscribees AS (
+      comments_from_subscribees AS (
         SELECT
           "postId",
           (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
-          MAX(c."postedAt") AS last_commented,
-          TRUE as "subscribedComments"
+          MAX(c."postedAt") AS last_commented
         FROM "Comments" c
-          JOIN user_subscriptions us USING ("userId")
+        JOIN user_subscriptions us
+        USING ("userId")
         WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
+          AND c."postId" IS NOT NULL
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE
         GROUP BY "postId"
+      ),
+      posts_with_comments_from_subscribees AS (
+        SELECT
+          c."postId",
+          ARRAY_AGG(c._id) AS "commentIds",
+          MAX(c."postedAt") AS last_commented,
+          TRUE as "subscribedComments"
+        FROM "Comments" c
+        JOIN (SELECT UNNEST("commentIds") AS _id, "postId", last_commented FROM comments_from_subscribees) un
+        ON c._id = un._id AND c."postId" = un."postId" AND c."postedAt" > un.last_commented - INTERVAL '1 week'
+        GROUP BY c."postId"
       ),
       parent_comments AS (
         SELECT
@@ -849,7 +861,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           c."postedAt"
         FROM "Comments" c
         WHERE c._id IN (SELECT UNNEST("commentIds") FROM posts_with_comments_from_subscribees)
-        UNION ALL
+        UNION
         SELECT
           c._id,
           c."postId",
