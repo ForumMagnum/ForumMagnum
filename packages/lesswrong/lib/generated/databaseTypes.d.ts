@@ -1237,6 +1237,7 @@ interface DbSurveySchedule extends DbObject {
   surveyId: string
   name: string
   impressionsLimit: number | null
+  maxVisitorPercentage: number | null
   minKarma: number | null
   maxKarma: number | null
   target: "allUsers" | "loggedInOnly" | "loggedOutOnly"
@@ -1487,6 +1488,7 @@ interface DbUser extends DbObject {
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
   petrovOptOut: boolean
+  optedOutOfSurveys: boolean | null
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
@@ -1820,7 +1822,6 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
-  optedOutOfSurveys: boolean | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null

@@ -98,6 +98,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean,
+  readonly optedOutOfSurveys: boolean | null,
   readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
@@ -435,7 +436,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
-  readonly optedOutOfSurveys: boolean | null,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -938,6 +938,7 @@ interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
   readonly surveyId: string,
   readonly name: string,
   readonly impressionsLimit: number | null,
+  readonly maxVisitorPercentage: number | null,
   readonly minKarma: number | null,
   readonly maxKarma: number | null,
   readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
@@ -3924,6 +3925,7 @@ interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on 
   readonly surveyId: string,
   readonly name: string,
   readonly impressionsLimit: number | null,
+  readonly maxVisitorPercentage: number | null,
   readonly minKarma: number | null,
   readonly maxKarma: number | null,
   readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",

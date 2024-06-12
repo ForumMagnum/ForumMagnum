@@ -15,6 +15,7 @@ registerFragment(`
     surveyId
     name
     impressionsLimit
+    maxVisitorPercentage
     minKarma
     maxKarma
     target
