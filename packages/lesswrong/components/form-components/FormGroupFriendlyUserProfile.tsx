@@ -11,6 +11,12 @@ const styles = (theme: ThemeType) => ({
     gap: `${GAP}px`,
     rowGap: "0px",
     marginBottom: 40,
+    "& .MuiFormControl-root": {
+      width: "100%",
+      "& > *": {
+        width: "100%",
+      },
+    },
     "& > *": {
       flexBasis: "100%",
     },

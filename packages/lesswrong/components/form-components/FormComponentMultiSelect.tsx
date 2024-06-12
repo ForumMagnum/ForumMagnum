@@ -6,9 +6,40 @@ import FormLabel from '@material-ui/core/FormLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
+import type { ForumIconProps } from '../common/ForumIcon';
+import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  label: {
+const styles = (theme: ThemeType) => ({
+  friendlyFormControl: {
+    "& .MuiOutlinedInput-notchedOutline": {
+      border: "none !important",
+    },
+  },
+  friendlyRoot: {
+    width: "100%",
+    height: 45,
+    borderRadius: theme.borderRadius.default,
+    background: theme.palette.panelBackground.loginInput,
+  },
+  friendlySelect: {
+    display: "flex",
+    alignItems: "center",
+    padding: "0 30px 0 16px",
+    width: "100%",
+    height: "100%",
+    color: theme.palette.grey[1000],
+    fontSize: 14,
+    "&:focus": {
+      background: "none",
+    },
+  },
+  friendlyIcon: {
+    marginRight: 8,
+  },
+  sectionTitle: {
+    fontSize: 12,
+  },
+  formLabel: {
     fontSize: 10,
     marginBottom: 8
   },
@@ -21,39 +52,57 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   placeholder: {
     color: theme.palette.grey[600]
-  }
-})
+  },
+});
 
 type MultiselectOption = {
   value: string,
   label: string
 }
 
+const FriendlyIcon = (props: Omit<ForumIconProps, "icon">) =>
+  <Components.ForumIcon {...props} icon="ThickChevronDown" />
+
 /**
  * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
  * so that it can be used outside of vulcan-forms.
  */
-const MultiSelect = ({ value, setValue, label, placeholder, separator, options, classes }: {
+const MultiSelect = ({
+  value,
+  setValue,
+  label,
+  placeholder,
+  separator,
+  options,
+  variant = "book",
+  classes,
+}: {
   value: string[],
   setValue: (newValue: any) => void,
-  
   label?: string,
   placeholder?: string,
   separator?: string,
   options: Array<MultiselectOption>,
-  classes: ClassesType
+  variant?: "book" | "friendly",
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { MenuItem } = Components;
-  
-  return <FormControl className={classes.root}>
-    {label && <FormLabel className={classes.label}>{label}</FormLabel>}
+  const {SectionTitle, MenuItem} = Components;
+
+  const isFriendly = variant === "friendly";
+  const labelNode = isFriendly
+    ? <SectionTitle title={label} className={classes.sectionTitle} />
+    : <FormLabel className={classes.formLabel}>{label}</FormLabel>;
+
+  return <FormControl
+    className={classNames(isFriendly && classes.friendlyFormControl)}
+  >
+    {label && labelNode}
     <Select
       className={classes.select}
       value={value}
       input={<OutlinedInput labelWidth={0} />}
       onChange={e => {
         // MUI documentation says e.target.value is always an array: https://mui.com/components/selects/#multiple-select
-        // @ts-ignore
         setValue(e.target.value)
       }}
       multiple
@@ -65,7 +114,14 @@ const MultiSelect = ({ value, setValue, label, placeholder, separator, options, 
         // if any options are selected, display them separated by commas
         return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
       }}
-      {...!options.length ? {disabled: true} : {}}>
+      {...!options.length ? {disabled: true} : {}}
+      IconComponent={isFriendly ? FriendlyIcon : undefined}
+      classes={isFriendly ? {
+        root: classes.friendlyRoot,
+        select: classes.friendlySelect,
+        icon: classes.friendlyIcon,
+      } : {}}
+    >
         {options.map(option => {
           return <MenuItem key={option.value} value={option.value}>
             <Checkbox checked={value.some(v => v === option.value)} />
@@ -81,9 +137,19 @@ const MultiSelect = ({ value, setValue, label, placeholder, separator, options, 
  * FormComponentMultiSelect: Wrapper around MultiSelect for use with
  * vulcan-forms.
  */
-const FormComponentMultiSelect = ({ value, label, placeholder, separator, options, path, updateCurrentValues }: FormComponentProps<string[]> & {
+const FormComponentMultiSelect = ({
+  value,
+  label,
+  placeholder,
+  separator,
+  options,
+  variant,
+  path,
+  updateCurrentValues,
+}: FormComponentProps<string[]> & {
   separator?: string,
   options: Array<MultiselectOption>,
+  variant?: "book" | "friendly",
   classes: ClassesType
 }) => {
   return <Components.MultiSelect
@@ -91,7 +157,7 @@ const FormComponentMultiSelect = ({ value, label, placeholder, separator, option
     placeholder={placeholder}
     separator={separator}
     options={options}
-
+    variant={variant}
     value={value}
     setValue={(value) => {
       void updateCurrentValues({

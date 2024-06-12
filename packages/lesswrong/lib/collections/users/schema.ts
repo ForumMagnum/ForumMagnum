@@ -2543,8 +2543,9 @@ const schema: SchemaType<"Users"> = {
     label: "Career stage",
     placeholder: 'Select all that apply',
     form: {
-      separator: '\r\n',
-      options: CAREER_STAGES
+      variant: "friendly",
+      separator: ", ",
+      options: CAREER_STAGES,
     },
   },
   'careerStage.$': {
@@ -2692,6 +2693,7 @@ const schema: SchemaType<"Users"> = {
     tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
     form: {
       useDocumentAsUser: true,
+      variant: "friendly",
       separator: '\r\n',
       multiselect: true
     },
@@ -2714,7 +2716,8 @@ const schema: SchemaType<"Users"> = {
     control: 'FormComponentMultiSelect',
     placeholder: "Which of these programs have you participated in?",
     form: {
-      separator: '\r\n',
+      variant: "friendly",
+      separator: ", ",
       options: PROGRAM_PARTICIPATION
     },
   },

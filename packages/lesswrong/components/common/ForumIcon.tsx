@@ -427,15 +427,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
-  },
-};
-
 export type IconProps = {
   className: string,
   onClick: MouseEventHandler<SVGElement>,
@@ -443,7 +434,7 @@ export type IconProps = {
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     userSelect: "none",
     width: "1em",
@@ -460,10 +451,20 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
-type ForumIconProps = Partial<IconProps> & {
+type IconClassName = keyof ClassesType<typeof styles>;
+
+// This is a map from forum types to icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
+  default: {
+    Link: "linkRotation",
+  },
+  EAForum: {
+  },
+};
+
+export type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
-  classes: ClassesType,
   style?: CSSProperties,
 };
 
@@ -473,7 +474,7 @@ const ForumIcon = ({
   className,
   classes,
   ...props
-}: ForumIconProps) => {
+}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
