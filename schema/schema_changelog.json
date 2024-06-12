@@ -675,8 +675,13 @@
     "timestamp": "2024-05-26T11:13:08.000Z"
   },
   {
-    "acceptsSchemaHash": "6a16f1cdccbc478c1fa3ef1104f62652",
-    "acceptedByMigration": "20240606T174240.add_vibes_check_tables.ts",
-    "timestamp": "2024-06-06T17:42:40.000Z"
+    "acceptsSchemaHash": "6916cc5096e4eeee5bc92639da67e9fa",
+    "acceptedByMigration": "20240611T182502.add_Posts_userId_postedAt_idx.ts",
+    "timestamp": "2024-06-11T18:25:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "46f9096c8d28d0438913ee89c8e6e99c",
+    "acceptedByMigration": "20240612T121902.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-12T12:19:02.000Z"
   }
 ]

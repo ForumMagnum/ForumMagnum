@@ -181,4 +181,9 @@ export interface CommentTreeOptions {
    * background.
    */
   switchAlternatingHighlights?: boolean,
+
+  /**
+   * Apply styling to deemphasize comments written by users with any userId not in the provided set
+   */
+  deemphasizeCommentsExcludingUserIds?: Set<string>,
 }
