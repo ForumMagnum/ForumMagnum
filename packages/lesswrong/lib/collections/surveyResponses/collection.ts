@@ -1,6 +1,7 @@
 import { createCollection } from "../../vulcan-lib";
 import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils"
 import { getDefaultMutations } from "../../vulcan-core/default_mutations";
+import { ensureIndex } from "@/lib/collectionIndexUtils";
 import schema from "./schema";
 
 export const SurveyResponses = createCollection({
@@ -13,5 +14,10 @@ export const SurveyResponses = createCollection({
 });
 
 addUniversalFields({collection: SurveyResponses});
+
+ensureIndex(SurveyResponses, {surveyId: 1});
+ensureIndex(SurveyResponses, {surveyScheduleId: 1});
+ensureIndex(SurveyResponses, {userId: 1});
+ensureIndex(SurveyResponses, {clientId: 1});
 
 export default SurveyResponses;
