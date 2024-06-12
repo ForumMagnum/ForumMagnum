@@ -467,12 +467,13 @@ const TagPage = ({classes}: {
           {tag.sequence && <TagIntroSequence tag={tag} />}
           {!tag.wikiOnly && <>
             <AnalyticsContext pageSectionContext="tagsSection">
-              <PostsListHeading tag={tag} query={query} classes={classes} />
               <PostsList2
+                header={<PostsListHeading tag={tag} query={query} classes={classes} />}
                 terms={terms}
                 enableTotal
                 tagId={tag._id}
                 itemsPerPage={200}
+                showNoResults={false}
               >
                 <AddPostsToTag tag={tag} />
               </PostsList2>
