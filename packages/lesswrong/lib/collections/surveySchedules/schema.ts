@@ -39,11 +39,14 @@ const schema: SchemaType<"SurveySchedules"> = {
     ...commonFields({nullable: true}),
     type: Number,
     tooltip: "The maximum number of visitors who'll see this survey",
+    min: 0,
   },
   maxVisitorPercentage: {
     ...commonFields({nullable: true}),
     type: Number,
     tooltip: "The maximum percentage of visitors this survey will be shown to",
+    min: 0,
+    max: 100,
   },
   minKarma: {
     ...commonFields({nullable: true}),
