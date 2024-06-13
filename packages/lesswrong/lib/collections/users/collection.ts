@@ -87,6 +87,7 @@ makeEditable({
     order: 7,
     fieldName: 'howOthersCanHelpMe',
     label: "How others can help me",
+    formVariant: "grey",
     hintText: "Ex: I am looking for opportunities to do...",
     permissions: {
       canRead: ['guests'],
@@ -106,6 +107,7 @@ makeEditable({
     order: 8,
     fieldName: 'howICanHelpOthers',
     label: "How I can help others",
+    formVariant: "grey",
     hintText: "Ex: Reach out to me if you have questions about...",
     permissions: {
       canRead: ['guests'],
@@ -130,6 +132,7 @@ makeEditable({
     formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",
+    formVariant: "grey",
     hintText: "Tell us about yourself",
     permissions: {
       canRead: ['guests'],

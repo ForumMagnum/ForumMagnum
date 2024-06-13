@@ -577,7 +577,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
           placeholder="Select all that apply"
           separator={'\r\n'}
           setValue={(value) => {
-            handleUpdateValue({
+            void handleUpdateValue({
               careerStage: value
             });
           }}

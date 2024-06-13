@@ -183,16 +183,16 @@ const LocationPicker = ({
   const handleCheckClear = useCallback((value: AnyBecauseTodo) => {
     // clear location fields if the user deletes the input text
     if (value === '') {
-      updateCurrentValues({
+      void updateCurrentValues({
         ...(locationFieldName ? {[locationFieldName]: null} : {}),
         [path]: null,
       })
     }
-  }, [value, updateCurrentValues, locationFieldName, path]);
+  }, [updateCurrentValues, locationFieldName, path]);
 
   const handleSuggestSelect = useCallback((suggestion: Suggest) => {
     if (suggestion && suggestion.gmaps) {
-      updateCurrentValues({
+      void updateCurrentValues({
         ...(locationFieldName ? {
           [locationFieldName]: suggestion.label
         } : {}),
