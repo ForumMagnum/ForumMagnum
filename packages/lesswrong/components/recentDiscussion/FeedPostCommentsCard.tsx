@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Components,
   registerComponent,
@@ -14,7 +14,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
-import { useEventListener } from '../hooks/useEventListener';
 
 const styles = (theme: ThemeType) => ({
   root: {
