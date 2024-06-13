@@ -9,7 +9,7 @@ export const styles = (theme: ThemeType) => ({
     padding: "16px",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
-    color: theme.palette.grey[1000],
+    color: `${theme.palette.grey[1000]} !important`,
     fontSize: 14,
     fontWeight: 500,
     border: "none",

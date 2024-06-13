@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useCallback } from "react";
+import React, { ChangeEventHandler, ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@material-ui/core/TextField";
@@ -11,6 +11,7 @@ const styles = (theme: ThemeType) => ({
     ...friendlyInputStyles(theme).root,
     "& .MuiInputBase-input": {
       padding: 0,
+      color: theme.palette.grey[1000],
     },
   },
 });
@@ -25,11 +26,15 @@ export const FormComponentFriendlyTextInput = ({
   disabled,
   multiline,
   rows,
+  startAdornment,
+  className,
   classes,
 }: {
   multiline?: boolean,
   rows?: number,
   fullWidth?: boolean,
+  startAdornment?: ReactNode,
+  className?: string,
   classes: ClassesType<typeof styles>,
 } & FormComponentProps<string>) => {
   const onChange: ChangeHandler = useCallback((event) => {
@@ -40,7 +45,7 @@ export const FormComponentFriendlyTextInput = ({
 
   const {SectionTitle} = Components;
   return (
-    <div>
+    <div className={className}>
       {label &&
         <SectionTitle title={label} noTopMargin className={classes.label} />
       }
@@ -53,6 +58,7 @@ export const FormComponentFriendlyTextInput = ({
         disabled={disabled}
         InputProps={{
           disableUnderline: true,
+          startAdornment,
         }}
       />
     </div>

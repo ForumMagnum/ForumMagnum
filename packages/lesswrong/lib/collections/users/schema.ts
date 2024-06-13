@@ -2565,7 +2565,8 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: 'https://'
+      inputPrefix: 'https://',
+      heading: "Website",
     },
     group: formGroups.socialMedia,
     order: 6
@@ -2602,7 +2603,8 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
+      heading: "Social media",
     },
     group: formGroups.socialMedia,
     order: 1,
