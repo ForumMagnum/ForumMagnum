@@ -1,5 +1,5 @@
+import React, { useEffect, Suspense } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
@@ -26,7 +26,9 @@ const LWHome = () => {
             <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
           </SingleColumnSection>}
           <SingleColumnSection>
-            <DismissibleSpotlightItem current/>
+            <Suspense>
+              <DismissibleSpotlightItem current/>
+            </Suspense>
           </SingleColumnSection>
           <AnalyticsInViewTracker
             eventProps={{inViewType: "homePosts"}}
@@ -37,11 +39,13 @@ const LWHome = () => {
     
               <EAPopularCommentsSection />
     
-              <RecentDiscussionFeed
-                af={false}
-                commentsLimit={4}
-                maxAgeHours={18}
-              />
+              <Suspense>
+                <RecentDiscussionFeed
+                  af={false}
+                  commentsLimit={4}
+                  maxAgeHours={18}
+                />
+              </Suspense>
             </LWHomePosts>
           </AnalyticsInViewTracker>
         </React.Fragment>
