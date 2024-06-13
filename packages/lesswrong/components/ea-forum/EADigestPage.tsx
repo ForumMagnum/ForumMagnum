@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import { Components, fragmentTextForQuery, registerComponent } from "../../lib/vulcan-lib";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
@@ -31,17 +31,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   topSection: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    columnGap: '20px',
+    rowGap: '16px',
+    flexWrap: 'wrap',
     maxWidth: 765,
     padding: '10px 3px 26px'
   },
   pageTitle: {
-    display: 'flex',
-    columnGap: '20px',
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 32,
     fontWeight: 700,
     marginTop: 0,
-    marginBottom: 6,
+    marginBottom: 12,
   },
   previewLabel: {
     color: theme.palette.grey[300],
@@ -51,9 +55,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subscribeTooltip: {
   },
+  subscribeButton: {
+    backgroundColor: `color-mix(in oklab, var(--digest-background) 85%, ${theme.palette.text.alwaysBlack})`,
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: '8px',
+    fontSize: 14,
+    lineHeight: '20px',
+    fontWeight: 500,
+    cursor: 'pointer',
+    padding: '8px 16px',
+    borderRadius: theme.borderRadius.default,
+    '&:hover': {
+      backgroundColor: `color-mix(in oklab, var(--digest-background) 75%, ${theme.palette.text.alwaysBlack})`,
+      opacity: 1,
+    }
+  },
   subscribeIcon: {
-    opacity: 0.7,
-    cursor: 'pointer'
+    fontSize: 17,
   },
   success: {
     display: 'flex',
@@ -76,10 +95,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 500,
     lineHeight: "150%",
   },
+  startDate: {
+    whiteSpace: 'nowrap',
+  },
   feedback: {
     fontWeight: 500,
     fontStyle: "italic",
     fontSize: 14,
+    lineHeight: '20px',
     marginTop: 10,
     opacity: 0.8,
     "& a": {
@@ -116,8 +139,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       linear-gradient(
         135deg,
         var(--digest-background) 0%,
-        var(--digest-background) 50%,
-        ${theme.palette.greyAlpha(0)} 80%
+        var(--digest-background) 40%,
+        ${theme.palette.greyAlpha(0)} 100%
       );
     `,
     }
@@ -147,6 +170,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const updateCurrentUser = useUpdateCurrentUser()
   const { params } = useLocation()
   const { flash } = useMessages()
+  const { captureEvent } = useTracking()
   const digestNum = parseInt(params.num)
   
   // get the digest based on the num from the URL
@@ -171,6 +195,8 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   )
   
   const onSubscribeClick = async () => {
+    captureEvent("digestAdSubscribed")
+
     if (currentUser) {
       try {
         await updateCurrentUser({
@@ -194,7 +220,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   }
   
   const {
-    Error404, HeadTags, PostsLoading, EAPostsItem, CloudinaryImage2, ForumIcon, LWTooltip
+    Error404, HeadTags, PostsLoading, EAPostsItem, CloudinaryImage2, ForumIcon, LWTooltip, EAButton
   } = Components;
   
   // TODO: Probably we'll want to check the publishedDate instead of the endDate, but we haven't been using it.
@@ -227,16 +253,24 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   // Hide the icon if this is a logged in user who is already subscribed to the digest
   let subscribeNode = null
   if (!currentUser || !currentUser.subscribedToDigest) {
+    const subscribeButtonContents = <>
+      <ForumIcon icon="Envelope" className={classes.subscribeIcon} />
+      Subscribe
+    </>
     subscribeNode = <LWTooltip
       title="Click to subscribe to the weekly email version of this digest"
       className={classes.subscribeTooltip}
     >
-      {currentUser ? <ForumIcon
-          icon="Envelope"
-          className={classes.subscribeIcon}
+      {currentUser ? <EAButton className={classes.subscribeButton} onClick={onSubscribeClick}>
+          {subscribeButtonContents}
+        </EAButton> : <Link
+          to={digestLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={classes.subscribeButton}
           onClick={onSubscribeClick}
-        /> : <Link to={digestLink} target="_blank" rel="noopener noreferrer">
-          <ForumIcon icon="Envelope" className={classes.subscribeIcon} />
+        >
+          {subscribeButtonContents}
         </Link>
       }
     </LWTooltip>
@@ -244,31 +278,31 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   return (
     <>
-      <HeadTags title={`EA Forum Digest #${params.num}`} />
+      <HeadTags title={`EA Forum Digest #${digestNum}`} />
       <AnalyticsContext pageContext="DigestPage">
         <div className={classes.root} style={style}>
           <div className={classes.content}>
             <section className={classes.topSection}>
-              <h1 className={classes.pageTitle}>
-                <span>
-                  EA Forum Digest #{params.num}
+              <div>
+                <h1 className={classes.pageTitle}>
+                  EA Forum Digest #{digestNum}
                   {!isPublished && <span className={classes.previewLabel}>[Preview]</span>}
-                </span>
-                {subscribeNode}
-              </h1>
-              {digest?.startDate && <div className={classes.pageDescription}>
-                Highlights from the week of {moment(digest.startDate).format('MMMM D, YYYY')}
-              </div>}
-              <div className={classes.feedback}>
-                This is an experiment - help us out by{" "}
-                <Link
-                  to="https://docs.google.com/forms/d/e/1FAIpQLSeiSgHs_a-dYt6XHFokRSxbU1uKW99V6gCD3w7eNOT27_HsMw/viewform"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  sharing your thoughts
-                </Link>
+                </h1>
+                {digest?.startDate && <div className={classes.pageDescription}>
+                  Highlights from the week of <span className={classes.startDate}>{moment(digest.startDate).format('MMMM D, YYYY')}</span>
+                </div>}
+                <div className={classes.feedback}>
+                  This is an experiment - help us out by{" "}
+                  <Link
+                    to="https://docs.google.com/forms/d/e/1FAIpQLSeiSgHs_a-dYt6XHFokRSxbU1uKW99V6gCD3w7eNOT27_HsMw/viewform"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    sharing your thoughts
+                  </Link>
+                </div>
               </div>
+              {subscribeNode}
             </section>
             {postsList}
           </div>

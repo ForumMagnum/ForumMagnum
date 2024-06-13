@@ -151,7 +151,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
   
   async getPostsForOnsiteDigest(num: number): Promise<Array<DbPost>> {
-    return this.getRawDb().manyOrNone(`
+    return this.manyOrNone(`
       -- PostsRepo.getPostsForOnsiteDigest
       SELECT p.*
       FROM "Posts" p
@@ -162,7 +162,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         p."deletedDraft" is not true
       ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
       LIMIT 50
-    `, [num], "getPostsForOnsiteDigest");
+    `, [num]);
   }
 
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {

@@ -66,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const formPreviewSizeByImageType: Record<
+export const formPreviewSizeByImageType: Record<
   ImageType,
   {width: number | "auto", height: number, imgProps?: CloudinaryPropsType}
 > = {
