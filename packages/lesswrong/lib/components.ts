@@ -1223,3 +1223,7 @@ importComponent("GlossarySidebar", () => require('../components/jargon/GlossaryS
 importComponent("GlossaryEditForm", () => require('../components/jargon/GlossaryEditForm'));
 importComponent("JargonEditorRow", () => require('../components/jargon/JargonEditorRow'));
 importComponent("GlossaryEditorPage", () => require('../components/jargon/GlossaryEditorPage'));
+
+importComponent("UnifiedPingbackList", () => require('../components/pingbacks/UnifiedPingbackList.tsx'));
+importComponent("TagPingbackList", () => require('../components/pingbacks/TagPingbackList.tsx'));
+importComponent("PostPingbackList", () => require('../components/pingbacks/PostPingbackList.tsx'));

@@ -221,6 +221,8 @@ interface ViewTermsBase {
   limit?: number
   offset?: number
   orderBy?: any //FIXME: unused Vulcan thing
+  // Generic filter object
+  filter?: any
 }
 
 // Common base type for everything that has an _id field (including both raw DB

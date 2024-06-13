@@ -1331,18 +1331,25 @@ Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      ...jsonArrayContainsSelector("pingbacks.Posts", terms.postId),
-      baseScore: {$gt: 0}
+      ...(terms.filter.postId ? jsonArrayContainsSelector("pingbacks.Posts", terms.filter.postId): {}),
+      ...(terms.filter.tagId ? jsonArrayContainsSelector("pingbacks.Tags", terms.filter.tagId): {}),
+      baseScore: {$gt: 0},
     },
     options: {
-      sort: { baseScore: -1 },
+      sort: {baseScore: -1},
     },
   }
-});
+})
+
 ensureIndex(Posts,
   augmentForDefaultView({ "pingbacks.Posts": 1, baseScore: 1 }),
   { name: "posts.pingbackPosts" }
 );
+ensureIndex(Posts,
+  augmentForDefaultView({ "pingbacks.Tags": 1, baseScore: 1 }),
+  { name: "posts.pingbackTags" }
+);
+
 void ensureCustomPgIndex(`CREATE INDEX IF NOT EXISTS idx_posts_pingbacks ON "Posts" USING gin(pingbacks);`);
 
 // TODO: refactor nominations2018 to use nominationCount + postedAt

@@ -544,6 +544,34 @@ CREATE INDEX IF NOT EXISTS "idx_Comments_forumEventId_userId_postedAt_authorIsUn
   "debateResponse"
 );
 
+-- Index "idx_comments_pingbackPosts"
+CREATE INDEX IF NOT EXISTS "idx_comments_pingbackPosts" ON "Comments" USING gin (
+  ("pingbacks" -> 'Posts'),
+  "baseScore",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "postedAt",
+  "debateResponse"
+);
+
+-- Index "idx_comments_pingbackTags"
+CREATE INDEX IF NOT EXISTS "idx_comments_pingbackTags" ON "Comments" USING gin (
+  ("pingbacks" -> 'Tags'),
+  "baseScore",
+  "authorIsUnreviewed",
+  "deleted",
+  "deletedPublic",
+  "hideAuthor",
+  "userId",
+  "af",
+  "postedAt",
+  "debateResponse"
+);
+
 -- Index "idx_comments_alignmentSuggestedComments"
 CREATE INDEX IF NOT EXISTS "idx_comments_alignmentSuggestedComments" ON "Comments" USING gin (
   "reviewForAlignmentUserId",
@@ -2185,6 +2213,27 @@ CREATE INDEX IF NOT EXISTS "idx_posts_pingbackPosts" ON "Posts" USING gin (
   "postedAt"
 );
 
+-- Index "idx_posts_pingbackTags"
+CREATE INDEX IF NOT EXISTS "idx_posts_pingbackTags" ON "Posts" USING gin (
+  "status",
+  "isFuture",
+  "draft",
+  "unlisted",
+  "shortform",
+  "hiddenRelatedQuestion",
+  "authorIsUnreviewed",
+  "groupId",
+  ("pingbacks" -> 'Tags'),
+  "baseScore",
+  "_id",
+  "meta",
+  "isEvent",
+  "af",
+  "frontpageDate",
+  "curatedDate",
+  "postedAt"
+);
+
 -- Index "idx_posts_nominatablePostsByVote"
 CREATE INDEX IF NOT EXISTS "idx_posts_nominatablePostsByVote" ON "Posts" USING btree (
   "status",
@@ -2938,6 +2987,12 @@ CREATE INDEX IF NOT EXISTS "idx_Tags_name" ON "Tags" USING btree ("name");
 
 -- Index "idx_Tags_parentTagId"
 CREATE INDEX IF NOT EXISTS "idx_Tags_parentTagId" ON "Tags" USING btree ("parentTagId");
+
+-- Index "idx_tags_pingbackPosts"
+CREATE INDEX IF NOT EXISTS "idx_tags_pingbackPosts" ON "Tags" USING gin (("pingbacks" -> 'Posts'));
+
+-- Index "idx_tags_pingbackTags"
+CREATE INDEX IF NOT EXISTS "idx_tags_pingbackTags" ON "Tags" USING gin (("pingbacks" -> 'Tags'));
 
 -- Table "Tweets"
 CREATE TABLE "Tweets" (

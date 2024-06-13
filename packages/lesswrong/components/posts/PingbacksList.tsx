@@ -47,7 +47,9 @@ const PingbacksList = ({classes, postId, limit=5}: {
   const { results, loadMoreProps, loading } = useMulti({
     terms: {
       view: "pingbackPosts",
-      postId: postId,
+      filter: {
+        postId,
+      }
     },
     collectionName: "Posts",
     fragmentName: "PostsList",

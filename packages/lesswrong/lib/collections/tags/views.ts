@@ -2,6 +2,7 @@ import { Tags } from './collection';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
 import { userIsAdminOrMod } from '../../vulcan-users';
+import {jsonArrayContainsSelector} from '@/lib/utils/viewUtils'
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
@@ -241,3 +242,25 @@ ensureIndex(Tags, {name: 1});
 
 // Used in subTags resolver
 ensureIndex(Tags, {parentTagId: 1});
+
+Tags.addView("pingbackTags", (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      ...(terms.filter.postId ? jsonArrayContainsSelector("pingbacks.Posts", terms.filter.postId): {}),
+      ...(terms.filter.tagId ? jsonArrayContainsSelector("pingbacks.Tags", terms.filter.tagId): {}),
+      wikiOnly: viewFieldAllowAny,
+    },
+    options: {
+      sort: {createdAt: -1},
+    },
+  }
+})
+
+ensureIndex(Tags,
+  { "pingbacks.Posts": 1 },
+  { name: "tags.pingbackPosts" }
+);
+ensureIndex(Tags,
+  { "pingbacks.Tags": 1 },
+  { name: "tags.pingbackTags" }
+);

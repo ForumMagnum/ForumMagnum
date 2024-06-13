@@ -21,6 +21,7 @@ import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import DeferRender from "../common/DeferRender";
+import {expandedPingbacksEnabledSetting} from '../../lib/publicSettings'
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -223,6 +224,7 @@ const TagPage = ({classes}: {
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
     TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
+    UnifiedPingbackList,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -486,6 +488,7 @@ const TagPage = ({classes}: {
                 />
               </AnalyticsContext>
             </DeferRender>
+            {expandedPingbacksEnabledSetting.get() && <UnifiedPingbackList tagId={tag._id} />}
           </>}
         </div>
       </ToCColumn>

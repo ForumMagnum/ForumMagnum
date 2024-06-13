@@ -192,3 +192,5 @@ export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'i
 export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);
 
 export const textReplacementsSetting = new DatabasePublicSetting<Record<string, string>>('textReplacements', {});
+
+export const expandedPingbacksEnabledSetting = new DatabasePublicSetting<boolean>('pingbacks.enableExpanded', false);
