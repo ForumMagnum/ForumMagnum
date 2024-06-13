@@ -8,6 +8,7 @@ import qs from 'qs'
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
+import { forumTypeSetting } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -147,6 +148,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   const { query } = location;
   const comment = commentTree.item;
   
+  const score = forumTypeSetting.get() === "AlignmentForum"
+    ? comment.afBaseScore
+    : comment.baseScore;
+  
   return <div>
     <TableOfContentsRow
       indentLevel={indentLevel}
@@ -176,7 +181,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       <span className={classNames(classes.comment, {
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
       })}>
-        <span className={classes.commentKarma}>{comment.baseScore}</span>
+        <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
           <UsersNameDisplay user={comment.user} simple/>
         </span>
