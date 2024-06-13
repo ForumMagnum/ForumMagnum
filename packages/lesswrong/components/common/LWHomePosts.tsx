@@ -473,6 +473,7 @@ const LWHomePosts = ({children, classes}: {
         loadingSuggestedUsers={loadingSuggestedUsers}
         loadMoreSuggestedUsers={loadMoreSuggestedUsers}
         refetchFeed={refetchSubscriptionContent}
+        existingSubscriptions={userSubscriptions}
       />
       {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
     </div>

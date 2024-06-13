@@ -326,12 +326,13 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, loadMoreSuggestedUsers, refetchFeed, classes }: {
+export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, loadMoreSuggestedUsers, refetchFeed, existingSubscriptions, classes }: {
   availableUsers: UsersMinimumInfo[],
   loadingSuggestedUsers: boolean,
   setAvailableUsers: (updatedUsers: UsersMinimumInfo[]) => void,
   loadMoreSuggestedUsers: () => void,
   refetchFeed: () => void,
+  existingSubscriptions?: SubscriptionState[],
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading } = Components;
@@ -401,7 +402,7 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
         <FollowUserSearchButton onUserSelected={subscribeToUser} classes={classes} />
         <Link to="/manageSubscriptions" className={classes.manageSubscriptionsLink}>
           {preferredHeadingCase("Manage")}
-          <span className={classes.hideOnSmallScreens}>{preferredHeadingCase(" Subscriptions")}</span>
+          <span className={classes.hideOnSmallScreens}>{`${preferredHeadingCase(" Subscriptions")} (${existingSubscriptions?.length ?? 0})`}</span>
         </Link>
       </div>
     </div>
