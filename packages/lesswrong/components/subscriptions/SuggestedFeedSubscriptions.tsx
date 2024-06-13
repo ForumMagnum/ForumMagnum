@@ -11,6 +11,9 @@ import CloseIcon from '@material-ui/icons/Close';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { userHasSubscribeTabFeed } from '@/lib/betas';
+import shuffle from 'lodash/shuffle';
 
 const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;
@@ -218,6 +221,25 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+function useSuggestedUsers() {
+  const currentUser = useCurrentUser();
+  const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
+
+  const { results, loading, loadMore } = usePaginatedResolver({
+    fragmentName: "UsersMinimumInfo",
+    resolverName: "SuggestedFeedSubscriptionUsers",
+    limit: 56,
+    itemsPerPage: 16,
+    ssr: false,
+    skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
+  });
+
+  useEffect(() => {
+    setAvailableUsers(shuffle(results ?? []));
+  }, [results]);
+
+  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };
+}
 
 const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   user: UsersMinimumInfo, 
@@ -326,16 +348,14 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, loadMoreSuggestedUsers, refetchFeed, existingSubscriptions, classes }: {
-  availableUsers: UsersMinimumInfo[],
-  loadingSuggestedUsers: boolean,
-  setAvailableUsers: (updatedUsers: UsersMinimumInfo[]) => void,
-  loadMoreSuggestedUsers: () => void,
+export const SuggestedFeedSubscriptions = ({ refetchFeed, existingSubscriptions, classes }: {
   refetchFeed: () => void,
   existingSubscriptions?: SubscriptionState[],
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading } = Components;
+
+  const { availableUsers, setAvailableUsers, loadingSuggestedUsers, loadMoreSuggestedUsers } = useSuggestedUsers();
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
   const [expansionCount, setExpansionCount] = useState(0);

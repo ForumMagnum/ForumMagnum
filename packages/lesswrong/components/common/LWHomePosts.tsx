@@ -242,26 +242,6 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
-function useSuggestedUsers() {
-  const currentUser = useCurrentUser();
-  const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
-
-  const { results, loading, loadMore } = usePaginatedResolver({
-    fragmentName: "UsersMinimumInfo",
-    resolverName: "SuggestedFeedSubscriptionUsers",
-    limit: 56,
-    itemsPerPage: 16,
-    ssr: false,
-    skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
-  });
-
-  useEffect(() => {
-    setAvailableUsers(shuffle(results ?? []));
-  }, [results]);
-
-  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };
-}
-
 const LWHomePosts = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
@@ -278,7 +258,6 @@ const LWHomePosts = ({children, classes}: {
   const { query } = useLocation();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
-  const { availableUsers, setAvailableUsers, loadingSuggestedUsers, loadMoreSuggestedUsers } = useSuggestedUsers();
 
   const { count: countBookmarks } = useMulti({
     collectionName: "Posts",
@@ -468,10 +447,6 @@ const LWHomePosts = ({children, classes}: {
   const subscriptionSettingsElement = (
     <div className={settingsVisibileClassName}>
       <SuggestedFeedSubscriptions
-        availableUsers={availableUsers}
-        setAvailableUsers={setAvailableUsers}
-        loadingSuggestedUsers={loadingSuggestedUsers}
-        loadMoreSuggestedUsers={loadMoreSuggestedUsers}
         refetchFeed={refetchSubscriptionContent}
         existingSubscriptions={userSubscriptions}
       />
