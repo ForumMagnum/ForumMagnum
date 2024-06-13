@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { useFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { sectionTitleStyle } from '../common/SectionTitle';
@@ -80,12 +80,6 @@ const styles = (theme: ThemeType) => ({
       borderRadius: 3,
       background: theme.palette.panelBackground.default,
       padding: "5.5px",
-      [theme.breakpoints.down('xs')]: {
-        padding: "4.5px",
-      },  
-    },
-    [theme.breakpoints.down('sm')]: {
-      display: "none",
     },
   },
   tagFilterSettingsButtonContainerMobile: {
@@ -112,11 +106,20 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-  tagFilterSettingsButton: {
+  hideDesktopSettingsButtonOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none",
+    },
   },
   subscribedAnnouncementPost: {
     marginBottom: 32,
-  }
+  },
+  suggestedUsersHideLabel: {
+    ...theme.typography.commentStyle,
+    fontSize: "1rem",
+    padding: 4,
+    opacity: .9
+  },
 });
 
 export const filterSettingsToggleLabels = {
@@ -242,16 +245,100 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   };
 }
 
+const FrontpageSettingsButton = ({
+  selectedTab,
+  changeShowTagFilterSettingsDesktop,
+  toggleMobileSettingsVisible,
+  desktopSettingsVisible,
+  mobileSettingsVisible,
+  mobileSettingsButtonLabel,
+  filterSettings,
+  styleDesktopButton = true,
+  labelOverride,
+  labelClassName,
+  classes
+}: {
+  selectedTab: string;
+  changeShowTagFilterSettingsDesktop: () => void;
+  toggleMobileSettingsVisible?: (newVisibilityState: boolean) => void;
+  desktopSettingsVisible: boolean;
+  mobileSettingsVisible: boolean;
+  mobileSettingsButtonLabel: string;
+  filterSettings: FilterSettings;
+  styleDesktopButton?: boolean;
+  labelOverride?: (settingsVisible: boolean) => string;
+  labelClassName?: string;
+  classes: ClassesType<typeof styles>;
+}) => {
+  const { SettingsButton } = Components;
+
+  const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking();
+
+  const getSettingsIconOverride = (selectedTab: string, settingsVisible: boolean) => {
+    if (selectedTab !== 'forum-subscribed-authors') {
+      return undefined
+    }
+    return settingsVisible ? 'up' : 'down'
+  };
+
+  const desktopConfiguration = labelOverride ? {
+    showIcon: false,
+    label: labelOverride(desktopSettingsVisible)
+  } : {
+    showIcon: !!currentUser,
+    useArrow: getSettingsIconOverride(selectedTab, desktopSettingsVisible)
+  } as const;
+
+  const mobileConfiguration = labelOverride ? {
+    showIcon: false,
+    label: labelOverride(mobileSettingsVisible)
+  } : {
+    showIcon: !!currentUser,
+    useArrow: getSettingsIconOverride(selectedTab, mobileSettingsVisible),
+    label: !currentUser ? mobileSettingsButtonLabel : undefined
+  } as const;
+
+  return <>
+    {/* Desktop button */}
+    <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, {
+      [classes.hide]: !currentUser,
+      [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser && styleDesktopButton
+    })}>
+      <SettingsButton
+        {...desktopConfiguration}
+        labelClassName={labelClassName}
+        onClick={changeShowTagFilterSettingsDesktop}
+      />
+    </div>
+    {/* Mobile button */}
+    {toggleMobileSettingsVisible && <div className={classNames(classes.tagFilterSettingsButtonContainerMobile, {
+      [classes.tagFilterSettingsButtonContainerMobileBackground]: !!currentUser
+    })}>
+      <SettingsButton
+        {...mobileConfiguration}
+        onClick={() => {
+          toggleMobileSettingsVisible(!mobileSettingsVisible);
+          captureEvent("filterSettingsClicked", {
+            settingsVisible: !mobileSettingsVisible,
+            settings: filterSettings,
+            pageSectionContext: "latestPosts",
+            mobile: true
+          });
+        } } />
+    </div>}
+  </>;
+}
+
 const LWHomePosts = ({children, classes}: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
-    RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
+    RecombeePostsListSettings, TabPicker, BookmarksList, ContinueReadingList,
     VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
 
-  const { captureEvent } = useTracking() 
-
+  const { captureEvent } = useTracking();
 
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -376,47 +463,27 @@ const LWHomePosts = ({children, classes}: {
   */
 
 
-  const showSettingsButton = (
+  const showInlineTabSettingsButton = (
     selectedTab === 'forum-classic' ||
     selectedTab === 'forum-subscribed-authors' ||
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
-  const desktopSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
+  const mobileSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
 
-  const getSettingsIconOverride = (selectedTab: string, settingsVisible: boolean) => {
-    if (selectedTab !== 'forum-subscribed-authors') {
-      return undefined
-    }
-    return settingsVisible ? 'up' : 'down'
-  }
+  const settingsButtonProps = { selectedTab, changeShowTagFilterSettingsDesktop, desktopSettingsVisible, mobileSettingsVisible, mobileSettingsButtonLabel, filterSettings, classes };
 
-  const settingsButton = (<>
-    {/* Desktop button */}
-    <div className={classNames({ [classes.hide]: !currentUser, [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser })}>
-      <SettingsButton
-        showIcon={!!currentUser}
-        onClick={changeShowTagFilterSettingsDesktop}
-        useArrow={getSettingsIconOverride(selectedTab, desktopSettingsVisible)}
-      />
-    </div>
-    {/* Mobile button */}
-    <div className={classNames(classes.tagFilterSettingsButtonContainerMobile, { [classes.tagFilterSettingsButtonContainerMobileBackground]: !!currentUser })}>
-      <SettingsButton
-        label={!currentUser ? desktopSettingsButtonLabel : undefined}
-        showIcon={!!currentUser}
-        useArrow={getSettingsIconOverride(selectedTab, mobileSettingsVisible)}
-        onClick={() => {
-          toggleMobileSettingsVisible(!mobileSettingsVisible)
-          captureEvent("filterSettingsClicked", {
-            settingsVisible: !mobileSettingsVisible,
-            settings: filterSettings,
-            pageSectionContext: "latestPosts",
-            mobile: true
-          })
-        }} />
-      </div>
-  </>);
+  const inlineTabSettingsButton = <FrontpageSettingsButton
+    {...settingsButtonProps}
+    toggleMobileSettingsVisible={toggleMobileSettingsVisible}
+  />;
+  // We don't want to show the "hide" button on mobile inside of the suggested users container, so we pass it in manually for the tab-level settings button above
+  const suggestedUsersSettingsButton = <FrontpageSettingsButton
+    {...settingsButtonProps}
+    styleDesktopButton={false}
+    labelOverride={(settingsVisible) => settingsVisible ? 'Hide' : 'Show'}
+    labelClassName={classes.suggestedUsersHideLabel}
+  />;
 
   const settingsVisibileClassName = classNames({
     [classes.hideOnDesktop]: !desktopSettingsVisible,
@@ -441,13 +508,14 @@ const LWHomePosts = ({children, classes}: {
     documentId: '5rygaBBH7B4LNqQkz', 
     collectionName: 'Posts', 
     fragmentName: 'PostsListWithVotes',
-    skip: !currentUser ||selectedTab !== 'forum-subscribed-authors'
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
   });
 
   const subscriptionSettingsElement = (
     <div className={settingsVisibileClassName}>
       <SuggestedFeedSubscriptions
         refetchFeed={refetchSubscriptionContent}
+        settingsButton={suggestedUsersSettingsButton}
         existingSubscriptions={userSubscriptions}
       />
       {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
@@ -502,7 +570,7 @@ const LWHomePosts = ({children, classes}: {
               showDescriptionOnHover
             />
           </div>}
-          {showSettingsButton && settingsButton}
+          {showInlineTabSettingsButton && inlineTabSettingsButton}
         </div>
         {settings}
         {/* TODO: reenable, disabled for testing to see how often duplication happens */}

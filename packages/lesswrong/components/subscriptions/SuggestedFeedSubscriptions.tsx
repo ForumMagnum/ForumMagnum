@@ -252,10 +252,15 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
   const cardRef = useRef<HTMLLIElement>(null);
   const [additionalStyling, setAdditionalStyling] = useState<React.CSSProperties>();
 
-  // Set the width of each card to whatever width it initially renders as, depending on flexGrow.
+  // The entire container for suggested users is rendered once the tab is selected even if it's hidden
+  // So we need to avoid setting the width of each card to 0 if we initially render in that state
+  const zeroWidthBecauseHidden = !cardRef.current || cardRef.current.getBoundingClientRect().width === 0;
+
+  // Set the width of each card to whatever width it initially renders as, depending on flexGrow (except for the zero-width condition above).
   // After that, we remove flexGrow to stop cards from expanding/contracting during transitions when users click follow or dismiss.
   useEffect(() => {
-    if (cardRef.current) {
+    // Here, we need to check against the card's live width, since checking zeroWidthBecauseHidden caused the cards to collapse after hiding the container once
+    if (cardRef.current && cardRef.current.getBoundingClientRect().width !== 0) {
       const fixedWidth = cardRef.current.getBoundingClientRect().width;
 
       setAdditionalStyling({ width: fixedWidth, flexBasis: fixedWidth });
@@ -266,7 +271,7 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
         setAdditionalStyling({ width: fixedWidth, flexBasis: fixedWidth, flexGrow: 0 })
       }, 300);
     }
-  }, []);
+  }, [zeroWidthBecauseHidden]);
 
   return (<li ref={cardRef} className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })} style={additionalStyling}>
     <div className={classes.suggestedUser}>
@@ -348,8 +353,9 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptions = ({ refetchFeed, existingSubscriptions, classes }: {
+export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existingSubscriptions, classes }: {
   refetchFeed: () => void,
+  settingsButton: React.ReactNode,
   existingSubscriptions?: SubscriptionState[],
   classes: ClassesType<typeof styles>,
 }) => {
@@ -424,6 +430,7 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, existingSubscriptions,
           {preferredHeadingCase("Manage")}
           <span className={classes.hideOnSmallScreens}>{`${preferredHeadingCase(" Subscriptions")} (${existingSubscriptions?.length ?? 0})`}</span>
         </Link>
+        {settingsButton}
       </div>
     </div>
     {showLoadingState && <Loading />}
