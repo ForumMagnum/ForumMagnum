@@ -20,6 +20,7 @@ const styles = (theme: ThemeType) => ({
     height: 45,
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
+    overflow: "hidden",
   },
   friendlySelect: {
     display: "flex",

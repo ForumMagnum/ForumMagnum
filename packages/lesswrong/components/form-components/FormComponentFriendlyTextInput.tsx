@@ -1,5 +1,6 @@
 import React, { ChangeEventHandler, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@material-ui/core/TextField";
 
 const styles = (theme: ThemeType) => ({
@@ -7,12 +8,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
   },
   textField: {
-    background: theme.palette.panelBackground.loginInput,
-    borderRadius: theme.borderRadius.default,
-    padding: 14,
-    width: "100%",
-    fontSize: 14,
-    fontWeight: 500,
+    ...friendlyInputStyles(theme).root,
     "& .MuiInputBase-input": {
       padding: 0,
     },

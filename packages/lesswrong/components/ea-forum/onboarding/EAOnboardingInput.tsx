@@ -11,6 +11,7 @@ export const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.loginInput,
     color: theme.palette.grey[1000],
     fontSize: 14,
+    fontWeight: 500,
     border: "none",
     "&::placeholder": {
       color: theme.palette.grey[600],

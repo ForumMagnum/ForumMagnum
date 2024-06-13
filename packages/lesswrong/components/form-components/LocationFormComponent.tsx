@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
 // These imports need to be separate to satisfy eslint, for some reason
 import type { Suggest } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
+import classNames from 'classnames';
 
 // Recommended styling for React-geosuggest: https://github.com/ubilabs/react-geosuggest/blob/master/src/geosuggest.css
-export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
+export const geoSuggestStyles = (theme: ThemeType) => ({
   "& .geosuggest": {
     fontSize: "1rem",
     position: "relative",
@@ -86,7 +88,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   label: {
     fontSize: 10
-  }
+  },
+  sectionTitle: {
+    fontSize: 12,
+  },
+  friendlyRoot: {
+    "& .geosuggest__input": {
+      ...friendlyInputStyles(theme).root,
+      padding: "16px !important",
+      "&:focus": {
+        border: "none",
+      },
+    },
+  },
 });
 
 export const mapsAPIKeySetting = new DatabasePublicSetting<string | null>('googleMaps.apiKey', null)
@@ -135,14 +149,19 @@ export const useGoogleMaps = (): [boolean, any] => {
  * LocationPicker: A textbox for typing in a location. This is split from LocationFormComponent
  * so that it can be used outside of vulcan-forms.
  */
-const LocationPicker = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
-  document: any,
-  path: string,
-  label?: string,
-  value: any,
-  updateCurrentValues: any,
+const LocationPicker = ({
+  document,
+  path,
+  label,
+  value,
+  updateCurrentValues,
+  stringVersionFieldName,
+  variant = "book",
+  classes,
+}: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
   stringVersionFieldName?: string|null,
-  classes: ClassesType,
+  variant?: "friendly" | "book",
+  classes: ClassesType<typeof styles>,
 }) => {
   // if this location field has a matching field that just stores the string version of the location,
   // make sure to update the matching field along with this one
@@ -154,14 +173,14 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
     || ""
   const [ mapsLoaded ] = useGoogleMaps()
   const geosuggestEl = useRef<any>(null)
-  
+
   useEffect(() => {
     if (geosuggestEl && geosuggestEl.current) {
       geosuggestEl.current.update(value?.formatted_address)
     }
   }, [value])
-  
-  const handleCheckClear = (value: any) => {
+
+  const handleCheckClear = useCallback((value: AnyBecauseTodo) => {
     // clear location fields if the user deletes the input text
     if (value === '') {
       updateCurrentValues({
@@ -169,9 +188,9 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
         [path]: null,
       })
     }
-  }
+  }, [value, updateCurrentValues, locationFieldName, path]);
 
-  const handleSuggestSelect = (suggestion: Suggest) => {
+  const handleSuggestSelect = useCallback((suggestion: Suggest) => {
     if (suggestion && suggestion.gmaps) {
       updateCurrentValues({
         ...(locationFieldName ? {
@@ -180,12 +199,22 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
         [path]: suggestion.gmaps,
       })
     }
+  }, [updateCurrentValues, locationFieldName, path]);
+
+  const {Loading, SectionTitle} = Components;
+
+  if (!document || !mapsLoaded) {
+    return <Loading />;
   }
 
+  const isFriendly = variant === "friendly";
+  const labelNode = isFriendly
+    ? <SectionTitle title={label} className={classes.sectionTitle} />
+    : value && <FormLabel className={classes.label}>{label}</FormLabel>;
 
-  if (document && mapsLoaded) {
-    return <div className={classes.root}>
-      {value && label && <FormLabel className={classes.label}>{label}</FormLabel>}
+  return (
+    <div className={classNames(classes.root, isFriendly && classes.friendlyRoot)}>
+      {label && labelNode}
       <Geosuggest
         ref={geosuggestEl}
         placeholder={label}
@@ -194,13 +223,20 @@ const LocationPicker = ({document, path, label, value, updateCurrentValues, stri
         initialValue={location}
       />
     </div>
-  } else {
-    return <Components.Loading/>;
-  }
+  );
 }
 
-const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName}: FormComponentProps<any> & {
+const LocationFormComponent = ({
+  document,
+  path,
+  label,
+  value,
+  updateCurrentValues,
+  stringVersionFieldName,
+  variant,
+}: FormComponentProps<AnyBecauseTodo> & {
   stringVersionFieldName?: string|null,
+  variant?: "friendly" | "book",
 }) => {
   return <Components.LocationPicker
     document={document}
@@ -209,6 +245,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     value={value}
     updateCurrentValues={updateCurrentValues}
     stringVersionFieldName={stringVersionFieldName}
+    variant={variant}
   />
 }
 

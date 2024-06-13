@@ -1788,6 +1788,9 @@ const schema: SchemaType<"Users"> = {
     order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
     label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
+    form: {
+      variant: "friendly",
+    },
     blackbox: true,
     optional: true,
     hidden: isEAForum

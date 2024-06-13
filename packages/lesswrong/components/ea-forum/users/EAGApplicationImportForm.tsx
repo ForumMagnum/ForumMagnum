@@ -421,7 +421,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     })
   }
   
-  const handleUpdateValue = <T extends {}>(val: T) => {
+  const handleUpdateValue = async <T extends {}>(val: T) => {
     setFormValues(currentValues => {
       return {
         ...currentValues,
