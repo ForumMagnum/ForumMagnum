@@ -706,6 +706,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>LinkedIn profile</label>
+        {/* @ts-ignore: We're skipping some props here, but it should be safe */}
         <PrefixedInput
           value={formValues.linkedinProfileURL ?? ''}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}
