@@ -13,16 +13,13 @@ const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
     return null;
   }
 
-  const link = {
-    pathname:'/newPost',
-    search:`?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`,
-  };
+  const linkUrl = `/newPost?${qs.stringify({eventForm: post.isEvent, templateId: post._id})}`;
 
   const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={preferredHeadingCase("Duplicate Event")}
-      to={link}
+      to={linkUrl}
       icon="Edit"
     />
   );
