@@ -12,6 +12,7 @@ import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
 
+const CARD_CONTAINER_HEIGHT = 180;
 const DISMISS_BUTTON_WIDTH = 16;
 
 const styles = (theme: ThemeType) => ({
@@ -80,12 +81,9 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     alignContent: "start",
     gap: "6px",
-    height: 180,
+    height: CARD_CONTAINER_HEIGHT,
     marginTop: 8,
     transition: "height .5s ease-in-out",
-  },
-  showMoreCards: {
-    height: 360,
   },
   suggestedUserListItem: {
     transition: "all .5s ease-out",
@@ -207,7 +205,9 @@ const styles = (theme: ThemeType) => ({
   },
   showMoreContainer: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "end",
+    marginTop: 6,
   },
   showMoreButton: {
     ...theme.typography.body2,
@@ -287,7 +287,7 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
   const { captureEvent } = useTracking()
   const { LWPopper, FollowUserSearch, LWClickAwayListener, ForumIcon } = Components
 
-  if(!currentUser) {
+  if (!currentUser) {
     return null;
   }
 
@@ -337,17 +337,21 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
   const { Loading } = Components;
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
-  const [showMore, setShowMore] = useState(false);
+  const [expansionCount, setExpansionCount] = useState(0);
 
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
   const toggleShowMore = (e: React.MouseEvent) => {
     e.preventDefault();
-    setShowMore(!showMore);
+    if (availableUsers.length <= renderedSuggestionLimit) {
+      setExpansionCount(0);
+    } else {
+      setExpansionCount(expansionCount + 1);
+    }
   };
 
-  const renderedSuggestionLimit = showMore ? 32 : 16;
+  const renderedSuggestionLimit = (expansionCount + 1) * 16;
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -385,6 +389,8 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
   };
 
   const showLoadingState = loadingSuggestedUsers && !availableUsers.length;
+  const expansionButtonText = renderedSuggestionLimit < availableUsers.length ? 'Show More' : 'Show Less';
+  const cardContainerHeightStyling = expansionCount > 0 ? { height: CARD_CONTAINER_HEIGHT + (expansionCount * 364) } : {};
 
   return <div className={classes.root}>
     <div className={classes.titleRow}>
@@ -401,8 +407,7 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
     </div>
     {showLoadingState && <Loading />}
     {!showLoadingState && (<>
-      <div className={classes.showMoreContainer}><a className={classes.showMoreButton} onClick={toggleShowMore}>{showMore ? 'Show Less' : 'Show More'}</a></div>
-      <div className={classNames(classes.userSubscribeCards, { [classes.showMoreCards]: showMore })}>
+      <div className={classNames(classes.userSubscribeCards)} style={cardContainerHeightStyling}>
         {availableUsers.slice(0, renderedSuggestionLimit).map((user, idx) => <SuggestedFollowCard 
           user={user} 
           key={user._id}
@@ -410,6 +415,9 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
           handleSubscribeOrDismiss={(user, dismiss) => subscribeToUser(user, idx, dismiss)}
           classes={classes}
         />)}
+      </div>
+      <div className={classes.showMoreContainer}>
+        <a className={classes.showMoreButton} onClick={toggleShowMore}>{expansionButtonText}</a>
       </div>
     </>)}
   </div>;

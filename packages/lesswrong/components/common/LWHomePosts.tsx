@@ -249,7 +249,7 @@ function useSuggestedUsers() {
   const { results, loading, loadMore } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
     resolverName: "SuggestedFeedSubscriptionUsers",
-    limit: 48,
+    limit: 56,
     itemsPerPage: 16,
     ssr: false,
     skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
