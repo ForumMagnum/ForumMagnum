@@ -26,7 +26,11 @@ test("create and edit post", async ({page, context}) => {
   const newTitle = "Edited test post";
   const newBody = "Edited test body";
   await page.getByPlaceholder("Post title").fill(newTitle);
+
+  // Clear and fill the editor in two separate steps, because Playwright's .fill() fails in Firefox (but not other browsers) if these are one step
+  await page.getByLabel("Rich Text Editor. Editing area: main").fill("");
   await page.getByLabel("Rich Text Editor. Editing area: main").fill(newBody);
+
   await page.getByText("Publish changes").click();
 
   // Submitting navigates to the post page - check it has our edits
