@@ -136,4 +136,6 @@ import './2024-03-06-backfillDefaultVotingSystem'
 import './2024-03-19-importACXmeetups'
 import './2024-05-09-fixUnsubmittedFrontpagePosts'
 import './2024-05-26-setNotNullClientIds'
-import './2024-06-05-rewriteOldReviewBotComments';
+import './2024-06-04-backfillUserFeedSubscriptions'
+import './2024-06-05-rewriteOldReviewBotComments'
+import './2024-06-10-messageResumeReadingUsers'

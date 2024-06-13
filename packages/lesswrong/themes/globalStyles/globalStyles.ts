@@ -405,7 +405,8 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
       marginRight: -1, // The margins here have been changed from the default to fit the EA Forum
     },
     /* Refine this to match the dimensions of your heading typeface */
-    'h2 .t3a-heading-play-button': { marginTop: 9 },
+    'h1 .t3a-heading-play-button': { marginTop: 10 },
+    'h2 .t3a-heading-play-button': { marginTop: 7 },
     'h3 .t3a-heading-play-button': { marginTop: 3 },
   }
 })

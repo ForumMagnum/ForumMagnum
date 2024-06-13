@@ -25,6 +25,7 @@ import { ObservableQuery, gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
+import { useSingle } from '@/lib/crud/withSingle';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -112,6 +113,9 @@ const styles = (theme: ThemeType) => ({
   },
   tagFilterSettingsButton: {
   },
+  subscribedAnnouncementPost: {
+    marginBottom: 32,
+  }
 });
 
 export const filterSettingsToggleLabels = {
@@ -120,28 +124,6 @@ export const filterSettingsToggleLabels = {
   mobileVisible: "Customize (Hide)",
   mobileHidden: "Customize",
 };
-
-const subscribedFeedProps = {
-  resolverName: 'SubscribedFeed',
-  firstPageSize: 10,
-  pageSize: 20,
-  sortKeyType: 'Date',
-  reorderOnRefetch: true,
-  renderers: {
-    postCommented: {
-      fragmentName: "SubscribedPostAndCommentsFeed",
-      render: (postCommented: SubscribedPostAndCommentsFeed) => {
-        return <Components.FeedPostCommentsCard
-          key={postCommented.post._id}
-          post={postCommented.post}
-          comments={postCommented.comments}
-          maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
-          refetch={() => {} /* TODO */}
-        />
-      },
-    }
-  }
-} as const;
 
 const advancedSortingText = "Advanced Sorting/Filtering";
 
@@ -285,9 +267,10 @@ const LWHomePosts = ({children, classes}: {
 ) => {
   const { SingleColumnSection, PostsList2, TagFilterSettings, RecombeePostsList, CuratedPostsList,
     RecombeePostsListSettings, SettingsButton, TabPicker, BookmarksList, ContinueReadingList,
-    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions } = Components;
+    VertexPostsList, WelcomePostItem, MixedTypeFeed, SuggestedFeedSubscriptions, PostsItem } = Components;
 
   const { captureEvent } = useTracking() 
+
 
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -363,6 +346,44 @@ const LWHomePosts = ({children, classes}: {
     }
   }, [refetchSubscriptionContentRef]);
 
+  // TODO: refactor to pass this through SuggestedFeedSubscriptions > FollowUserSearch instead of calling it there, if we keep it here
+  const { results: userSubscriptions } = useMulti({
+    terms: {
+      view: "subscriptionsOfType",
+      userId: currentUser?._id,
+      collectionName: "Users",
+      subscriptionType: "newActivityForFeed",
+      limit: 1000
+    },
+    collectionName: "Subscriptions",
+    fragmentName: "SubscriptionState",
+    skip: !currentUser || selectedTab !== 'forum-subscribed-authors'
+  });
+
+  const subscribedFeedProps = {
+    resolverName: 'SubscribedFeed',
+    firstPageSize: 10,
+    pageSize: 20,
+    sortKeyType: 'Date',
+    reorderOnRefetch: true,
+    renderers: {
+      postCommented: {
+        fragmentName: "SubscribedPostAndCommentsFeed",
+        render: (postCommented: SubscribedPostAndCommentsFeed) => {
+          const expandOnlyCommentIds = postCommented.expandCommentIds ? new Set<string>(postCommented.expandCommentIds) : undefined;
+          const deemphasizeCommentsExcludingUserIds = userSubscriptions ? new Set(userSubscriptions.map(({ documentId }) => documentId)) : undefined;
+          return <Components.FeedPostCommentsCard
+            key={postCommented.post._id}
+            post={postCommented.post}
+            comments={postCommented.comments}
+            maxCollapsedLengthWords={postCommented.postIsFromSubscribedUser ? 200 : 50}
+            refetch={() => {} /* TODO */}
+            commentTreeOptions={{ expandOnlyCommentIds, deemphasizeCommentsExcludingUserIds }}
+          />
+        },
+      }
+    }
+  } as const;
 
   /* Intended behavior for filter settings button visibility:
   - DESKTOP
@@ -383,12 +404,20 @@ const LWHomePosts = ({children, classes}: {
 
   const desktopSettingsButtonLabel = mobileSettingsVisible ? 'Hide' : 'Customize'
 
+  const getSettingsIconOverride = (selectedTab: string, settingsVisible: boolean) => {
+    if (selectedTab !== 'forum-subscribed-authors') {
+      return undefined
+    }
+    return settingsVisible ? 'up' : 'down'
+  }
+
   const settingsButton = (<>
     {/* Desktop button */}
     <div className={classNames({ [classes.hide]: !currentUser, [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser })}>
       <SettingsButton
         showIcon={!!currentUser}
         onClick={changeShowTagFilterSettingsDesktop}
+        useArrow={getSettingsIconOverride(selectedTab, desktopSettingsVisible)}
       />
     </div>
     {/* Mobile button */}
@@ -396,6 +425,7 @@ const LWHomePosts = ({children, classes}: {
       <SettingsButton
         label={!currentUser ? desktopSettingsButtonLabel : undefined}
         showIcon={!!currentUser}
+        useArrow={getSettingsIconOverride(selectedTab, mobileSettingsVisible)}
         onClick={() => {
           toggleMobileSettingsVisible(!mobileSettingsVisible)
           captureEvent("filterSettingsClicked", {
@@ -427,6 +457,13 @@ const LWHomePosts = ({children, classes}: {
     </AnalyticsContext>
   );
 
+  const { document: subscribedTabAnnouncementPost } = useSingle({
+    documentId: '5rygaBBH7B4LNqQkz', 
+    collectionName: 'Posts', 
+    fragmentName: 'PostsListWithVotes',
+    skip: !currentUser ||selectedTab !== 'forum-subscribed-authors'
+  });
+
   const subscriptionSettingsElement = (
     <div className={settingsVisibileClassName}>
       <SuggestedFeedSubscriptions
@@ -436,6 +473,7 @@ const LWHomePosts = ({children, classes}: {
         loadMoreSuggestedUsers={loadMoreSuggestedUsers}
         refetchFeed={refetchSubscriptionContent}
       />
+      {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
     </div>
   );
 
