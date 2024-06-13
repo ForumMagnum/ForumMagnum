@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Components,
   registerComponent,
@@ -14,6 +14,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import { useEventListener } from '../hooks/useEventListener';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -189,6 +190,7 @@ const FeedPostCommentsCard = ({
     lastVisitedAt,
     nestedComments,
     treeOptions,
+    markCommentsAsRead,
   } = useRecentDiscussionThread({
     post,
     comments,
@@ -222,7 +224,7 @@ const FeedPostCommentsCard = ({
             />
         </div>
 
-        {nestedComments.length > 0 && <div className={classes.commentsList}>
+        {nestedComments.length > 0 && <div className={classes.commentsList} onMouseDown={markCommentsAsRead}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) => {
             return <FeedPostCommentsBranch
               key={comment.item._id}
