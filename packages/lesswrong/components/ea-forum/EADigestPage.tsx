@@ -59,7 +59,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: `color-mix(in oklab, var(--digest-background) 85%, ${theme.palette.text.alwaysBlack})`,
     display: 'flex',
     alignItems: 'center',
-    columnGap: '8px',
     fontSize: 14,
     lineHeight: '20px',
     fontWeight: 500,
@@ -73,6 +72,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subscribeIcon: {
     fontSize: 17,
+  },
+  subscribeText: {
+    marginLeft: 8,
   },
   success: {
     display: 'flex',
@@ -255,7 +257,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   if (!currentUser || !currentUser.subscribedToDigest) {
     const subscribeButtonContents = <>
       <ForumIcon icon="Envelope" className={classes.subscribeIcon} />
-      Subscribe
+      <span className={classes.subscribeText}>Subscribe</span>
     </>
     subscribeNode = <LWTooltip
       title="Click to subscribe to the weekly email version of this digest"
