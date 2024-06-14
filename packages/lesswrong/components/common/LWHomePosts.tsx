@@ -463,7 +463,7 @@ const LWHomePosts = ({children, classes}: {
         loadMoreSuggestedUsers={loadMoreSuggestedUsers}
         refetchFeed={refetchSubscriptionContent}
       />
-      {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
+      {subscribedTabAnnouncementPost && !subscribedTabAnnouncementPost.isRead && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
     </div>
   );
 
