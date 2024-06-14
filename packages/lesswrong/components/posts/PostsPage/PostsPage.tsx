@@ -37,6 +37,7 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -703,6 +704,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
@@ -712,6 +714,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               />
             }
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
