@@ -503,8 +503,10 @@ const recombeeApi = {
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
-    const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
-    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context);
+    const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses] = await Promise.all([
+      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context),
+      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context)
+    ]);
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
@@ -542,12 +544,15 @@ const recombeeApi = {
 
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
-    const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
-    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context);
+    const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses] = await Promise.all([
+      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context),
+      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context)
+    ]);
+
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const includedManuallyStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
-    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...includedManuallyStickiedPostIds];
+    const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
+    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...includedStickiedPostIds];
     // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
     const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
