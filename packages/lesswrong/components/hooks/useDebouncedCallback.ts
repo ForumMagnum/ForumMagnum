@@ -29,13 +29,19 @@ export interface DebouncedCallbackOptions {
    * (otherwise it's a no-op).
    */
   allowExplicitCallAfterUnmount: boolean,
+
+  /**
+   * If true, behaves like a debounce rather than throttle, where subsequent calls within 
+   * window keep pushing back execution until full window passes without any calls.
+   */
+  noMaxWait?: boolean
 }
 
 interface DebouncedCallbackState<T> {
   callIsPending: boolean
   pendingArgs: T|null
   nextCallAtTime: number|null
-  timerId: number|null
+  timerId: NodeJS.Timer|null
   isMounted: boolean
 }
 
@@ -52,7 +58,7 @@ interface DebouncedCallbackState<T> {
  * themselves may not change after  this has rendered for the first time.
  */
 export function useDebouncedCallback<T>(fn: (args: T) => void, options: DebouncedCallbackOptions): (args: T) => void {
-  const { rateLimitMs, callOnLeadingEdge, onUnmount, allowExplicitCallAfterUnmount } = options;
+  const { rateLimitMs, callOnLeadingEdge, onUnmount, allowExplicitCallAfterUnmount, noMaxWait } = options;
   const refStabilizedFn = useStabilizedCallback(fn);
   const _state = useRef<DebouncedCallbackState<T>>({
     callIsPending: false,
@@ -102,6 +108,21 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
     }
     if (_state.current.callIsPending) {
       _state.current.pendingArgs = args;
+      if (noMaxWait && _state.current.timerId) {
+        clearTimeout(_state.current.timerId)
+        _state.current.nextCallAtTime = new Date().getTime() + rateLimitMs;
+        _state.current.callIsPending = true;
+        _state.current.timerId = setTimeout(() => {
+          if (!_state.current.isMounted && !allowExplicitCallAfterUnmount) {
+            return;
+          }
+          _state.current.callIsPending = false;
+          const argsToCall = _state.current.pendingArgs!
+          _state.current.pendingArgs = null;
+          _state.current.nextCallAtTime = null;
+          refStabilizedFn(argsToCall);
+        }, rateLimitMs);
+      }
     } else {
       if (_state.current.nextCallAtTime || !callOnLeadingEdge) {
         const now = new Date();
@@ -110,7 +131,7 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
           : rateLimitMs;
         _state.current.callIsPending = true;
         _state.current.pendingArgs = args;
-        setTimeout(() => {
+        _state.current.timerId = setTimeout(() => {
           if (!_state.current.isMounted && !allowExplicitCallAfterUnmount) {
             return;
           }
