@@ -3,7 +3,7 @@ import { Globals, computeContextFromUser, createMutator, updateMutator } from ".
 import Users from "../../lib/collections/users/collection";
 import Conversations from "../../lib/collections/conversations/collection";
 import groupBy from "lodash/groupBy";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import Messages from "../../lib/collections/messages/collection";
 
 Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {

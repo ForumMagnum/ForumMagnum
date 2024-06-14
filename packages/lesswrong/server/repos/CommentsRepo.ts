@@ -1,6 +1,6 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
-import SelectQuery from "../../lib/sql/SelectQuery";
+import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';

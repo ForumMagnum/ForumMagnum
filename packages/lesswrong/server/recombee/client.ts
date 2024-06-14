@@ -12,7 +12,7 @@ import groupBy from 'lodash/groupBy';
 import uniq from 'lodash/uniq';
 import { recommendationsTabManuallyStickiedPostIdsSetting } from '../../lib/publicSettings';
 import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMetrics';
-import { performQueryFromViewParameters } from '../../lib/vulcan-core/default_resolvers';
+import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
 import { fetchFragmentSingle } from '../fetchFragment';
@@ -111,7 +111,7 @@ interface RecResponse extends RecommendationResponse {
 
 interface AssignRecommendationResultMetadataArgs {
   post: Partial<DbPost>,
-  recsWithMetadata: RecWithMetadata[],
+  recsWithMetadata: Map<string, RecWithMetadata>,
   stickiedPostIds: string[],
   curatedPostIds: string[],
 }
@@ -358,9 +358,10 @@ const helpers = {
   assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }: AssignRecommendationResultMetadataArgs): RecommendedPost {
     // _id isn't going to be filtered out by `accessFilterMultiple`
     const postId = post._id!;
-    const recombeeRec = recsWithMetadata.find(({ id }) => id === postId);
+    const recombeeRec = recsWithMetadata.get(postId);
 
     if (recombeeRec) {
+      recsWithMetadata.delete(postId);
       const { recommId, scenario, generatedAt } = recombeeRec;
       return { post, recommId, scenario, generatedAt };
     } else {
@@ -515,7 +516,7 @@ const recombeeApi = {
     });
 
     const { recomms, recommId, scenario } = recombeeResponseWithScenario;
-    const recsWithMetadata = recomms.map(rec => ({ ...rec, recommId, scenario }));
+    const recsWithMetadata = new Map(recomms.map(rec => [rec.id, { ...rec, recommId, scenario }]));
     const recommendedPostIds = recomms.map(({ id }) => id);
     const postIds = [...includedCuratedAndStickiedPostIds, ...recommendedPostIds];
 
@@ -604,9 +605,8 @@ const recombeeApi = {
       }));
     }
 
-    // We explicitly avoid deduplicating postIds because we want to see how often the same post is recommended by both arms of the hybrid recommender
-    const recsWithMetadata = recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => ({ ...rec, recommId: response.recommId, scenario: response.scenario })));
-    const recommendedPostIds = recsWithMetadata.map(({ id }) => id);
+    const recsWithMetadata = new Map(recombeeResponsesWithScenario.flatMap(response => response.recomms.map(rec => [rec.id, { ...rec, recommId: response.recommId, scenario: response.scenario }])));
+    const recommendedPostIds = Array.from(recsWithMetadata.keys());
     // The ordering of these post ids is actually important, since it's preserved through all subsequent filtering/mapping
     // It ensures the "curated > stickied > everything else" ordering
     const postIds = [...includedCuratedAndStickiedPostIds, ...recommendedPostIds];

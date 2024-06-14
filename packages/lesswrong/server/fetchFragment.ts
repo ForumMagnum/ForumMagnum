@@ -1,5 +1,5 @@
-import SelectFragmentQuery from "../lib/sql/SelectFragmentQuery";
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import SelectFragmentQuery from "./sql/SelectFragmentQuery";
+import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { getCollection } from "./vulcan-lib";
 

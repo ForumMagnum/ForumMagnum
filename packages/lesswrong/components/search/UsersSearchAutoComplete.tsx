@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
 
 const UsersSearchAutoComplete = ({clickAction, label}: {
-  clickAction: (id: string) => void;
+  clickAction: (id: string, result: SearchUser) => void;
   label?: string;
 }) => {
   return <Components.SearchAutoComplete

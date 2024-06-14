@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
-import { replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
-import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
+import { replaceDbNameInPgConnectionString, setSqlClient } from './sql/sqlClient';
+import PgCollection, { DbTarget } from './sql/PgCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { isAnyTest, CommandLineArguments } from '../lib/executionEnvironment';
 import { PublicInstanceSetting } from "../lib/instanceSettings";

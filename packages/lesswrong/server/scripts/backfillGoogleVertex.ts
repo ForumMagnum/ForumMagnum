@@ -1,5 +1,5 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { Globals } from "../vulcan-lib";
 import ReadStatuses from "../../lib/collections/readStatus/collection";

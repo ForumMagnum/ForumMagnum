@@ -36,7 +36,28 @@ const schema: SchemaType<"Digests"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     control: 'datetime',
-  }
+  },
+  // Cloudinary image id for the on-site digest background image (high resolution)
+  onsiteImageId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "ImageUpload",
+  },
+  // primary color for the on-site digest background
+  // - fades onto the image so chosen to match
+  onsitePrimaryColor: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    control: "FormComponentColorPicker",
+  },
 };
 
 export default schema;

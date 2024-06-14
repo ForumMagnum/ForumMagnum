@@ -670,8 +670,23 @@
     "timestamp": "2024-05-17T09:31:46.000Z"
   },
   {
-    "acceptsSchemaHash": "6b6fc9b563d59dea9ffb087150d7b3c3",
-    "acceptedByMigration": "20240517T122651.normalize_post_contents.ts",
-    "timestamp": "2024-05-17T12:26:51.000Z"
+    "acceptsSchemaHash": "6fc595baf02ccdf4ffdf8777a5981d32",
+    "acceptedByMigration": "20240526T111308.set_not_null_clientId_2.ts",
+    "timestamp": "2024-05-26T11:13:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6916cc5096e4eeee5bc92639da67e9fa",
+    "acceptedByMigration": "20240611T182502.add_Posts_userId_postedAt_idx.ts",
+    "timestamp": "2024-06-11T18:25:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c1dd7ed968b6af5a78625296b5e5fec0",
+    "acceptedByMigration": "20240612T173525.add_onsite_digest_background_fields.ts",
+    "timestamp": "2024-06-12T17:35:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d95c1228f4b2a050f51e79c38e92e282",
+    "acceptedByMigration": "20240614T185929.normalize_post_contents.ts",
+    "timestamp": "2024-06-14T18:59:29.000Z"
   }
 ]

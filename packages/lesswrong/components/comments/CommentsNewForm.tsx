@@ -273,7 +273,6 @@ const CommentsNewForm = ({
         openDialog({
           componentName: 'NewUserGuidelinesDialog',
           componentProps: dialogProps,
-          noClickawayCancel: true
         });
       }
       if (isLWorAF) {

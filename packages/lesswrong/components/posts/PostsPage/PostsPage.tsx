@@ -37,6 +37,7 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -216,6 +217,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   postBody: {
     width: "max-content",
+  },
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
   },
   postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
@@ -417,7 +424,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         componentProps: {
           post: fullPost,
         },
-        noClickawayCancel: true,
         closeOnNavigate: true,
       });
     }
@@ -584,7 +590,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       componentProps: {
         post, initialHtml: html
       },
-      noClickawayCancel: true,
     })
   }, [openDialog, post]);
 
@@ -685,7 +690,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
@@ -695,6 +704,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
@@ -704,6 +714,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               />
             }
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 

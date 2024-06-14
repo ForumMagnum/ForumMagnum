@@ -14,6 +14,7 @@ import { componentWithChildren, Helmet } from '../../lib/utils/componentsWithChi
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
+import { useMapStyle } from '../hooks/useMapStyle';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -156,7 +157,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
     skip: !showUsers
   })
 
-  const isEAForum = forumTypeSetting.get() === 'EAForum';
+  const mapStyle = useMapStyle();
 
   const renderedMarkers = useMemo(() => {
     return <React.Fragment>
@@ -186,7 +187,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={mapStyle}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >

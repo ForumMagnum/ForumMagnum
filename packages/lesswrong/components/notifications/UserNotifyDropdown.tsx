@@ -20,7 +20,7 @@ const styles = (_theme: ThemeType) => ({
     marginTop: 6,
   },
   dropdown: {
-    width: 200,
+    width: isFriendlyUI ? 200 : 220,
     maxWidth: "100vw",
   },
 });
@@ -93,7 +93,7 @@ const UserNotifyDropdown = ({
           <DropdownMenu className={classes.dropdown}>
             {userHasSubscribeTabFeed(currentUser) && <NotifyMeToggleDropdownItem
               document={user}
-              title="Include in my feeds"
+              title="Include in Subscribed tab"
               useCheckboxIcon={!isFriendlyUI}
               subscriptionType="newActivityForFeed"
             />}
