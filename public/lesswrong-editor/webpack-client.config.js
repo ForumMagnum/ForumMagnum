@@ -26,7 +26,16 @@ module.exports = {
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'ckeditor.js',
 		libraryTarget: 'umd',
-		libraryExport: 'Editors'
+		libraryExport: 'Editors',
+
+		// Fix a nodejs version incompatibility issue. See: https://stackoverflow.com/questions/69692842/error-message-error0308010cdigital-envelope-routinesunsupported
+		// (The issue is that webpack defaulted to md4 as the hash function for
+		// its compilation cache, which was removed because it would be insecure
+		// in a different sort of application. Fix is to either specify a real
+		// hash function, in this case sha256, or upgrade to webpack5 which changed
+		// the default to something that works. This will become unnecessary if
+		// we do that major-version upgrade.)
+		hashFunction: 'sha256',
 	},
 
 	optimization: {

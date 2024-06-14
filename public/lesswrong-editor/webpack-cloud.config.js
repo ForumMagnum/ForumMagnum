@@ -26,7 +26,10 @@ module.exports = {
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'ckeditor-cloud.js',
 		libraryTarget: 'umd',
-		libraryExport: 'default'
+		libraryExport: 'default',
+
+		// Fix a nodejs version compatibility issue. See longer note in webpack-client.js.
+		hashFunction: 'sha256',
 	},
 
 	optimization: {
