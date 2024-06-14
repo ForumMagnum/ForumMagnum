@@ -7,7 +7,7 @@ export const getPostHTML = async (
   post: DbPost|FetchedFragment<"PostsHTML">,
   context?: ResolverContext,
 ): Promise<string> => {
-  if ("contents" in post) {
+  if ("contents" in post && post.contents) {
     return post.contents?.html ?? "";
   }
   const revision = await getLatestContentsRevision(post, context);

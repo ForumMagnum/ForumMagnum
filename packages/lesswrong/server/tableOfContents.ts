@@ -54,7 +54,7 @@ export const getToCforPost = async ({document, version, context}: {
     if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
-  } else if ("contents" in document) {
+  } else if ("contents" in document && document.contents) {
     html = document?.contents?.html ?? "";
   } else {
     const revision = await getLatestContentsRevision(document, context);

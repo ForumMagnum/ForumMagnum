@@ -138,7 +138,11 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache,
   const {header, body} = template;
   
   const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
-  const htmlPostBody = ('body' in post ? post.body : null) ?? ('contents' in post ? post.contents?.html : null) ?? ''
+  const htmlPostBody = (('body' in post && post.body) ? post.body : null)
+    ?? (('contents' in post && post.contents)
+        ? post.contents?.html
+        : null)
+    ?? ''
   const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
   
   const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
