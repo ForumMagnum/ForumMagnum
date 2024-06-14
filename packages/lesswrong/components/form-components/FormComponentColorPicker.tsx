@@ -12,7 +12,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type FormComponentColorPickerProps = FormComponentProps<number> & {
+type FormComponentColorPickerProps = Pick<
+  FormComponentProps<string|null>,
+  "value"|"label"|"updateCurrentValues"|"path"|"disabled"
+> & {
   classes: ClassesType<typeof styles>,
 }
 
