@@ -264,6 +264,7 @@ registerFragment(`
     customHighlight {
       _id
       html
+      plaintextDescription
     }
     lastPromotedComment {
       _id

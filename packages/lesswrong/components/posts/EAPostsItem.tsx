@@ -70,6 +70,9 @@ export const styles = (theme: ThemeType) => ({
   containerCardWithImage: {
     paddingBottom: 0,
   },
+  containerNoKarma: {
+    paddingLeft: 20
+  },
   postsVote: {
     position: "relative",
     fontSize: 30,
@@ -186,6 +189,9 @@ export const styles = (theme: ThemeType) => ({
       gap: "12px",
     },
   },
+  cardNoKarma: {
+    paddingLeft: 20
+  },
   cardText: {
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
@@ -266,6 +272,7 @@ const EAPostsItem = ({
     analyticsProps,
     viewType,
     isVoteable,
+    showKarma,
     useCuratedDate,
     className,
   } = usePostsItem(props);
@@ -314,6 +321,19 @@ const EAPostsItem = ({
       }
     </>
   );
+  
+  const karmaNode = isVoteable
+    ? (
+      <InteractionWrapper className={classNames(
+        classes.interactionWrapper,
+        classes.postsVote,
+      )}>
+        <PostsVote post={post} />
+      </InteractionWrapper>
+    )
+    : (
+      <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
+    )
 
   // The nesting here gets a little messy: we need to add the extra `Link`
   // around the title to make it right-clickable/cmd+clickable. However,
@@ -330,6 +350,7 @@ const EAPostsItem = ({
   );
 
   const body =
+    post.customHighlight?.plaintextDescription ||
     postContents?.plaintextDescription ||
     post.contents?.plaintextDescription ||
     "";
@@ -353,20 +374,9 @@ const EAPostsItem = ({
             classes.container,
             cardView && classes.containerCard,
             cardView && post.socialPreviewData.imageUrl && classes.containerCardWithImage,
+            !showKarma && classes.containerNoKarma,
           )}>
-            {isVoteable
-              ? (
-                <InteractionWrapper className={classNames(
-                  classes.interactionWrapper,
-                  classes.postsVote,
-                )}>
-                  <PostsVote post={post} />
-                </InteractionWrapper>
-              )
-              : (
-                <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
-              )
-            }
+            {showKarma && karmaNode}
             <div className={classes.details}>
               <PostsTitle
                 {...{
@@ -422,7 +432,7 @@ const EAPostsItem = ({
             </InteractionWrapper>
           </div>
           {cardView && (hasBody || hasImage) &&
-            <div className={classes.card} onClick={onClick}>
+            <div className={classNames(classes.card, !showKarma && classes.cardNoKarma)} onClick={onClick}>
               <div className={classNames(
                 classes.cardText,
                 hasImage && classes.cardTextWithImage,

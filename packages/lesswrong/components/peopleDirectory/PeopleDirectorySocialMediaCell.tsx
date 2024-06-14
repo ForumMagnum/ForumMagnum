@@ -9,6 +9,8 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     gap: "12px",
+    flexWrap: "wrap",
+    rowGap: "2px",
   },
   link: {
     color: theme.palette.grey[600],
@@ -36,7 +38,7 @@ export const PeopleDirectorySocialMediaCell = ({user, classes}: {
   const {captureEvent} = useTracking();
 
   const urls = user.socialMediaUrls ?? {};
-  const keys = objectKeys(urls)
+  const keys = objectKeys(urls);
 
   const {SocialMediaIcon} = Components;
   return (

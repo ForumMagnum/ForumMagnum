@@ -1245,6 +1245,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
 interface PostsListBase_customHighlight { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsListBase_lastPromotedComment { // fragment on Comments
@@ -2684,6 +2685,8 @@ interface DigestsDefaultFragment { // fragment on Digests
   readonly startDate: Date,
   readonly endDate: Date | null,
   readonly publishedDate: Date | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
 }
 
 interface DigestsMinimumInfo { // fragment on Digests
@@ -2692,6 +2695,8 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly startDate: Date,
   readonly endDate: Date | null,
   readonly publishedDate: Date | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents
@@ -2842,7 +2847,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly howOthersCanHelpMe: RevisionDisplay|null,
   readonly howICanHelpOthers: RevisionDisplay|null,
   readonly profileTagIds: Array<string>,
-  readonly profileTags: Array<TagBasicInfo>,
+  readonly profileTags: Array<TagPreviewFragment>,
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,
