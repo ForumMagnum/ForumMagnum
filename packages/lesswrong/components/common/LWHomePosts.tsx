@@ -512,7 +512,7 @@ const LWHomePosts = ({children, classes}: {
         settingsButton={suggestedUsersSettingsButton}
         existingSubscriptions={userSubscriptions}
       />
-      {subscribedTabAnnouncementPost && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
+      {subscribedTabAnnouncementPost && !subscribedTabAnnouncementPost.isRead && <PostsItem post={subscribedTabAnnouncementPost} className={classes.subscribedAnnouncementPost} />}
     </div>
   );
 
