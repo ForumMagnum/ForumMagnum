@@ -116,9 +116,13 @@ const styles = (theme: ThemeType) => ({
   },
   suggestedUsersHideLabel: {
     ...theme.typography.commentStyle,
-    fontSize: "1rem",
     padding: 4,
-    opacity: .9
+    fontSize: "1rem",
+    color: "unset",
+    opacity: 0.7,
+    '&:hover': {
+      opacity: 0.5,
+    }
   },
 });
 

@@ -61,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     opacity: 0.7,
     '&:hover': {
-      opacity: 1.0,
+      opacity: 0.5,
     }
   },
   hideButton: {
