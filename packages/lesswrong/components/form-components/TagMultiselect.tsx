@@ -1,13 +1,38 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
 import classNames from 'classnames';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   label: {
     display: 'block',
     fontSize: 10,
     marginBottom: 8
+  },
+  sectionTitle: {
+    fontSize: 12,
+  },
+  greyContainer: {
+    ...inputStyles(theme).root,
+    "&:hover, &:focus": {}, // Overwrite styles from above
+    padding: 8,
+    display: "flex",
+    gap: "10px",
+    "& > *": {
+      flexBasis: "50%",
+    },
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+    },
+  },
+  greyTagContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "2px",
+    "& > *": {
+      margin: 0,
+    },
   },
   inputContainer: {
     display: 'inline-block',
@@ -23,6 +48,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "pointer",
     }
   },
+  inputGrey: {
+    marginTop: 3,
+    marginBottom: 0,
+    "& input": {
+      fontSize: "14px !important",
+    },
+  },
   focused: {
     border: theme.palette.border.extraFaint,
     borderRadius: 3,
@@ -33,58 +65,86 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagMultiselect = ({ value, path, classes, label, placeholder, hidePostCount=false, startWithBorder=false,isVotingContext, updateCurrentValues }: {
+const TagMultiselect = ({
+  value,
+  path,
+  label,
+  placeholder,
+  hidePostCount=false,
+  startWithBorder=false,
+  isVotingContext,
+  updateCurrentValues,
+  variant,
+  classes,
+}: {
   value: Array<string>,
   path: string,
-  classes: ClassesType,
   label?: string,
   placeholder?: string,
   hidePostCount?: boolean,
   startWithBorder?: boolean,
   isVotingContext?: boolean,
   updateCurrentValues(values: AnyBecauseTodo): void,
+  variant?: "default" | "grey",
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { SingleTagItem, TagsSearchAutoComplete, ErrorBoundary } = Components
-
   const [focused, setFocused] = useState(startWithBorder)
 
-  const addTag = (id: string, tag: SearchTag | null) => {
+  const onFocus = useCallback(() => setFocused(true), []);
+
+  const addTag = useCallback((id: string, tag: SearchTag | null) => {
     const ids = [...(tag?.parentTagId ? [tag.parentTagId] : []), id].filter(id => !value.includes(id))
     if (ids.length) {
       const newValue = value.concat(ids)
       updateCurrentValues({ [path]: newValue })
     }
-  }
-  
-  const removeTag = (id: string) => {
+  }, [value, updateCurrentValues, path]);
+
+  const removeTag = useCallback((id: string) => {
     if (value.includes(id)) {
       updateCurrentValues({ [path]: value.filter(tag => tag !== id) })
     }
-  }
+  }, [value, updateCurrentValues, path]);
+
+  const {
+    SingleTagItem, TagsSearchAutoComplete, ErrorBoundary, SectionTitle,
+  } = Components;
+
+  const isGrey = variant === "grey";
+  const labelNode = isGrey
+    ? <SectionTitle title={label} className={classes.sectionTitle} />
+    : <FormLabel className={classes.label}>{label}</FormLabel>;
 
   return (
-    <div className={classes.root}>
-      {label && <FormLabel className={classes.label}>{label}</FormLabel>}
-      <div className={classes.tags}>
-        {value.map(tagId => {
-          return <SingleTagItem
-            key={tagId}
-            documentId={tagId}
-            onDelete={(_: string) => removeTag(tagId)}
-          />
-        })}
-      </div>
-      <ErrorBoundary>
-        <div className={classNames(classes.inputContainer, {[classes.focused]:focused})} onClick={() => setFocused(true)}>
-          <TagsSearchAutoComplete
-            clickAction={(id: string, tag: SearchTag | null) => addTag(id, tag)}
-            placeholder={placeholder}
-            hidePostCount={hidePostCount}
-            facetFilters={{wikiOnly: false}}
-            isVotingContext={isVotingContext}
-          />
+    <div>
+      {label && labelNode}
+      <div className={classNames(isGrey && classes.greyContainer)}>
+        <div>
+          <div className={classNames(isGrey && classes.greyTagContainer)}>
+            {value.map(tagId => {
+              return <SingleTagItem
+                key={tagId}
+                documentId={tagId}
+                onDelete={(_: string) => removeTag(tagId)}
+              />
+            })}
+          </div>
         </div>
-      </ErrorBoundary>
+        <ErrorBoundary>
+          <div onClick={onFocus} className={classNames(classes.inputContainer, {
+            [classes.inputGrey]: isGrey,
+            [classes.focused]: focused && !isGrey,
+          })}>
+            <TagsSearchAutoComplete
+              clickAction={(id: string, tag: SearchTag | null) => addTag(id, tag)}
+              placeholder={placeholder}
+              hidePostCount={hidePostCount}
+              facetFilters={{wikiOnly: false}}
+              isVotingContext={isVotingContext}
+            />
+          </div>
+        </ErrorBoundary>
+      </div>
     </div>
   )
 }

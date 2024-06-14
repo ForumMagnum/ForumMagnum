@@ -2667,6 +2667,9 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.aboutMe,
     order: 100,
     control: "TagMultiselect",
+    form: {
+      variant: "grey",
+    },
     label: "Interests",
     placeholder: `Search for ${taggingNamePluralSetting.get()}`
   },
