@@ -204,42 +204,45 @@ const FeedPostCommentsCard = ({
   const { FeedPostsHighlight, PostActionsButton, FeedPostCardMeta } = Components;
 
   const { captureEvent } = useTracking()
-  const { setNode, entry } = useIsInView({threshold: 0.05, rootMargin: "20px"})
-  const [ cardSeenEventSent, setCardSeenEventSent ] = useState(false)
+  const { setNode, entry } = useIsInView({threshold: 0.5, rootMargin: "20px"})
+  const [cardSeenEventSent, setCardSeenEventSent] = useState(false)
+  const recordCardSeenTimerRef = useRef<NodeJS.Timer>();
   const currentUser = useCurrentUser()
 
   const recordCardSeen = useCallback((startIntersection: number)=> {
-
-    if (entry?.isIntersecting) {
-      // console.log('in Callback', {isIntersecting: entry.isIntersecting, cardSeenEventSent, postId: post._id})
-
-      const duration = new Date().getTime() - startIntersection
-
-      // !cardSeenEventSent && markCommentsAsRead() TODO: re-enable when ready to test
-      captureEvent("feedCardSeen", {"postId": post._id, duration, title: post.title, })
-      setCardSeenEventSent(true)
-    }
-  }, [captureEvent, post, entry?.isIntersecting])
-
+    const duration = new Date().getTime() - startIntersection;
+    captureEvent("feedCardSeen", { postId: post._id, duration, title: post.title });
+    setCardSeenEventSent(true);
+  }, [captureEvent, post]);
 
   const throttledRecordCardSeen = useDebouncedCallback(recordCardSeen, {
     rateLimitMs: 1000,
-    callOnLeadingEdge: true,
+    callOnLeadingEdge: false,
     onUnmount: "callIfScheduled",
     allowExplicitCallAfterUnmount: false,
     noMaxWait: true
-  })
-
+  });
 
   useEffect(() => {
+    if (!currentUser || cardSeenEventSent || !entry?.isIntersecting) {
+      if (recordCardSeenTimerRef.current) {
+        clearTimeout(recordCardSeenTimerRef.current);
+      }
 
-    if (!currentUser || cardSeenEventSent || !entry?.isIntersecting ) {
-      return
+      return;
     }
 
-    const startIntersection = new Date().getTime()
+    const startIntersection = new Date().getTime();
 
-    setInterval(() => throttledRecordCardSeen(startIntersection), RECORD_COMMENTS_SEEN_INTERVAL_MS)
+    recordCardSeenTimerRef.current = setInterval(() => {
+      if (entry?.isIntersecting) {
+        throttledRecordCardSeen(startIntersection);
+      }
+    }, RECORD_COMMENTS_SEEN_INTERVAL_MS);
+
+    return () => {
+      clearTimeout(recordCardSeenTimerRef.current);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entry?.isIntersecting])
 
