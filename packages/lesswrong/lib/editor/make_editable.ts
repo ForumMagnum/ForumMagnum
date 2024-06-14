@@ -86,15 +86,28 @@ const buildEditableResolver = <N extends CollectionNameString>(
       arguments: "version: String",
       resolver: async (
         doc: ObjectsByCollectionName[N],
-        _args: {version?: string},
+        args: {version?: string},
         context: ResolverContext,
       ): Promise<DbRevision|null> => {
         const {currentUser, Revisions} = context;
         const {checkAccess} = Revisions;
-        const revision = await Revisions.findOne({
-          _id: doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]],
-        });
-        return revision && await checkAccess(currentUser, revision, context)
+
+        let revision: DbRevision|null;
+        if (args.version) {
+          revision = await Revisions.findOne({
+            documentId: doc._id,
+            version: args.version,
+            fieldName,
+          });
+        } else {
+          const revisionId = doc[`${fieldName}_latest` as keyof ObjectsByCollectionName[N]] as string;
+          if (revisionId) {
+            revision = await context.loaders.Revisions.load(revisionId);
+          } else {
+            revision = null;
+          }
+        }
+        return (revision && await checkAccess(currentUser, revision, context))
           ? revision
           : null;
       },
