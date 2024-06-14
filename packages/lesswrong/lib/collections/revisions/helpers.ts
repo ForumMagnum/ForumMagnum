@@ -10,6 +10,10 @@ export type GoogleDocMetadata = {
   size: string;
 }
 
+/**
+ * Returns the "latest" revision of a post (excluding unpublished draft
+ * autosaves).
+ */
 export const getLatestContentsRevision = async (
   post: DbPost,
   context?: ResolverContext,

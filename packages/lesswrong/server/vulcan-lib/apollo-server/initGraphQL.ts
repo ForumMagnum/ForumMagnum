@@ -270,7 +270,14 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
               if (field.resolveAs!.sqlResolver) {
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
                 let existingValue = document[typedName];
-                if (existingValue !== undefined) {
+                // FIXME Run the resolver on null until we have migrated enough
+                // that `contents` is dropped entirely, because with the
+                // revision-normalization change, we have null `contents` fields
+                // that show up when you SELECT * FROM "Posts". This breaks
+                // Recent Discussion, since that spurious null field would
+                // prevent the resolver from running.
+                //if (existingValue !== undefined) {
+                if (existingValue !== undefined && existingValue !== null) {
                   const {sqlPostProcess} = field.resolveAs!;
                   if (sqlPostProcess) {
                     existingValue = sqlPostProcess(existingValue, document, context);
