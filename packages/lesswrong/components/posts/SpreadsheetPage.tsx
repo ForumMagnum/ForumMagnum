@@ -408,7 +408,7 @@ const SpreadsheetPage = ({classes}: {
 
   if (loading) return <Loading />
 
-  const dataRows = _.filter(data.CoronaVirusData.values, (row: any): boolean => row.accepted === "Accept")
+  const dataRows = _.filter(data?.CoronaVirusData.values, (row: any): boolean => row.accepted === "Accept")
   const sortedRowsAdded = _.sortBy(dataRows, (row: any) => -row.dateAdded)
   const sortedRowsImp = _.sortBy(sortedRowsAdded, (row: any) => -row.imp)
 
@@ -583,7 +583,7 @@ const SpreadsheetPage = ({classes}: {
             }, rowNum) => (
               <TableRow key={`row-${rowNum}`} id={encodeURIComponent(url)} className={selectedCell === `#${encodeURIComponent(url)}` ? classes.selectedRow : ''} >
                 <TableCell classes={{root: classes.leftFixed0}}>
-                  <Link to={{hash: encodeURIComponent(url), search: `?${qs.stringify({tab: selectedTab})}`}}>{imp}</Link>
+                  <Link to={`/coronavirus-link-database?${qs.stringify({tab: selectedTab})}#${encodeURIComponent(url)}`}>{imp}</Link>
                 </TableCell>
                 <TableCell className={classes.leftFixed1}>
                   {linkCell(url, link, domain, type)}

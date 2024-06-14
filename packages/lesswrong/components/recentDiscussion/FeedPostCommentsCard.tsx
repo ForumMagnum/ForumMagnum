@@ -1,8 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 import classNames from 'classnames';
 import { CommentTreeNode, addGapIndicators, flattenCommentBranch, unflattenComments } from '../../lib/utils/unflatten';
@@ -203,13 +200,13 @@ const FeedPostCommentsCard = ({
 
   const { FeedPostsHighlight, PostActionsButton, FeedPostCardMeta } = Components;
 
-  const { captureEvent } = useTracking()
-  const { setNode, entry } = useIsInView({threshold: 0.5, rootMargin: "20px"})
-  const [cardSeenEventSent, setCardSeenEventSent] = useState(false)
+  const { captureEvent } = useTracking();
+  const { setNode, entry } = useIsInView({ threshold: 0.5, rootMargin: "20px" });
+  const [cardSeenEventSent, setCardSeenEventSent] = useState(false);
   const recordCardSeenTimerRef = useRef<NodeJS.Timer>();
-  const currentUser = useCurrentUser()
+  const currentUser = useCurrentUser();
 
-  const recordCardSeen = useCallback((startIntersection: number)=> {
+  const recordCardSeen = useCallback((startIntersection: number) => {
     const duration = new Date().getTime() - startIntersection;
     captureEvent("feedCardSeen", { postId: post._id, duration, title: post.title });
     setCardSeenEventSent(true);

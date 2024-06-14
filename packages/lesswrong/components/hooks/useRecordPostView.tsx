@@ -128,7 +128,7 @@ export const useRecordPostView = (post: ViewablePost) => {
         // Set the value to true even if technically we might be saving isRead: false on the server, if the post hasn't been read before, to get the correct UI update.
         setPostRead(post._id, true);
 
-        // Only send update to server the first time a user interacts with the comments after the page is rendered (and the client-side cache isn't populated yet).
+        // Calling `setPostRead` above ensures we only send an update to server the first time this is triggered.
         // Otherwise it becomes much more likely that someone else posts a comment after the first time we send this,
         // but then we send it again because e.g. the user clicked on another comment (from the initial render).
         void markPostCommentsRead({

@@ -280,16 +280,6 @@ const LWHomePosts = ({children, classes}: {
   const { continueReading } = useContinueReading();
   const { availableUsers, setAvailableUsers, loadingSuggestedUsers, loadMoreSuggestedUsers } = useSuggestedUsers();
 
-  const { count: countBookmarks } = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "myBookmarkedPosts",
-    },
-    fragmentName: "PostsListWithVotes",
-    fetchPolicy: "cache-and-network",
-    skip: !currentUser?._id,
-  });
-
   const [sendVertexViewHomePageEvent] = useMutation(gql`
     mutation sendVertexViewHomePageEventMutation {
       sendVertexViewHomePageEvent
@@ -306,7 +296,7 @@ const LWHomePosts = ({children, classes}: {
         (userIsAdmin(currentUser) || query.experimentalTabs === 'true') ||
         (feed.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser))
       ) 
-      && !(feed.name === 'forum-bookmarks' && (countBookmarks ?? 0) < 1)
+      && !(feed.name === 'forum-bookmarks' && (currentUser?.bookmarkedPostsMetadata.length ?? 0) < 1)
       && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
     )
 
