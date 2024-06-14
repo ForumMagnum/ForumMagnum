@@ -228,7 +228,7 @@ function useSuggestedUsers() {
   const { results, loading, loadMore } = usePaginatedResolver({
     fragmentName: "UsersMinimumInfo",
     resolverName: "SuggestedFeedSubscriptionUsers",
-    limit: 56,
+    limit: 64,
     itemsPerPage: 16,
     ssr: false,
     skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
@@ -361,7 +361,7 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
 }) => {
   const { Loading } = Components;
 
-  const { availableUsers, setAvailableUsers, loadingSuggestedUsers, loadMoreSuggestedUsers } = useSuggestedUsers();
+  const { availableUsers, setAvailableUsers, loadingSuggestedUsers } = useSuggestedUsers();
 
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
   const [expansionCount, setExpansionCount] = useState(0);
@@ -369,16 +369,16 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
+  const renderedSuggestionLimit = (expansionCount + 1) * 16;
+
   const toggleShowMore = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (availableUsers.length <= renderedSuggestionLimit) {
+    if (availableUsers.length <= (renderedSuggestionLimit - 16)) {
       setExpansionCount(0);
     } else {
       setExpansionCount(expansionCount + 1);
     }
   };
-
-  const renderedSuggestionLimit = (expansionCount + 1) * 16;
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -406,9 +406,6 @@ export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existi
     setTimeout(() => {
       setHiddenSuggestionIdx(undefined);
       setAvailableUsers(availableUsers.filter((suggestedUser) => suggestedUser._id !== user._id));
-      if (availableUsers.length < renderedSuggestionLimit + 2) {
-        void loadMoreSuggestedUsers();
-      }
     }, 700);
     if (!dismiss) {
       void refetchFeed();
