@@ -28,6 +28,7 @@ import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
+import MapIcon from "@heroicons/react/24/outline/MapIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
@@ -65,6 +66,7 @@ import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
+import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
 import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
@@ -167,6 +169,7 @@ export type ForumIconName =
   "Work" |
   "School" |
   "MapPin" |
+  "Map" |
   "Pencil" |
   "PencilSquare" |
   "Comment" |
@@ -225,6 +228,7 @@ export type ForumIconName =
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
+  "Bars3" |
   "ViewColumns" |
   "ListView" |
   "CardView" |
@@ -265,6 +269,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
+    Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
     Comment: MuiCommentIcon,
@@ -323,6 +328,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    Bars3: Bars3,
     ViewColumns: ViewColumnsIcon,
     ListView: ListViewIcon,
     CardView: CardViewIcon,
@@ -361,6 +367,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
+    Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
@@ -419,6 +426,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    Bars3: Bars3,
     ViewColumns: ViewColumnsIcon,
     ListView: ListViewIcon,
     CardView: CardViewIcon,

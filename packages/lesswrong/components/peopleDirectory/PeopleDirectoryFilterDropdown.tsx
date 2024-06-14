@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 
-const styles = (theme: ThemeType) => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     display: "inline-block",
