@@ -353,7 +353,12 @@ const helpers = {
       : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
   },
 
-  getManuallyStickiedPostsReadStatuses(manuallyStickiedPostIds: string[], userId: string, context: ResolverContext) {
+  getManuallyStickiedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, userId: string, context: ResolverContext) {
+    if (helpers.isLoadMoreOperation(lwAlgoSettings)) {
+      return Promise.resolve([])
+    }
+
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
     return context.ReadStatuses.find({ postId: { $in: manuallyStickiedPostIds }, userId, isRead: true }).fetch();
   },
 
@@ -499,13 +504,13 @@ const recombeeApi = {
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
-    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(stickiedPostIds, userId, context);
+    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context);
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const includedManuallyStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
+    const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
     const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
-      : [...includedCuratedPostIds, ...includedManuallyStickiedPostIds];
+      : [...includedCuratedPostIds, ...includedStickiedPostIds];
 
     const curatedAndStickiedPostCount = includedCuratedAndStickiedPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
@@ -538,7 +543,7 @@ const recombeeApi = {
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
-    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(stickiedPostIds, userId, context);
+    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context);
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
     const includedManuallyStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
