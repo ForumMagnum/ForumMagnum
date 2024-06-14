@@ -136,7 +136,7 @@ const allSequenceIds = [...featuredCollectionsSequenceIds, ...introToCauseAreasS
 
 const allCollectionIds = [...featuredCollectionsCollectionIds];
 
-const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
+export const digestLink = "https://effectivealtruism.us8.list-manage.com/subscribe?u=52b028e7f799cca137ef74763&id=7457c7ff3e";
 
 const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();

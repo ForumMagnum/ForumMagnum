@@ -80,7 +80,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const formPreviewSizeByImageType: Record<
+export const formPreviewSizeByImageType: Record<
   ImageType,
   {width: number | "auto", height: number, imgProps?: CloudinaryPropsType}
 > = {
@@ -117,6 +117,10 @@ const formPreviewSizeByImageType: Record<
     width: 345,
     height: 234
   },
+  onsiteDigestImageId: {
+    width: 200,
+    height: 300
+  }
 }
 
 const FormProfileImage: FC<{

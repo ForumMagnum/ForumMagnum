@@ -37,6 +37,7 @@ import {
   PeopleDirectoryIcon,
   PeopleDirectorySelectedIcon,
 } from '../../icons/peopleDirectoryIcon';
+import { podcastPost } from '@/lib/eaPodcasts';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -342,11 +343,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
-      id: 'shortform',
-      title: 'Quick takes',
-      link: '/quicktakes',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'How to use the Forum',
       link: '/about',
@@ -354,18 +350,38 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       compressedIconComponent: Info,
       showOnCompressed: true,
     }, {
-      id: 'contact',
-      title: preferredHeadingCase('Contact Us'),
-      link: '/contact',
+      id: 'handbook',
+      title: 'EA Handbook',
+      link: '/handbook',
       subItem: true,
+      showOnCompressed: true,
+    }, {
+      id: 'podcasts',
+      title: 'EA Forum Podcast',
+      link: podcastPost,
+      subItem: true,
+      showOnCompressed: true,
+    }, {
+      id: 'shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
+      subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
     }, {
       id: 'cookies',
       title: preferredHeadingCase('Cookie Policy'),
       link: '/cookiePolicy',
       subItem: true,
     }, {
-      id: 'subscribeWidget',
-      customComponentName: "SubscribeWidget",
+      id: 'divider2',
+      divider: true,
+    }, {
+      id: 'contact',
+      title: preferredHeadingCase('Contact Us'),
+      link: '/contact',
+      subItem: true,
     }
   ],
   default: [
