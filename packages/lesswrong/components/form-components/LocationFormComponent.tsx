@@ -5,7 +5,7 @@ import Geosuggest from 'react-geosuggest';
 import type { Suggest } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
-import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { styles as greyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
 import classNames from 'classnames';
 
@@ -92,9 +92,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   sectionTitle: {
     fontSize: 12,
   },
-  friendlyRoot: {
+  greyRoot: {
     "& .geosuggest__input": {
-      ...friendlyInputStyles(theme).root,
+      ...greyInputStyles(theme).root,
       padding: "16px !important",
       "&:focus": {
         border: "none",
@@ -156,11 +156,11 @@ const LocationPicker = ({
   value,
   updateCurrentValues,
   stringVersionFieldName,
-  variant = "book",
+  variant = "default",
   classes,
 }: Pick<FormComponentProps<AnyBecauseTodo>, "document" | "path" | "label" | "value" | "updateCurrentValues"> & {
   stringVersionFieldName?: string|null,
-  variant?: "friendly" | "book",
+  variant?: "default" | "grey",
   classes: ClassesType<typeof styles>,
 }) => {
   // if this location field has a matching field that just stores the string version of the location,
@@ -207,13 +207,13 @@ const LocationPicker = ({
     return <Loading />;
   }
 
-  const isFriendly = variant === "friendly";
-  const labelNode = isFriendly
+  const isGrey = variant === "grey";
+  const labelNode = isGrey
     ? <SectionTitle title={label} className={classes.sectionTitle} />
     : value && <FormLabel className={classes.label}>{label}</FormLabel>;
 
   return (
-    <div className={classNames(classes.root, isFriendly && classes.friendlyRoot)}>
+    <div className={classNames(classes.root, isGrey && classes.greyRoot)}>
       {label && labelNode}
       <Geosuggest
         ref={geosuggestEl}
@@ -236,7 +236,7 @@ const LocationFormComponent = ({
   variant,
 }: FormComponentProps<AnyBecauseTodo> & {
   stringVersionFieldName?: string|null,
-  variant?: "friendly" | "book",
+  variant?: "default" | "grey",
 }) => {
   return <Components.LocationPicker
     document={document}

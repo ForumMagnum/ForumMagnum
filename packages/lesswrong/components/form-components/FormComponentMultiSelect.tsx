@@ -10,19 +10,19 @@ import type { ForumIconProps } from '../common/ForumIcon';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
-  friendlyFormControl: {
+  greyFormControl: {
     "& .MuiOutlinedInput-notchedOutline": {
       border: "none !important",
     },
   },
-  friendlyRoot: {
+  greyRoot: {
     width: "100%",
     height: 45,
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
     overflow: "hidden",
   },
-  friendlySelect: {
+  greySelect: {
     display: "flex",
     alignItems: "center",
     padding: "0 30px 0 16px",
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
       background: "none",
     },
   },
-  friendlyIcon: {
+  greyIcon: {
     marginRight: 8,
   },
   sectionTitle: {
@@ -64,7 +64,7 @@ type MultiselectOption = {
   label: string
 }
 
-const FriendlyIcon = (props: Omit<ForumIconProps, "icon">) =>
+const GreyIcon = (props: Omit<ForumIconProps, "icon">) =>
   <Components.ForumIcon {...props} icon="ThickChevronDown" />
 
 /**
@@ -78,7 +78,7 @@ const MultiSelect = ({
   placeholder,
   separator,
   options,
-  variant = "book",
+  variant = "default",
   classes,
 }: {
   value: string[],
@@ -87,18 +87,18 @@ const MultiSelect = ({
   placeholder?: string,
   separator?: string,
   options: Array<MultiselectOption>,
-  variant?: "book" | "friendly",
+  variant?: "default" | "grey",
   classes: ClassesType<typeof styles>,
 }) => {
   const {SectionTitle, MenuItem} = Components;
 
-  const isFriendly = variant === "friendly";
-  const labelNode = isFriendly
+  const isGrey = variant === "grey";
+  const labelNode = isGrey
     ? <SectionTitle title={label} className={classes.sectionTitle} />
     : <FormLabel className={classes.formLabel}>{label}</FormLabel>;
 
   return <FormControl
-    className={classNames(isFriendly && classes.friendlyFormControl)}
+    className={classNames(isGrey && classes.greyFormControl)}
   >
     {label && labelNode}
     <Select
@@ -116,7 +116,7 @@ const MultiSelect = ({
           return (
             <em className={classNames(
               classes.placeholder,
-              isFriendly && classes.placeholderGrey,
+              isGrey && classes.placeholderGrey,
             )}>
               {placeholder}
             </em>
@@ -126,11 +126,11 @@ const MultiSelect = ({
         return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
       }}
       {...!options.length ? {disabled: true} : {}}
-      IconComponent={isFriendly ? FriendlyIcon : undefined}
-      classes={isFriendly ? {
-        root: classes.friendlyRoot,
-        select: classes.friendlySelect,
-        icon: classes.friendlyIcon,
+      IconComponent={isGrey ? GreyIcon : undefined}
+      classes={isGrey ? {
+        root: classes.greyRoot,
+        select: classes.greySelect,
+        icon: classes.greyIcon,
       } : {}}
     >
         {options.map(option => {
@@ -160,7 +160,7 @@ const FormComponentMultiSelect = ({
 }: FormComponentProps<string[]> & {
   separator?: string,
   options: Array<MultiselectOption>,
-  variant?: "book" | "friendly",
+  variant?: "default" | "grey",
   classes: ClassesType
 }) => {
   return <Components.MultiSelect

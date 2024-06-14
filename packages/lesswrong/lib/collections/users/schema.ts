@@ -1789,7 +1789,7 @@ const schema: SchemaType<"Users"> = {
     label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
     form: {
-      variant: "friendly",
+      variant: "grey",
     },
     blackbox: true,
     optional: true,
@@ -2546,7 +2546,7 @@ const schema: SchemaType<"Users"> = {
     label: "Career stage",
     placeholder: 'Select all that apply',
     form: {
-      variant: "friendly",
+      variant: "grey",
       separator: ", ",
       options: CAREER_STAGES,
     },
@@ -2701,7 +2701,7 @@ const schema: SchemaType<"Users"> = {
     tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
     form: {
       useDocumentAsUser: true,
-      variant: "friendly",
+      variant: "grey",
       separator: '\r\n',
       multiselect: true
     },
@@ -2724,7 +2724,7 @@ const schema: SchemaType<"Users"> = {
     control: 'FormComponentMultiSelect',
     placeholder: "Which of these programs have you participated in?",
     form: {
-      variant: "friendly",
+      variant: "grey",
       separator: ", ",
       options: PROGRAM_PARTICIPATION
     },
