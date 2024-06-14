@@ -353,6 +353,10 @@ const helpers = {
       : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
   },
 
+  getManuallyStickiedPostsReadStatuses(manuallyStickiedPostIds: string[], userId: string, context: ResolverContext) {
+    return context.ReadStatuses.find({ postId: { $in: manuallyStickiedPostIds }, userId, isRead: true }).fetch();
+  },
+
   assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }: AssignRecommendationResultMetadataArgs): RecommendedPost {
     // _id isn't going to be filtered out by `accessFilterMultiple`
     const postId = post._id!;
@@ -495,11 +499,13 @@ const recombeeApi = {
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
+    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(stickiedPostIds, userId, context);
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const includedManuallyStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
     const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
-      : [...includedCuratedPostIds, ...stickiedPostIds];
+      : [...includedCuratedPostIds, ...includedManuallyStickiedPostIds];
 
     const curatedAndStickiedPostCount = includedCuratedAndStickiedPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
@@ -532,9 +538,11 @@ const recombeeApi = {
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
     const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
+    const manuallyStickiedPostReadStatuses = await helpers.getManuallyStickiedPostsReadStatuses(stickiedPostIds, userId, context);
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
+    const includedManuallyStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
+    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...includedManuallyStickiedPostIds];
     // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
     const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
