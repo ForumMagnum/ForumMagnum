@@ -54,6 +54,9 @@ const styles = (theme: ThemeType) => ({
   placeholder: {
     color: theme.palette.grey[600]
   },
+  placeholderGrey: {
+    fontStyle: "normal",
+  },
 });
 
 type MultiselectOption = {
@@ -110,7 +113,14 @@ const MultiSelect = ({
       displayEmpty
       renderValue={(selected: Array<string>) => {
         if (selected.length === 0) {
-          return <em className={classes.placeholder}>{placeholder}</em>
+          return (
+            <em className={classNames(
+              classes.placeholder,
+              isFriendly && classes.placeholderGrey,
+            )}>
+              {placeholder}
+            </em>
+          );
         }
         // if any options are selected, display them separated by commas
         return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
