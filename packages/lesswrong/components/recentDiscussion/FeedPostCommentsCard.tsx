@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import {
-  Components,
-  registerComponent,
-} from '../../lib/vulcan-lib';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 import classNames from 'classnames';
 import { CommentTreeNode, addGapIndicators, flattenCommentBranch, unflattenComments } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useIsInView, useTracking } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useRecentDiscussionThread } from './useRecentDiscussionThread';
+import { useCurrentUser } from '../common/withUser';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
+
+const RECORD_COMMENTS_SEEN_INTERVAL_MS = 800
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -200,6 +200,49 @@ const FeedPostCommentsCard = ({
 
   const { FeedPostsHighlight, PostActionsButton, FeedPostCardMeta } = Components;
 
+  const { captureEvent } = useTracking();
+  const { setNode, entry } = useIsInView({ threshold: 0.5, rootMargin: "20px" });
+  const [cardSeenEventSent, setCardSeenEventSent] = useState(false);
+  const recordCardSeenTimerRef = useRef<NodeJS.Timer>();
+  const currentUser = useCurrentUser();
+
+  const recordCardSeen = useCallback((startIntersection: number) => {
+    const duration = new Date().getTime() - startIntersection;
+    captureEvent("feedCardSeen", { postId: post._id, duration, title: post.title });
+    setCardSeenEventSent(true);
+  }, [captureEvent, post]);
+
+  const throttledRecordCardSeen = useDebouncedCallback(recordCardSeen, {
+    rateLimitMs: 1000,
+    callOnLeadingEdge: false,
+    onUnmount: "callIfScheduled",
+    allowExplicitCallAfterUnmount: false,
+    noMaxWait: true
+  });
+
+  useEffect(() => {
+    if (!currentUser || cardSeenEventSent || !entry?.isIntersecting) {
+      if (recordCardSeenTimerRef.current) {
+        clearTimeout(recordCardSeenTimerRef.current);
+      }
+
+      return;
+    }
+
+    const startIntersection = new Date().getTime();
+
+    recordCardSeenTimerRef.current = setInterval(() => {
+      if (entry?.isIntersecting) {
+        throttledRecordCardSeen(startIntersection);
+      }
+    }, RECORD_COMMENTS_SEEN_INTERVAL_MS);
+
+    return () => {
+      clearTimeout(recordCardSeenTimerRef.current);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry?.isIntersecting])
+
   return (
     <AnalyticsContext pageSubSectionContext='FeedPostCommentsCard'>
 
@@ -223,7 +266,7 @@ const FeedPostCommentsCard = ({
             />
         </div>
 
-        {nestedComments.length > 0 && <div className={classes.commentsList} onMouseDown={markCommentsAsRead}>
+        {nestedComments.length > 0 && <div className={classes.commentsList} onMouseDown={markCommentsAsRead} ref={setNode}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) => {
             return <FeedPostCommentsBranch
               key={comment.item._id}

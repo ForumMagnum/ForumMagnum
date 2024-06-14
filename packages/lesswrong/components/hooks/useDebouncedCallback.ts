@@ -29,13 +29,19 @@ export interface DebouncedCallbackOptions {
    * (otherwise it's a no-op).
    */
   allowExplicitCallAfterUnmount: boolean,
+
+  /**
+   * If true, behaves like a debounce rather than throttle, where subsequent calls within
+   * the window keep pushing back execution until a full window passes without any calls.
+   */
+  noMaxWait?: boolean
 }
 
 interface DebouncedCallbackState<T> {
   callIsPending: boolean
   pendingArgs: T|null
   nextCallAtTime: number|null
-  timerId: number|null
+  timerId: NodeJS.Timer|null
   isMounted: boolean
 }
 
@@ -52,7 +58,7 @@ interface DebouncedCallbackState<T> {
  * themselves may not change after  this has rendered for the first time.
  */
 export function useDebouncedCallback<T>(fn: (args: T) => void, options: DebouncedCallbackOptions): (args: T) => void {
-  const { rateLimitMs, callOnLeadingEdge, onUnmount, allowExplicitCallAfterUnmount } = options;
+  const { rateLimitMs, callOnLeadingEdge, onUnmount, allowExplicitCallAfterUnmount, noMaxWait } = options;
   const refStabilizedFn = useStabilizedCallback(fn);
   const _state = useRef<DebouncedCallbackState<T>>({
     callIsPending: false,
@@ -100,26 +106,42 @@ export function useDebouncedCallback<T>(fn: (args: T) => void, options: Debounce
     if (!options.allowExplicitCallAfterUnmount && !_state.current.isMounted) {
       return;
     }
+
+    const doAfterDelay = () => {
+      if (!_state.current.isMounted && !allowExplicitCallAfterUnmount) {
+        return;
+      }
+      _state.current.callIsPending = false;
+      const argsToCall = _state.current.pendingArgs!
+      _state.current.pendingArgs = null;
+      _state.current.nextCallAtTime = null;
+      refStabilizedFn(argsToCall);
+    };
+
     if (_state.current.callIsPending) {
       _state.current.pendingArgs = args;
+      // If we're debouncing rather than throttling and there's already a pending call when another call is made,
+      // clear any existing timers and reset the clock
+      if (noMaxWait && _state.current.timerId) {
+        clearTimeout(_state.current.timerId);
+        _state.current.nextCallAtTime = new Date().getTime() + rateLimitMs;
+        _state.current.timerId = setTimeout(doAfterDelay, rateLimitMs);
+      }
     } else {
       if (_state.current.nextCallAtTime || !callOnLeadingEdge) {
+        if (noMaxWait && _state.current.timerId) {
+          clearTimeout(_state.current.timerId);
+        }
         const now = new Date();
-        const delay = _state.current.nextCallAtTime
+        // If `callOnLeadingEdge` is false, wait the full rate limit for the next call,
+        // since otherwise we call on the "next" leading edge if `nextCallAtTime` is set from a previous call.
+        // Doing that breaks `noMaxWait`
+        const delay = _state.current.nextCallAtTime && !callOnLeadingEdge
           ? _state.current.nextCallAtTime - now.getTime()
           : rateLimitMs;
         _state.current.callIsPending = true;
         _state.current.pendingArgs = args;
-        setTimeout(() => {
-          if (!_state.current.isMounted && !allowExplicitCallAfterUnmount) {
-            return;
-          }
-          _state.current.callIsPending = false;
-          const argsToCall = _state.current.pendingArgs!
-          _state.current.pendingArgs = null;
-          _state.current.nextCallAtTime = null;
-          refStabilizedFn(argsToCall);
-        }, delay);
+        _state.current.timerId = setTimeout(doAfterDelay, delay);
       } else {
         _state.current.nextCallAtTime = new Date().getTime() + rateLimitMs;
         refStabilizedFn(args);
