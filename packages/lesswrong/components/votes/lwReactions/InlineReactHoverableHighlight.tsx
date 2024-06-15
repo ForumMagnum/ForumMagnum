@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import type { NamesAttachedReactionsList, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
-import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
-import { HoveredReactionListContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
+import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';
 import { useHover } from '@/components/common/withHover';
 
@@ -29,16 +28,17 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const InlineReactHoverableHighlight = ({quote,reactions, voteProps, children, classes}: {
+const InlineReactHoverableHighlight = ({quote,reactions, children, classes}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
-  voteProps: VotingProps<VoteableTypeClient>,
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const { InlineReactHoverInfo, LWTooltip } = Components;
 
   const hoveredReactions = useContext(HoveredReactionListContext);
+  const voteProps = useContext(InlineReactVoteContext)!;
+
   const isHovered = hoveredReactions
     && Object.keys(reactions).some(reaction =>
       hoveredReactions.find(r=>r.reactionName===reaction && (r.quote === quote || r.quote === null))
