@@ -237,10 +237,8 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const {
     Error404, HeadTags, PostsLoading, EAPostsItem, CloudinaryImage2, ForumIcon, LWTooltip, EAButton
   } = Components;
-  
-  // TODO: Probably we'll want to check the publishedDate instead of the endDate, but we haven't been using it.
-  // If we do start using it, we'll need to backfill the publishedDate values and update this condition.
-  const isPublished = digest && digest.endDate
+
+  const isPublished = digest && digest.publishedDate
   
   // 404 if there is no matching digest, or if the matching one is still in progress and the user is not an admin
   if ((!digest && !digestLoading) || (!isPublished && !currentUser?.isAdmin)) {
@@ -291,13 +289,14 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     </LWTooltip>
   }
   
+  const digestName = `EA Forum Digest #${digestNum}`
   const startDate = digest?.startDate ? moment(digest.startDate).format('MMM D, YYYY') : null
   const endDate = digest?.endDate ? moment(digest.endDate).format('MMM D, YYYY') : null
 
   return (
     <>
       <HeadTags
-        title={`EA Forum Digest #${digestNum}`}
+        title={digestName}
         description={pageDescription}
         image={digest?.onsiteImageId ? makeCloudinaryImageUrl(digest.onsiteImageId, socialImageCloudinaryProps) : undefined}
       />
@@ -312,7 +311,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
                   <span className={classes.date}>{endDate}</span>
                 </div>}
                 <h1 className={classes.pageTitle}>
-                  EA Forum Digest #{digestNum}
+                  {digestName}
                   {!isPublished && <span className={classes.previewLabel}>[Preview]</span>}
                 </h1>
                 <div className={classes.pageDescription}>

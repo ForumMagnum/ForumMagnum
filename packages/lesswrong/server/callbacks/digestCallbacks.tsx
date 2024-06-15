@@ -9,7 +9,7 @@ getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, 
   const newerDigest = await Digests.findOne({ num: {$gt: newDocument.num ?? 0} })
   if (newerDigest) return
   
-  // when we first publish a digest, create the next one
+  // when we set the end date of a digest, create the next one
   void createMutator({
     collection: Digests,
     document: {

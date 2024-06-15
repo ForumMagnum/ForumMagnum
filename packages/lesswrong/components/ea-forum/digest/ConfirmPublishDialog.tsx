@@ -18,6 +18,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     marginBottom: 14
   },
+  textSection: {
+    marginTop: 12
+  }
 })
 
 const ConfirmPublishDialog = ({ digest, onClose, classes }: {
@@ -31,14 +34,13 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
   })
 
   const handlePublish = () => {
-    // this dialog should only appear if the digest has never been published,
-    // so we need to set its endDate as well
+    // Set the publishedDate, and also set the endDate if it doesn't have one yet
     const now = new Date()
     void updateDigest({
       selector: {_id: digest._id},
       data: {
         publishedDate: now,
-        endDate: now
+        endDate: !digest.endDate ? now : undefined
       }
     })
     onClose?.()
@@ -53,9 +55,12 @@ const ConfirmPublishDialog = ({ digest, onClose, classes }: {
           Are you sure you want to publish this digest?
         </div>
         <div>
-          That will set the cut-off date for this digest and automatically set up the next one.
+          That will make this week's on-site digest publicly accessible.
           You can still select / unselect posts from the table after publishing.
         </div>
+        {!digest.endDate && <div className={classes.textSection}>
+          It will also set the cut-off date for this digest and automatically set up the next one.
+        </div>}
       </DialogContent>
       <DialogActions>
         <EAButton variant="outlined" onClick={onClose}>

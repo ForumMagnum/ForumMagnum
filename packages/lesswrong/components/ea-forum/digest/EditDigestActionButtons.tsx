@@ -4,13 +4,6 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useDialog } from '../../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  questionMark: {
-    alignSelf: 'center',
-    color: theme.palette.grey[600]
-  },
-  questionMarkIcon: {
-    fontSize: 20
-  },
   tooltipSection: {
     marginTop: 8
   }
@@ -42,16 +35,15 @@ const EditDigestActionButtons = ({digest, classes}: {
   }
   
   /**
-   * If the digest has been published before, set or unset the publishedDate.
+   * If the digest is published, unset the publishedDate.
    * Otherwise, open the publish confirmation dialog.
    */
   const handlePublish = () => {
-    // if the digest has an endDate set, then we know it's already been published
-    if (digest.endDate) {
+    if (isPublished) {
       void updateDigest({
         selector: {_id: digest._id},
         data: {
-          publishedDate: isPublished ? null : new Date()
+          publishedDate: null
         }
       })
     } else {
@@ -62,40 +54,32 @@ const EditDigestActionButtons = ({digest, classes}: {
     }
   }
   
-  const { EAButton, LWTooltip, ForumIcon } = Components
+  const { EAButton, LWTooltip } = Components
 
   return <>
-    {!digest.endDate && <LWTooltip title="This sets the cut-off date for this digest and automatically sets up the next digest.">
+    {!digest.endDate && <LWTooltip
+      title="This sets the cut-off date for this digest and automatically sets up the next digest."
+    >
       <EAButton variant='outlined' onClick={handleStartNewWeek}>
         Start new week
       </EAButton>
     </LWTooltip>}
-  
-    {/* TODO: Update this if/when we add an on-site version of the digest
-    <EAButton variant={isPublished ? 'outlined' : 'contained'} onClick={handlePublish}>
-      {isPublished ? 'Unpublish' : 'Publish'}
-    </EAButton>
 
     <LWTooltip
-      title={<>
+      title={!isPublished ? <>
         <div>
-          Don't worry, it's totally safe to click the "Publish" button!
+          Click when you're ready for this week's on-site digest to be public.
         </div>
         <div className={classes.tooltipSection}>
-          If the digest has never been published, clicking the button will bring up a confirmation modal.
-          Clicking "Publish" in there sets the cut-off date for this digest
-          (which determines which posts are eligible to appear in the table),
-          and automatically sets up the next digest.
+          You can still change which posts are in the digest, even after publishing.
+          You can also un-publish and later re-publish a digest.
         </div>
-        <div className={classes.tooltipSection}>
-          Both unpublishing and re-publishing do nothing. You can always change whether or not
-          the posts in this table are in the digest, even after publishing.
-        </div>
-      </>}
-      className={classes.questionMark}
+      </> : 'Click to unpublish the on-site digest.'}
     >
-      <ForumIcon icon="QuestionMarkCircle" className={classes.questionMarkIcon} />
-    </LWTooltip> */}
+      <EAButton variant={isPublished ? 'outlined' : 'contained'} onClick={handlePublish}>
+        {isPublished ? 'Unpublish' : 'Publish'}
+      </EAButton>
+    </LWTooltip>
   </>
 }
 

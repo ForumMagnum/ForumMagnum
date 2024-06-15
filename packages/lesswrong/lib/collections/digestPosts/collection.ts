@@ -22,9 +22,8 @@ DigestPosts.checkAccess = async (user: DbUser|null, document: DbDigestPost, cont
   if (!user || !document) return false
   if (user.isAdmin) return true
 
-  // Currently, digests become "public" once they have an end date.
-  // In the future, we might want to check the publishedDate instead.
-  return !!(await Digests.findOne({_id: document.digestId}))?.endDate
+  // Currently, digests become "public" once they have a published date.
+  return !!(await Digests.findOne({_id: document.digestId}))?.publishedDate
 };
 
 export default DigestPosts;
