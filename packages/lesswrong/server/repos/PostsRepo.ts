@@ -164,6 +164,21 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       LIMIT 50
     `, [num]);
   }
+  
+  /**
+   * Returns the num corresponding to the latest on-site digest
+   * that includes this post.
+   */
+  async getDigestNumForPost(postId: string): Promise<number|null> {
+    const digestNums = await this.getRawDb().any(`
+      -- PostsRepo.getDigestNumForPost
+      SELECT MAX(d."num")
+      FROM "DigestPosts" dp
+      JOIN "Digests" d ON dp."digestId" = d._id AND d."endDate" IS NOT NULL
+      WHERE dp."postId" = $1 AND dp."onsiteDigestStatus" = 'yes'
+    `, [postId])
+    return digestNums[0].max
+  }
 
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
     const {emojiReactors} = await this.getRawDb().one(`

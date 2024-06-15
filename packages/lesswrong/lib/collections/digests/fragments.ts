@@ -9,5 +9,6 @@ registerFragment(`
     publishedDate
     onsiteImageId
     onsitePrimaryColor
+    mailchimpId
   }
 `);

@@ -17,7 +17,8 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    maxWidth: SECTION_WIDTH,
+    width: SECTION_WIDTH,
+    maxWidth: '100%',
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   rootCard: {
@@ -261,6 +262,7 @@ const EAPostsItem = ({
     strikethroughTitle,
     curatedIconLeft,
     showIcons,
+    digestNum,
     isRead,
     showReadCheckbox,
     tooltipPlacement,
@@ -387,6 +389,7 @@ const EAPostsItem = ({
                   strikethroughTitle,
                   curatedIconLeft,
                   showIcons,
+                  digestNum,
                 }}
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}

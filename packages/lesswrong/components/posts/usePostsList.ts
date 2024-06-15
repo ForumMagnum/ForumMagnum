@@ -53,6 +53,7 @@ export type PostsListConfig = {
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
   hideTagRelevance?: boolean,
+  showDigestTag?: boolean,
   tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
@@ -96,6 +97,7 @@ export const usePostsList = ({
   hideTag = false,
   hideTrailingButtons = false,
   hideTagRelevance = false,
+  showDigestTag = false,
   tooltipPlacement=defaultTooltipPlacement,
   boxShadow = true,
   curatedIconLeft = false,
@@ -233,6 +235,7 @@ export const usePostsList = ({
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
+    digestNum: showDigestTag ? post.digestNum : undefined,
     defaultToShowUnreadComments,
     showPostedAt,
     showBottomBorder: showFinalBottomBorder ||

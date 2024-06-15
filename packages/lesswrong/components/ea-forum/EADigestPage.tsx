@@ -10,6 +10,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
+import { makeCloudinaryImageUrl, socialImageCloudinaryProps } from "../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -33,7 +34,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   topSection: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
     columnGap: '20px',
     rowGap: '16px',
     flexWrap: 'wrap',
@@ -45,7 +45,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 32,
     fontWeight: 700,
     marginTop: 0,
-    marginBottom: 12,
+    marginBottom: 18,
   },
   previewLabel: {
     color: theme.palette.grey[300],
@@ -91,14 +91,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   successLink: {
     color: theme.palette.primary.main
   },
+  dates: {
+    display: 'flex',
+    columnGap: '12px',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    letterSpacing: '0.7px',
+    marginBottom: 6,
+  },
+  date: {
+    whiteSpace: 'nowrap',
+  },
   pageDescription: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 16,
     fontWeight: 500,
     lineHeight: "150%",
-  },
-  startDate: {
-    whiteSpace: 'nowrap',
   },
   feedback: {
     fontWeight: 500,
@@ -157,6 +167,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: -2,
   },
 });
+
+const pageDescription = "The Forum Team's favorite posts and discussions from this week"
 
 const digestPostsQuery = gql`
   query getDigestPosts($num: Int) {
@@ -277,22 +289,34 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       }
     </LWTooltip>
   }
+  
+  const startDate = digest?.startDate ? moment(digest.startDate).format('MMM D, YYYY') : null
+  const endDate = digest?.endDate ? moment(digest.endDate).format('MMM D, YYYY') : null
 
   return (
     <>
-      <HeadTags title={`EA Forum Digest #${digestNum}`} />
+      <HeadTags
+        title={`EA Forum Digest #${digestNum}`}
+        description={pageDescription}
+        image={digest?.onsiteImageId ? makeCloudinaryImageUrl(digest.onsiteImageId, socialImageCloudinaryProps) : undefined}
+      />
       <AnalyticsContext pageContext="DigestPage">
         <div className={classes.root} style={style}>
           <div className={classes.content}>
             <section className={classes.topSection}>
               <div>
+                {startDate && <div className={classes.dates}>
+                  <span className={classes.date}>{startDate}</span>
+                  <span>&mdash;</span>
+                  <span className={classes.date}>{endDate}</span>
+                </div>}
                 <h1 className={classes.pageTitle}>
                   EA Forum Digest #{digestNum}
                   {!isPublished && <span className={classes.previewLabel}>[Preview]</span>}
                 </h1>
-                {digest?.startDate && <div className={classes.pageDescription}>
-                  Highlights from the week of <span className={classes.startDate}>{moment(digest.startDate).format('MMMM D, YYYY')}</span>
-                </div>}
+                <div className={classes.pageDescription}>
+                  {pageDescription}
+                </div>
                 <div className={classes.feedback}>
                   This is an experiment - help us out by{" "}
                   <Link
@@ -306,7 +330,9 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               </div>
               {subscribeNode}
             </section>
-            {postsList}
+            <AnalyticsContext pageSectionContext="digestPosts">
+              {postsList}
+            </AnalyticsContext>
           </div>
           <div className={classes.imageFade}></div>
           {digest?.onsiteImageId && <CloudinaryImage2

@@ -1236,6 +1236,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly bestAnswer: CommentsList|null,
   readonly tags: Array<TagPreviewFragment>,
   readonly socialPreviewData: any,
+  readonly digestNum: number|null,
   readonly feedId: string,
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
@@ -2665,6 +2666,16 @@ interface UserMostValuablePostInfo { // fragment on UserMostValuablePosts
   readonly deleted: boolean,
 }
 
+interface DigestsDefaultFragment { // fragment on Digests
+  readonly num: number,
+  readonly startDate: Date,
+  readonly endDate: Date | null,
+  readonly publishedDate: Date | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
+  readonly mailchimpId: string | null,
+}
+
 interface DigestPostsDefaultFragment { // fragment on DigestPosts
   readonly digestId: string,
   readonly postId: string,
@@ -2680,15 +2691,6 @@ interface DigestPostsMinimumInfo { // fragment on DigestPosts
   readonly onsiteDigestStatus: string | null,
 }
 
-interface DigestsDefaultFragment { // fragment on Digests
-  readonly num: number,
-  readonly startDate: Date,
-  readonly endDate: Date | null,
-  readonly publishedDate: Date | null,
-  readonly onsiteImageId: string | null,
-  readonly onsitePrimaryColor: string | null,
-}
-
 interface DigestsMinimumInfo { // fragment on Digests
   readonly _id: string,
   readonly num: number,
@@ -2697,6 +2699,7 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly publishedDate: Date | null,
   readonly onsiteImageId: string | null,
   readonly onsitePrimaryColor: string | null,
+  readonly mailchimpId: string | null,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents
@@ -4057,9 +4060,9 @@ interface FragmentTypes {
   UserEAGDetailsMinimumInfo: UserEAGDetailsMinimumInfo
   UserMostValuablePostsDefaultFragment: UserMostValuablePostsDefaultFragment
   UserMostValuablePostInfo: UserMostValuablePostInfo
+  DigestsDefaultFragment: DigestsDefaultFragment
   DigestPostsDefaultFragment: DigestPostsDefaultFragment
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
-  DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
   ForumEventsMinimumInfo: ForumEventsMinimumInfo
@@ -4184,8 +4187,8 @@ interface FragmentTypesByCollection {
   UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
   UserEAGDetails: "UserEAGDetailsDefaultFragment"|"UserEAGDetailsMinimumInfo"
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
-  DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
+  DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
   Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
@@ -4379,9 +4382,9 @@ interface CollectionNamesByFragmentName {
   UserEAGDetailsMinimumInfo: "UserEAGDetails"
   UserMostValuablePostsDefaultFragment: "UserMostValuablePosts"
   UserMostValuablePostInfo: "UserMostValuablePosts"
+  DigestsDefaultFragment: "Digests"
   DigestPostsDefaultFragment: "DigestPosts"
   DigestPostsMinimumInfo: "DigestPosts"
-  DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
   ForumEventsDefaultFragment: "ForumEvents"
   ForumEventsMinimumInfo: "ForumEvents"

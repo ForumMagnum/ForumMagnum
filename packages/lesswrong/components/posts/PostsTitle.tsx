@@ -12,6 +12,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { isEAForum } from '@/lib/instanceSettings';
+import { useABTest } from '@/lib/abTestImpl';
+import { digestPageABTest } from '@/lib/abTests';
+import { useMulti } from '@/lib/crud/withMulti';
+import { getMailchimpLink } from '@/lib/collections/digests/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -87,7 +92,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   },
-  tag: {
+  metadata: {
     marginRight: theme.spacing.unit
   },
   popper: {
@@ -104,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-  eventTag: {
+  tag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
     display: "inline-flex",
@@ -113,6 +118,16 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
     border: "none",
+    backgroundColor: theme.palette.background.primaryDim,
+    color: theme.palette.text.primaryDarkOnDim,
+  },
+  digestTag: {
+    "&:hover": {
+      backgroundColor: `color-mix(in oklab, ${theme.palette.background.primaryDim} 95%, ${theme.palette.primary.dark})`,
+      opacity: 1,
+    },
+  },
+  eventTag: {
     backgroundColor: theme.themeOptions.name === "dark"
       ? "var(--post-title-tag-foreground)"
       : "var(--post-title-tag-background)",
@@ -155,6 +170,7 @@ const PostsTitle = ({
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
+  digestNum,
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
@@ -173,6 +189,7 @@ const PostsTitle = ({
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
+  digestNum?: number|null,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
@@ -186,6 +203,19 @@ const PostsTitle = ({
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
   const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+  
+  // EA Forum is running a test to see which version of the digest we want to link to from our site.
+  // After the test, we will remove these.
+  const abTestGroup = useABTest(digestPageABTest);
+  const {results: digests} = useMulti({
+    collectionName: 'Digests',
+    terms: {num: digestNum!},
+    fragmentName: 'DigestsMinimumInfo',
+    enableTotal: false,
+    limit: 1,
+    skip: !isEAForum || !digestNum
+  })
+
   const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
@@ -203,14 +233,23 @@ const PostsTitle = ({
     </span>}
     {Icon && <Icon className={classes.primaryIcon}/>}
 
-    {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
-    {post.isFuture && <span className={classes.tag}>[Pending]</span>}
-    {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
-    {shared && <span className={classes.tag}>[Shared]</span>}
-    {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
+    {post.draft && showDraftTag && <span className={classes.metadata}>[Draft]</span>}
+    {post.isFuture && <span className={classes.metadata}>[Pending]</span>}
+    {post.unlisted && <span className={classes.metadata}>[Unlisted]</span>}
+    {shared && <span className={classes.metadata}>[Shared]</span>}
+    {post.isEvent && shouldRenderEventsTag && <span className={classes.metadata}>[Event]</span>}
 
     <Wrapper>{post.title}</Wrapper>
   </span>
+  
+  // If this post is in an EA Forum Digest, and we have the Mailchimp ID associated with that digest,
+  // then display the tag for that digest. Link it to either the Mailchimp hosted email digest
+  // or the on-site version of the digest, depending on the user's A/B test group.
+  const digest = digests?.[0]
+  let digestTagLink = null
+  if (digest?.mailchimpId) {
+    digestTagLink = abTestGroup === 'control' ? getMailchimpLink(digest.mailchimpId) : `/digests/${digestNum}`
+  }
 
   return (
     <span className={classNames(
@@ -238,6 +277,16 @@ const PostsTitle = ({
           />
         </InteractionWrapper>
       </span>}
+      {isEAForum && digestTagLink && <InteractionWrapper className={classes.interactionWrapper}>
+          <Link
+            to={digestTagLink}
+            className={classNames(classes.tag, classes.digestTag)}
+            eventProps={{digestNum: digestNum ? `${digestNum}` : ''}}
+          >
+            Digest #{digestNum}
+          </Link>
+        </InteractionWrapper>
+      }
       {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
         <InteractionWrapper className={classes.interactionWrapper}>
           <TagsTooltip
@@ -246,7 +295,7 @@ const PostsTitle = ({
           >
             <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)}>
               <span
-                className={classes.eventTag}
+                className={classNames(classes.tag, classes.eventTag)}
                 style={{
                   "--post-title-tag-background": currentForumEvent.lightColor,
                   "--post-title-tag-foreground": currentForumEvent.darkColor,

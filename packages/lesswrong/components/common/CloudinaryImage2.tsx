@@ -17,6 +17,17 @@ export type CloudinaryPropsType = {
   f?: string    // format
 }
 
+// standard props you can use for a social preview image
+export const socialImageCloudinaryProps: CloudinaryPropsType = {
+  dpr: "auto",
+  ar: "16:9",
+  w: "1200",
+  c: "fill",
+  g: "center",
+  q: "auto",
+  f: "auto",
+};
+
 function cloudinaryPropsToStr(props: Record<string, string>) {
   let sb: string[] = [];
   for(let k in props)

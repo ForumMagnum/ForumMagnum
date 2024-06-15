@@ -38,6 +38,7 @@ import { hasSideComments } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
+import DigestPosts from '../digestPosts/collection';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -1016,6 +1017,34 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
   },
+  
+  digestNum: resolverOnlyField({
+    graphQLtype: 'Int',
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (post: DbPost, _, context: ResolverContext) => {
+      // only relevant to the EA Forum
+      if (!isEAForum) return null
+      return context.repos.posts.getDigestNumForPost(post._id)
+    },
+    // sqlResolver: ({field, join}) => join({
+    //   table: "DigestPosts",
+    //   type: "inner",
+    //   on: {
+    //     postId: field("_id"),
+    //     // onsiteDigestStatus: 'yes',
+    //   },
+    //   resolver: (digestPostsField) => join({
+    //     table: "Digests",
+    //     type: "inner",
+    //     on: {
+    //       _id: digestPostsField("digestId"),
+    //       // endDate: 'IS NOT NULL',
+    //     },
+    //     resolver: (digestsField) => `MAX(${digestsField("num")})`,
+    //   }),
+    // })
+  }),
 
   lastPromotedComment: resolverOnlyField({
     type: "Comment",

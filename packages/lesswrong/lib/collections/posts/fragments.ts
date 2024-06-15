@@ -282,6 +282,7 @@ registerFragment(`
       _id
       imageUrl
     }
+    digestNum
 
     feedId
     totalDialogueResponseCount

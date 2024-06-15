@@ -18,6 +18,8 @@ const schema: SchemaType<"Digests"> = {
     control: 'datetime',
   },
   // the end of the range of eligible posts (just used to filter posts for the Edit Digest page)
+  // TODO: this is currently also used to determine when the on-site digest is publicly accessible,
+  // though probably we should use the publishedDate instead :shrug:
   endDate: {
     type: Date,
     optional: true,
@@ -27,7 +29,7 @@ const schema: SchemaType<"Digests"> = {
     canCreate: ['admins'],
     control: 'datetime',
   },
-  // when this digest was published
+  // when this digest was published (TODO: currently not used but probably should be)
   publishedDate: {
     type: Date,
     optional: true,
@@ -57,6 +59,16 @@ const schema: SchemaType<"Digests"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     control: "FormComponentColorPicker",
+  },
+  // the id for the matching email campaign in Mailchimp, i.e. the "id" value in
+  // https://us8.campaign-archive.com/?u=52b028e7f799cca137ef74763&id=8aef8ff044
+  mailchimpId: {
+    type: String,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 };
 

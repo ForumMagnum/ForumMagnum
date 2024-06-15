@@ -114,6 +114,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}: {
             terms={topicPostTerms}
             itemsPerPage={30}
             hideTag
+            showDigestTag
             viewType="fromContext"
           />
         </SingleColumnSection>

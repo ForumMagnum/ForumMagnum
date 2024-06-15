@@ -210,6 +210,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 terms={recentPostsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
+                showDigestTag
                 viewType="fromContext"
               >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
