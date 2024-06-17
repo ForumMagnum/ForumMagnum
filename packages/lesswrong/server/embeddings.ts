@@ -6,12 +6,12 @@ import { htmlToTextDefault } from "../lib/htmlToText";
 import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
-import { isAnyTest, isCypress } from "../lib/executionEnvironment";
+import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 
-export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum && !isCypress;
+export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum && !isE2E;
 
 export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;

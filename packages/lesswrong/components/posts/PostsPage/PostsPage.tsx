@@ -11,10 +11,6 @@ import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanc
 import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { welcomeBoxes } from './WelcomeBox';
-import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -41,6 +37,7 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -221,7 +218,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postBody: {
     width: "max-content",
   },
-  postContent: { //Used by a Cypress test
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
+  },
+  postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
@@ -369,8 +372,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
 
-  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
-
   const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
   const { readingProgressBarRef } = usePostReadProgress({
@@ -423,7 +424,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         componentProps: {
           post: fullPost,
         },
-        noClickawayCancel: true,
         closeOnNavigate: true,
       });
     }
@@ -590,7 +590,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       componentProps: {
         post, initialHtml: html
       },
-      noClickawayCancel: true,
     })
   }, [openDialog, post]);
 
@@ -654,13 +653,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsContext>
   </>;
 
-  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
-  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps
-    ? <div className={classes.welcomeBox}>
-        <WelcomeBox {...welcomeBoxProps} />
-      </div>
-    : null;
+  const welcomeBox = (
+    <ForumNoSSR>
+      <WelcomeBox />
+    </ForumNoSSR>
+  );
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
@@ -693,7 +690,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
@@ -703,6 +704,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
@@ -712,6 +714,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               />
             }
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
@@ -775,6 +778,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}
@@ -782,7 +786,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && post.commentCount < 1 &&
+          {isFriendlyUI && Math.max(post.commentCount, results?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>

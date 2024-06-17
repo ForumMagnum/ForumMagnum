@@ -1,19 +1,19 @@
-import AddFieldQuery from "../../../lib/sql/AddFieldQuery";
-import UpdateDefaultValueQuery from "../../../lib/sql/UpdateDefaultValueQuery";
-import DropDefaultValueQuery from "../../../lib/sql/DropDefaultValueQuery";
-import UpdateFieldTypeQuery from "../../../lib/sql/UpdateFieldTypeQuery";
-import TableIndex from "../../../lib/sql/TableIndex";
-import DropIndexQuery from "../../../lib/sql/DropIndexQuery";
-import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
-import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
-import DropTableQuery from "../../../lib/sql/DropTableQuery";
-import DropFieldQuery from "../../../lib/sql/DropFieldQuery";
-import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
+import AddFieldQuery from "@/server/sql/AddFieldQuery";
+import UpdateDefaultValueQuery from "@/server/sql/UpdateDefaultValueQuery";
+import DropDefaultValueQuery from "@/server/sql/DropDefaultValueQuery";
+import UpdateFieldTypeQuery from "@/server/sql/UpdateFieldTypeQuery";
+import TableIndex from "@/server/sql/TableIndex";
+import DropIndexQuery from "@/server/sql/DropIndexQuery";
+import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
+import CreateTableQuery from "@/server/sql/CreateTableQuery";
+import DropTableQuery from "@/server/sql/DropTableQuery";
+import DropFieldQuery from "@/server/sql/DropFieldQuery";
+import CreateExtensionQuery from "@/server/sql/CreateExtensionQuery";
 import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
-import { JsonType, Type } from "../../../lib/sql/Type";
-import LogTableQuery from "../../../lib/sql/LogTableQuery";
+import { JsonType, Type } from "@/server/sql/Type";
+import LogTableQuery from "@/server/sql/LogTableQuery";
 import {
   expectedIndexes,
   expectedCustomPgIndexes,
@@ -113,8 +113,9 @@ export const createIndex = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   index: TableIndex<ObjectsByCollectionName[N]>,
   ifNotExists = true,
+  allowConcurrent = true,
 ): Promise<void> => {
-  const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists).compile();
+  const {sql, args} = new CreateIndexQuery({ table: collection.getTable(), index, ifNotExists, allowConcurrent }).compile();
   await db.none(sql, args);
 }
 
@@ -174,7 +175,7 @@ export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
   for (const index of expectedIndexes[collection.collectionName] ?? []) {
-    collection._ensureIndex(index.key, index);
+    await collection._ensureIndex(index.key, index);
     await sleep(100);
   }
 }

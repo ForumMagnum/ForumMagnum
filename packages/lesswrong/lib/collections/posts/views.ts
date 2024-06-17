@@ -166,6 +166,8 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
@@ -1569,3 +1571,6 @@ void ensureCustomPgIndex(`
   ON "Posts" (GREATEST("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
   WHERE "collabEditorDialogue" IS TRUE;
 `);
+
+// Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
+ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });

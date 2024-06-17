@@ -58,6 +58,14 @@ export const useRecordPostView = (post: ViewablePost) => {
   `, {
     ignoreResults: true
   });
+
+  const [markPostCommentsRead] = useMutation(gql`
+    mutation markPostCommentsRead($postId: String!) {
+      markPostCommentsRead(postId: $postId)
+    }
+  `, {
+    ignoreResults: true
+  });
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
@@ -112,8 +120,25 @@ export const useRecordPostView = (post: ViewablePost) => {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
   }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, recordEvent]);
+
+  const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
+    if (currentUser) {
+      if (!postsRead[post._id]) {
+        // Update the client-side read status cache.
+        // Set the value to true even if technically we might be saving isRead: false on the server, if the post hasn't been read before, to get the correct UI update.
+        setPostRead(post._id, true);
+
+        // Calling `setPostRead` above ensures we only send an update to server the first time this is triggered.
+        // Otherwise it becomes much more likely that someone else posts a comment after the first time we send this,
+        // but then we send it again because e.g. the user clicked on another comment (from the initial render).
+        void markPostCommentsRead({
+          variables: { postId: post._id }
+        });
+      }
+    }
+  };
   
-  return { recordPostView, isRead };
+  return { recordPostView, recordPostCommentsView, isRead };
 }
 
 

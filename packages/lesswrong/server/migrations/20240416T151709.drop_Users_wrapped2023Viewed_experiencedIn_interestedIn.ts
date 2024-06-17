@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { ArrayType, BoolType, StringType } from "../../lib/sql/Type";
+import { ArrayType, BoolType, StringType } from "../../server/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 
 /**

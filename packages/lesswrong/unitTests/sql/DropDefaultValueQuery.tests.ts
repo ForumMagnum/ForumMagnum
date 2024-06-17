@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import DropDefaultValueQuery from "../../lib/sql/DropDefaultValueQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import DropDefaultValueQuery from "@/server/sql/DropDefaultValueQuery";
 
 describe("DropDefaultValueQuery", () => {
   runTestCases([

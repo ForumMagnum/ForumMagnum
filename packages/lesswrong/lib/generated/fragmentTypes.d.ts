@@ -17,6 +17,22 @@ interface CollectionsDefaultFragment { // fragment on Collections
   readonly noindex: boolean,
 }
 
+interface ClientIdsDefaultFragment { // fragment on ClientIds
+  readonly clientId: string,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly userIds: Array<string> | null,
+}
+
+interface ModeratorClientIDInfo { // fragment on ClientIds
+  readonly _id: string,
+  readonly clientId: string,
+  readonly createdAt: Date,
+  readonly firstSeenReferrer: string | null,
+  readonly firstSeenLandingPage: string,
+  readonly users: Array<UsersMinimumInfo>,
+}
+
 interface LocalgroupsDefaultFragment { // fragment on Localgroups
   readonly name: string,
   readonly nameInAnotherLanguage: string,
@@ -867,6 +883,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly suggestForAlignmentUserIds: Array<string>,
   readonly reviewForAlignmentUserId: string,
   readonly agentFoundationsId: string,
+  readonly swrCachingEnabled: boolean,
 }
 
 interface RecommendationsCachesDefaultFragment { // fragment on RecommendationsCaches
@@ -916,6 +933,15 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly userId: string,
   readonly documentId: string,
   readonly lastUpdated: Date,
+}
+
+interface CronHistoriesDefaultFragment { // fragment on CronHistories
+  readonly _id: string,
+  readonly intendedAt: Date,
+  readonly name: string,
+  readonly startedAt: Date,
+  readonly finishedAt: Date | null,
+  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -984,22 +1010,6 @@ interface emailHistoryFragment { // fragment on LWEvents
   readonly properties: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
-interface ClientIdsDefaultFragment { // fragment on ClientIds
-  readonly clientId: string,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly userIds: Array<string> | null,
-}
-
-interface ModeratorClientIDInfo { // fragment on ClientIds
-  readonly _id: string,
-  readonly clientId: string,
-  readonly createdAt: Date,
-  readonly firstSeenReferrer: string | null,
-  readonly firstSeenLandingPage: string,
-  readonly users: Array<UsersMinimumInfo>,
-}
-
 interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
   readonly email: string,
   readonly refreshToken: string,
@@ -1013,27 +1023,6 @@ interface SessionsDefaultFragment { // fragment on Sessions
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly expires: Date | null,
   readonly lastModified: Date | null,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
-}
-
-interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
-  readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
-  readonly endedAt: Date | null,
-}
-
-interface CronHistoriesDefaultFragment { // fragment on CronHistories
-  readonly _id: string,
-  readonly intendedAt: Date,
-  readonly name: string,
-  readonly startedAt: Date,
-  readonly finishedAt: Date | null,
-  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -1256,6 +1245,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
 interface PostsListBase_customHighlight { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsListBase_lastPromotedComment { // fragment on Comments
@@ -1871,6 +1861,12 @@ interface NotificationsList { // fragment on Notifications
   readonly type: string,
   readonly viewed: boolean,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -2689,6 +2685,8 @@ interface DigestsDefaultFragment { // fragment on Digests
   readonly startDate: Date,
   readonly endDate: Date | null,
   readonly publishedDate: Date | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
 }
 
 interface DigestsMinimumInfo { // fragment on Digests
@@ -2697,6 +2695,8 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly startDate: Date,
   readonly endDate: Date | null,
   readonly publishedDate: Date | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents
@@ -2847,7 +2847,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly howOthersCanHelpMe: RevisionDisplay|null,
   readonly howICanHelpOthers: RevisionDisplay|null,
   readonly profileTagIds: Array<string>,
-  readonly profileTags: Array<TagBasicInfo>,
+  readonly profileTags: Array<TagPreviewFragment>,
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,
@@ -3549,6 +3549,12 @@ interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment 
   readonly description: RevisionEdit|null,
 }
 
+interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
+  readonly userId: string,
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
+  readonly endedAt: Date | null,
+}
+
 interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
@@ -3872,11 +3878,14 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
   readonly _id: any,
   readonly post: any,
   readonly comments: any,
+  readonly expandCommentIds: any,
   readonly postIsFromSubscribedUser: any,
 }
 
 interface FragmentTypes {
   CollectionsDefaultFragment: CollectionsDefaultFragment
+  ClientIdsDefaultFragment: ClientIdsDefaultFragment
+  ModeratorClientIDInfo: ModeratorClientIDInfo
   LocalgroupsDefaultFragment: LocalgroupsDefaultFragment
   UsersDefaultFragment: UsersDefaultFragment
   CommentsDefaultFragment: CommentsDefaultFragment
@@ -3902,19 +3911,15 @@ interface FragmentTypes {
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
   newEventFragment: newEventFragment
   lastEventFragment: lastEventFragment
   lwEventsAdminPageFragment: lwEventsAdminPageFragment
   emailHistoryFragment: emailHistoryFragment
-  ClientIdsDefaultFragment: ClientIdsDefaultFragment
-  ModeratorClientIDInfo: ModeratorClientIDInfo
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
-  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
-  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsTopItemInfo: PostsTopItemInfo
   PostsBase: PostsBase
@@ -3973,6 +3978,7 @@ interface FragmentTypes {
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
   NotificationsList: NotificationsList
+  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
@@ -4098,6 +4104,7 @@ interface FragmentTypes {
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
+  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
@@ -4133,6 +4140,7 @@ interface FragmentTypes {
 
 interface FragmentTypesByCollection {
   Collections: "CollectionsDefaultFragment"|"CollectionContinueReadingFragment"|"CollectionsPageFragment"|"CollectionsEditFragment"|"CollectionsBestOfFragment"
+  ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
@@ -4158,15 +4166,13 @@ interface FragmentTypesByCollection {
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
+  CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
-  ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
-  Messages: "MessagesDefaultFragment"|"messageListFragment"
-  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
-  CronHistories: "CronHistoriesDefaultFragment"
   Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
+  Messages: "MessagesDefaultFragment"|"messageListFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
@@ -4187,6 +4193,7 @@ interface FragmentTypesByCollection {
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunch"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
   Spotlights: "SpotlightsDefaultFragment"|"SpotlightMinimumInfo"|"SpotlightHeaderEventSubtitle"|"SpotlightDisplay"|"SpotlightEditQueryFragment"
+  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
@@ -4199,6 +4206,8 @@ interface FragmentTypesByCollection {
 
 interface CollectionNamesByFragmentName {
   CollectionsDefaultFragment: "Collections"
+  ClientIdsDefaultFragment: "ClientIds"
+  ModeratorClientIDInfo: "ClientIds"
   LocalgroupsDefaultFragment: "Localgroups"
   UsersDefaultFragment: "Users"
   CommentsDefaultFragment: "Comments"
@@ -4224,19 +4233,15 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
   newEventFragment: "LWEvents"
   lastEventFragment: "LWEvents"
   lwEventsAdminPageFragment: "LWEvents"
   emailHistoryFragment: "LWEvents"
-  ClientIdsDefaultFragment: "ClientIds"
-  ModeratorClientIDInfo: "ClientIds"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
-  MessagesDefaultFragment: "Messages"
-  ModeratorActionsDefaultFragment: "ModeratorActions"
-  CronHistoriesDefaultFragment: "CronHistories"
   PostsMinimumInfo: "Posts"
   PostsTopItemInfo: "Posts"
   PostsBase: "Posts"
@@ -4295,6 +4300,7 @@ interface CollectionNamesByFragmentName {
   RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
   NotificationsList: "Notifications"
+  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
@@ -4420,6 +4426,7 @@ interface CollectionNamesByFragmentName {
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
+  ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentModeratorActionDisplay: "CommentModeratorActions"

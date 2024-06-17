@@ -19,8 +19,9 @@ const EAPopularCommentsSection = () => {
       expanded={expanded}
       toggleExpanded={toggleExpanded}
       title={preferredHeadingCase("Popular Comments")}
-      Content={PopularCommentsList}
-    />
+    >
+      <PopularCommentsList/>
+    </ExpandableSection>
   );
 }
 

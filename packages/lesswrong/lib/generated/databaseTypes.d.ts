@@ -96,7 +96,7 @@ type ClientIdsCollection = CollectionBase<"ClientIds">;
 
 interface DbClientId extends DbObject {
   __collectionName?: "ClientIds"
-  clientId: string | null
+  clientId: string
   firstSeenReferrer: string | null
   firstSeenLandingPage: string | null
   userIds: Array<string> | null
@@ -327,6 +327,8 @@ interface DbDigest extends DbObject {
   startDate: Date | null
   endDate: Date | null
   publishedDate: Date | null
+  onsiteImageId: string | null
+  onsitePrimaryColor: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -656,6 +658,8 @@ interface DbPageCacheEntry extends DbObject {
     allAbTestGroups: any /*{"definitions":[{"blackbox":true}]}*/,
     themeOptions: any /*{"definitions":[{"blackbox":true}]}*/,
     renderedAt: Date,
+    cacheFriendly: boolean,
+    timezone: string,
     timings: any /*{"definitions":[{"blackbox":true}]}*/,
   }
   createdAt: Date
@@ -938,6 +942,7 @@ interface DbPost extends DbObject {
   suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
+  swrCachingEnabled: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents | null

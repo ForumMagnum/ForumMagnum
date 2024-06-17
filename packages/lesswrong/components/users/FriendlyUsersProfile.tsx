@@ -160,6 +160,23 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
+  interests: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    marginTop: 14,
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "2px",
+    overflowX: "hidden",
+    "& .FooterTag-root": {
+      margin: "0",
+    },
+    "& > :first-child": {
+      marginRight: 6,
+    },
+  },
 })
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
@@ -241,7 +258,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
     ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown
+    UserNotifyDropdown, FooterTag,
   } = Components
 
   if (loading) {
@@ -449,7 +466,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
                 href={`/profile/${user.slug}/edit`}
                 className={classes.editProfileButton}
               >
-                Edit profile
+                Edit public profile
               </Button>
             </div>
           }
@@ -466,12 +483,22 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
               user={user}
               currentUser={currentUser}
             >
-              <a tabIndex={0} className={classes.messageBtn} data-cy="message">
+              <a tabIndex={0} className={classes.messageBtn}>
                 Message
               </a>
             </NewConversationButton>
             <UserNotifyDropdown user={user} />
           </div>}
+
+          {(user.profileTags?.length ?? 0) > 0 &&
+            <div className={classes.interests}>
+              <div>Interests:</div>
+              {user.profileTags.map((tag) =>
+                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon />
+              )}
+            </div>
+          }
+
           <EAUsersProfileLinks user={user} />
         </div>
 

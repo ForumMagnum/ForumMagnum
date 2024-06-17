@@ -39,7 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: '1 1 0'
   },
   copyDigest: {
-    alignSelf: 'center',
   },
   copyDigestIcon: {
     color: theme.palette.primary.main,

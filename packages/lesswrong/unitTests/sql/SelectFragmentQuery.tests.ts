@@ -1,5 +1,5 @@
-import SelectFragmentQuery from "../../lib/sql/SelectFragmentQuery";
-import { runTestCases } from "../../lib/sql/tests/testHelpers";
+import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
+import { runTestCases } from "@/server/sql/tests/testHelpers";
 
 describe("SelectFragmentQuery", () => {
   runTestCases([

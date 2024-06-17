@@ -1,7 +1,6 @@
 import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
-import { onStartup } from './executionEnvironment';
 import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
@@ -13,6 +12,8 @@ import { forumSpecificRoutes } from './forumSpecificRoutes';
 import { hasPostRecommendations } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
+import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
+import { tagRouteWillDefinitelyReturn200 } from './collections/tags/helpers';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isFriendlyUI;
@@ -273,7 +274,8 @@ addRoute(
     componentName: 'SequencesSingle',
     titleComponentName: 'SequencesPageTitle',
     subtitleComponentName: 'SequencesPageTitle',
-    previewComponentName: 'SequencePreview'
+    previewComponentName: 'SequencePreview',
+    enableResourcePrefetch: sequenceRouteWillDefinitelyReturn200,
   },
   {
     name: 'sequencesEdit',
@@ -357,6 +359,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     },
     {
       name: 'tagsSingleRedirectCustomName',
@@ -384,6 +387,7 @@ if (taggingNameIsSet.get()) {
       componentName: 'TagHistoryPage',
       titleComponentName: 'TagHistoryPageTitle',
       subtitleComponentName: 'TagHistoryPageTitle',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
       noIndex: true,
     },
     {
@@ -470,6 +474,7 @@ if (taggingNameIsSet.get()) {
       titleComponentName: 'TagPageTitle',
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
+      enableResourcePrefetch: tagRouteWillDefinitelyReturn200,
     },
     {
       name: 'tagDiscussion',
@@ -548,7 +553,7 @@ addRoute(
 );
 
 
-onStartup(() => {
+export function initLegacyRoutes() {
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
   addRoute(
     // Legacy (old-LW, also old-EAF) routes
@@ -569,7 +574,7 @@ onStartup(() => {
       // TODO: Pingback comment
     }
   );
-});
+}
 
 const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
   EAForum: [
@@ -634,6 +639,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/best-of',
     },
     {
+      name: 'digest',
+      path: '/digests/:num',
+      componentName: 'EADigestPage',
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
@@ -677,10 +687,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => communityPath
     },
     {
-      name: 'Groups & people',
+      name: 'GroupsHome',
       path: communityPath,
       componentName: 'Community',
-      title: 'Groups & people',
+      title: 'Groups',
       description: "Discover local and online EA groups, or browse the members of the forum to find people to connect with.",
       ...communitySubtitle
     },
@@ -716,6 +726,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: "userAnalytics",
       path:'/users/:slug/stats',
       componentName: "AuthorAnalyticsPage",
+      background: "white",
     },
     {
       name: "myAnalytics",
@@ -1423,6 +1434,7 @@ addRoute(
     background: postBackground,
     noFooter: hasPostRecommendations,
     enableResourcePrefetch: postRouteWillDefinitelyReturn200,
+    swrCaching: "logged-out"
   },
   {
     name:'posts.slug.single',

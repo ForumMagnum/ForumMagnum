@@ -6,7 +6,6 @@ import Users from '../../lib/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { faviconUrlSetting, isAF } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
-import { onStartup } from '../../lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
 import { createAnonymousContext } from '../vulcan-lib/query';
 import type { ServerResponse } from 'http';
@@ -189,7 +188,7 @@ addStaticRoute('/static/imported/:year/:month/:day/:imageName', (params, req, re
 // Legacy RSS Routes
 
 // Route for old comment rss feeds
-onStartup(() => {
+export function addLegacyRssRoutes() {
   // Because the EA Forum was identical except for the change from /lw/ to /ea/
   const legacyRouteAcronym = legacyRouteAcronymSetting.get()
 
@@ -218,7 +217,7 @@ onStartup(() => {
       res.end(`No legacy post found with: id=${params.id} slug=${params.slug}`);
     }
   });
-});
+}
 
 // Route for old general RSS (all posts)
 addStaticRoute('/.rss', (params, req, res, next) => {

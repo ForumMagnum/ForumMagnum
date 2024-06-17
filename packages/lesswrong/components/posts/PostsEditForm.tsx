@@ -17,6 +17,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import ForumNoSSR from '../common/ForumNoSSR';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -159,7 +160,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
               }}
               showRemove={true}
               collabEditorDialogue={!!document.collabEditorDialogue}
-              submitLabel={isDraft ? "Publish" : "Publish Changes"}
+              submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
               formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
               extraVariables={{
                 version: 'String'

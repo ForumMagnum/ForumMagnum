@@ -304,6 +304,7 @@ declare global {
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
       tooltipBackground2: ColorString,
+      mapboxTooltip: ColorString,
       modalBackground: ColorString,
       loginInput: ColorString,
       loginInputHovered: ColorString,
@@ -524,14 +525,6 @@ declare global {
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
       postScoreArrow: ColorString,
-    },
-    emojiHeader: {
-      background: ColorString,
-      foreground: ColorString,
-      placeholder: ColorString,
-      removeButton: ColorString,
-      tooltipShadow: string,
-      emojiShadow: string,
     },
     dialogueMatching: {
       checkedNotMatched: ColorString,

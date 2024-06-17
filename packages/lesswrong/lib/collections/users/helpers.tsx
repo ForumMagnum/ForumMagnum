@@ -13,8 +13,10 @@ import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
+export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
+
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: { username: string | null, fullName?: string | null, displayName: string | null } | null): string => {
+export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
   if (!user) {
     return "";
   } else {

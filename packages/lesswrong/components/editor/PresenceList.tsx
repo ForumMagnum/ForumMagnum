@@ -55,23 +55,37 @@ const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
     : [];
 
   return <div>
-    {connectedUsers.map(u => <PresenceListUser key={u._id} connected={true} userId={u._id} classes={classes}/>)}
-    {disconnectedUserIds.map(userId => <PresenceListUser key={userId} connected={false} userId={userId} classes={classes}/>)}
+    {connectedUsers.map(u => <PresenceListUser
+      key={u._id}
+      connected={true}
+      userId={u._id}
+      isLoggedOutUser={u.name==="Anonymous"}
+      classes={classes}
+    />)}
+    {disconnectedUserIds.map(userId => <PresenceListUser
+      key={userId}
+      connected={false}
+      userId={userId}
+      isLoggedOutUser={false}
+      classes={classes}
+    />)}
   </div>
 }
 
-const PresenceListUser = ({userId, connected, classes}: {
+const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
   userId: string,
+  isLoggedOutUser: boolean,
   connected: boolean,
   classes: ClassesType,
 }) => {
-  const { document: user } = useSingle({
+  const { document: user, loading } = useSingle({
     collectionName: "Users",
     fragmentName: "UsersMinimumInfo",
-    documentId: userId
+    documentId: userId,
+    skip: isLoggedOutUser,
   });
 
-  if (!user) {
+  if (loading) {
     return <span/>
   }
   return <span className={classNames(classes.user, {
@@ -81,7 +95,8 @@ const PresenceListUser = ({userId, connected, classes}: {
     <div className={classes.activeDot}>
     </div>
     <span className={classes.offlineIcon}>{!connected && <CloudOff/>}</span>
-    <Components.UsersName user={user}/>
+    {user && <Components.UsersName user={user}/>}
+    {isLoggedOutUser && <>Anonymous</>}
   </span>
 }
 

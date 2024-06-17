@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
@@ -362,9 +362,8 @@ const CKPostEditor = ({
   const { flash } = useMessages();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
-  
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
-  const { PostEditor, PostEditorCollaboration } = getCkEditor(forumTypeSetting.get());
+  
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
     if (accessLevelCan(accessLevel, "edit"))
@@ -493,8 +492,9 @@ const CKPostEditor = ({
       ref={editorRef}
       onChange={onChange}
       onFocus={onFocus}
-      editor={isCollaborative ? PostEditorCollaboration : PostEditor}
+      editor={getCkPostEditor(!!isCollaborative, forumTypeSetting.get())}
       data={data}
+      isCollaborative={!!isCollaborative}
       onInit={(editor: Editor) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger

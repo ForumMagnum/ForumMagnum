@@ -59,7 +59,7 @@ export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
   isEAForum && !!user?.beta;
 
-export const userHasSubscribeTabFeed = isLW ? isAdmin : disabled;
+export const userHasSubscribeTabFeed = isLW ? shippedFeature : disabled;
 
 //defining as Hook so as to combine with ABTest
 export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
@@ -90,6 +90,7 @@ export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
+export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this

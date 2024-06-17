@@ -5,6 +5,7 @@ import { randomId } from "../../lib/random";
 import chunk from "lodash/chunk";
 import PostViewTimes from "../../lib/collections/postViewTimes/collection";
 import IncrementalViewRepo, { IncrementalViewDataType } from "./IncrementalViewRepo";
+import { isE2E } from "../../lib/executionEnvironment";
 
 class PostViewTimesRepo extends IncrementalViewRepo<"PostViewTimes"> {
   constructor() {
@@ -18,6 +19,11 @@ class PostViewTimesRepo extends IncrementalViewRepo<"PostViewTimes"> {
     startDate: Date;
     endDate: Date;
   }): Promise<IncrementalViewDataType<"PostViewTimes">[]> {
+    // Analytics DB is not available in e2e tests
+    if (isE2E) {
+      return [];
+    }
+
     // Round startDate (endDate) down (up) to the nearest UTC date boundary
     const startDateFormatted = moment.utc(startDate).startOf("day").format('YYYY-MM-DD HH:mm:ss');
     const endDateFormatted = moment.utc(endDate).endOf("day").format('YYYY-MM-DD HH:mm:ss');

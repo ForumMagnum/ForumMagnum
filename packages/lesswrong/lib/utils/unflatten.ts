@@ -2,8 +2,8 @@ import * as _ from 'underscore';
 
 export interface ThreadableCommentType {
   _id: string
-  parentCommentId: string
-  topLevelCommentId: string
+  parentCommentId?: string | null
+  topLevelCommentId?: string | null
 }
 export interface CommentTreeNode<T extends ThreadableCommentType> {
   item: T,
@@ -87,4 +87,8 @@ export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Arr
       return false;
   }
   return true;
+}
+
+export function flattenCommentBranch<T extends ThreadableCommentType>(branch: CommentTreeNode<T>): T[] {
+  return [branch.item, ...branch.children.flatMap(flattenCommentBranch)];
 }

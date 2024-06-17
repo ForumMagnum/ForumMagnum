@@ -68,7 +68,7 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
-    bundleIsCypress: false,
+    bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
     defaultSiteAbsoluteUrl: "",
@@ -191,6 +191,11 @@ export default {
         sourcemap: true,
       },
     ],
+  },
+
+  // Should match "paths" in tsconfig.json
+  moduleNameMapper: {
+    "@/(.*)": "<rootDir>/packages/lesswrong/$1",
   },
 
   // react-instantsearch contains a file (connectors.js) that requires

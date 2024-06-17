@@ -378,6 +378,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
+    mapboxTooltip: "#fff",
     modalBackground: "#fff",
     loginInput: "#efefef",
     loginInputHovered: "#e4e4e4",
@@ -429,7 +430,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     eaCard: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
-    graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    graphTooltip: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
     lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
@@ -573,14 +574,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
-  },
-  emojiHeader: {
-    background: "#daebef",
-    foreground: "#046A7C",
-    placeholder: "#9BC4CC",
-    removeButton: "#2F2F2F",
-    tooltipShadow: `0 4px 8px ${shades.boxShadowColor(0.12)}`,
-    emojiShadow: "1px 1px 2px rgba(0,0,0,0.2)",
   },
   dialogueMatching: {
     checkedNotMatched: "#ADD8E6",
