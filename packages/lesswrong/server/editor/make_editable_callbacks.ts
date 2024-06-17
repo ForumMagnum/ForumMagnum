@@ -93,7 +93,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   // The type of the DbObject containing this field
   type DbType = ObjectsByCollectionName[N];
 
-  // The type of the object that is used to update this object.
+  // The type of the mutation object that is used to update this db object.
   // TODO: This should also include a list of the editable resolver-only fields
   // but we don't currently have a way to do that - it probably needs some
   // additions to the type generation script.
@@ -108,8 +108,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   const collectionName = collection.collectionName;
 
   getCollectionHooks(collectionName).createBefore.add(
-    async function editorSerializationBeforeCreate (doc: DbType, {currentUser, context})
-  {
+    async function editorSerializationBeforeCreate (doc: DbType, {currentUser, context}) {
     const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
     if (editableField?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -186,8 +185,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
     async function editorSerializationEdit (
       docData: UpdateData,
       {oldDocument: document, newDocument, currentUser},
-    )
-  {
+    ) {
     const editableField = (docData as AnyBecauseHard)[fieldName] as EditableFieldUpdate | undefined;
     if (editableField?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
@@ -278,8 +276,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   });
 
   getCollectionHooks(collectionName).createAfter.add(
-    async function editorSerializationAfterCreate(newDoc)
-  {
+    async function editorSerializationAfterCreate(newDoc) {
     // Update revision to point to the document that owns it.
     const revisionID = (newDoc as AnyBecauseHard)[`${fieldName}_latest`];
     if (revisionID) {
