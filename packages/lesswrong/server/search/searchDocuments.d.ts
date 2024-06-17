@@ -67,6 +67,7 @@ interface SearchUser extends SearchBase {
   },
   mapLocationAddress?: string,
   tags: Array<string>,
+  tagNames: Array<string> | null,
   profileUpdatedAt: Date,
 }
 

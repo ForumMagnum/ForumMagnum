@@ -9,6 +9,7 @@ const cellComponents = [
   "PeopleDirectoryCareerStageCell",
   "PeopleDirectorySkeletonUserCell",
   "PeopleDirectorySkeletonTextCell",
+  "PeopleDirectoryTopicsCell",
 ] as const;
 
 type CellComponentName = typeof cellComponents[number];
@@ -89,6 +90,13 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     label: "Career stage",
     columnWidth: "auto",
     componentName: "PeopleDirectoryCareerStageCell",
+    hideable: true,
+    hidden: false,
+  },
+  {
+    label: "Topic interests",
+    columnWidth: "1.5fr",
+    componentName: "PeopleDirectoryTopicsCell",
     hideable: true,
     hidden: false,
   },

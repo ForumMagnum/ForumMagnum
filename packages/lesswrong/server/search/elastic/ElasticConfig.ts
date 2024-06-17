@@ -252,6 +252,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "organization",
       "howICanHelpOthers",
       "howOthersCanHelpMe",
+      "tagNames",
     ],
     snippet: "bio",
     ranking: [
@@ -299,6 +300,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       website: keywordMapping,
       profileImageId: keywordMapping,
       tags: keywordMapping,
+      tagNames: fullTextMapping,
       _geoloc: geopointMapping,
     },
     privateFields: [
