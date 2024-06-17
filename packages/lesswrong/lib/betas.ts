@@ -90,6 +90,7 @@ export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
+export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this

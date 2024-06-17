@@ -292,7 +292,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 {preferredHeadingCase("Manage Subscriptions")}
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
-                <a data-cy="message">Message</a>
+                <a>Message</a>
               </NewConversationButton> }
               { <UserNotifyDropdown 
                 user={user} 

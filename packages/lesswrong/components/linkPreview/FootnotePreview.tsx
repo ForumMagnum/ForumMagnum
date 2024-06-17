@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
+import { hasCollapsedFootnotes } from '@/lib/betas';
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
@@ -64,7 +65,11 @@ const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
   // context, figuring out what that network request *is* is pretty complicated;
   // it could be anything with a content-editable field in it, and that
   // information isn't wired to pass through the hover-preview system.
-  
+
+  const onClick = useCallback(() => {
+    window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
+  }, [href]);
+
   return (
     <span {...eventHandlers}>
       {footnoteContentsNonempty && <LWPopper
@@ -81,10 +86,10 @@ const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
       </LWPopper>}
 
       <a
-        href={href}
+        href={hasCollapsedFootnotes ? undefined : href}
         id={id}
         rel={rel}
-        onClick={() => window.dispatchEvent(new Event(EXPAND_FOOTNOTES_EVENT))}
+        onClick={onClick}
       >
         {children}
       </a>

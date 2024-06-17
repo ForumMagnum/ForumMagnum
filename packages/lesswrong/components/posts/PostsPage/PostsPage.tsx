@@ -778,6 +778,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}
