@@ -195,9 +195,13 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     wordwrap: plainTextWordWrap
   });
   
-  const fromAddress = from || defaultEmailSetting.get()
+  const defaultFromEmail = defaultEmailSetting.get()
+  let fromAddress = from || defaultFromEmail
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
+  }
+  if (isEAForum && fromAddress === defaultFromEmail) {
+    fromAddress = `The EA Forum <${defaultFromEmail}>`
   }
   
   const sitename = forumTitleSetting.get();
@@ -210,7 +214,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     user,
     to,
     from: fromAddress,
-    subject: taggedSubject,
+    subject: isEAForum ? subject : taggedSubject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }

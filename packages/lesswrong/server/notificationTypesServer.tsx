@@ -454,7 +454,7 @@ export const NewUserNotification = serverRegisterNotificationType({
 });
 
 const newMessageEmails: ForumOptions<string | null> = {
-  EAForum: 'forum-noreply@effectivealtruism.org',
+  EAForum: 'The EA Forum <forum-noreply@effectivealtruism.org>',
   default: null,
 }
 const forumNewMessageEmail = forumSelect(newMessageEmails) ?? undefined
