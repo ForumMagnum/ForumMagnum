@@ -483,7 +483,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
               user={user}
               currentUser={currentUser}
             >
-              <a tabIndex={0} className={classes.messageBtn} data-cy="message">
+              <a tabIndex={0} className={classes.messageBtn}>
                 Message
               </a>
             </NewConversationButton>
