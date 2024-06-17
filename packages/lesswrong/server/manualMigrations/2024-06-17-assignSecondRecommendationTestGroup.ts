@@ -875,8 +875,8 @@ registerMigration({
     const adminContext = createAdminContext();
     const { Users } = adminContext;
 
-    testGroupIds.forEach(async (userId: string) => {
-      void updateMutator({
+    for (const userId of testGroupIds) {
+      await updateMutator({
         collection: Users,
         context: adminContext,
         currentUser: adminContext.currentUser,
@@ -885,7 +885,7 @@ registerMigration({
           frontpageSelectedTab: 'recombee-hybrid'
         }
       });
-    });
+    }
   }
 });
 
