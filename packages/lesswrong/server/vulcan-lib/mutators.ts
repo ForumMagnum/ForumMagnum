@@ -227,7 +227,7 @@ export const createMutator: CreateMutator = async <N extends CollectionNameStrin
   logger('newSync')
   document = await hooks.newSync.runCallbacks({
     iterator: document as ObjectsByCollectionName[N], // Pretend this isn't Partial
-    properties: [currentUser]
+    properties: [currentUser, context]
   }) as Partial<DbInsertion<ObjectsByCollectionName[N]>>;
 
   /*

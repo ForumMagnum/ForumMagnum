@@ -153,7 +153,7 @@ interface CostData {
   tooltip: JSX.Element | null;
 }
 
-export const getCostData = ({costTotal=500}:{costTotal?:number}): Record<number, CostData> => {
+export const getCostData = ({costTotal=500}: {costTotal?: number}): Record<number, CostData> => {
   const divider = costTotal > 500 ? costTotal/500 : 1
   const overSpentWarning = (divider !== 1) ? <div><em>Your vote is downweighted because you spent 500+ points</em></div> : null
   return ({

@@ -69,6 +69,7 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
  * screen where the current-post will transition when its heading passes.
  */
 export const getCurrentSectionMark = () => {
+  if (isServer) return 0;
   return window.innerHeight/5
 }
 

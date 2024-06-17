@@ -69,8 +69,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  sequenceId: string,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
+  sequenceId: string|null,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -117,9 +117,9 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
       </>
     }
     {sequenceId && <div className={classes.bottomNavigation}>
-      <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
+      {('sequence' in post) && <AnalyticsContext pageSectionContext="bottomSequenceNavigation">
         <BottomNavigation post={post}/>
-      </AnalyticsContext>
+      </AnalyticsContext>}
     </div>}
 
     {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">

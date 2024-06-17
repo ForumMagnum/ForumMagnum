@@ -72,12 +72,7 @@ window.addEventListener('load', ev => {
     performance: {
       memory: (window as any).performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,
-      timing: window.performance?.timing,
+      timing: window.performance?.timing?.toJSON?.(),
     },
   });
 });
-
-
-// Put the tabId, which was injected into the page as a global variable, into
-// the analytics context vars. See apollo-ssr/renderPage.js
-AnalyticsUtil.clientContextVars.tabId = (window as any).tabId

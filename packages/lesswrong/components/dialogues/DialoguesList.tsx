@@ -254,12 +254,12 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
 
   const upsertUserDialogueCheck = useUpsertDialogueCheck();
 
-  const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
+  const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId: string|undefined, targetUserId: string}) => {
     captureEvent("hide_dialogue_recommendation")
     void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
   }
 
-  const hideMatch = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
+  const hideMatch = ({dialogueCheckId, targetUserId}: {dialogueCheckId: string|undefined, targetUserId: string}) => {
     captureEvent("hide_dialogue_frontpage_match")
     void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
   }

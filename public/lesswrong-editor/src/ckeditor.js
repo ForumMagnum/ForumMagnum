@@ -59,15 +59,18 @@ import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import RestyledCommentButton from './restyled-comment-button-plugin';
+import CTAButton from './ckeditor5-cta-button/cta-button';
 import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
 import DialogueCommentBox from './ckeditor5-dialogue-comments/dialogue-comment-box';
+import InternalBlockLinks from './internal-block-links';
 
 //
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import {CloudinaryAdapterPlugin} from "./cloudinary"
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -115,12 +118,14 @@ const sharedPlugins = [
 	UploadAdapter,
 	Mathematics,
 	SanitizeTags,
+	InternalBlockLinks,
 	Spoilers,
 	AutoLink,
 	Footnote,
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
+	CloudinaryAdapterPlugin,
 ];
 
 const postEditorPlugins = [
@@ -143,10 +148,29 @@ const collaborativeEditorPlugins = [
 	DialogueCommentBox
 ];
 
-PostEditor.builtinPlugins = [ ...postEditorPlugins ];
-PostEditor.defaultConfig = { ...postEditorConfig };
-PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
-PostEditorCollaboration.defaultConfig = {...postEditorConfig};
-CommentEditor.builtinPlugins = [ ...sharedPlugins ];
-CommentEditor.defaultConfig = { ...commentEditorConfig };
+const siteSpecificPlugins = {
+  EAForum: [CTAButton],
+};
 
+export function getPostEditor(forumType) {
+  class PostEditor extends BalloonBlockEditorBase {}
+  PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditor.defaultConfig = { ...postEditorConfig };
+  return PostEditor;
+}
+
+// NOTE: Site-specific plugins might not match between client and server. If making a site-specific plugin that needs
+// to be included in the uploaded cloud bundle, then revisit this and get forumType plumbed into that.
+export function getPostEditorCollaboration(forumType) {
+  class PostEditorCollaboration extends BalloonBlockEditorBase {}
+  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
+  return PostEditorCollaboration;
+}
+
+export function getCommentEditor(forumType) {
+  class CommentEditor extends BalloonBlockEditorBase {}
+  CommentEditor.builtinPlugins = [ ...sharedPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  CommentEditor.defaultConfig = { ...commentEditorConfig };
+  return CommentEditor;
+}

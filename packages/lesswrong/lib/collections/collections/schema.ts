@@ -57,9 +57,10 @@ const schema: SchemaType<"Collections"> = {
   },
 
   postsCount: resolverOnlyField({
+    graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext): Promise<number> => {
       const count = await getWithCustomLoader<number, string>(
         context,
         "collectionPostsCount",
@@ -74,9 +75,10 @@ const schema: SchemaType<"Collections"> = {
   }),
 
   readPostsCount: resolverOnlyField({
+    graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext): Promise<number> => {
       const currentUser = context.currentUser;
       
       if (!currentUser) return 0;

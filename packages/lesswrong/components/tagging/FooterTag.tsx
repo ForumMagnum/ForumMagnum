@@ -14,11 +14,11 @@ import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = (theme: ThemeType): JssStyles => ({
-  marginRight: 3,
+  marginRight: isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: 8,
+  marginBottom: isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     )
   },
   tooltip: {
-    marginTop: 6,
+    marginTop: isFriendlyUI ? 6 : undefined,
   },
   core: {
     ...coreTagStyle(theme),

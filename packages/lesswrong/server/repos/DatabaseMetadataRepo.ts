@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
-import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import type { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
 
 export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {

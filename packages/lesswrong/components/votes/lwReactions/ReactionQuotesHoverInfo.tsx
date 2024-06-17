@@ -61,7 +61,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}:{
+const ReactionQuotesHoverInfo = ({react, quote, voteProps, commentBodyRef, classes}: {
   react: EmojiReactName,
   quote: QuoteLocator,
   voteProps: VotingProps<VoteableTypeClient>,

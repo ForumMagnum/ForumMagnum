@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["es2023", "dom"],
+    "lib": ["es2019", "dom"],
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -16,12 +16,17 @@
     "skipLibCheck": true,
     "strictBindCallApply": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./packages/lesswrong/*"],
+    }
   },
   "include": [
     "packages/lesswrong",
     "public/lesswrong-editor/src/editorConfigs.js",
-    "cypress"
+    "playwright"
   ],
   "exclude": [
     "node_modules",

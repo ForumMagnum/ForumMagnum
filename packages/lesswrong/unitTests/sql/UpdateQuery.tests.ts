@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import UpdateQuery from "../../lib/sql/UpdateQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import UpdateQuery from "@/server/sql/UpdateQuery";
 
 describe("UpdateQuery", () => {
   runTestCases([
@@ -66,8 +66,19 @@ describe("UpdateQuery", () => {
     {
       name: "can set a value inside a JSON blob",
       getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.d.e": "hello world"}}),
-      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' ::TEXT[], $1 , TRUE) WHERE "a" = $2 RETURNING "_id"`,
+      expectedSql: `UPDATE "TestCollection" SET "c" = JSONB_SET( "c" , '{d, e}' ::TEXT[], TO_JSONB( $1::TEXT ), TRUE) WHERE "a" = $2 RETURNING "_id"`,
       expectedArgs: ["hello world", 3],
+    },
+    {
+      name: "can delete a value at the first level of a JSON blob",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.d": null}}),
+      expectedSql: `UPDATE "TestCollection" SET "c" = "c" - 'd' WHERE "a" = $1 RETURNING "_id"`,
+      expectedArgs: [3],
+    },
+    {
+      name: "throws an error when trying to delete a value at a further level of a JSON blob",
+      getQuery: () => new UpdateQuery<DbTestObject>(testTable, {a: 3}, {$set: {"c.d.e": null}}),
+      expectedError: 'Unsetting a field past the first level of a JSON blob is not yet supported',
     },
     {
       name: "can add a value to a set (native arrays)",

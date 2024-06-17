@@ -4,7 +4,7 @@ import withUser from '../common/withUser';
 import { useSingle } from '../../lib/crud/withSingle';
 import Chip from '@material-ui/core/Chip/Chip';
 
-const TagSelectStyles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
   },
@@ -56,7 +56,7 @@ const TagSelect = ({value, path, classes, label, updateCurrentValues}: {
 }
 
 const TagSelectComponent = registerComponent('TagSelect', TagSelect, {
-  styles: TagSelectStyles,
+  styles: styles,
   hocs: [withUser],
 });
 

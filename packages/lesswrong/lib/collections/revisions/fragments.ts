@@ -8,6 +8,7 @@ registerFragment(`
     editedAt
     userId
     html
+    commitMessage
     wordCount
     htmlHighlight
     plaintextDescription

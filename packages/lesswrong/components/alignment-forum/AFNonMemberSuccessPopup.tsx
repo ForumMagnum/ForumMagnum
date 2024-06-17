@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AFNonMemberSuccessPopup = ({_id, postId, onClose, classes}: {
   _id: string,
   postId?: string,
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const [open, setOpen] = useState(true)

@@ -9,12 +9,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
-import { timeframes as defaultTimeframes } from './AllPostsPage'
-
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
+import { timeframeLabels, timeframeSettings as defaultTimeframes } from './timeframeUtils'
+import type { TimeframeSettingType } from './timeframeUtils';
+import pick from 'lodash/pick';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events';
 
@@ -148,7 +149,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
   currentHideCommunity?: boolean,
-  timeframes?: any,
+  timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
   classes: ClassesType,
@@ -170,7 +171,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         {showTimeframe && <SettingsColumn
           type={'timeframe'}
           title={'Timeframe:'}
-          options={timeframes}
+          options={pick(timeframeLabels, timeframes)}
           currentOption={currentTimeframe}
           setSetting={setSetting}
           nofollow

@@ -58,7 +58,9 @@ const CommunityHome = ({classes}: {
   // assign their browser location to their user settings location
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
-  const updateUserLocation = useCallback(async ({lat, lng, known}) => {
+  const updateUserLocation = useCallback(async ({lat, lng, known}: {
+    lat: number, lng: number, known: boolean
+  }) => {
     if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
       try {
         // get a list of matching Google locations for the current lat/lng

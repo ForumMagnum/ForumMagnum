@@ -8,8 +8,8 @@ class ReadStatusesRepo extends AbstractRepo<"ReadStatuses"> {
     super(ReadStatuses);
   }
 
-  upsertReadStatus(userId: string, postId: string, isRead: boolean): Promise<null> {
-    return this.none(`
+  upsertReadStatus(userId: string, postId: string, isRead: boolean): Promise<DbReadStatus> {
+    return this.one(`
       INSERT INTO "ReadStatuses" (
         "_id",
         "postId",
@@ -27,6 +27,7 @@ class ReadStatusesRepo extends AbstractRepo<"ReadStatuses"> {
       DO UPDATE SET
         "isRead" = $(isRead),
         "lastUpdated" = $(lastUpdated)
+      RETURNING *
       `, {
       _id: randomId(),
       userId,

@@ -12,7 +12,7 @@ import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
-import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
+import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
@@ -28,8 +28,11 @@ import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
+import isEqual from 'lodash/isEqual';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
+import { recombeeApi } from '../recombee/client';
+import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -280,6 +283,22 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
   return modifier;
 });
 
+/**
+ * When a user explicitly unsubscribes from all emails, we also want to unsubscribe them from digest emails.
+ * They can then explicitly re-subscribe to the digest while keeping "unsubscribeFromAll" checked while still being
+ * unsubscribed from all other emails, if they want.
+ *
+ * Also unsubscribe them from the digest if they deactivate their account.
+ */
+getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromDigest(data: DbUser, {oldDocument}) {
+  const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
+  const deactivatedAccount = data.deleted && !oldDocument.deleted
+  if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
+    data.subscribedToDigest = false
+  }
+  return data;
+});
+
 getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
   if (
     isAnyTest ||
@@ -299,7 +318,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     return;
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
-  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
+  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';
   
   const email = getUserEmail(newUser)
   const emailHash = md5(email!.toLowerCase());
@@ -423,7 +442,7 @@ async function sendWelcomeMessageTo(userId: string) {
   }
   
   const subjectLine = welcomePost.title;
-  const welcomeMessageBody = welcomePost.contents.html;
+  const welcomeMessageBody = welcomePost.contents?.html ?? "";
   
   const conversationData = {
     participantIds: [user._id, adminsAccount._id],
@@ -475,4 +494,31 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
   }
   return data;
+});
+
+getCollectionHooks("Users").createAsync.add(({ document }) => {
+  if (!recombeeEnabledSetting.get()) return;
+
+  void recombeeApi.createUser(document)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending created user to recombee', { e }));
+});
+
+getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier, user: DbUser) {
+  for (const field of simpleUserProfileFields) {
+    if (
+      (field in modifier.$set && !isEqual(modifier.$set[field], user[field])) ||
+      (field in modifier.$unset && (user[field] !== null && user[field] !== undefined))
+    ) {
+      modifier.$set.profileUpdatedAt = new Date();
+      return modifier;
+    }
+  }
+  for (const field of editableUserProfileFields) {
+    if (field in modifier.$set && modifier.$set[field]?.html !== user[field]?.html) {
+      modifier.$set.profileUpdatedAt = new Date();
+      return modifier;
+    }
+  }
+  return modifier;
 });

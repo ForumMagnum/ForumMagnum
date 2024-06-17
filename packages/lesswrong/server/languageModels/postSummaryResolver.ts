@@ -6,7 +6,7 @@ import { languageModelGenerateText } from './languageModelIntegration';
 augmentFieldsDict(Posts, {
   languageModelSummary: {
     resolveAs: {
-      type: "String",
+      type: "String!",
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string> => {
         if (!post.contents?.originalContents) return "";
         const markdownPostBody = dataToMarkdown(post.contents?.originalContents?.data, post.contents?.originalContents?.type);

@@ -2,7 +2,7 @@ import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
-import { isClient, isServer, isDevelopment, isAnyTest } from './executionEnvironment';
+import { isClient, isServer, isDevelopment, isAnyTest, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
@@ -56,7 +56,12 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export function captureEvent(eventType: string, eventProps?: Record<string,any>, suppressConsoleLog = false) {
+export type EventProps = AnalyticsProps | Record<string, Json | undefined>;
+
+export function captureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
+  if (isE2E) {
+    return;
+  }
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
@@ -133,8 +138,10 @@ export type AnalyticsProps = {
   limit?: number,
   capturePostItemOnMount?: boolean,
   singleLineComment?: boolean,
+  feedType?: string,
   onsite?: boolean,
   terms?: PostsViewTerms,
+  viewType?: string,
   /** @deprecated Use `pageSectionContext` instead */
   listContext?: string,
   /** @deprecated Use `pageSectionContext` instead */
@@ -218,11 +225,11 @@ export const AnalyticsContext = ({children, ...props}: AnalyticsProps & {
 // value were set to {} in the usual way, it would be a new instance of {} each
 // time; this way, it's the same {}, which in turn matters for making
 // useCallback return the same thing each tie.
-const emptyEventProps = {} as any;
+const emptyEventProps: EventProps = {};
 
 export function useTracking({eventType="unnamed", eventProps=emptyEventProps}: {
   eventType?: string,
-  eventProps?: any,
+  eventProps?: EventProps,
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)
 
@@ -238,7 +245,12 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps}: {
 
 export const withTracking = hookToHoc(useTracking)
 
-export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
+export function useOnMountTracking<T extends EventProps>({
+  eventType="unnamed",
+  eventProps,
+  captureOnMount,
+  skip=false,
+}: {
   eventType?: string,
   eventProps?: T,
   captureOnMount?: boolean | ((eventProps: T) => boolean),
@@ -394,7 +406,7 @@ Globals.captureEvent = captureEvent;
 
 let pendingAnalyticsEvents: Array<any> = [];
 
-function flushClientEvents() {
+export function flushClientEvents() {
   if (!AnalyticsUtil.clientWriteEvents)
     return;
   if (!pendingAnalyticsEvents.length)

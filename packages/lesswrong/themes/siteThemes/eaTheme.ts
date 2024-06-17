@@ -123,12 +123,16 @@ export const eaForumTheme: SiteThemeSpecification = {
       fontFamily: serifStack
     }
     return {
+      zIndexes: {
+        searchResults: 1300,
+      },
       spacing: {
         mainLayoutPaddingTop: 20
       },
       borderRadius: {
         default: defaultBorderRadius,
         small: 4,
+        quickTakesEntry: defaultBorderRadius,
       },
       typography: {
         fontDownloads: [

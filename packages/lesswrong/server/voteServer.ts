@@ -25,6 +25,7 @@ import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
 import { isLWorAF } from '../lib/instanceSettings';
+import { swrInvalidatePostRoute } from './cache/swr';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -77,6 +78,9 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   );
   if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
     void elasticSyncDocument(collection.collectionName, newDocument._id);
+  }
+  if (collection.collectionName === "Posts") {
+    void swrInvalidatePostRoute(newDocument._id)
   }
   return {newDocument, vote};
 }
@@ -305,6 +309,8 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
       excludeLatest: true,
       context
     })
+
+    voteDocTuple.newDocument = document
     
     void voteCallbacks.castVoteAsync.runCallbacksAsync(
       [voteDocTuple, collection, user, context]
@@ -337,7 +343,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
 type Consequence = "warningPopup" | "denyThisVote" | "flagForModeration"
 
 interface VotingRateLimit {
-  voteCount: number
+  voteCount: number | ((postCommentCount: number|null) => number)
   /** If provided, periodInMinutes must be ≤ than 24 hours. At least one of periodInMinutes or allOnSamePost must be provided. */
   periodInMinutes: number|null,
   allOnSamePost?: true,
@@ -404,13 +410,13 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         message: "too many strong-votes in one hour",
       });
       rateLimits.push({
-        voteCount: 5,
+        voteCount: (postCommentCount: number|null) => 5 + Math.round((postCommentCount??0) * .05),
         periodInMinutes: null,
         allOnSamePost: true,
         types: "onlyStrong",
         users: "allUsers",
         consequences: ["denyThisVote"],
-        message: "You can only strong-vote on up to five comments per post",
+        message: "You can only strong-vote on up to (5+5%) of the comments on a post",
       });
     }
 
@@ -444,7 +450,7 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   // in the past 24 hours, or are on comments on the same post as this one
   const oneDayAgo = moment().subtract(1, 'days').toDate();
   const postId = (document as any)?.postId ?? null;
-  const [votesInLastDay, votesOnCommentsOnThisPost] = await Promise.all([
+  const [votesInLastDay, votesOnCommentsOnThisPost, postWithCommentCount] = await Promise.all([
     Votes.find({
       userId: user._id,
       authorIds: {$ne: user._id}, // Self-votes don't count
@@ -456,7 +462,12 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
       postId,
       excludedDocumentId: document._id
     }) : [],
+    postId ? await Posts.findOne({_id: postId}, {}, {commentCount: 1}) : null,
   ]);
+
+  // If this is a vote on a comment on a post, fetch the comment-count of that
+  // post to use for percentage-based rate limits.
+  const postCommentCount: number|null = postWithCommentCount?.commentCount ?? null;
   
   // Go through rate limits checking if each applies. If more than one rate
   // limit applies, we take the union of the consequences of exceeding all of
@@ -469,7 +480,10 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
       ? votesOnCommentsOnThisPost
       : votesInLastDay;
 
-    if (votesToConsider.length < rateLimit.voteCount) {
+    const limitVoteCount = (typeof rateLimit.voteCount==='function')
+      ? rateLimit.voteCount(postCommentCount)
+      : rateLimit.voteCount;
+    if (votesToConsider.length < limitVoteCount) {
       continue;
     }
     if (rateLimit.types === "onlyDown" && !voteTypeIsDown(voteType)) {
@@ -481,7 +495,7 @@ const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
 
     const numMatchingVotes = getRelevantVotes(rateLimit, document, votesToConsider).length;
     
-    if (numMatchingVotes >= rateLimit.voteCount) {
+    if (numMatchingVotes >= limitVoteCount) {
       if (!firstExceededRateLimit) {
         firstExceededRateLimit = rateLimit;
       }
@@ -569,6 +583,12 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
     {
       documentId: document._id,
       cancelled: false
+    }, {
+      // This sort order eventually winds up affecting the sort-order of
+      // users-who-reacted in the UI
+      sort: {
+        votedAt: 1
+      }
     }
   ).fetch() || [];
   

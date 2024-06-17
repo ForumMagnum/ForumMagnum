@@ -2,7 +2,7 @@ import { EditorContents, EditorTypeString, deserializeEditorContents, serializeE
 import { useLazyQuery, gql } from '@apollo/client';
 
 export function useConvertDocument({onCompleted}: {
-  onCompleted: (result: EditorContents)=>void,
+  onCompleted: (result: EditorContents) => void,
 }): {
   convertDocument: (contents: EditorContents, targetFormat: EditorTypeString) => void,
   loading: boolean,

@@ -32,6 +32,19 @@ export const apolloCacheVoteablePossibleTypes = () => {
   }
 }
 
+const currentUserVoteResolver = <N extends CollectionNameString>(
+  resolver: SqlResolverJoin<'Votes'>["resolver"],
+): SqlResolver<N> => ({field, currentUserField, join}) => join({
+  table: "Votes",
+  type: "left",
+  on: {
+    userId: currentUserField("_id"),
+    documentId: field("_id"),
+    cancelled: "FALSE",
+  },
+  resolver,
+});
+
 // options: {
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
@@ -59,8 +72,11 @@ export const makeVoteable = <N extends VoteableCollectionName>(
           const votes = await getCurrentUserVotes(document, context);
           if (!votes.length) return null;
           return votes[0].voteType ?? null;
-        }
-      }
+        },
+        sqlResolver: currentUserVoteResolver(
+          (votesField) => votesField("voteType"),
+        ),
+      },
     },
     
     currentUserExtendedVote: {
@@ -73,7 +89,10 @@ export const makeVoteable = <N extends VoteableCollectionName>(
           const votes = await getCurrentUserVotes(document, context);
           if (!votes.length) return null;
           return votes[0].extendedVoteType || null;
-        }
+        },
+        sqlResolver: currentUserVoteResolver(
+          (votesField) => votesField("extendedVoteType"),
+        ),
       },
     },
 

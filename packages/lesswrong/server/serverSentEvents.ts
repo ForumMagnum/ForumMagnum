@@ -25,7 +25,7 @@ export function addServerSentEventsEndpoint(app: Express) {
     const parsedUrl = new URL(req.url, getSiteUrl())
     const apiVersionStr = parsedUrl.searchParams.get("version") ?? "1";
     const apiVersion = parseInt(apiVersionStr);
-    const currentUser = await getUserFromReq(req)
+    const currentUser = getUserFromReq(req)
 
     // Can't subscribe to notifications if logged out
     if (!currentUser) {
@@ -77,8 +77,8 @@ export function addServerSentEventsEndpoint(app: Express) {
   });
   
   setInterval(checkForNotifications, 1000);
-  setInterval(checkForTypingIndicators, 1000);
   if (!isEAForum) {
+    setInterval(checkForTypingIndicators, 1000);
     setInterval(checkForActiveDialoguePartners, 1000);
   }
 }
@@ -200,7 +200,7 @@ async function checkForTypingIndicators() {
   for (let userId of Object.keys(results)) {
     if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
-        const message : TypingIndicatorMessage = {
+        const message: TypingIndicatorMessage = {
           eventType: "typingIndicator", 
           typingIndicators: results[userId],
         }
@@ -229,7 +229,7 @@ async function checkForActiveDialoguePartners() {
 
   const userIds = Object.keys(openConnections);
 
-  const activeDialogues:ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
+  const activeDialogues: ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
 
   const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
   for (let dialogue of activeDialogues) {

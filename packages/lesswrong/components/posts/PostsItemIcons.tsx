@@ -7,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   iconSet: {
     marginLeft: isFriendlyUI ? 6 : theme.spacing.unit,
     marginRight: isFriendlyUI ? 2 : theme.spacing.unit,
@@ -65,9 +65,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   dialogueIcon: {
     strokeWidth: isFriendlyUI ? "2px" : undefined,
   },
+  sparkleIcon: {
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+  },
 });
 
-export const CuratedIcon = ({hasColor, classes}:{
+export const CuratedIcon = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -88,10 +91,11 @@ export const CuratedIcon = ({hasColor, classes}:{
 const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
 
 
-const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
+const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon, showRecommendationIcon}: {
   post: PostsBase,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
+  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
@@ -130,13 +134,18 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
       </LWTooltip>
     </span>}
 
-    {!isAF && post.af &&
-      <span className={classes.postIcon}>
-        <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
-            <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
-        </LWTooltip>
-      </span>
-    }
+    {!isAF && post.af && <span className={classes.postIcon}>
+      <LWTooltip title={<div>Crossposted from AlignmentForum.org<div><em>(Click to visit AF version)</em></div></div>} placement="right">
+          <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
+      </LWTooltip>
+    </span>}
+  
+    {showRecommendationIcon && <span className={classes.postIcon}>
+      <LWTooltip title="Recommended algorithmically for you" placement="right">
+        <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.sparkleIcon)} />
+      </LWTooltip>
+    </span>}
+
   </span>
 }
 

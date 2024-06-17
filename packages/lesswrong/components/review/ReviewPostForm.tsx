@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ReviewPostForm = ({classes, post, onClose}: {
   classes: ClassesType,
   post: PostsBase,
-  onClose: ()=>void,
+  onClose: () => void,
 }) => {
   const { PopupCommentEditor } = Components;
   const [ showPrompt, setShowPrompt ] = useState(true)

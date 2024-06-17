@@ -1,6 +1,7 @@
 import { Tags } from './collection';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
+import { userIsAdminOrMod } from '../../vulcan-users';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
@@ -10,19 +11,30 @@ declare global {
     slug?: string
     tagFlagId?: string
     parentTagId?: string
+    tagIds?: string[]
   }
 }
 
-Tags.addDefaultView((terms: TagsViewTerms) => {
+/**
+ * Default view. When changing this, also update getViewableTagsSelector.
+ */
+Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
+  const currentUser = context?.currentUser ?? null;
+
   return {
     selector: {
-      deleted: false,
-      adminOnly: false,
-      wikiOnly: false
+      wikiOnly: false,
+      ...(!userIsAdminOrMod(currentUser) ? { deleted: false, adminOnly: false } : {}),
     },
   };
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1});
+
+Tags.addView("tagsByTagIds", (terms: TagsViewTerms) => {
+  return {
+    selector: {_id: {$in: terms.tagIds}}
+  };
+});
 
 Tags.addView('allTagsAlphabetical', (terms: TagsViewTerms) => {
   return {
@@ -134,8 +146,6 @@ Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
     },
   }
 });
-ensureIndex(Tags, {deleted: 1, core:1, name: 1});
-
 
 Tags.addView('newTags', (terms: TagsViewTerms) => {
   return {
@@ -151,7 +161,8 @@ ensureIndex(Tags, {deleted: 1, createdAt: 1});
 Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
   return {
     selector: {
-      needsReview: true
+      needsReview: true,
+      deleted: false
     },
     options: {
       sort: {

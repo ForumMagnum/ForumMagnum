@@ -1,6 +1,6 @@
 import moment from 'moment';
 import React, { useCallback, useMemo } from 'react';
-import { useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
@@ -9,13 +9,15 @@ import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotli
 export const DismissibleSpotlightItem = ({
   current,
   spotlight,
+  standaloneSection,
   className,
 }: {
   current?: boolean,
   spotlight?: SpotlightDisplay,
+  standaloneSection?: boolean
   className?: string,
 }) => {
-  const { SpotlightItem } = Components
+  const { SpotlightItem, SingleColumnSection } = Components
   const { captureEvent } = useTracking()
 
   const currentSpotlight = useCurrentFrontpageSpotlight({
@@ -40,12 +42,25 @@ export const DismissibleSpotlightItem = ({
   }, [setCookie, cookieName, displaySpotlight, captureEvent]);
 
   if (displaySpotlight && !isHidden) {
-    return <SpotlightItem
-      key={displaySpotlight._id}
-      spotlight={displaySpotlight}
-      hideBanner={hideBanner}
-      className={className}
-    />
+    const spotlightElement = (
+      <AnalyticsContext pageElementContext="spotlightItem">
+        <SpotlightItem
+          key={displaySpotlight._id}
+          spotlight={displaySpotlight}
+          hideBanner={hideBanner}
+          className={className}
+        />
+      </AnalyticsContext>
+    );
+
+    if (standaloneSection) {
+      return (
+        <SingleColumnSection>
+          {spotlightElement}
+        </SingleColumnSection>
+      );
+    }
+    return spotlightElement;
   }
   return null
 }

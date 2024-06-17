@@ -6,17 +6,19 @@ import { augmentFieldsDict } from '../../lib/utils/schemaUtils'
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sanitizeHtml, {IFrame} from 'sanitize-html';
-import { extractTableOfContents } from '../tableOfContents';
 import * as _ from 'underscore';
 import { dataToDraftJS } from './toDraft';
 import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { afterCreateRevisionCallback, buildRevision, getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
+import { afterCreateRevisionCallback, buildRevision } from '../editor/make_editable_callbacks';
 import isEqual from 'lodash/isEqual';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
+import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { parseDocumentFromString } from '../../lib/domParser';
+import { extractTableOfContents } from '../../lib/tableOfContents';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({
@@ -36,10 +38,11 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String',
-      resolver: ({originalContents}) => originalContents
+      resolver: ({originalContents}): string | null => originalContents
         ? dataToMarkdown(originalContents.data, originalContents.type)
         : null,
-    }
+    },
+    nullable: true,
   },
   draftJS: {
     type: Object,
@@ -63,22 +66,24 @@ augmentFieldsDict(Revisions, {
   htmlHighlight: {
     type: String,
     resolveAs: {
-      type: 'String',
-      resolver: ({html}) => highlightFromHTML(html)
+      type: 'String!',
+      resolver: ({html}): string => highlightFromHTML(html)
     }
   },
   htmlHighlightStartingAtHash: {
     type: String,
     resolveAs: {
-      type: 'String',
+      type: 'String!',
       arguments: 'hash: String',
       resolver: async (revision: DbRevision, args: {hash: string}, context: ResolverContext): Promise<string> => {
         const {hash} = args;
         const rawHtml = revision?.html;
+
+        if (!rawHtml) return '';
         
         // Process the HTML through the table of contents generator (which has
         // the byproduct of marking section headers with anchors)
-        const toc = extractTableOfContents(rawHtml);
+        const toc = extractTableOfContents(parseDocumentFromString(rawHtml));
         const html = toc?.html || rawHtml;
         
         if (!html) return '';
@@ -92,10 +97,10 @@ augmentFieldsDict(Revisions, {
   plaintextDescription: {
     type: String,
     resolveAs: {
-      type: 'String',
-      resolver: ({html}) => {
-        if (!html) return
-        const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
+      type: 'String!',
+      resolver: ({html}): string => {
+        if (!html) return ""
+        const truncatedHtml = truncate(html, PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
       }
     }
@@ -104,8 +109,8 @@ augmentFieldsDict(Revisions, {
   plaintextMainText: {
     type: String,
     resolveAs: {
-      type: 'String',
-      resolver: ({html}) => {
+      type: 'String!',
+      resolver: ({html}): string => {
         if (!html) return ""
 
         const mainTextHtml = sanitizeHtml(
@@ -158,6 +163,25 @@ defineQuery({
   },
 });
 
+defineQuery({
+  name: "latestGoogleDocMetadata",
+  resultType: "JSON",
+  argTypes: "(postId: String!, version: String)",
+  fn: async (root: void, { postId, version }: { postId: string; version?: string }, context: ResolverContext) => {
+    const query = {
+      documentId: postId,
+      googleDocMetadata: { $exists: true },
+      ...(version && { version: { $lte: version } }),
+    };
+    const latestRevisionWithMetadata = await Revisions.findOne(
+      query,
+      { sort: { editedAt: -1 } },
+      { googleDocMetadata: 1 }
+    );
+    return latestRevisionWithMetadata ? latestRevisionWithMetadata.googleDocMetadata : null;
+  },
+});
+
 defineMutation({
   name: "revertTagToRevision",
   resultType: "Tag",
@@ -174,7 +198,7 @@ defineMutation({
       getLatestRev(tagId, 'description')
     ]);
 
-    const anyDiff = !isEqual(tag.description.originalContents, revertToRevision.originalContents);
+    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
 
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
@@ -222,7 +246,7 @@ defineMutation({
 
     const [previousRev, html] = await Promise.all([
       getLatestRev(postId, postContentsFieldName),
-      dataToHTML(contents.value, contents.type, !currentUser.isAdmin)
+      dataToHTML(contents.value, contents.type, { sanitize: !currentUser.isAdmin })
     ]);
 
     const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);

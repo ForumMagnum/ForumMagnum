@@ -4,6 +4,7 @@ import * as _ from 'underscore';
 import rng from './seedrandom';
 import { CLIENT_ID_COOKIE } from './cookies/cookies';
 import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent';
+import { randomId } from './random';
 
 //
 // A/B tests. Each A/B test has a name (which should be unique across all A/B
@@ -60,7 +61,12 @@ type ABTestGroup = {
 }
 
 type ABKeyInfo = {
-  clientId: string
+  /**
+   * clientId can now be undefined on the server, in the case where a new user's first request is
+   * to a cache friendly page (we can't add a "set-cookie" to the response, so it is generated as
+   * soon as the client initialises instead)
+   */
+  clientId?: string
 } | {
   user: DbUser | UsersCurrent
 }
@@ -82,7 +88,7 @@ export class ABTest<T extends string = string> {
   }) {
     const totalWeight = _.reduce(
       Object.keys(groups),
-      (sum:number, key:T) => sum+groups[key].weight,
+      (sum: number, key: T) => sum+groups[key].weight,
       0
     );
     if (totalWeight === 0) {
@@ -131,7 +137,7 @@ export function getABTestsMetadata(): Record<string,ABTest> {
   return allABTests;
 }
 
-export function getUserABTestKey(abKeyInfo: ABKeyInfo): string {
+export function getUserABTestKey(abKeyInfo: ABKeyInfo): string | undefined {
   if ('user' in abKeyInfo) {
     return abKeyInfo.user.abTestKey;
   } else {
@@ -150,7 +156,8 @@ export function getUserABTestGroup<Groups extends string>(abKeyInfo: ABKeyInfo, 
   if ('user' in abKeyInfo && abKeyInfo.user.abTestOverrides && abKeyInfo.user.abTestOverrides[abTest.name]) {
     return abKeyInfo.user.abTestOverrides[abTest.name];
   } else {
-    return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey}`);
+    // In the case where abTestKey is undefined, fall back to a random ID to preserve the group weightings
+    return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey ?? randomId()}`);
   }
 }
 
@@ -166,7 +173,7 @@ function weightedRandomPick<T extends string>(options: Record<T,number>, seed: s
   const weights = _.values(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");
-  const totalWeight: number = _.reduce(weights, (x:number, y:number) => x+y);
+  const totalWeight: number = _.reduce(weights, (x: number, y: number) => x+y);
   const randomRangeValue = totalWeight*rng(seed).double();
   
   let i=0;
@@ -203,7 +210,7 @@ export function useABTestProperties(abtest: ABTest): ABTestGroup {
 // A logged-out user's client ID determines which A/B test groups they are in.
 // A logged-in user has their A/B test groups determined by the client ID they
 // had when they created their account.
-export function useClientId(): string {
+export function useClientId(): string | undefined {
   const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
   return cookies[CLIENT_ID_COOKIE];
 }

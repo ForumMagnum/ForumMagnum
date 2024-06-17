@@ -35,7 +35,7 @@ export function getModeratorRateLimit(userId: string) {
     sort: {
       createdAt: -1
     }
-  }) as Promise<DbModeratorAction & {type:PostAndCommentRateLimitTypes} | null>
+  }) as Promise<DbModeratorAction & {type: PostAndCommentRateLimitTypes} | null>
 }
 
 export function getAverageContentKarma(content: VoteableType[]) {

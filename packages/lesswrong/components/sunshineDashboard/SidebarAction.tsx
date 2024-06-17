@@ -33,7 +33,7 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   classes: ClassesType,
   title: string,
   warningHighlight?: boolean,
-  onClick: ()=>void,
+  onClick: () => void,
 }) => {
   const { LWTooltip } = Components
   return <LWTooltip title={title} placement="bottom">

@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-export const ReviewsPage = ({classes}:{classes: ClassesType}) => {
+export const ReviewsPage = ({classes}: {classes: ClassesType}) => {
   const { SingleColumnSection, ReviewsList } = Components
 
   const { params } = useLocation()

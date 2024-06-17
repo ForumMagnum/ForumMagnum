@@ -40,7 +40,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
 
 const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   collectionName, fieldName,
-  getKey = ((a:any)=>a)
+  getKey = ((a: any)=>a)
 }: {
   collectionName: CollectionName,
   fieldName: string,
@@ -107,17 +107,29 @@ export const accessFilterMultiple = async <N extends CollectionNameString>(
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
- * 
- * @param {Object=} params
- * @param {boolean} params.nullable
- * whether the resolver field is nullable, not the original database field
  */
-export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
+export const foreignKeyField = <CollectionName extends CollectionNameString>({
+  idFieldName,
+  resolverName,
+  collectionName,
+  type,
+  nullable=true,
+  autoJoin=false,
+}: {
   idFieldName: string,
   resolverName: string,
   collectionName: CollectionName,
   type: string,
+  /** whether the resolver field is nullable, not the original database field */
   nullable?: boolean,
+  /**
+   * If set, auto-generated SQL queries will contain a join to fetch the object
+   * this refers to. This saves a query and a DB round trip, but means that if
+   * two objects contain the same foreign-key ID and fetch the same object, the
+   * SQL result set will contain two copies. This is typically a good trade on
+   * relations where every one is going to be unique, such as currentUserVote.
+   */
+  autoJoin?: boolean,
 }) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -133,6 +145,20 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
         fieldName: idFieldName,
         nullable,
       }),
+      // Currently `sqlResolver`s are only used by the default resolvers which
+      // handle permissions checks automatically. If we ever expand this system
+      // to make SQL resolvers useable by arbitrary resolvers then we (probably)
+      // need to add some permission checks here somehow.
+      ...(autoJoin ? {
+        sqlResolver: ({field, join}: SqlResolverArgs<CollectionName>) => join<HasIdCollectionNames>({
+          table: collectionName,
+          type: nullable ? "left" : "inner",
+          on: {
+            _id: field(idFieldName as FieldName<CollectionName>),
+          },
+          resolver: (foreignField) => foreignField("*"),
+        })
+      } : {}),
       addOriginalField: true,
     },
   }
@@ -143,7 +169,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   resolverName: string,
   collectionName: CollectionName,
   type: string,
-  getKey?: (key: any)=>string,
+  getKey?: (key: any) => string,
 }) {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -185,6 +211,8 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   resolver: (doc: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver<N>,
+  sqlPostProcess?: SqlPostProcess<N>,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
@@ -197,19 +225,23 @@ export const resolverOnlyField = <N extends CollectionNameString>({
   type,
   graphQLtype=null,
   resolver,
+  sqlResolver,
+  sqlPostProcess,
   graphqlArguments=null,
   ...rest
 }: ResolverOnlyFieldArgs<N>): CollectionFieldSpecification<N> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
-    throw new Error("Could not determine resolver graphQL type");
+    throw new Error("Could not determine resolver graphQL type:" + type + ' ' + graphQLtype);
   return {
     type: type,
     optional: true,
     resolveAs: {
       type: resolverType,
       arguments: graphqlArguments,
-      resolver: resolver,
+      resolver,
+      sqlResolver,
+      sqlPostProcess,
     },
     ...rest
   }
@@ -318,7 +350,7 @@ export function denormalizedCountOfReferences<
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
   foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
-  filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName])=>boolean,
+  filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName]) => boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
   const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
 

@@ -12,7 +12,15 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../instanceSettings';
+import {
+  fmCrosspostBaseUrlSetting,
+  fmCrosspostSiteNameSetting,
+  forumTypeSetting,
+  isEAForum,
+  isLWorAF,
+  requireReviewToFrontpagePostsSetting,
+  reviewUserBotSetting,
+} from '../../instanceSettings'
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
@@ -21,10 +29,18 @@ import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
-import { crosspostKarmaThreshold } from '../../publicSettings';
+import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import SideCommentCaches from '../sideCommentCaches/collection';
+import { hasSideComments } from '../../betas';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
+import { stableSortTags } from '../tags/helpers';
+
+// TODO: This disagrees with the value used for the book progress bar
+export const READ_WORDS_PER_MINUTE = 250;
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -37,7 +53,7 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-function getDefaultVotingSystem() {
+export function getDefaultVotingSystem() {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
@@ -129,7 +145,7 @@ const eaFrontpageDateDefault = (
 export const sideCommentCacheVersion = 1;
 export interface SideCommentsCache {
   version: number,
-  generatedAt: Date,
+  createdAt: Date,
   annotatedHtml: string
   commentsByBlock: Record<string,string[]>
 }
@@ -446,9 +462,10 @@ const schema: SchemaType<"Posts"> = {
   }),
 
   pageUrl: resolverOnlyField({
-    type: String,
+    type: 'String',
+    graphQLtype: 'String!',
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, true),
+    resolver: (post: DbPost, args: void, context: ResolverContext): string => postGetPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
@@ -534,15 +551,20 @@ const schema: SchemaType<"Posts"> = {
     tooltip: 'By default, this is calculated from the word count. Enter a value to override.',
   },
   readTimeMinutes: resolverOnlyField({
+    graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost) =>
+    resolver: ({readTimeMinutesOverride, contents}: DbPost): number =>
       Math.max(
         1,
         Math.round(typeof readTimeMinutesOverride === "number"
           ? readTimeMinutesOverride
-          : (contents?.wordCount ?? 0) / 250)
+          : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
       ),
+    sqlResolver: ({field}) => `GREATEST(1, ROUND(COALESCE(
+      ${field("readTimeMinutesOverride")},
+      (${field("contents")}->'wordCount')::INTEGER
+    ) / ${READ_WORDS_PER_MINUTE}))`,
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
@@ -752,6 +774,34 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
   },
 
+  manifoldReviewMarketId: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
+  },
+
+  annualReviewMarketCommentId: {
+    ...foreignKeyField({
+      idFieldName: 'annualReviewMarketCommentId',
+      resolverName: 'annualReviewMarketComment',
+      collectionName: 'Comments',
+      type: 'Comment',
+      nullable: true
+    }),
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
@@ -858,6 +908,32 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
 
+
+  annualReviewMarketProbability: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketIsResolved: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketYear: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+
   lastCommentPromotedAt: {
     type: Date,
     optional: true,
@@ -884,7 +960,16 @@ const schema: SchemaType<"Posts"> = {
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
-    }
+    },
+    sqlResolver: ({field, resolverArg, join}) => join({
+      table: "TagRels",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        tagId: resolverArg("tagId"),
+      },
+      resolver: (tagRelField) => tagRelField("*"),
+    }),
   }),
 
   tags: resolverOnlyField({
@@ -893,10 +978,19 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
-      const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
-      const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
-      const tags = await loadByIds(context, "Tags", tagIds);
-      return await accessFilterMultiple(currentUser, context.Tags, tags, context)
+      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {};
+      const tagIds = Object.keys(tagRelevanceRecord).filter(id => tagRelevanceRecord[id] > 0);
+      const tags = (await loadByIds(context, "Tags", tagIds)).filter(tag => !!tag) as DbTag[];
+
+      const tagInfo = tags.map(tag => ({
+        tag: tag,
+        tagRel: { baseScore: tagRelevanceRecord[tag._id] } as TagRelMinimumFragment
+      }));
+      const sortedTagInfo = stableSortTags(tagInfo);
+
+      const sortedTags = sortedTagInfo.map(({ tag }) => tag);
+
+      return await accessFilterMultiple(currentUser, context.Tags, sortedTags, context);
     }
   }),
   
@@ -1047,6 +1141,9 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "ReviewVote",
     canRead: ['members'],
     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
+      if (!isLWorAF) {
+        return null;
+      }
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1059,9 +1156,40 @@ const schema: SchemaType<"Posts"> = {
       if (!votes.length) return null;
       const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
       return vote;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReviewVotes",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (reviewVotesField) => reviewVotesField("*"),
+    }),
   }),
-  
+
+  reviewWinner: resolverOnlyField({
+    type: "ReviewWinner",
+    graphQLtype: "ReviewWinner",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!isLWorAF) {
+        return null;
+      }
+      const { currentUser, ReviewWinners } = context;
+      const winner = await getPostReviewWinnerInfo(post._id, context);
+      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "ReviewWinners",
+      type: "left",
+      on: {
+        postId: field("_id"),
+      },
+      resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,
@@ -1070,7 +1198,7 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
     control: "select",
     form: {
-      options: ({currentUser}:{currentUser: UsersCurrent}) => {
+      options: ({currentUser}: {currentUser: UsersCurrent}) => {
         const votingSystems = getVotingSystems()
         const filteredVotingSystems = currentUser.isAdmin ? votingSystems : votingSystems.filter(votingSystem => votingSystem.userCanActivate)
         return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
@@ -1086,8 +1214,9 @@ const schema: SchemaType<"Posts"> = {
   },
   myEditorAccess: resolverOnlyField({
     type: String,
+    graphQLtype: 'String!',
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string> => {
       // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
       // Since the post at this point is already filtered by fields that this user has access, we have to grab
       // an unfiltered version of the post from cache
@@ -1106,7 +1235,8 @@ const schema: SchemaType<"Posts"> = {
       resolverName: 'podcastEpisode',
       collectionName: 'PodcastEpisodes',
       type: 'PodcastEpisode',
-      nullable: true
+      nullable: true,
+      autoJoin: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -1205,16 +1335,34 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.lastUpdated;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `${readStatusField("lastUpdated")}`,
+    }),
   }),
-  
+
   isRead: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.isRead;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `${readStatusField("isRead")} IS TRUE`,
+    }),
   }),
 
   // curatedDate: Date at which the post was promoted to curated (null or false
@@ -1249,7 +1397,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
     optional: true,
     label: "Suggested for Curated by",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.adminOptions,
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
@@ -1272,6 +1420,11 @@ const schema: SchemaType<"Posts"> = {
           return null
         }
       },
+      sqlResolver: ({field}) => `(
+        SELECT ARRAY_AGG(u."displayName")
+        FROM UNNEST(${field("suggestForCuratedUserIds")}) AS "ids"
+        JOIN "Users" u ON u."_id" = "ids"
+      )`,
       addOriginalField: true,
     }
   },
@@ -1291,7 +1444,7 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['members'],
     optional: true,
     hidden: true,
-    ...(isEAForum && {
+    ...(!requireReviewToFrontpagePostsSetting.get() && {
       onInsert: ({isEvent, submitToFrontpage, draft}) => eaFrontpageDateDefault(
         isEvent,
         submitToFrontpage,
@@ -1873,7 +2026,7 @@ const schema: SchemaType<"Posts"> = {
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
-    // control: "FormUsersListEditor",
+    // control: "FormUserMultiselect",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1914,7 +2067,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.event,
   },
 
@@ -2258,7 +2411,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2355,17 +2508,42 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
-  
-  // sideCommentsCache: Stores the matching between comments on a post,
-  // and paragraph IDs within the post. Invalid if the cache-generation
-  // time is older than when the post was last modified (modifiedAt) or
-  // commented on (lastCommentedAt).
-  // SideCommentsCache
-  sideCommentsCache: {
-    type: Object,
-    canRead: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
-    optional: true, nullable: true, hidden: true,
-  },
+
+  /**
+   * Resolver to fetch the relevant data from the side comment caches table.
+   * This data isn't directly viewable on the client, which instead uses the
+   * data generated by the resolver for the `sideComments` field above. The
+   * permissions here allow anybody to read this field (which is needed to
+   * make this data accessible in the resolver) but the sqlPostProcess function
+   * always sets the result to null to avoid sending large amounts of duplicated
+   * data to the client (the data isn't sensitive though - just large).
+   */
+  sideCommentsCache: resolverOnlyField({
+    type: "SideCommentCache",
+    graphQLtype: "SideCommentCache",
+    canRead: ["guests"],
+    resolver: ({_id}: DbPost) => {
+      if (!hasSideComments) {
+        return null;
+      }
+      return SideCommentCaches.findOne({
+        postId: _id,
+        version: sideCommentCacheVersion,
+      });
+    },
+    ...(hasSideComments && {
+      sqlResolver: ({field, join}) => join({
+        table: "SideCommentCaches",
+        type: "left",
+        on: {
+          postId: field("_id"),
+          version: `${sideCommentCacheVersion}`,
+        },
+        resolver: (sideCommentsField) => sideCommentsField("*"),
+      }),
+      sqlPostProcess: () => null,
+    }),
+  }),
   
   // This is basically deprecated. We now have them enabled by default
   // for all users. Leaving this field for legacy reasons.
@@ -2391,39 +2569,6 @@ const schema: SchemaType<"Posts"> = {
     },
   },
 
-  // GraphQL only field that resolves based on whether the current user has closed
-  // this posts author's moderation guidelines in the past
-  showModerationGuidelines: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    hidden: ({document}) => !!document?.collabEditorDialogue,
-    resolveAs: {
-      type: 'Boolean',
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
-        const { LWEvents, currentUser } = context;
-        if(currentUser){
-          const query = {
-            name:'toggled-user-moderation-guidelines',
-            documentId: post.userId,
-            userId: currentUser._id
-          }
-          const sort = {sort:{createdAt:-1}}
-          const event = await LWEvents.findOne(query, sort);
-          const author = await context.loaders.Users.load(post.userId);
-          if (event) {
-            return !!(event.properties && event.properties.targetState)
-          } else {
-            return !!(author?.collapseModerationGuidelines ? false : ((post.moderationGuidelines && post.moderationGuidelines.html) || post.moderationStyle))
-          }
-        } else {
-          return false
-        }
-      },
-      addOriginalField: false
-    }
-  },
-
   moderationStyle: {
     type: String,
     optional: true,
@@ -2435,7 +2580,7 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
-    hidden: ({document}) => !!document?.collabEditorDialogue,
+    hidden: ({document}) => isFriendlyUI || !!document?.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2512,7 +2657,9 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: {commentsLimit?: number|null, maxAgeHours?: number, af?: boolean}, context: ResolverContext) => {
       const { commentsLimit, maxAgeHours=18, af=false } = args;
       const { currentUser, Comments } = context;
-      const timeCutoff = moment(post.lastCommentedAt).subtract(maxAgeHours, 'hours').toDate();
+      const oneHourInMs = 60*60*1000;
+      const lastCommentedOrNow = post.lastCommentedAt ?? new Date();
+      const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours*oneHourInMs));
       const loaderName = af?"recentCommentsAf" : "recentComments";
       const filter: MongoSelector<DbComment> = {
         ...getDefaultViewSelector("Comments"),
@@ -2520,6 +2667,7 @@ const schema: SchemaType<"Posts"> = {
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
         ...(af ? {af:true} : {}),
+        ...(isLWorAF ? {userId: {$ne: reviewUserBotSetting.get()}} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
         return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);
@@ -2695,12 +2843,20 @@ const schema: SchemaType<"Posts"> = {
 
       if (!firstComment) return null;
 
-      return firstComment.contents.html;
+      return firstComment.contents?.html;
     }
   }),
 
   dialogueMessageContents: {
     type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
+  
+  firstVideoAttribsForPreview: {
+    type: GraphQLJSON,
     canRead: ['guests'],
     hidden: true,
     optional: true
@@ -2810,7 +2966,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.adminOptions,
   },
   'suggestForAlignmentUserIds.$': {
@@ -2837,6 +2993,21 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  /**
+   * @deprecated Remove after 2024-06-14
+   */
+  swrCachingEnabled: {
+    type: Boolean,
+    optional: true,
+    nullable: false,
+    canRead: ['admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    label: "stale-while-revalidate caching enabled",
+    group: formGroups.adminOptions,
+    ...schemaDefaultValue(false),
+  }
 };
 
 export default schema;

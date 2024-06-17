@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { CSSProperties, FC, PropsWithChildren } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -9,8 +9,11 @@ import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/con
 import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
@@ -36,11 +39,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: 2,
+    paddingLeft: isFriendlyUI ? 2 : undefined,
     paddingRight: isFriendlyUI ? 8 : 10,
     position: "relative",
     top: 2,
-    color: theme.palette.icon[isFriendlyUI ? "dim4" : "slightlyDim3"],
+    color: theme.palette.icon["dim4"],
   },
   stickyIcon: isFriendlyUI
     ? {
@@ -101,7 +104,29 @@ const styles = (theme: ThemeType): JssStyles => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-})
+  eventTag: {
+    ...tagStyle(theme),
+    ...smallTagTextStyle(theme),
+    display: "inline-flex",
+    alignItems: "center",
+    marginLeft: 10,
+    padding: "0 6px",
+    height: 20,
+    border: "none",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-foreground)"
+      : "var(--post-title-tag-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-background)"
+      : "var(--post-title-tag-foreground)",
+    "&:hover": {
+      opacity: 0.9,
+    },
+  },
+  highlightedTagTooltip: {
+    marginTop: -2,
+  },
+});
 
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
@@ -119,12 +144,11 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const DefaultWrapper: FC = ({children}) => <>{children}</>;
+const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
 const PostsTitle = ({
   post, 
   postLink, 
-  classes, 
   sticky, 
   read, 
   showPersonalIcon=true, 
@@ -134,13 +158,15 @@ const PostsTitle = ({
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
+  showRecommendationIcon=false,
   Wrapper=DefaultWrapper,
+  showEventTag,
   linkEventProps,
   className,
-}:{
+  classes,
+}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
-  classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showPersonalIcon?: boolean
@@ -150,13 +176,17 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
-  Wrapper?: FC,
+  showRecommendationIcon?: boolean
+  Wrapper?: FC<PropsWithChildren<{}>>,
+  showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
-  className?: string
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const { PostsItemIcons, CuratedIcon, ForumIcon } = Components
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
+  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
@@ -179,17 +209,17 @@ const PostsTitle = ({
     {shared && <span className={classes.tag}>[Shared]</span>}
     {post.isEvent && shouldRenderEventsTag && <span className={classes.tag}>[Event]</span>}
 
-    <span className={classNames({[classes.read]: read && isFriendlyUI})}>
-      <Wrapper>{post.title}</Wrapper>
-    </span>
+    <Wrapper>{post.title}</Wrapper>
   </span>
 
   return (
-    <span className={classNames(classes.root, {
-      [classes.read]: read && !isFriendlyUI,
-      [classes.wrap]: wrap,
-      [classes.strikethroughTitle]: strikethroughTitle
-    }, className)}>
+    <span className={classNames(
+      classes.root,
+      read && classes.read,
+      wrap && classes.wrap,
+      strikethroughTitle && classes.strikethroughTitle,
+      className,
+    )}>
       {showIcons && curatedIconLeft && post.curatedDate && <span className={classes.leftCurated}>
         <InteractionWrapper className={classes.interactionWrapper}>
           <CuratedIcon hasColor />
@@ -200,12 +230,36 @@ const PostsTitle = ({
       </span>
       {showIcons && <span className={classes.hideXsDown}>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
+          <PostsItemIcons 
+            post={post} 
+            hideCuratedIcon={curatedIconLeft} 
+            hidePersonalIcon={!showPersonalIcon}
+            showRecommendationIcon={showRecommendationIcon}
+          />
         </InteractionWrapper>
       </span>}
+      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <TagsTooltip
+            tagSlug={currentForumEvent.tag.slug}
+            className={classes.highlightedTagTooltip}
+          >
+            <Link to={tagGetUrl(currentForumEvent.tag)}>
+              <span
+                className={classes.eventTag}
+                style={{
+                  "--post-title-tag-background": currentForumEvent.lightColor,
+                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                } as CSSProperties}
+              >
+                {currentForumEvent.tag.name}
+              </span>
+            </Link>
+          </TagsTooltip>
+        </InteractionWrapper>
+      }
     </span>
   )
-
 }
 
 const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});

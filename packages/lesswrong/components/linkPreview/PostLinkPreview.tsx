@@ -10,7 +10,6 @@ import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
-import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 let missingLinkPreviewsLogged = new Set<string>();
@@ -331,9 +330,8 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
   href: string,
   children: ReactNode,
 }) => {
-  const { LWPopper, SequencesHoverOver } = Components
+  const {SequencesTooltip} = Components;
   const sequenceId = targetLocation.params._id;
-  const { eventHandlers, anchorEl, hover } = useHover();
 
   const { document: sequence, loading } = useSingle({
     documentId: sequenceId,
@@ -342,26 +340,22 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
     fetchPolicy: 'cache-then-network' as any,
     allowNull: true,
   });
-  
+
   if (!sequence && !loading) {
     logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}`);
   }
 
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <SequencesHoverOver sequence={sequence || null} />
-      </LWPopper>
+    <SequencesTooltip
+      sequence={sequence ?? null}
+      placement="bottom-start"
+      allowOverflow
+    >
       <Link className={classes.link} to={href} id={sequenceId}>
         {children}
       </Link>
-    </span>
-  )
+    </SequencesTooltip>
+  );
 }
 
 const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
@@ -394,10 +388,12 @@ const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
 }) => {
   const { LWPopper } = Components
   const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "linkPreview",
-    hoverPreviewType: "DefaultPreview",
-    href,
-    onsite
+    eventProps: {
+      pageElementContext: "linkPreview",
+      hoverPreviewType: "DefaultPreview",
+      href,
+      onsite,
+    },
   });
   return (
     <span {...eventHandlers}>

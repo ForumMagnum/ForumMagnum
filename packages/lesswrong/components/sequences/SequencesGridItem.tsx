@@ -1,10 +1,12 @@
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
-import NoSSR from 'react-no-ssr';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { defaultSequenceBannerIdSetting } from './SequencesPage';
+import { isLWorAF } from '../../lib/instanceSettings';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -127,23 +129,34 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   classes: ClassesType,
   bookItemStyle?: boolean
 }) => {
-  const { LinkCard, SequencesHoverOver } = Components;
+  const { LinkCard, SequencesSummary } = Components;
 
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20
   if (sequence.title.length > 26) positionAdjustment -= 17
+  
+  let imageId: string|null = sequence.gridImageId
+  if (!imageId) {
+    // LW falls back to a specific image.
+    // Other sites fall back first to the sequence banner image, and otherwise to their own site-specific image
+    imageId = isLWorAF ? "sequences/vnyzzznenju0hzdv6pqb.jpg" : (sequence.bannerImageId || defaultSequenceBannerIdSetting.get())
+  }
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
-    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={<div style={{marginTop:positionAdjustment}}><SequencesHoverOver sequence={sequence} showAuthor={showAuthor}/></div>}>
+    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={
+      <div style={{marginTop:positionAdjustment}}>
+        <SequencesSummary sequence={sequence} showAuthor={showAuthor}/>
+      </div>
+    }>
       <div className={classes.image}>
-        <NoSSR>
-          <Components.CloudinaryImage
-            publicId={sequence.gridImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+        <ForumNoSSR>
+          {imageId && <Components.CloudinaryImage
+            publicId={imageId}
             height={124}
             width={315}
-          />
-        </NoSSR>
+          />}
+        </ForumNoSSR>
       </div>
       <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
         <div className={classes.title}>

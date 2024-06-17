@@ -8,6 +8,9 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
+import { isEAForum } from "../../lib/instanceSettings";
+import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -28,12 +31,23 @@ const styles = (theme: ThemeType) => ({
   },
   list: {
     marginTop: 4,
+    ...(isFriendlyUI ? {} : {
+      display: "flex",
+      flexDirection: "column",
+      gap: "4px",  
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: '1.16rem',
+    })
   },
 });
 
 const QuickTakesSection = ({classes}: {
   classes: ClassesType,
 }) => {
+  const {
+    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
+  } = Components;
+
   const currentUser = useCurrentUser();
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -59,48 +73,62 @@ const QuickTakesSection = ({classes}: {
     forceSetCookieIfUndefined: true,
   });
 
-  const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
-  } = Components;
+  const titleText = preferredHeadingCase("Quick Takes");
+  const titleTooltip = (
+    <div>
+      A feed of quick takes by other users, sorted by recency.
+    </div>
+  );
+  const title = isFriendlyUI
+    ? titleText
+    : (<>
+        <LWTooltip title={titleTooltip} placement="left">
+          <Link to={"/quicktakes"}>{titleText}</Link>
+        </LWTooltip>
+      </>);
+
+  const afterTitleTo = isFriendlyUI ? "/quicktakes" : undefined;
+
+  const AfterTitleComponent = isEAForum 
+    ? () => (
+      <LWTooltip
+        title='Show quick takes tagged "Community"'
+        placement="left"
+        hideOnTouchScreens
+      >
+        <div className={classes.communityToggle} onClick={toggleShowCommunity}>
+          <Checkbox checked={showCommunity} />
+          <span>Show community</span>
+        </div>
+      </LWTooltip>
+    )
+  : undefined;
+
   return (
     <ExpandableSection
       pageSectionContext="quickTakesSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
-      title="Quick takes"
-      afterTitleTo="/quicktakes"
-      AfterTitleComponent={() => (
-        <LWTooltip
-          title='Show quick takes tagged "Community"'
-          placement="left"
-          hideOnTouchScreens
-        >
-          <div className={classes.communityToggle}>
-            <Checkbox checked={showCommunity} onChange={toggleShowCommunity} />
-            <span onClick={toggleShowCommunity}>Show community</span>
-          </div>
-        </LWTooltip>
-      )}
-      Content={() => (
-        <>
-          {userCanComment(currentUser) &&
-            <QuickTakesEntry currentUser={currentUser} />
-          }
-          <QuickTakesList
-            showCommunity={showCommunity}
-            className={classes.list}
-          />
-        </>
-      )}
-    />
+      title={title}
+      afterTitleTo={afterTitleTo}
+      AfterTitleComponent={AfterTitleComponent}
+    >
+      {userCanComment(currentUser) &&
+        <QuickTakesEntry currentUser={currentUser} />
+      }
+      
+      <QuickTakesList
+        showCommunity={showCommunity}
+        className={classes.list}
+      />
+    </ExpandableSection>
   );
 }
 
-const QuickTakesSectionComponent = registerComponent(
-  "QuickTakesSection",
-  QuickTakesSection,
-  {styles},
-);
+const QuickTakesSectionComponent = registerComponent("QuickTakesSection", QuickTakesSection, {
+  styles,
+  areEqual: "auto"
+});
 
 declare global {
   interface ComponentTypes {

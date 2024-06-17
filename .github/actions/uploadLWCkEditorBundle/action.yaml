@@ -1,0 +1,29 @@
+name: 'Upload ckEditor bundle'
+description: 'Upload ckEditor bundle'
+inputs:
+  mode:
+    description: 'Migrations mode: one of dev or prod'
+    required: true
+  credentials-repo:
+    description: 'Github credentials repo name'
+    required: true
+  credentials-pat:
+    description: 'Github personal access token for credentials repo'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+
+    - name: Clone credentials
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ inputs.credentials-repo }}
+        path: LessWrong-Credentials
+        token: ${{ inputs.credentials-pat }}
+        persist-credentials: false
+
+    - name: Upload ckEditor bundle
+      shell: bash
+      run: yarn upload-ckeditor-bundle ${{ inputs.mode }} lw

@@ -25,8 +25,8 @@ type WithMessagesMessage = string|{id?: string, properties?: any, messageString?
 
 interface WithMessagesProps {
   messages: Array<WithMessagesMessage>,
-  flash: (message: WithMessagesMessage)=>void,
-  clear: ()=>void,
+  flash: (message: WithMessagesMessage) => void,
+  clear: () => void,
 }
 
 interface WithUserProps {

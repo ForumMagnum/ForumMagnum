@@ -3,7 +3,6 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
 import { encode } from 'querystring'
-import { onStartup } from '../../lib/executionEnvironment';
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
@@ -81,7 +80,7 @@ export async function getPredictionsFromElicit(questionId: string): Promise<null
   return JSON.parse(responseText)
 }
 
-export async function getPredictionDataFromElicit(questionId:string) {
+export async function getPredictionDataFromElicit(questionId: string) {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?${encode({
     "binaryQuestion.fields":"notes,resolvesBy,resolution,title"
   })}`, {
@@ -189,7 +188,7 @@ async function getLocalElicitQuestionWithPredictions(questionId: string): Promis
   };
 }
 
-onStartup(() => {
+export function addElicitResolvers() {
   if (elicitAPIKey.get()) {
     const elicitPredictionResolver = {
       ElicitUser: {
@@ -231,4 +230,4 @@ onStartup(() => {
     addGraphQLQuery('ElicitBlockData(questionId: String): ElicitBlockData');
     addGraphQLMutation('MakeElicitPrediction(questionId: String, prediction: Int): ElicitBlockData');
   }
-})
+}

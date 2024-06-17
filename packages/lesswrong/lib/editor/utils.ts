@@ -6,7 +6,7 @@ export function parseSemver(semver: string) {
   return semver.split(".").map((n) => parseInt(n, 10))
 }
 
-export function extractVersionsFromSemver(semver: string) {
+export function extractVersionsFromSemver(semver: string | null) {
   semver = semver || "1.0.0"
   const [major, minor, patch] = parseSemver(semver);
   return { major, minor, patch }

@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, PropsWithChildren } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
@@ -96,7 +96,7 @@ const PostsPageRecommendationItem = ({
     PostActionsButton,
   } = Components;
 
-  const TitleWrapper: FC = ({children}) => (
+  const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
     <PostsItemTooltipWrapper post={post} As="span">
       <Link to={postLink}>{children}</Link>
     </PostsItemTooltipWrapper>

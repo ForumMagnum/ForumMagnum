@@ -7,7 +7,7 @@ import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
-import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
+import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PostNominatedEmail';
@@ -37,12 +37,14 @@ import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
+import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from './curationEmails/cron';
+import { useCurationEmailsCron } from '../lib/betas';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
-export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
+export const postPublishedCallback = new CallbackHook<[DbPost, ResolverContext]>("post.published");
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
@@ -52,31 +54,6 @@ const removeNotification = async (notificationId: string) => {
     validate: false
   })
 }
-
-const sendPostByEmail = async ({users, postId, reason, subject}: {
-  users: Array<DbUser>,
-  postId: string,
-  reason: string,
-  
-  // Subject line to use in the email. If omitted, uses the post title.
-  subject?: string,
-}) => {
-  let post = await Posts.findOne(postId);
-  if (!post) throw Error(`Can't find post to send by email: ${postId}`)
-  for(let user of users) {
-    if(!reasonUserCantReceiveEmails(user)) {
-      await wrapAndSendEmail({
-        user,
-        subject: subject ?? post.title,
-        body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
-      });
-    } else {
-      //eslint-disable-next-line no-console
-      console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);
-    }
-  }
-}
-
 
 // Add notification callback when a post is approved
 getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsyncCallbacks(post, oldPost) {
@@ -351,7 +328,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
     postNotifications.forEach(notification => removeNotification(notification._id))
-    // delete tagRel notifications
+    // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
@@ -359,29 +336,6 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
     })
   }
 });
-
-async function findUsersToEmail(filter: MongoSelector<DbUser>) {
-  let usersMatchingFilter = await Users.find(filter).fetch();
-  if (isEAForum) {
-    return usersMatchingFilter
-  }
-
-  let usersToEmail = usersMatchingFilter.filter(u => {
-    if (u.email && u.emails && u.emails.length) {
-      let primaryAddress = u.email;
-
-      for(let i=0; i<u.emails.length; i++)
-      {
-        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
-          return true;
-      }
-      return false;
-    } else {
-      return false;
-    }
-  });
-  return usersToEmail
-}
 
 const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
@@ -402,7 +356,7 @@ const curationEmailDelay = new EventDebouncer({
 
       //eslint-disable-next-line no-console
       console.log(`Found ${usersToEmail.length} users to email`);
-      await sendPostByEmail({
+      await sendCurationEmail({
         users: usersToEmail,
         postId,
         reason: "you have the \"Email me new posts in Curated\" option enabled"
@@ -421,17 +375,21 @@ getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification
     // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
 
-    await sendPostByEmail({
+    await sendCurationEmail({
       users: adminsToEmail,
       postId: post._id,
       reason: "you have the \"Email me new posts in Curated\" option enabled",
       subject: `[Admin preview] ${post.title}`,
     });
     
-    await curationEmailDelay.recordEvent({
-      key: post._id,
-      af: false
-    });
+    if (!useCurationEmailsCron) {
+      await curationEmailDelay.recordEvent({
+        key: post._id,
+        af: false
+      });  
+    } else {
+      await hydrateCurationEmailsQueue(post._id);
+    }
   }
 });
 
@@ -657,6 +615,21 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
       documentId: comment._id,
     });
   }
+
+  // 5. Notify users who are subscribed to comments by the comment author
+  const commentAuthorSubscribers = await getSubscribedUsers({
+    documentId: comment.userId,
+    collectionName: "Users",
+    type: subscriptionTypes.newUserComments
+  })
+  const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
+  const commentAuthorSubscriberIdsToNotify = _.difference(commentAuthorSubscriberIds, notifiedUsers)
+  await createNotifications({
+    userIds: commentAuthorSubscriberIdsToNotify, 
+    notificationType: 'newUserComment', 
+    documentType: 'comment', 
+    documentId: comment._id
+  });
 }
 
 // add new comment notification callback on comment submit

@@ -28,12 +28,12 @@ import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
-import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
 import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
 import { useLocation } from '../../lib/routeUtil';
+import ForumNoSSR from '../common/ForumNoSSR';
 
 export type UpvotedUser = {
   _id: string;
@@ -709,7 +709,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { cl
     variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : limit },
   });
 
-  const readPosts:DbPost[] = data?.UsersReadPostsOfTargetUser
+  const readPosts: DbPost[] = data?.UsersReadPostsOfTargetUser
 
   const readPostsContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(readPostsContainerRef);
@@ -758,7 +758,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
     variables: { userId: targetUserId },
   });
 
-  const topTags:[TagWithCommentCount] = data?.UserTopTags;
+  const topTags: [TagWithCommentCount] = data?.UserTopTags;
 
   const tagContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(tagContainerRef);
@@ -856,9 +856,9 @@ const { loading: commentsLoading, error: commentsError, data: commentsData } = u
   skip: !currentUser
 });
 
-const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
-const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
-const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
+const topTags: TagWithCommentCount[] | undefined = tagData?.UserTopTags;
+const readPosts: PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
+const recommendedComments: RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
 
 if (!currentUser || !topTags || !readPosts || !recommendedComments) return <Loading />;
 const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
@@ -866,7 +866,7 @@ const numRecommendations = (readPosts?.length ?? 0) + (recommendedComments?.leng
 const numShown = isExpanded ? numRecommendations : 2
 const numHidden = Math.max(0, numRecommendations - numShown);
 
-const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+const allRecommendations: {reactIconName: string, prefix: string, Content: JSX.Element}[] = [
   ...(topTags.length > 0 ? [{reactIconName: "examples", prefix: "top tags: ", Content: <>{tagsSentence}</>}] : []),
   ...readPosts.map(post => ({reactIconName: "elaborate", prefix: "post: ", Content: 
     <PostsTooltip postId={post._id}>
@@ -996,7 +996,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const topicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
-  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment, own: boolean) : {[topic: string]: ExtendedDialogueMatchPreferenceTopic} => {
+  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment, own: boolean): {[topic: string]: ExtendedDialogueMatchPreferenceTopic} => {
     const prefsDictList = prefs.topicPreferences
       .filter(({preference}) => preference === "Yes")
       .map(topic => [topic.text, {...topic, preference: own ? "Yes" : undefined, matchedPersonPreference: own ? undefined : "Yes"}])
@@ -1177,8 +1177,8 @@ const NextStepsDialogComponent = registerComponent("NextStepsDialog", NextStepsD
 
 
 const DialogueCheckBox: React.FC<{
-  targetUserId : string;
-  targetUserDisplayName : string;
+  targetUserId: string;
+  targetUserDisplayName: string;
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;
@@ -1712,10 +1712,11 @@ export const DialogueMatchingPage = ({classes}: {
   </AnalyticsContext>)
 }
 
-const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>
-  useABTest(dialogueMatchingPageNoSSRABTest) === 'noSSR'
-  ? <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
-  : <DialogueMatchingPage {...props} />
+const NoSSRMatchingPage = (props: { classes: ClassesType<typeof styles> }) => (
+  <ForumNoSSR if={useABTest(dialogueMatchingPageNoSSRABTest) === "noSSR"}>
+    <DialogueMatchingPage {...props} />
+  </ForumNoSSR>
+);
 
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});

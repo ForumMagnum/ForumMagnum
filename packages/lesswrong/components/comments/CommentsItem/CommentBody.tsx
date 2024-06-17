@@ -60,10 +60,11 @@ const CommentBody = ({
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
-  const bodyClasses = classNames(className,
-    { [classes.commentStyling]: !comment.answer,
-      [classes.answerStyling]: comment.answer,
-      [classes.retracted]: comment.retracted }
+  const bodyClasses = classNames(
+    className,
+    !comment.answer && classes.commentStyling,
+    comment.answer && classes.answerStyling,
+    comment.retracted && classes.retracted,
   );
 
   if (comment.deleted) { return <CommentDeletedMetadata documentId={comment._id}/> }

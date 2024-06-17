@@ -4,7 +4,8 @@ import moment from "moment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { randomId } from "../../lib/random";
 import chunk from "lodash/chunk";
-import IncrementalViewRepo from "./IncrementalViewRepo";
+import IncrementalViewRepo, { IncrementalViewDataType } from "./IncrementalViewRepo";
+import { isE2E } from "../../lib/executionEnvironment";
 
 class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
   constructor() {
@@ -17,10 +18,17 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
   }: {
     startDate: Date;
     endDate: Date;
-  }): Promise<Omit<DbPostViews, "_id" | "schemaVersion" | "createdAt" | "legacyData">[]> {
+  }): Promise<
+    IncrementalViewDataType<"PostViews">[]
+  > {
+    // Analytics DB is not available in e2e tests
+    if (isE2E) {
+      return [];
+    }
+
     // Round startDate (endDate) down (up) to the nearest UTC date boundary
-    const windowStart = moment.utc(startDate).startOf("day").toDate();
-    const windowEnd = moment.utc(endDate).endOf("day").toDate();
+    const startDateFormatted = moment.utc(startDate).startOf("day").format("YYYY-MM-DD HH:mm:ss");
+    const endDateFormatted = moment.utc(endDate).endOf("day").format("YYYY-MM-DD HH:mm:ss");
 
     const analyticsDb = getAnalyticsConnectionOrThrow();
 
@@ -47,12 +55,24 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
         post_id,
         date_trunc('day', timestamp)
     `,
-      [windowStart, windowEnd]
+      [startDateFormatted, endDateFormatted]
     );
 
-    // Manually convert the number fields from string to number (as this isn't handled automatically)
+    // Manually convert:
+    // - The number fields from string to number (as this isn't handled automatically)
+    // - The date fields to UTC strings (NOTE: this actually changes the time represented, because in the conversion
+    //   from postgres to JS the timezone of the server is applied to the raw date, so 2023-04-01 00:00:00 becomes e.g.
+    //   2023-04-01 00:00:00+0100 (BST), which is wrong)
     const typedResults = results.map((views) => ({
       ...views,
+      windowStart: moment(views.windowStart)
+        .add(moment(views.windowStart).utcOffset(), "minutes")
+        .utc()
+        .format("YYYY-MM-DD HH:mm:ss"),
+      windowEnd: moment(views.windowEnd)
+        .add(moment(views.windowEnd).utcOffset(), "minutes")
+        .utc()
+        .format("YYYY-MM-DD HH:mm:ss"),
       viewCount: parseInt(views.viewCount),
       uniqueViewCount: parseInt(views.uniqueViewCount),
     }));
@@ -60,7 +80,32 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
     return typedResults;
   }
 
-  async upsertData({ data }: { data: Omit<DbPostViews, "_id" | "schemaVersion" | "createdAt" | "legacyData">[] }) {
+  /**
+   * Delete rows where there is any overlap with the given (startDate, endDate) range
+   */
+  async deleteRange({
+    startDate,
+    endDate,
+  }: {
+    startDate: Date;
+    endDate: Date;
+  }): Promise<void> {
+    // Round startDate (endDate) down (up) to the nearest UTC date boundary
+    const startDateFormatted = moment.utc(startDate).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    const endDateFormatted = moment.utc(endDate).endOf('day').format('YYYY-MM-DD HH:mm:ss');
+
+    await this.getRawDb().none(
+      `
+      DELETE FROM "PostViews"
+      WHERE
+        ("windowEnd" > $1 AND "windowEnd" < $2)
+        OR ("windowStart" > $1 AND "windowStart" < $2)
+      `,
+      [startDateFormatted, endDateFormatted]
+    );
+  }
+
+  async upsertData({ data }: { data: IncrementalViewDataType<"PostViews">[] }) {
     const dataWithIds = data.map((item) => ({
       ...item,
       _id: randomId(),
@@ -73,7 +118,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
       const values = chunk
         .map(
           (row) =>
-            `('${row._id}', '${row.postId}', '${row.windowStart.toISOString()}', '${row.windowEnd.toISOString()}', ${
+            `('${row._id}', '${row.postId}', '${row.windowStart}', '${row.windowEnd}', ${
               row.viewCount
             }, ${row.uniqueViewCount}, NOW(), NOW())`
         )

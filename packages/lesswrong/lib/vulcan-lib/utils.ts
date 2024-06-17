@@ -38,7 +38,7 @@ interface UtilsType {
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
   
   // In server/vulcan-lib/errors.ts
-  throwError: any
+  throwError: (error: { id: string; data?: Record<string, AnyBecauseTodo> }) => never,
 }
 
 export const Utils: UtilsType = ({} as UtilsType);
@@ -101,7 +101,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
 
 // NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
-const validateUrl = (url: string) => {
+export const validateUrl = (url: string) => {
   try {
     // This will validate the URL - importantly, it will fail if the
     // protocol is missing
@@ -183,7 +183,7 @@ export const addHttp = function (url: string): string|null {
 // https://stackoverflow.com/questions/16301503/can-i-use-requirepath-join-to-safely-concatenate-urls
 // for searching: url-join
 /** Combine urls without extra /s at the join */
-export const combineUrls = (baseUrl: string, path:string) => {
+export const combineUrls = (baseUrl: string, path: string) => {
   return path
     ? baseUrl.replace(/\/+$/, '') + '/' + path.replace(/^\/+/, '')
     : baseUrl;
@@ -315,12 +315,23 @@ const allowedTableStyles = {
 };
 
 const allowedMathMLGlobalAttributes = ['mathvariant', 'dir', 'displaystyle', 'scriptlevel'];
+const footnoteAttributes = [
+  'data-footnote-content',
+  'data-footnote-id',
+  'data-footnote-index',
+  'data-footnote-item',
+  'data-footnote-reference',
+  'data-footnote-section',
+  'data-footnote-back-link',
+  'data-footnote-back-link-href',
+]
 
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      '*': [...footnoteAttributes, 'data-internal-id'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -332,7 +343,7 @@ export const sanitize = function(s: string): string {
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
-      a: ['href', 'name', 'target', 'rel'],
+      a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
 
@@ -382,9 +393,27 @@ export const sanitize = function(s: string): string {
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed', 'estimaker-preview', 'viewpoints-preview' ],
+      div: [
+        'spoilers',
+        'footnote-content',
+        'footnote-item',
+        'footnote-label',
+        'footnote-reference',
+        'metaculus-preview',
+        'manifold-preview',
+        'metaforecast-preview',
+        'owid-preview',
+        'elicit-binary-prediction',
+        'thoughtSaverFrameWrapper',
+        'strawpoll-embed',
+        'estimaker-preview',
+        'viewpoints-preview',
+        'ck-cta-button',
+        'ck-cta-button-centered',
+        'calendly-preview',
+      ],
       iframe: [ 'thoughtSaverFrame' ],
-      ol: [ 'footnotes' ],
+      ol: [ 'footnotes', 'footnote-section' ],
       li: [ 'footnote-item' ],
     },
     allowedStyles: {

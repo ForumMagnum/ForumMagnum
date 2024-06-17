@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { isEAForum } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   column: {
@@ -17,7 +17,7 @@ const ShortformPage = ({classes}: {
   return (
     <SingleColumnSection>
       <div className={classes.column}>
-        <SectionTitle title={isEAForum ? "Quick takes" : "Shortform Content"} />
+        <SectionTitle title={preferredHeadingCase("Quick Takes")} />
         <ShortformThreadList />
       </div>
     </SingleColumnSection>

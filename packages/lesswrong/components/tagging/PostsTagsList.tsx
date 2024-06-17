@@ -39,12 +39,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-type TagWithCount = TagPreviewFragment & {count:number}
+type TagWithCount = TagPreviewFragment & {count: number}
 
 // This is designed to be used with list of posts, to show a list of all the tags currently
 // included among that list of posts, and allow users to filter the post list to only show 
 // those tags.
-export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expandedMinCount=3, defaultMax=6}:{
+export const PostsTagsList = ({classes, posts, currentFilter, handleFilter, expandedMinCount=3, defaultMax=6}: {
   classes: ClassesType,
   posts: PostsList[]|null,
   currentFilter: string|null, // the current tag being filtered on the post list

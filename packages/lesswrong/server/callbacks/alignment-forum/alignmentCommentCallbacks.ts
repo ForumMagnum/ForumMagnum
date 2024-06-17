@@ -17,7 +17,7 @@ export async function recalculateAFCommentMetadata(postId: string|null) {
     deleted: false
   }).fetch()
 
-  const lastComment:DbComment = _.max(afComments, function(c){return c.postedAt;})
+  const lastComment: DbComment = _.max(afComments, function(c){return c.postedAt;})
   const lastCommentedAt = (lastComment && lastComment.postedAt) || (await Posts.findOne({_id:postId}))?.postedAt || new Date()
 
   void updateMutator({

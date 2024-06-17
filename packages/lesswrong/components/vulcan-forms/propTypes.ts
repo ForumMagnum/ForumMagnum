@@ -128,7 +128,7 @@ declare global {
     nestedSchema: any
     currentValues: any
     deletedValues: any[]
-    throwError: ()=>void
+    throwError: () => void
     updateCurrentValues: UpdateCurrentValues
     errors: any[]
     addToDeletedValues: any

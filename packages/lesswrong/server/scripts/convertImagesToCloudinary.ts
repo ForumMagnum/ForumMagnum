@@ -1,5 +1,4 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Images } from '../../lib/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -13,9 +12,9 @@ import { ckEditorUploadUrlOverrideSetting } from '../../lib/instanceSettings';
 import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
-import { isAnyTest } from '../../lib/executionEnvironment';
 import { Posts } from '../../lib/collections/posts';
 import { getAtPath, setAtPath } from '../../lib/helpers';
+import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -99,7 +98,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
+export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
   const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];
@@ -194,7 +193,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
   collectionName: N,
   _id: string,
   fieldName = "contents",
-  urlFilterFn: (url: string)=>boolean = ()=>true
+  urlFilterFn: (url: string) => boolean = ()=>true
 ): Promise<number> {
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;

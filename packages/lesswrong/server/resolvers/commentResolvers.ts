@@ -10,6 +10,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import uniqBy from 'lodash/uniqBy';
 import sampleSize from 'lodash/sampleSize';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 
 const specificResolvers = {
@@ -78,7 +79,10 @@ createPaginatedResolver({
   callback: async (
     context: ResolverContext,
     limit: number,
-  ): Promise<DbComment[]> => context.repos.comments.getPopularComments({limit}),
+  ): Promise<DbComment[]> => {
+    const recencyFactor = isLWorAF ? 175_000 : 250_000;
+    return context.repos.comments.getPopularComments({limit, recencyFactor});
+  },
   cacheMaxAgeMs: 300000, // 5 mins
 });
 
@@ -112,7 +116,7 @@ defineQuery({
       return result
     }
 
-    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason:string, whoseVote:"you"|"they") => {
+    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason: string, whoseVote: "you"|"they") => {
       const comments = await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3, pollCommentId)
       const sampled = sampleSize(comments, Math.round(limit / 2))
       const result = sampled.map(comment => {
@@ -123,7 +127,7 @@ defineQuery({
       return result
     }
 
-    const getPopularVotesOnPoll = async (pollCommentId: string, recommendationReason:string) => {
+    const getPopularVotesOnPoll = async (pollCommentId: string, recommendationReason: string) => {
       const comments = await context.repos.comments.getPopularPollComments(limit * 3, pollCommentId)
       const sampled = sampleSize(comments, limit)
       const result = sampled.map(comment => ({comment, recommendationReason: recommendationReason}));
@@ -140,7 +144,7 @@ defineQuery({
       yield await getPopularVotesOnPoll(bensInterestingDisagreementsCommentId, "This comment is popular");
     }
     
-    let recommendedComments : TopicRecommendation[] = []
+    let recommendedComments: TopicRecommendation[] = []
     
     for await (const source of commentSources()) {
       const rawComments = source.map(({comment}) => comment);

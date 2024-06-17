@@ -1,7 +1,7 @@
-import React, { FC, MouseEvent } from "react";
+import React, { FC, MouseEvent, PropsWithChildren } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { useLocation } from "../../../lib/routeUtil";
+import { useSubscribedLocation } from "../../../lib/routeUtil";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
 
@@ -23,7 +23,7 @@ export const useCommentLink = ({
   permalink = true,
 }: UseCommentLinkProps) => {
   const navigate = useNavigate();
-  const {location, query} = useLocation();
+  const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
 
   const url = commentGetPageUrlFromIds({
@@ -62,7 +62,7 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC = scrollOnClick
+  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
     ? ({children}) => (
       <a rel="nofollow" href={url} onClick={handleLinkClick}>
         {children}

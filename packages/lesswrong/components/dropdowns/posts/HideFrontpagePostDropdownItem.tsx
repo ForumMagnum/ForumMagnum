@@ -53,7 +53,7 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
     // like to have a single implementation, but there wasn't an obvious place to
     // share this logic.
     const oldHiddenList = currentUser.hiddenPostsMetadata || [];
-    let newHiddenList:Array<{postId:string}>;
+    let newHiddenList: Array<{postId: string}>;
 
     if (isHidden) {
       const alreadyHidden = some(

@@ -29,7 +29,7 @@ const EmailFooterRecommendations = ({classes}: {
     curatedModifier: 50,
     onlyUnread: true,
   }
-  const {recommendationsLoading, recommendations} = useRecommendations(algorithm)
+  const {recommendationsLoading, recommendations} = useRecommendations({ algorithm })
   if (recommendationsLoading) return null
   return <>
     <h2 className={classes.recommendedPostsHeader}>Other Recommended Posts</h2>

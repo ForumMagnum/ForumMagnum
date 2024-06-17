@@ -1,8 +1,6 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import React, { FC } from 'react';
 import classNames from 'classnames';
-import moment from '../../lib/moment-timezone';
-import { useTimezone } from '../common/withTimezone';
 import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
@@ -28,17 +26,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
-  const { timezone } = useTimezone();
-  return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
+  const { FormatDate } = Components;
+  return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
-const PostsItemMeta = ({post, read, classes}: {
+const PostsItemMeta = ({post, read, hideTags, classes}: {
   post: PostsList,
   read?: boolean,
+  hideTags?: boolean,
   classes: ClassesType,
 }) => {
   const baseScore = isAF ? post.afBaseScore : post.baseScore
-  const afBaseScore = !isAF && post.af ? post.afBaseScore : null
+  const showAfScore = (!isAF && post.af);
+  const afBaseScore = showAfScore ? post.afBaseScore : null
   const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
@@ -76,7 +76,7 @@ const PostsItemMeta = ({post, read, classes}: {
         <PostsUserAndCoauthors post={post} showMarkers />
       </span>
 
-      { afBaseScore && <span className={classes.info}>
+      { showAfScore && <span className={classes.info}>
         <LWTooltip title={<div>
           { afBaseScore } karma on alignmentforum.org
         </div>}>
@@ -84,7 +84,7 @@ const PostsItemMeta = ({post, read, classes}: {
         </LWTooltip>
       </span>}
 
-      {!post.isEvent && <span className={classes.info}>
+      {!post.isEvent && !hideTags && <span className={classes.info}>
         <AnalyticsContext pageElementContext="tagsList">
           <FooterTagList post={post} hideScore hideAddTag smallText/>
         </AnalyticsContext>

@@ -57,9 +57,9 @@ const schema: SchemaType<"TagRels"> = {
 
   currentUserCanVote: resolverOnlyField({
     type: Boolean,
-    graphQLtype: 'Boolean',
+    graphQLtype: 'Boolean!',
     canRead: ['guests'],
-    resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
+    resolver: async (document: DbTagRel, args: void, context: ResolverContext): Promise<boolean> => {
       // Return true for a null user so we can show them a login/signup prompt
       return context.currentUser
         ? !(await canVoteOnTagAsync(context.currentUser, document.tagId, document.postId, context, 'smallUpvote')).fail

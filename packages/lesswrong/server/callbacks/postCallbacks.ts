@@ -20,7 +20,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
-import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import { updatePostDenormalizedTags } from '../tagging/helpers';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
@@ -31,6 +31,9 @@ import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../emb
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
 import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
 import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
+import { recombeeApi } from '../recombee/client';
+import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { googleVertexApi } from '../google-vertex/client';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -168,9 +171,9 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  return {...post, ...votedPost} as DbPost;
 });
 
-getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
+getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
   if (!post.authorIsUnreviewed && !post.draft) {
-    void postPublishedCallback.runCallbacksAsync([post]);
+    void postPublishedCallback.runCallbacksAsync([post, context]);
   }
 });
 
@@ -250,7 +253,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
   }
 });
 
-getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<"Posts">) {
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
   if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
@@ -259,7 +262,7 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([document]);
+    await postPublishedCallback.runCallbacksAsync([document, context]);
   }
 });
 
@@ -541,7 +544,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   if (!currentUser) return post; // Shouldn't happen, but just in case
 
   if (post.tagRelevance) {
-    const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0} }).fetch()
+    const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0}, deleted: false }).fetch()
     const existingTagIds = existingTagRels.map(tr => tr.tagId);
 
     const formTagIds = Object.keys(post.tagRelevance);
@@ -597,4 +600,69 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
       await Promise.all(matchForms.map(resetDialogueMatch))
   }
   return post;
+});
+
+/* Recombee callbacks */
+
+postPublishedCallback.add((post, context) => {
+  if (post.shortform || post.unlisted) return;
+
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(post, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to recombee', { e }));
+  }
+
+  if (vertexEnabledSetting.get()) {
+    void googleVertexApi.upsertPost({ post }, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending published post to google vertex', { e }));
+  }
+});
+
+getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, context }) => {
+  // newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
+  // This does seem likely to be a bug in a the mutator logic
+  const post = await context.loaders.Posts.load(newDocument._id);
+  const redrafted = post.draft && !oldDocument.draft
+  if ((post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(post, context)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending updated post to recombee', { e }));
+  }
+
+  if (vertexEnabledSetting.get()) {
+    void googleVertexApi.upsertPost({ post }, context)
+      // eslint-disable-next-line no-console
+      .catch(e => console.log('Error when sending updated post to google vertex', { e }));
+  }
+});
+
+voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+
+  if (recombeeEnabledSetting.get()) {
+    void recombeeApi.upsertPost(newDocument as DbPost, context)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));
+  }
+  
+  // Vertex doesn't track any sort of "rating" or "score" (i.e. karma) for documents, so no point in pushing updates to it when posts are voted on
+});
+
+getCollectionHooks("Posts").editSync.add(async function removeFrontpageDate(
+  modifier: MongoModifier<DbPost>,
+  _post: DbPost,
+): Promise<MongoModifier<DbPost>> {
+  if (
+    modifier.$set?.submitToFrontpage === false ||
+    modifier.$set?.submitToFrontpage === null ||
+    modifier.$unset?.submitToFrontpage
+  ) {
+    modifier.$unset ??= {};
+    modifier.$unset.frontpageDate = 1;
+  }
+  return modifier;
 });

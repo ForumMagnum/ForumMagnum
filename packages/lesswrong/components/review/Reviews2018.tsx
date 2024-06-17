@@ -64,7 +64,7 @@ const Reviews2018 = ({classes}: {
           </Select>
         </div>
         <PostsList2 
-          terms={{view:"reviews2018", sortBy: sortNominatedPosts, limit: 100}} 
+          terms={{view:"reviews2018", limit: 100}} 
           showNominationCount
           showReviewCount
           showPostedAt={false}

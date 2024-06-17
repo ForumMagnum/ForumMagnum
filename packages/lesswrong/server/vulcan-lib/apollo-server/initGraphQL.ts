@@ -27,12 +27,13 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
+import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName } from '../../../lib/vulcan-lib';
+import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
-import GraphQLDate from 'graphql-date';
+import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
@@ -153,7 +154,34 @@ const getGraphQLType = <N extends CollectionNameString>(
   }
 };
 
-export type SchemaGraphQLFieldArgument = {name:string, type: string|GraphQLScalarType|null}
+/**
+ * Get the data needed to apply an access filter based on a graphql resolver
+ * return type.
+ */
+const getSqlResolverPermissionsData = (type: string|GraphQLScalarType) => {
+  // We only have access filters for return types that correspond to a collection.
+  if (typeof type !== "string") {
+    return null;
+  }
+
+  // We need to use a multi access filter for arrays, or a single access filter
+  // otherwise. We only apply the automatic filter for single dimensional arrays.
+  const isArray = type.indexOf("[") === 0 && type.lastIndexOf("[") === 0;
+
+  // Remove all "!"s (denoting nullability) and any array brackets to leave behind
+  // a type name string.
+  const nullableScalarType = type.replace(/[![\]]+/g, "");
+
+  try {
+    // Get the collection corresponding to the type name string.
+    const collection = getCollectionByTypeName(nullableScalarType);
+    return collection ? {collection, isArray} : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
   description?: string
   name: string
@@ -222,16 +250,49 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
           type: fieldGraphQLType,
         });
 
+        const permissionData = getSqlResolverPermissionsData(field.resolveAs!.type);
+
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
             [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
-              const { currentUser } = context;
-              // check that current user has permission to access the original non-resolved field
-              const canReadField = userCanReadField(currentUser, field, document);
-              return canReadField
-                ? field.resolveAs!.resolver(document, args, context, info)
-                : null;
+              // Check that current user has permission to access the original
+              // non-resolved field.
+              if (!userCanReadField(context.currentUser, field, document)) {
+                return null;
+              }
+
+              // First, check if the value was already fetched by a SQL resolver.
+              // A field with a SQL resolver that returns no value (for instance,
+              // if it uses a LEFT JOIN and no matching object is found) can be
+              // distinguished from a field with no SQL resolver as the former
+              // will be `null` and the latter will be `undefined`.
+              if (field.resolveAs!.sqlResolver) {
+                const typedName = resolverName as keyof ObjectsByCollectionName[N];
+                let existingValue = document[typedName];
+                if (existingValue !== undefined) {
+                  const {sqlPostProcess} = field.resolveAs!;
+                  if (sqlPostProcess) {
+                    existingValue = sqlPostProcess(existingValue, document, context);
+                  }
+                  if (permissionData) {
+                    const filter = permissionData.isArray
+                      ? accessFilterMultiple
+                      : accessFilterSingle;
+                    return filter(
+                      context.currentUser,
+                      permissionData.collection,
+                      existingValue,
+                      context,
+                    );
+                  }
+                  return existingValue;
+                }
+              }
+
+              // If the value wasn't supplied by a SQL resolver then we need
+              // to run the code resolver instead.
+              return field.resolveAs!.resolver(document, args, context, info);
             },
           },
         };

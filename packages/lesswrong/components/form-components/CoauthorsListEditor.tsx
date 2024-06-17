@@ -10,7 +10,7 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
   root: {
     display: 'flex',
     marginLeft: 8,
-    marginTop: -4,
+    marginTop: -12,
   },
   list: {
     display: "flex",
@@ -24,7 +24,7 @@ const coauthorsListEditorStyles = (theme: ThemeType): JssStyles => ({
     padding: '6px',
   },
   checkboxContainer: {
-    margin: '10px 0'
+    margin: '10px 0 -8px 0'
   },
   checkboxLabel: {
     fontSize: '1.1rem',

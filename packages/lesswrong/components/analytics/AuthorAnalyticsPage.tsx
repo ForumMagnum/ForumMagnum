@@ -1,29 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "../../lib/routeUtil";
-import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
+import { Components, capitalize, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
 import { useMulti } from "../../lib/crud/withMulti";
 import { getUserFromResults } from "../users/UsersProfile";
-import { PostAnalytics2Result, useMultiPostAnalytics } from "../hooks/useAnalytics";
+import { useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
-import moment from "moment";
-import { Link, useNavigate } from "../../lib/reactRouterWrapper";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { useNavigate } from "../../lib/reactRouterWrapper";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
+import range from "lodash/range";
+import { GRAPH_LEFT_MARGIN } from "./AnalyticsGraph";
 
-const mdTitleWidth = 60;
-const smTitleWidth = 50;
-const xsTitleWidth = 45;
+export const mdTitleWidth = 60;
+export const smTitleWidth = 50;
+export const xsTitleWidth = 45;
 const valueWidth = (titleWidth: number) => (100 - titleWidth) / 4;
-const gridColumns = (titleWidth: number) =>
+export const gridColumns = (titleWidth: number) =>
   `${titleWidth}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(
     titleWidth
   )}%`;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
+    width: 800,
+    maxWidth: "100%",
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("sm")]: {
       // Add the top padding back in for mobile
       paddingTop: theme.spacing.mainLayoutPaddingTop,
@@ -31,21 +34,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   section: {
     background: theme.palette.grey[0],
-    padding: "24px 24px",
+    padding: 24,
     marginBottom: 24,
     borderRadius: theme.borderRadius.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down("xs")]: {
-      padding: 16,
+      padding: "16px 8px",
+    },
+  },
+  postsSection: {
+    [theme.breakpoints.down("xs")]: {
+      marginRight: GRAPH_LEFT_MARGIN,
     },
   },
   pageHeader: {
-    marginTop: 24,
-    marginBottom: 24,
+    margin: "24px 36px",
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: GRAPH_LEFT_MARGIN,
+    },
   },
   pageHeaderText: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "700",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
   },
@@ -61,6 +71,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     // stick to bottom
     alignSelf: "flex-end",
     marginBottom: 4,
+  },
+  allYourPosts: {
+    fontSize: 18,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+    marginLeft: GRAPH_LEFT_MARGIN,
   },
   grid: {
     display: "grid",
@@ -78,19 +95,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     padding: "12px 4px 12px 0",
     fontWeight: 500,
+    marginLeft: GRAPH_LEFT_MARGIN,
     [theme.breakpoints.down("xs")]: {
       fontSize: 11,
     },
   },
-  postsItem: {
-    padding: "12px 4px 12px 12px",
-    border: `1px solid ${theme.palette.grey[200]}`,
-    borderRadius: theme.borderRadius.default,
-  },
-  postTitleCell: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
+  postItem: {
+    marginLeft: GRAPH_LEFT_MARGIN,
   },
   dateHeader: {
     justifyContent: "flex-start",
@@ -107,40 +118,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   valueHeaderLabel: {
     cursor: "pointer",
-    marginLeft: 14,
+    marginLeft: GRAPH_LEFT_MARGIN,
     display: "flex",
     alignItems: "center",
     [theme.breakpoints.down("xs")]: {
       marginLeft: 0,
     },
   },
-  valueCell: {
-    textAlign: "center",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  postTitle: {
-    fontSize: 14,
-    lineHeight: "22px",
-    fontWeight: "600",
-    paddingRight: 12,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-  postSubtitle: {
-    fontSize: 13,
-    color: theme.palette.grey[700],
-    fontWeight: 500,
-  },
-  xsHide: {
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
-    },
-  },
   loadMore: {
     marginTop: 10,
-    marginLeft: 4,
+    marginLeft: 28,
   },
   sortArrow: {
     color: theme.palette.grey[600],
@@ -165,40 +152,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; classes: ClassesType }) => {
-  const timeFromNow = moment(new Date(post.postedAt)).fromNow();
-  const ago = timeFromNow !== "now" ? <span className={classes.xsHide}>&nbsp;ago</span> : null;
-
-  const postAnalyticsLink = `/postAnalytics?postId=${post._id}`;
-
-  return (
-    <div className={classNames(classes.grid, classes.postsItem)}>
-      <div className={classes.postTitleCell}>
-        <div className={classes.postTitle}>
-          <Link to={postGetPageUrl(post)}>{post.title}</Link>
-        </div>
-        <div className={classes.postSubtitle}>
-          {timeFromNow}
-          {ago}
-          {" · "}
-          <Link to={postAnalyticsLink}>view detailed stats</Link>
-        </div>
-      </div>
-      <div className={classes.valueCell}>{post.views.toLocaleString()}</div>
-      <div className={classes.valueCell}>{post.reads.toLocaleString()}</div>
-      <div className={classes.valueCell}>{post.karma.toLocaleString()}</div>
-      <div className={classes.valueCell}>{post.comments.toLocaleString()}</div>
-    </div>
-  );
-};
-
-const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
+const AuthorAnalyticsPage = ({ classes }: {
+  classes: ClassesType<typeof styles>,
+}) => {
   const { params, query, location } = useLocation();
   const navigate = useNavigate();
   const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
-  const { loading: userLoading, results } = useMulti({
+  const {results} = useMulti({
     terms: { view: "usersProfile", slug },
     collectionName: "Users",
     fragmentName: "UsersMinimumInfo",
@@ -242,6 +204,9 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
+  const initialLimit = 10;
+  const itemsPerPage = 20;
+
   const {
     data,
     loading: analyticsLoading,
@@ -250,20 +215,54 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     userId: user?._id,
     sortBy,
     desc: sortDesc,
+    initialLimit,
+    itemsPerPage,
   });
 
-  const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
+  // Give the posts their own state so the list doesn't disappear when
+  // clicking "load more" or updating other data
+  const [posts, setPosts] = useState(data?.posts ?? []);
+  const [totalCount, setTotalCount] = useState(loadMoreProps.totalCount);
+
+  useEffect(() => {
+    if ((data?.posts?.length ?? 0) > posts.length) {
+      setPosts(data!.posts);
+    }
+  }, [data, posts, loadMoreProps]);
+
+  useEffect(() => {
+    setTotalCount((current) => Math.max(current, loadMoreProps.totalCount));
+  }, [loadMoreProps.totalCount]);
+
+  // Manually reset the post list if we navigate to a different user's stats
+  useEffect(() => {
+    setPosts([]);
+    setTotalCount(0);
+  }, [slug]);
+
+  const {
+    SingleColumnSection, HeadTags, Typography, LoadMore, ForumIcon, LWTooltip,
+    AnalyticsGraph, AnalyticsPostItem, AnalyticsPostItemSkeleton,
+  } = Components;
 
   const isCurrentUser = currentUser?.slug === slug
   if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
-    return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
+    return (
+      <SingleColumnSection className={classes.root}>
+        You don't have permission to view this page.
+      </SingleColumnSection>
+    );
   }
 
-  if (userLoading || !user) return <Loading />;
+  const title = `Stats for ${user?.displayName ?? slug}`;
 
-  const title = `Stats for ${user.displayName}`;
-
-  const posts = data?.posts || [];
+  const getUserHeading = (uppercase: boolean) => {
+    const format = uppercase ? capitalize : (s: string) => s;
+    if (isCurrentUser) {
+      return format("your");
+    }
+    return user ? `${user.displayName}'s` : format("user");
+  }
 
   const renderHeaderCell = (headerField: string, label: string) => (
     <div onClick={() => onClickHeader(headerField)} className={classes.valueHeader}>
@@ -280,19 +279,24 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     </div>
   );
 
+  const placeholderCount = posts.length
+    ? Math.min(itemsPerPage, totalCount - posts.length)
+    : initialLimit;
+
   return (
     <>
       <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
-      <div className={classes.pageHeader}>
-        <Typography variant="headline" className={classes.pageHeaderText}>
-          {isCurrentUser ? "Your" : `${user.displayName}'s`} post stats
-        </Typography>
-      </div>
-        <div className={classes.section}>
-          <AnalyticsGraph userId={user._id}/>
+        <div className={classes.pageHeader}>
+          <Typography variant="headline" className={classes.pageHeaderText}>
+            {getUserHeading(true)} post stats
+          </Typography>
         </div>
         <div className={classes.section}>
+          <AnalyticsGraph userId={user?._id} />
+        </div>
+        <div className={classNames(classes.section, classes.postsSection)}>
+          <div className={classes.allYourPosts}>All {getUserHeading(false)} posts</div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               <div className={classes.dateHeaderLabel}>
@@ -312,10 +316,18 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
             {renderHeaderCell("commentCount", "Comments")}
           </div>
           {posts.map((post) => (
-            <AnalyticsPostItem key={post._id} post={post} classes={classes} />
+            <AnalyticsPostItem
+              key={post._id}
+              post={post}
+              className={classes.postItem}
+            />
           ))}
-          {analyticsLoading && <Loading />}
-          <LoadMore className={classes.loadMore} {...loadMoreProps} />
+          {analyticsLoading &&
+            range(0, placeholderCount).map((i) => (
+              <AnalyticsPostItemSkeleton key={i} className={classes.postItem} />
+            ))
+          }
+          <LoadMore className={classes.loadMore} {...loadMoreProps} hideLoading />
         </div>
       </SingleColumnSection>
     </>

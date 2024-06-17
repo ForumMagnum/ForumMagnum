@@ -24,6 +24,8 @@ import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import { allowSubscribeToUserComments } from '../../lib/betas';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -55,7 +57,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: "wrap",
     color: theme.palette.lwTertiary.main,
     marginTop: 8,
-    ...separatorBulletStyles(theme)
+    [theme.breakpoints.up('sm')]: {
+      ...separatorBulletStyles(theme),
+    },
+    [theme.breakpoints.down('sm')]: {
+      ...separatorBulletStyles(theme, 0.375),
+    },
   },
   meta: {
     ...sectionFooterLeftStyles,
@@ -88,6 +95,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   copyIcon: {
     fontSize: 14
+  },
+  subscribeButton: {
+    display: "flex",
   }
 })
 
@@ -184,9 +194,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -283,11 +293,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
-              </NewConversationButton>}
-              { <NotifyMeButton
-                document={user}
-                subscribeMessage="Subscribe to posts"
-                unsubscribeMessage="Unsubscribe from posts"
+              </NewConversationButton> }
+              { <UserNotifyDropdown 
+                user={user} 
+                popperPlacement="bottom-end"
+                className={classes.subscribeButton} 
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 {preferredHeadingCase("Account Settings")}

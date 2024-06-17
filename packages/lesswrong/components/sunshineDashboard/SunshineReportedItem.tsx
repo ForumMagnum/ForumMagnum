@@ -10,7 +10,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonOutlineIcon from '@material-ui/icons/PersonOutline'
 import { Link } from '../../lib/reactRouterWrapper'
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType) => ({
   reportedUser: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -23,13 +23,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
-  report: any,
+  report: UnclaimedReportsList,
   updateReport: WithUpdateFunction<"Reports">,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void
 }) => {
-
   const { hover, anchorEl, eventHandlers } = useHover();
   const { mutate: updateComment } = useUpdate({
     collectionName: "Comments",
@@ -84,8 +83,11 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
   }
 
   const {comment, post, reportedUser} = report;
-  const { SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight, SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography, SunshineCommentsItemOverview, SunshineNewUsersInfo } = Components
-
+  const {
+    SunshineListItem, SidebarInfo, SidebarHoverOver, PostsTitle, PostsHighlight,
+    SidebarActionMenu, SidebarAction, FormatDate, CommentsNode, Typography,
+    SunshineCommentsItemOverview, SunshineNewUsersInfo, UsersName,
+  } = Components;
   return (
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
@@ -115,11 +117,11 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
           </>}
           {reportedUser && <div>
             <Link to={report.link} className={classes.reportedUser}>
-              <strong>{ reportedUser.displayName }</strong>
+              <strong><UsersName user={reportedUser} /></strong>
               <PersonOutlineIcon className={classes.reportedUserIcon}/>
             </Link>
           </div>}
-          <em>"{ report.description }"</em> – {report.user && report.user.displayName}, <FormatDate date={report.createdAt}/>
+          <em>"{ report.description }"</em> – <UsersName user={report.user} />, <FormatDate date={report.createdAt}/>
         </SidebarInfo>
         {hover && <SidebarActionMenu>
           <SidebarAction title="Mark as Reviewed" onClick={handleReview}>

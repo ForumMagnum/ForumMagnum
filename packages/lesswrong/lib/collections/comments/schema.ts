@@ -9,6 +9,7 @@ import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
+import {quickTakesTagsEnabledSetting} from '../../publicSettings'
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
@@ -420,7 +421,8 @@ const schema: SchemaType<"Comments"> = {
   }),
   
   votingSystem: resolverOnlyField({
-    type: String,
+    type: 'String',
+    graphQLtype: 'String!',
     canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
       return getVotingSystemNameForDocument(comment, context)
@@ -673,7 +675,8 @@ const schema: SchemaType<"Comments"> = {
     canCreate: ['members', 'admins', 'sunshineRegiment'],
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
-    hidden: true,
+    hidden: ({document}) => !quickTakesTagsEnabledSetting.get() || !document?.shortform,
+    control: "FormComponentQuickTakesTags",
   },
   'relevantTagIds.$': {
     type: String,
@@ -807,7 +810,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: alignmentOptionsGroup,
     hidden: true
   },

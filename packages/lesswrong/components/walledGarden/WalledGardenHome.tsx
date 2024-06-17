@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const WalledGardenHome = ({classes}:{classes:ClassesType}) => {
+const WalledGardenHome = ({classes}: {classes: ClassesType}) => {
   const { SingleColumnSection, Error404, Typography, ContentStyles } = Components
   const currentUser = useCurrentUser()
   const { results: users, totalCount } = useMulti({

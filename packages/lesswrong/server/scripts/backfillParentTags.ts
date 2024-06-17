@@ -1,7 +1,7 @@
 import TagRels from "../../lib/collections/tagRels/collection";
 import Tags from "../../lib/collections/tags/collection";
 import { Globals } from "../vulcan-lib";
-import { updatePostDenormalizedTags } from "../tagging/tagCallbacks";
+import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { randomId } from "../../lib/random";
 
 const backfillParentTags = async (parentTagSlug: string) => {
@@ -9,8 +9,8 @@ const backfillParentTags = async (parentTagSlug: string) => {
   const childTags = (await Tags.find({parentTagId: parentTag._id}).fetch());
   for (const childTag of childTags) {
     // For use in determine what already exists - no need to add
-    const parentTagRelPostIds = (await TagRels.find({tagId: parentTag._id}).fetch()).map(rel => rel.postId);
-    const childTagRelPostIds = (await TagRels.find({tagId: childTag._id, baseScore: {$gt: 0}}).fetch())
+    const parentTagRelPostIds = (await TagRels.find({tagId: parentTag._id, deleted: false}).fetch()).map(rel => rel.postId);
+    const childTagRelPostIds = (await TagRels.find({tagId: childTag._id, baseScore: {$gt: 0}, deleted: false}).fetch())
       .filter(rel => !parentTagRelPostIds.includes(rel.postId))
       .map(rel => rel.postId);
     const parentTagRelIds = childTagRelPostIds.map(_ => randomId())
@@ -36,6 +36,8 @@ const backfillParentTags = async (parentTagSlug: string) => {
           inactive: false,
           schemaVersion: 1,
           backfilled: true,
+          userId: null,
+          legacyData: null,
         }
       }
     })));

@@ -1,7 +1,6 @@
-import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import NoSSR from "react-no-ssr";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CloudinaryPropsType } from "../common/CloudinaryImage2";
@@ -11,6 +10,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
 import { useMessages } from "../common/withMessages";
+import ForumNoSSR from "../common/ForumNoSSR";
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -400,7 +400,7 @@ const ReviewVotingCanvas = ({
         })}
       >
           <div className={classes.gsHearts}>
-            <NoSSR>
+            <ForumNoSSR>
               {hearts.map((heart) => (
                 <Heart
                   key={heart.userId}
@@ -419,7 +419,7 @@ const ReviewVotingCanvas = ({
                   disabled={!userHasVotedEnough}
                 />
               }
-            </NoSSR>
+            </ForumNoSSR>
           </div>
       </div>
     </AnalyticsContext>

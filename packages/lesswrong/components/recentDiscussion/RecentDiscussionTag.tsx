@@ -91,7 +91,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: tag.lastVisitedAt,
+    highlightDate: tag.lastVisitedAt ?? undefined,
     tag: tag,
     condensed: true,
   }

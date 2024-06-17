@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& h1, & h2, & h3': {
       fontSize: isFriendlyUI ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
-      marginBlickStart: "0 !important",
+      marginBlockStart: "0 !important",
     },
   },
   commentBody: {
@@ -96,15 +96,14 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
   classes: ClassesType,
 }) => {
   return <div style={style} className={classNames(
-    className, classes.base, "content", {
-      [classes.postBody]: contentType==="post",
-      [classes.postHighlight]: contentType==="postHighlight",
-      [classes.commentBody]: contentType==="comment",
-      [classes.commentBodyExceptPointerEvents]: contentType==="commentExceptPointerEvents",
-      [classes.answerBody]: contentType==="answer",
-      [classes.tagBody]: contentType==="tag",
-      [classes.debateResponseBody]: contentType==="debateResponse"
-    }
+    className, classes.base, "content",
+    contentType==="post" && classes.postBody,
+    contentType==="postHighlight" && classes.postHighlight,
+    contentType==="comment" && classes.commentBody,
+    contentType==="commentExceptPointerEvents" && classes.commentBodyExceptPointerEvents,
+    contentType==="answer" && classes.answerBody,
+    contentType==="tag" && classes.tagBody,
+    contentType==="debateResponse" && classes.debateResponseBody,
   )}>
     {children}
   </div>;

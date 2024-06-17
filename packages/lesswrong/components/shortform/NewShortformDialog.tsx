@@ -9,7 +9,7 @@ const styles = (_theme: ThemeType) => ({
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: isFriendlyUI ? 0 : undefined,
+      padding: isFriendlyUI ? 0 : "0 20px 20px",
     },
   },
   dialogPaper: {
@@ -30,8 +30,8 @@ const NewShortformDialog = ({onClose, classes}: {
       onClose={onClose}
       fullWidth
       maxWidth={isFriendlyUI ? "md" : "sm"}
-      disableBackdropClick={isFriendlyUI}
-      disableEscapeKeyDown={isFriendlyUI}
+      disableBackdropClick={true}
+      disableEscapeKeyDown={true}
       dialogClasses={{paper: classes.dialogPaper}}
     >
       <DialogContent className={classes.content}>
@@ -44,6 +44,8 @@ const NewShortformDialog = ({onClose, classes}: {
             setOpen(false);
             onClose?.();
           }}
+          defaultExpanded={!isFriendlyUI}
+          submitButtonAtBottom={!isFriendlyUI}
         />
       </DialogContent>
     </LWDialog>

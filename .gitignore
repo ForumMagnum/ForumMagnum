@@ -96,3 +96,9 @@ schema/schema_to_accept.sql
 .branchdbcache
 
 ml
+
+client_meta.json
+client_stats.html
+
+playwright-report
+test-results

@@ -55,7 +55,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
   
   const {SectionTitle, Loading, PostsItem, LoadMore} = Components
   
-  const readHistory: (PostsListWithVotes & {lastVisitedAt:Date})[] = data?.UserReadHistory?.posts
+  const readHistory: (PostsListWithVotes & {lastVisitedAt: Date})[] = data?.UserReadHistory?.posts
   
   if (loading && networkStatus !== NetworkStatus.fetchMore) {
     return <Loading />

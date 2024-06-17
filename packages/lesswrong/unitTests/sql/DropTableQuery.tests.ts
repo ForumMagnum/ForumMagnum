@@ -1,5 +1,5 @@
-import { testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import DropTableQuery from "../../lib/sql/DropTableQuery";
+import { testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import DropTableQuery from "@/server/sql/DropTableQuery";
 
 describe("DropTableQuery", () => {
   runTestCases([

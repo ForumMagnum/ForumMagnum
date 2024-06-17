@@ -42,7 +42,7 @@ export interface CommentsNodeProps {
   truncated?: boolean,
   shortform?: any,
   nestingLevel?: number,
-  expandAllThreads?:boolean,
+  expandAllThreads?: boolean,
   /**
    * Determines whether this specific comment is expanded, without passing that
    * expanded state to child comments
@@ -116,7 +116,7 @@ const CommentsNode = ({
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
   const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noHash, onToggleCollapsed } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -125,6 +125,8 @@ const CommentsNode = ({
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
 
+    if (expandOnlyCommentIds)
+      return !expandOnlyCommentIds.has(comment._id);
     if (forceSingleLine)
       return true;
     if (treeOptions.isSideComment && nestingLevel>1)
@@ -152,7 +154,7 @@ const CommentsNode = ({
     return (top >= 0) && (top <= window.innerHeight);
   }
 
-  const scrollIntoView = useCallback((behavior:"auto"|"smooth"="smooth") => {
+  const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
     if (!isInViewport()) {
       const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
       if (commentTop) {
@@ -227,6 +229,23 @@ const CommentsNode = ({
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }
 
   
+  const childrenSection = !collapsed && childComments && childComments.length > 0 && <div className={classes.children}>
+    <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")} />
+    {showExtraChildrenButton}
+    {childComments.map(child => <Components.CommentsNode
+      isChild={true}
+      treeOptions={treeOptions}
+      comment={child.item}
+      parentCommentId={comment._id}
+      parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
+      nestingLevel={updatedNestingLevel + 1}
+      truncated={isTruncated}
+      childComments={child.children}
+      key={child.item._id}
+      expandNewComments={expandNewComments}
+      enableGuidelines={enableGuidelines} />)}
+  </div>;
+
   return <div className={comment.gapIndicator ? classes.gapIndicator : undefined}>
     <CommentFrame
       comment={comment}
@@ -276,24 +295,7 @@ const CommentsNode = ({
         }
       </div>}
 
-      {!collapsed && childComments && childComments.length>0 && <div className={classes.children}>
-        <div className={classes.parentScroll} onClick={() => scrollIntoView("smooth")}/>
-        { showExtraChildrenButton }
-        {childComments.map(child =>
-          <Components.CommentsNode
-            isChild={true}
-            treeOptions={treeOptions}
-            comment={child.item}
-            parentCommentId={comment._id}
-            parentAnswerId={parentAnswerId || (comment.answer && comment._id) || null}
-            nestingLevel={updatedNestingLevel+1}
-            truncated={isTruncated}
-            childComments={child.children}
-            key={child.item._id}
-            expandNewComments={expandNewComments}
-            enableGuidelines={enableGuidelines}
-          />)}
-      </div>}
+      {childrenSection}
 
       {!isSingleLine && loadChildrenSeparately &&
         <div className="comments-children">

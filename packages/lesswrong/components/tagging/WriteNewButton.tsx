@@ -131,7 +131,7 @@ const WriteNewButton = ({
                 setOpen(false);
               }}
             >
-              New {isFriendlyUI ? "quick take" : "shortform"}
+              New quick take
             </MenuItem>
             <Link to={`/newPost?question=true&subforumTagId=${tag._id}`} eventProps={{writeNewMenuItem: "newQuestion"}}>
               <MenuItem className={classes.menuItem}>New question</MenuItem>

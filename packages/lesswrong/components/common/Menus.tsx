@@ -9,7 +9,7 @@ const MenuItem = ({value, disabled, disableRipple, dense, onClick, className, ch
   disabled?: boolean,
   disableRipple?: boolean,
   dense?: boolean,
-  onClick?: (event: React.MouseEvent)=>void,
+  onClick?: (event: React.MouseEvent) => void,
   className?: string,
   children: React.ReactNode,
 }) => {
@@ -29,7 +29,7 @@ const MenuItemLink = ({to, className, rootClass, disabled, disableGutters, disab
   disabled?: boolean,
   disableGutters?: boolean,
   disableTouchRipple?: boolean,
-  onClick?: (event: React.MouseEvent)=>void,
+  onClick?: (event: React.MouseEvent) => void,
   children: React.ReactNode,
 }) => {
   // MenuItem takes a component and passes unrecognized props to that component,

@@ -4,7 +4,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, getPostCollaborateUrl, isNotHostedHere, canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { useLocation } from '../../lib/routeUtil'
-import NoSSR from 'react-no-ssr';
 import { styles } from './PostsNewForm';
 import { useDialog } from "../common/withDialog";
 import {useCurrentUser} from "../common/withUser";
@@ -17,12 +16,15 @@ import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import ForumNoSSR from '../common/ForumNoSSR';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
-const editor : Editor | null = null
+const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
 
-const PostsEditForm = ({ documentId, classes }: {
+const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
+  version?: string | null,
   classes: ClassesType,
 }) => {
   const { query, params } = useLocation();
@@ -120,7 +122,7 @@ const PostsEditForm = ({ documentId, classes }: {
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-        <NoSSR>
+        <ForumNoSSR>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
               collectionName="Posts"
@@ -158,13 +160,13 @@ const PostsEditForm = ({ documentId, classes }: {
               }}
               showRemove={true}
               collabEditorDialogue={!!document.collabEditorDialogue}
-              submitLabel={isDraft ? "Publish" : "Publish Changes"}
+              submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
               formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
               extraVariables={{
                 version: 'String'
               }}
               extraVariablesValues={{
-                version: 'draft'
+                version: version ?? 'draft'
               }}
               noSubmitOnCmdEnter
               repeatErrors
@@ -178,7 +180,7 @@ const PostsEditForm = ({ documentId, classes }: {
               addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
             />
           </EditorContext.Provider>
-        </NoSSR>
+        </ForumNoSSR>
       </div>
     </DynamicTableOfContents>
   );

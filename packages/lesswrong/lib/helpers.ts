@@ -1,6 +1,7 @@
-import { Utils, getCollection } from './vulcan-lib';
+import { Utils, getCollection } from '@/lib/vulcan-lib';
 import moment from 'moment';
-import { randomId } from './random';
+import { randomId } from '@/lib/random';
+import { isServer } from '@/lib/executionEnvironment';
 
 // Get relative link to conversation (used only in session)
 export const conversationGetLink = (conversation: HasIdType): string => {
@@ -191,3 +192,9 @@ export const setAtPath = <T extends {}, V extends AnyBecauseHard>(
   }
   return value;
 }
+
+/**
+ * This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
+ * the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
+ */
+export const apolloSSRFlag = (ssr?: boolean) => ssr || !isServer;

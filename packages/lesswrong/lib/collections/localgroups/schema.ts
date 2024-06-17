@@ -59,7 +59,7 @@ const schema: SchemaType<"Localgroups"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     order: 20,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     label: preferredHeadingCase("Add Organizers"),
   },
 

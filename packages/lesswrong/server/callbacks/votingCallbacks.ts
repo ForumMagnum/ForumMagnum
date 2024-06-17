@@ -2,7 +2,7 @@ import moment from 'moment';
 import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { postPublishedCallback } from '../notificationCallbacks';
@@ -10,6 +10,15 @@ import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
+import { createMutator } from '../vulcan-lib/mutators';
+import { Comments } from '../../lib/collections/comments';
+import { createAdminContext } from '../vulcan-lib';
+import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import Tags from '../../lib/collections/tags/collection';
+import { isProduction } from '../../lib/executionEnvironment';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { createManifoldMarket } from '../posts/annualReviewMarkets';
+import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -129,4 +138,149 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
   }
   
   await batchUpdateScore({collection: Posts});
+});
+
+// When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
+// on it making top 50 in the review, and create a comment linking to the market.
+
+const reviewUserBot = reviewUserBotSetting.get()
+
+async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
+  const tag = await Tags.findOne({slug: tagSlug})
+  if (!tag) {
+    const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    const tagData = {
+      name: name,
+      slug: tagSlug,
+      userId: botUser._id
+    };   
+
+    const {data: newTag} = await createMutator({
+      collection: Tags,
+      document: tagData,
+      validate: false,
+      currentUser: botUser,
+    });
+    if (!newTag) {
+      //eslint-disable-next-line no-console
+      console.log(`Failed to create tag with slug "${tagSlug}"`); 
+      return;
+    }
+    await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
+  }
+  else {
+    await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+  }
+}
+
+// AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
+// This is probably fine, but it's worth noting. We can deal with it if it comes up.
+voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
+
+  // Forum gate
+  if (!isLWorAF) return;
+  if (!reviewUserBot) {
+    //eslint-disable-next-line no-console
+    console.error("Review bot user not configured"); 
+    return;
+  }
+
+  if (collection.collectionName !== "Posts") return;
+  if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
+  if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
+  const post = await Posts.findOne({_id: newDocument._id})
+  if (!post) return;
+  if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
+  if (post.manifoldReviewMarketId) return;
+  
+  const botUser = await context.Users.findOne({_id: reviewUserBot})
+  if (!botUser) {
+    //eslint-disable-next-line no-console
+    console.error("Bot user not found"); 
+    return
+  }
+
+  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+  const postLink = postGetPageUrl(post, true)
+
+  const year = post.postedAt.getFullYear()
+  const initialProb = 14
+  const question = `Will "${post.title.length < 50 ? post.title : (post.title.slice(0,45)+"...")}" make the top fifty posts in LessWrong's ${year} Annual Review?`
+  const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.`
+  const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
+  const visibility = isProduction ? "public" : "unlisted"
+
+  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
+
+  // Return if market creation fails
+  if (!liteMarket) return;
+
+  const [comment] = await Promise.all([
+    makeMarketComment(post._id, year, liteMarket.url, botUser),
+    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
+  ])
+
+  await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
+})
+
+const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
+
+  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
+  `
+
+  const result = await createMutator({
+    collection: Comments,
+    document: {
+      postId: postId,
+      userId: botUser._id,
+      contents: {originalContents: {
+        type: "html",
+        data: commentString
+      }}
+    },
+    currentUser: botUser,
+    context: createAdminContext()
+  })
+
+
+  return result.data
+}
+
+voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, context) => {
+  if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
+    return;
+  }
+
+  const adminContext = createAdminContext();
+
+  const { userId } = newDocument;
+
+  const [longtermDownvoteScore, previousAlert] = await Promise.all([
+    context.repos.votes.getLongtermDownvoteScore(userId),
+    context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
+  ]);
+
+  // If the user has already been flagged with this moderator action in the last month, no need to apply it again
+  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
+    return;
+  }
+
+  const {
+    commentCount,
+    longtermScore,
+    longtermSeniorDownvoterCount
+  } = longtermDownvoteScore;
+
+  if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
+    void createMutator({
+      collection: context.ModeratorActions,
+      document: {
+        type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
+        userId: userId,
+        endedAt: new Date()
+      },
+      context: adminContext,
+      currentUser: adminContext.currentUser,
+    });
+  }
 });

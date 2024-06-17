@@ -27,6 +27,7 @@ import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
 import { isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
+import classNames from 'classnames';
 
 /** FormField in the process of being created */
 type FormFieldUnfinished<N extends CollectionNameString> = Partial<FormField<N>>
@@ -1005,7 +1006,11 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
     return (
       <form
-        className={'vulcan-form document-' + this.getFormType()}
+        className={classNames(
+          'vulcan-form',
+          `document-${this.getFormType()}`,
+          this.props?.formProps?.formClassName,
+        )}
         id={this.props.id}
         onSubmit={this.submitForm}
         ref={this.formRef}

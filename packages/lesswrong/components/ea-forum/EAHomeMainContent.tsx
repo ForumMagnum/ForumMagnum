@@ -1,12 +1,12 @@
-import React, {ComponentType, useMemo, useState} from 'react'
+import React, {ComponentType, useState} from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
 import {tagPostTerms} from '../tagging/TagPage'
-import {useMulti} from '../../lib/crud/withMulti'
 import {Link} from '../../lib/reactRouterWrapper'
 import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
-import {useSingle} from '../../lib/crud/withSingle'
+import { isFriendlyUI } from '../../themes/forumTheme'
+import { PostsListViewProvider } from '../hooks/usePostsListView'
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
@@ -19,11 +19,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     fontWeight: 600
   },
+  postsListSettings: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
 })
-
 
 // The order in which the topics are displayed is slightly different from their default ordering
 const topicTabsOrder = [
+  'z8qFsGt5iXyZiLbjN', // Opportunities
   'sWcuTyTB5dP3nas2t', // Global health
   'QdH9f8TC6G8oGYdgt', // Animal welfare
   'oNiQsBHA3i837sySD', // AI safety
@@ -49,7 +54,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContent = ({FrontpageNode, classes}:{
+const EAHomeMainContent = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {
@@ -76,17 +81,19 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   //   skip: !activeCoreTopic?.sequence?._id,
   // });
   // const spotlight = spotLightResults?.[0]
-  
-  const { SingleColumnSection, SectionTitle, PostsList2, DismissibleSpotlightItem, HomeTagBar } = Components
-  
+
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
     sortedBy: 'magic',
     limit: 30
   }
 
+  const {
+    SingleColumnSection, SectionTitle, PostsList2, HomeTagBar,
+    PostsListViewToggle,
+  } = Components;
   return (
-    <>
+    <PostsListViewProvider>
       <HomeTagBar onTagSelectionUpdated={setActiveTab} sortTopics={sortTopics} frontpageTab={frontpageTab}/>
 
       {activeTab.name === FRONTPAGE_TAB_NAME ? <FrontpageNode/> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
@@ -96,16 +103,22 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
             className={classes.spotlightMargin}
           />} */}
           <SectionTitle title="New & upvoted" noTopMargin>
-            <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
+            <div className={classes.postsListSettings}>
+              <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>
+                View more
+              </Link>
+              {isFriendlyUI && <PostsListViewToggle />}
+            </div>
           </SectionTitle>
           <PostsList2
             terms={topicPostTerms}
             itemsPerPage={30}
             hideTag
+            viewType="fromContext"
           />
         </SingleColumnSection>
       </AnalyticsContext>}
-    </>
+    </PostsListViewProvider>
   )
 }
 

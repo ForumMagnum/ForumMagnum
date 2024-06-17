@@ -203,9 +203,9 @@ interface TopicRecommendationWithContents {
 }
 
 interface TopicSuggestionProps {
-  reactIconName:string; 
-  prefix:string;
-  Content:JSX.Element;
+  reactIconName: string; 
+  prefix: string;
+  Content: JSX.Element;
   classes: ClassesType<typeof styles>; 
   isExpanded: boolean;
 }
@@ -360,9 +360,9 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     skip: !currentUser || !showSuggestedTopics
   });
 
-  const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
-  const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
-  const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
+  const topTags: TagWithCommentCount[] | undefined = tagData?.UserTopTags;
+  const readPosts: PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
+  const recommendedComments: RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
 
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
@@ -373,7 +373,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
-  const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+  const allRecommendations: {reactIconName: string, prefix: string, Content: JSX.Element}[] = [
     ...topicRecommendations.map(topic => ({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})), 
     {reactIconName: "examples", prefix: "top tags: ", Content: <>{tagsSentence}</>},
     ...readPosts.map(post => ({reactIconName: "elaborate", prefix: "post: ", Content: 

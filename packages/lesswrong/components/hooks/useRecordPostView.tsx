@@ -3,6 +3,8 @@ import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
+import { recombeeApi } from '../../lib/recombee/client';
+import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
@@ -18,12 +20,40 @@ export const useItemsRead = (): ItemsReadContextType => {
 }
 export const withItemsRead = hookToHoc(useItemsRead);
 
-type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title">;
+type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title" | "draft">;
 
-export const useRecordPostView = (post: ViewablePost): {recordPostView: any, isRead: boolean} => {
+interface RecombeeOptions {
+  recommId?: string;
+}
+
+interface VertexOptions {
+  attributionId?: string;
+}
+
+export interface RecommendationOptions {
+  skip?: boolean;
+  recombeeOptions?: RecombeeOptions;
+  vertexOptions?: VertexOptions;
+}
+
+interface RecordPostViewArgs {
+  post: ViewablePost;
+  extraEventProperties?: Record<string,any>;
+  recommendationOptions?: RecommendationOptions
+}
+
+export const useRecordPostView = (post: ViewablePost) => {
   const [increasePostViewCount] = useMutation(gql`
     mutation increasePostViewCountMutation($postId: String) {
       increasePostViewCount(postId: $postId)
+    }
+  `, {
+    ignoreResults: true
+  });
+
+  const [sendVertexViewItemEvent] = useMutation(gql`
+    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
+      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
     }
   `, {
     ignoreResults: true
@@ -32,9 +62,9 @@ export const useRecordPostView = (post: ViewablePost): {recordPostView: any, isR
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
-  const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
+  const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
-  const recordPostView = useCallback(async ({post, extraEventProperties}) => {
+  const recordPostView = useCallback(async ({post, extraEventProperties, recommendationOptions}: RecordPostViewArgs) => {
     try {
       if (!post) throw new Error("Tried to record view of null post");
       
@@ -59,21 +89,29 @@ export const useRecordPostView = (post: ViewablePost): {recordPostView: any, isR
           userId: currentUser._id,
           important: false,
           intercom: true,
-          ...extraEventProperties
-        };
-
-        eventProperties = {
-          ...eventProperties,
+          ...extraEventProperties,
           documentId: post._id,
           postTitle: post.title,
         };
         
         recordEvent('post-view', true, eventProperties);
+        if (recombeeEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
+          void recombeeApi.createDetailView(post._id, currentUser._id, recommendationOptions?.recombeeOptions?.recommId);
+        }
+
+        if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
+          void sendVertexViewItemEvent({
+            variables: {
+              postId: post._id,
+              attributionId: recommendationOptions?.vertexOptions?.attributionId
+            }
+          })
+        }
       }
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, recordEvent]);
   
   return { recordPostView, isRead };
 }
@@ -83,9 +121,12 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {tagsRead, setTagRead} = useItemsRead();
-  const isRead = tag && ((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
+  const isRead = tag && !!((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
   
-  const recordTagView = useCallback(async ({tag, extraEventProperties}) => {
+  const recordTagView = useCallback(async ({tag, extraEventProperties}: {
+    tag: TagBasicInfo
+    extraEventProperties: AnyBecauseHard
+  }) => {
     try {
       if (!tag) throw new Error("Tried to record view of null tag");
       

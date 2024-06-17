@@ -8,7 +8,7 @@ import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers'
 import findIndex from 'lodash/findIndex';
 import * as _ from 'underscore';
 import { getCollectionHooks, CreateCallbackProperties } from './mutationCallbacks';
-import { runSqlQuery } from '../lib/sql/sqlClient';
+import { runSqlQuery } from '../server/sql/sqlClient';
 
 
 // Given a user ID, a post ID which the user has just read, and a sequence ID

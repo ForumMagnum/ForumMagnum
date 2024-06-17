@@ -1,7 +1,9 @@
 import { ApolloClient, NormalizedCacheObject, ApolloError, gql, useQuery, WatchQueryFetchPolicy } from '@apollo/client';
 import * as _ from 'underscore';
-import { extractFragmentInfo, getCollection } from '../vulcan-lib';
+import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
+import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { camelCaseify } from '../vulcan-lib/utils';
+import { apolloSSRFlag } from '../helpers';
 
 // Template of a GraphQL query for useSingle. A sample query might look
 // like:
@@ -35,15 +37,14 @@ const singleClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
  * for use in crossposting-related integrations. You probably don't want to use
  * this directly; in most cases you should use the useSingle hook instead.
  */
-export function getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName }: {
+export function getGraphQLQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName }: {
   extraVariables: any,
-  collection: any,
+  collectionName: CollectionNameString,
   fragment: any,
   fragmentName: FragmentName|undefined,
 }) {
-  const collectionName = collection.collectionName;
   ({ fragmentName, fragment } = extractFragmentInfo({ fragment, fragmentName }, collectionName));
-  const typeName = collection.options.typeName;
+  const typeName = collectionNameToTypeName(collectionName);
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
   let extraVariablesString = ''
@@ -66,8 +67,8 @@ export function getGraphQLQueryFromOptions({ extraVariables, collection, fragmen
  * is part of the API given to external sites like GreaterWrong, so this should
  * not be changed.
  */
-export function getResolverNameFromOptions<N extends CollectionNameString>(collection: CollectionBase<N>): string {
-  const typeName = collection.options.typeName;
+export function getResolverNameFromOptions(collectionName: CollectionNameString): string {
+  const typeName = collectionNameToTypeName(collectionName);
   return camelCaseify(typeName);
 }
 
@@ -97,10 +98,11 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
     extraVariables?: Record<string,any>,
     extraVariablesValues?: any,
     fetchPolicy?: WatchQueryFetchPolicy,
+    nextFetchPolicy?: WatchQueryFetchPolicy,
     notifyOnNetworkStatusChange?: boolean,
     allowNull?: boolean,
     skip?: boolean,
-    
+    ssr?: boolean,
     /**
      * Optional Apollo client instance to use for this request. If not provided,
      * uses the default client provided by React context. This should only be
@@ -126,14 +128,15 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables,
   extraVariablesValues,
   fetchPolicy,
+  nextFetchPolicy,
   notifyOnNetworkStatusChange,
   allowNull,
   skip=false,
+  ssr=true,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
-  const query = getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName })
-  const resolverName = getResolverNameFromOptions(collection)
+  const query = getGraphQLQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
+  const resolverName = getResolverNameFromOptions(collectionName)
   // TODO: Properly type this generic query
   const { data, error, ...rest } = useQuery(query, {
     variables: {
@@ -144,8 +147,9 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
       ...extraVariablesValues
     },
     fetchPolicy,
+    nextFetchPolicy,
     notifyOnNetworkStatusChange,
-    ssr: true,
+    ssr: apolloSSRFlag(ssr),
     skip: skip || (!documentId && !slug),
     client: apolloClient,
   })

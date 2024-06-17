@@ -5,6 +5,7 @@ import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '..
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isEAForum } from '../../instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const Users = createCollection({
   collectionName: 'Users',
@@ -30,6 +31,9 @@ export const Users = createCollection({
     removeCheck: () => false
   }),
   logChanges: true,
+  dependencies: [
+    {type: "extension", name: "pg_trgm"},
+  ],
 });
 
 addGraphQLResolvers({
@@ -62,6 +66,7 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     formGroup: formGroups.moderationGroup,
+    hidden: isFriendlyUI,
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {

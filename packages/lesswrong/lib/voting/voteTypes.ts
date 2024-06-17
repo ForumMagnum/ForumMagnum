@@ -1,6 +1,6 @@
 
 interface VoteTypeOptions {
-  power: number|((user: DbUser|UsersCurrent, document: VoteableType)=>number),
+  power: number|((user: DbUser|UsersCurrent, document: VoteableType) => number),
 }
 
 

@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 
 const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
-  handleClickAmazon: (event: any)=>void,
+  handleClickAmazon: (event: any) => void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
   classes: ClassesType,

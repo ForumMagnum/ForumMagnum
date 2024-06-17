@@ -1,7 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
-import NoSSR from 'react-no-ssr';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -131,6 +130,7 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
+    height: isFriendlyUI ? undefined : '19px'
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
@@ -225,7 +225,7 @@ const Header = ({
 }: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
-  toggleStandaloneNavigation: ()=>void,
+  toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
@@ -238,10 +238,17 @@ const Header = ({
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
+  const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
+  const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
+
+  const {
+    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
+  } = Components;
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -251,6 +258,10 @@ const Header = ({
       setUnFixed(true);
     }
   }, [pathname, hash]);
+
+  const hasNotificationsPage = isFriendlyUI;
+  const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
+  const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -272,8 +283,19 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    void handleSetNotificationDrawerOpen(!notificationOpen);
+    if (hasNotificationsPage) {
+      captureEvent("notificationsIconToggle", {
+        navigate: true,
+        previousCheck: lastNotificationsCheck,
+      });
+      navigate("/notifications");
+    } else {
+      captureEvent("notificationsIconToggle", {
+        open: !notificationOpen,
+        previousCheck: lastNotificationsCheck,
+      });
+      void handleSetNotificationDrawerOpen(!notificationOpen);
+    }
   }
 
   // We do two things when the search is open:
@@ -286,12 +308,12 @@ const Header = ({
     setSearchOpenState(isOpen);
   }, [captureEvent]);
 
-  const NavigationMenuButton = () => {
+  const navigationMenuButton = (
     // The navigation menu button either toggles a free floating sidebar, opens
     // a drawer with site navigation, or a drawer with table of contents. (This
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
-    return <React.Fragment>
+    <React.Fragment>
       {toc?.sectionData?.sections
         ? <>
             <div className={classes.hideSmDown}>
@@ -345,14 +367,8 @@ const Header = ({
         {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
-  }
+  )
 
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo,
-  } = Components;
-  
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
@@ -362,26 +378,28 @@ const Header = ({
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
-    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    </NoSSR>
+    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
-    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+    {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-      unreadNotifications={unreadNotifications}
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
+    {hasMessagesButton &&
+      <MessagesMenuButton
+        className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      />
+    }
     {isFriendlyUI && usersMenuNode}
   </div>
 
   // the left side nav menu
-  const HeaderNavigationDrawer = () => <NavigationDrawer
+  const headerNavigationDrawer = <NavigationDrawer
     open={navigationOpen}
     handleOpen={() => setNavigationOpen(true)}
     handleClose={() => setNavigationOpen(false)}
@@ -389,12 +407,14 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const HeaderNotificationsMenu = () => currentUser && <NotificationsMenu
-    unreadPrivateMessages={unreadPrivateMessages}
-    open={notificationOpen}
-    hasOpened={notificationHasOpened}
-    setIsOpen={handleSetNotificationDrawerOpen}
-  />
+  const headerNotificationsMenu = currentUser && !hasNotificationsPage
+    && (
+      <NotificationsMenu
+        open={notificationOpen}
+        hasOpened={notificationHasOpened}
+        setIsOpen={handleSetNotificationDrawerOpen}
+      />
+    );
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -402,7 +422,7 @@ const Header = ({
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={64}
+          height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
@@ -410,9 +430,15 @@ const Header = ({
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
-          <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
+          <header
+            className={classNames(
+              classes.appBar,
+              !!backgroundColor && classes.appBarDarkBackground,
+            )}
+            style={backgroundColor ? {backgroundColor} : {}}
+          >
             <Toolbar disableGutters={isFriendlyUI}>
-              <NavigationMenuButton />
+              {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
@@ -434,9 +460,9 @@ const Header = ({
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
-          <HeaderNavigationDrawer />
+          {headerNavigationDrawer}
         </Headroom>
-        <HeaderNotificationsMenu />
+        {headerNotificationsMenu}
       </div>
     </AnalyticsContext>
   )

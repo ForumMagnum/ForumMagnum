@@ -44,7 +44,7 @@ export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (overr
 const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
-  setCollaborationMode: (mode: CollaborationMode)=>void,
+  setCollaborationMode: (mode: CollaborationMode) => void,
   post: PostsEdit,
   connectedUsers: ConnectedUserInfo[],
   classes: ClassesType<typeof styles>,

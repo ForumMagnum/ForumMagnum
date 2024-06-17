@@ -371,7 +371,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SpreadsheetPage = ({classes}:{
+const SpreadsheetPage = ({classes}: {
   classes: ClassesType
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()

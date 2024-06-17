@@ -6,7 +6,7 @@ import * as reactRouter from 'react-router';
 import * as reactRouterDom from 'react-router-dom';
 import { HashLink, HashLinkProps } from "../components/common/HashLink";
 import { classifyHost, getUrlClass } from './routeUtil';
-import { NavigationContext, parseQuery } from './vulcan-core/appContext'
+import { parseQuery } from './vulcan-core/appContext'
 import qs from 'qs'
 
 type LinkProps = {
@@ -17,7 +17,7 @@ type LinkProps = {
   eventProps?: Record<string, string>
   className?: string
   style?: CSSProperties,
-  dangerouslySetInnerHTML?: {__html: string}
+  dangerouslySetInnerHTML?: {__html: TrustedHTML}
   target?: string
   smooth?: boolean,
   id?: string
@@ -29,7 +29,13 @@ const isLinkValid = (props: LinkProps): props is HashLinkProps => {
 };
 
 export const Link = ({eventProps, ...props}: LinkProps) => {
-  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: props.to, ...(eventProps ?? {})}})
+  const { captureEvent } = useTracking({
+    eventType: "linkClicked",
+    eventProps: {
+      to: String(props.to),
+      ...(eventProps ?? {}),
+    },
+  });
   const handleClick = (e: AnyBecauseTodo) => {
     captureEvent(undefined, {buttonPressed: e.button})
     props.onMouseDown && props.onMouseDown(e)

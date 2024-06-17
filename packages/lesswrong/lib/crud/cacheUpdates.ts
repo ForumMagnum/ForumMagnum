@@ -1,5 +1,5 @@
 import { pluralize } from '../vulcan-lib';
-import { getCollectionByTypeName } from '../vulcan-lib/getCollection';
+import { typeNameToCollectionName } from '../vulcan-lib/getCollection';
 import { getMultiResolverName, findWatchesByTypeName, getUpdateMutationName, getCreateMutationName, getDeleteMutationName } from './utils';
 import { viewTermsToQuery } from '../utils/viewUtils';
 import type { ApolloClient, ApolloCache } from '@apollo/client';
@@ -35,7 +35,7 @@ export const updateCacheAfterDelete = (typeName: string) => {
 export const updateEachQueryResultOfType = ({ store, typeName, func, document }: {
   store: ApolloCache<any>,
   typeName: string,
-  func: (props: {document: any, results: MingoQueryResult, parameters: any, typeName: string})=>MingoQueryResult,
+  func: (props: {document: any, results: MingoQueryResult, parameters: any, typeName: string}) => MingoQueryResult,
   document: MingoDocument,
 }) => {
   const watchesToUpdate = findWatchesByTypeName(store, typeName)
@@ -43,7 +43,8 @@ export const updateEachQueryResultOfType = ({ store, typeName, func, document }:
     const { input: { terms } } = variables
     const data: any = store.readQuery({query, variables})
     const multiResolverName = getMultiResolverName(typeName);
-    const parameters = viewTermsToQuery(getCollectionByTypeName(typeName).collectionName, terms);
+    const collectionName = typeNameToCollectionName(typeName);
+    const parameters = viewTermsToQuery(collectionName, terms);
     const results = data[multiResolverName]
 
     const updatedResults = func({document, results, parameters, typeName})
@@ -66,7 +67,8 @@ export const invalidateEachQueryThatWouldReturnDocument = ({ client, store, type
   const watchesToCheck = findWatchesByTypeName(store, typeName)
   watchesToCheck.forEach(({query, variables}: {query: any, variables: any}) => {
     const { input: { terms } } = variables
-    const parameters = viewTermsToQuery(getCollectionByTypeName(typeName).collectionName, terms);
+    const collectionName = typeNameToCollectionName(typeName);
+    const parameters = viewTermsToQuery(collectionName, terms);
     mingoLogger('parameters', parameters);
     mingoLogger('document', document);
     if (mingoBelongsToSet(document, parameters.selector)) {

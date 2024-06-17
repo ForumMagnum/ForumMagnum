@@ -3,13 +3,15 @@ import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes } from './utils'
+import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
 import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
+import { sleep } from "../lib/utils/asyncUtils";
+import omitBy from "lodash/omitBy";
+import isNil from "lodash/isNil";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -289,12 +291,9 @@ describe('Voting', function() {
 
       (karmaChanges.totalChange as any).should.equal(1);
       karmaChanges.posts.length.should.equal(1);
-      karmaChanges.posts[0].should.deep.equal({
+      const resultPost = omitBy(karmaChanges.posts[0], isNil);
+      resultPost.should.deep.equal({
         _id: post._id,
-        // NB: The addition of collectionName is to work with the custom-written
-        // postgres-specific function in VotesRepo -- it is not returned by the
-        // mongo aggregation. To run these tests in mongo again, remove
-        // collectionName from the expected object.
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -327,26 +326,81 @@ describe('Voting', function() {
         endDate: new Date(Date.now() + 10000),
       });
 
-      // TODO: This is 2 because it doesn't exclude the automatic vote from the
-      // post's main author - maybe this is a bug?
-      (karmaChanges.totalChange as any).should.equal(2);
+      (karmaChanges.totalChange as any).should.equal(1);
       karmaChanges.posts.length.should.equal(1);
-      karmaChanges.posts[0].should.deep.equal({
+      const resultPost = omitBy(karmaChanges.posts[0], isNil);
+      resultPost.should.deep.equal({
         _id: post._id,
-        // NB: See above
         collectionName: "Posts",
         addedReacts: [],
-        scoreChange: 2,
+        scoreChange: 1,
         title: post.title,
         slug: slugify(post.title),
       });
     });
-    /*it('does not include posts outside the selected date range', async () => {
-      // TODO
+    it('does not include posts outside the selected date range', async () => {
+      const postedAt = new Date(Date.now() - 30000);
+
+      const poster = await createDummyUser();
+      const voter = await createDummyUser();
+      const post = await createDummyPost(poster, {createdAt: postedAt});
+
+      await performVoteServer({
+        document: post,
+        voteType: "smallUpvote",
+        collection: Posts,
+        user: voter,
+        skipRateLimits: false,
+      });
+
+      await sleep(5);
+
+      const karmaChanges = await getKarmaChanges({
+        user: poster,
+        startDate: new Date(Date.now() - 1),
+        endDate: new Date(Date.now() + 10000),
+      });
+
+      (karmaChanges.totalChange as any).should.equal(0);
+      karmaChanges.posts.length.should.equal(0);
     });
     it('includes comments in the selected date range', async () => {
-      // TODO
-    });*/
+      const postedAt = new Date(Date.now() - 30000);
+
+      const poster = await createDummyUser();
+      const voter = await createDummyUser();
+      const post = await createDummyPost(poster, {createdAt: postedAt});
+      const comment = await createDummyComment(poster, {postId: post._id});
+
+      await performVoteServer({
+        document: comment,
+        voteType: "smallUpvote",
+        collection: Comments,
+        user: voter,
+        skipRateLimits: false,
+      });
+
+      const karmaChanges = await getKarmaChanges({
+        user: poster,
+        startDate: new Date(Date.now() - 10000),
+        endDate: new Date(Date.now() + 10000),
+      });
+
+      (karmaChanges.totalChange as any).should.equal(1);
+      karmaChanges.comments.length.should.equal(1);
+      const resultComment = omitBy(karmaChanges.comments[0], isNil);
+      resultComment.should.deep.equal({
+        _id: comment._id,
+        collectionName: "Comments",
+        addedReacts: [],
+        scoreChange: 1,
+        postId: post._id,
+        postTitle: post.title,
+        postSlug: slugify(post.title),
+        tagCommentType: "DISCUSSION",
+        description: "This is a test comment",
+      });
+    });
   });
   describe('getKarmaChangeDateRange', () => {
     it('computes daily update times correctly', async () => {

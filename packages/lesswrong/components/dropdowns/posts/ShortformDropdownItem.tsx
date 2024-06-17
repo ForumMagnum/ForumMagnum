@@ -4,7 +4,7 @@ import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { userCanDo } from "../../../lib/vulcan-users";
-import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 
 const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();
@@ -26,7 +26,7 @@ const ShortformDropdownItem = ({post}: {post: PostsBase}) => {
     });
   }
 
-  const contentType = isFriendlyUI ? "Quick takes" : "Shortform";
+  const contentType = preferredHeadingCase("Quick Takes");
 
   const {DropdownItem} = Components;
   return (

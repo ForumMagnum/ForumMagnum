@@ -5,6 +5,7 @@ import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
+import { Globals } from "./vulcan-lib";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -146,6 +147,8 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
     await updateVoteTotals(usersByUserId, votesByUserId, votePhase, postIds)
   }
 }
+
+Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `

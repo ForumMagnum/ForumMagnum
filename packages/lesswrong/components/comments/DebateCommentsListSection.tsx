@@ -102,7 +102,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
       <div className={classes.debateCommentsList}>
         <CommentsList
           treeOptions={{
-            highlightDate: highlightDate,
+            highlightDate: highlightDate ?? undefined,
             post: post,
             postPage: true,
             showCollapseButtons: true,

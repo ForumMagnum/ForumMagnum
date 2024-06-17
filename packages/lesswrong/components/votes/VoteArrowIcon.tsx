@@ -72,10 +72,10 @@ export interface VoteArrowIconProps {
   color: VoteColor,
   voted: boolean,
   eventHandlers: {
-    handleMouseDown?: ()=>void,
-    handleMouseUp?: ()=>void,
-    handleClick?: ()=>void,
-    clearState?: ()=>void,
+    handleMouseDown?: () => void,
+    handleMouseUp?: () => void,
+    handleClick?: () => void,
+    clearState?: () => void,
   },
   bigVotingTransition: boolean,
   bigVoted: boolean,
@@ -109,7 +109,11 @@ const VoteArrowIcon = ({
 
   return (
     <IconButton
-      className={classNames(classes.root, classes[orientation], {[classes.disabled]: !enabled})}
+      className={classNames(
+        classes.root,
+        classes[orientation],
+        !enabled && classes.disabled,
+      )}
       onMouseDown={eventHandlers.handleMouseDown}
       onMouseUp={eventHandlers.handleMouseUp}
       onMouseOut={eventHandlers.clearState}
@@ -125,7 +129,12 @@ const VoteArrowIcon = ({
         {(state) => (
           <UpArrowIcon
             style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-            className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
+            className={classNames(
+              classes.bigArrow,
+              bigVoteCompleted && classes.bigArrowCompleted,
+              solidArrow && classes.bigArrowSolid,
+              classes[state]
+            )}
             viewBox='6 6 12 12'
           />)}
       </Transition>

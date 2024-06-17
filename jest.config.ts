@@ -68,6 +68,7 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsE2E: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
     defaultSiteAbsoluteUrl: "",
@@ -192,11 +193,28 @@ export default {
     ],
   },
 
-  // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  // transformIgnorePatterns: [
-  //   "/node_modules/",
-  //   "\\.pnp\\.[^\\/]+$"
-  // ],
+  // Should match "paths" in tsconfig.json
+  moduleNameMapper: {
+    "@/(.*)": "<rootDir>/packages/lesswrong/$1",
+  },
+
+  // react-instantsearch contains a file (connectors.js) that requires
+  // compilation, which is technically not kosher for things that live in
+  // node_modules. By default, jest will not compile it and try to use it
+  // as-is, causing unit tests with an import path leading to that file to
+  // fail (even if it's an indirect import and nothing from the library is
+  // actually exercised by the test). To fix this, we override jest's default
+  // transformIgnorePatterns, telling it that it can skip transforming things
+  // inside node_modules... except for react-instantsearch.
+  //
+  // This issue appears in react-instantsearch starting in 6.9.0. We upgrade
+  // from 6.8.2 to 6.40.4 for React 18 compatibility. There's also a
+  // react-instantsearch 7.x, which might fix this issue, but it has major API
+  // changes. If we've done *that* upgrade, this block might no longer be
+  // necessary.
+  transformIgnorePatterns: [
+    "/node_modules/(?!react-instantsearch)",
+  ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,

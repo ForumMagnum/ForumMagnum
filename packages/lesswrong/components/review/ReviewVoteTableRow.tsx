@@ -153,12 +153,18 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
+const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null) => {
+  if (!lastCommentedAt) return false
+  if (!visitedDate) return true
+  return visitedDate < lastCommentedAt
+}
+
 const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes:ClassesType,
+  classes: ClassesType,
   expandedPostId?: string|null,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,
@@ -176,7 +182,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
   const { recordPostView } = useRecordPostView(post);
   const markAsRead = () => {
-    recordPostView({post, extraEventProperties: {type: "markAsRead"}})
+    void recordPostView({post, extraEventProperties: {type: "markAsRead"}})
     setMarkedVisitedAt(new Date()) 
   }
 
@@ -216,6 +222,9 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
+  const visitedDate = markedVisitedAt ?? post.lastVisitedAt
+  const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
+
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
     <div className={classNames(classes.root, {[classes.expanded]: expanded, [classes.votingPhase]: reviewPhase === "VOTING" })} onClick={markAsRead}>
@@ -244,7 +253,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
           <PostsItemComments
             small={false}
             commentCount={postGetCommentCount(post)}
-            unreadComments={(markedVisitedAt || post.lastVisitedAt) < post.lastCommentedAt}
+            unreadComments={unreadComments}
             newPromotedComments={false}
           />
         </div>

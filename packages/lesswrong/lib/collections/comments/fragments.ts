@@ -28,6 +28,7 @@ registerFragment(`
     userId
     deleted
     deletedPublic
+    deletedByUserId
     deletedReason
     hideAuthor
     authorIsUnreviewed

@@ -9,7 +9,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   refetch,
   commentTreeOptions = {},
   initialExpandAllThreads,
-} : {
+}: {
   post: PostsRecentDiscussion,
   comments?: T[],
   refetch: () => void,
@@ -25,7 +25,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
     () => {
       setMarkedAsVisitedAt(new Date());
       setExpandAllThreads(true);
-      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
+      void recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}, recommendationOptions: {skip: true}})
     },
     [setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post],
   );
@@ -60,7 +60,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: lastVisitedAt,
+    highlightDate: lastVisitedAt ?? undefined,
     refetch: refetch,
     condensed: true,
     post,

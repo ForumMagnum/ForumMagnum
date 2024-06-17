@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 
 const FormNestedHead = ({ label, addItem }: {
   label: string
-  addItem: ()=>void
+  addItem: () => void
 }) => (
   <label className="control-label col-sm-3">{label}</label>
 );

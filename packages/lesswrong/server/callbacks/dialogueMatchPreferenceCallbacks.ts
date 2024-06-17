@@ -24,7 +24,7 @@ function convertTimestamp(timestamp: number) {
   return date.toUTCString();
 }
 
-const getDialogueMessageHTML = (userId:string, displayName:string, order:string, content:string ) => {
+const getDialogueMessageHTML = (userId: string, displayName: string, order: string, content: string ) => {
   const time = convertTimestamp(Date.now())
   const message_id = `${userId}-${time}`
 

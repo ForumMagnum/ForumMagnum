@@ -5,6 +5,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { TemplateQueryStrings } from '../messaging/NewConversationButton';
 import EmailIcon from '@material-ui/icons/Email';
 import { Link } from '../../lib/reactRouterWrapper';
+import isEqual from 'lodash/isEqual';
 
 const styles = (theme: JssStyles) => ({
   row: {
@@ -31,9 +32,12 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
 
   const { captureEvent } = useTracking()
 
-  const embedConversation = (conversationId: string, templateQueries: TemplateQueryStrings) => {
-    setEmbeddedConversationId(conversationId)
-    setTemplateQueries(templateQueries)
+  const embedConversation = (conversationId: string, newTemplateQueries: TemplateQueryStrings) => {
+    setEmbeddedConversationId(conversationId);
+    // Downstream components rely on referential equality of the templateQueries object in a useEffect; we get an infinite loop here if we don't check for value equality
+    if (!isEqual(newTemplateQueries, templateQueries)) {
+      setTemplateQueries(newTemplateQueries);
+    }
   }
 
   const { results } = useMulti({

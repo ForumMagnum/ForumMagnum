@@ -144,9 +144,16 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       panelBackground: {
         default: shadePalette.grey[20],
+        modalBackground: "#292929",
+        loginInput: "#3d3d3d",
+        loginInputHovered: "#3f3f3f",
+        onboardingSection: "#424242",
+        onboardingPodcast: "#525252",
+        placeholderGradient: 'linear-gradient(90deg, #3f3f3f 33%, #4a4a4a 50%, #3f3f3f 66%)',
       },
       background: {
-        primaryTranslucent: "rgba(12,134,155,0.4)"
+        primaryTranslucent: "rgba(12,134,155,0.4)",
+        loginBackdrop: "rgba(0,0,0,0.5)",
       }
     },
     LessWrong: {
@@ -200,6 +207,10 @@ export const darkModeTheme: UserThemeSpecification = {
         yellow: "#ffba7d",
         green: "#7ee486",
       },
+      reviewWinner: {
+        title: greyAlpha(0.75),
+        author: greyAlpha(0.65)
+      }
     },
     link: {
       primaryDim: '#3a7883',
@@ -226,6 +237,7 @@ export const darkModeTheme: UserThemeSpecification = {
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
+      digestAdBannerInput: shadePalette.grey[300],
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -236,12 +248,20 @@ export const darkModeTheme: UserThemeSpecification = {
       secondaryHighlight: '#3e503a',
       secondaryHighlight2: '#3e503a',
       mentionsBaloon: shadePalette.grey[100],
+      eaButtonGreyOutline: "#5F5F5F",
+    },
+    boxShadow: {
+      graphTooltip: "none",
     },
     buttons: {
       mentions: {
         hover: shadePalette.grey[100],
         selected: "#0c70c7",
         selectedHover: "#0b62ae",
+      },
+      digestAdBannerNoThanks: {
+        background: shadePalette.grey[600],
+        hoverBackground: shadePalette.grey[700],
       },
     },
     intercom: {
@@ -273,6 +293,11 @@ export const darkModeTheme: UserThemeSpecification = {
       panelBackground: "rgba(255, 255, 255, 0.10)",
       panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
       postScoreArrow: '#BCBCBC',
+    },
+    tab: {
+      inactive: {
+        text: shadePalette.grey[600]
+      },
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

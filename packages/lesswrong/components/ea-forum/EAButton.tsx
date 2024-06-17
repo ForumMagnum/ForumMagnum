@@ -4,7 +4,7 @@ import Button, { ButtonProps } from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useTracking } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     minWidth: 30,
     fontSize: 14,
@@ -35,7 +35,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
     }
-  }
+  },
+  greyOutlined: {
+    border: `1px solid ${theme.palette.border.eaButtonGreyOutline}`,
+    color: theme.palette.grey[1000],
+    "&:hover": {
+      border: `1px solid ${theme.palette.grey[400]}`,
+      backgroundColor: theme.palette.grey[200],
+    },
+  },
 })
 
 /**
@@ -47,7 +55,7 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
   eventProps?: Record<string, string>,
   className?: string,
   children: React.ReactNode,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 } & ButtonProps) => {
   const { captureEvent } = useTracking();
 
@@ -67,7 +75,8 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
       color="primary"
       className={classNames(classes.root, className, {
         [classes.variantContained]: variant === 'contained',
-        [classes.greyContained]: variant === 'contained' && style === 'grey'
+        [classes.greyContained]: variant === 'contained' && style === 'grey',
+        [classes.greyOutlined]: variant === 'outlined' && style === 'grey',
       })}
       {...buttonProps}
       onClick={handleClick}
@@ -78,7 +87,7 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
 }
 
 const EAButtonComponent = registerComponent(
-  'EAButton', EAButton, {styles, stylePriority: -1}
+  'EAButton', EAButton, {styles, stylePriority: -2}
 )
 
 declare global {

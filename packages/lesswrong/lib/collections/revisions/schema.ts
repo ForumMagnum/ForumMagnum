@@ -37,7 +37,7 @@ addGraphQLSchema(`
   }
 `)
 
-const isSharable = (document: any) : document is SharableDocument => {
+const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
 
@@ -216,6 +216,18 @@ const schema: SchemaType<"Revisions"> = {
   changeMetrics: {
     type: Object,
     nullable: false,
+    blackbox: true,
+    canRead: ['guests']
+  },
+  /**
+   * For revisions imported from a google doc, this contains some metadata about the doc,
+   * see `GoogleDocMetadata` in packages/lesswrong/server/resolvers/postResolvers.ts for the
+   * fields that are included.
+   */
+  googleDocMetadata: {
+    type: Object,
+    nullable: true,
+    optional: true,
     blackbox: true,
     canRead: ['guests']
   },

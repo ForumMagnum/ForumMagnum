@@ -10,6 +10,7 @@ const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUt
 const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
   global.bundleIsTest = false;
+  global.bundleIsE2E = false;
   global.bundleIsProduction = isProd;
   global.bundleIsMigrations = true;
   global.defaultSiteAbsoluteUrl = "";
@@ -23,7 +24,7 @@ const initGlobals = (args, isProd) => {
 const fetchImports = (args, isProd) => {
   initGlobals(args, isProd);
 
-  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/lib/sql/sqlClient");
+  const { getSqlClientOrThrow, setSqlClient } = require("./packages/lesswrong/server/sql/sqlClient");
   const { createSqlConnection } = require("./packages/lesswrong/server/sqlConnection");
   return { getSqlClientOrThrow, setSqlClient, createSqlConnection };
 }
@@ -144,8 +145,9 @@ const settingsFileName = (mode, forumType) => {
   try {
     await db.tx(async (transaction) => {
       setSqlClient(transaction);
+      setSqlClient(db, "noTransaction");
       const { createMigrator }  = require("./packages/lesswrong/server/migrations/meta/umzug");
-      const migrator = await createMigrator(transaction);
+      const migrator = await createMigrator(transaction, db);
       const result = await migrator.runAsCLI();
       if (!result) {
         // If the migration throws an error it will have already been reported,

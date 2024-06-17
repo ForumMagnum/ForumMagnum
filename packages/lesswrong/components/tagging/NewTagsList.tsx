@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const NewTagsList = ({classes, showHeaders = true}:{
+const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType,
   showHeaders?: boolean
 }) => {

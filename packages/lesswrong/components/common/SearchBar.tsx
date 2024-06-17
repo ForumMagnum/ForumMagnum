@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useOnNavigate } from '../hooks/useOnNavigate';
-import { InstantSearch, SearchBox, connectMenu } from 'react-instantsearch-dom';
+import { SearchBox, connectMenu } from 'react-instantsearch-dom';
 import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
@@ -14,6 +14,7 @@ import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -77,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 34,
   } : {},
   searchIcon: {
-    color: isFriendlyUI ? undefined : theme.palette.header.text,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
   searchIconSmall: isFriendlyUI ? {
     padding: 6,
@@ -104,7 +105,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
-  onSetIsActive: (active:boolean)=>void,
+  onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
   classes: ClassesType
 }) => {
@@ -192,7 +193,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
              // @ts-ignore */}
             {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
           </div>
-          { searchOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
+          { inputOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
             <CloseIcon className={classes.closeSearchIcon}/>
           </div>}
           <div>

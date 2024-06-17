@@ -1,7 +1,7 @@
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { AbortSignal } from "node-abort-controller";
-import { setPublicSettings } from '../lib/settingsCache';
+import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
 // See https://github.com/openai/openai-node#customizing-the-fetch-client
 import "openai/shims/node";
 
@@ -9,6 +9,9 @@ import "openai/shims/node";
 // See https://github.com/isaacs/node-lru-cache/issues/239
 global.AbortSignal = AbortSignal as AnyBecauseHard;
 
+(globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+setServerSettingsCache({});
 setPublicSettings({});
 
 jest.setTimeout(20000);

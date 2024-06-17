@@ -1,6 +1,8 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib";
 import classNames from 'classnames';
+
+export const SCROLL_INDICATOR_SIZE = 13;
 
 const styles = (theme: ThemeType): JssStyles => ({
   scrollIndicatorWrapper: {
@@ -8,8 +10,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     maxWidth: "100% !important",
     
-    paddingLeft: 13,
-    paddingRight: 13,
+    paddingLeft: SCROLL_INDICATOR_SIZE,
+    paddingRight: SCROLL_INDICATOR_SIZE,
   },
   
   scrollIndicator: {
@@ -70,8 +72,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const HorizScrollBlock = ({children, classes}: {
+const HorizScrollBlock = ({children, className, contentsClassName, classes}: {
   children: ReactNode
+  className?: string,
+  contentsClassName?: string,
   classes: ClassesType,
 }) => {
   const scrollableContentsRef = useRef<HTMLDivElement>(null);
@@ -92,7 +96,7 @@ const HorizScrollBlock = ({children, classes}: {
     updateScrollBounds();
   }, [updateScrollBounds]);
 
-  return <div className={classes.scrollIndicatorWrapper}>
+  return <div className={classNames(classes.scrollIndicatorWrapper, className)}>
     <div
       className={classNames(
         classes.scrollIndicator, classes.scrollIndicatorLeft,
@@ -104,7 +108,10 @@ const HorizScrollBlock = ({children, classes}: {
       }}
     />
     <div
-      className={classes.scrollableContents} ref={scrollableContentsRef} onScroll={updateScrollBounds}>
+      className={classNames(classes.scrollableContents, contentsClassName)}
+      ref={scrollableContentsRef}
+      onScroll={updateScrollBounds}
+    >
       {children}
     </div>
     <div
@@ -123,7 +130,11 @@ const HorizScrollBlock = ({children, classes}: {
   </div>
 }
 
-const HorizScrollBlockComponent = registerComponent('HorizScrollBlock', HorizScrollBlock, {styles});
+const HorizScrollBlockComponent = registerComponent(
+  'HorizScrollBlock',
+  HorizScrollBlock,
+  {styles, stylePriority: -1},
+);
 
 declare global {
   interface ComponentTypes {

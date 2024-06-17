@@ -1,5 +1,5 @@
 import React from 'react'
-import { createMutator, updateMutator } from "../mutators";
+import { createMutator } from "../mutators";
 import passport from 'passport'
 import bcrypt from 'bcrypt'
 import { createHash, randomBytes } from "crypto";
@@ -79,7 +79,7 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
 passport.use(passwordAuthStrategy)
 
 
-function validatePassword(password:string): {validPassword: true} | {validPassword: false, reason: string} {
+function validatePassword(password: string): {validPassword: true} | {validPassword: false, reason: string} {
   if (password.length < 6) return { validPassword: false, reason: "Your password needs to be at least 6 characters long"}
   return { validPassword: true }
 }
@@ -168,7 +168,8 @@ const VerifyEmailToken = new EmailTokenType({
 export async function sendVerificationEmail(user: DbUser) {
   const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
   await wrapAndSendEmail({
-    user, 
+    user,
+    force: true,
     subject: `Verify your ${forumTitleSetting.get()} email`,
     body: <div>
       <p>
@@ -201,7 +202,7 @@ const ResetPasswordToken = new EmailTokenType({
 const authenticationResolvers = {
   Mutation: {
     async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
-      let token:string | null = null
+      let token: string | null = null
 
       await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
         return new Promise((resolve, reject) => {
@@ -246,7 +247,7 @@ const authenticationResolvers = {
       }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      let recaptchaScore : number | undefined = undefined
+      let recaptchaScore: number | undefined = undefined
       if (reCaptchaResponse) {
         const reCaptchaData = JSON.parse(reCaptchaResponse)
         if (reCaptchaData.success && reCaptchaData.action === "login/signup") {
@@ -294,6 +295,7 @@ const authenticationResolvers = {
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({
         user,
+        force: true,
         subject: "Password Reset Request",
         body: <div>
           <p>

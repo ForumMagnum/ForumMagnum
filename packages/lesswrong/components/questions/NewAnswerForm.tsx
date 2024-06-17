@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import { Comments } from '../../lib/collections/comments';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
@@ -92,7 +91,7 @@ const NewAnswerForm = ({post, classes}: {
         collectionName="Comments"
         formComponents={{
           FormSubmit: SubmitComponent,
-          FormGroupLayout: Components.DefaultStyleFormGroup
+          FormGroupLayout: Components.FormGroupNoStyling
         }}
         mutationFragment={getFragment('CommentsList')}
         prefilledProps={prefilledProps}

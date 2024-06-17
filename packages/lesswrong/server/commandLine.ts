@@ -42,6 +42,11 @@ export const getCommandLineArguments = () => {
   return parseCommandLine(process.argv);
 }
 
+export const getInstanceSettingsFilePath = () => {
+  const clArgs = getCommandLineArguments();
+  return clArgs.settingsFileName;
+};
+
 export const loadInstanceSettings = (args?: CommandLineArguments) => {
   const commandLineArguments = args ?? parseCommandLine(process.argv);
   const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);

@@ -94,6 +94,8 @@ import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
 
+import './collections/manifoldProbabilitiesCaches/collection';
+import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';
@@ -136,6 +138,16 @@ import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
+import './collections/userJobAds/collection';
+import './collections/userJobAds/fragments';
+import './collections/userJobAds/permissions';
+import './collections/userJobAds/views';
+
+import './collections/userEAGDetails/collection';
+import './collections/userEAGDetails/fragments';
+import './collections/userEAGDetails/permissions';
+import './collections/userEAGDetails/views';
+
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/permissions';
@@ -156,6 +168,10 @@ import './collections/digests/fragments';
 import './collections/digests/schema';
 import './collections/digests/views';
 
+// Forum events
+import './collections/forumEvents/collection';
+import './collections/forumEvents/fragments';
+import './collections/forumEvents/views';
 
 // Subscriptions
 import './collections/subscriptions';
@@ -226,6 +242,10 @@ import './collections/userRateLimits/index';
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
 
+// SideCommentCaches
+import './collections/sideCommentCaches/collection';
+import './collections/sideCommentCaches/fragments';
+
 // Internationalization
 import './i18n-en-us/en_US';
 
@@ -250,6 +270,11 @@ import './collections/electionCandidates/views';
 import './collections/electionVotes/collection';
 import './collections/electionVotes/fragments';
 import './collections/electionVotes/views';
+
+// GoogleServiceAccountSessions
+import './collections/googleServiceAccountSessions/collection';
+import './collections/googleServiceAccountSessions/fragments';
+import './collections/googleServiceAccountSessions/views';
 
 // Collections supporting vendored libraries
 import './collections/cronHistories';
@@ -279,6 +304,28 @@ import './collections/dialogueMatchPreferences/views';
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
 
+// Arbital link cache
+import './collections/arbitalCache/collection';
+
+// Review winners
+import './collections/reviewWinners/collection';
+import './collections/reviewWinners/fragments';
+
+// Review winners
+import './collections/reviewWinnerArts/collection';
+import './collections/reviewWinnerArts/fragments';
+import './collections/reviewWinnerArts/views';
+
+// Splash art coordinates
+import './collections/splashArtCoordinates/collection';
+import './collections/splashArtCoordinates/fragments';
+
+// Curation emails
+import './collections/curationEmails/collection';
+
+// Recommendations cache
+import './collections/recommendationsCaches/collection';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
@@ -297,7 +344,7 @@ import './vulcan-i18n-en-us';
 
 import '../components/spuriousChange';
 
-import './sql';
-
 import './rateLimits/constants';
 import './rateLimits/types';
+
+import './subscribedUsersFeed';

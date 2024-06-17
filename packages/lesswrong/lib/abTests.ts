@@ -230,3 +230,20 @@ export const offerToAddCalendlyLink = new ABTest({
     },
   },
 });
+
+export const newFrontpagePostFeedsWithRecommendationsOptIn = new ABTest({
+  name: "newFrontpagePostFeedsWithRecommendationsOptIn",
+  active: true,
+  affectsLoggedOut: false,
+  description: "New LW frontpage with multiple tabs for different post feeds",
+  groups: {
+    classicFrontpage: {
+      description: "Control. Existing frontpage",
+      weight: 1,
+    },
+    frontpageWithTabs: {
+      description: "New frontpage with multiple tabs for different post feeds",
+      weight: 0,
+    },
+  }
+});

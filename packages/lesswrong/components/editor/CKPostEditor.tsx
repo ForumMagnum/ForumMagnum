@@ -1,11 +1,11 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
-import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
+import { ckEditorBundleVersion, getCkPostEditor } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
@@ -22,6 +22,7 @@ import type { Node, RootElement, Writer, Element as CKElement, Selection, Docume
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
+import {cloudinaryConfig} from '../../lib/editor/cloudinaryConfig'
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -201,7 +202,7 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    const lastChild = children.at(-1);
+    const lastChild = children.slice(-1)?.[0];
     const inputWrapper = inputWrappers[0];
 
     // We check that the input wrapper is the last child of the root
@@ -361,9 +362,8 @@ const CKPostEditor = ({
   const { flash } = useMessages();
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
-  
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
-  const { PostEditor, PostEditorCollaboration } = getCkEditor();
+  
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
     if (accessLevelCan(accessLevel, "edit"))
@@ -492,8 +492,9 @@ const CKPostEditor = ({
       ref={editorRef}
       onChange={onChange}
       onFocus={onFocus}
-      editor={isCollaborative ? PostEditorCollaboration : PostEditor}
+      editor={getCkPostEditor(!!isCollaborative, forumTypeSetting.get())}
       data={data}
+      isCollaborative={!!isCollaborative}
       onInit={(editor: Editor) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
@@ -644,7 +645,8 @@ const CKPostEditor = ({
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
-        dialogues: dialogueConfiguration
+        dialogues: dialogueConfiguration,
+        ...cloudinaryConfig,
       }}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}

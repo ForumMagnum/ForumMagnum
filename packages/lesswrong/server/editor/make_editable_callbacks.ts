@@ -1,9 +1,8 @@
 import {getCollectionHooks} from '../mutationCallbacks'
-import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
+import {Revisions} from '../../lib/collections/revisions/collection'
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {ensureIndex} from '../../lib/collectionIndexUtils'
 import {htmlToPingbacks} from '../pingbacks'
-import {diff} from '../vendor/node-htmldiff/htmldiff'
 import {
   editableCollections,
   editableCollectionsFieldOptions,
@@ -15,14 +14,11 @@ import {getCollection} from '../../lib/vulcan-lib/getCollection'
 import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import * as _ from 'underscore'
-import cheerio from 'cheerio'
-import {onStartup} from '../../lib/executionEnvironment'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
-import {isBeingUndrafted, MaybeDrafteable} from './utils'
+import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments'
-import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -40,35 +36,6 @@ function getInitialVersion(document: DbPost|DbObject) {
   }
 }
 
-export async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
-  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
-}
-
-/// Given a revision, return the last revision of the same document/field prior
-/// to it (null if the revision is the first).
-export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null> {
-  return await Revisions.findOne(
-    {documentId: rev.documentId, fieldName: rev.fieldName, editedAt: {$lt: rev.editedAt}},
-    {sort: {editedAt: -1}}
-  );
-}
-
-export function getNextVersion(previousRevision: DbRevision | null, updateType: DbRevision['updateType'] = 'minor', isDraft: boolean) {
-  const { major, minor, patch } = extractVersionsFromSemver(previousRevision?.version || "1.0.0")
-  switch (updateType) {
-    case "patch":
-      return `${major}.${minor}.${patch + 1}`
-    case "minor":
-      return `${major}.${minor + 1}.0`
-    case "major":
-      return `${major+1}.0.0`
-    case "initial":
-      return isDraft ? '0.1.0' : '1.0.0'
-    default:
-      throw new Error("Invalid updateType, must be one of 'patch', 'minor' or 'major'")
-  }
-}
-
 function versionIsDraft(semver: string, collectionName: CollectionNameString) {
   if (collectionName === "Tags")
     return false;
@@ -78,7 +45,7 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }:{
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string
@@ -88,7 +55,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+  const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
   const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
@@ -120,11 +87,12 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): 
 
 function addEditableCallbacks<N extends CollectionNameString>({collection, options = {}}: {
   collection: CollectionBase<N>,
-  options: MakeEditableOptions
+  options: MakeEditableOptions<N>,
 }) {
   const {
     fieldName = "contents",
     pingbacks = false,
+    normalized,
   } = options
 
   const collectionName = collection.collectionName;
@@ -134,10 +102,14 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
-      const { data, type } = doc[fieldName].originalContents
+      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
       const commitMessage = doc[fieldName].commitMessage;
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(data, type)
+      const googleDocMetadata = doc[fieldName].googleDocMetadata;
+      const revision = await buildRevision({
+        originalContents,
+        currentUser,
+      });
+      const { html, wordCount } = revision;
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
@@ -145,8 +117,6 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
         ? (!!doc.debate && fieldName === 'contents')
         : false;
-
-      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
 
       if (isFirstDebatePostComment) {
         const createFirstCommentParams: CreateMutatorParams<"Comments"> = {
@@ -166,16 +136,14 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       }
 
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
-        ...(await buildRevision({
-          originalContents,
-          currentUser,
-        })),
+        ...revision,
         fieldName,
         collectionName,
         version,
         draft: versionIsDraft(version, collectionName),
         updateType: 'initial',
         commitMessage,
+        googleDocMetadata,
         changeMetrics,
         createdAt: editedAt,
       };
@@ -187,11 +155,13 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
       return {
         ...doc,
-        [fieldName]: {
-          ...doc[fieldName],
-          html, version, userId, editedAt, wordCount,
-          updateType: 'initial'
-        },
+        ...(!normalized && {
+          [fieldName]: {
+            ...doc[fieldName],
+            html, version, userId, editedAt, wordCount,
+            updateType: 'initial'
+          },
+        }),
         [`${fieldName}_latest`]: firstRevision.data._id,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, null),
@@ -207,14 +177,17 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
 
-      const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
       const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
       delete docData[fieldName].dataWithDiscardedSuggestions
 
-      const readerVisibleData = dataWithDiscardedSuggestions ?? data
-      const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
-      const wordCount = await dataToWordCount(readerVisibleData, type)
+      const revision = await buildRevision({
+        originalContents: newDocument[fieldName].originalContents,
+        dataWithDiscardedSuggestions,
+        currentUser,
+      });
+      const { html, wordCount } = revision;
+
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
@@ -229,13 +202,9 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       if (await revisionIsChange(newDocument, fieldName)) {
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
           documentId: document._id,
-          ...await buildRevision({
-            originalContents: newDocument[fieldName].originalContents,
-            dataWithDiscardedSuggestions,
-            currentUser,
-          }),
+          ...revision,
           fieldName,
           collectionName,
           version,
@@ -261,10 +230,12 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
       return {
         ...docData,
-        [fieldName]: {
-          ...docData[fieldName],
-          html, version, userId, editedAt, wordCount
-        },
+        ...(!normalized && {
+          [fieldName]: {
+            ...docData[fieldName],
+            html, version, userId, editedAt, wordCount
+          },
+        }),
         [`${fieldName}_latest`]: newRevisionId,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, [{
@@ -344,10 +315,9 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
    * It's fine to leave it here just in case though
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
-    const isPostContentsContext = collectionName === 'Posts' && fieldName === 'contents';
-    const hasChanged = (oldDoc as DbPost)?.contents?.html !== (doc as DbPost)?.contents?.html;
+    const hasChanged = (oldDoc as AnyBecauseHard)?.[fieldName]?.html !== (doc as AnyBecauseHard)?.[fieldName]?.html;
     
-    if (isPostContentsContext && !hasChanged) return;
+    if (!hasChanged) return;
 
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
   })
@@ -370,35 +340,4 @@ export function addAllEditableCallbacks() {
       addEditableCallbacks({collection, options});
     }
   }
-}
-
-onStartup(addAllEditableCallbacks);
-
-/// Given an HTML diff, where added sections are marked with <ins> and <del>
-/// tags, count the number of chars added and removed. This is used for providing
-/// a quick distinguisher between small and large changes, on revision history
-/// lists.
-const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  const parsedHtml = cheerioParse(diffHtml);
-
-  const insertedChars = countCharsInTag(parsedHtml, "ins");
-  const removedChars = countCharsInTag(parsedHtml, "del");
-
-  return { added: insertedChars, removed: removedChars };
-}
-
-const countCharsInTag = (parsedHtml: cheerio.Root, tagName: string): number => {
-  const instancesOfTag = parsedHtml(tagName);
-  let cumulative = 0;
-  for (let i=0; i<instancesOfTag.length; i++) {
-    const tag = instancesOfTag[i];
-    const text = cheerio(tag).text();
-    cumulative += text.length;
-  }
-  return cumulative;
-}
-
-export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMetrics => {
-  const htmlDiff = diff(oldHtml, newHtml);
-  return diffToChangeMetrics(htmlDiff);
 }

@@ -139,7 +139,7 @@ type DigestPlannerPostData = {
   digestPost: DigestPost
   rating: number
 }
-export type PostWithRating = PostsListWithVotes & {rating:number}
+export type PostWithRating = PostsListWithVotes & {rating: number}
 export type DigestPost = {
   _id: string,
   emailDigestStatus: InDigestStatusOption,
@@ -153,7 +153,7 @@ type TagUsage = {
 }
 
 
-const EditDigest = ({classes}:{classes: ClassesType}) => {
+const EditDigest = ({classes}: {classes: ClassesType}) => {
   const {params} = useLocation()
   const {flash} = useMessages()
   const currentUser = useCurrentUser()

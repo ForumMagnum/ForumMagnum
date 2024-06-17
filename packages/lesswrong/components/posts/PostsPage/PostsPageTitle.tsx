@@ -60,10 +60,11 @@ const styles = (theme: ThemeType) => ({
 })
 
 const PostsPageTitle = ({classes, post}: {
-  post: PostsDetails,
+  post: PostsDetails|PostsList,
   classes: ClassesType<typeof styles>,
 }) => {
-  const parentPost = post.sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
+  const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
+  const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
   const { Typography, ForumIcon, LWTooltip } = Components;
   const showLinkIcon = post.url && isFriendlyUI;
   const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI;

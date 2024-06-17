@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, PropsWithChildren } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { CENTRAL_COLUMN_WIDTH } from "../../posts/PostsPage/PostsPage";
 import { useDialog } from "../withDialog";
@@ -60,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ExternalLink: FC<{ href: string }> = ({ href, children }) => (
+const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children }) => (
   <a href={href} target="_blank" rel="noreferrer">
     {children}
   </a>

@@ -16,11 +16,11 @@ export const HoveredReactionListContext = React.createContext<string[]|null>(nul
  * the context change under them and cause a rerender in the middle of
  * hover/unhover events.
  */
-export const SetHoveredReactionContext = React.createContext<((change: HoveredReactionChange)=>void)|null>(null);
+export const SetHoveredReactionContext = React.createContext<((change: HoveredReactionChange) => void)|null>(null);
 
 type HoveredReactionChange = {
-  reactionName:string,
-  isHovered:boolean,
+  reactionName: string,
+  isHovered: boolean,
 };
 
 function hoveredReactionsReducer(hoveredReactions: string[], change: HoveredReactionChange): string[] {

@@ -57,7 +57,7 @@ export interface CommentTreeOptions {
    * Refetch whatever query generated this comment tree. Called after
    * replying to or editing a comment..
    */
-  refetch?: ()=>void,
+  refetch?: () => void,
   
   /**
    * If passed, expanding this comment (from single-line or truncated)
@@ -119,6 +119,12 @@ export interface CommentTreeOptions {
    * If passed, never start comments collapsed to single line.
    */
   forceNotSingleLine?: boolean,
+
+  /**
+   * If passed, expand all comments in the tree whose IDs are in the set (and only those comments).
+   * This takes precedence over both `forceSingleLine` and `forceNotSingleLine`.
+   */
+  expandOnlyCommentIds?: Set<string>,
   
   /**
    * By default, every comment has its comment ID added to the DOM as an
@@ -138,7 +144,7 @@ export interface CommentTreeOptions {
    * If provided, Reply buttons are replaced with something else. Used
    * in side-comments, to replace Reply with See In Context.
    */
-  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,)=>ReactNode
+  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,) => ReactNode
   
   /**
    * Which comment in the tree is moderated, if any.
@@ -175,4 +181,9 @@ export interface CommentTreeOptions {
    * background.
    */
   switchAlternatingHighlights?: boolean,
+
+  /**
+   * Apply styling to deemphasize comments written by users with any userId not in the provided set
+   */
+  deemphasizeCommentsExcludingUserIds?: Set<string>,
 }

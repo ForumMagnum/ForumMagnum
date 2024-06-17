@@ -28,11 +28,11 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
-  const { LWTooltip, SequencesHoverOver, SequencesNavigationLink } = Components 
+  const {SequencesTooltip, SequencesNavigationLink} = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
-  const handleKey = useCallback((ev) => {
+  const handleKey = useCallback((ev: KeyboardEvent) => {
     // Only if Shift and no other modifiers
     if (ev.shiftKey && !ev.ctrlKey && !ev.altKey && !ev.metaKey) {
       // Check the targe of the event; we don't want to navigate if you're
@@ -66,12 +66,12 @@ const PostsTopSequencesNav = ({post, classes}: {
         post={post.prevPost}
         direction="left" />
 
-      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
+      <SequencesTooltip sequence={post.sequence}>
         <div className={classes.title}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
         </div>
-      </LWTooltip>
+      </SequencesTooltip>
 
       <SequencesNavigationLink
         post={post.nextPost}

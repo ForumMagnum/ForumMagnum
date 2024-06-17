@@ -58,8 +58,6 @@ export const HIDE_HANDBOOK_COOKIE = registerCookie({
   description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
-export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "necessary", description: 'Controls whether job ads are hidden'});
-
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
   type: "necessary",
@@ -92,6 +90,14 @@ registerCookie({
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
+export const HIDE_FORUM_EVENT_BANNER_PREFIX = "hide_forum_event_banner_";
+registerCookie({
+  name: `${HIDE_FORUM_EVENT_BANNER_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(HIDE_FORUM_EVENT_BANNER_PREFIX),
+  type: "necessary",
+  description: "Stores whether a forum event banner has been hidden",
+});
+
 export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   name: "show_recommendations_section",
   type: "necessary",
@@ -122,6 +128,35 @@ export const HIDE_2021_BOOK_BANNER_COOKIE = registerCookie({
   description: "Don't show the 2021 book banner",
 });
 
+export const LAST_VISITED_FRONTPAGE_COOKIE = registerCookie({
+  name: "last_visited_frontpage",
+  type: "functional",
+  description: "Stores the date of the user's last visit to the frontpage",
+});
+
+export const RECOMBEE_SETTINGS_COOKIE = registerCookie({
+  name: "admin_recombee_settings",
+  type: "functional",
+  description: "Stores recombee settings for admins experimenting with latest posts"
+});
+
+export const NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE = registerCookie({
+  name: "new_posts_list_view_toggle",
+  type: "necessary",
+  description: "Tracks whether or not to show the \"NEW\" flag on the posts list view toggle"
+});
+
+export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
+  name: "posts_list_view_type",
+  type: "necessary",
+  description: "Whether to display post lists as list items or card items"
+});
+
+export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
+  name: "hide_subscribed_feed_suggested_users",
+  type: "necessary",
+  description: "Whether to hide the suggested users section on the subscribed tab feed"
+});
 
 // Third party cookies
 

@@ -1,11 +1,10 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import Books from '../../lib/collections/books/collection';
 
 const BooksEditForm = ({documentId, successCallback, cancelCallback, prefilledProps}: {
   documentId: string,
-  successCallback?: ()=>void,
-  cancelCallback?: ()=>void,
+  successCallback?: () => void,
+  cancelCallback?: () => void,
   prefilledProps?: Record<string,any>,
 }) => {
   return (

@@ -110,8 +110,10 @@ const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement
   classes: ClassesType,
 }) => {
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
-    pageElementContext: 'newFeatureHovered',
-    title,
+    eventProps: {
+      pageElementContext: 'newFeatureHovered',
+      title,
+    },
   });
 
   const { LWPopper } = Components;

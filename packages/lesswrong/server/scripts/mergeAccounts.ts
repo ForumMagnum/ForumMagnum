@@ -7,7 +7,7 @@ import { Votes } from '../../lib/collections/votes/index';
 import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
-import { ConversationsRepo, LocalgroupsRepo, VotesRepo } from '../repos';
+import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
@@ -163,7 +163,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
+Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   sourceUserId: string, 
   targetUserId: string, 
   dryRun: boolean
@@ -189,6 +189,10 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // Transfer posts
   await transferCollection({sourceUserId, targetUserId, collectionName: "Posts", dryRun})
+  // Transfer post co-authorship
+  if (!dryRun) {
+    await new PostsRepo().moveCoauthorshipToNewUser(sourceUserId, targetUserId)
+  }
 
   // Transfer comments
   await transferCollection({sourceUserId, targetUserId, collectionName: "Comments", dryRun})
@@ -207,11 +211,20 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // Transfer reports (i.e. user reporting a comment/tag/etc)
   await transferCollection({sourceUserId, targetUserId, collectionName: "Reports", dryRun})
+  
+  // Transfer election votes
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ElectionVotes", dryRun})
+  
+  // Transfer moderator actions
+  await transferCollection({sourceUserId, targetUserId, collectionName: "ModeratorActions", dryRun})
+  
+  // Transfer user rate limits
+  await transferCollection({sourceUserId, targetUserId, collectionName: "UserRateLimits", dryRun})
 
   try {
     const [sourceConversationsCount, targetConversationsCount] = await Promise.all([
       Conversations.find({participantIds: sourceUserId}).count(),
-      Conversations.find({participantIds: sourceUserId}).count()
+      Conversations.find({participantIds: targetUserId}).count()
     ])
     // eslint-disable-next-line no-console
     console.log(`conversations from source user: ${sourceConversationsCount}`)

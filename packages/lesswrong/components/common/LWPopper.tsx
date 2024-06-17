@@ -101,10 +101,10 @@ const LWPopper = ({
     return null;
   }
   
-  return (
-    // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
-    // context, by placing the Popper element directly into the document root
-    // Rest of usage from https://popper.js.org/react-popper/v2/
+  // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+  // context, by placing the Popper element directly into the document root
+  // Rest of usage from https://popper.js.org/react-popper/v2/
+  return <>{
     createPortal(
       <div
         ref={setPopperElement}
@@ -122,7 +122,7 @@ const LWPopper = ({
       </div>,
       document.body
     )
-  )
+  }</>
 };
 
 const LWPopperComponent = registerComponent('LWPopper', LWPopper, {styles});

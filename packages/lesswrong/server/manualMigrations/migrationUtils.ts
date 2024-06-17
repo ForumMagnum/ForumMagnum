@@ -3,7 +3,7 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep, timedFunc } from '../../lib/helpers';
-import { getSqlClient } from '../../lib/sql/sqlClient';
+import { getSqlClient } from '../../server/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database
@@ -98,7 +98,7 @@ export async function runMigration(name: string)
 // time spent not sleeping is equal to `loadFactor`. Used when doing a batch
 // migration or similarly slow operation, which can be broken into smaller
 // steps, to keep the database load low enough for the site to keep running.
-export async function runThenSleep(loadFactor: number, func: ()=>Promise<void>)
+export async function runThenSleep(loadFactor: number, func: () => Promise<void>)
 {
   if (loadFactor <=0 || loadFactor > 1)
     throw new Error(`Invalid loadFactor ${loadFactor}: must be in (0,1].`);
@@ -518,7 +518,7 @@ export async function forEachBucketRangeInCollection<N extends CollectionNameStr
   collection: CollectionBase<N>
   filter?: MongoSelector<ObjectsByCollectionName[N]>
   bucketSize?: number
-  fn: (selector: MongoSelector<ObjectsByCollectionName[N]>)=>Promise<void>
+  fn: (selector: MongoSelector<ObjectsByCollectionName[N]>) => Promise<void>
 })
 {
   // Get filtered collection size and use it to calculate a number of buckets
@@ -569,7 +569,7 @@ Vulcan.dropUnusedField = dropUnusedField
 
   // We can't assume that certain postgres functions exist because we may not have run the appropriate migration
   // This wraapper runs the function and ignores if it's not defined yet
-export async function safeRun(db : SqlClient | null, fn : string) : Promise<void> {
+export async function safeRun(db: SqlClient | null, fn: string): Promise<void> {
   if(!db) return;
 
   await db.any(`DO $$

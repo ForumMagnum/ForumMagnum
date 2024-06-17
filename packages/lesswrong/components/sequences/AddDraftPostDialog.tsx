@@ -11,7 +11,7 @@ import { useDialog } from '../common/withDialog';
 const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   documentId: string,
   postIds: string[],
-  onClose?: ()=>void,
+  onClose?: () => void,
 }) => {
   const { flash } = useMessages();
   const [dialogPostIds, setDialogPostIds] = useState(postIds)
@@ -22,7 +22,7 @@ const AddDraftPostDialog = ({documentId, postIds, onClose}: {
     fragmentName: 'ChaptersFragment',
   });
 
-  const addDraft = useCallback((newPostId) => {
+  const addDraft = useCallback((newPostId: string) => {
     if (dialogPostIds.includes(newPostId)) {
       flash("That draft is already in the sequence")
       return

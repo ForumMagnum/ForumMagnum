@@ -72,21 +72,22 @@ import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
  *        named ml/tagClassification.TAG.{train,test}.jsonl
  *    Take a look at a few of these and make sure they look right.
  *
-   7. Install the OpenAI command-line API (if it isn't already installed.) with:
-           pip install --upgrade openai
-      (Depending on your system this might be `pip3` instead. If this succeeds
-      you should be able to run `openai` from the command line in any directory.)
+ * 7. Install the OpenAI command-line API (if it isn't already installed.) with:
+ *         pip install --upgrade openai
+ *    (Depending on your system this might be `pip3` instead. If this succeeds
+ *    you should be able to run `openai` from the command line in any directory.)
+ *    Check the version number with
+ *         pip show openai
+ *    This should be 1.7.1 or later.
  *
- * 8. Run fine-tuning jobs. First put the API key into your environment, then start the fine-tuning job using the OpenAI CLI.
+ * 8. Run fine-tuning jobs. First put the API key into your environment, then start the fine-tuning job with
           export OPENAI_API_KEY=YOURAPIKEYHERE
-          openai api fine_tunes.create \
-            -m babbage --compute_classification_metrics --classification_positive_class " yes" \
-            -t ml/tagClassification.${TAG}.train.jsonl \
-            -v ml/tagClassification.${TAG}.test.jsonl
-      Substituting in ${TAG}, and repeat for each tag.
-      You can check each job with:
-          openai api fine_tunes.follow -i ${id}
-      Update on 2023-11-27: You can now just do this all via their web UI, see https://platform.openai.com/docs/guides/fine-tuning
+          scripts/fineTuneTagClassifiers.py \
+            --train ml/tagClassification.${TAG}.train.jsonl \
+            --test ml/tagClassification.${TAG}.test.jsonl \
+ *    Substituting in ${TAG}, and repeat for each tag.
+ *    You can also do this with their web UI; see see
+ *        https://platform.openai.com/docs/guides/fine-tuning
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
@@ -141,7 +142,7 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache,
   
   const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
   
-  return substituteIntoTemplate({
+  const withTemplate = substituteIntoTemplate({
     template,
     maxLengthTokens: parseInt(header["max-length-tokens"]),
     truncatableVariable: "text",
@@ -152,6 +153,11 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache,
       tagPrompt: promptSuffix,
     }
   });
+  
+  // Replace the string <|endoftext|> with __endoftext__ because the former is
+  // special to the tokenizer (and will cause input-validation to fail), and it
+  // tends to appear in posts that talk about LLMs.
+  return withTemplate.replace(/<\|endoftext\|>/g, "__endoftext__");
 }
 
 function preprocessPostHtml(postHtml: string): string {
@@ -163,7 +169,7 @@ export type PostBodyCache = {preprocessedBody: Record<string,string>}
 export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
-    result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html);
+    result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html ?? "");
   }
   return result;
 }
@@ -198,15 +204,39 @@ async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> 
   return account;
 }
 
-let tagBotUserIdCache: Promise<{id:string|null}>|null = null;
+let tagBotUserIdPromise: Promise<void>|null = null;
+// If undefined, hasn't been fetched yet; if null, the account doesn't exist.
+let tagBotUserId: string|null|undefined = undefined;
+
+/**
+ * Get the ID of the tag-bot account, with caching. The first call to this will
+ * fetch the tagger account (using the tagBotAccountSlug config setting); all
+ * subsequent calls will return a cached value. If called while that first
+ * fetch is in-flight, waits for that request to finish, rather than starting a
+ * duplicate (this affects server-startup performance during development).
+ */
 export async function getTagBotUserId(context: ResolverContext): Promise<string|null> {
-  if (!tagBotUserIdCache) {
-    tagBotUserIdCache = (async () => {
-      const tagBotAccount = await getTagBotAccount(context);
-      return {id: tagBotAccount?._id ?? null};
-    })();
+  if (tagBotUserId === undefined) {
+    if (!tagBotUserIdPromise) {
+      tagBotUserIdPromise = new Promise((resolve) => {
+        void (async () => {
+          const tagBotAccount = await getTagBotAccount(context);
+          tagBotUserId = tagBotAccount?._id ?? null;
+          
+          // Discard the promise after we're done with it. Previously we didn't
+          // do this, and kept the promise in a global variable forever after it
+          // was resolved. That made this function simpler, but caused a memory
+          // leak: the promise captures its context, including the
+          // ResolverContext we got passed, which retains everything from the
+          // whole pageload.
+          tagBotUserIdPromise = null;
+          resolve();
+        })();
+      });
+    }
+    await tagBotUserIdPromise
   }
-  return (await tagBotUserIdCache).id;
+  return tagBotUserId ?? null;
 }
 
 export async function getAutoAppliedTags(): Promise<DbTag[]> {

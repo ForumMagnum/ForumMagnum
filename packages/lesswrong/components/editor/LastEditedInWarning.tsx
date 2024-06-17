@@ -17,7 +17,7 @@ const LastEditedInWarning = ({initialType, currentType, defaultType, value, setV
   currentType: EditorTypeString,
   defaultType: EditorTypeString,
   value: EditorContents,
-  setValue: (change: EditorChangeEvent)=>void,
+  setValue: (change: EditorChangeEvent) => void,
   classes: ClassesType
 }) => {
   const { Loading, Typography } = Components;

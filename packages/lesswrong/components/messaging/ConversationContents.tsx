@@ -5,9 +5,9 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
-import { useOnNotificationsChanged } from "../hooks/useUnreadNotifications";
+import { useOnServerSentEvent } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
-import { isEAForum } from "../../lib/instanceSettings";
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationTitle: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       padding: '18px 0px',
       marginTop: "auto",
     } : {
@@ -78,7 +78,7 @@ const ConversationContents = ({
 
   // Whenever either the number of messages changes, or the conversationId changes,
   // scroll to the bottom. This happens on pageload, and also happens when the messages
-  // list is refreshed because of the useOnNotificationsChanged() call below, if the refresh
+  // list is refreshed because of the useOnServerSentEvent() call below, if the refresh
   // increased the message count.
   //
   // Note, if you're refreshing (as opposed to navigating or opening a new
@@ -103,7 +103,7 @@ const ConversationContents = ({
     }
   }, [stateSignatureRef, results?.length, scrollRef, conversation._id]);
 
-  useOnNotificationsChanged(currentUser, () => refetch());
+  useOnServerSentEvent('notificationCheck', currentUser, () => refetch());
 
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef("");
@@ -126,7 +126,7 @@ const ConversationContents = ({
     if (!results?.length) return null;
 
     return (
-      <div>
+      <div data-testid="conversation-messages">
         {results.map((message) => (
           <MessageItem key={message._id} message={message} />
         ))}
@@ -145,7 +145,7 @@ const ConversationContents = ({
           key={`sendMessage-${messageSentCount}`}
           conversationId={conversation._id}
           templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-          formStyle={isEAForum ? "minimalist" : undefined}
+          formStyle={isFriendlyUI ? "minimalist" : undefined}
           successEvent={() => {
             setMessageSentCount(messageSentCount + 1);
             captureEvent("messageSent", {

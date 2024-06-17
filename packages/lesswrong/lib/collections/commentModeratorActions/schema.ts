@@ -50,6 +50,7 @@ const schema: SchemaType<"CommentModeratorActions"> = {
   },
   active: resolverOnlyField({
     type: Boolean,
+    graphQLtype: 'Boolean!',
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     resolver: (doc) => isCommentActionActive(doc)
   })

@@ -1,6 +1,6 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import Revisions from '../../lib/collections/revisions/collection'
+import { getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 
 registerMigration({
   name: "revisionChangeMetrics",

@@ -29,9 +29,9 @@ import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
-import NoSSR from "react-no-ssr";
 import { useLocation } from "../../../lib/routeUtil";
 import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
+import ForumNoSSR from "../../common/ForumNoSSR";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -1548,7 +1548,7 @@ const RecommendationsSection = ({classes}: {
       <h1 className={classes.heading3}>
         Posts you missed that we think you’ll enjoy
       </h1>
-      <NoSSR>
+      <ForumNoSSR>
         <Components.RecommendationsList
           algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
           ListItem={
@@ -1561,7 +1561,7 @@ const RecommendationsSection = ({classes}: {
           }
           className={classes.recommendedPosts}
         />
-      </NoSSR>
+      </ForumNoSSR>
     </section>
   </AnalyticsContext>
 }
@@ -1591,12 +1591,12 @@ const MostValuablePostsSection = ({year, classes}: {
           <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
         </div>
       </div>
-      <NoSSR>
+      <ForumNoSSR>
         <div className={classNames(classes.mvpList, classes.mt10)}>
           <PostsByVoteWrapper voteType="bigUpvote" year={year} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
           <PostsByVoteWrapper voteType="smallUpvote" year={year} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
         </div>
-      </NoSSR>
+      </ForumNoSSR>
     </section>
   </AnalyticsContext>
 }
@@ -1618,16 +1618,6 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     userId: currentUser?._id,
     year
   })
-
-  // After the user has seen the summary section,
-  // we add a link in the first section to skip down to it for convenience
-  useEffect(() => {
-    if (year === 2023 && entry?.isIntersecting && !currentUser?.wrapped2023Viewed) {
-      void updateCurrentUser({
-        wrapped2023Viewed: true,
-      });
-    }
-  }, [year, entry, updateCurrentUser, currentUser?.wrapped2023Viewed]);
 
   const skipToSummary = useCallback(() => {
     node?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
@@ -1691,18 +1681,13 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
         <AnalyticsContext pageSectionContext="top">
           <section className={classes.section}>
             <h1 className={classes.heading1}>Your {year} Wrapped</h1>
-            {(year !== 2023 || currentUser.wrapped2023Viewed) &&
-              <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
-                Skip to summary
-                <ForumIcon icon="NarrowArrowDown" />
-              </button>
-            }
+            <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
+              Skip to summary
+              <ForumIcon icon="NarrowArrowDown" />
+            </button>
             <CloudinaryImage2
               publicId="2023_wrapped"
-              wrapperClassName={classNames(classes.imgWrapper, {
-                [classes.mt60]: currentUser.wrapped2023Viewed,
-                [classes.mt100]: !currentUser.wrapped2023Viewed,
-              })}
+              wrapperClassName={classNames(classes.imgWrapper, classes.mt60)}
               className={classes.img}
             />
           </section>

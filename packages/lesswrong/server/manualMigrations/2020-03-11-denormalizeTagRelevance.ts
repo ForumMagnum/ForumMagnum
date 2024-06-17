@@ -1,5 +1,5 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 
 

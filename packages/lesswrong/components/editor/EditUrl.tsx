@@ -65,8 +65,8 @@ const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText
   hintText?: string,
   placeholder?: string,
   tooltip?: string,
-  updateCurrentValues<T extends {}>(values: T) : void,
-  setFooterContent(content: any) : void,
+  updateCurrentValues<T extends {}>(values: T): void,
+  setFooterContent(content: any): void,
   inputProperties: {
     labels?: {
       active: string,

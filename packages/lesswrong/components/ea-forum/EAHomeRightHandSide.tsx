@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import NoSSR from 'react-no-ssr';
-import moment from 'moment';
 import classNames from 'classnames';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
@@ -8,7 +6,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { Link } from '../../lib/reactRouterWrapper';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useTimezone } from '../common/withTimezone';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useUserLocation } from '../../lib/collections/users/helpers';
@@ -16,18 +13,21 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { userHasEAHomeRHS } from '../../lib/betas';
-import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
-import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
-import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
-import { podcastAddictLogoIcon } from '../icons/PodcastAddictLogoIcon';
+import { podcastPost, podcasts } from '../../lib/eaPodcasts';
+import ForumNoSSR from '../common/ForumNoSSR';
+
+/**
+ * The max screen width where the Home RHS is visible
+ */
+export const HOME_RHS_MAX_SCREEN_WIDTH = 1370
 
 const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: 50,
     marginTop: 10,
     marginLeft: 50,
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
       width: 34,
       backgroundColor: theme.palette.grey[250],
     },
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -157,7 +157,6 @@ const styles = (theme: ThemeType) => ({
 const UpcomingEventsSection = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { timezone } = useTimezone()
   const currentUser = useCurrentUser()
   const {lat, lng, known} = useUserLocation(currentUser, true)
   const upcomingEventsTerms: PostsViewTerms = lat && lng && known ? {
@@ -176,7 +175,7 @@ const UpcomingEventsSection = ({classes}: {
     fetchPolicy: 'cache-and-network',
   })
 
-  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper} = Components;
+  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper, FormatDate} = Components;
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
       <LWTooltip
@@ -193,7 +192,6 @@ const UpcomingEventsSection = ({classes}: {
         />
       </LWTooltip>
       {upcomingEvents?.map(event => {
-        const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
         return <div key={event._id}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={event} As="span">
@@ -204,7 +202,7 @@ const UpcomingEventsSection = ({classes}: {
           </div>
           <div className={classes.postMetadata}>
             <span className={classes.eventDate}>
-              {shortDate}
+              {event.startTime && <FormatDate date={event.startTime} format={"MMM D"} />}
             </span>
             <span className={classes.eventLocation}>
               {event.onlineEvent ? "Online" : getCityName(event)}
@@ -268,7 +266,7 @@ export const EAHomeRightHandSide = ({classes}: {
   if (!userHasEAHomeRHS(currentUser)) return null
   
   const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, DigestAd
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd
   } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
@@ -277,35 +275,22 @@ export const EAHomeRightHandSide = ({classes}: {
     </LWTooltip>
   </div>
   
-  if (isHidden) return sidebarToggleNode
+  if (isHidden) {
+    // We include an empty root here so that when the sidebar is hidden,
+    // the center column is slightly closer to the center of the screen.
+    return <AnalyticsContext pageSectionContext="homeRhs">
+      {sidebarToggleNode}
+      <div className={classes.root}></div>
+    </AnalyticsContext>
+  }
   
   // NoSSR sections that could affect the logged out user cache
-  let digestAdNode = <DigestAd className={classes.digestAd} />
+  let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
-    digestAdNode = <NoSSR>{digestAdNode}</NoSSR>
-    upcomingEventsNode = <NoSSR>{upcomingEventsNode}</NoSSR>
+    digestAdNode = <ForumNoSSR>{digestAdNode}</ForumNoSSR>
+    upcomingEventsNode = <ForumNoSSR>{upcomingEventsNode}</ForumNoSSR>
   }
-
-  // data for podcasts section
-  const podcasts = [{
-    url: 'https://open.spotify.com/show/3NwXq1GGCveAbeH1Sk3yNq',
-    icon: spotifyLogoIcon,
-    name: 'Spotify'
-  }, {
-    url: 'https://podcasts.apple.com/us/podcast/1657526204',
-    icon: applePodcastsLogoIcon,
-    name: 'Apple Podcasts'
-  }, {
-    url: 'https://pca.st/zlt4n89d',
-    icon: pocketCastsLogoIcon,
-    name: 'Pocket Casts'
-  }, {
-    url: 'https://podcastaddict.com/podcast/ea-forum-podcast-curated-popular/4160487',
-    icon: podcastAddictLogoIcon,
-    name: 'Podcast Addict'
-  }]
-  const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
@@ -360,7 +345,7 @@ export const EAHomeRightHandSide = ({classes}: {
               </PostsItemTooltipWrapper>
             </div>
             <div className={classes.postMetadata}>
-              Posted <PostsItemDate post={post} includeAgo />
+              Posted <PostsItemDate post={post} includeAgo useCuratedDate={false} />
             </div>
           </div>)}
         </div>

@@ -5,12 +5,14 @@ import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   usersWhoReactedRoot: {
-    maxWidth: 225,
+    maxWidth: 205,
     display: "inline-block",
     color: theme.palette.grey[600]
   },
   usersWhoReactedWrap: {
     whiteSpace: "unset",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   userWhoAntiReacted: {
     color: theme.palette.error.main,
@@ -21,11 +23,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}:{
+const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
-  classes:ClassesType,
+  classes: ClassesType,
 }) => {
   const { LWTooltip } = Components;
 

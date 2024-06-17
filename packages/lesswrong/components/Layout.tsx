@@ -1,23 +1,22 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
-import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
-import { AnalyticsContext } from '../lib/analyticsEvents'
+import { AnalyticsContext, useTracking } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
 import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
-import { pBodyStyle } from '../themes/stylePiping';
-import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
+import { commentBodyStyles, pBodyStyle } from '../themes/stylePiping';
+import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from '../lib/publicSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import NoSSR from 'react-no-ssr';
+import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
@@ -28,10 +27,15 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
-import { reviewIsActive } from '../lib/reviewUtils';
-
+import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
+import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
+import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+import moment from 'moment';
+
+import { Link } from '../lib/reactRouterWrapper';
+import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -50,7 +54,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
 
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
- * and we require them to fill this in in the NewUserCompleteProfile form before continuing.
+ * and we require them to fill this in using the onboarding flow before continuing.
  * This is a list of route names that the user is allowed to view despite having an
  * 'incomplete' account.
  */
@@ -67,14 +71,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
-      paddingTop: 0,
+      paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
       paddingRight: 8,
     },
   },
   wrapper: {
     position: 'relative',
-    overflow: 'clip'
+    overflowX: 'clip'
   },
   mainNoFooter: {
     paddingBottom: 0,
@@ -125,26 +129,126 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   imageColumn: {
-    gridArea: 'imageGap',
-    [theme.breakpoints.down('md')]: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: "100vh",
+    ['@media(max-width: 1000px)']: {
       display: 'none'
-    }
+    },
   },
   backgroundImage: {
     position: 'absolute',
     width: '57vw',
     maxWidth: '1000px',
-    top: '-30px',
+    top: '-57px',
+    right: '-334px',
     '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
       right: '0px',
     }
   },
-  votingImage: {
-    width: '55vw',
-    maxWidth: '1000px',
-    marginLeft: '-15px'
+  frontpageImage: {
+    right: -50,
+    height: '82vh',
+    objectFit: 'cover',
+    '-webkit-mask-image': `radial-gradient(ellipse at top right, ${theme.palette.text.alwaysBlack} 53%, transparent 70%)`,
+    zIndex: -2,
+    position: 'relative',
+  },
+  bannerText: {
+    ...theme.typography.postStyle,
+    ['@media(max-width: 1375px)']: {
+      width: 250
+    },
+    ['@media(max-width: 1325px)']: {
+      width: 200
+    },
+    ['@media(max-width: 1200px)']: {
+      display: "none"
+    },
+    position: 'absolute',
+    right: 16,
+    bottom: 79,
+    color: theme.palette.grey[900],
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    textAlign: "right",
+    width: 300,
+    '& h2': {
+      fontSize: '2.4rem',
+      lineHeight: '2.6rem',
+      marginTop: 20,
+      marginBottom: 0,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
+      '& a:hover': {
+        opacity: 1
+      }
+    },
+    '& h3': {
+      fontSize: '20px',
+      margin: 0,
+      lineHeight: '1.2',
+      marginBottom: 6,
+      textShadow: `
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}, 
+        0 0 15px ${theme.palette.background.pageActiveAreaBackground}
+      `,
+    },
+    '& button': {
+      ...theme.typography.commentStyle,
+      backgroundColor: theme.palette.primary.main,
+      opacity: .9,
+      border: 'none',
+      color: theme.palette.text.alwaysWhite,
+      fontWeight: 600,
+      borderRadius: '3px',
+      textAlign: 'center',
+      padding: 8,
+      fontSize: '14px',
+      marginTop: 6
+    },
+    '& p': {
+      ...commentBodyStyles(theme),
+      fontSize: '14px',
+      marginBottom: 10,
+    },
+    '& p a': {
+      color: theme.palette.primary.main,
+    }
+  },
+  ticketPricesRaise: {
+    ...theme.typography.commentStyle,
+    fontStyle: 'italic',
+    fontSize: 14,
+    marginTop: 10,
+    '& p': {
+      margin: 4
+    }
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    height: '100vh',
+    width: '50vw',
+    background: `linear-gradient(to top, ${theme.palette.background.default} 230px, transparent calc(230px + 30%))`,
+    zIndex: -1,
+  },
+  lessOnlineBannerDateAndLocation: {
+    ...theme.typography.commentStyle,
+    fontSize: '16px !important',
+    fontStyle: 'normal',
+    marginBottom: '16px !important',
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -249,8 +353,8 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -293,6 +397,8 @@ const Layout = ({currentUser, children, classes}: {
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
   
+  const { captureEvent } = useTracking();
+  
   useEffect(() => {
     const isWhite = document.body.classList.contains(classes.whiteBackground);
     if (isWhite !== useWhiteBackground) {
@@ -313,8 +419,14 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+
+  let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
+  if (pathname.startsWith('/wrapped')) {
+    headerBackgroundColor = wrappedBackgroundColor;
+  } else if (blackBarTitle.get()) {
+    headerBackgroundColor = 'rgba(0, 0, 0, 0.7)';
+  }
 
   const render = () => {
     const {
@@ -327,7 +439,8 @@ const Layout = ({currentUser, children, classes}: {
       AnalyticsPageInitializer,
       NavigationEventSender,
       PetrovDayWrapper,
-      NewUserCompleteProfile,
+      EAOnboardingFlow,
+      BasicOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -337,7 +450,8 @@ const Layout = ({currentUser, children, classes}: {
       SunshineSidebar,
       EAHomeRightHandSide,
       CloudinaryImage2,
-      ReviewVotingCanvas
+      ForumEventBanner,
+      GlobalHotkeys,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -361,8 +475,7 @@ const Layout = ({currentUser, children, classes}: {
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
-    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
-      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -373,15 +486,18 @@ const Layout = ({currentUser, children, classes}: {
         && beforeTime < currentTime
         && currentTime < afterTime
     }
-
+    
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
+      <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
+      <LoginPopoverContextProvider>
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
+      <CurrentForumEventProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -400,10 +516,11 @@ const Layout = ({currentUser, children, classes}: {
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
               <NavigationEventSender/>
+              <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
-              <NoSSR>
+              <ForumNoSSR>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              </NoSSR>
+              </ForumNoSSR>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -417,6 +534,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={!!currentRoute?.staticHeader}
                 backgroundColor={headerBackgroundColor}
               />}
+              <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
@@ -454,30 +572,18 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {showNewUserCompleteProfile
-                      ? <NewUserCompleteProfile currentUser={currentUser}/>
-                      : children
-                    }
+                    {children}
+                    {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-                      </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
-                  </>
-                }
+                {isLW && <>
+                  {standaloneNavigation && <div className={classes.imageColumn}>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                  </div>}
+                </>}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
-                  !showNewUserCompleteProfile &&
                   <StickyWrapper
                     eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
@@ -488,19 +594,22 @@ const Layout = ({currentUser, children, classes}: {
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <NoSSR>
+                  <ForumNoSSR>
                     <SunshineSidebar/>
-                  </NoSSR>
+                  </ForumNoSSR>
                 </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>
+      </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
+      </UnreadNotificationsContextProvider>
       </UserContext.Provider>
       </AnalyticsContext>
     )

@@ -4,6 +4,15 @@ export {}
 
 declare global {
 
+// The version of the typescript lib we use is missing several of the valid
+// constructors for `Error`, so we add them here
+interface ErrorConstructor {
+    new(message?: string, options?: {cause?: Error}): Error;
+    new(message?: string, fileName?: string, lineNumber?: number): Error;
+    (message?: string, options?: {cause?: Error}): Error;
+    (message?: string, fileName?: string, lineNumber?: number): Error;
+}
+
 // Test whether T is type 'any'; if so evaluates to Y, otherwise to N. From
 // https://stackoverflow.com/questions/55541275/typescript-check-for-the-any-type
 type IfAny<T,Y,N> = 0 extends (1 & T) ? Y : N;
@@ -42,7 +51,7 @@ type NameOfFieldWithType<ObjType,FieldName,FieldType> =
 type FromPartial<T> = T extends Partial<infer U> ? U : never;
 
 /** Either T, or a function taking P and returning T. */
-export type MaybeFunction<T,P> = T|((props:P)=>T)
+export type MaybeFunction<T,P> = T|((props: P) => T)
 
 /**
  * Has Typescript type "any" because it's a JSON blob coming from a user input,
@@ -82,6 +91,18 @@ export type AnyBecauseHard = any
 export interface JsonArray extends ReadonlyArray<Json> {}
 export interface JsonRecord extends Record<string, Json> {}
 export type Json = boolean | number | string | null | JsonArray | JsonRecord
+
+type ComponentProps<C> = C extends React.ComponentType<infer P> ? P : never;
+
+type IsOptional<T, K extends keyof T> = undefined extends T[K] ? true : false;
+
+export type ComponentWithProps<T> = {
+  // The ternary here is to make sure e.g. `{onClose?: any}` only matches components that have onClose as an optional parameter,
+  // and not components that don't have it at all
+  [K in keyof ComponentTypes]: IsOptional<ComponentProps<ComponentTypes[K]>, keyof T & keyof ComponentProps<ComponentTypes[K]>> extends true
+    ? (ComponentProps<ComponentTypes[K]> extends T ? K : never)
+    : (ComponentProps<ComponentTypes[K]> extends Required<T> ? K : never)
+}[keyof ComponentTypes];
 
 }
 

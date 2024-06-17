@@ -33,10 +33,12 @@ const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
   const { ContentStyles, LWPopper } = Components
   
   const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "linkPreview",
-    hoverPreviewType: "DefaultPreview",
-    href,
-    onsite
+    eventProps: {
+      pageElementContext: "linkPreview",
+      hoverPreviewType: "DefaultPreview",
+      href,
+      onsite,
+    },
   });
   
   let footnoteContentsNonempty = false;

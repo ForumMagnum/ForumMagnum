@@ -1,16 +1,13 @@
-import type { FilterTag } from './filterSettings';
-import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
+import type {FilterTag} from './filterSettings'
+import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
+import {forumSelect} from './forumTypeUtils'
+import {isEAForum} from './instanceSettings'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
-
-export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
-  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
-  registeredSettings[settingName] = settingType
-}
 
 /* 
   A setting which is stored in the database in the "databasemedata" collection, in a record with the `name` field set to "publicSettings" 
@@ -34,6 +31,11 @@ export class DatabasePublicSetting<SettingValueType> {
     private defaultValue: SettingValueType
   ) {
     initializeSetting(settingName, "public")
+
+    // Affords for a more convenient lazy usage, 
+    // so you can refer to setting getter as `setting.get` vs having to wrap it in a function like `() => setting.get()`
+    this.get = this.get.bind(this)
+    this.getOrThrow = this.getOrThrow.bind(this)
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
@@ -41,6 +43,12 @@ export class DatabasePublicSetting<SettingValueType> {
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
+  }
+
+  getOrThrow(): SettingValueType {
+    const value = this.get()
+    if (value === null || value === undefined) throw Error(`Tried to access public setting ${this.settingName} but it was not set`)
+    return value
   }
 }
 
@@ -101,6 +109,34 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
+export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
+
+export type ReviewWinnerSectionName = 'rationality' | 'optimization' | 'modeling' | 'ai' | 'practical' | 'misc';
+export type ReviewWinnerYear = 2018 | 2019 | 2020 | 2021 | 2022;
+export type CoordinateInfo = Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> & {
+  leftHeightPct?: number;
+  middleHeightPct?: number;
+  rightHeightPct?: number;
+};
+
+export interface ReviewSectionInfo {
+  title?: string;
+  imgUrl: string;
+  order: number;
+  coords: CoordinateInfo;
+  tag: string | null;
+}
+
+export interface ReviewYearGroupInfo {
+  title?: string;
+  imgUrl: string;
+  coords: CoordinateInfo;
+}
+
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
+
+
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
 type AccountInfo = {
   username: string,
@@ -123,5 +159,31 @@ export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('di
 
 export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
 
+export type Auth0ClientSettings = {
+  domain: string,
+  clientId: string,
+  connection: string,
+}
+export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings | null>("auth0", null);
+
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);
+
+export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
+
+export const showSubscribeReminderInFeed = new DatabasePublicSetting<boolean>(
+  'feed.showSubscribeReminder', 
+  forumSelect({EAForum: true, LWAF: true, default: false})
+);
+
+export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
+
+
+export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
+export const recommendationsTabManuallyStickiedPostIdsSetting = new DatabasePublicSetting<string[]>('recommendationsTab.manuallyStickiedPostIds', []);
+
+export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarTitle', null);
+
+export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)
+
+export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);

@@ -6,6 +6,8 @@ import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { PostsItemConfig } from "./usePostsItem";
+import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -46,6 +48,7 @@ export type PostsListConfig = {
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
+  placeholderCount?: number,
   hideAuthor?: boolean,
   hideTag?: boolean,
   hideTrailingButtons?: boolean,
@@ -57,6 +60,12 @@ export type PostsListConfig = {
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
   loadMoreMessage?: string,
+  /**
+   * The view to use for the items - if set to `fromContext` it will use the
+   * value from the nearest `PostsListViewProvider` (which default to "list"
+   * if there is no provider).
+   */
+  viewType?: PostsListViewType | "fromContext",
 }
 
 const defaultTooltipPlacement = isFriendlyUI
@@ -82,6 +91,7 @@ export const usePostsList = ({
   dense,
   defaultToShowUnreadComments,
   itemsPerPage = 25,
+  placeholderCount,
   hideAuthor = false,
   hideTag = false,
   hideTrailingButtons = false,
@@ -93,6 +103,7 @@ export const usePostsList = ({
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
   loadMoreMessage,
+  viewType: configuredViewType = "list",
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -183,17 +194,31 @@ export const usePostsList = ({
 
   const postIds = (orderedResults || []).map((post) => post._id);
 
+  const postIdsWithScores = (orderedResults || []).map((post) => {
+      return {postId: post._id, score: post.score, baseScore: post.baseScore}
+    });
+
+  const {view: contextViewType} = usePostsListView();
+  const viewType: PostsListViewType = configuredViewType === "fromContext"
+    ? contextViewType
+    : configuredViewType;
+
   // Analytics Tracking
   useOnMountTracking({
     eventType: "postList",
-    eventProps: {postIds, postVisibility: hiddenPosts},
+    eventProps: {
+      postIds,
+      postVisibility: hiddenPosts,
+      postMountData: postIdsWithScores,
+      viewType,
+    },
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
 
   const hasResults = orderedResults && orderedResults.length > 1;
 
-  const itemProps = orderedResults?.filter(
+  const itemProps: PostsItemConfig[] | undefined = orderedResults?.filter(
     ({_id}) => !(_id in hiddenPosts),
   ).map((post, i) => ({
     post,
@@ -208,10 +233,12 @@ export const usePostsList = ({
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
-    defaultToShowUnreadComments, showPostedAt,
+    defaultToShowUnreadComments,
+    showPostedAt,
     showBottomBorder: showFinalBottomBorder ||
       (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
+    viewType,
   }));
 
   const onLoadMore = useCallback(() => {
@@ -238,5 +265,9 @@ export const usePostsList = ({
     maybeMorePosts,
     orderedResults,
     itemProps,
+    limit,
+    showFinalBottomBorder,
+    placeholderCount,
+    viewType,
   };
 }

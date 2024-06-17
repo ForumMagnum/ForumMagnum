@@ -7,7 +7,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Check from '@material-ui/icons/Check';
 import classNames from 'classnames';
 import { hasSideComments } from '../../../lib/betas';
-import { useCurrentUser } from '../../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   check: {
@@ -48,7 +47,7 @@ const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: s
 ];
 export type SideCommentVisibilityContextType = {
   sideCommentMode: SideCommentMode,
-  setSideCommentMode: (mode: SideCommentMode)=>void,
+  setSideCommentMode: (mode: SideCommentMode) => void,
 }
 
 export const SideCommentVisibilityContext = createContext<SideCommentVisibilityContextType|null>(null);

@@ -3,6 +3,7 @@ import { registerMigration, forEachDocumentBatchInCollection } from "./migration
 import Users from "../../lib/collections/users/collection";
 import Tags from "../../lib/collections/tags/collection";
 import { Subscriptions } from "../../lib/collections/subscriptions";
+import { randomId } from "../../lib/random";
 
 registerMigration({
   name: "updateSubforumNotificationDefaults",
@@ -44,13 +45,17 @@ registerMigration({
       const newSubscriptions = unsubscribedSubforumMembers.map(u => ({
         insertOne: {
           document: {
+            _id: randomId(),
             userId: u._id,
             collectionName: "Tags",
             documentId: tag._id,
             type: "newTagPosts",
             state: "subscribed",
             deleted: false,
-          }
+            createdAt: new Date(),
+            schemaVersion: 1,
+            legacyData: null
+          } as const
         }
       }))
 

@@ -1,8 +1,8 @@
 import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { userCanComment, userCanDo, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
+import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
@@ -22,9 +22,10 @@ import { useAdminToggle } from '../admin/useAdminToggle';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
-import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { isAF, isEAForum } from '../../lib/instanceSettings';
+import { blackBarTitle } from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: isFriendlyUI ? undefined : 5,
     wordBreak: 'break-all',
@@ -41,8 +42,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     textTransform: 'none',
     fontSize: '16px',
     fontWeight: isFriendlyUI ? undefined : 400,
-    color: theme.palette.header.text,
-    wordBreak: 'break-word',
+    color: blackBarTitle.get() ? theme.palette.text.alwaysWhite : theme.palette.header.text,
+    wordBreak: 'break-word'
   },
   userImageButton: {
     display: 'flex',
@@ -72,11 +73,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: 'block'
     }
-  } : {}
+  } : {},
 })
 
 const UsersMenu = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
@@ -94,7 +95,7 @@ const UsersMenu = ({classes}: {
       </Button>
     </div>
   }
-
+  
   const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
@@ -177,15 +178,15 @@ const UsersMenu = ({classes}: {
       )
     : null,
     /*
-      * This is currently disabled for unreviewed users on the EA forum
+      * This is currently disabled for unreviewed users
       * as there's issues with the new quick takes entry for such users.
       * Long-term, we should fix these issues and reenable this option.
       */
     newShortform: () =>
-      showNewButtons && (!isFriendlyUI || userCanComment(currentUser))
+      showNewButtons && userCanComment(currentUser)
         ? (
           <DropdownItem
-            title={isFriendlyUI ? "New quick take" : "New Shortform"}
+            title={preferredHeadingCase("New Quick Take")}
             onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
@@ -216,7 +217,11 @@ const UsersMenu = ({classes}: {
   return (
     <div className={classes.root} {...eventHandlers}>
       <Link to={`/users/${currentUser.slug}`}>
-        <Button classes={{root: classes.userButtonRoot}} onClick={menuButtonOnClick}>
+        <Button
+          classes={{root: classes.userButtonRoot}}
+          onClick={menuButtonOnClick}
+          data-testid="users-menu"
+        >
           {userButtonNode}
         </Button>
       </Link>
@@ -297,7 +302,7 @@ const UsersMenu = ({classes}: {
               }
               {isEAForum && <DropdownItem
                 title={"Post stats"}
-                to={`/users/${currentUser.slug}/stats`}
+                to={userGetAnalyticsUrl(currentUser)}
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
@@ -311,7 +316,8 @@ const UsersMenu = ({classes}: {
               />
               {currentUser.shortformFeedId &&
                 <DropdownItem
-                  title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
+                  // TODO: get Habryka's take on what the title here should be
+                  title={preferredHeadingCase("Your Quick Takes")}
                   to={postGetPageUrl({
                     _id: currentUser.shortformFeedId,
                     slug: "shortform",
@@ -320,7 +326,6 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
-              {isFriendlyUI && messagesNode}
               {isFriendlyUI && accountSettingsNode}
   
               {/*

@@ -246,13 +246,13 @@ const styles = (theme: ThemeType): JssStyles => ({
  * a date/time. Needs the wrapping to get its styles. This is split from
  * FormComponentDateTime so that it can be used in non-vulcan-forms contexts.
  */
-const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
+const DatePicker = ({label, name, value, below, onChange, classes}: {
   label?: string,
   name?: string,
   value?: Date,
   below?: boolean,
-  onChange: (newValue: Date)=>void,
-  onClose?: (newValue: Date)=>void,
+  onChange: (newValue: Date) => void,
+  onClose?: (newValue: Date) => void,
   classes: ClassesType
 }) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),
@@ -306,12 +306,18 @@ const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
   </FormControl>
 }
 
+type FormComponentDateTimeProps = FormComponentProps<string|Date> & {
+  below?: boolean,
+}
 
 /**
  * Date-picker UI element, wrapped for use in vulcan-forms.
  * TODO: This may not work right in nested contexts.
  */
-const FormComponentDateTime = ({ path, value, name, label }: FormComponentProps<string|Date>, context: FormComponentContext<string|Date>) => {
+const FormComponentDateTime = (
+  {path, value, name, label, below}: FormComponentDateTimeProps,
+  context: FormComponentContext<string|Date>,
+) => {
   const updateDate = (date: Date | undefined) => {
     if (date) {
       void context.updateCurrentValues({[path]: date})
@@ -325,6 +331,7 @@ const FormComponentDateTime = ({ path, value, name, label }: FormComponentProps<
     name={name}
     value={date}
     onChange={updateDate}
+    below={below}
   />
 }
 

@@ -19,7 +19,7 @@ function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 }
 
 let onGraphQLError = writeGraphQLErrorToStderr;
-export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[])=>void)|null)
+export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void)|null)
 {
   if (fn)
     onGraphQLError = fn;

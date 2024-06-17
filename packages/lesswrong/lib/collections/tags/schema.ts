@@ -160,6 +160,7 @@ const schema: SchemaType<"Tags"> = {
       foreignTypeName: "TagRel",
       foreignFieldName: "tagId",
       //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
+      filterFn: tagRel => !tagRel.deleted // TODO: per the above, we still need to make this check baseScore > 0
     }),
     canRead: ['guests'],
   },
@@ -193,7 +194,7 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     label: "Restrict to these authors",
     tooltip: "Only these authors will be able to edit the topic",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.advancedOptions,
   },
   'canEditUserIds.$': {
@@ -417,7 +418,16 @@ const schema: SchemaType<"Tags"> = {
       );
       if (!readStatus.length) return false;
       return readStatus[0].isRead;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        tagId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `COALESCE(${readStatusField("isRead")}, FALSE)`,
+    }),
   }),
 
   tableOfContents: resolverOnlyField({
@@ -549,7 +559,7 @@ const schema: SchemaType<"Tags"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     label: "Subforum Moderators",
   },
   'subforumModeratorIds.$': {

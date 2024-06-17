@@ -15,7 +15,7 @@ const VoteButton = ({
   solidArrow,
   VoteIconComponent,
 }: {
-  vote: (strength: "big"|"small"|"neutral")=>void,
+  vote: (strength: "big"|"small"|"neutral") => void,
   currentStrength: "big"|"small"|"neutral",
   
   upOrDown: "Upvote"|"Downvote",

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useHover } from "../common/withHover";
 import { isEAForum } from "../../lib/instanceSettings";
@@ -15,9 +15,11 @@ const EASequenceCard = ({sequence, className}: {
   const slug = slugify(sequence?.title ?? "unknown-slug");
 
   const {eventHandlers} = useHover({
-    pageElementContext: "sequenceCard",
-    documentId: sequence._id,
-    documentSlug: slug,
+    eventProps: {
+      pageElementContext: "sequenceCard",
+      documentId: sequence._id,
+      documentSlug: slug,
+    },
   });
 
   const title = sequence.title;
@@ -29,13 +31,22 @@ const EASequenceCard = ({sequence, className}: {
     (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
   const href = sequenceGetPageUrl(sequence);
 
-  const {EASequenceOrCollectionCard, SequencesHoverOver} = Components;
+  const TitleWrapper = useCallback(({children}: {children: ReactNode}) => {
+    const {SequencesTooltip} = Components;
+    return (
+      <SequencesTooltip sequence={sequence} placement="bottom">
+        {children}
+      </SequencesTooltip>
+    );
+  }, [sequence]);
+
+  const {EASequenceOrCollectionCard} = Components;
   return (
     <AnalyticsContext documentSlug={slug}>
       <EASequenceOrCollectionCard
         title={title}
         author={author}
-        hoverOver={<SequencesHoverOver sequence={sequence} />}
+        TitleWrapper={TitleWrapper}
         postCount={sequence.postsCount}
         readCount={sequence.readPostsCount}
         imageId={imageId}

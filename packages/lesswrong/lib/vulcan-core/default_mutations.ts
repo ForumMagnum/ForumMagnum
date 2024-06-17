@@ -1,4 +1,5 @@
-import { Utils, getTypeName } from '../vulcan-lib';
+import { Utils } from '../vulcan-lib/utils';
+import { collectionNameToGraphQLType } from '../vulcan-lib';
 import { userCanDo, userOwns } from '../vulcan-users/permissions';
 import isEmpty from 'lodash/isEmpty';
 import { loggerConstructor } from '../utils/logging';
@@ -22,7 +23,7 @@ const getUpsertMutationName = (typeName: string): string => `upsert${typeName}`;
 
 export function getDefaultMutations<N extends CollectionNameString>(collectionName: N, options?: MutationOptions<ObjectsByCollectionName[N]>) {
   type T = ObjectsByCollectionName[N];
-  const typeName = getTypeName(collectionName);
+  const typeName = collectionNameToGraphQLType(collectionName);
   const mutationOptions: MutationOptions<T> = {...defaultOptions, ...options};
   const logger = loggerConstructor(`mutations-${collectionName.toLowerCase()}`)
 

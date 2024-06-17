@@ -1,6 +1,6 @@
 // Simple utility to check if a network status means the associated apollo query is updating
 //
-// https://github.com/apollographql/apollo-client/blob/master/packages/apollo-client/src/core/networkStatus.ts
+// https://github.com/apollographql/apollo-client/blob/main/src/core/networkStatus.ts
 // 1-4 indicate query is in flight
 // We deliberately ignore 6, which is merely a polling query and should not
 // indicate likelihood of updating.

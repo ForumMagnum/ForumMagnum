@@ -54,7 +54,7 @@ export const acceptsSchemaHash = "7abdde9662fea7114e47457ccdc6f4ad";
 import DigestPosts from "../../lib/collections/digestPosts/collection"
 import Digests from "../../lib/collections/digests/collection"
 import { randomId } from "../../lib/random"
-import InsertQuery from "../../lib/sql/InsertQuery"
+import InsertQuery from "../../server/sql/InsertQuery"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

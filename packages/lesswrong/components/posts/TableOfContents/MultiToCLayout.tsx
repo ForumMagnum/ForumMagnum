@@ -2,27 +2,31 @@ import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { fullHeightToCEnabled } from '../../../lib/betas';
 
-const DEFAULT_TOC_MARGIN = 100
+const FULL_HEIGHT_TOC_LEFT_MARGIN = '1fr'
+const DEFAULT_TOC_MARGIN = '1.5fr'
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
+const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
+const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "grid",
     gridTemplateColumns: `
-      1fr
+      ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+      minmax(0px, ${FULL_HEIGHT_TOC_LEFT_MARGIN})
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+      minmax(0px, ${DEFAULT_TOC_MARGIN})
       min-content
       10px
-      1.5fr
+      ${RIGHT_COLUMN_WIDTH}
     `,
     [theme.breakpoints.down('sm')]: {
       display: 'block',
@@ -33,14 +37,28 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'unset',
     width: 'unset',
     left: -DEFAULT_TOC_MARGIN,
-    marginTop: -TOC_OFFSET_TOP,
-    marginBottom: -TOC_OFFSET_BOTTOM,
+    marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
+    marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
     [theme.breakpoints.down('sm')]:{
       display: "none",
       marginTop: 0,
       marginBottom: 0,
     },
+  },
+  splashPageHeaderToc: {
+    marginTop: 'calc(-100vh - 64px)'
+  },
+  normalHeaderToc: {
+    
+  },
+  commentToCMargin: {
+    marginTop: 'unset',
+  },
+  // This is needed for an annoying IntersectionObserver hack to prevent the title from being hidden when scrolling up
+  commentToCIntersection: {
+    // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
+    top: '-1px !important'
   },
   stickyBlockScroller: {
     position: "sticky",
@@ -51,6 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
     maxHeight: "100vh",
+    height: fullHeightToCEnabled ? "100%" : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -65,9 +84,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
-    
-    paddingTop: TOC_OFFSET_TOP,
-    paddingBottom: TOC_OFFSET_BOTTOM,
+    height: fullHeightToCEnabled ? "100%" : undefined,
+    paddingTop: fullHeightToCEnabled ? undefined : TOC_OFFSET_TOP,
+    paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
   gap1: { gridArea: 'gap1'},
@@ -95,27 +114,30 @@ const styles = (theme: ThemeType): JssStyles => ({
   hideTocButtonHidden: {
     display: "none",
   },
-})
+});
 
 export type ToCLayoutSegment = {
   toc?: React.ReactNode,
   centralColumn: React.ReactNode,
   rightColumn?: React.ReactNode,
+  isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false}: {
   segments: ToCLayoutSegment[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
+  tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
+  showSplashPageHeader?: boolean,
 }) => {
   const tocVisible = true;
   const gridTemplateAreas = segments
-    .map((_segment,i) => `"... toc${i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
+    .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
     .join('\n')
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classes.toc} style={{ "gridArea": `toc${i}` }} >
-          <div className={classes.stickyBlockScroller}>
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} >
+          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
               {segment.toc}
             </div>

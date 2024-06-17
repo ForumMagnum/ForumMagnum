@@ -1,8 +1,8 @@
 import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
+import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
@@ -11,6 +11,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -152,6 +153,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   nonhumanAudio: {
     color: theme.palette.grey[500],
+  },
+  headerFooter: { 
+    display: 'flex',
+    justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  tagSection: {
+    flex: 1,
+    display: "flex",
+    flexDirection: isFriendlyUI ? "column" : "row",
+    height: "100%",
   }
 });
 
@@ -182,26 +198,6 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const countAnswersAndDescendents = (answers: CommentsList[]) => {
-  const sum = answers.reduce((prev: number, curr: CommentsList) => prev + curr.descendentCount, 0);
-  return sum + answers.length;
-}
-
-const getResponseCounts = (
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  answers: CommentsList[],
-) => {
-  // answers may include some which are deleted:true, deletedPublic:true (in which
-  // case various fields are unpopulated and a deleted-item placeholder is shown
-  // in the UI). These deleted answers are *not* included in post.commentCount.
-  const nonDeletedAnswers = answers.filter(answer=>!answer.deleted);
-
-  return {
-    answerCount: nonDeletedAnswers.length,
-    commentCount: postGetCommentCount(post) - countAnswersAndDescendents(nonDeletedAnswers),
-  };
-};
-
 const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
@@ -227,20 +223,21 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton} = Components;
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -254,10 +251,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
-  const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-  const { major } = extractVersionsFromSemver(post.version)
-  const hasMajorRevision = major > 1
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
+  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
+  const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
@@ -289,7 +286,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {
     answerCount,
     commentCount,
-  } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
+  } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
 
@@ -388,7 +385,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      <PostsTopSequencesNav post={post} />
+      {('sequence' in post) && <PostsTopSequencesNav post={post} />}
     </AnalyticsContext>
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
@@ -398,9 +395,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
-            {post.feed && post.feed.user &&
+            {rssFeedSource && rssFeedSource.user &&
               <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
-                <a href={feedLink}>{post.feed.nickname}</a>
+                <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
           </div>
@@ -411,9 +408,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore allowTruncate />
-    </AnalyticsContext>}
+    <div className={classes.headerFooter}>
+      <div className={classes.tagSection}>
+        {!post.shortform && !post.isEvent && !hideTags && 
+        <AnalyticsContext pageSectionContext="tagHeader">
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
+        </AnalyticsContext>}
+      </div>
+    </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

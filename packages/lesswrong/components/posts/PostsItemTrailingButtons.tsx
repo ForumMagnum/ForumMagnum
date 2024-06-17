@@ -93,7 +93,7 @@ const PostsItemTrailingButtons = ({
     <>
       {(showDismissButton || resumeReading || isBookUI) && <div className={classes.actions}>
         <DismissButton {...{showDismissButton, onDismiss}} />
-        {isBookUI && !resumeReading && currentUser && <PostActionsButton post={post} vertical />}
+        {isBookUI && !resumeReading && currentUser && <PostActionsButton post={post} vertical autoPlace />}
       </div>}
       {showArchiveButton && <div className={classes.archiveButton}>
         { post.deletedDraft ?

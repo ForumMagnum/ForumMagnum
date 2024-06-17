@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
-  onHoverUser?: (userId: string|null)=>void,
+  onHoverUser?: (userId: string|null) => void,
   classes: ClassesType,
 }) => {
   const { UsersNameDisplay, Loading, LWTooltip } = Components;

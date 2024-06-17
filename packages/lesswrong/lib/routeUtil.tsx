@@ -6,6 +6,7 @@ import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
+import {siteUrlSetting} from './instanceSettings'
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -58,8 +59,13 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor, options?: {replace?: boolean}) => {
-    if (options?.replace) {
+  return useCallback((locationDescriptor: LocationDescriptor, options?: {replace?: boolean, openInNewTab?: boolean}) => {
+    if (options?.openInNewTab) {
+      const href = typeof locationDescriptor === 'string' ?
+        locationDescriptor :
+        history.createHref(locationDescriptor);
+      window.open(href, '_blank')?.focus();
+    } else if (options?.replace) {
       history.replace(locationDescriptor);
     } else {
       history.push(locationDescriptor);
@@ -127,6 +133,7 @@ const LwAfDomainWhitelist: DomainList = {
   ],
 }
 
+const URLClass = getUrlClass()
 const forumDomainWhitelist: ForumOptions<DomainList> = {
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
@@ -140,6 +147,7 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
   },
   default: {
     onsiteDomains: [
+      new URLClass(siteUrlSetting.get()).host,
       `localhost:${getServerPort()}`,
     ],
     mirrorDomains: [],

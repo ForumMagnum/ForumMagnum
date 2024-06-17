@@ -2,8 +2,8 @@ import * as _ from 'underscore';
 
 export interface ThreadableCommentType {
   _id: string
-  parentCommentId: string
-  topLevelCommentId: string
+  parentCommentId?: string | null
+  topLevelCommentId?: string | null
 }
 export interface CommentTreeNode<T extends ThreadableCommentType> {
   item: T,
@@ -18,7 +18,7 @@ export interface CommentTreeNode<T extends ThreadableCommentType> {
 // with React's ability to detect whether updates are needed.
 export function unflattenComments<T extends ThreadableCommentType>(comments: Array<T>): Array<CommentTreeNode<T>>
 {
-  const resultsRestructured = _.map(comments, (comment:T): CommentTreeNode<T> => { return { item:comment, children:[] }});
+  const resultsRestructured = _.map(comments, (comment: T): CommentTreeNode<T> => { return { item:comment, children:[] }});
   return unflattenCommentsRec(resultsRestructured);
 }
 
@@ -48,11 +48,11 @@ function unflattenCommentsRec<T extends ThreadableCommentType>(array: Array<Comm
     })
     // if there is no parent, we're at the root level
     // so we return all root nodes (i.e. nodes with no parent)
-    children = _.filter(array, (node:CommentTreeNode<T>) => (!node.item.parentCommentId || !commentDict[node.item.parentCommentId]));
+    children = _.filter(array, (node: CommentTreeNode<T>) => (!node.item.parentCommentId || !commentDict[node.item.parentCommentId]));
   } else {
     // if there *is* a parent, we return all its child nodes
     // (i.e. nodes whose parentId is equal to the parent's id.)
-    children = _.filter(array, (node:CommentTreeNode<T>) => node.item.parentCommentId === parent.item._id);
+    children = _.filter(array, (node: CommentTreeNode<T>) => node.item.parentCommentId === parent.item._id);
   }
 
   // if we found children, we keep on iterating
@@ -87,4 +87,8 @@ export function commentTreesEqual<Fragment extends ThreadableCommentType>(a: Arr
       return false;
   }
   return true;
+}
+
+export function flattenCommentBranch<T extends ThreadableCommentType>(branch: CommentTreeNode<T>): T[] {
+  return [branch.item, ...branch.children.flatMap(flattenCommentBranch)];
 }

@@ -1,5 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
@@ -17,10 +18,17 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
 const LoginPopup = ({onClose, classes}: {
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
-  const { LWDialog } = Components;
+  const {LWDialog, LoginForm} = Components;
+
+  if (isFriendlyUI) {
+    return (
+      <LoginForm onClose={onClose} />
+    );
+  }
+
   return (
     <LWDialog
       open={true}
@@ -30,7 +38,7 @@ const LoginPopup = ({onClose, classes}: {
         paper: classes.paper
       }}
     >
-      <Components.LoginForm />
+      <LoginForm />
     </LWDialog>
   );
 }

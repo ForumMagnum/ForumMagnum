@@ -24,7 +24,7 @@ const schema: SchemaType<"Conversations"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     optional: true,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     label: "Participants",
   },
   'participantIds.$': {
@@ -103,8 +103,7 @@ const schema: SchemaType<"Conversations"> = {
     type: "Message",
     graphQLtype: "Message",
     canRead: ['members'],
-    resolver: async (conversation: DbConversation, args, context: ResolverContext) => {
-      const { tagId } = args;
+    resolver: async (conversation: DbConversation, _args, context: ResolverContext) => {
       const { currentUser } = context;
       const message: DbMessage | null = await getWithCustomLoader<DbMessage | null, string>(
         context,
@@ -116,7 +115,54 @@ const schema: SchemaType<"Conversations"> = {
       );
       const filteredMessage = await accessFilterSingle(currentUser, context.Messages, message, context)
       return filteredMessage;
-    }
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Messages",
+      type: "left",
+      on: {
+        _id: `(
+          SELECT "_id"
+          FROM "Messages"
+          WHERE "conversationId" = ${field("_id")}
+          ORDER BY "createdAt" DESC
+          LIMIT 1
+        )`,
+      },
+      resolver: (messagesField) => messagesField("*"),
+    }),
+  }),
+  hasUnreadMessages: resolverOnlyField({
+    type: Boolean,
+    graphQLtype: "Boolean",
+    canRead: ["members"],
+    resolver: async (
+      conversation: DbConversation,
+      _args,
+      context: ResolverContext,
+    ) => {
+      const {currentUser} = context;
+      if (!currentUser) {
+        return false;
+      }
+      return getWithCustomLoader<boolean, string>(
+        context,
+        "hasUnreadMessages",
+        conversation._id,
+        (conversationIds: string[]): Promise<boolean[]> =>
+          context.repos.conversations.getReadStatuses(currentUser._id, conversationIds),
+      );
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      isNonCollectionJoin: true,
+      table: "ConversationUnreadMessages",
+      type: "left",
+      on: {
+        conversationId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (unreadMessagesField) =>
+        `COALESCE(${unreadMessagesField("hasUnreadMessages")}, FALSE)`,
+    }),
   }),
 };
 

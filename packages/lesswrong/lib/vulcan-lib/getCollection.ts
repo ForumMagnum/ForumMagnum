@@ -65,3 +65,11 @@ export const getAllCollections = (): Array<CollectionBase<any>> => {
 }
 
 export const getCollectionsByName = (): CollectionsByName => collectionsByName;
+
+export const typeNameToCollectionName = (typeName: string): CollectionNameString => {
+  return getCollectionByTypeName(typeName).collectionName;
+}
+
+export const collectionNameToTypeName = (collectionName: CollectionNameString) => {
+  return getCollection(collectionName).options.typeName;
+}

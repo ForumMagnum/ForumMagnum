@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
+import { withTracking } from '../../lib/analyticsEvents';
 
 interface ExternalProps {
   /**
@@ -61,7 +62,7 @@ export type ContentReplacedSubstringComponent = (props: {
   children: React.ReactNode
 }) => React.ReactNode;
 
-interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps {}
+interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -131,6 +132,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       // elements that other substitutions work on (in particular it can split
       // an <a> tag into two).
       this.replaceSubstrings(element);
+      this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -138,6 +140,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.markElicitBlocks(element);
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
+      this.exposeInternalIds(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -293,7 +296,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     const linkTags = this.htmlCollectionToArray(element.getElementsByTagName("a"));
     for (let linkTag of linkTags) {
       const href = linkTag.getAttribute("href");
-      if (!href || linkIsExcludedFromPreview(href))
+      if (!href || linkIsExcludedFromPreview(href) || linkTag.classList.contains('ck-cta-button'))
         continue;
 
       const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
@@ -311,7 +314,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.replaceElement(linkTag, replacementElement);
     }
   }
-
+  
   markElicitBlocks = (element: HTMLElement) => {
     const elicitBlocks = this.getElementsByClassname(element, "elicit-binary-prediction");
     for (const elicitBlock of elicitBlocks) {
@@ -347,7 +350,26 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.replaceElement(strawpollBlock, replacementElement)
     }
   }
-  
+
+  /**
+   * CTA buttons added in ckeditor need the following things doing to make them fully functional:
+   * - Convert data-href to href
+   * - Add analytics to button clicks
+   */
+  addCTAButtonEventListeners = (element: HTMLElement) => {
+    const ctaButtons = element.getElementsByClassName('ck-cta-button');
+    for (let i = 0; i < ctaButtons.length; i++) {
+      const button = ctaButtons[i] as HTMLAnchorElement;
+      const dataHref = button.getAttribute('data-href');
+      if (dataHref) {
+        button.setAttribute('href', validateUrl(dataHref));
+      }
+      button.addEventListener('click', () => {
+        this.props.captureEvent("ctaButtonClicked", {href: dataHref})
+      })
+    }
+  }
+
   replaceSubstrings = (element: HTMLElement) => {
     if(this.props.replacedSubstrings) {
       for (let str of Object.keys(this.props.replacedSubstrings)) {
@@ -400,6 +422,27 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     }
   }
 
+  /**
+   * Convert data-internal-id to id, handling duplicates
+   */
+  exposeInternalIds = (element: HTMLElement) => {
+    const elementsWithDataInternalId = element.querySelectorAll('[data-internal-id]');
+    elementsWithDataInternalId.forEach((el: Element) => {
+      const internalId = el.getAttribute('data-internal-id');
+      if (internalId && !document.getElementById(internalId)) {
+        if (!el.id) {
+          el.id = internalId;
+        } else {
+          const wrapperSpan = document.createElement('span');
+          wrapperSpan.id = internalId;
+          while (el.firstChild) {
+            wrapperSpan.appendChild(el.firstChild);
+          }
+          el.appendChild(wrapperSpan);
+        }
+      }
+    });
+  }
 
   replaceElement = (replacedElement: HTMLElement|Element, replacementElement: React.ReactNode) => {
     const replacementContainer = document.createElement("span");
@@ -422,15 +465,28 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 }
 
-
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  // This component can't have HoCs because it's used with a ref, to call
-  // methods on it from afar, and many HoCs won't pass the ref through.
+  hocs: [withTracking],
+  
+  // Memoization options. If this spuriously rerenders, then voting on a comment
+  // that contains a YouTube embed causes that embed to visually flash and lose
+  // its place.
+  areEqual: {
+    ref: "ignore",
+    "dangerouslySetInnerHTML": "deep",
+    
+    // `replacedSubstrings` can't be deep-compared because it contains callback
+    // unstable references to callback functions, but we can having it cause
+    // rerenders in the specific case where it's an empty array.
+    replacedSubstrings: (before, after) =>
+      before===after
+      || (before && after && Object.keys(before).length===0 && Object.keys(after).length===0),
+  },
 });
 
 declare global {

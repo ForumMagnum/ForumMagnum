@@ -34,15 +34,10 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const isRegularClick = (ev: React.MouseEvent) => {
-  if (!ev) return false;
-  return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
-}
-
 const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
   tocSections: ToCSection[],
   title: string|null,
-  onClickSection?: ()=>void,
+  onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
 }) => {
   const navigate = useNavigate();
@@ -90,7 +85,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   if (!tocSections)
     return <div/>
 
-  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
+  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: () => void): Promise<void> => {
     ev.preventDefault();
     if (onClickSection) {
       onClickSection();
@@ -111,15 +106,6 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   if (answersSorting === "newest" || answersSorting === "oldest") {
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
-  
-  function adjustHeadingText(text: string|undefined) {
-    if (!text) return "";
-    if (displayOptions?.downcaseAllCapsHeadings) {
-      return downcaseIfAllCaps(text.trim());
-    } else {
-      return text.trim();
-    }
-  }
 
   return <div>
     <TableOfContentsRow key="postTitle"
@@ -132,7 +118,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
           });
         }
       }}
-      highlighted={currentSection === "above"}
+      highlighted={currentSection === "above" || currentSection === null}
       title
     >
       {title?.trim()}
@@ -165,13 +151,17 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   </div>
 }
 
+export function isRegularClick(ev: React.MouseEvent) {
+  if (!ev) return false;
+  return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
+}
 
 /**
  * Return the screen-space Y coordinate of an anchor. (Screen-space meaning
  * if you've scrolled, the scroll is subtracted from the effective Y
  * position.)
  */
-export const getAnchorY = (anchorName: string): number|null => {
+export function getAnchorY(anchorName: string): number|null {
   let anchor = window.document.getElementById(anchorName);
   if (anchor) {
     let anchorBounds = anchor.getBoundingClientRect();
@@ -181,7 +171,7 @@ export const getAnchorY = (anchorName: string): number|null => {
   }
 }
 
-export const jumpToY = (y: number) => {
+export function jumpToY(y: number) {
   if (isServer) return;
 
   try {
@@ -196,21 +186,14 @@ export const jumpToY = (y: number) => {
 }
 
 
-const TableOfContentsListComponent = registerComponent(
-  "TableOfContentsList", TableOfContentsList, {
-    hocs: [withErrorBoundary]
-  }
-);
-
-
 /**
  * Returns a shallow copy of the ToC sections with question answers sorted by date,
  * without changing the position of other sections.
  */
-const sectionsWithAnswersSorted = (
+export function sectionsWithAnswersSorted(
   sections: ToCSection[],
   sorting: "newest" | "oldest"
-) => {
+) {
   const answersSectionsIndexes = sections
     .map((section, index) => [section, index] as const)
     .filter(([section, _]) => !!section.answer);
@@ -249,6 +232,21 @@ function downcaseIfAllCaps(text: string) {
   }
   return tokens.map(tok => downcaseToken(tok)).join(' ');
 }
+
+export function adjustHeadingText(text: string|undefined, displayOptions?: ToCDisplayOptions) {
+  if (!text) return "";
+  if (displayOptions?.downcaseAllCapsHeadings) {
+    return downcaseIfAllCaps(text.trim());
+  } else {
+    return text.trim();
+  }
+}
+
+const TableOfContentsListComponent = registerComponent(
+  "TableOfContentsList", TableOfContentsList, {
+    hocs: [withErrorBoundary]
+  }
+);
 
 declare global {
   interface ComponentTypes {

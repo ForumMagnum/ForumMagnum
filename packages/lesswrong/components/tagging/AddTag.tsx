@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
@@ -8,6 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { tagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '../../lib/routes';
+import type { SearchState } from 'react-instantsearch-core';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -35,15 +37,15 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AddTag = ({onTagSelected, isVotingContext, classes}: {
-  onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  onTagSelected: (props: {tagId: string, tagName: string}) => void,
   isVotingContext?: boolean,
   classes: ClassesType,
 }) => {
   const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const searchStateChanged = React.useCallback((searchState) => {
-    setSearchOpen(searchState.query?.length > 0);
+  const searchStateChanged = React.useCallback((searchState: SearchState) => {
+    setSearchOpen((searchState.query?.length ?? 0) > 0);
   }, []);
 
   // When this appears, yield to the event loop once, use getElementsByTagName

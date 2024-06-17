@@ -86,7 +86,7 @@ async function generateClassifierTuningFile({description, posts, postBodyCache, 
   posts: DbPost[],
   outputFilename: string,
   promptSuffix: string,
-  classifyPost: (post: DbPost)=>boolean,
+  classifyPost: (post: DbPost) => boolean,
   postBodyCache?: PostBodyCache
 }) {
   const postsById = keyBy(posts, post=>post._id);

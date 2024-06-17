@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12,
     width: 400,
   },
-  usersListEditor: {
+  userMultiselect: {
     marginTop: 12,
     display: "inline-block",
   },
@@ -46,10 +46,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NewDialogueDialog = ({onClose, classes}: {
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType,
 }) => {
-  const { UsersListEditor, LWDialog, Loading, EAButton } = Components;
+  const { UserMultiselect, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>([]);
@@ -115,8 +115,8 @@ const NewDialogueDialog = ({onClose, classes}: {
         className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
       />
-      <div className={classes.usersListEditor}>
-        <UsersListEditor
+      <div className={classes.userMultiselect}>
+        <UserMultiselect
           value={participants}
           setValue={setParticipants}
           label={preferredHeadingCase("Add Participants")}

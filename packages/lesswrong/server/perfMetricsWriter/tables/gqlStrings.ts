@@ -1,10 +1,10 @@
 import uniq from "lodash/uniq";
 import LRU from 'lru-cache';
 import md5 from "md5";
-import InsertQuery from "../../../lib/sql/InsertQuery";
-import SelectQuery from "../../../lib/sql/SelectQuery";
-import Table from "../../../lib/sql/Table";
-import { NotNullType, StringType } from "../../../lib/sql/Type";
+import InsertQuery from "@/server/sql/InsertQuery";
+import SelectQuery from "@/server/sql/SelectQuery";
+import Table from "@/server/sql/Table";
+import { NotNullType, StringType } from "@/server/sql/Type";
 import { filterNonnull } from "../../../lib/utils/typeGuardUtils";
 import type { AnalyticsConnectionPool } from "../../analytics/postgresConnection";
 

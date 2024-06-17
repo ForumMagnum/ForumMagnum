@@ -10,6 +10,7 @@ import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { useSingle } from '../../lib/crud/withSingle';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { CloudinaryPropsType } from '../common/CloudinaryImage2';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -67,15 +68,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const formPreviewSizeByImageType: Record<
   ImageType,
-  {width: number | "auto", height: number}
+  {width: number | "auto", height: number, imgProps?: CloudinaryPropsType}
 > = {
   gridImageId: {
-    width: 203,
-    height: 80
+    width: 250,
+    height: 100
   },
   bannerImageId: {
-    width: "auto",
-    height: 280
+    width: 1600,
+    height: 380,
+    imgProps: {g: 'custom', dpr: '2.0'}
   },
   squareImageId: {
     width: 90,
@@ -163,7 +165,7 @@ const RemoveButton: FC<{
     <Button
       title="Remove"
       onClick={removeImage}
-      className={mainClass}
+      className={classNames("image-remove-button", mainClass)}
     >
       Remove
     </Button>

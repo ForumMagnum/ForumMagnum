@@ -1,4 +1,4 @@
-import { getCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
+import { graphqlTypeToCollectionName, isValidCollectionName } from '../../lib/vulcan-lib';
 import { simplSchemaToGraphQLtype } from '../../lib/utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 import SimpleSchema from 'simpl-schema'
@@ -103,20 +103,21 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
     const arrayElementType = graphqlType.substr(1,graphqlType.length-2);
     return `Array<${graphqlTypeToTypescript(arrayElementType, false)}>`;
   }
+
+  const nullabilitySuffix = nonnull ? "" : "|null";
   
   switch(graphqlType) {
-    case "Int": return "number";
-    case "Boolean": return "boolean";
-    case "String": return "string";
-    case "Date": return "Date";
-    case "Float": return "number";
+    case "Int": return "number"+nullabilitySuffix;
+    case "Boolean": return "boolean"+nullabilitySuffix;
+    case "String": return "string"+nullabilitySuffix;
+    case "Date": return "Date"+nullabilitySuffix;
+    case "Float": return "number"+nullabilitySuffix;
     default:
       if (typeof graphqlType==="string") {
-        if (graphqlType.endsWith("!") && isValidCollectionName(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
+        if (graphqlType.endsWith("!") && isValidCollectionName(graphqlTypeToCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
           return graphqlType;
-        } else if (isValidCollectionName(getCollectionName(graphqlType))) {
-          if (nonnull) return graphqlType;
-          else return `${graphqlType}|null`;
+        } else if (isValidCollectionName(graphqlTypeToCollectionName(graphqlType))) {
+          return graphqlType+nullabilitySuffix;
         }
       }
       

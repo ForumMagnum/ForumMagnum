@@ -6,6 +6,7 @@ import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { PopperPlacementType } from '@material-ui/core/Popper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
@@ -20,8 +21,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
-  onTagSelected: (props: {tagId: string, tagName: string})=>void,
+const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotingContext, classes, children}: {
+  onTagSelected: (props: {tagId: string, tagName: string}) => void,
+  tooltipPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
   classes: ClassesType,
   children?: ReactNode,
@@ -54,7 +56,7 @@ const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
     <LWPopper
       open={isOpen}
       anchorEl={anchorEl.current}
-      placement="bottom-start"
+      placement={tooltipPlacement}
       allowOverflow
     >
       <LWClickAwayListener

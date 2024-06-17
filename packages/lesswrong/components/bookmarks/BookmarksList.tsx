@@ -26,13 +26,13 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem, LoadMore } = Components
+  const { PostsLoading, PostsItem, LoadMore } = Components
   
   const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
     collectionName: "Posts",
     terms: {
       view: "myBookmarkedPosts",
-      limit: limit,
+      limit,
     },
     itemsPerPage: 20,
     fragmentName: "PostsListWithVotes",
@@ -40,32 +40,35 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
     skip: !currentUser?._id,
   });
   
+  if (!currentUser) return null
+  
   // HACK: The results have limit/pagination which correctly reflects the order
   // of currentUser.bookmarkedPostsMetadata, but within the limited result set
   // the posts themselves may be out of order. Sort them. See also comments in
   // the myBookmarkedPosts view.
   const sortedBookmarkedPosts = sortBy(bookmarkedPosts,
     post => -findIndex(
-      currentUser?.bookmarkedPostsMetadata||[],
+      currentUser.bookmarkedPostsMetadata||[],
       (bookmark)=>bookmark.postId === post._id
     )
   );
 
   return <AnalyticsContext pageSubSectionContext="bookmarksList">
     <div>
-      {showMessageIfEmpty && !loading && sortedBookmarkedPosts && !sortedBookmarkedPosts.length && <div className={classes.empty}>
+      {showMessageIfEmpty && !loading && !sortedBookmarkedPosts.length && <div className={classes.empty}>
         {isEAForum
           ? "You haven't saved any posts yet."
           : "You haven't bookmarked any posts yet."
         }
       </div>}
+      {loading && !sortedBookmarkedPosts.length && <PostsLoading placeholderCount={Math.min(currentUser.bookmarkedPostsMetadata.length, limit)} />}
       {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post} bookmark
           showBottomBorder={i < sortedBookmarkedPosts.length-1}
         />
       )}
-      {!hideLoadMore && <LoadMore {...loadMoreProps}/>}
+      {!hideLoadMore && <LoadMore {...loadMoreProps} />}
     </div>
   </AnalyticsContext>
 }
