@@ -36,6 +36,7 @@ export const PeopleDirectoryFilters = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
+    view,
     roles,
     organizations,
     locations,
@@ -49,7 +50,7 @@ export const PeopleDirectoryFilters = ({classes}: {
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
     PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
-    PeopleDirectoryClearAll,
+    PeopleDirectoryClearAll, PeopleDirectoryViewToggle,
   } = Components;
   return (
     <div className={classes.root}>
@@ -65,21 +66,24 @@ export const PeopleDirectoryFilters = ({classes}: {
         }
       </div>
       <div className={classes.options}>
-        <PeopleDirectoryFilterDropdown
-          title="Columns"
-          icon="ViewColumns"
-          style="button"
-          className={classes.columnsList}
-        >
-          {columns.filter(({hideable}) => hideable).map((state) => (
-            <PeopleDirectorySelectOption state={state} key={state.value} />
-          ))}
-          {columnsEdited &&
-            <div>
-              <PeopleDirectoryClearAll text="Reset" onClear={resetColumns} />
-            </div>
-          }
-        </PeopleDirectoryFilterDropdown>
+        {view === "list" &&
+          <PeopleDirectoryFilterDropdown
+            title="Columns"
+            icon="ViewColumns"
+            style="button"
+            className={classes.columnsList}
+          >
+            {columns.filter(({hideable}) => hideable).map((state) => (
+              <PeopleDirectorySelectOption state={state} key={state.value} />
+            ))}
+            {columnsEdited &&
+              <div>
+                <PeopleDirectoryClearAll text="Reset" onClear={resetColumns} />
+              </div>
+            }
+          </PeopleDirectoryFilterDropdown>
+        }
+        <PeopleDirectoryViewToggle />
       </div>
     </div>
   );

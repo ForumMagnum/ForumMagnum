@@ -47,7 +47,7 @@ registerFragment(`
     }
     profileTagIds
     profileTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     organizerOfGroupIds
     organizerOfGroups {

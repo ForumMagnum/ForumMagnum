@@ -6,12 +6,21 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 // eslint-disable-next-line no-restricted-imports
 import type { LinkProps } from 'react-router-dom';
+import { useNavigate } from '@/lib/routeUtil';
 
 type ScrollFunction = ((el: HTMLElement) => void);
 
-export type HashLinkProps = LinkProps & {
+export type HashLinkProps = {
+  to: string
+  id?: string,
+  nofollow?: boolean,
+  target?: string,
+  doOnDown?: boolean
+  onMouseDown?: React.MouseEventHandler<HTMLAnchorElement>
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>
   scroll?: ScrollFunction,
   smooth?: boolean
+  children?: React.ReactNode,
 };
 
 let hashFragment = '';
@@ -59,21 +68,16 @@ function hashLinkScroll() {
   }, 0);
 }
 
-export function genericHashLink(props: HashLinkProps) {
+export function HashLink(props: HashLinkProps) {
+  const navigate = useNavigate();
+
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     reset();
     if (props.onClick) props.onClick(e);
-    if (typeof props.to === 'string') {
-      hashFragment = props.to
-        .split('#')
-        .slice(1)
-        .join('#');
-    } else if (
-      typeof props.to === 'object' &&
-      typeof props.to?.hash === 'string'
-    ) {
-      hashFragment = props.to.hash.replace('#', '');
-    }
+    hashFragment = props.to
+      .split('#')
+      .slice(1)
+      .join('#');
     if (hashFragment !== '') {
       scrollFunction =
         props.scroll ||
@@ -84,33 +88,36 @@ export function genericHashLink(props: HashLinkProps) {
       hashLinkScroll();
     }
   }
-  const { scroll, smooth, children, ...filteredProps } = props;
-  return (
-    <Link {...filteredProps} onClick={handleClick}>
+  const { scroll, smooth, children, doOnDown, to, ...filteredProps } = props;
+  if (doOnDown && !filteredProps.target) {
+    return <a
+      {...filteredProps}
+      href={to}
+      onMouseDown={(ev) => {
+        if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) {
+          return;
+        }
+        navigate(to);
+        ev.preventDefault();
+      }}
+    >
+      {props.children}
+    </a>
+  } else {
+    return <Link to={to} {...filteredProps} onClick={handleClick}>
       {props.children}
     </Link>
-  );
-}
-
-export function HashLink(props: HashLinkProps) {
-  return genericHashLink(props);
+  }
 }
 
 export function getHashLinkOnClick(props: HashLinkProps) {
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     reset();
     if (props.onClick) props.onClick(e);
-    if (typeof props.to === 'string') {
-      hashFragment = props.to
-        .split('#')
-        .slice(1)
-        .join('#');
-    } else if (
-      typeof props.to === 'object' &&
-      typeof props.to?.hash === 'string'
-    ) {
-      hashFragment = props.to.hash.replace('#', '');
-    }
+    hashFragment = props.to
+      .split('#')
+      .slice(1)
+      .join('#');
     if (hashFragment !== '') {
       scrollFunction =
         props.scroll ||

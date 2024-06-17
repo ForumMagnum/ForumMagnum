@@ -2,10 +2,12 @@ import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib";
 import type { PostsListViewType } from '../hooks/usePostsListView';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const styles = (theme: ThemeType) => ({
   root: {
     minWidth: "100%",
+    width: SECTION_WIDTH,
     maxWidth: "100%",
     background: theme.palette.grey[0],
     padding: '15px 17px',

@@ -680,8 +680,13 @@
     "timestamp": "2024-06-11T18:25:02.000Z"
   },
   {
-    "acceptsSchemaHash": "c47212848cce4a926f304bb27451b81c",
-    "acceptedByMigration": "20240612T121902.add_vibes_check_tables.ts",
-    "timestamp": "2024-06-12T12:19:02.000Z"
+    "acceptsSchemaHash": "c1dd7ed968b6af5a78625296b5e5fec0",
+    "acceptedByMigration": "20240612T173525.add_onsite_digest_background_fields.ts",
+    "timestamp": "2024-06-12T17:35:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
   }
 ]

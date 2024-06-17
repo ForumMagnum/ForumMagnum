@@ -19,7 +19,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const [highlightVisible, setHighlightVisible] = useState(false);
   const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   const [expandAllThreads, setExpandAllThreads] = useState(initialExpandAllThreads ?? false);
-  const {recordPostView} = useRecordPostView(post);
+  const {recordPostView, recordPostCommentsView} = useRecordPostView(post);
 
   const markAsRead = useCallback(
     () => {
@@ -35,6 +35,14 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
       markAsRead();
     },
     [setHighlightVisible, highlightVisible, markAsRead],
+  );
+
+  const markCommentsAsRead = useCallback(
+    () => {
+      setMarkedAsVisitedAt(new Date());
+      void recordPostCommentsView({ post });
+    },
+    [recordPostCommentsView, post]
   );
 
   const lastCommentId = comments && comments[0]?._id;
@@ -70,6 +78,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   return {
     isSkippable,
     showHighlight,
+    markCommentsAsRead,
     expandAllThreads,
     lastVisitedAt,
     nestedComments,

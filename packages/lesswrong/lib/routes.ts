@@ -639,6 +639,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/best-of',
     },
     {
+      name: 'digest',
+      path: '/digests/:num',
+      componentName: 'EADigestPage',
+    },
+    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
