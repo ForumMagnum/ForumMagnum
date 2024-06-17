@@ -41,14 +41,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
   label?: string,
   showIcon?: boolean,
   useArrow?: 'up' | 'down'
-  textShadow?: boolean
+  textShadow?: boolean,
+  labelClassName?: string,
 }) => {
 
   const { ForumIcon } = Components
@@ -58,7 +59,7 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   if (label) {
     return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
       {showIcon && <ForumIcon icon={iconType} className={classNames(classes.icon, classes.iconWithLabel, {[classes.rotate180]: useArrow==='up'})}/>}
-      <span className={classNames(classes.label, {[classes.textShadow]: textShadow})}>{ label }</span>
+      <span className={classNames(classes.label, {[classes.textShadow]: textShadow}, labelClassName)}>{ label }</span>
     </span>
   }
   return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
