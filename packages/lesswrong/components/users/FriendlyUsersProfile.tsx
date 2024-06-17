@@ -490,7 +490,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
             <UserNotifyDropdown user={user} />
           </div>}
 
-          {user.profileTags?.length &&
+          {(user.profileTags?.length ?? 0) > 0 &&
             <div className={classes.interests}>
               <div>Interests:</div>
               {user.profileTags.map((tag) =>
