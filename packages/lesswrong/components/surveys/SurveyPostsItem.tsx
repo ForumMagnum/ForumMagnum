@@ -41,6 +41,9 @@ const styles = (theme: ThemeType) => ({
   },
   questions: {
     flexGrow: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
   },
   question: {
     display: "flex",
@@ -54,11 +57,24 @@ const styles = (theme: ThemeType) => ({
   },
   rankButtons: {
     display: "flex",
+    flexWrap: "wrap",
     gap: "6px",
   },
   rankButton: {
     padding: 0,
     minHeight: 30,
+  },
+  dismiss: {
+    cursor: "pointer",
+    color: theme.palette.grey[600],
+    fontSize: 20,
+    marginRight: 6,
+    "&:hover": {
+      color: theme.palette.grey[1000],
+    },
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   tripleDot: {
     cursor: "pointer",
@@ -302,6 +318,9 @@ const SurveyPostsItemInternal = ({
           ))
         }
       </div>
+      <LWTooltip title="Dismiss">
+        <ForumIcon icon="Close" onClick={onDismiss} className={classes.dismiss} />
+      </LWTooltip>
       <div ref={anchorEl}>
         <MoreVertIcon
           onClick={onToggleMenu}
