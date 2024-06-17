@@ -59,6 +59,7 @@ import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import QuestionMarkCircleFilledIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import ArrowLongUp from "@heroicons/react/20/solid/ArrowLongUpIcon";
@@ -224,6 +225,7 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
+  "QuestionMarkCircleFilled" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -327,6 +329,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -428,6 +431,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,

@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     padding: 14,
     minHeight: 80,
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
   },
   loading: {
     height: "unset",
@@ -37,6 +37,7 @@ const styles = (theme: ThemeType) => ({
   info: {
     marginRight: 13,
     color: theme.palette.grey[600],
+    fontSize: "1.4em",
   },
   questions: {
     flexGrow: 1,
@@ -284,7 +285,7 @@ const SurveyPostsItemInternal = ({
         inlineBlock={false}
         className={classes.tooltip}
       >
-        <ForumIcon icon="QuestionMarkCircle" className={classes.info} />
+        <ForumIcon icon="QuestionMarkCircleFilled" className={classes.info} />
       </LWTooltip>
       <div className={classes.questions}>
         {isSubmitting
