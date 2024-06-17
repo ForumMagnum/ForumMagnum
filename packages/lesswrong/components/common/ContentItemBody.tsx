@@ -4,9 +4,9 @@ import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 import { withTracking } from '../../lib/analyticsEvents';
+import { hasCollapsedFootnotes } from '@/lib/betas';
 
 interface ExternalProps {
   /**
@@ -272,7 +272,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
 
   collapseFootnotes = (body: HTMLElement) => {
-    if (isLWorAF || !body) {
+    if (!hasCollapsedFootnotes || !body) {
       return;
     }
 

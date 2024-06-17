@@ -97,6 +97,7 @@ export function HashLink(props: HashLinkProps) {
         if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) {
           return;
         }
+        filteredProps.onMouseDown?.(ev)
         navigate(to);
         ev.preventDefault();
       }}
