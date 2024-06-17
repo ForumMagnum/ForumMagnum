@@ -12,6 +12,7 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
+  // const
   return (
     <div className={classes.root}>
       {user.tagNames?.map((topic, index) => (<React.Fragment key={index}>{topic}</React.Fragment>))}

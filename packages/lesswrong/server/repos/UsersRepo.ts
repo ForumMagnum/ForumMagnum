@@ -195,7 +195,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         NULLIF(TRIM(u."website"), '') AS "website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
-        u."profileTagIds" AS "tags",
+        (SELECT jsonb_agg(jsonb_build_object('_id', _id, 'slug', slug, 'name', name)) FROM "Tags" WHERE _id = ANY(u."profileTagIds")) AS "tags",
         (SELECT ARRAY_AGG(name) FROM "Tags" WHERE _id = ANY(u."profileTagIds")) AS "tagNames",
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
