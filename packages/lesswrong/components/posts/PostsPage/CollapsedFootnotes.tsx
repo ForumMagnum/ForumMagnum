@@ -79,7 +79,7 @@ const CollapsedFootnotes = ({
   const ref = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
-    const handler = (e: AnyBecauseTodo) => {
+    const handler = (e: CustomEvent<string>) => {
       setCollapsed(false);
       setTimeout(() => {
         document.querySelector(e.detail)?.scrollIntoView();
