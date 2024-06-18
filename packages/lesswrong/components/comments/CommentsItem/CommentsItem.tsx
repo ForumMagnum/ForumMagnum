@@ -314,7 +314,7 @@ export const CommentsItem = ({
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
-    <HoveredReactionContextProvider>
+    <HoveredReactionContextProvider voteProps={voteProps}>
       <div className={classNames(
         classes.root,
         className,
