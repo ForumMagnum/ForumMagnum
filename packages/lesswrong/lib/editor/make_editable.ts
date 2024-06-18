@@ -114,9 +114,14 @@ const buildEditableResolver = <N extends CollectionNameString>(
       sqlResolver: ({field, resolverArg, join}) => join({
         table: "Revisions",
         type: "left",
-        on: {
-          _id: `COALESCE(${resolverArg("version")}, ${field(`${fieldName}_latest` as FieldName<N>)})`,
-        },
+        on: (revisionField) => `CASE WHEN ${resolverArg("version")} IS NULL
+          THEN
+            ${field(`${fieldName}_latest` as FieldName<N>)} = ${revisionField("_id")}
+          ELSE
+            ${resolverArg("version")} = ${revisionField("version")} AND
+            ${field("_id")} = ${revisionField("documentId")}
+          END
+        `,
         resolver: (revisionField) => revisionField("*"),
       }),
     };
