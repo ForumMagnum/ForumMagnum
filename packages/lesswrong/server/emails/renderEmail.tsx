@@ -12,7 +12,7 @@ import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
+import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
@@ -195,13 +195,9 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     wordwrap: plainTextWordWrap
   });
   
-  const defaultFromEmail = defaultEmailSetting.get()
-  let fromAddress = from || defaultFromEmail
+  const fromAddress = from || defaultEmailSetting.get()
   if (!fromAddress) {
     throw new Error("No source email address configured. Make sure \"defaultEmail\" is set in your settings.json.");
-  }
-  if (isEAForum && fromAddress === defaultFromEmail) {
-    fromAddress = `The EA Forum <${defaultFromEmail}>`
   }
   
   const sitename = forumTitleSetting.get();
@@ -214,7 +210,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     user,
     to,
     from: fromAddress,
-    subject: isEAForum ? subject : taggedSubject,
+    subject: isLWorAF ? taggedSubject : subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }
