@@ -96,10 +96,3 @@ export const getStatusFilterOptions = ({posts, postStatuses, statusFieldName}: {
   })
   return options
 }
-
-/**
- * Returns the link for the Mailchimp hosted email version of the EA Forum Digest.
- */
-export const getMailchimpLink = (mailchimpId: string) => {
-  return `https://us8.campaign-archive.com/?u=52b028e7f799cca137ef74763&id=${mailchimpId}`
-}

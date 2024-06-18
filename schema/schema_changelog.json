@@ -685,8 +685,8 @@
     "timestamp": "2024-06-12T17:35:25.000Z"
   },
   {
-    "acceptsSchemaHash": "6a44d0e218e83796522edeaf33effcd9",
-    "acceptedByMigration": "20240614T213214.add_digest_mailchimpId_field.ts",
-    "timestamp": "2024-06-14T21:32:14.000Z"
+    "acceptsSchemaHash": "2517c4978c4c1038f74a5f48e8e8e107",
+    "acceptedByMigration": "20240618T022814.add_Digests_postId_field.ts",
+    "timestamp": "2024-06-18T02:28:14.000Z"
   }
 ]

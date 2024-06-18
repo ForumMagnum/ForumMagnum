@@ -2673,7 +2673,7 @@ interface DigestsDefaultFragment { // fragment on Digests
   readonly publishedDate: Date | null,
   readonly onsiteImageId: string | null,
   readonly onsitePrimaryColor: string | null,
-  readonly mailchimpId: string | null,
+  readonly postId: string | null,
 }
 
 interface DigestPostsDefaultFragment { // fragment on DigestPosts
@@ -2699,7 +2699,7 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly publishedDate: Date | null,
   readonly onsiteImageId: string | null,
   readonly onsitePrimaryColor: string | null,
-  readonly mailchimpId: string | null,
+  readonly postId: string | null,
 }
 
 interface ForumEventsDefaultFragment { // fragment on ForumEvents

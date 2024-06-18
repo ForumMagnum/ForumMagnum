@@ -16,7 +16,6 @@ import { isEAForum } from '@/lib/instanceSettings';
 import { useABTest } from '@/lib/abTestImpl';
 import { digestPageABTest } from '@/lib/abTests';
 import { useMulti } from '@/lib/crud/withMulti';
-import { getMailchimpLink } from '@/lib/collections/digests/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -209,7 +208,7 @@ const PostsTitle = ({
   const abTestGroup = useABTest(digestPageABTest);
   const {results: digests} = useMulti({
     collectionName: 'Digests',
-    terms: {num: digestNum!},
+    terms: {view: 'findByNum', num: digestNum!},
     fragmentName: 'DigestsMinimumInfo',
     enableTotal: false,
     limit: 1,
@@ -242,13 +241,16 @@ const PostsTitle = ({
     <Wrapper>{post.title}</Wrapper>
   </span>
   
-  // If this post is in an EA Forum Digest, and we have the Mailchimp ID associated with that digest,
-  // then display the tag for that digest. Link it to either the Mailchimp hosted email digest
+  // If this post is in an EA Forum Digest, and we have the postId associated with that digest,
+  // then display the tag for that digest. Link it to either the post that replicates the email digest
   // or the on-site version of the digest, depending on the user's A/B test group.
   const digest = digests?.[0]
   let digestTagLink = null
-  if (digest?.mailchimpId) {
-    digestTagLink = abTestGroup === 'control' ? getMailchimpLink(digest.mailchimpId) : `/digests/${digestNum}`
+  if (digest?.postId) {
+    digestTagLink = abTestGroup === 'control' ? postGetPageUrl({
+      _id: digest.postId,
+      slug: `ea-forum-digest-${digestNum}`
+    }) : `/digests/${digestNum}`
   }
 
   return (
@@ -277,7 +279,7 @@ const PostsTitle = ({
           />
         </InteractionWrapper>
       </span>}
-      {isEAForum && digestTagLink && <InteractionWrapper className={classes.interactionWrapper}>
+      {currentUser?.isAdmin && isEAForum && digestTagLink && <InteractionWrapper className={classes.interactionWrapper}>
           <Link
             to={digestTagLink}
             className={classNames(classes.tag, classes.digestTag)}

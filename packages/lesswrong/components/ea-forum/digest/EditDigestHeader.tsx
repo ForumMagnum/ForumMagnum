@@ -141,11 +141,11 @@ export const EditDigestHeader = ({digest, classes}: {
     }
   }
   
-  const onChangeMailchimpId = (value: string|null) => {
+  const onChangePostId = (value: string|null) => {
     void updateDigest({
       selector: {_id: digest._id},
       data: {
-        mailchimpId: value,
+        postId: value,
       },
     });
   }
@@ -234,10 +234,10 @@ export const EditDigestHeader = ({digest, classes}: {
         </h2>
         {isEmailSettingsExpanded && <div className={classes.settings}>
           <div className={classes.inputRow}>
-            <label className={classes.label}>Mailchimp campaign ID:</label>
+            <label className={classes.label}>Matching post ID:</label>
             <input
-              defaultValue={digest.mailchimpId ?? ''}
-              onChange={e => onChangeMailchimpId(e.target.value)}
+              defaultValue={digest.postId ?? ''}
+              onChange={e => onChangePostId(e.target.value)}
               className={classes.input}
             />
           </div>

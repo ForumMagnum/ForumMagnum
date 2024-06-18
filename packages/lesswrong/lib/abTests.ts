@@ -109,7 +109,7 @@ export const digestPageABTest = new ABTest({
   description: "Which version of the digest page do we link to?",
   groups: {
     control: {
-      description: "Mailchimp hosted email version",
+      description: "Email version",
       weight: 1,
     },
     onsite: {

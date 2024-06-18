@@ -1,3 +1,5 @@
+import { foreignKeyField } from "@/lib/utils/schemaUtils";
+
 const schema: SchemaType<"Digests"> = {
   // the digest number (should correspond with the email digest)
   num: {
@@ -60,15 +62,20 @@ const schema: SchemaType<"Digests"> = {
     canCreate: ['admins'],
     control: "FormComponentColorPicker",
   },
-  // the id for the matching email campaign in Mailchimp, i.e. the "id" value in
-  // https://us8.campaign-archive.com/?u=52b028e7f799cca137ef74763&id=8aef8ff044
-  mailchimpId: {
-    type: String,
+  // the id for the matching post, in which we've replicated the email version of the digest
+  postId: {
+    ...foreignKeyField({
+      idFieldName: "postId",
+      resolverName: "post",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
     optional: true,
     nullable: true,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
   },
 };
 
