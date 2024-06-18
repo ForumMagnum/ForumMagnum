@@ -369,7 +369,7 @@ const curationEmailDelay = new EventDebouncer({
   }
 });
 
-getCollectionHooks("Posts").editAsync.add(async function CuratedAuthorsNotification(post: DbPost, oldPost: DbPost) {
+getCollectionHooks("Posts").editAsync.add(async function EAFCuratedAuthorsNotification(post: DbPost, oldPost: DbPost) {
   // On the EA Forum, when a post is curated, we send an email notifying all the post's authors
   if (post.curatedDate && !oldPost.curatedDate && isEAForum) {
     const coauthorIds = getConfirmedCoauthorIds(post)
@@ -387,7 +387,7 @@ getCollectionHooks("Posts").editAsync.add(async function CuratedAuthorsNotificat
   }
 })
 
-getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
+getCollectionHooks("Posts").editAsync.add(async function LWAFPostsCurateNotification (post: DbPost, oldPost: DbPost) {
   if (post.curatedDate && !oldPost.curatedDate && isLWorAF) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email. (Admins get
