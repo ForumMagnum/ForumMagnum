@@ -1,6 +1,7 @@
 import React, { useReducer } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { QuoteLocator } from '@/lib/voting/namesAttachedReactions';
+import type { VotingProps } from '../votingProps';
 
 /**
  * A list of reaction-types whose buttons are hovered. Passed around as a
@@ -18,6 +19,8 @@ export const HoveredReactionListContext = React.createContext<HoveredReaction[]|
  * hover/unhover events.
  */
 export const SetHoveredReactionContext = React.createContext<((change: HoveredReactionChange) => void)|null>(null);
+
+export const InlineReactVoteContext = React.createContext<VotingProps<VoteableTypeClient>|null>(null);
 
 type HoveredReactionChange = {
   reactionName: string,
@@ -40,15 +43,18 @@ function hoveredReactionsReducer(hoveredReactions: HoveredReaction[], change: Ho
   }
 }
 
-export const HoveredReactionContextProvider = ({children}: {
+export const HoveredReactionContextProvider = ({voteProps, children}: {
+  voteProps: VotingProps<VoteableTypeClient>
   children: React.ReactNode,
 }) => {
   const [hoveredReactions,dispatch] = useReducer(hoveredReactionsReducer, []);
 
   return <HoveredReactionListContext.Provider value={hoveredReactions}>
+    <InlineReactVoteContext.Provider value={voteProps}>
     <SetHoveredReactionContext.Provider value={dispatch}>
       {children}
     </SetHoveredReactionContext.Provider>
+    </InlineReactVoteContext.Provider>
   </HoveredReactionListContext.Provider>
 }
 
