@@ -378,13 +378,12 @@ getCollectionHooks("Posts").editAsync.add(async function CuratedAuthorsNotificat
       _id: {$in: authorIds}
     }).fetch()
     
-    void Promise.all(authors.map(author => {
-      wrapAndSendEmail({
+    void Promise.all(authors.map(author => wrapAndSendEmail({
         user: author,
         subject: "We’ve curated your post",
         body: <Components.EmailCuratedAuthors user={author} post={post} />
       })
-    }))
+    ))
   }
 })
 
