@@ -20,8 +20,6 @@ const schema: SchemaType<"Digests"> = {
     control: 'datetime',
   },
   // the end of the range of eligible posts (just used to filter posts for the Edit Digest page)
-  // TODO: this is currently also used to determine when the on-site digest is publicly accessible,
-  // though probably we should use the publishedDate instead :shrug:
   endDate: {
     type: Date,
     optional: true,
@@ -31,7 +29,7 @@ const schema: SchemaType<"Digests"> = {
     canCreate: ['admins'],
     control: 'datetime',
   },
-  // when this digest was published (TODO: currently not used but probably should be)
+  // when this digest was published (if set, then the on-site digest is publicly accessible)
   publishedDate: {
     type: Date,
     optional: true,
