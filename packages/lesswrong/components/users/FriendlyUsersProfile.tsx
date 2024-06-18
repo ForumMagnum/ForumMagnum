@@ -483,14 +483,14 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
               user={user}
               currentUser={currentUser}
             >
-              <a tabIndex={0} className={classes.messageBtn} data-cy="message">
+              <a tabIndex={0} className={classes.messageBtn}>
                 Message
               </a>
             </NewConversationButton>
             <UserNotifyDropdown user={user} />
           </div>}
 
-          {user.profileTags?.length &&
+          {(user.profileTags?.length ?? 0) > 0 &&
             <div className={classes.interests}>
               <div>Interests:</div>
               {user.profileTags.map((tag) =>
