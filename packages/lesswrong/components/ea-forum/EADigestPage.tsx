@@ -33,6 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   topSection: {
     display: 'flex',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     columnGap: '20px',
     rowGap: '16px',
@@ -316,7 +317,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
                   {!isPublished && <span className={classes.previewLabel}>[Preview]</span>}
                 </h1>
                 <div className={classes.pageDescription}>
-                  {pageDescription}
+                  The <Link to={"/contact"}>Forum Team</Link>'s favorite posts and discussions from this week
                 </div>
                 <div className={classes.feedback}>
                   This is an experiment - help us out by{" "}
