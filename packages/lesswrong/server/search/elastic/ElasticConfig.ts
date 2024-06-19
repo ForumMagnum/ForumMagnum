@@ -299,7 +299,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       slug: shingleTextMapping,
       website: keywordMapping,
       profileImageId: keywordMapping,
-      tagNames: fullTextMapping,
+      tagNames: keywordMapping,
       _geoloc: geopointMapping,
     },
     privateFields: [
