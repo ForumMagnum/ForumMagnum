@@ -85,6 +85,7 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
           <InteractionWrapper
             key={tagName}
             href={tagGetUrl({slug}, {from: "people_directory"})}
+            openInNewTab
             className={classes.tagWrapper}
           >
             <TagsTooltip tagSlug={slug} hideRelatedTags>
