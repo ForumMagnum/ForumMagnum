@@ -2702,8 +2702,8 @@ const schema: SchemaType<"Users"> = {
     form: {
       useDocumentAsUser: true,
       variant: "grey",
-      separator: '\r\n',
-      multiselect: true
+      separator: ", ",
+      multiselect: true,
     },
   },
   'organizerOfGroupIds.$': {

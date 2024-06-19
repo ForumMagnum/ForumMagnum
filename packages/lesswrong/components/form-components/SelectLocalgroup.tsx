@@ -21,7 +21,6 @@ const SelectLocalgroup = (props: SelectLocalgroupProps) => {
 
   // Default to currentUser, but use props.document if necessary
   // (ex. you want to be able to select groups for another user).
-  // Note that props.document doesn't have isAdmin, so using this option will not show all groups for admins.
   const user = props.useDocumentAsUser ? props.document : props.currentUser
 
   const { results: groups } = useMulti({
