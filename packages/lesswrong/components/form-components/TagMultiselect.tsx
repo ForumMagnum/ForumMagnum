@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { styles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
+import { isFriendlyUI } from '@/themes/forumTheme';
+import { Link } from '@/lib/reactRouterWrapper';
 import FormLabel from '@material-ui/core/FormLabel';
 import classNames from 'classnames';
 
@@ -62,7 +64,20 @@ const styles = (theme: ThemeType) => ({
     '& input': {
       cursor: "text"
     }
-  }
+  },
+  profileTagsMessage: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    fontWeight: 500,
+    marginBottom: 8,
+    "& a": {
+      color: theme.palette.primary.main,
+      fontWeight: 700,
+      "&:hover": {
+        color: theme.palette.primary.light,
+      },
+    },
+  },
 });
 
 const TagMultiselect = ({
@@ -112,12 +127,19 @@ const TagMultiselect = ({
 
   const isGrey = variant === "grey";
   const labelNode = isGrey
-    ? <SectionTitle title={label} className={classes.sectionTitle} />
+    ? <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
     : <FormLabel className={classes.label}>{label}</FormLabel>;
 
   return (
     <div>
       {label && labelNode}
+      {isFriendlyUI && isGrey && path === "profileTagIds" &&
+        <div className={classes.profileTagsMessage}>
+          These are visible on your profile.{" "}
+          If you want to subscribe to topics, go{" "}
+          <Link to="/manageSubscriptions">here</Link>.
+        </div>
+      }
       <div className={classNames(isGrey && classes.greyContainer)}>
         <div>
           <div className={classNames(isGrey && classes.greyTagContainer)}>
