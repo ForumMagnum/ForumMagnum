@@ -41,6 +41,7 @@ export const PeopleDirectoryFilters = ({classes}: {
     organizations,
     locations,
     careerStages,
+    tags,
     columns,
     columnsEdited,
     resetColumns,
@@ -59,6 +60,7 @@ export const PeopleDirectoryFilters = ({classes}: {
         <PeopleDirectorySearchableFilter filter={organizations} />
         <PeopleDirectoryStaticFilter filter={careerStages} />
         <PeopleDirectorySearchableFilter filter={locations} />
+        <PeopleDirectorySearchableFilter filter={tags} />
         {totalResults > 0 && !isEmptySearch &&
           <div className={classes.totalResults}>
             {formatStat(totalResults)} {totalResults === 1 ? "result" : "results"}

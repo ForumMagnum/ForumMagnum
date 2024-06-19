@@ -3,6 +3,9 @@ import { MultiSelectState, buildMultiSelectSummary } from "./useMultiSelect";
 import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
+import { getSearchClient } from "@/lib/search/searchUtil";
+import { algoliaPrefixSetting } from "@/lib/publicSettings";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
 export type SearchableMultiSelectState = MultiSelectState & {
   /**
@@ -26,10 +29,66 @@ export type SearchableMultiSelectResult = {
   grandfatheredCount: number,
 }
 
-export const useSearchableMultiSelect = ({title, facetField}: {
-  title: string,
+/**
+ * Searchable multiselect inputs can either search a user facet field or an
+ * elasticsearch index
+ */
+type MultiSelectSearchTarget = {
   facetField: string,
-}): SearchableMultiSelectResult => {
+  elasticField?: never,
+} | {
+  facetField?: never,
+  elasticField: {index: string, fieldName: string},
+}
+
+const fetchFromUserFacet = async (
+  facetField: string,
+  query: string,
+): Promise<string[]> => {
+  const response = await fetch("/api/search/userFacets", {
+    method: "POST",
+    body: JSON.stringify({
+      facetField,
+      query,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const {hits} = await response.json();
+  return hits ?? [];
+}
+
+const fetchFromElasticIndex = async (
+  index: string,
+  fieldName: string,
+  query: string,
+): Promise<string[]> => {
+  const response = await getSearchClient().search([
+    {
+      indexName: algoliaPrefixSetting.get() + index,
+      query,
+      params: {
+        query,
+        facetFilters: [],
+        page: 0,
+        hitsPerPage: 8,
+      },
+    },
+  ]);
+  const hits = response?.results?.[0]?.hits ?? [];
+  return filterNonnull(hits.map((hit) => hit[fieldName]));
+}
+
+export const useSearchableMultiSelect = ({
+  title,
+  placeholder,
+  facetField,
+  elasticField,
+}: {
+  title: string,
+  placeholder?: string,
+} & MultiSelectSearchTarget): SearchableMultiSelectResult => {
   const captureSearch = useSearchAnalytics();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -40,7 +99,7 @@ export const useSearchableMultiSelect = ({title, facetField}: {
   }, [suggestions]);
 
   const summary = buildMultiSelectSummary(title, suggestions, selectedValues);
-  const placeholder = `Type ${title.toLowerCase()}...`;
+  placeholder ??= `Type ${title.toLowerCase()}...`;
 
   const clear = useCallback(() => {
     setSearch("");
@@ -65,23 +124,19 @@ export const useSearchableMultiSelect = ({title, facetField}: {
     }));
   }, []);
 
+  const {index, fieldName} = elasticField ?? {};
+
   const fetchSuggestions = useCallback(async (query: string) => {
     try {
-      const response = await fetch("/api/search/userFacets", {
-        method: "POST",
-        body: JSON.stringify({
-          facetField,
-          query,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const {hits} = await response.json();
+      const hits = await (index && fieldName
+        ? fetchFromElasticIndex(index, fieldName, query)
+        : fetchFromUserFacet(facetField!, query));
       captureSearch("userFacetSearch", {
         facetField,
+        index,
+        fieldName,
         query,
-        hitCount: hits?.length ?? 0,
+        hitCount: hits.length ?? 0,
       });
       return hits ?? [];
     } catch (e) {
@@ -90,7 +145,7 @@ export const useSearchableMultiSelect = ({title, facetField}: {
       captureException(e);
       return [];
     }
-  }, [captureSearch, facetField]);
+  }, [captureSearch, facetField, index, fieldName]);
 
   const getWithCache = useLRUCache<string, Promise<string[]>>(fetchSuggestions);
 
