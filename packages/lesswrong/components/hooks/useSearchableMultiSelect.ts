@@ -7,6 +7,8 @@ import { getSearchClient } from "@/lib/search/searchUtil";
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 
+export const MULTISELECT_SUGGESTION_LIMIT = 8;
+
 export type SearchableMultiSelectState = MultiSelectState & {
   /**
    * If the user enters a search, selects and option, then searches for
@@ -72,7 +74,7 @@ const fetchFromElasticIndex = async (
         query,
         facetFilters: [],
         page: 0,
-        hitsPerPage: 8,
+        hitsPerPage: MULTISELECT_SUGGESTION_LIMIT,
       },
     },
   ]);
@@ -80,19 +82,26 @@ const fetchFromElasticIndex = async (
   return filterNonnull(hits.map((hit) => hit[fieldName]));
 }
 
+const useStableSuggestions = (suggestions: string[] = []) =>
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => suggestions, [suggestions.join("")]);
+
 export const useSearchableMultiSelect = ({
   title,
   placeholder,
   facetField,
   elasticField,
+  defaultSuggestions: defaultSuggestions_,
 }: {
   title: string,
   placeholder?: string,
+  defaultSuggestions?: string[],
 } & MultiSelectSearchTarget): SearchableMultiSelectResult => {
   const captureSearch = useSearchAnalytics();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchableMultiSelectState[]>([]);
+  const defaultSuggestions = useStableSuggestions(defaultSuggestions_);
 
   const selectedValues: string[] = useMemo(() => {
     return suggestions.filter(({selected}) => selected).map(({value}) => value);
@@ -100,12 +109,6 @@ export const useSearchableMultiSelect = ({
 
   const summary = buildMultiSelectSummary(title, suggestions, selectedValues);
   placeholder ??= `Type ${title.toLowerCase()}...`;
-
-  const clear = useCallback(() => {
-    setSearch("");
-    setLoading(false);
-    setSuggestions([]);
-  }, []);
 
   const onRemove = useCallback((removeValue: string) => {
     setSuggestions((suggestions) =>
@@ -123,6 +126,20 @@ export const useSearchableMultiSelect = ({
         : suggestion;
     }));
   }, []);
+
+  const hitToSuggestion = useCallback((hit: string, selected = false) => ({
+    value: hit,
+    label: hit,
+    selected,
+    onToggle: onToggle.bind(null, hit),
+    grandfathered: false,
+  }), [onToggle]);
+
+  const clear = useCallback(() => {
+    setSearch("");
+    setLoading(false);
+    setSuggestions(defaultSuggestions.map((s) => hitToSuggestion(s)));
+  }, [defaultSuggestions, hitToSuggestion]);
 
   const {index, fieldName} = elasticField ?? {};
 
@@ -152,7 +169,7 @@ export const useSearchableMultiSelect = ({
   useEffect(() => {
     setLoading(true);
     void (async () => {
-      const hits = search ? await getWithCache(search) : [];
+      const hits = search ? await getWithCache(search) : defaultSuggestions;
       setSuggestions((oldSuggestions) => {
         const grandfathered = oldSuggestions
           .filter(({value, selected}) => selected && !hits.includes(value))
@@ -161,17 +178,14 @@ export const useSearchableMultiSelect = ({
             grandfathered: true,
             onToggle: onRemove.bind(null, suggestion.value),
           }));
-        return grandfathered.concat(hits.map((hit: string) => ({
-          value: hit,
-          label: hit,
-          selected: !!oldSuggestions.find(({value}) => value === hit)?.selected,
-          onToggle: onToggle.bind(null, hit),
-          grandfathered: false,
-        })));
+        return grandfathered.concat(hits.map((hit: string) => hitToSuggestion(
+          hit,
+          !!oldSuggestions.find(({value}) => value === hit)?.selected,
+        )));
       });
       setLoading(false);
     })();
-  }, [search, getWithCache, onToggle, onRemove]);
+  }, [search, getWithCache, onToggle, onRemove, defaultSuggestions, hitToSuggestion]);
 
   const grandfatheredCount = suggestions
     .filter(({grandfathered}) => grandfathered)

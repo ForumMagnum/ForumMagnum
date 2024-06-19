@@ -3,13 +3,14 @@ import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
 import { CAREER_STAGES } from "../../lib/collections/users/schema";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
-import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
+import { MULTISELECT_SUGGESTION_LIMIT, SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
+import { useMulti } from "@/lib/crud/withMulti";
 
 type PeopleDirectoryView = "list" | "map";
 
@@ -59,6 +60,15 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [page, setPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
 
+  const {results: coreTags} = useMulti({
+    collectionName: "Tags",
+    fragmentName: "TagName",
+    terms: {
+      view: "coreTags",
+      limit: MULTISELECT_SUGGESTION_LIMIT,
+    },
+  });
+
   const roles = useSearchableMultiSelect({
     title: "Role",
     facetField: "jobTitle",
@@ -79,6 +89,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     title: "Topic interests",
     placeholder: "Search topics...",
     elasticField: {index: "tags", fieldName: "name"},
+    defaultSuggestions: coreTags?.map(({name}) => name),
   });
 
   const flattenedResults = useMemo(() => {

@@ -7,6 +7,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { getPostgresViewByName } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -685,8 +686,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
         ) AND
         ${getDefaultFacetFieldSelector(pgField)}
       ORDER BY "rank" DESC, ${normalizedFacetField} DESC
-      LIMIT 8
-    `, [query]);
+      LIMIT $2
+    `, [query, MULTISELECT_SUGGESTION_LIMIT]);
 
     return results.map(({result}) => result);
   }
