@@ -19,7 +19,7 @@ const SelectLocalgroup = (props: any) => {
     collectionName: "Localgroups",
     fragmentName: 'localGroupsBase',
     terms: {
-      view: user.isAdmin ? 'all' : 'userActiveGroups',
+      view: props.currentUser?.isAdmin ? 'all' : 'userActiveGroups',
       userId: user._id,
       limit: 500
     },
