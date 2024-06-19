@@ -94,7 +94,7 @@ const MultiSelect = ({
 
   const isGrey = variant === "grey";
   const labelNode = isGrey
-    ? <SectionTitle title={label} className={classes.sectionTitle} />
+    ? <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
     : <FormLabel className={classes.formLabel}>{label}</FormLabel>;
 
   return <FormControl
