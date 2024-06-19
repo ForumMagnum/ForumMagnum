@@ -73,7 +73,7 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
     }
   }, [classes]);
 
-  const {TagsTooltip} = Components;
+  const {TagsTooltip, LWTooltip} = Components;
   return (
     <div className={classes.root} ref={ref}>
       {user.tagNames?.slice(0, TAG_COUNT).map((tagName) => {
@@ -97,7 +97,15 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
       })}
       {(user.tagNames?.length ?? 0) > TAG_COUNT &&
         <div className={classes.more}>
-          + {user.tagNames!.length - TAG_COUNT} more
+          <LWTooltip title={
+            <div>
+              {user.tagNames!.slice(TAG_COUNT).map((tag) => (
+                <div key={tag}>{tag}</div>
+              ))}
+            </div>
+          }>
+            + {user.tagNames!.length - TAG_COUNT} more
+          </LWTooltip>
         </div>
       }
     </div>
