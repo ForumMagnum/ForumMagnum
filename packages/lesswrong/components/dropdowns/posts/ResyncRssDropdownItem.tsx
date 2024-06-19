@@ -110,13 +110,15 @@ const ResyncRssDialog = ({onClose, post, classes}: {
           _id: post._id,
         },
         data: {
+          // Contents is a resolver only field, but there is handling for it
+          // in `createMutator`/`updateMutator`
           contents: {
             originalContents: {
               type: "html",
               data: data.RssPostChanges.newHtml,
             }
-          } as AnyBecauseHard,
-        },
+          },
+        } as AnyBecauseHard,
       });
 
       onClose();

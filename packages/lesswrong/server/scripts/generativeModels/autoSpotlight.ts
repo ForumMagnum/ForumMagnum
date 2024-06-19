@@ -1,10 +1,10 @@
-import { Posts } from "../../../lib/collections/posts";
 import Tags from "../../../lib/collections/tags/collection";
 import { PublicInstanceSetting } from "../../../lib/instanceSettings";
 import { Globals, createAdminContext, createMutator } from "../../vulcan-lib";
 
 import Anthropic from '@anthropic-ai/sdk';
 import Spotlights from "../../../lib/collections/spotlights/collection";
+import { fetchFragment } from "../../fetchFragment";
 
 const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
@@ -29,7 +29,7 @@ async function queryClaude(prompt: string) {
   });
 }
 
-async function createArtDescription(post: DbPost) {
+async function createArtDescription(post: PostsPage) {
   const queryImageRoot = `
     Describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be simple, such that key elements and themes are easily distinguishable when people see it.
 
@@ -44,7 +44,7 @@ async function createArtDescription(post: DbPost) {
   return `<p><b>Art Prompt:</b></p>${response}`
 }
 
-function createSpotlightDescription(post: DbPost) {
+function createSpotlightDescription(post: PostsPage) {
   const queryQuestionRoot = `
     Write two sentences that ask the question that this essay is ultimately answering. (Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
   `
@@ -89,9 +89,13 @@ async function createSpotlights() {
   if (tag) {
     const spotlightDocIds = (await Spotlights.find({}, {projection:{documentId:1}}).fetch()).map(spotlight => spotlight.documentId)
 
-    const posts = await Posts.find(
-      {[`tagRelevance.${tag._id}`]: {$gt: 0}}
-    ).fetch()
+    const posts = await fetchFragment({
+      collectionName: "Posts",
+      fragmentName: "PostsPage",
+      currentUser: null,
+      selector: {[`tagRelevance.${tag._id}`]: {$gt: 0}},
+      skipFiltering: true,
+    });
 
     const spotlightPosts = posts.filter(post => !spotlightDocIds.includes(post._id))
 

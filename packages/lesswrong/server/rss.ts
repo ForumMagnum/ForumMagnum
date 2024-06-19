@@ -13,7 +13,7 @@ import { getCommentParentTitle } from '../lib/notificationTypes';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 import { viewTermsToQuery } from '../lib/utils/viewUtils';
-
+import { fetchFragment } from './fetchFragment';
 
 Posts.addView('rss', Posts.views.new); // default to 'new' view for RSS feed
 Comments.addView('rss', Comments.views.recentComments); // default to 'recentComments' view for comments RSS feed
@@ -52,10 +52,15 @@ const servePostRSS = async (terms: RSSTerms, url?: string) => {
 
   parameters.options.limit = 10;
 
-  const postsCursor = await Posts.find(parameters.selector, parameters.options).fetch();
-  const restrictedPosts = await accessFilterMultiple(null, Posts, postsCursor, null) as DbPost[];
+  const postsCursor = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsRSSFeed",
+    currentUser: null,
+    selector: parameters.selector,
+    options: parameters.options,
+  });
 
-  await asyncForeachSequential(restrictedPosts, async (post) => {
+  await asyncForeachSequential(postsCursor, async (post) => {
     // LESSWRONG - this was added to handle karmaThresholds
     let thresholdDate = (karmaThreshold === 2)  ? post.scoreExceeded2Date
                       : (karmaThreshold === 30) ? post.scoreExceeded30Date
@@ -122,7 +127,7 @@ const serveCommentRSS = async (terms: RSSTerms, req: any, res: any, url?: string
 };
 
 
-addStaticRoute('/feed.xml', async function(params, req, res, next) {
+addStaticRoute('/feed.xml', async function(params, req, res, _next) {
   res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8')
   if (typeof params.query.view === 'undefined') {
     params.query.view = 'rss';

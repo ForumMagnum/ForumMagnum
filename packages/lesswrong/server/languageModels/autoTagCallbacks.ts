@@ -8,9 +8,10 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
+import { isAnyTest, isE2E, isProduction } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
 
 /**
  * To set up automatic tagging:
@@ -127,7 +128,7 @@ function preprocessHtml(html: string): string {
 
 export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
   template: LanguageModelTemplate,
-  post: DbPost|PostIsCriticismRequest,
+  post: FetchedFragment<"PostsHTML">|PostIsCriticismRequest,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
   postBodyCache?: PostBodyCache,
@@ -137,7 +138,11 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache,
   const {header, body} = template;
   
   const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
-  const htmlPostBody = ('body' in post ? post.body : null) ?? ('contents' in post ? post.contents?.html : null) ?? ''
+  const htmlPostBody = (('body' in post && post.body) ? post.body : null)
+    ?? (('contents' in post && post.contents)
+        ? post.contents?.html
+        : null)
+    ?? ''
   const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
   
   const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
@@ -166,7 +171,7 @@ function preprocessPostHtml(postHtml: string): string {
 }
 
 export type PostBodyCache = {preprocessedBody: Record<string,string>}
-export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
+export function generatePostBodyCache(posts: FetchedFragment<"PostsHTML">[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
     result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html ?? "");
@@ -174,7 +179,11 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   return result;
 }
 
-export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAI) {
+export async function checkTags(
+  post: FetchedFragment<"PostsHTML">,
+  tags: DbTag[],
+  openAIApi: OpenAI,
+) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let tagsApplied: Record<string,boolean> = {};
@@ -246,7 +255,7 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
 async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
-    if (!isAnyTest) {
+    if (!isAnyTest && !isE2E) {
       //eslint-disable-next-line no-console
       console.log("Skipping autotagging (API not configured)");
     }
@@ -260,7 +269,18 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
   }
   
   const tags = await getAutoAppliedTags();
-  const tagsApplied = await checkTags(post, tags, api);
+  const postHTML = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: post._id},
+    currentUser: context.currentUser,
+    context,
+    skipFiltering: true,
+  });
+  if (!postHTML) {
+    return;
+  }
+  const tagsApplied = await checkTags(postHTML, tags, api);
   
   //eslint-disable-next-line no-console
   console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);

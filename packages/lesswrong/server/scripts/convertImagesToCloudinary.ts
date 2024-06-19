@@ -216,13 +216,15 @@ export async function convertImagesInObject<N extends CollectionNameString>(
     
     const newVersion = getNextVersion(latestRev, "patch", false);
     const now = new Date();
-    // NOTE: we use the post contents rather than the revision contents because we don't
-    // create a revision for no-op edits (this is arguably a bug)
-    //
     // We also manually downcast the document because it's otherwise a union type of all possible DbObjects, and we can't use a random string as an index accessor
     // This is because `collection` is itself a union of all possible collections
     // I tried to make a mutual constraint between `fieldName` and `collectionName` but it was a bit too finnicky to be worth it; this is mostly being (unsafely) called from Globals anyways
-    const oldHtml = (obj as AnyBecauseHard)?.[fieldName]?.html;
+    //
+    // TODO: For post contents normalization. Below is the old comment - is this a problem?
+    // NOTE: we use the post contents rather than the revision contents because we don't
+    // create a revision for no-op edits (this is arguably a bug)
+    // const oldHtml = (obj as AnyBecauseHard)?.[fieldName]?.html;
+    const oldHtml = latestRev.html;
     if (!oldHtml) {
       return 0;
     }

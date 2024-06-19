@@ -150,10 +150,6 @@ export function getDefaultMutations<N extends CollectionNameString>(collectionNa
           collectionName
         );
 
-        // call updateMutator boilerplate function
-        // TODO: A problem with updateMutator types means that it demands a
-        // documentId instead of a selector
-        // @ts-ignore
         return await Utils.updateMutator({
           collection,
           selector,

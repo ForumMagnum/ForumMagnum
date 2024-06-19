@@ -1,7 +1,9 @@
 import { registerMigration, forEachDocumentBatchInCollection } from './migrationUtils';
-import { editableCollections, editableCollectionsFields, editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
+import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable';
 import { getCollection } from '../../lib/vulcan-lib';
 import { htmlToPingbacks } from '../pingbacks';
+import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
+import Revisions from '@/lib/collections/revisions/collection';
 
 registerMigration({
   name: "generatePingbacksAgain",
@@ -30,7 +32,17 @@ const updatePingbacks = async (collectionName: CollectionNameString, fieldName: 
       let updates: Array<any> = [];
       
       for (let document of documents) {
-        const html = document[fieldName]?.html;
+        const latestRevId = document[`${fieldName}_latest`];
+        if (!latestRevId) {
+          continue;
+        }
+        const rev = await Revisions.findOne({
+          _id: latestRevId,
+        });
+        if (!rev) {
+          continue;
+        }
+        const html = rev.html;
         if (html) {
           const pingbacks = await htmlToPingbacks(html);
           if (JSON.stringify(document.pingbacks) !== JSON.stringify(pingbacks)) {
