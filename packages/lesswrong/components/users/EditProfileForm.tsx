@@ -14,7 +14,8 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 800,
-    margin: '0 auto'
+    margin: '0 auto',
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   heading: {
     marginTop: 0,
