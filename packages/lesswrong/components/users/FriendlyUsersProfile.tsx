@@ -199,7 +199,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   useEffect(() => {
     if (user && hash) {
       const element = document.querySelector(hash);
-      element?.scrollIntoView();
+      setTimeout(() => element?.scrollIntoView(true), 0);
     }
   }, [user, hash]);
 
