@@ -2847,7 +2847,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly howOthersCanHelpMe: RevisionDisplay|null,
   readonly howICanHelpOthers: RevisionDisplay|null,
   readonly profileTagIds: Array<string>,
-  readonly profileTags: Array<TagBasicInfo>,
+  readonly profileTags: Array<TagPreviewFragment>,
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,

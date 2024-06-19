@@ -80,7 +80,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Social media",
-    columnWidth: "100px",
+    columnWidth: "140px",
     componentName: "PeopleDirectorySocialMediaCell",
     hideable: true,
     hidden: false,

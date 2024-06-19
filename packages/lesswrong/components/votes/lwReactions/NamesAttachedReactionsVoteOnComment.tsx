@@ -376,12 +376,12 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   }
 
   function handleMouseEnter (e: any) {
-    setHoveredReaction?.({reactionName: react, isHovered: true});
+    setHoveredReaction?.({reactionName: react, isHovered: true, quote: null});
     onMouseOver(e);
   }
   
   function handleMouseLeave () {
-    setHoveredReaction?.({reactionName: react, isHovered: false});
+    setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
     onMouseLeave();
   }
 

@@ -304,6 +304,7 @@ declare global {
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
       tooltipBackground2: ColorString,
+      mapboxTooltip: ColorString,
       modalBackground: ColorString,
       loginInput: ColorString,
       loginInputHovered: ColorString,

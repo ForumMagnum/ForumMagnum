@@ -29,7 +29,7 @@ const sendInactiveUserSurveyEmails = async () => {
     try {
       void wrapAndSendEmail({
         user,
-        from: 'eaforum@centreforeffectivealtruism.org',
+        from: 'EA Forum Team <eaforum@centreforeffectivealtruism.org>',
         subject: `Help us improve the site`,
         body: <Components.EmailInactiveUserSurvey user={user} />,
       })

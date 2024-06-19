@@ -378,6 +378,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
+    mapboxTooltip: "#fff",
     modalBackground: "#fff",
     loginInput: "#efefef",
     loginInputHovered: "#e4e4e4",

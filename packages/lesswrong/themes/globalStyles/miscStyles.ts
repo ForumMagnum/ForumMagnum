@@ -1,3 +1,4 @@
+import { isFriendlyUI } from "../forumTheme";
 
 export default (theme: ThemeType): string => `
 /*
@@ -253,5 +254,22 @@ div#mocha {
   top: 0;
   width: 20px;
   z-index: 10000000;
+}
+
+/* Mapbox */
+${
+  isFriendlyUI
+    ? `
+      .mapboxgl-popup-content {
+        background: ${theme.palette.panelBackground.mapboxTooltip} !important;
+      }
+      .mapboxgl-popup-tip {
+        border-top-color: ${theme.palette.panelBackground.mapboxTooltip} !important;
+      }
+      .mapboxgl-popup-close-button {
+        color: ${theme.palette.text.normal} !important;
+      }
+    `
+    : ""
 }
 `
