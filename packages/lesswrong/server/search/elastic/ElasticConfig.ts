@@ -308,6 +308,11 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         slug: keywordMapping,
         name: fullTextMapping,
       }),
+      posts: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        title: fullTextMapping,
+      }),
       _geoloc: geopointMapping,
     },
     privateFields: [
