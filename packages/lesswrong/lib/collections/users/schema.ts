@@ -2358,7 +2358,8 @@ const schema: SchemaType<"Users"> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "userId",
-      filterFn: comment => !comment.deleted && !comment.rejected
+      filterFn: comment => !comment.deleted && !comment.rejected,
+      resyncElastic: true,
     }),
     canRead: ['guests'],
   },

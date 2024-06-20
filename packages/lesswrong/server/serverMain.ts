@@ -22,7 +22,7 @@ import fs from 'fs';
 import { basename, join } from 'path';
 import { initGatherTownCron } from './gatherTownCron';
 import { registerViewCronJobs } from './postgresView';
-
+import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -68,6 +68,7 @@ export async function runServerOnStartupFunctions() {
   // define executableSchema
   createVoteableUnionType();
   initGraphQL();
+  registerElasticCallbacks();
 }
 
 
