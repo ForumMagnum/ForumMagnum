@@ -210,7 +210,7 @@ const updateAllPostEmbeddings = async () => {
     batchSize: 100,
     callback: async (posts: DbPost[]) => {
       try {
-        await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
+        await batchUpdatePostEmbeddings(posts);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error", e);
@@ -227,7 +227,7 @@ export const updateMissingPostEmbeddings = async () => {
       await batchUpdatePostEmbeddings(posts);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(`Failed to generated embeddings`, { error: e.response ?? e, idBatch });
+      console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });
     }
   }
 }
