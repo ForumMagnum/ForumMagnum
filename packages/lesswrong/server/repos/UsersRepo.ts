@@ -202,10 +202,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
           'slug', "slug",
           'name', "name"
         )) FROM "Tags" WHERE "_id" = ANY(u."profileTagIds")) AS "tags",
-        (SELECT ARRAY_AGG("name")
-          FROM "Tags"
-          WHERE _id = ANY(u."profileTagIds")
-        ) AS "tagNames",
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
           'github', NULLIF(TRIM(u."githubProfileURL"), ''),

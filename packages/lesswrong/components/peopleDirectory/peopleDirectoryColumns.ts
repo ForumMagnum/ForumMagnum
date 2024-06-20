@@ -41,7 +41,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   {
     label: "Name",
     sortField: "displayName.sort",
-    columnWidth: "220px",
+    columnWidth: "200px",
     componentName: "PeopleDirectoryUserCell",
     skeletonComponentName: "PeopleDirectorySkeletonUserCell",
     hideable: false,
@@ -89,7 +89,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Career stage",
-    columnWidth: "auto",
+    columnWidth: "175px",
     componentName: "PeopleDirectoryCareerStageCell",
     hideable: true,
     hidden: false,
@@ -142,6 +142,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
       format: "MMM YYYY",
     },
     hideable: true,
-    hidden: false,
+    hidden: true,
   },
 ];

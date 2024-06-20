@@ -76,36 +76,32 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
   const {TagsTooltip, LWTooltip} = Components;
   return (
     <div className={classes.root} ref={ref}>
-      {user.tagNames?.slice(0, TAG_COUNT).map((tagName) => {
-        const slug = user.tags?.find(({name}) => name === tagName)?.slug;
-        if (!slug) {
-          return null;
-        }
+      {user.tags?.slice(0, TAG_COUNT).map(({name, slug}) => {
         return (
           <InteractionWrapper
-            key={tagName}
+            key={slug}
             href={tagGetUrl({slug}, {from: "people_directory"})}
             openInNewTab
             className={classes.tagWrapper}
           >
             <TagsTooltip tagSlug={slug} hideRelatedTags>
               <div className={classes.tag}>
-                {tagName}
+                {name}
               </div>
             </TagsTooltip>
           </InteractionWrapper>
         );
       })}
-      {(user.tagNames?.length ?? 0) > TAG_COUNT &&
+      {(user.tags?.length ?? 0) > TAG_COUNT &&
         <div className={classes.more}>
           <LWTooltip title={
             <div>
-              {user.tagNames!.slice(TAG_COUNT).map((tag) => (
-                <div key={tag}>{tag}</div>
+              {user.tags!.slice(TAG_COUNT).map(({name}) => (
+                <div key={name}>{name}</div>
               ))}
             </div>
           }>
-            + {user.tagNames!.length - TAG_COUNT} more
+            + {user.tags!.length - TAG_COUNT} more
           </LWTooltip>
         </div>
       }
