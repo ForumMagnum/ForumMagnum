@@ -39,7 +39,8 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
 
   const markCommentsAsRead = useCallback(
     () => {
-      // We have a setTimeout here to punt running this until the rest of event listeners triggered by same click/mouseup event are done
+      // This is meant to be passed to e.g. an event listener (currently only use is with `onMouseUp`)
+      // The setTimeout punts running this until the rest of event listeners triggered by same event are done
       // Necessary to avoid causing the child components those event listeners are on from rerendering before the event listeners run
       setTimeout(() => {
         setMarkedAsVisitedAt(new Date());
