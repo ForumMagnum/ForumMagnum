@@ -526,7 +526,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
 
         <EAUsersProfileTabbedSection tabs={bioSectionTabs} id="bio" />
 
-        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
+        {!!(userPostsCount || user.postCount) && <div className={classes.section} id="posts">
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
@@ -548,7 +548,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           </AnalyticsContext>
         </div>}
 
-        {!!user.sequenceCount && <div className={classes.section}>
+        {!!user.sequenceCount && <div className={classes.section} id="sequences">
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Sequences <div className={classes.sectionHeadingCount}>{user.sequenceCount}</div>
