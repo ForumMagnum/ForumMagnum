@@ -39,8 +39,10 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
 
   const markCommentsAsRead = useCallback(
     () => {
-      setMarkedAsVisitedAt(new Date());
-      void recordPostCommentsView({ post });
+      setTimeout(() => {
+        setMarkedAsVisitedAt(new Date());
+        void recordPostCommentsView({ post });  
+      }, 0);
     },
     [recordPostCommentsView, post]
   );
