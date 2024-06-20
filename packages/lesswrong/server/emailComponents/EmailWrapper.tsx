@@ -1,10 +1,15 @@
 import React from 'react';
-import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
+    ...(isEAForum ? {
+      fontFamily: theme.typography.fontFamily,
+      fontSize: 14,
+      lineHeight: "22px",
+    } : {}),
     "& img": {
       maxWidth: "100%",
     }
