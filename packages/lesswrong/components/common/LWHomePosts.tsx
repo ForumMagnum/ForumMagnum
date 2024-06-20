@@ -193,7 +193,12 @@ function useDefaultSettingsVisibility<T extends Platform>(currentUser: UsersCurr
 };
  
 const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) => {
-  const defaultTab = homepagePostFeedsSetting.get()[0].name;
+  if (!currentUser) {
+    return 'forum-classic'
+  }
+
+  //find the tab from the list which tab the property defaultTab set to true
+  const defaultTab = enabledTabs.find(tab => tab.defaultTab)?.name ?? 'forum-classic';
 
   // If the user has a selected tab that is not in the list of enabled tabs, default to the first enabled tab
   if (!!currentUser?.frontpageSelectedTab && !enabledTabs.map(tab => tab.name).includes(currentUser.frontpageSelectedTab)) {

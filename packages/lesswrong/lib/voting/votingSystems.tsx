@@ -10,7 +10,7 @@ import keyBy from 'lodash/keyBy';
 import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
-import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import type { ContentItemBody, ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -65,11 +65,11 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   getCommentHighlights?: (props: {
     comment: CommentsList
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponent>
+  }) => Record<string, ContentReplacedSubstringComponentInfo>
   getPostHighlights?: (props: {
     post: PostsBase
     voteProps: VotingProps<VoteableTypeClient>
-  }) => Record<string, ContentReplacedSubstringComponent>
+  }) => Record<string, ContentReplacedSubstringComponentInfo>
 }
 
 const votingSystems: Partial<Record<string,VotingSystem>> = {};
