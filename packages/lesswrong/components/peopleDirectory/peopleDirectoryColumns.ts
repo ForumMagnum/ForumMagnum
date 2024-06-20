@@ -134,6 +134,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
       format: "MMM YYYY",
     },
     hideable: true,
-    hidden: false,
+    hidden: true,
   },
 ];
