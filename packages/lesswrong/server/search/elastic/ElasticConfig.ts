@@ -143,6 +143,10 @@ const keywordMapping: MappingProperty = {
   type: "keyword",
 };
 
+const objectMapping = (
+  properties: Record<string, MappingProperty>,
+): MappingProperty => ({properties});
+
 const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
@@ -252,7 +256,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "organization",
       "howICanHelpOthers",
       "howOthersCanHelpMe",
-      "tagNames",
+      "tags.name",
     ],
     snippet: "bio",
     ranking: [
@@ -299,7 +303,11 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       slug: shingleTextMapping,
       website: keywordMapping,
       profileImageId: keywordMapping,
-      tagNames: keywordMapping,
+      tags: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        name: fullTextMapping,
+      }),
       _geoloc: geopointMapping,
     },
     privateFields: [

@@ -66,8 +66,7 @@ interface SearchUser extends SearchBase {
     coordinates: number[],
   },
   mapLocationAddress?: string,
-  tags: Array<{_id: string, slug: string, name: string}> | null,
-  tagNames: Array<string> | null,
+  tags: {_id: string, slug: string, name: string}[] | null,
   profileUpdatedAt: Date,
 }
 
