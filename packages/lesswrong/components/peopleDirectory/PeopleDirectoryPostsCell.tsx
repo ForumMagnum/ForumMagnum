@@ -9,10 +9,15 @@ import {
   textCellStyles,
 } from "./PeopleDirectoryTextCell";
 import classNames from "classnames";
+import { ROW_BACKGROUND_VAR } from "./PeopleDirectoryResultRow";
+
+const FADE_SIZE = 30;
 
 const styles = (theme: ThemeType) => ({
   root: {
     ...textCellStyles(theme),
+    position: "relative",
+    width: "100%",
   },
   noPosts: {
     ...emptyTextCellStyles(theme),
@@ -20,6 +25,13 @@ const styles = (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
     fontWeight: 500,
+  },
+  more: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    paddingLeft: FADE_SIZE,
+    background: `linear-gradient(to right, transparent, var(${ROW_BACKGROUND_VAR}) ${FADE_SIZE}px)`,
   },
 });
 
@@ -49,12 +61,12 @@ export const PeopleDirectoryPostsCell = ({user, classes}: {
         {posts[0].title}
       </Link>
       {posts.length > 1 &&
-        <>
+        <span className={classes.more}>
           {" and "}
           <Link to={userGetProfileUrl(user) + "#posts"} {...linkProps}>
             {posts.length - 1} more
           </Link>
-        </>
+        </span>
       }
     </div>
   );

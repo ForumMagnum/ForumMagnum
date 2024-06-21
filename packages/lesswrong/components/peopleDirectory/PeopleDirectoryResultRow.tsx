@@ -7,12 +7,15 @@ import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 
 export const COLUMN_HORIZONTAL_PADDING = 10;
 
+export const ROW_BACKGROUND_VAR = "--people-directory-row-bg";
+
 const styles = (theme: ThemeType) => ({
   root: {
     display: "contents",
     cursor: "pointer",
-    "&:hover > *": {
-      background: theme.palette.grey[30],
+    [ROW_BACKGROUND_VAR]: theme.palette.grey[0],
+    "&:hover": {
+      [ROW_BACKGROUND_VAR]: theme.palette.grey[30],
     },
     "&:hover .PeopleDirectoryUserCell-message": {
       display: "block",
@@ -24,6 +27,7 @@ const styles = (theme: ThemeType) => ({
     height: 64,
     padding: `12px ${COLUMN_HORIZONTAL_PADDING}px`,
     borderTop: `1px solid ${theme.palette.grey[300]}`,
+    background: `var(${ROW_BACKGROUND_VAR})`,
   },
 });
 

@@ -123,7 +123,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Top post",
-    columnWidth: "1.5fr",
+    columnWidth: "200px",
     componentName: "PeopleDirectoryPostsCell",
     hideable: true,
     hidden: false,
