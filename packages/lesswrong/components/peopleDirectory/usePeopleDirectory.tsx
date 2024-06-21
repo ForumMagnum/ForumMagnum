@@ -201,7 +201,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           organizations.selectedValues.map((org) => `organization:${org}`),
           locations.selectedValues.map((location) => `mapLocationAddress:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
-          tags.selectedValues.map((tag) => `tagNames:${tag}`),
+          tags.selectedValues.map((tag) => `tags.name:${tag}`),
           ["hideFromPeopleDirectory:false"],
           isMap ? ["_geoloc:-null"] : [],
         ];
