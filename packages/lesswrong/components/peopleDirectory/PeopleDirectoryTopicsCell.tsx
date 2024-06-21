@@ -78,7 +78,7 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
         break;
       }
     }
-  }, [classes]);
+  }, [classes, ref.current?.clientWidth]);
 
   const {TagsTooltip, LWTooltip} = Components;
   return (
