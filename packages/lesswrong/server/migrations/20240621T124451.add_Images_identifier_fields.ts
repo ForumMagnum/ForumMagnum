@@ -41,7 +41,7 @@
 export const acceptsSchemaHash = "974835efab0ed1491f558eaa70d57749";
 
 import Images from "@/lib/collections/images/collection";
-import { addField, dropField } from "./meta/utils";
+import { addField, dropField, updateIndexes } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   await db.none(`ALTER TABLE "Images" ADD COLUMN IF NOT EXISTS "identifier" TEXT`);
@@ -54,6 +54,8 @@ export const up = async ({db}: MigrationContext) => {
   `);
 
   await db.none(`ALTER TABLE "Images" ALTER COLUMN "identifier" SET NOT NULL`);
+
+  await updateIndexes(Images)
 }
 
 export const down = async ({db}: MigrationContext) => {
