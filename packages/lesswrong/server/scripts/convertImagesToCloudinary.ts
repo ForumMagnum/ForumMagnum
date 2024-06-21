@@ -4,7 +4,7 @@ import { Images } from '../../lib/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
-import cloudinary from 'cloudinary';
+import cloudinary, { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
@@ -64,6 +64,38 @@ export async function moveImageToCloudinary(oldUrl: string, originDocumentId: st
   });
   
   return autoQualityFormatUrl;
+}
+
+export async function uploadBufferToCloudinary(buffer: Buffer) {
+  const cloudName = cloudinaryCloudNameSetting.get();
+  const apiKey = cloudinaryApiKey.get();
+  const apiSecret = cloudinaryApiSecret.get();
+  
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error("Cannot upload image to Cloudinary: not configured")
+  }
+
+  const uploadResponse: UploadApiResponse = await new Promise((resolve) => {
+    cloudinary.v2.uploader
+      .upload_stream(
+        {
+          cloud_name: cloudName,
+          api_key: apiKey,
+          api_secret: apiSecret,
+        },
+        (error, result) => {
+          if (error || !result) {
+            // eslint-disable-next-line no-console
+            console.error("Failed to upload buffer to Cloudinary:", error);
+            throw error;
+          }
+          return resolve(result);
+        }
+      )
+      .end(buffer);
+  });
+
+  return uploadResponse.secure_url;
 }
 
 /// If an image has already been re-hosted, return its CDN URL. Otherwise null.

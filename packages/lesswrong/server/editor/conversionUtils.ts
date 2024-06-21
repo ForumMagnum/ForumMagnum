@@ -20,9 +20,11 @@ import Users from '../../lib/vulcan-users';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
-import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
+import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { parseDocumentFromString } from '../../lib/domParser';
 import { extractTableOfContents } from '../../lib/tableOfContents';
+import sharp from 'sharp';
+import axios from 'axios';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -579,7 +581,7 @@ function googleDocRemoveRedirects(html: string): string {
  * - Italics
  * - Bold
  */
-function googleDocFormatting(html: string): string {
+function googleDocTextFormatting(html: string): string {
   const $ = cheerio.load(html);
 
   $('span').each((_, element) => {
@@ -595,6 +597,90 @@ function googleDocFormatting(html: string): string {
       span.wrap('<strong></strong>');
     }
   });
+
+  return $.html();
+}
+
+/**
+ * Convert the CSS based "cropping" in the imported html into actual cropping
+ */
+async function googleDocCropImages(html: string): Promise<string> {
+  // Example of CSS-based cropping:
+  // <p>
+  //   <span style="overflow: hidden; display: inline-block; width: 396.00px; height: 322.40px;">
+  //     <img src="https://example.com/image.jpg"
+  //          style="width: 602.00px; height: 427.97px; margin-left: -110.00px; margin-top: -48.60px;">
+  //   </span>
+  // <p>
+
+  const $ = cheerio.load(html);
+
+  const cropPromises = $('p > span:has(> img)').map(async (_, span) => {
+    const $span = $(span);
+    const $img = $span.find('img');
+
+    if ($img.length === 0) return;
+
+    const spanStyle = $span.attr('style');
+    const imgStyle = $img.attr('style');
+    const src = $img.attr('src');
+
+    if (!spanStyle || !imgStyle || !src) return;
+
+    const spanWidth = parseFloat(spanStyle.match(/width:\s*([\d.]+)px/)?.[1] || '0');
+    const spanHeight = parseFloat(spanStyle.match(/height:\s*([\d.]+)px/)?.[1] || '0');
+    const imgWidth = parseFloat(imgStyle.match(/width:\s*([\d.]+)px/)?.[1] || '0');
+    const imgHeight = parseFloat(imgStyle.match(/height:\s*([\d.]+)px/)?.[1] || '0');
+    const marginLeft = parseFloat(imgStyle.match(/margin-left:\s*([-\d.]+)px/)?.[1] || '0');
+    const marginTop = parseFloat(imgStyle.match(/margin-top:\s*([-\d.]+)px/)?.[1] || '0');
+
+    const leftRelative = Math.max(-marginLeft, 0) / imgWidth;
+    const topRelative = Math.max(-marginTop, 0) / imgHeight;
+    const widthRelative = Math.round(spanWidth) / imgWidth;
+    const heightRelative = Math.round(spanHeight) / imgHeight;
+
+    if (leftRelative === 0 && topRelative === 0 && widthRelative === 1 && heightRelative === 1) {
+      return
+    }
+
+    try {
+      const response = await axios.get(src, { responseType: 'arraybuffer' });
+      const buffer = Buffer.from(response.data, 'binary');
+
+      const image = sharp(buffer)
+      const metadata = await image.metadata()
+
+      if (!metadata.width || !metadata.height) {
+        throw new Error(`width or height not defined for image: ${src}`)
+      }
+
+      const leftPixels = Math.round(leftRelative * metadata.width)
+      const topPixels = Math.round(topRelative * metadata.height)
+      const widthPixels = Math.min(Math.round(widthRelative * metadata.width), metadata.width - leftPixels)
+      const heightPixels = Math.min(Math.round(heightRelative * metadata.height), metadata.height - topPixels)
+
+      const croppedBuffer = await sharp(buffer)
+        .extract({ left: leftPixels, top: topPixels, width: widthPixels, height: heightPixels })
+        .toBuffer();
+
+      // TODO:
+      // - Address cost issue:
+      //   - BOTEC on how much it will cost based on how many times people import google docs
+      //   - Try to deduplicate similar to the rehosting version (use hash)
+      // - Combine with rehosting version to avoid double upload
+      // Upload the cropped image to Cloudinary
+      const url = await uploadBufferToCloudinary(croppedBuffer)
+
+      $img.attr('src', url);
+      $img.attr('style', `width: ${widthPixels}px; height: ${heightPixels}px;`);
+      $span.replaceWith($img);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(`Error cropping image, falling back to uncropped version. src: ${src}`, error);
+    }
+  }).get();
+
+  await Promise.all(cropPromises);
 
   return $.html();
 }
@@ -772,7 +858,8 @@ function removeEmptyBodyParagraphs(html: string): string {
 
   $('body > p').each((_, element) => {
     const p = $(element);
-    if (p.text().trim() === '') {
+    // Allow otherwise empty paragraphs containing images
+    if (p.text().trim() === '' && p.find('img').length === 0) {
       p.remove();
     }
   });
@@ -802,7 +889,8 @@ export async function convertImportedGoogleDoc({
       return rehostedHtml;
     },
     googleDocStripComments,
-    googleDocFormatting,
+    googleDocCropImages,
+    googleDocTextFormatting,
     googleDocConvertLinks,
     googleDocRemoveRedirects,
     googleDocConvertNestedBullets, // Must come before removeEmptyBodyParagraphs because paragraph breaks are used to determine when to break up a nested list of bullets
