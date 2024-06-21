@@ -306,7 +306,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       tags: objectMapping({
         _id: keywordMapping,
         slug: keywordMapping,
-        name: fullTextMapping,
+        name: keywordMapping,
       }),
       _geoloc: geopointMapping,
     },
