@@ -1,9 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { tagStyle, smallTagTextStyle, coreTagStyle } from "../tagging/FooterTag";
-import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import {
+  EMPTY_TEXT_PLACEHOLDER,
+  emptyTextCellStyles,
+  textCellStyles,
+} from "./PeopleDirectoryTextCell";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -12,6 +16,9 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     overflow: "hidden",
     maxHeight: 42,
+  },
+  noTags: {
+    ...emptyTextCellStyles(theme),
   },
   tagWrapper: {},
   tag: {
@@ -76,6 +83,11 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
   const {TagsTooltip, LWTooltip} = Components;
   return (
     <div className={classes.root} ref={ref}>
+      {(user.tags?.length ?? 0) === 0 &&
+        <div className={classes.noTags}>
+          {EMPTY_TEXT_PLACEHOLDER}
+        </div>
+      }
       {user.tags?.slice(0, TAG_COUNT).map(({name, slug}) => {
         return (
           <InteractionWrapper
