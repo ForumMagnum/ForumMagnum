@@ -23,7 +23,7 @@ import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { parseDocumentFromString } from '../../lib/domParser';
 import { extractTableOfContents } from '../../lib/tableOfContents';
-import sharp from 'sharp';
+import Jimp from 'jimp';
 import axios from 'axios';
 
 const turndownService = new TurndownService()
@@ -647,21 +647,21 @@ async function googleDocCropImages(html: string): Promise<string> {
       const response = await axios.get(src, { responseType: 'arraybuffer' });
       const buffer = Buffer.from(response.data, 'binary');
 
-      const image = sharp(buffer)
-      const metadata = await image.metadata()
+      const image = await Jimp.read(buffer);
+      const originalWidth = image.bitmap.width;
+      const originalHeight = image.bitmap.height;
 
-      if (!metadata.width || !metadata.height) {
+      if (!originalWidth || !originalHeight) {
         throw new Error(`width or height not defined for image`)
       }
 
-      const leftPixels = Math.round(leftRelative * metadata.width)
-      const topPixels = Math.round(topRelative * metadata.height)
-      const widthPixels = Math.min(Math.round(widthRelative * metadata.width), metadata.width - leftPixels)
-      const heightPixels = Math.min(Math.round(heightRelative * metadata.height), metadata.height - topPixels)
+      const leftPixels = Math.round(leftRelative * originalWidth)
+      const topPixels = Math.round(topRelative * originalHeight)
+      const widthPixels = Math.min(Math.round(widthRelative * originalWidth), originalWidth - leftPixels)
+      const heightPixels = Math.min(Math.round(heightRelative * originalHeight), originalHeight - topPixels)
 
-      const croppedBuffer = await sharp(buffer)
-        .extract({ left: leftPixels, top: topPixels, width: widthPixels, height: heightPixels })
-        .toBuffer();
+      const croppedImage = await image.crop(leftPixels, topPixels, widthPixels, heightPixels);
+      const croppedBuffer = await croppedImage.getBufferAsync(image.getMIME());
 
       const url = await uploadBufferToCloudinary(croppedBuffer)
 

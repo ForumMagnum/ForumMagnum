@@ -38,27 +38,19 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "974835efab0ed1491f558eaa70d57749";
+export const acceptsSchemaHash = "aa16edb04b1f98fcf0cd8ee8c51415fd";
 
 import Images from "@/lib/collections/images/collection";
 import { addField, dropField, updateIndexes } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  await db.none(`ALTER TABLE "Images" ADD COLUMN IF NOT EXISTS "identifier" TEXT`);
+  await db.none(`ALTER TABLE "Images" RENAME COLUMN "originalUrl" TO "identifier"`);
   await addField(db, Images, "identifierType");
-
-  await db.none(`
-    UPDATE "Images"
-    SET "identifier" = "originalUrl",
-        "identifierType" = 'originalUrl'
-  `);
-
-  await db.none(`ALTER TABLE "Images" ALTER COLUMN "identifier" SET NOT NULL`);
 
   await updateIndexes(Images)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Images, "identifier");
+  await db.none(`ALTER TABLE "Images" RENAME COLUMN "identifier" TO "originalUrl"`);
   await dropField(db, Images, "identifierType");
 }
