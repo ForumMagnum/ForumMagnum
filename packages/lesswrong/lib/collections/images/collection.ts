@@ -3,9 +3,18 @@ import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionIndexUtils';
 
 const schema: SchemaType<"Images"> = {
+  /** @deprecated Use identifier + identifierType = 'originalUrl' */
   originalUrl: {
     type: String,
     nullable: false,
+  },
+  identifier: {
+    type: String,
+    nullable: false,
+  },
+  identifierType: {
+    type: String,
+    allowedValues: ['sha256Hash', 'originalUrl']
   },
   cdnHostedUrl: {
     type: String,
@@ -21,7 +30,8 @@ export const Images: ImagesCollection = createCollection({
 });
 addUniversalFields({collection: Images});
 
-ensureIndex(Images, {originalUrl: 1});
+ensureIndex(Images, {originalUrl: 1}); // @deprecated
+ensureIndex(Images, {identifier: 1});
 ensureIndex(Images, {cdnHostedUrl: 1});
 
 export default Images;

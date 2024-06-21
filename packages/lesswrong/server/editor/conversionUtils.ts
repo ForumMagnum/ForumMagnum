@@ -651,7 +651,7 @@ async function googleDocCropImages(html: string): Promise<string> {
       const metadata = await image.metadata()
 
       if (!metadata.width || !metadata.height) {
-        throw new Error(`width or height not defined for image: ${src}`)
+        throw new Error(`width or height not defined for image`)
       }
 
       const leftPixels = Math.round(leftRelative * metadata.width)
@@ -663,13 +663,11 @@ async function googleDocCropImages(html: string): Promise<string> {
         .extract({ left: leftPixels, top: topPixels, width: widthPixels, height: heightPixels })
         .toBuffer();
 
-      // TODO:
-      // - Address cost issue:
-      //   - BOTEC on how much it will cost based on how many times people import google docs
-      //   - Try to deduplicate similar to the rehosting version (use hash)
-      // - Combine with rehosting version to avoid double upload
-      // Upload the cropped image to Cloudinary
       const url = await uploadBufferToCloudinary(croppedBuffer)
+
+      if (!url) {
+        throw new Error(`Failed to upload cropped image to cloudinary`)
+      }
 
       $img.attr('src', url);
       $img.attr('style', `width: ${widthPixels}px; height: ${heightPixels}px;`);
