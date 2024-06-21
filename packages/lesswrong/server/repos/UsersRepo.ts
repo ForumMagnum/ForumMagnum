@@ -227,6 +227,24 @@ class UsersRepo extends AbstractRepo<"Users"> {
           )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
         u."profileUpdatedAt",
+        (
+          CASE WHEN u."profileImageId" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."jobTitle" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."organization" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."biography"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."howOthersCanHelpMe"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."howICanHelpOthers"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."careerStage" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."website" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."githubProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."twitterProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."linkedinProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."facebookProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."commentCount" < 1 THEN 0 ELSE 1 END +
+          CASE WHEN u."postCount" < 1 THEN 0 ELSE 2 END +
+          CASE WHEN u."karma" IS NULL OR u."karma" <= 0 THEN 0 ELSE 1 - 1 / u."karma" END * 100
+        ) AS "profileCompletion",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;
