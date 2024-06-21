@@ -225,8 +225,8 @@ const AuthorAnalyticsPage = ({ classes }: {
   const [totalCount, setTotalCount] = useState(loadMoreProps.totalCount);
 
   useEffect(() => {
-    if ((data?.posts?.length ?? 0) > posts.length) {
-      setPosts(data!.posts);
+    if (data?.posts) {
+      setPosts(data.posts);
     }
   }, [data, posts, loadMoreProps]);
 
