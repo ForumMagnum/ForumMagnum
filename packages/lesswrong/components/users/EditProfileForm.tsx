@@ -13,8 +13,9 @@ import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    maxWidth: 800,
+    maxWidth: 700,
     margin: '0 auto',
+    marginTop: 32,
     fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   heading: {
@@ -121,7 +122,7 @@ const EditProfileForm = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display3" className={classes.heading} gutterBottom>
+      <Typography variant="display3" className={classes.heading}>
         {preferredHeadingCase(isFriendlyUI ? "Edit Profile" : "Edit Public Profile")}
       </Typography>
 

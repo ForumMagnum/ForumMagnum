@@ -11,6 +11,7 @@ const styles = (theme: ThemeType) => ({
     ...friendlyInputStyles(theme).root,
     "& .MuiInputBase-input": {
       padding: 0,
+      fontSize: 14,
       color: theme.palette.grey[1000],
     },
   },

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: `${GAP}px`,
     rowGap: "0px",
-    marginBottom: 40,
+    marginBottom: 32,
     "& .MuiFormControl-root": {
       width: "100%",
       "& > *": {

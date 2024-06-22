@@ -50,7 +50,8 @@ const styles = (theme: ThemeType) => ({
     '& .MuiOutlinedInput-input': {
       whiteSpace: 'pre-wrap',
       lineHeight: '1.8rem',
-      paddingRight: 30
+      paddingRight: 30,
+      fontWeight: 500,
     },
   },
   placeholder: {
