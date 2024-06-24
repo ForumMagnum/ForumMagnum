@@ -683,5 +683,10 @@
     "acceptsSchemaHash": "c1dd7ed968b6af5a78625296b5e5fec0",
     "acceptedByMigration": "20240612T173525.add_onsite_digest_background_fields.ts",
     "timestamp": "2024-06-12T17:35:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c02e9c8596b29eabbc81ac366e5a42eb",
+    "acceptedByMigration": "20240625T173330.create_Tweets.ts",
+    "timestamp": "2024-06-25T17:33:30.000Z"
   }
 ]

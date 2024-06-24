@@ -1298,6 +1298,17 @@ interface DbTag extends DbObject {
   moderationGuidelines_latest: string | null
 }
 
+type TweetsCollection = CollectionBase<"Tweets">;
+
+interface DbTweet extends DbObject {
+  __collectionName?: "Tweets"
+  postId: string
+  tweetId: string
+  content: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type TypingIndicatorsCollection = CollectionBase<"TypingIndicators">;
 
 interface DbTypingIndicator extends DbObject {
@@ -1901,6 +1912,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
   UserEAGDetails: UserEAGDetailsCollection
@@ -1978,6 +1990,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
   UserEAGDetails: DbUserEAGDetail
@@ -2055,6 +2068,7 @@ interface ObjectsByTypeName {
   TagFlag: DbTagFlag
   TagRel: DbTagRel
   Tag: DbTag
+  Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
   UserEAGDetail: DbUserEAGDetail

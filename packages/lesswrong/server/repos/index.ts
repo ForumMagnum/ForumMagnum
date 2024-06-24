@@ -26,6 +26,7 @@ import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import TagsRepo from "./TagsRepo";
+import TweetsRepo from "./TweetsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
@@ -63,6 +64,7 @@ const getAllRepos = () => ({
   sideComments: new SideCommentCachesRepo(),
   splashArtCoordinates: new SplashArtCoordinatesRepo(),
   tags: new TagsRepo(),
+  tweets: new TweetsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),

@@ -63,6 +63,7 @@ type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "tagsByTagIds"|"allTagsAlphabetical"|"userTags"|"currentUserSubforums"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"postTypeTags"|"coreAndSubforumTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags";
+type TweetsViewName = never
 type TypingIndicatorsViewName = never
 type UserActivitiesViewName = never
 type UserEAGDetailsViewName = "dataByUser";
@@ -139,6 +140,7 @@ interface ViewTermsByCollectionName {
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
   Tags: TagsViewTerms
+  Tweets: ViewTermsBase
   TypingIndicators: ViewTermsBase
   UserActivities: ViewTermsBase
   UserEAGDetails: UserEAGDetailsViewTerms
