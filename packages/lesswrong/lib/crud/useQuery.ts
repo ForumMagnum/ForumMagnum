@@ -1,5 +1,8 @@
 import { useQuery as useQueryApollo, useSuspenseQuery, WatchQueryFetchPolicy } from "@apollo/client";
 import type { SuspenseQueryHookFetchPolicy, FetchPolicy } from "@apollo/client";
+import { createContext, useContext } from "react";
+
+export const EnableSuspenseContext = createContext(false);
 
 type UseQueryOptions = {
   fetchPolicy?: SuspenseQueryHookFetchPolicy & WatchQueryFetchPolicy,
@@ -7,7 +10,7 @@ type UseQueryOptions = {
 };
 
 export function wrappedUseQuery(query: any, options: UseQueryOptions) {
-  if (bundleIsServer) {
+  if (bundleIsServer && useContext(EnableSuspenseContext)) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useSuspenseQuery(query, options);
   } else {

@@ -78,6 +78,7 @@ interface RenderRequestParams {
   res: Response,
   clientId?: string,
   userAgent?: string,
+  isStreaming: boolean,
 }
 
 interface RenderPriorityQueueSlot extends RequestData {
@@ -220,8 +221,8 @@ export const renderPage = async (request: Request, response: Response) => {
   }
 
   const renderResultPromise = performanceMetricLoggingEnabled.get()
-    ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId))
-    : renderWithCache(request, response, user, tabId);
+    ? asyncLocalStorage.run({}, () => renderWithCache(request, response, user, tabId, isStreaming))
+    : renderWithCache(request, response, user, tabId, isStreaming);
 
   const [prefetchingResources, renderResult] = await Promise.all([prefetchResourcesPromise, renderResultPromise]);
 
@@ -305,7 +306,7 @@ const requestCanUsePageCache = (req: Request, user: DbUser|null): boolean => {
   return true;
 }
 
-const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null) => {
+const renderWithCache = async (req: Request, res: Response, user: DbUser|null, tabId: string | null, isStreaming: boolean) => {
   const startTime = new Date();
   const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
@@ -340,7 +341,7 @@ const renderWithCache = async (req: Request, res: Response, user: DbUser|null, t
     }
 
     const rendered = await queueRenderRequest({
-      req, user, startTime, res, clientId, userAgent,
+      req, user, startTime, res, clientId, userAgent, isStreaming,
     });
 
     if (performanceMetricLoggingEnabled.get()) {
@@ -385,7 +386,7 @@ const renderWithCache = async (req: Request, res: Response, user: DbUser|null, t
     }
 
     const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
-      req, user: null, startTime, res, clientId, userAgent
+      req, user: null, startTime, res, clientId, userAgent, isStreaming,
     }));
     
     if (rendered.aborted) {
@@ -545,10 +546,14 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
   // first child of <body> which forces the browser to load the CSS before rendering.
   // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
-  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+  const isFirefox = userAgent?.match(/.*firefox.*/i)
+  if (isFirefox) {
+    const prefix = isFirefox ? "<script>0</script>" : "";
+    // TODO: there should be a cleaner way to set this wrapper
+    return "<script>0</script>" + htmlContent
+  } else {
+    return htmlContent;
+  }
 }
 
 class ResponseForwarderStream extends Writable {
@@ -575,7 +580,7 @@ class ResponseForwarderStream extends Writable {
   }*/
 }
 
-const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent, isStreaming}: RenderRequestParams): Promise<RenderResult> => {
   const cacheFriendly = responseIsCacheable(res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
@@ -622,32 +627,33 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroupsUsed}
     ssrMetadata={{renderedAt: now.toISOString(), timezone, cacheFriendly}}
+    enableSuspense={isStreaming}
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
 
-  const WrappedApp = <div id="react-root">
+  // This ID must match the client side start.jsx file
+  const WrappedApp = <div id="react-app">
     {wrapWithMuiTheme(App, context, themeOptions)}
   </div>;
   
   let htmlContent = '';
   try {
-    console.log("Starting render");
-    const stream = new ResponseForwarderStream(res);
-    await new Promise<void>((resolve) => {
-      const reactPipe = renderToPipeableStream(WrappedApp, {
-        onAllReady: () => {
-          console.log("renderToPipeableStream.onAllReady");
-          resolve();
-        },
-      })
-      console.log("Piping along");
-      reactPipe.pipe(stream);
-    });
-    htmlContent = "";
-    //htmlContent = stream.getString();
-    console.log("Wrapping up render");
-    //htmlContent = await renderToStringWithData(WrappedApp);
+    if (isStreaming) {
+      const stream = new ResponseForwarderStream(res);
+      await new Promise<void>((resolve) => {
+        const reactPipe = renderToPipeableStream(WrappedApp, {
+          onAllReady: () => {
+            resolve();
+          },
+        })
+        reactPipe.pipe(stream);
+      });
+      htmlContent = "";
+    } else {
+      //htmlContent = stream.getString();
+      htmlContent = await renderToStringWithData(WrappedApp);
+    }
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console
