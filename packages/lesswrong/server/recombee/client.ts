@@ -18,6 +18,7 @@ import { randomId } from '../../lib/random';
 import { createAdminContext } from '../vulcan-lib/query';
 import Globals from '@/lib/vulcan-lib/config';
 import util from 'util';
+import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -347,10 +348,13 @@ const helpers = {
     const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
     const notPostIdsArg = excludedPostIds.length ? { notPostIds: excludedPostIds } : {};
+    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+
     const postsTerms: PostsViewTerms = {
       view: "magic",
       forum: true,
       limit,
+      filterSettings,
       ...notPostIdsArg,
       ...loadMoreCountArg,
     };
