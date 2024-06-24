@@ -3,6 +3,11 @@ import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionIndexUtils';
 
 const schema: SchemaType<"Images"> = {
+  /** @deprecated Use identifier + identifierType = 'originalUrl' */
+  originalUrl: {
+    type: String,
+    nullable: false,
+  },
   identifier: {
     type: String,
     nullable: false,
