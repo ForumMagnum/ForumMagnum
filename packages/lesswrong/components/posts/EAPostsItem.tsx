@@ -274,6 +274,7 @@ const EAPostsItem = ({
     isVoteable,
     showKarma,
     useCuratedDate,
+    hideTag,
     className,
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink});
@@ -391,7 +392,7 @@ const EAPostsItem = ({
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                showEventTag
+                showEventTag={!hideTag}
                 className={classes.title}
               />
               <div className={classes.meta}>

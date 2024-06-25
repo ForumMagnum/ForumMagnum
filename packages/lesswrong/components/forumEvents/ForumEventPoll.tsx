@@ -211,7 +211,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
             forumEventId: event._id,
             x: votePos,
             delta,
-            postIds: postId ? [postId] : ['a', 'b']
+            postIds: postId ? [postId] : ['Lq29FdmKAHLGfJdGx']
           }})
           setCurrentUserVote(votePos)
         }

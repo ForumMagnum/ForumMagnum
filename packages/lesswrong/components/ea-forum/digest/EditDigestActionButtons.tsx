@@ -94,7 +94,7 @@ const EditDigestActionButtons = ({digest, classes}: {
       </>}
       className={classes.questionMark}
     >
-      <ForumIcon icon="QuestionMarkCircle" className={classes.questionMarkIcon} />
+      <ForumIcon icon="QuestionMarkCircleOutline" className={classes.questionMarkIcon} />
     </LWTooltip> */}
   </>
 }

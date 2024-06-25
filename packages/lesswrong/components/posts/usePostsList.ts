@@ -66,6 +66,10 @@ export type PostsListConfig = {
    * if there is no provider).
    */
   viewType?: PostsListViewType | "fromContext",
+  /**
+   * If provided, we reorder the results to match this order.
+   */
+  order?: string[],
 }
 
 const defaultTooltipPlacement = isFriendlyUI
@@ -104,6 +108,7 @@ export const usePostsList = ({
   hideShortform = false,
   loadMoreMessage,
   viewType: configuredViewType = "list",
+  order,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -184,7 +189,7 @@ export const usePostsList = ({
   const maybeMorePosts = !!(results?.length && (results.length >= limit)) ||
     alwaysShowLoadMore;
 
-  let orderedResults = results;
+  let orderedResults = (order && results) ? sortBy(results, post => order.indexOf(post._id)) : results;
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
       const postLastCommentedAt = postGetLastCommentedAt(post)

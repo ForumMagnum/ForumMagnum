@@ -1,4 +1,4 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useMemo, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
@@ -7,6 +7,7 @@ import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { Link } from "@/lib/reactRouterWrapper";
+import { orderBy, toPairs } from "lodash";
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -53,7 +54,31 @@ const styles = (theme: ThemeType) => ({
       height: "unset",
     },
   },
-  content: {
+  expandToggleRow: {
+    padding: '0 20px 20px',
+    ['@media(max-width: 1040px)']: {
+      display: 'none'
+    },
+  },
+  expandToggleButton: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 3,
+    background: 'none',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    fontWeight: 500,
+    lineHeight: 'normal',
+    color: theme.palette.text.alwaysWhite,
+    padding: 0,
+    '&:hover': {
+      opacity: 0.7
+    }
+  },
+  expandToggleIcon: {
+    fontSize: 16,
+  },
+  contentBasic: {
     // If you change this width, you probably also want to change the middle
     // breakpoint in `forumEventBannerGradientBackground` to match
     maxWidth: 480,
@@ -63,12 +88,14 @@ const styles = (theme: ThemeType) => ({
       marginTop: 8,
     },
   },
-  // contentWithPoll: {
-  //   maxWidth: 'none',
-  //   textAlign: 'center',
-  //   paddingTop: 10,
-  //   margin: '0 auto',
-  // },
+  contentWithPoll: {
+    maxWidth: 1000,
+    padding: '0 30px 58px',
+    margin: '0 auto ',
+    ['@media(max-width: 1040px)']: {
+      display: 'none'
+    },
+  },
   contentWithPollMobile: {
     display: 'none',
     maxWidth: 500,
@@ -77,6 +104,33 @@ const styles = (theme: ThemeType) => ({
     ['@media(max-width: 1040px)']: {
       display: 'block'
     },
+  },
+  postsHeading: {
+    display: 'flex',
+    columnGap: '8px',
+    alignItems: 'center',
+    fontSize: 16,
+    fontWeight: 700,
+    marginBottom: 16,
+  },
+  postsHeadingIcon: {
+    fontSize: 16,
+    cursor: 'pointer',
+    opacity: 0.5,
+    '&:hover': {
+      opacity: 0.7
+    }
+  },
+  posts: {
+    flexGrow: 1,
+    maxWidth: 600,
+  },
+  postsAndBody: {
+    display: 'flex',
+    columnGap: '48px',
+  },
+  contentWithPollBody: {
+    maxWidth: 256,
   },
   date: {
     fontWeight: 500,
@@ -120,6 +174,7 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     zIndex: -1,
     top: -HEADER_HEIGHT,
+    right: 0,
     width: '100%',
   },
   imageWithGradient: {
@@ -178,7 +233,7 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
 
   return (
     <div className={classNames(classes.root, classes.rootWithGradient)} style={style}>
-      <div className={classes.content}>
+      <div className={classes.contentBasic}>
         <div className={classes.date}>{date}</div>
         <div className={classes.title}>{title}</div>
         {frontpageDescription?.html &&
@@ -215,24 +270,82 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentForumEvent} = useCurrentForumEvent();
+  const [expanded, setExpanded] = useState(false)
   if (!currentForumEvent) {
     return null;
   }
 
-  const {title, bannerImageId} = currentForumEvent;
+  const {title, bannerImageId, tag, publicData} = currentForumEvent;
   const date = formatDate(currentForumEvent);
+  const announcementPostLink = "/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7"
+  const description = <>
+    Should AI Welfare be an EA priority? Read more about this debate week <Link to={announcementPostLink}>here</Link>
+  </>
   
-  const {CloudinaryImage2, ForumEventPoll} = Components;
+  // Calculate how many points each post got, to find the 4 most influential posts
+  const influentialPosts = useMemo(() => {
+    if (!publicData) return []
+
+    // Track the total number of points each post got, {postId: points}
+    const scores: Record<string, number> = {}
+    Object.values(publicData).forEach((vote: AnyBecauseTodo) => {
+      if (vote.points) {
+        Object.keys(vote.points).forEach((postId: string) => {
+          if (postId in scores) {
+            scores[postId] += vote.points[postId]
+          } else {
+            scores[postId] = vote.points[postId]
+          }
+        })
+      }
+    })
+    const postIdScorePairs = toPairs(scores)
+    console.log('postIdScorePairs', postIdScorePairs)
+    return orderBy(postIdScorePairs, p => p[1], 'desc').map(p => p[0]).slice(0, 4)
+  }, [publicData])
+  console.log('influentialPosts', influentialPosts)
+  
+  const {CloudinaryImage2, ForumEventPoll, ForumIcon, LWTooltip, PostsList2} = Components;
 
   return (
     <div className={classes.root}>
       <ForumEventPoll event={currentForumEvent} />
+      <div className={classes.expandToggleRow}>
+        <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
+          <ForumIcon icon={expanded ? "ThickChevronDown" : "ThickChevronRight"} className={classes.expandToggleIcon} />
+          {expanded ? 'Collapse' : `Debate week ${date}`}
+        </button>
+      </div>
+      {expanded && <div className={classes.contentWithPoll}>
+        <div className={classes.postsHeading}>
+          Most influential posts so far
+          <LWTooltip
+            title="When you change your mind and move your icon on the debate slider, above or in a post, we record the distance you moved and the posts you cite as responsible for changing your mind. We assign the distance moved to them, add this up, and end up with the below list."
+          >
+            <ForumIcon icon="QuestionMarkCircle" className={classes.postsHeadingIcon} />
+          </LWTooltip>
+        </div>
+        <div className={classes.postsAndBody}>
+          <div className={classes.posts}>
+            <PostsList2
+              terms={{postIds: influentialPosts, limit: 4}}
+              order={influentialPosts}
+              showLoadMore={false}
+              placeholderCount={4}
+              hideTag
+            />
+          </div>
+          <div className={classes.contentWithPollBody}>
+            <div className={classes.titleWithPoll}>{title}</div>
+            <div className={classes.dateWithPoll}>{date}</div>
+            <div className={classes.descriptionWithPoll}>{description}.</div>
+          </div>
+        </div>
+      </div>}
       <div className={classes.contentWithPollMobile}>
         <div className={classes.titleWithPollMobile}>{title}</div>
         <div className={classes.dateWithPoll}>{date}</div>
-        <div className={classes.descriptionWithPoll}>
-          Should AI Welfare be an EA priority? Read more about this debate week <Link to="/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7">here</Link>, and vote on desktop.
-        </div>
+        <div className={classes.descriptionWithPoll}>{description}, and vote on desktop.</div>
       </div>
       {bannerImageId &&
         <CloudinaryImage2
