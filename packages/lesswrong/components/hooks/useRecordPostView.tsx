@@ -4,7 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
-import { recombeeEnabledSetting } from '../../lib/publicSettings';
+import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
@@ -24,13 +24,22 @@ type ViewablePost = Pick<PostsBase, "_id" | "isRead" | "title" | "draft">;
 
 interface RecombeeOptions {
   recommId?: string;
-  skipRecombee?: boolean;
+}
+
+interface VertexOptions {
+  attributionId?: string;
+}
+
+export interface RecommendationOptions {
+  skip?: boolean;
+  recombeeOptions?: RecombeeOptions;
+  vertexOptions?: VertexOptions;
 }
 
 interface RecordPostViewArgs {
   post: ViewablePost;
   extraEventProperties?: Record<string,any>;
-  recombeeOptions?: RecombeeOptions;
+  recommendationOptions?: RecommendationOptions
 }
 
 export const useRecordPostView = (post: ViewablePost) => {
@@ -41,13 +50,29 @@ export const useRecordPostView = (post: ViewablePost) => {
   `, {
     ignoreResults: true
   });
+
+  const [sendVertexViewItemEvent] = useMutation(gql`
+    mutation sendVertexViewItemEventMutation($postId: String!, $attributionId: String) {
+      sendVertexViewItemEvent(postId: $postId, attributionId: $attributionId)
+    }
+  `, {
+    ignoreResults: true
+  });
+
+  const [markPostCommentsRead] = useMutation(gql`
+    mutation markPostCommentsRead($postId: String!) {
+      markPostCommentsRead(postId: $postId)
+    }
+  `, {
+    ignoreResults: true
+  });
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
   const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
-  const recordPostView = useCallback(async ({post, extraEventProperties, recombeeOptions}: RecordPostViewArgs) => {
+  const recordPostView = useCallback(async ({post, extraEventProperties, recommendationOptions}: RecordPostViewArgs) => {
     try {
       if (!post) throw new Error("Tried to record view of null post");
       
@@ -78,16 +103,42 @@ export const useRecordPostView = (post: ViewablePost) => {
         };
         
         recordEvent('post-view', true, eventProperties);
-        if (recombeeEnabledSetting.get() && !recombeeOptions?.skipRecombee && !post.draft) {
-          void recombeeApi.createDetailView(post._id, currentUser._id, recombeeOptions?.recommId);
+        if (recombeeEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
+          void recombeeApi.createDetailView(post._id, currentUser._id, recommendationOptions?.recombeeOptions?.recommId);
+        }
+
+        if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
+          void sendVertexViewItemEvent({
+            variables: {
+              postId: post._id,
+              attributionId: recommendationOptions?.vertexOptions?.attributionId
+            }
+          })
         }
       }
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, currentUser, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, recordEvent]);
+
+  const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
+    if (currentUser) {
+      if (!postsRead[post._id]) {
+        // Update the client-side read status cache.
+        // Set the value to true even if technically we might be saving isRead: false on the server, if the post hasn't been read before, to get the correct UI update.
+        setPostRead(post._id, true);
+
+        // Calling `setPostRead` above ensures we only send an update to server the first time this is triggered.
+        // Otherwise it becomes much more likely that someone else posts a comment after the first time we send this,
+        // but then we send it again because e.g. the user clicked on another comment (from the initial render).
+        void markPostCommentsRead({
+          variables: { postId: post._id }
+        });
+      }
+    }
+  };
   
-  return { recordPostView, isRead };
+  return { recordPostView, recordPostCommentsView, isRead };
 }
 
 

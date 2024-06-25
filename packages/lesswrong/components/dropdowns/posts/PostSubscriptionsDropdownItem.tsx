@@ -4,6 +4,8 @@ import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
+import { isAdmin } from "../../../lib/vulcan-users";
+import { userHasSubscribeTabFeed } from "../../../lib/betas";
 
 /**
  * A list of props that go into each subscription menu item,

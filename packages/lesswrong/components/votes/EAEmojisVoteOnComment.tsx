@@ -26,13 +26,13 @@ interface EAEmojisVoteOnCommentProps extends CommentVotingComponentProps {
 const EAEmojisVoteOnComment = ({
   document,
   hideKarma = false,
-  collection,
+  collectionName,
   votingSystem,
   classes,
 }: EAEmojisVoteOnCommentProps) => {
   const voteProps = useVote(
     document,
-    collection.options.collectionName,
+    collectionName,
     votingSystem,
   );
   const {OverallVoteAxis, EAReactsSection} = Components;
@@ -45,7 +45,7 @@ const EAEmojisVoteOnComment = ({
         className={classes.overallAxis}
         showBox
       />
-      {isEAReactableDocument(collection, document) &&
+      {isEAReactableDocument(collectionName, document) &&
         <EAReactsSection
           document={document}
           voteProps={voteProps}

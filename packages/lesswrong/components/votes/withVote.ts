@@ -2,15 +2,14 @@ import { useState, useCallback, useRef } from 'react';
 import { useDialog } from '../common/withDialog';
 import { gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
-import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
+import { collectionNameToTypeName, getFragmentText } from '../../lib/vulcan-lib';
 import { isAF } from '../../lib/instanceSettings';
 import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 import { useMutate } from '../hooks/useMutate';
 
-const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) => {
-  const typeName = collection.options.typeName;
+const getVoteMutationQuery = (typeName: string) => {
   const mutationName = `performVote${typeName}`;
   
   return gql`
@@ -29,7 +28,7 @@ const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) 
 export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
-  const collection = getCollection(collectionName);
+  const typeName = collectionNameToTypeName(collectionName);
   const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
   const {openDialog} = useDialog();
   const mutate = useMutate();
@@ -38,7 +37,6 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     openDialog({
       componentName: "VotingPatternsWarningPopup",
       componentProps: {},
-      noClickawayCancel: true,
       closeOnNavigate: true,
     });
   }, [openDialog]);
@@ -60,14 +58,13 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
     
-    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
+    const newDocument = await setVoteClient({collectionName, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
     mutationCounts.current.optimisticMutationIndex++;
     setOptimisticResponseDocument(newDocument);
 
-    const typeName = collection.options.typeName;
     const { result, error } = await mutate({
-      mutation: getVoteMutationQuery(collection),
+      mutation: getVoteMutationQuery(typeName),
       variables: {
         documentId: document._id,
         voteType, extendedVote,
@@ -86,7 +83,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     if (result?.[mutationName]?.showVotingPatternWarning) {
       showVotingPatternWarningPopup();
     }
-  }, [mutate, collection, votingSystemOrDefault, showVotingPatternWarningPopup]);
+  }, [mutate, collectionName, typeName, votingSystemOrDefault, showVotingPatternWarningPopup]);
 
   const result = optimisticResponseDocument || document;
   return {

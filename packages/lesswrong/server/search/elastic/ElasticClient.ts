@@ -12,6 +12,8 @@ export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
 export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
 
+const DEBUG_LOG_ELASTIC_QUERIES = false;
+
 let globalClient: Client | null = null;
 
 class ElasticClient {
@@ -56,6 +58,10 @@ class ElasticClient {
   search(queryData: QueryData): Promise<ElasticSearchResponse> {
     const query = new ElasticQuery(queryData);
     const request = query.compile();
+    if (DEBUG_LOG_ELASTIC_QUERIES) {
+      // eslint-disable-next-line no-console
+      console.log("Elastic query:", JSON.stringify(request, null, 2));
+    }
     return this.client.search(request);
   }
 }

@@ -1,14 +1,13 @@
 import classNames from 'classnames';
 import React from 'react';
 import { registerComponent } from "../../lib/vulcan-lib";
+import type { PostsListViewType } from '../hooks/usePostsListView';
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    columnGap: 18,
     minWidth: "100%",
+    width: SECTION_WIDTH,
     maxWidth: "100%",
     background: theme.palette.grey[0],
     padding: '15px 17px',
@@ -17,6 +16,17 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("xs")]: {
       padding: '14px 17px 12px',
     },
+  },
+  rootCard: {
+    padding: '16px 17px',
+    marginBottom: 2,
+    height: 143,
+  },
+  container: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 18,
   },
   placeholder: {
     height: 10,
@@ -60,6 +70,10 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  commentIconCard: {
+    alignSelf: "flex-start",
+    marginTop: 2,
+  },
   threeDotsIcon: {
     flex: 'none',
     height: 15,
@@ -70,6 +84,9 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  threeDotsIconCard: {
+    alignSelf: "flex-start",
+  },
   hideOnMobile: {
     [theme.breakpoints.down("xs")]: {
       display: "none",
@@ -77,24 +94,48 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const FriendlyPlaceholderPostsItem = ({classes}: {
-  classes: ClassesType,
+const FriendlyPlaceholderPostsItem = ({viewType = "list", classes}: {
+  viewType?: PostsListViewType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  return <div className={classes.root}>
-    <div className={classNames(classes.placeholder, classes.karma)}></div>
-    <div className={classes.titleCol}>
-      <div className={classNames(classes.placeholder, classes.title)}></div>
-      <div className={classes.metaRow}>
-        <div className={classes.authorWrapper}>
-          <div className={classNames(classes.placeholder, classes.author)}></div>
+  const cardView = viewType === "card";
+  return (
+    <div className={classNames(classes.root, cardView && classes.rootCard)}>
+      <div className={classes.container}>
+        <div className={classNames(classes.placeholder, classes.karma)}></div>
+        <div className={classes.titleCol}>
+          <div className={classNames(classes.placeholder, classes.title)}></div>
+          <div className={classes.metaRow}>
+            <div className={classes.authorWrapper}>
+              <div className={classNames(classes.placeholder, classes.author)}></div>
+            </div>
+            <div className={classNames(
+              classes.placeholder,
+              classes.commentIcon,
+              classes.commentIconMobile,
+            )} />
+            <div className={classNames(
+              classes.placeholder,
+              classes.threeDotsIcon,
+              classes.threeDotsIconMobile,
+            )} />
+          </div>
         </div>
-        <div className={classNames(classes.placeholder, classes.commentIcon, classes.commentIconMobile)}></div>
-        <div className={classNames(classes.placeholder, classes.threeDotsIcon, classes.threeDotsIconMobile)}></div>
+        <div className={classNames(
+          classes.placeholder,
+          classes.commentIcon,
+          classes.hideOnMobile,
+          cardView && classes.commentIconCard,
+        )} />
+        <div className={classNames(
+          classes.placeholder,
+          classes.threeDotsIcon,
+          classes.hideOnMobile,
+          cardView && classes.threeDotsIconCard,
+        )} />
       </div>
     </div>
-    <div className={classNames(classes.placeholder, classes.commentIcon, classes.hideOnMobile)}></div>
-    <div className={classNames(classes.placeholder, classes.threeDotsIcon, classes.hideOnMobile)}></div>
-  </div>
+  );
 }
 
 const FriendlyPlaceholderPostsItemComponent = registerComponent('FriendlyPlaceholderPostsItem', FriendlyPlaceholderPostsItem, {styles});

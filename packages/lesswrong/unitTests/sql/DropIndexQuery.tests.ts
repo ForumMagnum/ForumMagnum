@@ -1,5 +1,5 @@
-import { testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import DropIndexQuery from "../../lib/sql/DropIndexQuery";
+import { testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import DropIndexQuery from "@/server/sql/DropIndexQuery";
 
 describe("DropIndexQuery", () => {
   runTestCases([

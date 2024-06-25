@@ -4,7 +4,7 @@ import chunk from 'lodash/fp/chunk';
 import max from 'lodash/fp/max';
 import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
-import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
+import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
 import { Vulcan } from '../vulcan-lib';
 import { ActivityWindowData, getUserActivityData } from './getUserActivityData';

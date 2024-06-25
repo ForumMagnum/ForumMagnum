@@ -150,6 +150,16 @@ const styles = (theme: ThemeType) => ({
       height: 13,
       width: 13,
     }
+  },
+  sparkleIcon: {
+    marginLeft: 3,
+    alignSelf: 'center',
+    height: 18,
+    width: 18,
+    [theme.breakpoints.down('xs')]: {
+      height: 13,
+      width: 13,
+    }
   }
 })
 
@@ -158,7 +168,11 @@ export interface TabRecord {
   label: string,
   description?: string,
   disabled?: boolean,
+  isAdminOnly?: boolean,
   showLabsIcon?: boolean,
+  showSparkleIcon?: boolean,
+  isInfiniteScroll?: boolean,
+  defaultTab?: boolean
 }
 
 /**
@@ -304,6 +318,7 @@ const TabPicker = <T extends TabRecord[]>(
                 >
                   {tab.label}
                   {tab.showLabsIcon && <ForumIcon icon="LabBeaker" className={classes.labsIcon} />}
+                  {tab.showSparkleIcon && <ForumIcon icon="Sparkle" className={classes.sparkleIcon} />}
                 </button>
               </LWTooltip>
             })}

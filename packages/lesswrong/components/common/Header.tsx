@@ -422,7 +422,7 @@ const Header = ({
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={64}
+          height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
@@ -430,7 +430,13 @@ const Header = ({
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
-          <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
+          <header
+            className={classNames(
+              classes.appBar,
+              !!backgroundColor && classes.appBarDarkBackground,
+            )}
+            style={backgroundColor ? {backgroundColor} : {}}
+          >
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">

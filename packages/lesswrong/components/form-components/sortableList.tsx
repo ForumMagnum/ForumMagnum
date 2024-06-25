@@ -7,8 +7,12 @@ import * as _ from 'underscore';
 export const makeSortableListComponent = ({renderItem}: {
   renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id: string) => void, classes: ClassesType }) => React.ReactNode
 }) => {
+  // For some reason the SortableElement HoC's type annotation, under React 18,
+  // doesn't accurately reflect the fact that extra parameters get passed
+  // through to the underlying component. (In React 16 this wasn't an issue, and
+  // it typechecked there without needing this `any` annotation)
   // eslint-disable-next-line babel/new-cap
-  const SortableItem = SortableElement(({contents, removeItem, classes}: {
+  const SortableItem: AnyBecauseHard = SortableElement(({contents, removeItem, classes}: {
     contents: string,
     removeItem: (id: string) => void,
     classes: ClassesType
@@ -16,7 +20,7 @@ export const makeSortableListComponent = ({renderItem}: {
     {renderItem({contents, removeItem, classes})}
   </>);
   // eslint-disable-next-line babel/new-cap
-  const SortableList = SortableContainer(({items, removeItem, className, classes}: {
+  const SortableList: any = SortableContainer(({items, removeItem, className, classes}: {
     items: string[],
     removeItem: (id: string) => void,
     className?: string,

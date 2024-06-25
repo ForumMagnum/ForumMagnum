@@ -17,7 +17,7 @@ import './server/rss-integration/callbacks';
 import './server/dialogues/cron';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
-import './server/pageCache/cron';
+import './server/cache';
 import './server/users/cron'
 import './server/curationEmails/cron';
 import './server/database-import/force_batch_update_scores';
@@ -45,7 +45,6 @@ import './server/scripts/slugDeduplication';
 import './server/scripts/debuggingScripts';
 import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
-import './server/scripts/fixSSCDrafts';
 import './server/scripts/fillUserEmail';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
@@ -58,7 +57,7 @@ import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
 import './server/scripts/convertAllPostsToEAEmojis';
-
+import './server/scripts/reindexDeletedUserContent';
 import './server/scripts/oneOffBanSpammers'
 import './server/scripts/ensureEmailInEmails';
 import './server/scripts/exportPostDetails';
@@ -80,6 +79,7 @@ import "./server/scripts/generativeModels/testModGPTOnComments";
 import "./server/scripts/generativeModels/coverImage";
 import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
+import "./server/scripts/backfillGoogleVertex";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 // import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
@@ -133,6 +133,7 @@ import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
 import './server/resolvers/conversationResolvers';
 import './server/resolvers/dialogueMessageResolvers';
+import './server/resolvers/subscribedUsersFeedResolver';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
@@ -184,6 +185,8 @@ import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
+import './server/resolvers/googleVertexResolvers';
+import './server/resolvers/defaultResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
@@ -211,7 +214,9 @@ import './server/embeddings';
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
+import './server/search/facetFieldSearch';
 
 // Incremental views
 import './server/analytics/analyticsCron';
 import './server/conversationUnreadMessages';
+import './server/userLoginTokens';

@@ -314,6 +314,12 @@ class ElasticExporter {
                   ],
                 },
               },
+              normalizer: {
+                fm_sortable_keyword: {
+                  type: "custom",
+                  filter: ["lowercase", "trim"],
+                },
+              },
             },
           },
         },

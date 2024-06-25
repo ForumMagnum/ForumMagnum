@@ -1,8 +1,6 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import React, { FC } from 'react';
 import classNames from 'classnames';
-import moment from '../../lib/moment-timezone';
-import { useTimezone } from '../common/withTimezone';
 import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
@@ -28,8 +26,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
-  const { timezone } = useTimezone();
-  return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
+  const { FormatDate } = Components;
+  return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
 const PostsItemMeta = ({post, read, hideTags, classes}: {

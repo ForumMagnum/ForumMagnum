@@ -48,6 +48,6 @@ describe("syncDocumentWithLatestRevision", () => {
     if (!postAfterSync) {
       throw new Error("Lost post")
     }
-    expect(postAfterSync.contents.originalContents?.data).toMatch(/version 2/);
+    expect(postAfterSync.contents?.originalContents?.data).toMatch(/version 2/);
   });
 });

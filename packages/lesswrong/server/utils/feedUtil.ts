@@ -17,6 +17,8 @@ export type SubquerySortField<ResultType extends DbObject, SortFieldName extends
   sortDirection?: SortDirection,
 }
 
+type Sortable<SortKey extends number | Date> = { sortKey: SortKey };
+
 type ViewBasedSubqueryProps<
   N extends CollectionNameString,
   SortFieldName extends keyof ObjectsByCollectionName[N]
@@ -101,8 +103,8 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   addGraphQLQuery(`${name}(
     limit: Int,
     cutoff: ${cutoffTypeGraphQL},
-    offset: Int,
-    ${isNonEmptyObject(args)?", ":""}${args}
+    offset: Int
+    ${(args && args.length>0) ? ", " : ""}${args}
   ): ${name}QueryResults!`);
   
   addGraphQLResolvers({
@@ -122,23 +124,23 @@ export function defineFeedResolver<CutoffType>({name, resolver, args, cutoffType
   });
 }
 
-const applyCutoff = <SortKeyType>(
-  sortedResults: {sortKey: SortKeyType}[],
+const applyCutoff = <T extends Sortable<SortKeyType>, SortKeyType extends number | Date>(
+  sortedResults: T[],
   cutoff: SortKeyType,
   sortDirection: SortDirection,
 ) => {
   const cutoffFilter = sortDirection === "asc"
     ? ({sortKey}: { sortKey: SortKeyType }) => sortKey > cutoff
     : ({sortKey}: { sortKey: SortKeyType }) => sortKey < cutoff;
-  return _.filter(sortedResults, cutoffFilter);
+  return _.filter<T>(sortedResults, cutoffFilter);
 }
 
-export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sortDirection, subqueries}: {
+export async function mergeFeedQueries<SortKeyType extends number | Date>({limit, cutoff, offset, sortDirection, subqueries}: {
   limit: number
   cutoff?: SortKeyType,
   offset?: number,
   sortDirection?: SortDirection,
-  subqueries: Array<any>,
+  subqueries: Array<FeedSubquery<DbObject, any>>,
 }) {
   sortDirection ??= "desc";
 
@@ -156,13 +158,13 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
   );
   
   // Merge the result lists
-  const unsortedResults = _.flatten(unsortedSubqueryResults);
+  const unsortedResults = unsortedSubqueryResults.flat();
   
   // Split into results with numeric indexes and results with sort-key indexes
   const [
     numericallyPositionedResults,
     orderedResults,
-  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => isNumericallyPositioned);
+  ] = _.partition(unsortedResults, ({isNumericallyPositioned}) => !!isNumericallyPositioned);
   
   // Sort by shared sort key
   const sortedResults = _.sortBy(orderedResults, r=>r.sortKey);
@@ -183,7 +185,7 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
   
   // Find the last result that wasn't numerically positioned (after the limit
   // is applied), and get its sortKey to use as the page cutoff
-  const nonNumericallyPositionedResults = _.filter(withLimitApplied, r => !_.some(numericallyPositionedResults, r2=>r===r2));
+  const nonNumericallyPositionedResults = _.filter(withLimitApplied, r => !_.some(numericallyPositionedResults, r2=>r===r2)) as Sortable<SortKeyType>[];
   const nextCutoff = (nonNumericallyPositionedResults.length>0) ? nonNumericallyPositionedResults[nonNumericallyPositionedResults.length-1].sortKey : null;
   
   return {
@@ -197,12 +199,12 @@ export async function mergeFeedQueries<SortKeyType>({limit, cutoff, offset, sort
 // of results that have numeric indexes instead, and merge them. Eg, Recent
 // Discussion contains posts sorted by date, but with some things mixed in
 // with their position defined as "index 5".
-function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<any>, numericallyPositionedResults: Array<any>, offset: number) {
+function mergeSortedAndNumericallyPositionedResults(sortedResults: Array<Sortable<Date>>, numericallyPositionedResults: Array<Sortable<number>>, offset: number) {
   // Take the numerically positioned results. Sort them by index, discard ones
   // from below the offset, and resolve collisions.
   const sortedNumericallyPositionedResults = _.sortBy(numericallyPositionedResults, r=>r.sortKey);
   
-  let mergedResults: Array<any> = [...sortedResults];
+  let mergedResults: Sortable<number | Date>[] = [...sortedResults];
   for (let i=0; i<sortedNumericallyPositionedResults.length; i++) {
     const insertedResult = sortedNumericallyPositionedResults[i];
     const insertionPosition = insertedResult.sortKey-offset;

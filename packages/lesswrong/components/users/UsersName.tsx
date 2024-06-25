@@ -14,6 +14,7 @@ const UsersName = ({
   nofollow=false,
   simple=false,
   tooltipPlacement="left",
+  nowrap,
   className,
   ...otherProps
 }: {
@@ -24,16 +25,19 @@ const UsersName = ({
   /** Makes it not a link, and removes the tooltip. */
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
+  nowrap?: boolean,
   noTooltip?: boolean,
   color?: boolean,
   pageSectionContext?: string,
+  /** LW specific */
+  hideFollowButton?: boolean,
   /** Add an extra class/styling to the link */
   className?: string,
 }) => {
   if (user) {
-    return <Components.UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} className={className} {...otherProps}/>
+    return <Components.UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} nowrap={nowrap} className={className} {...otherProps}/>
   } else if (documentId) {
-    return <Components.UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} className={className}  {...otherProps}/>
+    return <Components.UsersNameWrapper documentId={documentId} nofollow={nofollow} simple={simple} nowrap={nowrap} className={className}  {...otherProps}/>
   } else {
     return <Components.UserNameDeleted />
   }

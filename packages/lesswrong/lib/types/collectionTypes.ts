@@ -9,8 +9,12 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import Table from '../sql/Table';
-import PgCollection from '../sql/PgCollection';
+
+// These server imports are safe as they use `import type`
+// eslint-disable-next-line import/no-restricted-paths
+import type Table from '@/server/sql/Table';
+// eslint-disable-next-line import/no-restricted-paths
+import type { BulkWriterResult } from '@/server/sql/BulkWriter';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -23,7 +27,6 @@ type CheckAccessFunction<T extends DbObject> = (
   outReasonDenied?: {reason?: string},
 ) => Promise<boolean>;
 
-// See PgCollection.ts for implementation
 interface CollectionBase<N extends CollectionNameString = CollectionNameString> {
   collectionName: N,
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
@@ -39,16 +42,23 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   isConnected: () => boolean
 
-  isVoteable: () => this is PgCollection<VoteableCollectionName>
+  isVoteable: () => this is CollectionBase<VoteableCollectionName>;
   makeVoteable: () => void
 
-  hasSlug: () => this is PgCollection<CollectionNameWithSlug>
+  hasSlug: () => boolean
 
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
 
   getTable: () => Table<ObjectsByCollectionName[N]>;
 
-  rawCollection: () => {bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
+  rawCollection: () => {
+    bulkWrite: (operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>, options?: MongoBulkWriteOptions) => Promise<BulkWriterResult>,
+    findOneAndUpdate: any,
+    dropIndex: any,
+    indexes: any,
+    updateOne: any,
+    updateMany: any
+  }
   find: (
     selector?: MongoSelector<ObjectsByCollectionName[N]>,
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
@@ -93,7 +103,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
    * wraps this. */
   rawInsert: (data: any, options?: any) => Promise<string>
   aggregate: (aggregationPipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: any) => any
-  _ensureIndex: any
+  _ensureIndex: (fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>, options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>) => Promise<void>
 }
 
 type CollectionOptions<N extends CollectionNameString> = {
@@ -103,14 +113,13 @@ type CollectionOptions<N extends CollectionNameString> = {
   schema: SchemaType<N>,
   generateGraphQLSchema?: boolean,
   collection?: any,
-  singleResolverName: string,
-  multiResolverName: string,
   resolvers?: any,
   mutations?: any,
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
-  writeAheadLogged?: boolean
+  writeAheadLogged?: boolean,
+  dependencies?: SchemaDependency[],
 };
 
 interface FindResult<T> {
@@ -176,6 +185,7 @@ type MongoIndexFieldOrKey<T> = MongoIndexKeyObj<T> | string;
 type MongoEnsureIndexOptions<T> = {
   partialFilterExpression?: Record<string, any>,
   unique?: boolean,
+  concurrently?: boolean,
   name?: string,
   collation?: {
     locale: string,
@@ -309,6 +319,9 @@ interface ResolverContext extends CollectionsByName {
 }
 
 type FragmentName = keyof FragmentTypes;
+type CollectionFragmentTypeName = {
+  [k in keyof FragmentTypes]: CollectionNamesByFragmentName[k] extends never ? never : k;
+}[keyof FragmentTypes];
 
 type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates";
 

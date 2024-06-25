@@ -6,27 +6,51 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments } from '../../lib/betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, userHasSubscribeTabFeed } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
+import { isLW } from '../../lib/instanceSettings';
+import { commentBodyStyles } from '@/themes/stylePiping';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
+  subscriptionsListRoot: {
+    ...commentBodyStyles(theme),
+  },
+  subscriptionListTitle: {
+    fontSize: "1.8rem !important",
+  },
   subscribedItem: {
+    marginLeft: -6,
     display: "flex",
-    ...theme.typography.commentStyle
+    padding: 6,
+    borderRadius: 3,
+    ...theme.typography.commentStyle,
+    '&:hover': {
+      backgroundColor: theme.palette.grey[200],
+    },
   },
   subscribedItemDescription: {
-    flexGrow: 1,
+    marginLeft: 8,
+    fontWeight: 500,
+  },
+  subscriptionTypeDescription: {
+    marginBottom: 10,
+    fontStyle: "italic",
+  },
+  unsubscribeButton: {
+    minWidth: 83,
+    opacity: 0.7,
+    wordBreak: "keep-all"
   },
 });
 
-const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSubscriptionsMessage, renderDocument, title, classes}: {
+const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, renderDocument, title, subscriptionTypeDescription, classes}: {
   collectionName: CollectionNameString,
   fragmentName: keyof FragmentTypes,
   subscriptionType: string,
-  noSubscriptionsMessage: string,
   renderDocument: (document: any) => ReactNode,
   title: React.ReactNode,
-  classes: ClassesType,
+  subscriptionTypeDescription?: String
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SubscribedItem, SectionTitle, Loading, LoadMore } = Components;
   const currentUser = useCurrentUser();
@@ -37,10 +61,12 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
       userId: currentUser?._id,
       collectionName: collectionName,
       subscriptionType: subscriptionType,
-      limit: 50
+      limit: 20,
     },
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
+    itemsPerPage: 100,
+    enableTotal: true
   });
   
   if (!currentUser)
@@ -49,9 +75,14 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
     return <Loading/>
   if (!results)
     return null;
+  if (results.length === 0)
+    return null;
   
-  return <div>
-    <SectionTitle title={title}/>
+  return <div className={classes.subscriptionsListRoot}>
+    <SectionTitle title={title} className={classes.subscriptionListTitle}/>
+    {subscriptionTypeDescription && <div className={classes.subscriptionTypeDescription}>
+      {subscriptionTypeDescription}
+    </div>}
     {results.map(result =>
       <SubscribedItem
         key={result._id}
@@ -61,9 +92,6 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
         renderDocument={renderDocument}
       />
     )}
-    {results.length===0 && <div className={classes.subscribedItem}>
-      {noSubscriptionsMessage}
-    </div>}
     {showLoadMore && <LoadMore {...loadMoreProps} />}
   </div>
 }
@@ -81,7 +109,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   fragmentName: keyof FragmentTypes,
   subscription: SubscriptionState,
   renderDocument: (document: any) => ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>
 }) => {
   const { Loading, NotifyMeButton } = Components;
   const { document, loading } = useSingle({
@@ -93,15 +121,16 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   if (loading) return <Loading/>
   
   return <div className={classes.subscribedItem}>
-    <div className={classes.subscribedItemDescription}>
-    {renderDocument(document)}
-    </div>
     <NotifyMeButton
       document={document}
       subscriptionType={subscription.type}
       subscribeMessage="Resubscribe"
       unsubscribeMessage="Unsubscribe"
+      className={classes.unsubscribeButton}
     />
+    <div className={classes.subscribedItemDescription}>
+    {renderDocument(document)}
+    </div>
   </div>
   
 }
@@ -127,58 +156,65 @@ const ViewSubscriptionsPage = ({classes}: {
   }
   
   return <SingleColumnSection>
+    {userHasSubscribeTabFeed(currentUser) && <SubscriptionsList
+      title="Users You Are Following"
+      collectionName="Users"
+      subscriptionType="newActivityForFeed"
+      fragmentName="UsersMinimumInfo"
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user} tooltipPlacement='top' hideFollowButton />}
+      subscriptionTypeDescription="These users will appear in the feed on your frontpage Subscribed Tab"
+    />}
     <SubscriptionsList
-      title="Subscribed to Posts By Users"
+      title="Notifications for New Posts by Users"
       collectionName="Users"
       subscriptionType="newPosts"
       fragmentName="UsersMinimumInfo"
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
-      noSubscriptionsMessage="You are not subscribed to any users' posts."
+      subscriptionTypeDescription="Manage onsite and offsite notification preferences in your account settings"
     />
     {allowSubscribeToUserComments && <SubscriptionsList
-      title="Subscribed to All Comments By Users"
+      title="Notifications for All New Comments by Users"
       collectionName="Users"
       subscriptionType="newUserComments"
       fragmentName="UsersMinimumInfo"
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
-      noSubscriptionsMessage="You are not subscribed to any users' comments."
+      subscriptionTypeDescription="Manage onsite and offsite (email) notification preferences in your account settings"
     />}
     
     <SubscriptionsList
-      title="Subscribed to Comments on Posts"
+      title="Notifications of Comments on Posts"
       collectionName="Posts"
       subscriptionType="newComments"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
-      noSubscriptionsMessage="You are not subscribed to comments on any posts."
+      subscriptionTypeDescription="You will receive notifications for any new comments on these posts"
     />
 
     <SubscriptionsList
-      title="Subscribed to Dialogues (as a reader)"
+      title="Notification of Dialogue Activity (as a reader)"
       collectionName="Posts"
       subscriptionType="newPublishedDialogueMessages"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
-      noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
+      subscriptionTypeDescription="You will be notified of new activity in these dialogues."
     />
 
     <SubscriptionsList
-      title="Subscribed to Dialogues (as a participant)"
+      title="Notification of Dialogue Activity (as a participant)"
       collectionName="Posts"
       subscriptionType="newDialogueMessages"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
-      noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
+      subscriptionTypeDescription="You will be notified of new activity by your dialogue partners on these dialogues."
     />
   
-    <SubscriptionsList
+    {isLW && <SubscriptionsList
       title="Subscribed to Old-Style Dialogues (as a reader)"
       collectionName="Posts"
       subscriptionType="newDebateComments"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
-      noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
-    />
+    />}
   
     <SubscriptionsList
       title="Subscribed to Old-Style dialogues (as a participant)"
@@ -186,45 +222,44 @@ const ViewSubscriptionsPage = ({classes}: {
       subscriptionType="newDebateReplies"
       fragmentName="PostsList"
       renderDocument={(post: PostsList) => post.title}
-      noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
     />
 
     <SubscriptionsList
-      title="Subscribed to Comment Replies"
+      title="Notifications of Comment Replies"
       collectionName="Comments"
       subscriptionType="newReplies"
       fragmentName="CommentsListWithParentMetadata"
       renderDocument={(comment: CommentsListWithParentMetadata) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, tagSlug: comment?.tag?.slug, tagCommentType: comment?.tagCommentType, commentId: comment?._id, permalink: true})}>
-        author: {comment?.user?.displayName} post: {comment?.post?.title}
+        author: {comment?.user?.displayName}, post: {comment?.post?.title}
       </Link>}
-      noSubscriptionsMessage="You are not subscribed to any comment replies."
+      subscriptionTypeDescription="You will get notifications on replies to these comments."
     />
 
     <SubscriptionsList
-      title="Subscribed to Local Groups"
+      title="Notifications of Local Groups Activity"
       collectionName="Localgroups"
       subscriptionType="newEvents"
       fragmentName="localGroupsBase"
       renderDocument={(group: localGroupsBase) => group.name}
-      noSubscriptionsMessage="You are not subscribed to any local groups."
+      subscriptionTypeDescription="You will be notified of new events from these Local Groups"
     />
 
     <SubscriptionsList
-      title="Subscribed to Tags"
+      title="Notification of New Posts with Tags"
       collectionName="Tags"
       subscriptionType="newTagPosts"
       fragmentName="TagPreviewFragment"
       renderDocument={(tag: TagPreviewFragment) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
-      noSubscriptionsMessage="You are not subscribed to any tags."
+      subscriptionTypeDescription="You will be notified when posts have these tags added"
     />
     
     {allowSubscribeToSequencePosts && <SubscriptionsList
-      title="Subscribed to Sequences"
+      title="Notifications of New Post Added to Sequences"
       collectionName="Sequences"
       subscriptionType="newSequencePosts"
       fragmentName="SequencesPageTitleFragment"
       renderDocument={(sequence: SequencesPageTitleFragment) => <Link to={sequenceGetPageUrl(sequence)}>{sequence.title}</Link>}
-      noSubscriptionsMessage="You are not subscribed to any sequences."
+      subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
     />}
     
   </SingleColumnSection>;

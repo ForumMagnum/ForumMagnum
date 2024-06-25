@@ -12,6 +12,7 @@ import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
 import classNames from 'classnames';
 import moment from 'moment';
 import { componentWithChildren, Helmet } from '../../../lib/utils/componentsWithChildren';
+import { useMapStyle } from '@/components/hooks/useMapStyle';
 
 const ReactMapGL = componentWithChildren(BadlyTypedReactMapGL);
 const Marker = componentWithChildren(BadlyTypedMarker);
@@ -170,7 +171,9 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       </div>
     </>
   }, [LocalEventMapMarkerWrappers, HomepageMapFilter, classes.mapButtons])
-  
+
+  const mapStyle = useMapStyle();
+
   return <div className={classes.root}>
     <Helmet> 
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -179,7 +182,7 @@ export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={"mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      mapStyle={mapStyle}
       onViewportChange={viewport => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() ?? undefined}
     >

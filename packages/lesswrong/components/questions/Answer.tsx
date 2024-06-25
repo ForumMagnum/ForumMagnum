@@ -4,7 +4,6 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { Comments } from "../../lib/collections/comments";
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -195,7 +194,7 @@ const Answer = ({ comment, post, childComments, classes }: {
         :
         <div>
           <AnalyticsContext pageElementContext="answerItem">
-          <HoveredReactionContextProvider>
+          <HoveredReactionContextProvider voteProps={voteProps}>
             <div className={classes.answer} id={comment._id}>
               <div className={classes.answerHeader}>
                 {comment.user && <Typography variant="body1" className={classes.author}>
@@ -205,7 +204,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                   <CommentsItemDate comment={comment} post={post}/>
                 </Typography>
                 <span className={classes.vote}>
-                  <SmallSideVote document={comment} collection={Comments}/>
+                  <SmallSideVote document={comment} collectionName="Comments"/>
                 </span>
                 {isFriendlyUI &&
                   <CommentLinkWrapper>

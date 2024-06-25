@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
@@ -19,7 +18,6 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
-import { useRecombeeFrontpage } from '../../lib/betas';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -55,7 +53,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
   },
-})
+  postsListSettings: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+});
 
 const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
 
@@ -103,13 +106,11 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
-  const recombeeFrontpagePrototypeEnabled = useRecombeeFrontpage(currentUser);
   const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   // (except that on the EA Forum/FriendlyUI it always starts out hidden)
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
-  const { timezone } = useTimezone();
   const { captureEvent } = useOnMountTracking({
     eventType:"frontpageFilterSettings",
     eventProps: {
@@ -122,12 +123,12 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
-    CuratedPostsList, SectionTitle, StickiedPosts
+    CuratedPostsList, SectionTitle, StickiedPosts, PostsListViewToggle,
   } = Components
   const limit = parseInt(query.limit) || defaultLimit;
 
   const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
+  const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
     ...query,
@@ -156,36 +157,39 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
         <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
-          <LWTooltip
-            title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
-            hideOnTouchScreens
-          >
-            <SettingsButton
-              className={classes.hideOnMobile}
-              label={filterSettingsVisibleDesktop ?
-                filterSettingsToggleLabels.desktopVisible :
-                filterSettingsToggleLabels.desktopHidden}
-              showIcon={false}
-              onClick={changeShowTagFilterSettingsDesktop}
-              textShadow={isLWorAF}
-            />
-            <SettingsButton
-              className={classes.hideOnDesktop}
-              label={filterSettingsVisibleMobile ?
-                filterSettingsToggleLabels.mobileVisible :
-                filterSettingsToggleLabels.mobileHidden}
-              showIcon={false}
-              onClick={() => {
-                setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
-                captureEvent("filterSettingsClicked", {
-                  settingsVisible: !filterSettingsVisibleMobile,
-                  settings: filterSettings,
-                  pageSectionContext: "latestPosts"
-                })
-              }} />
-          </LWTooltip>
+          <div className={classes.postsListSettings}>
+            <LWTooltip
+              title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+              hideOnTouchScreens
+            >
+              <SettingsButton
+                className={classes.hideOnMobile}
+                label={filterSettingsVisibleDesktop ?
+                  filterSettingsToggleLabels.desktopVisible :
+                  filterSettingsToggleLabels.desktopHidden}
+                showIcon={false}
+                onClick={changeShowTagFilterSettingsDesktop}
+                textShadow={isLWorAF}
+              />
+              <SettingsButton
+                className={classes.hideOnDesktop}
+                label={filterSettingsVisibleMobile ?
+                  filterSettingsToggleLabels.mobileVisible :
+                  filterSettingsToggleLabels.mobileHidden}
+                showIcon={false}
+                onClick={() => {
+                  setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+                  captureEvent("filterSettingsClicked", {
+                    settingsVisible: !filterSettingsVisibleMobile,
+                    settings: filterSettings,
+                    pageSectionContext: "latestPosts"
+                  })
+                }} />
+            </LWTooltip>
+            {isFriendlyUI && <PostsListViewToggle />}
+          </div>
         </SectionTitle>
-  
+
         <AnalyticsContext pageSectionContext="tagFilterSettings">
           <div className={classNames({
             [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
@@ -206,6 +210,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 terms={recentPostsTerms}
                 alwaysShowLoadMore
                 hideHiddenFrontPagePosts
+                viewType="fromContext"
               >
                 <Link to={"/allPosts"}>{advancedSortingText}</Link>
               </PostsList2>

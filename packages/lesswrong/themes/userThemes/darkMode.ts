@@ -145,6 +145,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       panelBackground: {
         default: shadePalette.grey[20],
         modalBackground: "#292929",
+        mapboxTooltip: "rgba(75,75,75,.94)",
         loginInput: "#3d3d3d",
         loginInputHovered: "#3f3f3f",
         onboardingSection: "#424242",
@@ -249,6 +250,9 @@ export const darkModeTheme: UserThemeSpecification = {
       secondaryHighlight2: '#3e503a',
       mentionsBaloon: shadePalette.grey[100],
       eaButtonGreyOutline: "#5F5F5F",
+    },
+    boxShadow: {
+      graphTooltip: "none",
     },
     buttons: {
       mentions: {

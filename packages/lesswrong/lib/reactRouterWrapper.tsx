@@ -11,13 +11,14 @@ import qs from 'qs'
 
 type LinkProps = {
   to?: HashLinkProps['to']|null
+  doOnDown?: boolean
   onMouseDown?: HashLinkProps['onMouseDown']
   onClick?: HashLinkProps['onClick']
   rel?: string
   eventProps?: Record<string, string>
   className?: string
   style?: CSSProperties,
-  dangerouslySetInnerHTML?: {__html: string}
+  dangerouslySetInnerHTML?: {__html: TrustedHTML}
   target?: string
   smooth?: boolean,
   id?: string

@@ -11,7 +11,7 @@ import {
   DefaultValueType,
   UnknownType,
   VectorType,
-} from "../../lib/sql/Type";
+} from "@/server/sql/Type";
 import { Posts } from "../../lib/collections/posts/collection";
 
 describe("SQL Type", () => {

@@ -4,9 +4,10 @@ import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
-import { isLWorAF } from '../../lib/instanceSettings';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
 import { withTracking } from '../../lib/analyticsEvents';
+import { hasCollapsedFootnotes } from '@/lib/betas';
+import isEqual from 'lodash/isEqual';
 
 interface ExternalProps {
   /**
@@ -55,12 +56,13 @@ interface ExternalProps {
    * Substrings to replace with an element. Used for highlighting inline
    * reactions.
    */
-  replacedSubstrings?: Record<string, ContentReplacedSubstringComponent>
+  replacedSubstrings?: Record<string, ContentReplacedSubstringComponentInfo>
 }
 
-export type ContentReplacedSubstringComponent = (props: {
-  children: React.ReactNode
-}) => React.ReactNode;
+export type ContentReplacedSubstringComponentInfo = {
+  componentName: keyof ComponentTypes,
+  props: AnyBecauseHard
+};
 
 interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
 interface ContentItemBodyState {
@@ -105,7 +107,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   componentDidUpdate(prevProps: ContentItemBodyProps) {
     if (this.state.updatedElements) {
       const htmlChanged = prevProps.dangerouslySetInnerHTML?.__html !== this.props.dangerouslySetInnerHTML?.__html;
-      const replacedSubstringsChanged = prevProps.replacedSubstrings !== this.props.replacedSubstrings;
+      const replacedSubstringsChanged = !isEqual(prevProps.replacedSubstrings, this.props.replacedSubstrings);
       if (htmlChanged || replacedSubstringsChanged) {
         this.replacedElements = [];
         this.setState({
@@ -272,7 +274,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
 
 
   collapseFootnotes = (body: HTMLElement) => {
-    if (isLWorAF || !body) {
+    if (!hasCollapsedFootnotes || !body) {
       return;
     }
 
@@ -314,7 +316,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.replaceElement(linkTag, replacementElement);
     }
   }
-
+  
   markElicitBlocks = (element: HTMLElement) => {
     const elicitBlocks = this.getElementsByClassname(element, "elicit-binary-prediction");
     for (const elicitBlock of elicitBlocks) {
@@ -373,7 +375,9 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   replaceSubstrings = (element: HTMLElement) => {
     if(this.props.replacedSubstrings) {
       for (let str of Object.keys(this.props.replacedSubstrings)) {
-        const replacement: ContentReplacedSubstringComponent = this.props.replacedSubstrings[str]!;
+        const replacement: ContentReplacedSubstringComponentInfo = this.props.replacedSubstrings[str]!;
+        const ReplacementComponent = Components[replacement.componentName];
+        const replacementComponentProps = replacement.props;
 
         try {
           // Find (the first instance of) the string to replace. This should be
@@ -396,9 +400,11 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
                 const span = wrapRangeWithSpan(reducedRange)
                 if (span) {
                   const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
-                  const replacementNode = replacement({
-                    children: <InlineReactedSpan/>
-                  });
+                  const replacementNode = (
+                    <ReplacementComponent {...replacementComponentProps}>
+                      <InlineReactedSpan/>
+                    </ReplacementComponent>
+                  );
                   this.replaceElement(span, replacementNode);
                 }
               }
@@ -465,14 +471,24 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 }
 
-
 const addNofollowToHTML = (html: string): string => {
   return html.replace(/<a /g, '<a rel="nofollow" ')
 }
 
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  hocs: [withTracking]
+  hocs: [withTracking],
+  
+  // Memoization options. If this spuriously rerenders, then voting on a comment
+  // that contains a YouTube embed causes that embed to visually flash and lose
+  // its place.
+  areEqual: {
+    ref: "ignore",
+    "dangerouslySetInnerHTML": "deep",
+    replacedSubstrings: "deep"
+  },
+
+  debugRerenders: true,
 });
 
 declare global {

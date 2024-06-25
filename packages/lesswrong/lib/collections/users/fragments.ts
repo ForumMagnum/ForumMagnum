@@ -47,7 +47,7 @@ registerFragment(`
     }
     profileTagIds
     profileTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     organizerOfGroupIds
     organizerOfGroups {
@@ -465,6 +465,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review

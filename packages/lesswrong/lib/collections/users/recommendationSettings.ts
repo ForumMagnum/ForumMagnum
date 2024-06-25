@@ -107,16 +107,23 @@ export const recommendationsAlgorithmHasStrategy = (
 ): algorithm is RecommendationsAlgorithmWithStrategy =>
   "strategy" in algorithm;
 
+export interface HybridArmsConfig {
+  fixed: string,
+  configurable: string,
+}
+
 export interface RecombeeConfiguration {
   userId?: string,
   rotationRate?: number,
   rotationTime?: number,
   booster?: string,
   filter?: string,
+  hybridScenarios?: HybridArmsConfig,
   refreshKey?: string,
   loadMore?: {
-    prevRecommId: string,
+    prevRecommId?: string,
   },
+  excludedPostIds?: string[],
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
@@ -127,13 +134,22 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
 }
 
 export interface HybridRecombeeConfiguration {
+  hybridScenarios: HybridArmsConfig,
   userId?: string,
   rotationRate?: number,
   rotationTime?: number,
   booster?: string,
   refreshKey?: string,
   loadMore?: {
-    prevRecommIds: [string, string],
+    prevRecommIds: [string | undefined, string | undefined],
+    loadMoreCount?: number,
+  },
+  excludedPostIds?: string[],
+}
+
+export interface VertexConfiguration {
+  loadMore?: {
+    prevAttributionId: string,
   },
 }
 
