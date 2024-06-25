@@ -7,6 +7,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { isServer } from '@/lib/executionEnvironment';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
@@ -15,12 +16,12 @@ const LWHome = () => {
   } = Components;
 
   const [cookies] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
-  const isReturningVisitorRef = useRef<boolean>(!!cookies[LAST_VISITED_FRONTPAGE_COOKIE]);
+  const isReturningVisitor = isServer ? !!cookies[LAST_VISITED_FRONTPAGE_COOKIE] : !!window.isReturningVisitor;
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <UpdateLastVisitCookie isReturningVisitorRef={isReturningVisitorRef} />
+          <UpdateLastVisitCookie />
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
@@ -35,7 +36,7 @@ const LWHome = () => {
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <LWHomePosts isReturningVisitor={isReturningVisitorRef.current ?? false}>
+            <LWHomePosts isReturningVisitor={isReturningVisitor}>
               <QuickTakesSection />
     
               <EAPopularCommentsSection />
@@ -52,9 +53,7 @@ const LWHome = () => {
   )
 }
 
-const UpdateLastVisitCookie = ({ isReturningVisitorRef }: {
-  isReturningVisitorRef: React.MutableRefObject<boolean>;
-}) => {
+const UpdateLastVisitCookie = () => {
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
