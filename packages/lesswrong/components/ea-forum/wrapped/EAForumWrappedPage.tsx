@@ -23,7 +23,7 @@ import { ExpandedDate } from "../../common/FormatDate";
 import { useCommentLink } from "../../comments/CommentsItem/useCommentLink";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
 import { HEADER_HEIGHT } from "../../common/Header";
-import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { CloudinaryPropsType, makeCloudinaryImageUrl, socialImageCloudinaryProps } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
@@ -32,16 +32,6 @@ import { TagCommentType } from "../../../lib/collections/comments/types";
 import { useLocation } from "../../../lib/routeUtil";
 import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
 import ForumNoSSR from "../../common/ForumNoSSR";
-
-const socialImageProps: CloudinaryPropsType = {
-  dpr: "auto",
-  ar: "16:9",
-  w: "1200",
-  c: "fill",
-  g: "center",
-  q: "auto",
-  f: "auto",
-};
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -1630,7 +1620,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     return <AnalyticsContext pageContext="eaYearWrapped">
       <HeadTags
         title={`EA Forum ${year} Wrapped`}
-        image={makeCloudinaryImageUrl('2023_wrapped_wide', socialImageProps)}
+        image={makeCloudinaryImageUrl('2023_wrapped_wide', socialImageCloudinaryProps)}
       />
       <main className={classes.root}>
         <section className={classes.section}>

@@ -58,6 +58,8 @@ export type PostsItemConfig = {
   showPersonalIcon?: boolean
   showIcons?: boolean,
   showPostedAt?: boolean,
+  /** digestNum: If provided, display a clickable tag next to the post title that links to the digest page */
+  digestNum?: number|null,
   defaultToShowUnreadComments?: boolean,
   /** dense: (bool) Slightly reduce margins to make this denser. Used on the AllPosts page.*/
   dense?: boolean,
@@ -116,6 +118,7 @@ export const usePostsItem = ({
   showPersonalIcon = true,
   showIcons = true,
   showPostedAt = true,
+  digestNum,
   defaultToShowUnreadComments = false,
   dense = false,
   bookmark = false,
@@ -253,6 +256,7 @@ export const usePostsItem = ({
     showNominationCount,
     showReviewCount,
     showIcons,
+    digestNum,
     showKarma,
     useCuratedDate,
     annualReviewMarketInfo,

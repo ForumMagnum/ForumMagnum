@@ -1,3 +1,5 @@
+import { foreignKeyField } from "@/lib/utils/schemaUtils";
+
 const schema: SchemaType<"Digests"> = {
   // the digest number (should correspond with the email digest)
   num: {
@@ -18,6 +20,8 @@ const schema: SchemaType<"Digests"> = {
     control: 'datetime',
   },
   // the end of the range of eligible posts (just used to filter posts for the Edit Digest page)
+  // TODO: this is currently also used to determine when the on-site digest is publicly accessible,
+  // though probably we should use the publishedDate instead :shrug:
   endDate: {
     type: Date,
     optional: true,
@@ -27,7 +31,7 @@ const schema: SchemaType<"Digests"> = {
     canCreate: ['admins'],
     control: 'datetime',
   },
-  // when this digest was published
+  // when this digest was published (TODO: currently not used but probably should be)
   publishedDate: {
     type: Date,
     optional: true,
@@ -57,6 +61,21 @@ const schema: SchemaType<"Digests"> = {
     canUpdate: ['admins'],
     canCreate: ['admins'],
     control: "FormComponentColorPicker",
+  },
+  // the id for the matching post, in which we've replicated the email version of the digest
+  postId: {
+    ...foreignKeyField({
+      idFieldName: "postId",
+      resolverName: "post",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    optional: true,
+    nullable: true,
   },
 };
 

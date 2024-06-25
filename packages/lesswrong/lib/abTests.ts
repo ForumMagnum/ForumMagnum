@@ -1,4 +1,5 @@
 import { ABTest, useABTest, useABTestProperties } from './abTestImpl';
+import { isEAForum } from './instanceSettings';
 export { useABTest, useABTestProperties };
 
 /*
@@ -96,6 +97,23 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
     expanded: {
       description: "Two lines per event",
+      weight: 1,
+    },
+  },
+});
+
+export const digestPageABTest = new ABTest({
+  name: "digestPage",
+  active: isEAForum,
+  affectsLoggedOut: true,
+  description: "Which version of the digest page do we link to?",
+  groups: {
+    control: {
+      description: "Email version",
+      weight: 1,
+    },
+    onsite: {
+      description: "On-site version",
       weight: 1,
     },
   },

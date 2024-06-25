@@ -27,6 +27,61 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: 'translateY(-12px)',
     zIndex: 2
   },
+  settingsSections: {
+    display: 'flex',
+    columnGap: '30px',
+  },
+  settingsSection: {
+    width: 396,
+  },
+  settingsSectionHeading: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '4px',
+    color: theme.palette.grey[600],
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    lineHeight: '18px',
+    fontWeight: 500,
+    margin: 0,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.grey[800],
+    }
+  },
+  bold: {
+    color: theme.palette.grey[800],
+    fontWeight: 700,
+  },
+  collapseChevron: {
+    width: 15,
+    transition: "transform 0.2s",
+  },
+  collapseChevronOpen: {
+    transform: "rotate(90deg)",
+  },
+  settings: {
+    padding: 6
+  },
+  inputRow: {
+    display: 'flex',
+    alignItems: 'baseline',
+    columnGap: '14px',
+    marginBottom: 10,
+  },
+  input: {
+    maxWidth: 300,
+    width: "100%",
+    borderRadius: theme.borderRadius.default,
+    background: theme.palette.grey[0],
+    color: theme.palette.grey[900],
+    fontSize: 14,
+    padding: "8px",
+    border: theme.palette.border.normal,
+    "&:hover, &:focus": {
+      border: theme.palette.border.slightlyIntense3,
+    },
+  },
   viewOnsiteDigestButton: {
     width: 200,
     color: theme.palette.grey[700],
@@ -36,40 +91,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 16,
     marginLeft: 8,
   },
-  onsiteDigestSettingsSection: {
-    maxWidth: 396,
-  },
-  onsiteDigestSettingsHeading: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '4px',
-    color: theme.palette.grey[600],
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: '18px',
-    fontWeight: '500',
-    margin: 0,
-    cursor: 'pointer',
-    '&:hover': {
-      color: theme.palette.grey[800],
-    }
-  },
-  collapseChevron: {
-    width: 15,
-    transition: "transform 0.2s",
-  },
-  collapseChevronOpen: {
-    transform: "rotate(90deg)",
-  },
-  onsiteDigestSettings: {
-    padding: '0 6px 6px'
-  },
   colorPickerRow: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
+    marginTop: 10,
   },
   label: {
+    flex: 'none',
     color: theme.palette.grey[600],
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
@@ -78,7 +107,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   imageUploadRow: {
     maxWidth: 360,
-    marginTop: 6
+    marginTop: 10,
   },
 });
 
@@ -89,7 +118,8 @@ export const EditDigestHeader = ({digest, classes}: {
   // clicking on the start or end date lets you edit it
   const [isEditingStartDate, setIsEditingStartDate] = useState(false);
   const [isEditingEndDate, setIsEditingEndDate] = useState(false);
-  // on-site digest settings section is collapsed by default
+  // the settings sections are collapsed by default
+  const [isEmailSettingsExpanded, setIsEmailSettingsExpanded] = useState(false)
   const [isOnsiteSettingsExpanded, setIsOnsiteSettingsExpanded] = useState(false)
   
   const {mutate: updateDigest} = useUpdate({
@@ -111,6 +141,15 @@ export const EditDigestHeader = ({digest, classes}: {
     }
   }
   
+  const onChangePostId = (value: string|null) => {
+    void updateDigest({
+      selector: {_id: digest._id},
+      data: {
+        postId: value,
+      },
+    });
+  }
+  
   const onChangeImg = (value: string|null) => {
     void updateDigest({
       selector: {_id: digest._id},
@@ -127,7 +166,10 @@ export const EditDigestHeader = ({digest, classes}: {
     });
   }
 
-  const {EAButton, SectionTitle, DatePicker, ForumIcon, FormComponentColorPicker, ImageUpload2} = Components;
+  const {
+    EAButton, SectionTitle, DatePicker, ForumIcon, FormComponentColorPicker,
+    ImageUpload2
+  } = Components;
 
   const startNode = isEditingStartDate
     ? (
@@ -179,46 +221,69 @@ export const EditDigestHeader = ({digest, classes}: {
       </span>}
       noTopMargin
     />
-    <EAButton
-      style="grey"
-      href={`/digests/${digest.num}`}
-      target="_blank"
-      className={classes.viewOnsiteDigestButton}
-    >
-      View on-site digest
-      <OpenInNewIcon className={classes.viewOnsiteDigestIcon} />
-    </EAButton>
-    <section className={classes.onsiteDigestSettingsSection}>
-      <h2
-        className={classes.onsiteDigestSettingsHeading}
-        onClick={() => setIsOnsiteSettingsExpanded(!isOnsiteSettingsExpanded)}
-      >
-        <ForumIcon icon="ThickChevronRight" className={classNames(
-          classes.collapseChevron, isOnsiteSettingsExpanded && classes.collapseChevronOpen
-        )} />
-        Edit on-site digest settings
-      </h2>
-      {isOnsiteSettingsExpanded && <div className={classes.onsiteDigestSettings}>
-        <div className={classes.colorPickerRow}>
-          <div className={classes.label}>Background fade color:</div>
-          <FormComponentColorPicker
-            value={digest.onsitePrimaryColor}
-            updateCurrentValues={updateCurrentValues}
-            path="onsitePrimaryColor"
-          />
-        </div>
-        <div className={classes.imageUploadRow}>
-          <ImageUpload2
-            name="onsiteDigestImageId"
-            value={digest.onsiteImageId}
-            updateValue={onChangeImg}
-            clearField={() => onChangeImg(null)}
-            label="Set background image"
-          />
-        </div>
-      </div>}
-    </section>
-    
+    <div className={classes.settingsSections}>
+      <section className={classes.settingsSection}>
+        <h2
+          className={classes.settingsSectionHeading}
+          onClick={() => setIsEmailSettingsExpanded(!isEmailSettingsExpanded)}
+        >
+          <ForumIcon icon="ThickChevronRight" className={classNames(
+            classes.collapseChevron, isEmailSettingsExpanded && classes.collapseChevronOpen
+          )} />
+          Edit <span className={classes.bold}>email</span> digest settings
+        </h2>
+        {isEmailSettingsExpanded && <div className={classes.settings}>
+          <div className={classes.inputRow}>
+            <label className={classes.label}>Matching post ID:</label>
+            <input
+              defaultValue={digest.postId ?? ''}
+              onChange={e => onChangePostId(e.target.value)}
+              className={classes.input}
+            />
+          </div>
+        </div>}
+      </section>
+      
+      <section className={classes.settingsSection}>
+        <h2
+          className={classes.settingsSectionHeading}
+          onClick={() => setIsOnsiteSettingsExpanded(!isOnsiteSettingsExpanded)}
+        >
+          <ForumIcon icon="ThickChevronRight" className={classNames(
+            classes.collapseChevron, isOnsiteSettingsExpanded && classes.collapseChevronOpen
+          )} />
+          Edit <span className={classes.bold}>on-site</span> digest settings
+        </h2>
+        {isOnsiteSettingsExpanded && <div className={classes.settings}>
+          <EAButton
+            style="grey"
+            href={`/digests/${digest.num}`}
+            target="_blank"
+            className={classes.viewOnsiteDigestButton}
+          >
+            View on-site digest
+            <OpenInNewIcon className={classes.viewOnsiteDigestIcon} />
+          </EAButton>
+          <div className={classes.colorPickerRow}>
+            <div className={classes.label}>Background fade color:</div>
+            <FormComponentColorPicker
+              value={digest.onsitePrimaryColor}
+              updateCurrentValues={updateCurrentValues}
+              path="onsitePrimaryColor"
+            />
+          </div>
+          <div className={classes.imageUploadRow}>
+            <ImageUpload2
+              name="onsiteDigestImageId"
+              value={digest.onsiteImageId}
+              updateValue={onChangeImg}
+              clearField={() => onChangeImg(null)}
+              label="Set background image"
+            />
+          </div>
+        </div>}
+      </section>
+    </div>
   </div>
 }
 

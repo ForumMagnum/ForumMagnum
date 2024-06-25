@@ -329,6 +329,7 @@ interface DbDigest extends DbObject {
   publishedDate: Date | null
   onsiteImageId: string | null
   onsitePrimaryColor: string | null
+  postId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
