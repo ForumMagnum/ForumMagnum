@@ -59,7 +59,8 @@ export const ForumEventPostPageBanner = ({classes}: {
     skip: !hasForumEvents || !params._id || !currentForumEvent?.tagId,
   });
 
-  if (!currentForumEvent || !post) {
+  // For now, events that have polls have a special post page UI, so hide this banner
+  if (!currentForumEvent || !post || currentForumEvent.includesPoll) {
     return null;
   }
 

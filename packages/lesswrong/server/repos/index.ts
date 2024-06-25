@@ -8,6 +8,7 @@ import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
+import ForumEventsRepo from "./ForumEventsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
@@ -45,6 +46,7 @@ const getAllRepos = () => ({
   dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
+  forumEvents: new ForumEventsRepo(),
   localgroups: new LocalgroupsRepo(),
   notifications: new NotificationsRepo(),
   postEmbeddings: new PostEmbeddingsRepo(),
@@ -79,6 +81,7 @@ export {
   DialogueChecksRepo,
   ElectionCandidatesRepo,
   ElectionVotesRepo,
+  ForumEventsRepo,
   LocalgroupsRepo,
   ManifoldProbabilitiesCachesRepo,
   NotificationsRepo,

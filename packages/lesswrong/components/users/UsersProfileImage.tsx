@@ -107,7 +107,7 @@ export type UserWithProfileImage = {
 }
 
 const UsersProfileImage = ({user, size, fallback="initials", className, classes}: {
-  user?: UserWithProfileImage,
+  user?: UserWithProfileImage|null,
   size: number,
   fallback?: ProfileImageFallback,
   className?: string,

@@ -22,6 +22,8 @@ import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
+import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
+import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
@@ -187,6 +189,8 @@ export type ForumIconName =
   "TagFilled" |
   "Edit" |
   "Analytics" |
+  "ChevronLeft" |
+  "ChevronRight" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -287,6 +291,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
     Analytics: MuiShowChartIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -385,6 +391,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
     Analytics: MuiShowChartIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,

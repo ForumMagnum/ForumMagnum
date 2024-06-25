@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
@@ -15,6 +15,8 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { makeCloudinaryImageUrl } from './CloudinaryImage2';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -77,6 +79,9 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
     "& .NotificationsMenuButton-buttonClosed": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .MessagesMenuButton-buttonClosed": {
       color: theme.palette.text.alwaysWhite,
     },
     "& .UsersMenu-arrowIcon": {
@@ -242,7 +247,8 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash } = useLocation();
+  const { currentRoute, pathname, hash } = useLocation();
+  const {currentForumEvent} = useCurrentForumEvent();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
@@ -416,6 +422,28 @@ const Header = ({
       />
     );
 
+  let headerStyle: CSSProperties = {}
+  const bannerImageId = currentForumEvent?.bannerImageId
+  // On EAF, forum events with polls also update the home page header background
+  if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && isEAForum) {
+    const darkColor = currentForumEvent?.darkColor
+    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "north",
+    })})${darkColor ? `, ${darkColor}` : ''}`
+    headerStyle = {background}
+  }
+  
+  // If we're explicitly given a backgroundColor, that overrides any event header
+  if (backgroundColor) {
+    headerStyle = {backgroundColor}
+  }
+  // Make all the text and icons white when we have some sort of color in the header background
+  const useWhiteText = Object.keys(headerStyle).length > 0
+
   return (
     <AnalyticsContext pageSectionContext="header">
       <div className={classes.root}>
@@ -433,9 +461,9 @@ const Header = ({
           <header
             className={classNames(
               classes.appBar,
-              !!backgroundColor && classes.appBarDarkBackground,
+              useWhiteText && classes.appBarDarkBackground,
             )}
-            style={backgroundColor ? {backgroundColor} : {}}
+            style={headerStyle}
           >
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
@@ -443,7 +471,7 @@ const Header = ({
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -451,7 +479,7 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

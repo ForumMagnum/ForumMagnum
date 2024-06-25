@@ -8,14 +8,19 @@ registerFragment(`
     endDate
     darkColor
     lightColor
+    contrastColor
     tagId
     bannerImageId
+    includesPoll
   }
 `);
 
 registerFragment(`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
+    publicData
+    voteCount
+
     tag {
       ...TagBasicInfo
     }

@@ -444,8 +444,11 @@ interface DbForumEvent extends DbObject {
   endDate: Date
   darkColor: string
   lightColor: string
+  contrastColor: string | null
   tagId: string
   bannerImageId: string | null
+  includesPoll: boolean | null
+  publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   frontpageDescription: EditableFieldContents | null

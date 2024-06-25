@@ -1,4 +1,4 @@
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
 
 const defaultProps = (): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: false,
@@ -40,6 +40,14 @@ const schema: SchemaType<"ForumEvents"> = {
     type: String,
     control: "FormComponentColorPicker",
   },
+  contrastColor: {
+    ...defaultProps(),
+    optional: true,
+    nullable: true,
+    type: String,
+    control: "FormComponentColorPicker",
+    label: "Contrast color (optional, used very rarely)"
+  },
   tagId: {
     ...defaultProps(),
     ...foreignKeyField({
@@ -59,6 +67,30 @@ const schema: SchemaType<"ForumEvents"> = {
     type: String,
     control: "ImageUpload",
   },
+  includesPoll: {
+    ...defaultProps(),
+    optional: true,
+    nullable: true,
+    type: Boolean,
+    control: "FormComponentCheckbox",
+  },
+  // used to store public event data, like public poll votes
+  publicData: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canRead: ["guests"],
+    canUpdate: ["members"],
+    canCreate: ["members"],
+  },
+  voteCount: resolverOnlyField({
+    graphQLtype: 'Int!',
+    type: Number,
+    canRead: ['guests'],
+    resolver: ({publicData}: DbForumEvent): number => publicData ? Object.keys(publicData).length : 0,
+  }),
 };
 
 export default schema;
