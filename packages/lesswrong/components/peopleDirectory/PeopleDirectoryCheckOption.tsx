@@ -1,10 +1,12 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     display: "flex",
+    gap: "10px",
   },
   label: {
     flexGrow: 1,
@@ -15,6 +17,9 @@ const styles = (theme: ThemeType) => ({
     width: 16,
     height: 16,
     color: theme.palette.primary.main,
+  },
+  iconNotSelected: {
+    opacity: 0,
   },
 });
 
@@ -28,7 +33,10 @@ const PeopleDirectoryCheckOption = ({label, selected, onSelect, classes}: {
   return (
     <div onClick={onSelect} className={classes.root}>
       <div className={classes.label}>{label}</div>
-      {selected && <ForumIcon icon="Check" className={classes.icon} />}
+      <ForumIcon icon="Check" className={classNames(
+        classes.icon,
+        !selected && classes.iconNotSelected,
+      )} />
     </div>
   );
 }
