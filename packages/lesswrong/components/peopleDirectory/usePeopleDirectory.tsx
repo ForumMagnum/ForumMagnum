@@ -70,6 +70,8 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     setSorting_(sorting ?? defaultSorting);
   }, []);
 
+  const isDefaultSorting = sorting === defaultSorting;
+
   const {results: coreTags} = useMulti({
     collectionName: "Tags",
     fragmentName: "TagName",
@@ -203,9 +205,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     void (async () => {
       try {
         const isMap = view === "map";
-        const sortString = sorting
-          ? `_${sorting.field}:${sorting.direction}`
-          : "";
+        const sortString = query && isDefaultSorting
+          ? ""
+          : `_${sorting.field}:${sorting.direction}`;
         const facetFilters = [
           roles.selectedValues.map((role) => `jobTitle:${role}`),
           organizations.selectedValues.map((org) => `organization:${org}`),
@@ -260,6 +262,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     view,
     query,
     sorting,
+    isDefaultSorting,
     roles.selectedValues,
     organizations.selectedValues,
     locations.selectedValues,
@@ -277,7 +280,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       isEmptySearch,
       sorting,
       setSorting,
-      isDefaultSorting: sorting === defaultSorting,
+      isDefaultSorting,
       results: flattenedResults,
       resultsLoading,
       totalResults,
