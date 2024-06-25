@@ -88,6 +88,7 @@ export const PeopleDirectoryFilters = ({classes}: {
               {columns.map(({label, sortField, defaultSort}) => sortField
                 ? (
                   <PeopleDirectoryCheckOption
+                    key={label}
                     label={label}
                     selected={sortField === sorting.field}
                     onSelect={setSorting.bind(null, {
