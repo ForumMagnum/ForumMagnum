@@ -19,6 +19,11 @@ type PeopleDirectorySorting = {
   direction: "asc" | "desc",
 }
 
+const defaultSorting: PeopleDirectorySorting = {
+  field: "profileCompletion",
+  direction: "desc",
+};
+
 type PeopleDirectoryContext = {
   view: PeopleDirectoryView,
   setView: (view: PeopleDirectoryView) => void,
@@ -50,7 +55,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const {location, query: urlQuery} = useLocation();
   const [view, setView] = useState<PeopleDirectoryView>("list");
   const [query, setQuery_] = useState(urlQuery.query ?? "");
-  const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
+  const [sorting, setSorting_] = useState<PeopleDirectorySorting>(defaultSorting);
   // We store the results in an 2D-array, where the index in the first array
   // corresponds to the "page" of the contained results. This prevents a class
   // of bugs where updates cause results to be out-of-order or duplicated.
@@ -59,6 +64,10 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [totalResults, setTotalResults] = useState(0);
   const [page, setPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
+
+  const setSorting = useCallback((sorting: PeopleDirectorySorting | null) => {
+    setSorting_(sorting ?? defaultSorting);
+  }, []);
 
   const {results: coreTags} = useMulti({
     collectionName: "Tags",
