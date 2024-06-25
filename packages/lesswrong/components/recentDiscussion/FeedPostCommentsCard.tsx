@@ -189,6 +189,7 @@ const FeedPostCommentsCard = ({
     lastVisitedAt,
     nestedComments,
     treeOptions,
+    markCommentsAsRead,
   } = useRecentDiscussionThread({
     post,
     comments,
@@ -222,7 +223,7 @@ const FeedPostCommentsCard = ({
             />
         </div>
 
-        {nestedComments.length > 0 && <div className={classes.commentsList}>
+        {nestedComments.length > 0 && <div className={classes.commentsList} onMouseUp={markCommentsAsRead}>
           {nestedComments.map((comment: CommentTreeNode<CommentsList>) => {
             return <FeedPostCommentsBranch
               key={comment.item._id}

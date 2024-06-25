@@ -180,12 +180,14 @@ class ElasticService {
     return result;
   }
 
-  private parseFacetValue(value: string): boolean | string {
+  private parseFacetValue(value: string): boolean | string | null {
     switch (value) {
     case "true":
       return true;
     case "false":
       return false;
+    case "null":
+        return null;
     default:
       return value;
     }

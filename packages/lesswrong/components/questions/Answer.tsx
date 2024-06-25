@@ -194,7 +194,7 @@ const Answer = ({ comment, post, childComments, classes }: {
         :
         <div>
           <AnalyticsContext pageElementContext="answerItem">
-          <HoveredReactionContextProvider>
+          <HoveredReactionContextProvider voteProps={voteProps}>
             <div className={classes.answer} id={comment._id}>
               <div className={classes.answerHeader}>
                 {comment.user && <Typography variant="body1" className={classes.author}>

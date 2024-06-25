@@ -13,7 +13,7 @@ import mapValues from 'lodash/mapValues';
 import sumBy from 'lodash/sumBy'
 import sortBy from 'lodash/sortBy';
 import { isLW } from '../instanceSettings';
-import { ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
+import { ContentReplacedSubstringComponentInfo } from '../../components/common/ContentItemBody';
 import type { VotingProps } from '../../components/votes/votingProps';
 
 export const addNewReactKarmaThreshold = new DatabasePublicSetting("reacts.addNewReactKarmaThreshold", 100);
@@ -169,7 +169,7 @@ registerVotingSystem<NamesAttachedReactionsVote, NamesAttachedReactionsScore>({
   }
 });
 
-function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Record<string, ContentReplacedSubstringComponent> {
+function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Record<string, ContentReplacedSubstringComponentInfo> {
   const normalizedReactionsScore = getNormalizedReactionsListFromVoteProps(voteProps);
   if (!normalizedReactionsScore?.reacts) {
     return {};
@@ -196,18 +196,15 @@ function getDocumentHighlights(voteProps: VotingProps<VoteableTypeClient>): Reco
     }
   }
   
-  const result: Record<string, ContentReplacedSubstringComponent> = {};
-  const { InlineReactHoverableHighlight } = Components;
+  const result: Record<string, ContentReplacedSubstringComponentInfo> = {};
   for (let quote of Object.keys(reactionsByQuote)) {
-    result[quote] = ({children}: {
-      children: React.ReactNode
-    }) => <InlineReactHoverableHighlight
-      quote={quote}
-      reactions={reactionsByQuote[quote]}
-      voteProps={voteProps}
-    >
-      {children}
-    </InlineReactHoverableHighlight>
+    result[quote] = {
+      componentName: 'InlineReactHoverableHighlight',
+      props: {
+        quote,
+        reactions: reactionsByQuote[quote],
+      }
+    };
   }
   return result;
 }

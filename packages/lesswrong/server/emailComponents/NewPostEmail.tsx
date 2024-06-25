@@ -7,6 +7,7 @@ import './EmailPostAuthors';
 import './EmailContentItemBody';
 import './EmailPostDate';
 import './EmailFooterRecommendations';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   heading: {
@@ -29,7 +30,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.maxIntensity,
     textDecoration: "none",
     fontWeight: "normal",
-    fontFamily: "Arial, sans-serif"
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    ...(isFriendlyUI ? {
+      fontSize: "2.4rem",
+      lineHeight: '1.25em'
+    } : {}),
   },
   
   headingHR: {
@@ -86,7 +91,7 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
       version: 'String'
     }
   });
-  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
+  const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations, ContentStyles } = Components;
   if (!document) return null;
   
   // event location - for online events, attempt to show the meeting link
@@ -131,9 +136,11 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
       <hr />
     </div>}
     
-    {document.contents && <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
-      __html: document.contents.html
-    }} />}
+    {document.contents && <ContentStyles contentType="post">
+      <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
+        __html: document.contents.html
+      }} />
+    </ContentStyles>}
     
     <a href={postGetPageUrl(document, true)}>Discuss</a>
     

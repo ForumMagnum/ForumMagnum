@@ -16,14 +16,8 @@ const EditPostDropdownItem = ({post}: {post: PostsBase}) => {
   }
 
   const link = (isEditor || isPodcaster)
-    ? {
-      pathname:'/editPost',
-      search:`?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`,
-    }
-    : {
-      pathname:'/collaborateOnPost',
-      search:`?${qs.stringify({postId: post._id})}`,
-    };
+    ? `/editPost?${qs.stringify({postId: post._id, eventForm: post.isEvent})}`
+    : `/collaborateOnPost?${qs.stringify({postId: post._id})}`;
 
   const {DropdownItem} = Components;
   return (
