@@ -339,7 +339,8 @@ const FrontpageSettingsButton = ({
   </>;
 }
 
-const LWHomePosts = ({children, classes}: {
+const LWHomePosts = ({ isReturningVisitor, children, classes }: {
+  isReturningVisitor: boolean,
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
@@ -560,8 +561,8 @@ const LWHomePosts = ({children, classes}: {
     // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
-        <div className={classNames(classes.settingsVisibilityControls, {[classes.loggedOutTagFilterSettingsAlignment]: !currentUser})}>
-          {!!currentUser && <div className={classes.tabPicker}>
+        <div className={classNames(classes.settingsVisibilityControls, {[classes.loggedOutTagFilterSettingsAlignment]: !currentUser && !isReturningVisitor})}>
+          {(!!currentUser || isReturningVisitor) && <div className={classes.tabPicker}>
             <TabPicker 
               sortedTabs={enabledTabs} 
               defaultTab={selectedTab} 

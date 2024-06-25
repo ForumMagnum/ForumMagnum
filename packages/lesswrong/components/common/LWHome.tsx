@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
@@ -12,12 +12,14 @@ const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
-  } = Components
+  } = Components;
+
+  const isReturningVisitorRef = useRef<boolean | null>(null);
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
-          <UpdateLastVisitCookie />
+          <UpdateLastVisitCookie isReturningVisitorRef={isReturningVisitorRef} />
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
             <FrontpageBestOfLWWidget reviewYear={REVIEW_YEAR}/>
@@ -32,7 +34,7 @@ const LWHome = () => {
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <LWHomePosts>
+            <LWHomePosts isReturningVisitor={isReturningVisitorRef.current ?? false}>
               <QuickTakesSection />
     
               <EAPopularCommentsSection />
@@ -49,13 +51,17 @@ const LWHome = () => {
   )
 }
 
-const UpdateLastVisitCookie = () => {
-  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
+const UpdateLastVisitCookie = ({ isReturningVisitorRef }: {
+  isReturningVisitorRef: React.MutableRefObject<boolean | null>;
+}) => {
+  const [cookies, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
+    isReturningVisitorRef.current = !!cookies[LAST_VISITED_FRONTPAGE_COOKIE];
     if (visitorGetsDynamicFrontpage(null)) {
       setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookie])
   
   return <></>

@@ -409,3 +409,12 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   }
   return false;
 }
+
+export const isRecombeeRecommendablePost = (post: DbPost | PostsListBase): boolean => {
+  // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
+  // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
+  // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
+  // So we're not really in any danger of showing those posts to regular users
+  // TODO: figure out how to handle this more gracefully
+  return !(post.shortform || post.unlisted || post.rejected || post.isEvent || !!post.groupId || post.disableRecommendation || post.status !== 2);
+};

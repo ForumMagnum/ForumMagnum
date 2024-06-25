@@ -40,6 +40,14 @@ export const getRecombeeClientOrThrow = (() => {
   };
 })();
 
+export type RecombeeUser = {
+  userId: string;
+  loggedIn: true;
+} | {
+  clientId: string;
+  loggedIn: false;
+};
+
 const voteTypeRatingsMap: Partial<Record<string, number>> = {
   bigDownvote: -1,
   smallDownvote: -0.5,
@@ -150,14 +158,14 @@ const ALL_RECOMBEE_POST_FIELDS = [
 ] as const;
 
 const helpers = {
-  createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
+  createRecommendationsForUserRequest(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
     const { userId: overrideUserId, rotationTime, lwRationalityOnly, onlyUnread, loadMore, ...settings } = lwAlgoSettings;
 
     if (loadMore?.prevRecommId) {
       return new requests.RecommendNextItems(loadMore.prevRecommId, count);
     }
 
-    const servedUserId = overrideUserId ?? userId;
+    const servedUserId = overrideUserId ?? helpers.getRecombeeUserId(recombeeUser);
     const rotationTimeSeconds = typeof rotationTime === 'number' ? rotationTime * 3600 : undefined;
 
     // TODO: pass in scenario, exclude unread, etc, in options?
@@ -364,18 +372,24 @@ const helpers = {
     return performQueryFromViewParameters(context.Posts, postsTerms, postsQuery);
   },
 
-  getCuratedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, curatedPostIds: string[], userId: string, context: ResolverContext) {
-    return helpers.isLoadMoreOperation(lwAlgoSettings)
-      ? Promise.resolve([])
-      : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
+  getCuratedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, curatedPostIds: string[], recombeeUser: RecombeeUser, context: ResolverContext) {
+    if (helpers.isLoadMoreOperation(lwAlgoSettings) || !recombeeUser.loggedIn) {
+      return Promise.resolve([]);
+    }
+
+    const { userId } = recombeeUser;
+
+    return context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
   },
 
-  getManuallyStickiedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, userId: string, context: ResolverContext) {
-    if (helpers.isLoadMoreOperation(lwAlgoSettings)) {
+  getManuallyStickiedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, recombeeUser: RecombeeUser, context: ResolverContext) {
+    if (helpers.isLoadMoreOperation(lwAlgoSettings) || !recombeeUser.loggedIn) {
       return Promise.resolve([])
     }
 
     const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
+    const { userId } = recombeeUser;
+
     return context.ReadStatuses.find({ postId: { $in: manuallyStickiedPostIds }, userId, isRead: true }).fetch();
   },
 
@@ -508,6 +522,22 @@ const helpers = {
   isLoadMoreOperation(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration) {
     return !!(lwAlgoSettings.loadMore || lwAlgoSettings.excludedPostIds);
   },
+
+  getRecombeeUser(context: ResolverContext): RecombeeUser | undefined {
+    const { currentUser, clientId } = context;
+
+    if (currentUser) {
+      return { userId: currentUser._id, loggedIn: true } as const;
+    } else if (clientId) {
+      return { clientId, loggedIn: false } as const;
+    }
+
+    return undefined;
+  },
+
+  getRecombeeUserId(recombeeUser: RecombeeUser) {
+    return recombeeUser.loggedIn ? recombeeUser.userId : recombeeUser.clientId;
+  }
 };
 
 const curatedPostTerms: PostsViewTerms = {
@@ -516,13 +546,13 @@ const curatedPostTerms: PostsViewTerms = {
 };
 
 const recombeeApi = {
-  async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
+  async getRecommendationsForUser(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
     const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses] = await Promise.all([
-      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context),
-      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context)
+      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, recombeeUser, context),
+      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, recombeeUser, context)
     ]);
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
@@ -533,7 +563,7 @@ const recombeeApi = {
 
     const curatedAndStickiedPostCount = includedCuratedAndStickiedPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
-    const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(userId, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
+    const recommendationsRequestBody = helpers.createRecommendationsForUserRequest(recombeeUser, modifiedCount, { ...lwAlgoSettings, filter: excludedPostFilter });
 
     const [recombeeResponseWithScenario] = await helpers.getCachedRecommendations({
       recRequest: recommendationsRequestBody,
@@ -556,14 +586,14 @@ const recombeeApi = {
     return postsWithMetadata;
   },
 
-  async getHybridRecommendationsForUser(userId: string, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
+  async getHybridRecommendationsForUser(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
     const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses] = await Promise.all([
-      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context),
-      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context)
+      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, recombeeUser, context),
+      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, recombeeUser, context)
     ]);
 
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
@@ -595,7 +625,7 @@ const recombeeApi = {
       deferredPostsPromise = initiateDeferredPostsPromise();
       
       const recombeeRequestSettings = helpers.convertHybridToRecombeeArgs(lwAlgoSettings, 'configurable', excludedPostFilter);
-      const recombeeRequest = helpers.createRecommendationsForUserRequest(userId, configurableArmCount, recombeeRequestSettings);
+      const recombeeRequest = helpers.createRecommendationsForUserRequest(recombeeUser, configurableArmCount, recombeeRequestSettings);
 
       try {
         recombeeResponsesWithScenario = await helpers.getCachedRecommendations({
@@ -609,13 +639,13 @@ const recombeeApi = {
         recombeeResponsesWithScenario = [];
 
         // eslint-disable-next-line no-console
-        console.log(`Error when fetching Recombee recommendations for scenario ${recombeeRequestSettings.scenario} and userId ${userId}`, { err });
+        console.log(`Error when fetching Recombee recommendations for scenario ${recombeeRequestSettings.scenario}`, { err, recombeeUser });
         captureException(err);
       }
     } else {
       const [firstRequest, secondRequest] = (['configurable', 'fixed'] as const)
         .map(hybridArm => [hybridArm, helpers.convertHybridToRecombeeArgs(lwAlgoSettings, hybridArm, excludedPostFilter)] as const)
-        .map(([hybridArm, requestSettings]) => helpers.createRecommendationsForUserRequest(userId, hybridArmCounts[hybridArm], requestSettings));
+        .map(([hybridArm, requestSettings]) => helpers.createRecommendationsForUserRequest(recombeeUser, hybridArmCounts[hybridArm], requestSettings));
 
       const batchRequest = helpers.getBatchRequest([firstRequest, secondRequest]);
       
