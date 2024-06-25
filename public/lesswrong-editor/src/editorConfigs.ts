@@ -182,7 +182,7 @@ export const postEditorConfig = {
 		tableToolbar: [ 'comment' ]
 	},
 	math: mathConfig,
-	...embedConfig,
+	mediaEmbed: embedConfig,
 };
 
 export const commentEditorConfig = {
