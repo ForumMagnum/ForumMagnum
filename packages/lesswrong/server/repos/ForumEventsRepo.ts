@@ -18,13 +18,23 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     return res ? parseInt(res.count) : 0;
   }
   
-  addVote(_id: string, userId: string, left: number) {
+  async getUserVote(_id: string, userId: string) {
+    const res = await this.getRawDb().oneOrNone(`
+      -- ForumEventsRepo.addVote
+      SELECT "publicData"->$2 as vote
+      FROM "ForumEvents"
+      WHERE "_id" = $1
+    `, [_id, userId])
+    return res ? res.vote : null
+  }
+  
+  addVote(_id: string, userId: string, voteData: AnyBecauseHard) {
     void this.none(`
       -- ForumEventsRepo.addVote
       UPDATE "ForumEvents"
-      SET "publicData" = jsonb_set("publicData", array[$1], $2)
-      WHERE "_id" = $3
-    `, [userId, left, _id])
+      SET "publicData" = COALESCE("publicData", '{}'::jsonb) || $2
+      WHERE "_id" = $1
+    `, [_id, {[userId]: voteData}])
   }
 
   removeVote(_id: string, userId: string) {

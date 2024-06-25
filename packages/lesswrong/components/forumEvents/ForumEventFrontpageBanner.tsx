@@ -23,6 +23,7 @@ export const forumEventBannerDescriptionStyles = (theme: ThemeType) => ({
   color: theme.palette.text.alwaysWhite,
   "& a": {
     textDecoration: "underline",
+    textUnderlineOffset: '2px',
     color: `${theme.palette.text.alwaysWhite} !important`,
     "&::after": {
       display: "inline-block",
@@ -112,6 +113,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 16,
     "& a": {
       textDecoration: "underline",
+      textUnderlineOffset: '2px',
     }
   },
   image: {
