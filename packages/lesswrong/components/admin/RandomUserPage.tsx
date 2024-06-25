@@ -81,7 +81,7 @@ const RandomUserPage = ({classes}: {
     <Button
       onClick={(e: React.MouseEvent) => {
         if (e.ctrlKey || e.metaKey) setNewTabKeyHeld(true);
-        getRandomUser({variables: {userIsAuthor: 'optional'}})
+        void getRandomUser({variables: {userIsAuthor: 'optional'}})
       }}
       className={classes.button}
     >
@@ -90,7 +90,7 @@ const RandomUserPage = ({classes}: {
     <Button
       onClick={(e: React.MouseEvent) => {
         if (e.ctrlKey || e.metaKey) setNewTabKeyHeld(true);
-        getRandomUser({variables: {userIsAuthor: 'required'}})
+        void getRandomUser({variables: {userIsAuthor: 'required'}})
       }}
       className={classes.button}
     >

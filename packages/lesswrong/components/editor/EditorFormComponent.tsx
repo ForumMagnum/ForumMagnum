@@ -152,7 +152,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       criticismTipsDismissed
     ) return
 
-    checkPostIsCriticism({variables: { args: {
+    void checkPostIsCriticism({variables: { args: {
       title: document.title ?? '',
       contentType: contents.type,
       body: contents.value
