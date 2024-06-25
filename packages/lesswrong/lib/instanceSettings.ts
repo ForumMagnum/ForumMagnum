@@ -233,7 +233,8 @@ export type PostFeedDetails = {
   adminOnly?: boolean,
   showLabsIcon?: boolean,
   isInfiniteScroll?: boolean,
-  slug?: string
+  slug?: string,
+  showToLoggedOut?: boolean,
 }
 
 export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [

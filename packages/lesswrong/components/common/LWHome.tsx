@@ -14,7 +14,8 @@ const LWHome = () => {
     QuickTakesSection, LWHomePosts
   } = Components;
 
-  const isReturningVisitorRef = useRef<boolean | null>(null);
+  const [cookies] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
+  const isReturningVisitorRef = useRef<boolean>(!!cookies[LAST_VISITED_FRONTPAGE_COOKIE]);
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -52,12 +53,11 @@ const LWHome = () => {
 }
 
 const UpdateLastVisitCookie = ({ isReturningVisitorRef }: {
-  isReturningVisitorRef: React.MutableRefObject<boolean | null>;
+  isReturningVisitorRef: React.MutableRefObject<boolean>;
 }) => {
-  const [cookies, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
+  const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
-    isReturningVisitorRef.current = !!cookies[LAST_VISITED_FRONTPAGE_COOKIE];
     if (visitorGetsDynamicFrontpage(null)) {
       setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
     }

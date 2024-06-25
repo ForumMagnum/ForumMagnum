@@ -14,7 +14,7 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useContinueReading } from '../recommendations/withContinueReading';
+import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -23,10 +23,8 @@ import { RecombeeConfiguration } from '../../lib/collections/users/recommendatio
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { ObservableQuery, gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
-import shuffle from 'lodash/shuffle';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -208,6 +206,34 @@ const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[])
   return currentUser?.frontpageSelectedTab ?? defaultTab;
 };
 
+function isTabEnabled(
+  tab: PostFeedDetails,
+  currentUser: UsersCurrent | null,
+  query: Record<string, string>,
+  isReturningVisitor: boolean,
+  continueReading: ContinueReading[]
+): boolean {
+  if (tab.disabled) {
+    return false;
+  }
+
+  const isUserLoggedIn = !!currentUser;
+  const isAdminOrExperimental = userIsAdmin(currentUser) || query.experimentalTabs === 'true';
+  const hasSubscribeTabFeed = tab.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser);
+  const enabledForLoggedInUsers = !tab.adminOnly || isAdminOrExperimental || hasSubscribeTabFeed;
+  const enabledForLoggedOutUsers = isReturningVisitor && !!tab.showToLoggedOut;
+
+  const enabledForCurrentUser = (isUserLoggedIn && enabledForLoggedInUsers) || enabledForLoggedOutUsers;
+
+  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+  const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
+
+  const hasContinueReading = (continueReading?.length ?? 0) >= 1;
+  const activeContinueReadingTabDisabled = tab.name === 'forum-continue-reading' && !hasContinueReading;
+
+  return enabledForCurrentUser && !activeBookmarkTabDisabled && !activeContinueReadingTabDisabled;
+}
+
 const defaultRecombeeConfig: RecombeeConfiguration = {
   rotationRate: 0.2,
   rotationTime: 24 * 30,
@@ -365,16 +391,7 @@ const LWHomePosts = ({ isReturningVisitor, children, classes }: {
   });
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
-  const enabledTabs = availableTabs
-    .filter(feed => !feed.disabled
-      && (
-        !feed.adminOnly ||
-        (userIsAdmin(currentUser) || query.experimentalTabs === 'true') ||
-        (feed.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser))
-      ) 
-      && !(feed.name === 'forum-bookmarks' && (currentUser?.bookmarkedPostsMetadata.length ?? 0) < 1)
-      && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
-    )
+  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, isReturningVisitor, continueReading));
 
   const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
