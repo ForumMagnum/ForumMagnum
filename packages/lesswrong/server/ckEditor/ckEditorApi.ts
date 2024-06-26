@@ -318,6 +318,27 @@ const ckEditorApi = {
   async flushCkEditorCollaboration(ckEditorId: string) {
     return await fetchCkEditorRestAPI("DELETE", `/collaborations/${ckEditorId}?force=true&wait=true`);
   },
+  
+  async flushAndUpgradeCkEditorCollaboration(ckEditorId: string) {
+    const html = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorId);
+    if (!html) {
+      throw new Error("Failed to get document HTML");
+    }
+    
+    const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorId);
+    await ckEditorApiHelpers.pushRevisionToCkEditor(postId, html);
+  },
+  
+  async flushAndUpgradeAllCkEditorCollaborations() {
+    const collaborations = JSON.parse(await this.getAllCollaborations());
+    for (let ckEditorId of collaborations) {
+      try {
+        await this.flushAndUpgradeCkEditorCollaboration(ckEditorId);
+      } catch(e) {
+        console.error(e);
+      }
+    }
+  },
 
   /**
    * Per docs, this attempts to restore a corrupted collaborative session.
