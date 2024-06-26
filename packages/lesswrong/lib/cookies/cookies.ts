@@ -158,6 +158,12 @@ export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
   description: "Whether to hide the suggested users section on the subscribed tab feed"
 });
 
+export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
+  name: "selected_frontpage_tab",
+  type: "functional",
+  description: "Stores the selected tab for logged out users"
+});
+
 // Third party cookies
 
 // Intercom

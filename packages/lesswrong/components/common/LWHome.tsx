@@ -7,16 +7,12 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
-import { isServer } from '@/lib/executionEnvironment';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
   } = Components;
-
-  const [cookies] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
-  const isReturningVisitor = isServer ? !!cookies[LAST_VISITED_FRONTPAGE_COOKIE] : !!window.isReturningVisitor;
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -36,7 +32,7 @@ const LWHome = () => {
             eventProps={{inViewType: "homePosts"}}
             observerProps={{threshold:[0, 0.5, 1]}}
           >
-            <LWHomePosts isReturningVisitor={isReturningVisitor}>
+            <LWHomePosts>
               <QuickTakesSection />
     
               <EAPopularCommentsSection />
