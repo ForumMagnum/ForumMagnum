@@ -27,6 +27,9 @@ const styles = (theme: ThemeType) => ({
   surveyName: {
     margin: "20px 0",
   },
+  surveyId: {
+    textTransform: "none",
+  },
   question: {
     marginTop: 4,
     background: theme.palette.grey[0],
@@ -271,7 +274,11 @@ const SurveyEditor = ({classes}: {
       <Link to="/admin/surveys" className={classes.surveyAdmin}>
         &lt;- Back to survey admin
       </Link>
-      <SectionTitle title="Edit survey" />
+      <SectionTitle title={
+        <>
+          Edit survey (id <span className={classes.surveyId}>{id}</span>)
+        </>
+      } />
       {loading && <Loading />}
       {!loading && !survey &&
         <div className={classes.secondaryText}>Survey not found</div>
