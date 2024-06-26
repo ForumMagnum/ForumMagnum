@@ -33,6 +33,7 @@ const schema: SchemaType<"Surveys"> = {
       WHERE sq."surveyId" = ${field("_id")}
       GROUP BY sq."order"
       ORDER BY sq."order" DESC
+      LIMIT 1
     )`,
   }),
   "questions.$": {
