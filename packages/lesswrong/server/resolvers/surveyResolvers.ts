@@ -31,11 +31,17 @@ addGraphQLResolvers({
     async CurrentFrontpageSurvey(
       _root: void,
       _args: void,
-      {currentUser, clientId, repos: {surveySchedules}}: ResolverContext,
+      {currentUser, clientId, req, repos: {surveySchedules}}: ResolverContext,
     ): Promise<SurveyScheduleWithSurvey | null> {
       if (!hasSurveys || !clientId) {
         return null;
       }
+
+      const userAgent = req?.get("User-Agent");
+      if (!userAgent || userAgent.indexOf("Mozilla") !== 0) {
+        return null;
+      }
+
       const survey = await surveySchedules.getCurrentFrontpageSurvey(
         currentUser,
         clientId,
