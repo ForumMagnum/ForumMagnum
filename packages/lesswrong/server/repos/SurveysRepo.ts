@@ -7,15 +7,6 @@ class SurveysRepo extends AbstractRepo<"Surveys"> {
     super(Surveys);
   }
 
-  updateSurveyName(surveyId: string, name: string): Promise<DbSurvey> {
-    return this.one(`
-      UPDATE "Surveys"
-      SET "name" = $2
-      WHERE "_id" = $1
-      RETURNING *
-    `, [surveyId, name]);
-  }
-
   async deleteOrphanedQuestions(
     surveyId: string,
     questionIds: string[],

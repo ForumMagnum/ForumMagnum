@@ -296,7 +296,7 @@ const SurveyPostsItemInternal = ({
   return (
     <div className={classes.root}>
       <LWTooltip
-        title="Some really informative stuff"
+        title="This is a user survey"
         placement="right"
         inlineBlock={false}
         className={classes.tooltip}

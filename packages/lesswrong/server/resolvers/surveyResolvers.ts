@@ -7,6 +7,7 @@ import {
 import { createMutator, updateMutator } from "../vulcan-lib";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { hasSurveys } from "@/lib/betas";
+import Surveys from "@/lib/collections/surveys/collection";
 import SurveyQuestions from "@/lib/collections/surveyQuestions/collection";
 import type { SurveyQuestionInfo } from "@/components/surveys/SurveyEditPage";
 import type { SurveyScheduleWithSurvey } from "../repos/SurveySchedulesRepo";
@@ -61,7 +62,11 @@ addGraphQLResolvers({
         throw new Error("Missing parameters");
       }
 
-      const survey = await context.repos.surveys.updateSurveyName(surveyId, name);
+      const {data: survey} = await updateMutator({
+        collection: Surveys,
+        documentId: surveyId,
+        set: {name},
+      });
 
       const questionIds = filterNonnull(questions.map(({_id}) => _id));
       await context.repos.surveys.deleteOrphanedQuestions(surveyId, questionIds);
