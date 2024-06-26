@@ -250,11 +250,12 @@ function isTabEnabled(
 
   const isUserLoggedIn = !!currentUser;
   const isAdminOrExperimental = userIsAdmin(currentUser) || query.experimentalTabs === 'true';
-  const hasSubscribeTabFeed = tab.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser);
-  const enabledForLoggedInUsers = !tab.adminOnly || isAdminOrExperimental || hasSubscribeTabFeed;
+  const enabledForLoggedInUsers = !tab.adminOnly || isAdminOrExperimental;
   const enabledForLoggedOutUsers = !!tab.showToLoggedOut;
 
   const enabledForCurrentUser = (isUserLoggedIn && enabledForLoggedInUsers) || enabledForLoggedOutUsers;
+
+  const activeSubscribedTabDisabled = tab.name === 'forum-subscribed-authors' && !userHasSubscribeTabFeed(currentUser);
 
   const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
   const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
@@ -262,7 +263,7 @@ function isTabEnabled(
   const hasContinueReading = (continueReading?.length ?? 0) >= 1;
   const activeContinueReadingTabDisabled = tab.name === 'forum-continue-reading' && !hasContinueReading;
 
-  return enabledForCurrentUser && !activeBookmarkTabDisabled && !activeContinueReadingTabDisabled;
+  return enabledForCurrentUser && !activeSubscribedTabDisabled && !activeBookmarkTabDisabled && !activeContinueReadingTabDisabled;
 }
 
 const defaultRecombeeConfig: RecombeeConfiguration = {
@@ -275,7 +276,7 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
   const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
-  const [defaultTab] = useSelectedTab(currentUser, enabledTabs);
+  const [selectedTab] = useSelectedTab(currentUser, enabledTabs);
 
   const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
     const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
@@ -286,7 +287,7 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
 
   useEffect(() => {
     if (recombeeCookieSettings.length === 0) {
-      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[defaultTab, defaultRecombeeConfig]]), { path: '/' });
+      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[selectedTab, defaultRecombeeConfig]]), { path: '/' });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
