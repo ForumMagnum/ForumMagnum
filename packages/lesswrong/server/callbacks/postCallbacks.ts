@@ -604,8 +604,17 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 
 /* Recombee callbacks */
 
+function isNonRecommendablePost(post: DbPost): boolean {
+  // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
+  // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
+  // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
+  // So we're not really in any danger of showing those posts to regular users
+  // TODO: figure out how to handle this more gracefully
+  return post.shortform || post.unlisted || post.rejected || post.isEvent || !!post.groupId || post.disableRecommendation || post.status !== 2;
+}
+
 postPublishedCallback.add((post, context) => {
-  if (post.shortform || post.unlisted) return;
+  if (isNonRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -625,7 +634,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+  if ((post.draft && !redrafted) || isNonRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -641,7 +650,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
 });
 
 voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || isNonRecommendablePost(newDocument as DbPost)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(newDocument as DbPost, context)

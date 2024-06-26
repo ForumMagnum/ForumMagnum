@@ -147,7 +147,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
-      "authorDisplayName",
+      "authorDisplayName^11",
     ],
     snippet: "body",
     highlight: "authorDisplayName",
@@ -157,6 +157,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         order: "desc",
         weight: 0.5,
         scoring: {type: "numeric", pivot: 20},
+      },
+      {
+        field: "baseScore",
+        order: "desc",
+        weight: 1.5,
+        scoring: {type: "numeric", pivot: 50, min: 50},
       },
     ],
     tiebreaker: "publicDateMs",

@@ -38,6 +38,8 @@ import { RecombeeRecommendationsContextWrapper } from '../../recommendations/Rec
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
 import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
+import { useVote } from '@/components/votes/withVote';
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -354,6 +356,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
+
+  const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
+  const voteProps = useVote(post, 'Posts', votingSystem);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -704,13 +709,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
-          <HoveredReactionContextProvider>
+          <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
                 sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                voteProps={voteProps}
               />
             }
           </CommentOnSelectionContentWrapper>
@@ -778,6 +784,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}

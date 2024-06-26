@@ -91,6 +91,7 @@ export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.g
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
 export const hasSurveys = isFriendlyUI;
+export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
