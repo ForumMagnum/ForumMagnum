@@ -172,6 +172,15 @@ const AuthorAnalyticsPage = ({ classes }: {
   const { sortBy, sortDesc: sortDescRaw } = query;
   const sortDesc = sortDescRaw === "true" ? true : sortDescRaw === "false" ? false : undefined;
 
+  const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
+
+  useEffect(() => {
+    if (restoreScrollPos === -1) return;
+
+    window.scrollTo({top: restoreScrollPos})
+    setRestoreScrollPos(-1);
+  }, [restoreScrollPos])
+
   const onClickHeader = (headerField: string) => {
     let newSortBy: string | undefined = sortBy;
     let newSortDesc: boolean | undefined = sortDesc;
@@ -202,6 +211,7 @@ const AuthorAnalyticsPage = ({ classes }: {
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    setRestoreScrollPos(window.scrollY)
   };
 
   const initialLimit = 10;
