@@ -9,6 +9,7 @@ const ForumDropdown = ({
   onSelect,
   paddingSize,
   useIconLabel,
+  disabled,
   className,
 }: {
   value: string,
@@ -17,6 +18,7 @@ const ForumDropdown = ({
   onSelect?: (value: string) => void,
   paddingSize?: number,
   useIconLabel?: boolean,
+  disabled?: boolean,
   className?: string,
 }) => {
   return <Components.ForumDropdownMultiselect
@@ -26,6 +28,7 @@ const ForumDropdown = ({
     onSelect={onSelect}
     paddingSize={paddingSize}
     useIconLabel={useIconLabel}
+    disabled={disabled}
     className={className}
   />
 }
