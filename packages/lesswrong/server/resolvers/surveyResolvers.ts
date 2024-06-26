@@ -66,6 +66,8 @@ addGraphQLResolvers({
         collection: Surveys,
         documentId: surveyId,
         set: {name},
+        currentUser,
+        validate: false,
       });
 
       const questionIds = filterNonnull(questions.map(({_id}) => _id));
