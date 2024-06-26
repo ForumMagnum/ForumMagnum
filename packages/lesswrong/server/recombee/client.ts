@@ -454,6 +454,8 @@ const helpers = {
       return [{ ...recResponse, scenario }];
     }
 
+    // NOTE: this "userId" is the recombee user id, which is our userId for logged-in users and clientId for logged out users
+    // Do not use it in ways that assume that it represents a logged-in user
     const { userId, count } = recRequest;
 
     const cachedRecommendations = await context.repos.recommendationsCaches.getUserRecommendationsFromSource(userId, 'recombee', scenario);
