@@ -2717,6 +2717,7 @@ const schema: SchemaType<"Users"> = {
       variant: "grey",
       separator: ", ",
       multiselect: true,
+      hideClear: true,
     },
   },
   'organizerOfGroupIds.$': {
