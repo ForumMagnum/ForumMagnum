@@ -1,7 +1,7 @@
 import { foreignKeyField } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users";
 
-const commonFields = ({nullable = false}: {
+const userEditableField = ({nullable = false}: {
   nullable?: boolean,
 } = {}): CollectionFieldSpecification<"SurveyResponses"> => ({
   canRead: [userOwns, "admins"],
@@ -13,7 +13,7 @@ const commonFields = ({nullable = false}: {
 
 const schema: SchemaType<"SurveyResponses"> = {
   surveyId: {
-    ...commonFields(),
+    ...userEditableField(),
     ...foreignKeyField({
       idFieldName: "surveyId",
       resolverName: "survey",
@@ -23,7 +23,7 @@ const schema: SchemaType<"SurveyResponses"> = {
     }),
   },
   surveyScheduleId: {
-    ...commonFields(),
+    ...userEditableField(),
     ...foreignKeyField({
       idFieldName: "surveyScheduleId",
       resolverName: "surveySchedule",
@@ -33,7 +33,7 @@ const schema: SchemaType<"SurveyResponses"> = {
     }),
   },
   userId: {
-    ...commonFields(),
+    ...userEditableField(),
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
@@ -43,7 +43,7 @@ const schema: SchemaType<"SurveyResponses"> = {
     }),
   },
   clientId: {
-    ...commonFields(),
+    ...userEditableField(),
     ...foreignKeyField({
       idFieldName: "clientId",
       resolverName: "client",
@@ -53,7 +53,7 @@ const schema: SchemaType<"SurveyResponses"> = {
     }),
   },
   response: {
-    ...commonFields(),
+    ...userEditableField(),
     type: Object,
     blackbox: true,
   },
