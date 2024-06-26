@@ -55,7 +55,7 @@ class SurveySchedulesRepo extends AbstractRepo<"SurveySchedules"> {
         -- Check the user is in the assigned percentage group
         CASE
           WHEN ss."maxVisitorPercentage" IS NULL THEN TRUE
-          ELSE ABS(('x' || SUBSTR(MD5(ss."_id" || $2), 1, 16))::BIT(32)::INTEGER) % 100
+          ELSE ABS(('x' || SUBSTR(MD5(ss."_id" || COALESCE($3, $2)), 1, 16))::BIT(32)::INTEGER) % 100
             < ss."maxVisitorPercentage"
         END AND
         -- Check the schedule is currently running
