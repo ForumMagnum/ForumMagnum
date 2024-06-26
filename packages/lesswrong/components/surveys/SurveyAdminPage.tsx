@@ -127,8 +127,10 @@ const SurveysEditor = ({classes}: {
       {!loadingSurveys && !!surveys && surveys.length < 1 &&
         <div className={classes.secondaryText}>No surveys found</div>
       }
-      <LoadMore {...loadMoreSurveysProps} />
-      {loadingSurveys && <Loading />}
+      <div>
+        <LoadMore {...loadMoreSurveysProps} />
+      </div>
+      {loadingSurveys && <div><Loading /></div>}
       <EAButton onClick={onOpenCreateSurveyModal}>
         New survey
       </EAButton>
@@ -151,8 +153,10 @@ const SurveysEditor = ({classes}: {
       {!loadingSurveySchedules && !!surveySchedules && surveySchedules.length < 1 &&
         <div className={classes.secondaryText}>No survey schedules found</div>
       }
-      <LoadMore {...loadMoreSurveySchedulesProps} />
-      {loadingSurveySchedules && <Loading />}
+      <div>
+        <LoadMore {...loadMoreSurveySchedulesProps} />
+      </div>
+      {loadingSurveySchedules && <div><Loading /></div>}
       <EAButton href="/surveySchedule">
         New survey schedule
       </EAButton>

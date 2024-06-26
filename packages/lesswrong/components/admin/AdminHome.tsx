@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { hasDigests, hasForumEvents } from '../../lib/betas';
+import { hasDigests, hasForumEvents, hasSurveys } from '../../lib/betas';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 
@@ -69,7 +69,7 @@ const AdminHome = ({ classes }: {
       <ul>
         {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
-        <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>
+        {hasSurveys && <li><Link className={classes.link} to="/admin/surveys">Surveys</Link></li>}
         {hasForumEvents &&
           <li><Link className={classes.link} to="/adminForumEvents">Forum events</Link></li>
         }
