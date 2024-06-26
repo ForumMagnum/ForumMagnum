@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
@@ -56,7 +56,6 @@ const UpdateLastVisitCookie = () => {
     if (visitorGetsDynamicFrontpage(null)) {
       setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setCookie])
   
   return <></>
