@@ -1131,6 +1131,12 @@ importComponent("CookiePolicy", () => require('../components/common/CookieBanner
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
 importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 
+// Surveys
+importComponent("SurveyAdminPage", () => require('../components/surveys/SurveyAdminPage'));
+importComponent("SurveyEditPage", () => require('../components/surveys/SurveyEditPage'));
+importComponent("SurveyScheduleEditPage", () => require('../components/surveys/SurveyScheduleEditPage'));
+importComponent("SurveyPostsItem", () => require('../components/surveys/SurveyPostsItem'));
+
 // People directory
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
 importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));

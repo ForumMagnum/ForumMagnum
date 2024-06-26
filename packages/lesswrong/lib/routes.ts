@@ -9,7 +9,7 @@ import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, 
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
-import { hasPostRecommendations } from './betas';
+import { hasPostRecommendations, hasSurveys } from './betas';
 import {isFriendlyUI} from '../themes/forumTheme'
 import { postRouteWillDefinitelyReturn200 } from './collections/posts/helpers';
 import { sequenceRouteWillDefinitelyReturn200 } from './collections/sequences/helpers';
@@ -1655,5 +1655,38 @@ addRoute(
     isAdmin: true,
   }
 );
+
+if (hasSurveys) {
+  addRoute(
+    {
+      name: "surveys",
+      path: "/admin/surveys",
+      componentName: "SurveyAdminPage",
+      title: "Surveys",
+      isAdmin: true,
+    },
+    {
+      name: "editSurvey",
+      path: "/survey/:id/edit",
+      componentName: "SurveyEditPage",
+      title: "Edit survey",
+      isAdmin: true,
+    },
+    {
+      name: "newSurveySchedule",
+      path: "/surveySchedule",
+      componentName: "SurveyScheduleEditPage",
+      title: "New survey schedule",
+      isAdmin: true,
+    },
+    {
+      name: "editSurveySchedule",
+      path: "/surveySchedule/:id",
+      componentName: "SurveyScheduleEditPage",
+      title: "Edit survey schedule",
+      isAdmin: true,
+    },
+  );
+}
 
 forumSpecificRoutes();
