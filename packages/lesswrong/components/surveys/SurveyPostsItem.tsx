@@ -372,10 +372,20 @@ const SurveyPostsItem = ({survey, surveyScheduleId, refetchSurvey, classes}: {
   refetchSurvey?: () => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
+  const transitionDuration = 1000;
+  const [isRendered, setIsRendered] = useState(true);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const collapse = useCallback(() => setIsCollapsed(true), []);
+
+  const collapse = useCallback(() => {
+    setIsCollapsed(true);
+    setTimeout(() => setIsRendered(false), transitionDuration);
+  }, []);
+
+  if (!isRendered) {
+    return null;
+  }
   return (
-    <Collapse in={!isCollapsed}>
+    <Collapse in={!isCollapsed} timeout={transitionDuration}>
       <AnalyticsContext pageElementContext="surveyPostsItem">
         <SurveyPostsItemInternal
           survey={survey}
