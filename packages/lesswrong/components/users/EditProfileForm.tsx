@@ -11,13 +11,18 @@ import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
 import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    maxWidth: 700,
-    margin: '0 auto',
-    marginTop: 32,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+const styles = (theme: ThemeType) => ({
+  root: isFriendlyUI
+    ? {
+      margin: "0 auto",
+      maxWidth: 700,
+      marginTop: 32,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }
+    : {
+      margin: "0 auto",
+      maxWidth: 800,
+    },
   heading: {
     marginTop: 0,
     [theme.breakpoints.down('sm')]: {
@@ -68,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const EditProfileForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate();
@@ -122,7 +127,11 @@ const EditProfileForm = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display3" className={classes.heading}>
+      <Typography
+        variant="display3"
+        gutterBottom={!isFriendlyUI}
+        className={classes.heading}
+      >
         {preferredHeadingCase(isFriendlyUI ? "Edit Profile" : "Edit Public Profile")}
       </Typography>
 

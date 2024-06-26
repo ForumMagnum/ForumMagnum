@@ -51,6 +51,10 @@ const styles = (theme: ThemeType) => ({
       whiteSpace: 'pre-wrap',
       lineHeight: '1.8rem',
       paddingRight: 30,
+    },
+  },
+  selectGrey: {
+    '& .MuiOutlinedInput-input': {
       fontWeight: 500,
     },
   },
@@ -105,7 +109,7 @@ const MultiSelect = ({
   >
     {label && labelNode}
     <Select
-      className={classes.select}
+      className={classNames(classes.select, isGrey && classes.selectGrey)}
       value={value}
       input={<OutlinedInput labelWidth={0} />}
       onChange={e => {
