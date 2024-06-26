@@ -88,7 +88,7 @@ async function postTweet(content: string) {
 
 addCronJob({
   name: "runTwitterBot",
-  interval: "every 14 minutes",
+  interval: "every 31 minutes",
   job: async () => {
     if (!enabledSetting.get()) return;
 
