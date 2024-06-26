@@ -33,4 +33,4 @@ export const getCkPostEditor = (isCollaborative: boolean, forumType: ForumTypeSt
   }
 }
 
-export const ckEditorBundleVersion = "32.1.1";
+export const ckEditorBundleVersion = "41.3.1";
