@@ -5,7 +5,7 @@ addGraphQLResolvers({
   Mutation: {
     AddForumEventVote: async (
       _root: void,
-      {forumEventId, x, delta, postIds}: {forumEventId: string, x: number, delta: number, postIds: string[]},
+      {forumEventId, x, delta, postIds}: {forumEventId: string, x: number, delta: number, postIds?: string[]},
       {currentUser, repos}: ResolverContext
     ) => {
       if (!currentUser) {

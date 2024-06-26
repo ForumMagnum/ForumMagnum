@@ -133,12 +133,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const addVoteQuery = gql`
+export const addForumEventVoteQuery = gql`
   mutation AddForumEventVote($forumEventId: String!, $x: Int!, $delta: Int!, $postIds: [String]) {
     AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
   }
 `;
-const removeVoteQuery = gql`
+const removeForumEventVoteQuery = gql`
   mutation RemoveForumEventVote($forumEventId: String!) {
     RemoveForumEventVote(forumEventId: $forumEventId)
   }
@@ -157,6 +157,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
   // Pull the current user's vote position to initialize the component
   const currentUserVotePos: number|null = currentUser ? (event.publicData?.[currentUser._id]?.x ?? null) : null
 
+  // The user's initial vote is handled differently, so we use this to track whether or not this is their first vote
   const [hasVoted, setHasVoted] = useState(currentUserVotePos !== null)
   const [isDragging, setIsDragging] = useState(false)
   const [votePos, setVotePos] = useState<number>(currentUserVotePos ?? defaultVotePos)
@@ -175,14 +176,17 @@ export const ForumEventPoll = ({event, postId, classes}: {
   })
   
   const [addVote] = useMutation(
-    addVoteQuery,
+    addForumEventVoteQuery,
     {errorPolicy: "all"},
   )
   const [removeVote] = useMutation(
-    removeVoteQuery,
+    removeForumEventVoteQuery,
     {errorPolicy: "all"},
   )
   
+  /**
+   * When the user clicks the "x" icon, delete their vote data
+   */
   const clearVote = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation()
     setHasVoted(false)
@@ -191,37 +195,62 @@ export const ForumEventPoll = ({event, postId, classes}: {
     if (currentUser) void removeVote({variables: {forumEventId: event._id}})
   }, [setVotePos, setCurrentUserVote, currentUser, removeVote, event._id])
   
+  /**
+   * When the user drags their vote, update its x position
+   */
   const updateVotePos = useCallback((e: MouseEvent) => {
-    if (isDragging) {
-      console.log('e.movementX', e.movementX)
-      // TODO: pause when mouse is too far right or left, and prob use percent
-      setVotePos((val) => Math.min(Math.max(val + e.movementX, 0), SLIDER_WIDTH - (USER_IMAGE_SIZE/2)))
-      setHasVoted(true)
-    }
+    if (!isDragging) return
+
+    console.log('e.movementX', e.movementX)
+    // TODO: pause when mouse is too far right or left, and prob use percent
+    setVotePos((val) => Math.min(Math.max(val + e.movementX, 0), SLIDER_WIDTH - (USER_IMAGE_SIZE/2)))
+    // setHasVoted(true)
   }, [isDragging, setVotePos])
+  useEventListener("mousemove", updateVotePos)
+
+  /**
+   * When the user is done dragging their vote:
+   * - If the user is logged out, reset their vote and open the login modal
+   * - If this is the user's initial vote, save the vote
+   * - If we have a postId (because we're on the post page), save the vote
+   * - Otherwise (we're on the home page), open the post selection modal
+   */
   const saveVotePos = useCallback(() => {
+    if (!isDragging) return
     console.log('mouseup')
     setIsDragging(false)
-    // TODO: add modal
-    if (hasVoted) {
-      if (currentUser) {
-        const delta = votePos - (currentUserVote ?? defaultVotePos)
-        if (delta) {
-          void addVote({variables: {
-            forumEventId: event._id,
-            x: votePos,
-            delta,
-            postIds: postId ? [postId] : ['Lq29FdmKAHLGfJdGx']
-          }})
-          setCurrentUserVote(votePos)
+    // When a logged-in user is done dragging their vote, attempt to save it
+    if (currentUser) {
+      const delta = votePos - (currentUserVote ?? defaultVotePos)
+      if (delta) {
+        const voteData = {
+          forumEventId: event._id,
+          x: votePos,
+          delta,
         }
-      } else {
-        openDialog({componentName: "LoginPopup"})
-        clearVote()
+        if (!hasVoted) {
+          void addVote({variables: voteData})
+        } else if (postId) {
+          void addVote({variables: {
+            ...voteData,
+            postIds: [postId]
+          }})
+        } else if (event.tag) {
+          openDialog({
+            componentName: "ForumEventPostSelectionDialog",
+            componentProps: {tag: event.tag, voteData}
+          })
+        }
+        setHasVoted(true)
+        setCurrentUserVote(votePos)
       }
     }
+    // When a logged-out user tries to vote, just show the login modal
+    else {
+      openDialog({componentName: "LoginPopup"})
+      clearVote()
+    }
   }, [setIsDragging, hasVoted, currentUser, addVote, event._id, votePos, currentUserVote, postId, setCurrentUserVote, openDialog, clearVote])
-  useEventListener("mousemove", updateVotePos)
   useEventListener("mouseup", saveVotePos)
 
   const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
@@ -276,7 +305,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
                   <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} /> :
                   <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
                 }
-                <div className={classes.clearVote} onClick={clearVote}>
+                <div className={classes.clearVote} onMouseDown={clearVote}>
                   <ForumIcon icon="Close" className={classes.clearVoteIcon} />
                 </div>
               </LWTooltip>

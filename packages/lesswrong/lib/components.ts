@@ -749,6 +749,7 @@ importComponent("ForumEventBanner", () => require('../components/forumEvents/For
 importComponent("ForumEventFrontpageBanner", () => require('../components/forumEvents/ForumEventFrontpageBanner'));
 importComponent("ForumEventPostPageBanner", () => require('../components/forumEvents/ForumEventPostPageBanner'));
 importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
+importComponent("ForumEventPostSelectionDialog", () => require('../components/forumEvents/ForumEventPostSelectionDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));

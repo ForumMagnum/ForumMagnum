@@ -234,12 +234,16 @@ const formatImageUrl = (url: string) =>
   url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
 
 export type EAPostsItemProps = PostsItemConfig & {
+  openInNewTab?: boolean,
   hideSecondaryInfo?: boolean,
+  secondaryInfoNode?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({
+  openInNewTab,
   hideSecondaryInfo,
+  secondaryInfoNode,
   classes,
   ...props
 }: EAPostsItemProps) => {
@@ -277,7 +281,7 @@ const EAPostsItem = ({
     hideTag,
     className,
   } = usePostsItem(props);
-  const {onClick} = useClickableCell({href: postLink});
+  const {onClick} = useClickableCell({href: postLink, openInNewTab});
   const cardView = viewType === "card";
   const {postContents} = usePostContents({
     post,
@@ -296,32 +300,39 @@ const EAPostsItem = ({
     PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
-    <>
-      <InteractionWrapper className={classes.interactionWrapper}>
-        <a onClick={toggleComments} className={classNames(
-          classes.comments,
-          cardView && classes.commentsCard,
-          hasUnreadComments && classes.newComments,
-        )}>
-          <ForumIcon icon="Comment" />
-          {commentCount}
-        </a>
+  const SecondaryInfo = () => {
+    if (secondaryInfoNode) {
+      return <InteractionWrapper className={classes.interactionWrapper}>
+        {secondaryInfoNode}
       </InteractionWrapper>
-      <div className={classes.postActions}>
+    }
+    return (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
+      <>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
+          <a onClick={toggleComments} className={classNames(
+            classes.comments,
+            cardView && classes.commentsCard,
+            hasUnreadComments && classes.newComments,
+          )}>
+            <ForumIcon icon="Comment" />
+            {commentCount}
+          </a>
         </InteractionWrapper>
-      </div>
-      {tagRel &&
-        <div className={classes.tagRelWrapper}>
+        <div className={classes.postActions}>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <PostsItemTagRelevance tagRel={tagRel} />
+            <PostActionsButton post={post} popperGap={16} autoPlace vertical />
           </InteractionWrapper>
         </div>
-      }
-    </>
-  );
+        {tagRel &&
+          <div className={classes.tagRelWrapper}>
+            <InteractionWrapper className={classes.interactionWrapper}>
+              <PostsItemTagRelevance tagRel={tagRel} />
+            </InteractionWrapper>
+          </div>
+        }
+      </>
+    )
+};
   
   const karmaNode = isVoteable
     ? (
