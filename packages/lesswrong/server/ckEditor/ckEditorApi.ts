@@ -335,6 +335,7 @@ const ckEditorApi = {
       try {
         await this.flushAndUpgradeCkEditorCollaboration(ckEditorId);
       } catch(e) {
+        // eslint-disable-next-line no-console
         console.error(e);
       }
     }
