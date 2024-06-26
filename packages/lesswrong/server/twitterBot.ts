@@ -49,7 +49,7 @@ async function writeTweet(post: DbPost): Promise<string> {
       break;
   }
 
-  const preUrlPart = `"${post.title}" by ${authorString}`;
+  const preUrlPart = `New popular post from the EA Forum:\n\n"${post.title}" by ${authorString}`;
   const truncatedPreUrlPart = preUrlPart.length + URL_LENGTH > TWEET_MAX_LENGTH
     ? preUrlPart.substring(0, TWEET_MAX_LENGTH - URL_LENGTH - 3) + "..."
     : preUrlPart;
