@@ -2,6 +2,7 @@ import React, { ChangeEventHandler, ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { styles as friendlyInputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import TextField from "@material-ui/core/TextField";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   label: {
@@ -14,6 +15,9 @@ const styles = (theme: ThemeType) => ({
       fontSize: 14,
       color: theme.palette.grey[1000],
     },
+  },
+  smallBottomMargin: {
+    marginBottom: "-24px !important",
   },
 });
 
@@ -28,6 +32,7 @@ export const FormComponentFriendlyTextInput = ({
   multiline,
   rows,
   startAdornment,
+  smallBottomMargin,
   className,
   classes,
 }: {
@@ -35,6 +40,7 @@ export const FormComponentFriendlyTextInput = ({
   rows?: number,
   fullWidth?: boolean,
   startAdornment?: ReactNode,
+  smallBottomMargin?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 } & FormComponentProps<string>) => {
@@ -46,7 +52,10 @@ export const FormComponentFriendlyTextInput = ({
 
   const {SectionTitle} = Components;
   return (
-    <div className={className}>
+    <div className={classNames(
+      className,
+      smallBottomMargin && classes.smallBottomMargin,
+    )}>
       {label &&
         <SectionTitle title={label} noTopMargin className={classes.label} />
       }

@@ -2618,6 +2618,7 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
       heading: "Social media",
+      smallBottomMargin: true,
     },
     group: formGroups.socialMedia,
     order: 1,
@@ -2631,7 +2632,8 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
+      smallBottomMargin: true,
     },
     group: formGroups.socialMedia,
     order: 2,
@@ -2645,7 +2647,8 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      smallBottomMargin: true,
     },
     group: formGroups.socialMedia,
     order: 3,
