@@ -114,6 +114,7 @@ const ForumDropdownMultiselect = ({
   onSelect,
   paddingSize = 10,
   useIconLabel,
+  disabled,
   classes,
   className,
 }: {
@@ -123,6 +124,7 @@ const ForumDropdownMultiselect = ({
   onSelect?: (value: string) => void,
   paddingSize?: number,
   useIconLabel?: boolean,
+  disabled?: boolean,
   classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
@@ -146,6 +148,7 @@ const ForumDropdownMultiselect = ({
         onClick={(e) => {
           setAnchorEl(e.currentTarget)
         }}
+        disabled={disabled}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
         {label} {dropdownIcon}

@@ -107,6 +107,7 @@ const PostCollaborationEditor = ({ classes }: {
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
           document={post}
+          onReady={()=>{}}
         />
         <PostVersionHistoryButton
           post={post}
