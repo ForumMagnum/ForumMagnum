@@ -58,7 +58,10 @@ class FormComponentInner extends PureComponent<any, {highlight: boolean}> {
 
   renderClear = () => {
     const { classes } = this.props;
-    if (['datetime', 'time', 'select', 'radiogroup', 'SelectLocalgroup'].includes(this.props.input)) {
+    if (
+      ['datetime', 'time', 'select', 'radiogroup', 'SelectLocalgroup'].includes(this.props.input) &&
+      !this.props.hideClear
+    ) {
       return (
         <a
           className={classes.formComponentClear}

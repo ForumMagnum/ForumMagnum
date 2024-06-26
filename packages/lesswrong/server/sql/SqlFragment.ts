@@ -43,6 +43,9 @@ const getResolverCollection = (
   if (exclam >= 0) {
     type = type.substring(0, exclam);
   }
+  while (type[0] === "[") {
+    type = type.substring(1, type.length - 1);
+  }
   return getCollectionByTypeName(type);
 }
 
@@ -189,22 +192,29 @@ class SqlFragment {
     const resolver = context.getResolver(name);
     if (resolver) {
       if (resolver.sqlResolver) {
-        // We don't care about the return value here, just the side-effect of
-        // registering the necessary join. Note that we assume that only one
-        // join gets registered here - it's theoretically possible that this
-        // assumption wouldn't be true, but only if you do some really-deep
-        // hack that bypasses the entire vulcan schema/graphql setup.
-        resolver.sqlResolver(context.getSqlResolverArgs());
+        const joinCountBefore = context.getJoins().length;
+        const result = resolver.sqlResolver(context.getSqlResolverArgs());
         const joins = context.getJoins();
-        const collection = getResolverCollection(resolver);
-        const aggregate = {
-          prefix: joins[joins.length - 1].prefix,
-          argOffset: context.getArgs().length,
-        };
-        const gen = context.getPrefixGenerator();
-        const subcontext = new ProjectionContext(collection, aggregate, gen);
-        this.compileEntries(subcontext, entries);
-        context.aggregate(subcontext, name);
+        const didJoin = joinCountBefore < joins.length;
+        if (didJoin) {
+          // We don't care about the resolver result here, just the side-effect of
+          // registering the necessary join. Note that we assume that only one
+          // join gets registered here - it's theoretically possible that this
+          // assumption wouldn't be true, but only if you do some really-deep
+          // hack that bypasses the entire vulcan schema/graphql setup.
+          const collection = getResolverCollection(resolver);
+          const aggregate = {
+            prefix: joins[joins.length - 1].prefix,
+            argOffset: context.getArgs().length,
+          };
+          const gen = context.getPrefixGenerator();
+          const subcontext = new ProjectionContext(collection, aggregate, gen);
+          this.compileEntries(subcontext, entries);
+          context.aggregate(subcontext, name);
+        } else {
+          // If we don't add a join then just save the projection
+          context.addProjection(name, result);
+        }
       } else {
         context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
       }
