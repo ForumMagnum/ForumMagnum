@@ -91,7 +91,6 @@ const schema: SchemaType<"ForumEvents"> = {
     nullable: true,
     hidden: true,
     canRead: ["guests"],
-    canUpdate: ["members"],
     canCreate: ["members"],
   },
   voteCount: resolverOnlyField({
