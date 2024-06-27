@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { FC, PropsWithChildren, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -289,10 +289,6 @@ const EAPostsItem = ({
     skip: !cardView,
   });
 
-  if (isRepeated) {
-    return null;
-  }
-
   const {
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
     PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
@@ -300,7 +296,7 @@ const EAPostsItem = ({
     PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => {
+  const SecondaryInfo = useCallback(() => {
     if (secondaryInfoNode) {
       return <InteractionWrapper className={classes.interactionWrapper}>
         {secondaryInfoNode}
@@ -332,7 +328,25 @@ const EAPostsItem = ({
         }
       </>
     )
-};
+  }, [
+    secondaryInfoNode,
+    hideSecondaryInfo,
+    showMostValuableCheckbox,
+    cardView,
+    hasUnreadComments,
+    commentCount,
+    post,
+    tagRel,
+    toggleComments,
+    ForumIcon,
+    PostActionsButton,
+    PostsItemTagRelevance,
+    classes
+  ]);
+  
+  if (isRepeated) {
+    return null;
+  }
   
   const karmaNode = isVoteable
     ? (

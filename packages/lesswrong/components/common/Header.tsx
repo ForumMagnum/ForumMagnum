@@ -17,6 +17,7 @@ import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { hasForumEvents } from '@/lib/betas';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -425,7 +426,7 @@ const Header = ({
   let headerStyle: CSSProperties = {}
   const bannerImageId = currentForumEvent?.bannerImageId
   // On EAF, forum events with polls also update the home page header background
-  if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && isEAForum) {
+  if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && hasForumEvents) {
     const darkColor = currentForumEvent?.darkColor
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
       c: "fill",

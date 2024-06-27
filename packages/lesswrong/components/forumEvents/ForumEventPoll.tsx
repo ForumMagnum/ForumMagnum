@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
@@ -8,6 +8,7 @@ import { useDialog } from "../common/withDialog";
 import { useMulti } from "@/lib/crud/withMulti";
 import ForumNoSSR from "../common/ForumNoSSR";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 
 const SLIDER_WIDTH = 1000;
 const USER_IMAGE_SIZE = 24;
@@ -210,6 +211,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
   postId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {onSignup} = useLoginPopoverContext()
   const {openDialog} = useDialog()
   const currentUser = useCurrentUser()
   // Pull the current user's vote position to initialize the component
@@ -226,9 +228,9 @@ export const ForumEventPoll = ({event, postId, classes}: {
   const [isDragging, setIsDragging] = useState(false)
 
   // Whether or not the poll results (i.e. other users' votes) are visible.
-  // By default, they are hidden until after the user votes,
-  // but the user can choose to reveal them without voting.
-  const [resultsVisible, setResultsVisible] = useState(initialUserVotePos !== null)
+  // They are hidden until the user clicks on "view results".
+  const [resultsVisible, setResultsVisible] = useState(false)
+  const [voteCount, setVoteCount] = useState(event.voteCount)
   
   // Get profile image and display name for all other users who voted, to display on the slider
   const { results: voters } = useMulti({
@@ -263,6 +265,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
     setCurrentUserVote(null)
     if (currentUser) {
       void removeVote({variables: {forumEventId: event._id}})
+      setVoteCount(count => count - 1)
     }
   }, [setVotePos, setCurrentUserVote, currentUser, removeVote, event._id])
   
@@ -316,7 +319,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
       if (!hasVoted) {
         void addVote({variables: voteData})
         setCurrentUserVote(votePos)
-        setResultsVisible(true)
+        setVoteCount(count => count + 1)
         return
       }
       const delta = votePos - (currentUserVote ?? defaultVotePos)
@@ -338,10 +341,25 @@ export const ForumEventPoll = ({event, postId, classes}: {
     }
     // When a logged-out user tries to vote, just show the login modal
     else {
-      openDialog({componentName: "LoginPopup"})
+      onSignup()
       clearVote()
     }
-  }, [isDragging, setIsDragging, hasVoted, currentUser, addVote, event._id, event.tag, votePos, currentUserVote, postId, setCurrentUserVote, openDialog, clearVote])
+  }, [
+    isDragging,
+    setIsDragging,
+    hasVoted,
+    currentUser,
+    addVote,
+    event._id,
+    event.tag,
+    votePos,
+    currentUserVote,
+    postId,
+    setCurrentUserVote,
+    openDialog,
+    onSignup,
+    clearVote
+  ])
   useEventListener("mouseup", saveVotePos)
 
   const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
@@ -375,7 +393,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
                 style={{left: `${votePos}px`}}
               >
                 <LWTooltip title={hasVoted ? <div className={classes.voteTooltipBody}>Drag to move</div> : <>
-                    <div className={classes.voteTooltipHeading}>Press and drag to vote</div>
+                    <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
                     <div className={classes.voteTooltipBody}>Votes are non-anonymous and can be changed at any time</div>
                   </>}
                 >
@@ -392,8 +410,9 @@ export const ForumEventPoll = ({event, postId, classes}: {
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
               <ForumNoSSR>
-                {!hasVoted && !resultsVisible && (event.voteCount > 0) && <div>
-                  {event.voteCount} vote{event.voteCount === 1 ? '' : 's'} so far. Place your vote or{" "}
+                {!resultsVisible && <div>
+                  {(voteCount > 0) && `${voteCount} vote${voteCount === 1 ? '' : 's'} so far. `}
+                  {hasVoted ? 'Click and drag to update your vote, or ' : 'Place your vote or '}
                   <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
                     view results
                   </button>

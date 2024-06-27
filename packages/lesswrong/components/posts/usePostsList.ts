@@ -67,7 +67,7 @@ export type PostsListConfig = {
    */
   viewType?: PostsListViewType | "fromContext",
   /**
-   * If provided, we reorder the results to match this order.
+   * An array of postIds. If provided, we reorder the results to match this order.
    */
   order?: string[],
 }
