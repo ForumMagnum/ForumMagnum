@@ -17,7 +17,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
     return res ? res.vote : null
   }
   
-  addVote(_id: string, userId: string, voteData: AnyBecauseHard) {
+  addVote(_id: string, userId: string, voteData: Json) {
     void this.none(`
       -- ForumEventsRepo.addVote
       UPDATE "ForumEvents"
