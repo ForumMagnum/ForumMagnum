@@ -188,7 +188,6 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
   },
   imageWithGradient: {
-    // top: "-45%",
     right: "-10%",
     width: "80vw",
   },
