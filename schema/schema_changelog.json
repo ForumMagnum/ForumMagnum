@@ -673,5 +673,20 @@
     "acceptsSchemaHash": "6fc595baf02ccdf4ffdf8777a5981d32",
     "acceptedByMigration": "20240526T111308.set_not_null_clientId_2.ts",
     "timestamp": "2024-05-26T11:13:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6916cc5096e4eeee5bc92639da67e9fa",
+    "acceptedByMigration": "20240611T182502.add_Posts_userId_postedAt_idx.ts",
+    "timestamp": "2024-06-11T18:25:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c1dd7ed968b6af5a78625296b5e5fec0",
+    "acceptedByMigration": "20240612T173525.add_onsite_digest_background_fields.ts",
+    "timestamp": "2024-06-12T17:35:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
   }
 ]

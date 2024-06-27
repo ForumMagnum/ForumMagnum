@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from '../common/withMessages';
@@ -11,20 +11,26 @@ import CloseIcon from '@material-ui/icons/Close';
 import { PopperPlacementType } from '@material-ui/core/Popper';
 import { useCurrentUser } from '../common/withUser';
 import Paper from '@material-ui/core/Paper';
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { userHasSubscribeTabFeed } from '@/lib/betas';
+import shuffle from 'lodash/shuffle';
+
+const CARD_CONTAINER_HEIGHT = 180;
+const DISMISS_BUTTON_WIDTH = 16;
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
     width: "100%",
-    marginTop: 10,
+    marginTop: 6,
     background: theme.palette.panelBackground.recentDiscussionThread,
     borderRadius: 3,
     paddingTop: 12,
     paddingLeft: 16,
     paddingRight: 16,
     paddingBottom: 12,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   titleRow: {
     display: "flex",
@@ -55,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     opacity: 0.7,
     '&:hover': {
-      opacity: 1.0,
+      opacity: 0.5,
     }
   },
   hideButton: {
@@ -78,24 +84,33 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     alignContent: "start",
     gap: "6px",
-    height: 180,
+    height: CARD_CONTAINER_HEIGHT,
     marginTop: 8,
+    transition: "height .5s ease-in-out",
   },
   suggestedUserListItem: {
     transition: "all .5s ease-out",
     listStyle: "none",
     height: 85,
-    minWidth: 145,
-    flexGrow: 1,
-    flexBasis: 145,
+    width: "178.75px",
+    ['@media(min-width: 500px) and (max-width: 780px)']: {
+      minWidth: 145,
+      flexBasis: 145,
+      flexGrow: 1,
+    },
     ['@media(max-width: 500px)']: {
       minWidth: 98,
       flexBasis: 98,
+      flexGrow: 1,
     },
   },
   removedSuggestedUserListItem: {
-    width: 0,
     opacity: 0,
+    minWidth: 0,
+    // Needed to override the dynamic width and flexBasis assigned in SuggestedFollowCard
+    width: "0 !important",
+    flexBasis: "0 !important",
+    marginLeft: -6,
   },
   suggestedUser: {
     display: "flex",
@@ -135,7 +150,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   dismissButton: {
-    width: 16,
+    width: DISMISS_BUTTON_WIDTH,
     height: 16,
     color: theme.palette.grey[400],
     cursor: "pointer",
@@ -146,7 +161,8 @@ const styles = (theme: ThemeType) => ({
   buttonDisplayName: {
     ...theme.typography.commentStyle,
     fontSize: "1rem",
-    width: "100%",
+    // Account for the dismiss button width so that sufficiently long display names don't cause it to overflow
+    width: `calc(100% - ${DISMISS_BUTTON_WIDTH}px)`,
     marginBottom: 4,
   },
   buttonMetaInfo: {
@@ -161,16 +177,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   clampedUserName: {
-    // This entire setup allows us to do a graceful truncation after 2 lines (which some longer display names hit)
-    // Browser support is _basically_ good: https://caniuse.com/?search=line-clamp
     height: "1lh",
-    display: "-webkit-box",
+    display: "flex",
     overflow: "hidden",
-    textOverflow: "ellipsis",
-    '-webkit-line-clamp': 2,
-    '-webkit-box-orient': "vertical",
-    // Some single-word display names are longer than the width of the container
-    overflowWrap: "break-word",
   },
   icon: {
     width: 17,
@@ -196,9 +205,41 @@ const styles = (theme: ThemeType) => ({
     ['@media(max-width: 500px)']: {
       display: "none",
     }
+  },
+  showMoreContainer: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "end",
+    marginTop: 6,
+  },
+  showMoreButton: {
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.lwTertiary.main,
+    display: "inline-block",
+    minHeight: 20,
   }
 });
 
+function useSuggestedUsers() {
+  const currentUser = useCurrentUser();
+  const [availableUsers, setAvailableUsers] = useState<UsersMinimumInfo[]>([]);
+
+  const { results, loading, loadMore } = usePaginatedResolver({
+    fragmentName: "UsersMinimumInfo",
+    resolverName: "SuggestedFeedSubscriptionUsers",
+    limit: 64,
+    itemsPerPage: 16,
+    ssr: false,
+    skip: !currentUser || !userHasSubscribeTabFeed(currentUser),
+  });
+
+  useEffect(() => {
+    setAvailableUsers(shuffle(results ?? []));
+  }, [results]);
+
+  return { availableUsers, setAvailableUsers, loadingSuggestedUsers: loading, loadMoreSuggestedUsers: loadMore };
+}
 
 const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: {
   user: UsersMinimumInfo, 
@@ -208,7 +249,31 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
 }) => {
   const { UsersName, UserMetaInfo } = Components;
 
-  return (<li className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })}>
+  const cardRef = useRef<HTMLLIElement>(null);
+  const [additionalStyling, setAdditionalStyling] = useState<React.CSSProperties>();
+
+  // The entire container for suggested users is rendered once the tab is selected even if it's hidden
+  // So we need to avoid setting the width of each card to 0 if we initially render in that state
+  const zeroWidthBecauseHidden = !cardRef.current || cardRef.current.getBoundingClientRect().width === 0;
+
+  // Set the width of each card to whatever width it initially renders as, depending on flexGrow (except for the zero-width condition above).
+  // After that, we remove flexGrow to stop cards from expanding/contracting during transitions when users click follow or dismiss.
+  useEffect(() => {
+    // Here, we need to check against the card's live width, since checking zeroWidthBecauseHidden caused the cards to collapse after hiding the container once
+    if (cardRef.current && cardRef.current.getBoundingClientRect().width !== 0) {
+      const fixedWidth = cardRef.current.getBoundingClientRect().width;
+
+      setAdditionalStyling({ width: fixedWidth, flexBasis: fixedWidth });
+
+      // Setting flexGrow: 0 after a bit of a delay ensures the previous styling has taken effect,
+      // which we need to prevent a weird reflow during the initial render
+      setTimeout(() => {
+        setAdditionalStyling({ width: fixedWidth, flexBasis: fixedWidth, flexGrow: 0 })
+      }, 300);
+    }
+  }, [zeroWidthBecauseHidden]);
+
+  return (<li ref={cardRef} className={classNames(classes.suggestedUserListItem, { [classes.removedSuggestedUserListItem]: hidden })} style={additionalStyling}>
     <div className={classes.suggestedUser}>
       <div className={classes.buttonUserInfo} >
         <div className={classes.buttonDisplayNameAndDismiss} >
@@ -227,10 +292,11 @@ const SuggestedFollowCard = ({user, handleSubscribeOrDismiss, hidden, classes}: 
           />
         </div>
       </div>
-      <div className={classNames(classes.subscribeButton, classes.followButton)}>
-        <div onClick={() => handleSubscribeOrDismiss(user)}>
-          Follow
-        </div>
+      <div 
+        className={classNames(classes.subscribeButton, classes.followButton)} 
+        onClick={() => handleSubscribeOrDismiss(user)}
+      >
+        Follow
       </div>
     </div>
   </li>);
@@ -248,7 +314,7 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
   const { captureEvent } = useTracking()
   const { LWPopper, FollowUserSearch, LWClickAwayListener, ForumIcon } = Components
 
-  if(!currentUser) {
+  if (!currentUser) {
     return null;
   }
 
@@ -287,22 +353,32 @@ const FollowUserSearchButton = ({onUserSelected, tooltipPlacement = "bottom-end"
 }
 
 
-export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUsers, setAvailableUsers, loadMoreSuggestedUsers, refetchFeed, classes }: {
-  availableUsers: UsersMinimumInfo[],
-  loadingSuggestedUsers: boolean,
-  setAvailableUsers: (updatedUsers: UsersMinimumInfo[]) => void,
-  loadMoreSuggestedUsers: () => void,
+export const SuggestedFeedSubscriptions = ({ refetchFeed, settingsButton, existingSubscriptions, classes }: {
   refetchFeed: () => void,
+  settingsButton: React.ReactNode,
+  existingSubscriptions?: SubscriptionState[],
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading } = Components;
 
+  const { availableUsers, setAvailableUsers, loadingSuggestedUsers } = useSuggestedUsers();
+
   const [hiddenSuggestionIdx, setHiddenSuggestionIdx] = useState<number>();
+  const [expansionCount, setExpansionCount] = useState(0);
 
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
 
-  const displayedSuggestionLimit = 12;
+  const renderedSuggestionLimit = (expansionCount + 1) * 16;
+
+  const toggleShowMore = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (availableUsers.length <= (renderedSuggestionLimit - 16)) {
+      setExpansionCount(0);
+    } else {
+      setExpansionCount(expansionCount + 1);
+    }
+  };
 
   const { create: createSubscription } = useCreate({
     collectionName: 'Subscriptions',
@@ -324,10 +400,6 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
     const successMessage = dismiss ? `Successfully dismissed ${username}` : `Successfully subscribed to ${username}`
     flash({messageString: successMessage});
 
-    if (availableUsers.length < displayedSuggestionLimit + 2) {
-      void loadMoreSuggestedUsers();
-    }
-
     // This plus the conditional styling on the list items is to allow for a smoother collapse animation
     // General approach taken from https://css-tricks.com/animation-techniques-for-adding-and-removing-items-from-a-stack/#aa-the-collapse-animation
     setHiddenSuggestionIdx(index);
@@ -340,6 +412,10 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
     }
   };
 
+  const showLoadingState = loadingSuggestedUsers && !availableUsers.length;
+  const expansionButtonText = renderedSuggestionLimit < availableUsers.length ? 'Show More' : 'Show Less';
+  const cardContainerHeightStyling = expansionCount > 0 ? { height: CARD_CONTAINER_HEIGHT + (expansionCount * 364) } : {};
+
   return <div className={classes.root}>
     <div className={classes.titleRow}>
       <div className={classes.titleAndManageLink}>
@@ -349,21 +425,26 @@ export const SuggestedFeedSubscriptions = ({ availableUsers, loadingSuggestedUse
         <FollowUserSearchButton onUserSelected={subscribeToUser} classes={classes} />
         <Link to="/manageSubscriptions" className={classes.manageSubscriptionsLink}>
           {preferredHeadingCase("Manage")}
-          <span className={classes.hideOnSmallScreens}>{preferredHeadingCase(" Subscriptions")}</span>
+          <span className={classes.hideOnSmallScreens}>{`${preferredHeadingCase(" Subscriptions")} (${existingSubscriptions?.length ?? 0})`}</span>
         </Link>
+        {settingsButton}
       </div>
     </div>
-    {loadingSuggestedUsers && <Loading />}
-    {!loadingSuggestedUsers && <div className={classes.userSubscribeCards}>
-      {availableUsers.slice(0, displayedSuggestionLimit).map((user, idx) => <SuggestedFollowCard 
-        user={user} 
-        key={user._id}
-        hidden={idx === hiddenSuggestionIdx}
-        handleSubscribeOrDismiss={(user, dismiss) => subscribeToUser(user, idx, dismiss)}
-        classes={classes}
-      />)}
-    </div>}
-
+    {showLoadingState && <Loading />}
+    {!showLoadingState && (<>
+      <div className={classNames(classes.userSubscribeCards)} style={cardContainerHeightStyling}>
+        {availableUsers.slice(0, renderedSuggestionLimit).map((user, idx) => <SuggestedFollowCard 
+          user={user} 
+          key={user._id}
+          hidden={idx === hiddenSuggestionIdx}
+          handleSubscribeOrDismiss={(user, dismiss) => subscribeToUser(user, idx, dismiss)}
+          classes={classes}
+        />)}
+      </div>
+      <div className={classes.showMoreContainer}>
+        <a className={classes.showMoreButton} onClick={toggleShowMore}>{expansionButtonText}</a>
+      </div>
+    </>)}
   </div>;
 }
 

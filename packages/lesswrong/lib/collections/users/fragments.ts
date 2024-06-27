@@ -47,7 +47,7 @@ registerFragment(`
     }
     profileTagIds
     profileTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     organizerOfGroupIds
     organizerOfGroups {
@@ -218,6 +218,7 @@ registerFragment(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
+    optedOutOfSurveys
   }
 `);
 

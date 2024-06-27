@@ -37,6 +37,9 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
+import { useVote } from '@/components/votes/withVote';
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -217,6 +220,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postBody: {
     width: "max-content",
   },
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
+  },
   postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
@@ -347,6 +356,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
+
+  const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
+  const voteProps = useVote(post, 'Posts', votingSystem);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -683,7 +695,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
@@ -693,15 +709,18 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
                 sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                voteProps={voteProps}
               />
             }
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
@@ -765,6 +784,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}

@@ -20,7 +20,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, isAF } from '../../lib/instanceSettings';
 import { hasSideComments } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 import { drive } from "@googleapis/drive";
@@ -33,7 +33,7 @@ import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers'
 import { RecommendedPost, recombeeApi } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
-import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -390,6 +390,10 @@ addGraphQLResolvers({
 
       return await postIsCriticism(args)
     },
+    async DigestPosts(root: void, {num}: {num: number}, context: ResolverContext) {
+      const { repos } = context
+      return await repos.posts.getPostsForOnsiteDigest(num)
+    },
     async DigestPlannerData(root: void, {digestId, startDate, endDate}: {digestId: string, startDate: Date, endDate: Date}, context: ResolverContext) {
       const { currentUser, repos } = context
       if (!currentUser || !currentUser.isAdmin) {
@@ -532,6 +536,13 @@ addGraphQLResolvers({
 
         return await Posts.findOne({_id: postId})
       } else {
+        let afField: Partial<ReplaceFieldsOfType<DbPost, EditableFieldContents, EditableFieldInsertion>> = {};
+        if (isAF) {
+          afField = !userCanDo(currentUser, 'posts.alignment.new')
+            ? { suggestForAlignmentUserIds: [currentUser._id] }
+            : { af: true };
+        }
+
         // Create a draft post if one doesn't exist. This runs `buildRevision` itself via a callback
         const { data: post } = await createMutator({
           collection: Posts,
@@ -544,7 +555,8 @@ addGraphQLResolvers({
               commitMessage,
               googleDocMetadata: docMetadata
             },
-            draft: true
+            draft: true,
+            ...afField
           },
           currentUser,
           validate: false,
@@ -574,6 +586,7 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+addGraphQLQuery('DigestPosts(num: Int): [Post]')
 
 addGraphQLQuery("CanAccessGoogleDoc(fileUrl: String!): Boolean");
 addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");

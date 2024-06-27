@@ -89,6 +89,18 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
     border: "none",
     borderRadius: 5
   },
+  
+  // Starting in v38, CkEditor puts a "powered by CkEditor" badge in the corner
+  // when focused. This is removed by putting a `licenseKey` in the ckeditor
+  // config; we do have one of those (since we're using cloud editing), it's
+  // not connected to the client in the right place to suppress the banner, so,
+  // just use CSS instead. AFAIK this wouldn't be a requirement of the relevant
+  // license (GPL) even if we didn't have a separate commercial license, and we
+  // do credit Ck in the editor-type dropdown if you have that enabled, just not
+  // quite as prominently.
+  ".ck-powered-by": {
+    display: "none",
+  },
 });
 
 const commentsStyle = (theme: ThemeType): JssStyles => ({
@@ -393,7 +405,8 @@ const audioPlayerStyles = (theme: ThemeType): JssStyles => ({
       marginRight: -1, // The margins here have been changed from the default to fit the EA Forum
     },
     /* Refine this to match the dimensions of your heading typeface */
-    'h2 .t3a-heading-play-button': { marginTop: 9 },
+    'h1 .t3a-heading-play-button': { marginTop: 10 },
+    'h2 .t3a-heading-play-button': { marginTop: 7 },
     'h3 .t3a-heading-play-button': { marginTop: 3 },
   }
 })

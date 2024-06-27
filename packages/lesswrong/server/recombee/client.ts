@@ -15,6 +15,10 @@ import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMet
 import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
+import { createAdminContext } from '../vulcan-lib/query';
+import Globals from '@/lib/vulcan-lib/config';
+import util from 'util';
+import { FilterSettings, getDefaultFilterSettings } from '@/lib/filterSettings';
 
 export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -221,6 +225,16 @@ const helpers = {
     return new requests.Batch(requestBatch);
   },
 
+  createListPostsRequest(postIds: string[]) {
+    const filter = `'itemId' in {${postIds.map(id => `"${id}"`).join(', ')}}`;
+    return new requests.ListItems({ filter, includedProperties: ['title'], returnProperties: true });
+  },
+
+  createDeletePostsRequest(postIds: string[]) {
+    const filter = `'itemId' in {${postIds.map(id => `"${id}"`).join(', ')}}`;
+    return new requests.DeleteMoreItems(filter);
+  },
+
   filterSuccessesFromBatchResponse(batchResponse: BatchResponse) {
     return batchResponse.filter(({ json, code }) => {
       if (code !== 200) {
@@ -334,10 +348,13 @@ const helpers = {
     const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
     const notPostIdsArg = excludedPostIds.length ? { notPostIds: excludedPostIds } : {};
+    const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+
     const postsTerms: PostsViewTerms = {
       view: "magic",
       forum: true,
       limit,
+      filterSettings,
       ...notPostIdsArg,
       ...loadMoreCountArg,
     };
@@ -351,6 +368,15 @@ const helpers = {
     return helpers.isLoadMoreOperation(lwAlgoSettings)
       ? Promise.resolve([])
       : context.ReadStatuses.find({ postId: { $in: curatedPostIds.slice(1) }, userId, isRead: true }).fetch();
+  },
+
+  getManuallyStickiedPostsReadStatuses(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, userId: string, context: ResolverContext) {
+    if (helpers.isLoadMoreOperation(lwAlgoSettings)) {
+      return Promise.resolve([])
+    }
+
+    const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
+    return context.ReadStatuses.find({ postId: { $in: manuallyStickiedPostIds }, userId, isRead: true }).fetch();
   },
 
   assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }: AssignRecommendationResultMetadataArgs): RecommendedPost {
@@ -494,12 +520,16 @@ const recombeeApi = {
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
-    const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
+    const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses] = await Promise.all([
+      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context),
+      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context)
+    ]);
 
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
+    const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
     const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
-      : [...includedCuratedPostIds, ...stickiedPostIds];
+      : [...includedCuratedPostIds, ...includedStickiedPostIds];
 
     const curatedAndStickiedPostCount = includedCuratedAndStickiedPostIds.length;
     const modifiedCount = count - curatedAndStickiedPostCount;
@@ -531,10 +561,15 @@ const recombeeApi = {
 
     const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
-    const curatedPostReadStatuses = await helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context);
+    const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses] = await Promise.all([
+      helpers.getCuratedPostsReadStatuses(lwAlgoSettings, curatedPostIds, userId, context),
+      helpers.getManuallyStickiedPostsReadStatuses(lwAlgoSettings, userId, context)
+    ]);
+
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
     const includedCuratedPostIds = curatedPostIds.filter(id => !curatedPostReadStatuses.find(readStatus => readStatus.postId === id));
-    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...stickiedPostIds];
+    const includedStickiedPostIds = stickiedPostIds.filter(id => !manuallyStickiedPostReadStatuses.find(readStatus => readStatus.postId === id))
+    const excludeFromLatestPostIds = [...includedCuratedPostIds, ...includedStickiedPostIds];
     // We only want to fetch the curated and stickied posts if this is the first load, not on any load more
     const includedCuratedAndStickiedPostIds = reqIsLoadMore
       ? []
@@ -676,7 +711,43 @@ const recombeeApi = {
     const client = getRecombeeClientOrThrow();
     const request = helpers.createUpsertUserDetailsRequest(user);
     await client.send(request);
-  }
+  },
+
+  /**
+   * Primarily for admin use; you'll need to modify the query that returns the relevant postIds if you want something different
+   */
+  async listPosts() {
+    const client = getRecombeeClientOrThrow();
+    const context = createAdminContext();
+    const postIds = (await context.Posts.find({ unlisted: true }, undefined, { _id: 1 }).fetch()).map(({ _id }) => _id);
+    const request = helpers.createListPostsRequest(postIds);
+    return await client.send(request);
+  },
+
+  async deletePosts(postIds: string[]) {
+    const client = getRecombeeClientOrThrow();
+    const request = helpers.createDeletePostsRequest(postIds);
+    return await client.send(request);
+  },
 };
 
 export { helpers as recombeeRequestHelpers, recombeeApi };
+
+Globals.recombee = recombeeApi;
+// Also generate serverShellCommands that log the output of every function here, rather than just running them.
+// In general this might only be useful for GET calls, since POST/DELETE/etc operations often don't return anything meaningful.
+// This isn't guaranteed to produce sane results in every single case, but seems like it should be fine most of the time.
+Globals.recombee.log = Object.fromEntries(Object.entries(Globals.recombee).map(([key, val]) => {
+  if (typeof val !== 'function') {
+    return [key, val];
+  }
+
+  const withLoggedOutput = async (...args: any[]) => {
+    const result = await val(...args);
+    // eslint-disable-next-line no-console
+    console.log(util.inspect(result, { depth: null }));
+    return result;
+  };
+
+  return [key, withLoggedOutput];
+}));

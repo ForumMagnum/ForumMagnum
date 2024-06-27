@@ -57,17 +57,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing}: {
+const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   classes: ClassesType,
   post: PostsList,
   hideMeta?: boolean,
   hideAuthor?: boolean,
   wrap?: boolean,
   widerSpacing?: boolean
+  disableHoverPreview?: boolean
 }) => {
   const {PostsTooltip, UsersName, MetaInfo, KarmaDisplay} = Components;
   return (
-    <PostsTooltip post={post} clickable={false} placement="bottom-start">
+    <PostsTooltip post={post} clickable={false} placement="bottom-start" disabled={disableHoverPreview}>
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
         <div className={classes.post}>
           {!hideMeta &&
