@@ -28,6 +28,10 @@ registerFragment(`
       _id
       html
     }
+    frontpageDescriptionMobile {
+      _id
+      html
+    }
     postPageDescription {
       _id
       html
@@ -39,6 +43,9 @@ registerFragment(`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {
+      ...RevisionEdit
+    }
+    frontpageDescriptionMobile {
       ...RevisionEdit
     }
     postPageDescription {

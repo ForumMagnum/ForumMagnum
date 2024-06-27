@@ -351,7 +351,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
                 add this up, and end up with the below list.
               "
             >
-              <ForumIcon icon="QuestionMarkCircle" className={classes.postsHeadingIcon} />
+              <ForumIcon icon="QuestionMarkCircleFilled" className={classes.postsHeadingIcon} />
             </LWTooltip>
           </div>
           <div className={classes.postsAndBody}>

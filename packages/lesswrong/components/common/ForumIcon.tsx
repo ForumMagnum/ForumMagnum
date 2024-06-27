@@ -26,6 +26,8 @@ import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
+import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
 import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
@@ -59,10 +61,11 @@ import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon
 import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
-import QuestionMarkCircleIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
-import QuestionMarkCircleOutlineIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import QuestionMarkCircleFilledIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
+import ArrowLongUp from "@heroicons/react/20/solid/ArrowLongUpIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
@@ -169,6 +172,8 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "Clock" |
+  "No" |
   "Calendar" |
   "CalendarDays" |
   "Work" |
@@ -199,6 +204,7 @@ export type ForumIconName =
   "ThickChevronDown" |
   "ChevronUpDown" |
   "NarrowArrowDown" |
+  "NarrowArrowUp" |
   "Plus" |
   "Check" |
   "CheckCircle" |
@@ -225,7 +231,7 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
-  "QuestionMarkCircleOutline" |
+  "QuestionMarkCircleFilled" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -273,6 +279,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
@@ -303,6 +311,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronDown: ThickChevronDownIcon,
     ChevronUpDown: ChevronUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -329,7 +338,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
-    QuestionMarkCircleOutline: QuestionMarkCircleOutlineIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -375,6 +384,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
@@ -405,6 +416,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronDown: ThickChevronDownIcon,
     ChevronUpDown: ChevronUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -431,7 +443,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
-    QuestionMarkCircleOutline: QuestionMarkCircleOutlineIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,

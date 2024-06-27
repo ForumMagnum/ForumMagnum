@@ -685,8 +685,13 @@
     "timestamp": "2024-06-12T17:35:25.000Z"
   },
   {
-    "acceptsSchemaHash": "3f8064983aa4d12578752d2fede56766",
-    "acceptedByMigration": "20240624T224601.add_poll_fields_to_ForumEvents.ts",
-    "timestamp": "2024-06-24T22:46:01.000Z"
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "af39464b13d09507b438054d15aba060",
+    "acceptedByMigration": "20240627T173906.add_poll_fields_to_ForumEvents.ts",
+    "timestamp": "2024-06-27T17:39:06.000Z"
   }
 ]

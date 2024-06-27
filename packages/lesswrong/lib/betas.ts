@@ -14,6 +14,7 @@ import {
   hasSideCommentsSetting, 
   hasDialoguesSetting, 
   hasPostInlineReactionsSetting,
+  isBotSiteSetting,
   isLW,
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
@@ -90,6 +91,7 @@ export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
+export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
 export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 
