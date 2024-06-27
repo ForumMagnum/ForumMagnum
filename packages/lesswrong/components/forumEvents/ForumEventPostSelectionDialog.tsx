@@ -15,10 +15,22 @@ const styles = (theme: ThemeType) => ({
     padding: 32,
   },
   title: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     fontSize: 24,
     fontWeight: 700,
     marginTop: 0,
     marginBottom: 16,
+  },
+  closeIcon: {
+    fontSize: 20,
+    color: theme.palette.grey[700],
+    cursor: 'pointer',
+    transform: 'translate(4px, -4px)',
+    '&:hover': {
+      color: theme.palette.grey[1000],
+    }
   },
   description: {
     fontSize: 14,
@@ -95,19 +107,21 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
     onClose?.()
   }, [selectedPosts, addVote, voteData, onClose])
   
-  const { LWDialog, EAButton, PostsNoResults, EAPostsItem, PostsLoading } = Components;
+  const {
+    LWDialog, EAButton, PostsNoResults, EAPostsItem, PostsLoading, ForumIcon
+  } = Components;
   const postsError = decodeIntlError(error)
 
   return (
     <LWDialog
       open
-      onClose={handleDone}
       dialogClasses={{
         paper: classes.dialog,
       }}
     >
       <h2 className={classes.title}>
         Which posts changed your mind?
+        <ForumIcon icon="Close" className={classes.closeIcon} onClick={handleDone} />
       </h2>
       <div className={classes.description}>
         When you change your vote, we turn the distance into points.
@@ -145,7 +159,7 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
       </div>
       <div className={classes.buttons}>
         <button onClick={handleDone} className={classes.somethingElseButton}>
-          Something else changed my mind
+          I changed my mind for other reasons
         </button>
         <EAButton onClick={(e) => handleDone(e, true)} className={classes.doneButton}>
           Done
