@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
@@ -66,6 +66,9 @@ const styles = (theme: ThemeType) => ({
   },
   currentUserVotePlaceholder: {
     top: -(USER_IMAGE_SIZE/2) - 5,
+  },
+  currentUserVoteDragging: {
+    cursor: 'grabbing',
   },
   currentUserVoteActive: {
     opacity: 1,
@@ -142,7 +145,7 @@ export type ForumEventVoteData = {
 }
 
 export const addForumEventVoteQuery = gql`
-  mutation AddForumEventVote($forumEventId: String!, $x: Int!, $delta: Int!, $postIds: [String]) {
+  mutation AddForumEventVote($forumEventId: String!, $x: Int!, $delta: Int, $postIds: [String]) {
     AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
   }
 `;
@@ -152,9 +155,19 @@ const removeForumEventVoteQuery = gql`
   }
 `;
 
+const maxVotePos = SLIDER_WIDTH - USER_IMAGE_SIZE
 // The default vote position is in the middle of the slider
-const defaultVotePos = (SLIDER_WIDTH/2) - (USER_IMAGE_SIZE/2)
+const defaultVotePos = maxVotePos / 2
 
+/**
+ * This component is for forum events that have a poll.
+ * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
+ * and lets the user view the poll results (votes are public).
+ *
+ * When a user updates their vote, we award points to posts that changed the user's mind.
+ * If a postId is provided, we just give points to that post (ex. when on a post page).
+ * Otherwise, we open a modal.
+ */
 export const ForumEventPoll = ({event, postId, classes}: {
   event: ForumEventsDisplay,
   postId?: string,
@@ -163,20 +176,30 @@ export const ForumEventPoll = ({event, postId, classes}: {
   const {openDialog} = useDialog()
   const currentUser = useCurrentUser()
   // Pull the current user's vote position to initialize the component
-  const currentUserVotePos: number|null = currentUser ? (event.publicData?.[currentUser._id]?.x ?? null) : null
-
-  const sliderRef = useRef<HTMLDivElement|null>(null)
-  // The user's initial vote is handled differently, so we use this to track whether or not this is their first vote
-  const [hasVoted, setHasVoted] = useState(currentUserVotePos !== null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [votePos, setVotePos] = useState<number>(currentUserVotePos ?? defaultVotePos)
-  const [currentUserVote, setCurrentUserVote] = useState<number|null>(currentUserVotePos)
-  const [resultsVisible, setResultsVisible] = useState(currentUserVotePos !== null)
+  // (note that 0 is a valid vote)
+  const initialUserVotePos: number|null = currentUser ? (event.publicData?.[currentUser._id]?.x ?? null) : null
+  // The actual x position of the user's vote circle
+  const [votePos, setVotePos] = useState<number>(initialUserVotePos ?? defaultVotePos)
+  // The x position of the vote in the db
+  const [currentUserVote, setCurrentUserVote] = useState<number|null>(initialUserVotePos)
+  const hasVoted = currentUserVote !== null
   
-  const { results } = useMulti({
+  const sliderRef = useRef<HTMLDivElement|null>(null)
+  // Whether or not the user is currently dragging their vote
+  const [isDragging, setIsDragging] = useState(false)
+
+  // Whether or not the poll results (i.e. other users' votes) are visible.
+  // By default, they are hidden until after the user votes,
+  // but the user can choose to reveal them without voting.
+  const [resultsVisible, setResultsVisible] = useState(initialUserVotePos !== null)
+  
+  // Get profile image and display name for all other users who voted, to display on the slider
+  const { results: voters } = useMulti({
     terms: {
       view: 'usersByUserIds',
-      userIds: event.publicData ? Object.keys(event.publicData).filter(userId => userId !== currentUser?._id) : []
+      userIds: event.publicData ?
+        Object.keys(event.publicData).filter(userId => userId !== currentUser?._id) :
+        []
     },
     collectionName: "Users",
     fragmentName: 'UserOnboardingAuthor',
@@ -194,15 +217,25 @@ export const ForumEventPoll = ({event, postId, classes}: {
   )
   
   /**
-   * When the user clicks the "x" icon, delete their vote data
+   * When the user clicks the "x" icon, or when a logged out user tries to vote,
+   * delete their vote data
    */
   const clearVote = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation()
-    setHasVoted(false)
     setVotePos(defaultVotePos)
     setCurrentUserVote(null)
-    if (currentUser) void removeVote({variables: {forumEventId: event._id}})
+    if (currentUser) {
+      void removeVote({variables: {forumEventId: event._id}})
+    }
   }, [setVotePos, setCurrentUserVote, currentUser, removeVote, event._id])
+  
+  /**
+   * When the user mousedowns on their vote circle, start dragging it
+   */
+  const startDragVote = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }, [setIsDragging])
   
   /**
    * When the user drags their vote, update its x position
@@ -210,20 +243,19 @@ export const ForumEventPoll = ({event, postId, classes}: {
   const updateVotePos = useCallback((e: MouseEvent) => {
     if (!isDragging || !sliderRef.current) return
     
-    const maxX = SLIDER_WIDTH - USER_IMAGE_SIZE
-    // If the user's mouse is to the left or right of the slider,
+    // If the user's mouse is off to the left or right of the slider,
     // set the vote to the corresponding end of the slider
     const sliderRect = sliderRef.current.getBoundingClientRect()
     if (e.clientX < sliderRect.left) {
       setVotePos(0)
       return
     } else if (e.clientX > sliderRect.right) {
-      setVotePos(maxX)
+      setVotePos(maxVotePos)
       return
     }
     
-    setVotePos((val) => Math.min(Math.max(val + e.movementX, 0), maxX))
-    // setHasVoted(true)
+    const newVotePos = e.clientX - sliderRect.left - (USER_IMAGE_SIZE/2)
+    setVotePos(Math.min(Math.max(newVotePos, 0), maxVotePos))
   }, [isDragging, setVotePos])
   useEventListener("mousemove", updateVotePos)
 
@@ -236,7 +268,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
    */
   const saveVotePos = useCallback(() => {
     if (!isDragging) return
-    console.log('mouseup')
+
     setIsDragging(false)
     // When a logged-in user is done dragging their vote, attempt to save it
     if (currentUser) {
@@ -246,6 +278,9 @@ export const ForumEventPoll = ({event, postId, classes}: {
       }
       if (!hasVoted) {
         void addVote({variables: voteData})
+        setCurrentUserVote(votePos)
+        setResultsVisible(true)
+        return
       }
       const delta = votePos - (currentUserVote ?? defaultVotePos)
       if (delta) {
@@ -261,7 +296,6 @@ export const ForumEventPoll = ({event, postId, classes}: {
             componentProps: {tag: event.tag, voteData}
           })
         }
-        setHasVoted(true)
         setCurrentUserVote(votePos)
       }
     }
@@ -275,21 +309,35 @@ export const ForumEventPoll = ({event, postId, classes}: {
 
   const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
 
-  // TODO: put this somewhere
-  const pollQuestion = <div className={classes.question}>
+  // This should prob be added to the ForumEvents schema, but in the interest
+  // of time, for this event I will just hardcode it here
+  const pollQuestion = useMemo(() => <div className={classes.question}>
     “AI welfare
     <LWTooltip
-      title="By “AI welfare”, we mean the potential wellbeing (pain, pleasure, but also frustration, satisfaction etc...) of future artificial intelligence systems."
+      title="
+        By “AI welfare”, we mean the potential wellbeing (pain,
+        pleasure, but also frustration, satisfaction etc...) of
+        future artificial intelligence systems.
+      "
     >
-      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>1</span>
+      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>
+        1
+      </span>
     </LWTooltip>{" "}
     should be an EA priority
     <LWTooltip
-      title="By “EA priority” we mean that 5% of (unrestricted, i.e. open to EA-style cause prioritisation) talent and 5% of (unrestricted, i.e. open to EA-style cause prioritisation) funding should be allocated to this cause."
+      title="
+        By “EA priority” we mean that 5% of (unrestricted, i.e.
+        open to EA-style cause prioritisation) talent and 5% of
+        (unrestricted, i.e. open to EA-style cause prioritisation)
+        funding should be allocated to this cause.
+      "
     >
-      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>2</span>
+      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>
+        2
+      </span>
     </LWTooltip>”
-  </div>
+  </div>, [event.contrastColor, event.darkColor])
 
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
@@ -299,7 +347,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
           <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
           <div>
             <div className={classes.sliderLine} ref={sliderRef}>
-              {resultsVisible && results && results.map(user => {
+              {resultsVisible && voters && voters.map(user => {
                 const vote = event.publicData[user._id]
                 return <div key={user._id} className={classes.userVote} style={{left: `${vote.x}px`}}>
                   <LWTooltip title={<div className={classes.voteTooltipBody}>{user.displayName}</div>}>
@@ -312,9 +360,10 @@ export const ForumEventPoll = ({event, postId, classes}: {
                   classes.userVote,
                   classes.currentUserVote,
                   !currentUser && classes.currentUserVotePlaceholder,
+                  isDragging && classes.currentUserVoteDragging,
                   hasVoted && classes.currentUserVoteActive
                 )}
-                onMouseDown={() => setIsDragging(true)}
+                onMouseDown={startDragVote}
                 style={{left: `${votePos}px`}}
               >
                 <LWTooltip title={hasVoted ? <div className={classes.voteTooltipBody}>Drag to move</div> : <>
@@ -336,8 +385,10 @@ export const ForumEventPoll = ({event, postId, classes}: {
               <div>Disagree</div>
               <ForumNoSSR>
                 {!hasVoted && !resultsVisible && (event.voteCount > 0) && <div>
-                  {event.voteCount} vote{event.voteCount === 1 ? '' : 's'} so far.
-                  Place your vote or <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>view results</button>
+                  {event.voteCount} vote{event.voteCount === 1 ? '' : 's'} so far. Place your vote or{" "}
+                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
+                    view results
+                  </button>
                 </div>}
               </ForumNoSSR>
               <div>Agree</div>

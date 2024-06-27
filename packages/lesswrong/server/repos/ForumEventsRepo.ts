@@ -6,17 +6,6 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   constructor() {
     super(ForumEvents);
   }
-
-  async submittedVoteCount(_id: string): Promise<number> {
-    const res = await this.getRawDb().oneOrNone<{ count: string }>(`
-      -- ForumEventsRepo.submittedVoteCount
-      SELECT count(*) as count
-      FROM public."ForumEvents", jsonb_each("publicData")
-      WHERE _id = $1
-    `, [_id])
-
-    return res ? parseInt(res.count) : 0;
-  }
   
   async getUserVote(_id: string, userId: string) {
     const res = await this.getRawDb().oneOrNone(`
