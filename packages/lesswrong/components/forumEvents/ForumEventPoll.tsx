@@ -159,6 +159,43 @@ const maxVotePos = SLIDER_WIDTH - USER_IMAGE_SIZE
 // The default vote position is in the middle of the slider
 const defaultVotePos = maxVotePos / 2
 
+const PollQuestion = ({event, classes}: {
+  event: ForumEventsDisplay,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {LWTooltip} = Components;
+
+  // The poll question should prob be added to the ForumEvents schema,
+  // but in the interest of time, for this event I will just hardcode it here
+  return <div className={classes.question}>
+    “AI welfare
+    <LWTooltip
+      title="
+        By “AI welfare”, we mean the potential wellbeing (pain,
+        pleasure, but also frustration, satisfaction etc...) of
+        future artificial intelligence systems.
+      "
+    >
+      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>
+        1
+      </span>
+    </LWTooltip>{" "}
+    should be an EA priority
+    <LWTooltip
+      title="
+        By “EA priority” we mean that 5% of (unrestricted, i.e.
+        open to EA-style cause prioritisation) talent and 5% of
+        (unrestricted, i.e. open to EA-style cause prioritisation)
+        funding should be allocated to this cause.
+      "
+    >
+      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>
+        2
+      </span>
+    </LWTooltip>”
+  </div>
+}
+
 /**
  * This component is for forum events that have a poll.
  * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
@@ -309,40 +346,11 @@ export const ForumEventPoll = ({event, postId, classes}: {
 
   const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
 
-  // This should prob be added to the ForumEvents schema, but in the interest
-  // of time, for this event I will just hardcode it here
-  const pollQuestion = useMemo(() => <div className={classes.question}>
-    “AI welfare
-    <LWTooltip
-      title="
-        By “AI welfare”, we mean the potential wellbeing (pain,
-        pleasure, but also frustration, satisfaction etc...) of
-        future artificial intelligence systems.
-      "
-    >
-      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>
-        1
-      </span>
-    </LWTooltip>{" "}
-    should be an EA priority
-    <LWTooltip
-      title="
-        By “EA priority” we mean that 5% of (unrestricted, i.e.
-        open to EA-style cause prioritisation) talent and 5% of
-        (unrestricted, i.e. open to EA-style cause prioritisation)
-        funding should be allocated to this cause.
-      "
-    >
-      <span className={classes.questionFootnote} style={{color: event.contrastColor ?? event.darkColor}}>
-        2
-      </span>
-    </LWTooltip>”
-  </div>, [event.contrastColor, event.darkColor])
-
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classes.root}>
-        {pollQuestion}
+        <PollQuestion event={event} classes={classes} />
+
         <div className={classes.sliderRow}>
           <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
           <div>
@@ -396,6 +404,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
           </div>
           <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
         </div>
+
       </div>
     </AnalyticsContext>
   );
