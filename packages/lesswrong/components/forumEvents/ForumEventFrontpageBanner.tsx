@@ -7,7 +7,10 @@ import { useDismissable } from "../hooks/useDismissable";
 import classNames from "classnames";
 import { HEADER_HEIGHT } from "../common/Header";
 import { Link } from "@/lib/reactRouterWrapper";
-import { orderBy, toPairs } from "lodash";
+import orderBy from "lodash/orderBy";
+import toPairs from "lodash/toPairs";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -129,6 +132,16 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     columnGap: '48px',
   },
+  postsSeeAll: {
+    fontSize: 13,
+    fontWeight: 500,
+    lineHeight: '140%',
+    marginTop: 16,
+    "& a": {
+      textDecoration: "underline",
+      textUnderlineOffset: '2px',
+    }
+  },
   contentWithPollBody: {
     maxWidth: 256,
   },
@@ -209,7 +222,7 @@ const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
  * Includes description text on the left side, background dark color fading into
  * banner on the right side.
  *
- * Header is not affected.
+ * Site header is not affected.
  */
 const ForumEventFrontpageBannerBasic = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -232,63 +245,57 @@ const ForumEventFrontpageBannerBasic = ({classes}: {
   } as CSSProperties;
 
   return (
-    <div className={classNames(classes.root, classes.rootWithGradient)} style={style}>
-      <div className={classes.contentBasic}>
-        <div className={classes.date}>{date}</div>
-        <div className={classes.title}>{title}</div>
-        {frontpageDescription?.html &&
-          <ContentStyles contentType="comment">
-            <ContentItemBody
-              dangerouslySetInnerHTML={{__html: frontpageDescription.html}}
-              className={classes.description}
-            />
-          </ContentStyles>
+    <AnalyticsContext pageSectionContext="forumEventFrontpageBannerBasic">
+      <div className={classNames(classes.root, classes.rootWithGradient)} style={style}>
+        <div className={classes.contentBasic}>
+          <div className={classes.date}>{date}</div>
+          <div className={classes.title}>{title}</div>
+          {frontpageDescription?.html &&
+            <ContentStyles contentType="comment">
+              <ContentItemBody
+                dangerouslySetInnerHTML={{__html: frontpageDescription.html}}
+                className={classes.description}
+              />
+            </ContentStyles>
+          }
+        </div>
+        {bannerImageId &&
+          <CloudinaryImage2
+            publicId={bannerImageId}
+            className={classNames(classes.image, classes.imageWithGradient)}
+          />
         }
+        <ForumIcon icon="Close" onClick={dismiss} className={classes.hideButton} />
       </div>
-      {bannerImageId &&
-        <CloudinaryImage2
-          publicId={bannerImageId}
-          className={classNames(classes.image, classes.imageWithGradient)}
-        />
-      }
-      <ForumIcon icon="Close" onClick={dismiss} className={classes.hideButton} />
-    </div>
+    </AnalyticsContext>
   );
 }
 
 /**
- * This is the forum event banner that includes an interactive slider,
+ * This is the forum event banner that includes an interactive slider on desktop,
  * so we can poll users. Not dismissable.
  *
  * Has no gradient over the banner. On desktop, has a large slider in the center,
  * and the banner is expandable to display event description and post list.
+ *
  * On mobile, just displays event description.
  *
- * Header is given a background as well, to match this banner.
+ * On the home page, the site header is given a background as well,
+ * to match this banner.
  */
 const ForumEventFrontpageBannerWithPoll = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentForumEvent} = useCurrentForumEvent();
   const [expanded, setExpanded] = useState(false)
-  if (!currentForumEvent) {
-    return null;
-  }
-
-  const {title, bannerImageId, tag, publicData} = currentForumEvent;
-  const date = formatDate(currentForumEvent);
-  const announcementPostLink = "/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7"
-  const description = <>
-    Should AI Welfare be an EA priority? Read more about this debate week <Link to={announcementPostLink}>here</Link>
-  </>
   
   // Calculate how many points each post got, to find the 4 most influential posts
   const influentialPosts = useMemo(() => {
-    if (!publicData) return []
+    if (!currentForumEvent?.publicData) return []
 
     // Track the total number of points each post got, {postId: points}
     const scores: Record<string, number> = {}
-    Object.values(publicData).forEach((vote: AnyBecauseTodo) => {
+    Object.values(currentForumEvent?.publicData).forEach((vote: AnyBecauseTodo) => {
       if (vote.points) {
         Object.keys(vote.points).forEach((postId: string) => {
           if (postId in scores) {
@@ -300,60 +307,80 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
       }
     })
     const postIdScorePairs = toPairs(scores)
-    console.log('postIdScorePairs', postIdScorePairs)
     return orderBy(postIdScorePairs, p => p[1], 'desc').map(p => p[0]).slice(0, 4)
-  }, [publicData])
-  console.log('influentialPosts', influentialPosts)
+  }, [currentForumEvent])
+  
+  if (!currentForumEvent) {
+    return null;
+  }
+
+  const {title, bannerImageId, tag, publicData} = currentForumEvent;
+  const date = formatDate(currentForumEvent);
+  const announcementPostLink = "/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7"
+  const description = <>
+    Should AI Welfare be an EA priority? Read more about this debate week <Link to={announcementPostLink}>here</Link>
+  </>
   
   const {CloudinaryImage2, ForumEventPoll, ForumIcon, LWTooltip, PostsList2} = Components;
 
   return (
-    <div className={classes.root}>
-      <ForumEventPoll event={currentForumEvent} />
-      <div className={classes.expandToggleRow}>
-        <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
-          <ForumIcon icon={expanded ? "ThickChevronDown" : "ThickChevronRight"} className={classes.expandToggleIcon} />
-          {expanded ? 'Collapse' : `Debate week ${date}`}
-        </button>
-      </div>
-      {expanded && <div className={classes.contentWithPoll}>
-        <div className={classes.postsHeading}>
-          Most influential posts so far
-          <LWTooltip
-            title="When you change your mind and move your icon on the debate slider, above or in a post, we record the distance you moved and the posts you cite as responsible for changing your mind. We assign the distance moved to them, add this up, and end up with the below list."
-          >
-            <ForumIcon icon="QuestionMarkCircle" className={classes.postsHeadingIcon} />
-          </LWTooltip>
+    <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
+      <div className={classes.root}>
+        <ForumEventPoll event={currentForumEvent} />
+        <div className={classes.expandToggleRow}>
+          <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
+            <ForumIcon icon={expanded ? "ThickChevronDown" : "ThickChevronRight"} className={classes.expandToggleIcon} />
+            {expanded ? 'Collapse' : `Debate week ${date}`}
+          </button>
         </div>
-        <div className={classes.postsAndBody}>
-          <div className={classes.posts}>
-            <PostsList2
-              terms={{postIds: influentialPosts, limit: 4}}
-              order={influentialPosts}
-              showLoadMore={false}
-              placeholderCount={4}
-              hideTag
-            />
+        {expanded && <div className={classes.contentWithPoll}>
+          <div className={classes.postsHeading}>
+            Most influential posts so far
+            <LWTooltip
+              title="
+                When you change your mind and move your icon on the debate slider,
+                above or in a post, we record the distance you moved and the posts you cite
+                as responsible for changing your mind. We assign the distance moved to them,
+                add this up, and end up with the below list.
+              "
+            >
+              <ForumIcon icon="QuestionMarkCircle" className={classes.postsHeadingIcon} />
+            </LWTooltip>
           </div>
-          <div className={classes.contentWithPollBody}>
-            <div className={classes.titleWithPoll}>{title}</div>
-            <div className={classes.dateWithPoll}>{date}</div>
-            <div className={classes.descriptionWithPoll}>{description}.</div>
+          <div className={classes.postsAndBody}>
+            <div className={classes.posts}>
+              <PostsList2
+                terms={{postIds: influentialPosts, limit: 4}}
+                order={influentialPosts}
+                showLoadMore={false}
+                placeholderCount={4}
+                hideTag
+                showNoResults={false}
+              />
+              {tag && <div className={classes.postsSeeAll}>
+                See all eligible posts <Link to={tagGetUrl(tag)}>here</Link>
+              </div>}
+            </div>
+            <div className={classes.contentWithPollBody}>
+              <div className={classes.titleWithPoll}>{title}</div>
+              <div className={classes.dateWithPoll}>{date}</div>
+              <div className={classes.descriptionWithPoll}>{description}.</div>
+            </div>
           </div>
+        </div>}
+        <div className={classes.contentWithPollMobile}>
+          <div className={classes.titleWithPollMobile}>{title}</div>
+          <div className={classes.dateWithPoll}>{date}</div>
+          <div className={classes.descriptionWithPoll}>{description}, and vote on desktop.</div>
         </div>
-      </div>}
-      <div className={classes.contentWithPollMobile}>
-        <div className={classes.titleWithPollMobile}>{title}</div>
-        <div className={classes.dateWithPoll}>{date}</div>
-        <div className={classes.descriptionWithPoll}>{description}, and vote on desktop.</div>
+        {bannerImageId &&
+          <CloudinaryImage2
+            publicId={bannerImageId}
+            className={classes.image}
+          />
+        }
       </div>
-      {bannerImageId &&
-        <CloudinaryImage2
-          publicId={bannerImageId}
-          className={classes.image}
-        />
-      }
-    </div>
+    </AnalyticsContext>
   );
 }
 

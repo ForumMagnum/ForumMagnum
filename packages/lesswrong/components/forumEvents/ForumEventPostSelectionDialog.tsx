@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent, Components, decodeIntlError } from "../../lib/vulcan-lib";
-import { addForumEventVoteQuery } from "./ForumEventPoll";
+import { ForumEventVoteData, addForumEventVoteQuery } from "./ForumEventPoll";
 import { useMutation } from "@apollo/client";
 import { usePostsList } from "../posts/usePostsList";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
@@ -54,13 +54,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type ForumEventVoteData = {
-  forumEventId: string,
-  x: number,
-  delta: number,
-  postIds?: string[]
-}
-
 /**
  * Modal that handles post selection before submitting a vote for a forum event with a poll.
  * Built for the EA Forum, so if others want to use it you will want to audit the code first.
@@ -104,7 +97,7 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
       postIds: includePosts ? selectedPosts : []
     }})
     onClose?.()
-  }, [selectedPosts, onClose])
+  }, [selectedPosts, addVote, voteData, onClose])
   
   const { LWDialog, EAButton, PostsNoResults, EAPostsItem, PostsLoading } = Components;
   
@@ -141,12 +134,12 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
             secondaryInfoNode={
               <div>
                 <Checkbox
+                  checked={selectedPosts.includes(props.post._id)}
                   onChange={(event, checked) => {
                     if (checked) {
-                      selectedPosts.push(props.post._id)
-                      setSelectedPosts(selectedPosts)
+                      setSelectedPosts(prev => [...prev, props.post._id])
                     } else {
-                      setSelectedPosts(selectedPosts.filter(p => p !== props.post._id))
+                      setSelectedPosts(prev => prev.filter(p => p !== props.post._id))
                     }
                   }}
                 />

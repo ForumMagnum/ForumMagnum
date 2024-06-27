@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
@@ -7,6 +7,7 @@ import { gql, useMutation } from "@apollo/client";
 import { useDialog } from "../common/withDialog";
 import { useMulti } from "@/lib/crud/withMulti";
 import ForumNoSSR from "../common/ForumNoSSR";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const SLIDER_WIDTH = 1000;
 const USER_IMAGE_SIZE = 24;
@@ -133,6 +134,13 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+export type ForumEventVoteData = {
+  forumEventId: string,
+  x: number,
+  delta?: number,
+  postIds?: string[]
+}
+
 export const addForumEventVoteQuery = gql`
   mutation AddForumEventVote($forumEventId: String!, $x: Int!, $delta: Int!, $postIds: [String]) {
     AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
@@ -157,6 +165,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
   // Pull the current user's vote position to initialize the component
   const currentUserVotePos: number|null = currentUser ? (event.publicData?.[currentUser._id]?.x ?? null) : null
 
+  const sliderRef = useRef<HTMLDivElement|null>(null)
   // The user's initial vote is handled differently, so we use this to track whether or not this is their first vote
   const [hasVoted, setHasVoted] = useState(currentUserVotePos !== null)
   const [isDragging, setIsDragging] = useState(false)
@@ -199,11 +208,21 @@ export const ForumEventPoll = ({event, postId, classes}: {
    * When the user drags their vote, update its x position
    */
   const updateVotePos = useCallback((e: MouseEvent) => {
-    if (!isDragging) return
-
-    console.log('e.movementX', e.movementX)
-    // TODO: pause when mouse is too far right or left, and prob use percent
-    setVotePos((val) => Math.min(Math.max(val + e.movementX, 0), SLIDER_WIDTH - (USER_IMAGE_SIZE/2)))
+    if (!isDragging || !sliderRef.current) return
+    
+    const maxX = SLIDER_WIDTH - USER_IMAGE_SIZE
+    // If the user's mouse is to the left or right of the slider,
+    // set the vote to the corresponding end of the slider
+    const sliderRect = sliderRef.current.getBoundingClientRect()
+    if (e.clientX < sliderRect.left) {
+      setVotePos(0)
+      return
+    } else if (e.clientX > sliderRect.right) {
+      setVotePos(maxX)
+      return
+    }
+    
+    setVotePos((val) => Math.min(Math.max(val + e.movementX, 0), maxX))
     // setHasVoted(true)
   }, [isDragging, setVotePos])
   useEventListener("mousemove", updateVotePos)
@@ -221,16 +240,17 @@ export const ForumEventPoll = ({event, postId, classes}: {
     setIsDragging(false)
     // When a logged-in user is done dragging their vote, attempt to save it
     if (currentUser) {
+      const voteData: ForumEventVoteData = {
+        forumEventId: event._id,
+        x: votePos,
+      }
+      if (!hasVoted) {
+        void addVote({variables: voteData})
+      }
       const delta = votePos - (currentUserVote ?? defaultVotePos)
       if (delta) {
-        const voteData = {
-          forumEventId: event._id,
-          x: votePos,
-          delta,
-        }
-        if (!hasVoted) {
-          void addVote({variables: voteData})
-        } else if (postId) {
+        voteData.delta = delta
+        if (postId) {
           void addVote({variables: {
             ...voteData,
             postIds: [postId]
@@ -250,7 +270,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
       openDialog({componentName: "LoginPopup"})
       clearVote()
     }
-  }, [setIsDragging, hasVoted, currentUser, addVote, event._id, votePos, currentUserVote, postId, setCurrentUserVote, openDialog, clearVote])
+  }, [isDragging, setIsDragging, hasVoted, currentUser, addVote, event._id, event.tag, votePos, currentUserVote, postId, setCurrentUserVote, openDialog, clearVote])
   useEventListener("mouseup", saveVotePos)
 
   const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
@@ -272,60 +292,61 @@ export const ForumEventPoll = ({event, postId, classes}: {
   </div>
 
   return (
-    <div className={classes.root}>
-      {pollQuestion}
-      <div className={classes.sliderRow}>
-        <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
-        <div>
-          <div className={classes.sliderLine}>
-            {resultsVisible && results && results.map(user => {
-              const vote = event.publicData[user._id]
-              return <div key={user._id} className={classes.userVote} style={{left: `${vote.x}px`}}>
-                <LWTooltip title={<div className={classes.voteTooltipBody}>{user.displayName}</div>}>
-                  <UsersProfileImage user={user} size={USER_IMAGE_SIZE} className={classes.userImage} />
+    <AnalyticsContext pageElementContext="forumEventPoll">
+      <div className={classes.root}>
+        {pollQuestion}
+        <div className={classes.sliderRow}>
+          <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
+          <div>
+            <div className={classes.sliderLine} ref={sliderRef}>
+              {resultsVisible && results && results.map(user => {
+                const vote = event.publicData[user._id]
+                return <div key={user._id} className={classes.userVote} style={{left: `${vote.x}px`}}>
+                  <LWTooltip title={<div className={classes.voteTooltipBody}>{user.displayName}</div>}>
+                    <UsersProfileImage user={user} size={USER_IMAGE_SIZE} className={classes.userImage} />
+                  </LWTooltip>
+                </div>
+              })}
+              <div
+                className={classNames(
+                  classes.userVote,
+                  classes.currentUserVote,
+                  !currentUser && classes.currentUserVotePlaceholder,
+                  hasVoted && classes.currentUserVoteActive
+                )}
+                onMouseDown={() => setIsDragging(true)}
+                style={{left: `${votePos}px`}}
+              >
+                <LWTooltip title={hasVoted ? <div className={classes.voteTooltipBody}>Drag to move</div> : <>
+                    <div className={classes.voteTooltipHeading}>Press and drag to vote</div>
+                    <div className={classes.voteTooltipBody}>Votes are non-anonymous and can be changed at any time</div>
+                  </>}
+                >
+                  {currentUser ?
+                    <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} /> :
+                    <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
+                  }
+                  <div className={classes.clearVote} onMouseDown={clearVote}>
+                    <ForumIcon icon="Close" className={classes.clearVoteIcon} />
+                  </div>
                 </LWTooltip>
               </div>
-            })}
-            <div
-              className={classNames(
-                classes.userVote,
-                classes.currentUserVote,
-                !currentUser && classes.currentUserVotePlaceholder,
-                currentUserVote && classes.currentUserVoteActive
-              )}
-              onMouseDown={() => setIsDragging(true)}
-              style={{left: `${votePos}px`}}
-            >
-              <LWTooltip title={currentUserVote ? <div className={classes.voteTooltipBody}>Drag to move</div> : <>
-                  <div className={classes.voteTooltipHeading}>Press and drag to vote</div>
-                  <div className={classes.voteTooltipBody}>Votes are non-anonymous and can be changed at any time</div>
-                </>}
-              >
-                {currentUser ?
-                  <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} /> :
-                  <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
-                }
-                <div className={classes.clearVote} onMouseDown={clearVote}>
-                  <ForumIcon icon="Close" className={classes.clearVoteIcon} />
-                </div>
-              </LWTooltip>
+            </div>
+            <div className={classes.sliderLabels}>
+              <div>Disagree</div>
+              <ForumNoSSR>
+                {!hasVoted && !resultsVisible && (event.voteCount > 0) && <div>
+                  {event.voteCount} vote{event.voteCount === 1 ? '' : 's'} so far.
+                  Place your vote or <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>view results</button>
+                </div>}
+              </ForumNoSSR>
+              <div>Agree</div>
             </div>
           </div>
-          <div className={classes.sliderLabels}>
-            <div>Disagree</div>
-            {/* TODO: prob hide this when there are no votes? */}
-            <ForumNoSSR>
-              {!hasVoted && !resultsVisible && <div>
-                {event.voteCount} vote{event.voteCount === 1 ? '' : 's'} so far.
-                Place your vote or <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>view results</button>
-              </div>}
-            </ForumNoSSR>
-            <div>Agree</div>
-          </div>
+          <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
         </div>
-        <ForumIcon icon="ChevronRight" className={classNames(classes.sliderArrow, classes.sliderArrowRight)} />
       </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 
