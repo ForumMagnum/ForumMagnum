@@ -92,7 +92,7 @@ const styles = (theme: ThemeType) => ({
   },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
-    background: 'radial-gradient(black 50%, transparent 50%)',
+    background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
     color: theme.palette.text.alwaysWhite,
     fontSize: 34,
     borderRadius: '50%',
