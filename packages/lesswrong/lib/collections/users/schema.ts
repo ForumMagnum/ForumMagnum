@@ -623,9 +623,9 @@ const schema: SchemaType<"Users"> = {
     control: 'UsersEmailVerification',
     canRead: ['members'],
     // EA Forum does not care about email verification
-    canUpdate: isEAForum ?
-      [userOwns, 'sunshineRegiment', 'admins'] :
-      [],
+    canUpdate: isEAForum
+      ? []
+      : [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
