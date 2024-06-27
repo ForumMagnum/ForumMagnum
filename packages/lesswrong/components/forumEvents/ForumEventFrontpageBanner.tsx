@@ -143,7 +143,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   contentWithPollBody: {
-    maxWidth: 256,
+    maxWidth: 280,
   },
   date: {
     fontWeight: 500,
@@ -174,10 +174,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   descriptionWithPoll: {
-    fontSize: 13,
-    fontWeight: 500,
-    lineHeight: '140%',
-    marginTop: 16,
+    marginTop: 20,
     "& a": {
       textDecoration: "underline",
       textUnderlineOffset: '2px',
@@ -314,19 +311,14 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, tag} = currentForumEvent;
+  const {title, bannerImageId, tag, frontpageDescription, frontpageDescriptionMobile} = currentForumEvent;
   const date = formatDate(currentForumEvent);
+  const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
   
-  // Ideally these would use the ForumEvents "frontpageDescription" field,
-  // but since we wanted to have slightly different copy on desktop and mobile,
-  // and in the interest of time, for this event I will just hardcode it here
-  const announcementPostLink = "/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7"
-  const description = <>
-    Should AI Welfare be an EA priority? Read more about this debate week <Link to={announcementPostLink}>here</Link>
-  </>
+  const {
+    CloudinaryImage2, ForumEventPoll, ForumIcon, LWTooltip, PostsList2, ContentStyles, ContentItemBody
+  } = Components;
   
-  const {CloudinaryImage2, ForumEventPoll, ForumIcon, LWTooltip, PostsList2} = Components;
-
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
@@ -371,14 +363,32 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
             <div className={classes.contentWithPollBody}>
               <div className={classes.titleWithPoll}>{title}</div>
               <div className={classes.dateWithPoll}>{date}</div>
-              <div className={classes.descriptionWithPoll}>{description}.</div>
+              <div className={classes.descriptionWithPoll}>
+                {frontpageDescription?.html &&
+                  <ContentStyles contentType="comment">
+                    <ContentItemBody
+                      dangerouslySetInnerHTML={{__html: frontpageDescription.html}}
+                      className={classes.description}
+                    />
+                  </ContentStyles>
+                }
+              </div>
             </div>
           </div>
         </div>}
         <div className={classes.contentWithPollMobile}>
           <div className={classes.titleWithPollMobile}>{title}</div>
           <div className={classes.dateWithPoll}>{date}</div>
-          <div className={classes.descriptionWithPoll}>{description}, and vote on desktop.</div>
+          <div className={classes.descriptionWithPoll}>
+              {mobileDescription &&
+                <ContentStyles contentType="comment">
+                  <ContentItemBody
+                    dangerouslySetInnerHTML={{__html: mobileDescription}}
+                    className={classes.description}
+                  />
+                </ContentStyles>
+              }
+            </div>
         </div>
         {bannerImageId &&
           <CloudinaryImage2
