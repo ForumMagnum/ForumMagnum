@@ -682,8 +682,6 @@ const recombeeApi = {
     // The ordering of these post ids is actually important, since it's preserved through all subsequent filtering/mapping
     // It ensures the "curated > stickied > everything else" ordering
     const postIds = [...includedTopOfListPostIds, ...recommendedPostIds];
-
-    console.log({ postIds });
     
     const [orderedPosts, deferredPosts] = await Promise.all([
       loadByIds(context, 'Posts', postIds)
