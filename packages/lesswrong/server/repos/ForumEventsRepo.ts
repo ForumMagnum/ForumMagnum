@@ -9,7 +9,7 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
   
   async getUserVote(_id: string, userId: string) {
     const res = await this.getRawDb().oneOrNone(`
-      -- ForumEventsRepo.addVote
+      -- ForumEventsRepo.getUserVote
       SELECT "publicData"->$2 as vote
       FROM "ForumEvents"
       WHERE "_id" = $1

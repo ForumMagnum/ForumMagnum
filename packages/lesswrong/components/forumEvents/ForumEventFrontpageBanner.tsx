@@ -314,8 +314,12 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, tag, publicData} = currentForumEvent;
+  const {title, bannerImageId, tag} = currentForumEvent;
   const date = formatDate(currentForumEvent);
+  
+  // Ideally these would use the ForumEvents "frontpageDescription" field,
+  // but since we wanted to have slightly different copy on desktop and mobile,
+  // and in the interest of time, for this event I will just hardcode it here
   const announcementPostLink = "/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7"
   const description = <>
     Should AI Welfare be an EA priority? Read more about this debate week <Link to={announcementPostLink}>here</Link>
@@ -329,7 +333,10 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
         <ForumEventPoll event={currentForumEvent} />
         <div className={classes.expandToggleRow}>
           <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
-            <ForumIcon icon={expanded ? "ThickChevronDown" : "ThickChevronRight"} className={classes.expandToggleIcon} />
+            <ForumIcon
+              icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
+              className={classes.expandToggleIcon}
+            />
             {expanded ? 'Collapse' : `Debate week ${date}`}
           </button>
         </div>

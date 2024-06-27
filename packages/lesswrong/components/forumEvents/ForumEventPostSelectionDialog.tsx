@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { registerComponent, Components, decodeIntlError } from "../../lib/vulcan-lib";
 import { ForumEventVoteData, addForumEventVoteQuery } from "./ForumEventPoll";
 import { useMutation } from "@apollo/client";
@@ -66,12 +66,7 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
 }) => {
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
   
-  const {
-    loading,
-    error,
-    orderedResults,
-    itemProps,
-  } = usePostsList({
+  const postsListProps = useMemo(() => ({
     terms: {
       filterSettings: {tags:[{tagId: tag._id, tagName: tag.name, filterMode: "Required"}]},
       view: "tagRelevance",
@@ -80,7 +75,8 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
       limit: 50
     },
     hideTag: true,
-  });
+  }), [tag])
+  const {loading, error, orderedResults, itemProps} = usePostsList(postsListProps)
   
   const [addVote] = useMutation(
     addForumEventVoteQuery,
@@ -100,7 +96,6 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
   }, [selectedPosts, addVote, voteData, onClose])
   
   const { LWDialog, EAButton, PostsNoResults, EAPostsItem, PostsLoading } = Components;
-  
   const postsError = decodeIntlError(error)
 
   return (
@@ -160,9 +155,11 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
   );
 };
 
-const ForumEventPostSelectionDialogComponent = registerComponent("ForumEventPostSelectionDialog", ForumEventPostSelectionDialog, {
-  styles,
-});
+const ForumEventPostSelectionDialogComponent = registerComponent(
+  "ForumEventPostSelectionDialog",
+  ForumEventPostSelectionDialog,
+  {styles}
+);
 
 declare global {
   interface ComponentTypes {
