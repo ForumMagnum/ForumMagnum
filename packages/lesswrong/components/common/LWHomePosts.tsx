@@ -120,6 +120,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5,
     }
   },
+  enrichedTagFilterNotice: {
+    ...theme.typography.italic,
+    ...theme.typography.commentStyle,
+    color: theme.palette.text.primary,
+    marginBottom: 4,
+  },
 });
 
 export const filterSettingsToggleLabels = {
@@ -135,7 +141,7 @@ const defaultLimit = 13;
 
 function getDefaultDesktopFilterSettingsVisibility(currentUser: UsersCurrent | null) {
   if (!currentUser) {
-    return true
+    return false;
   }
 
   // Hide unless user has explicitly set it to visible
@@ -354,8 +360,7 @@ const FrontpageSettingsButton = ({
   return <>
     {/* Desktop button */}
     <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, {
-      [classes.hide]: !currentUser,
-      [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser && styleDesktopButton
+      [classes.tagFilterSettingsButtonContainerDesktop]: styleDesktopButton
     })}>
       <SettingsButton
         {...desktopConfiguration}
@@ -488,6 +493,7 @@ const LWHomePosts = ({ children, classes }: {
   const showInlineTabSettingsButton = (
     selectedTab === 'forum-classic' ||
     selectedTab === 'forum-subscribed-authors' ||
+    selectedTab === 'recombee-hybrid' ||
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
@@ -522,6 +528,9 @@ const LWHomePosts = ({ children, classes }: {
           removeTagFilter={removeTagFilter} 
           flexWrapEndGrow={false}
         />
+        {selectedTab === 'recombee-hybrid' && <div className={classes.enrichedTagFilterNotice}>
+          Your settings only affect the "latest" posts on the Enriched tab.
+        </div>}
       </div>
     </AnalyticsContext>
   );
@@ -555,6 +564,8 @@ const LWHomePosts = ({ children, classes }: {
     settings = filterSettingsElement;
   } else if (selectedTab === 'forum-subscribed-authors') {
     settings = subscriptionSettingsElement;
+  } else if (selectedTab === 'recombee-hybrid') {
+    settings = filterSettingsElement;
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
   }
