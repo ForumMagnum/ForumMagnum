@@ -4,9 +4,10 @@ import { useLocation } from '../../lib/routeUtil';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import Select from '@material-ui/core/Select';
 import Input from '@material-ui/core/Input';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   selectUser: {
@@ -259,7 +260,7 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
 }) => {
   const { Loading } = Components;
   const [expanded,setExpanded] = useState(false);
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQueryWrapped(gql`
     query ModeratorIPAddressInfo($ipAddress: String!) {
       moderatorViewIPAddress(ipAddress: $ipAddress) {
         ip

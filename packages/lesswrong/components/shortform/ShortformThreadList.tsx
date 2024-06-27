@@ -24,7 +24,6 @@ const ShortformThreadList = ({ classes }: {
     fragmentName: 'CommentWithRepliesFragment',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
-    pollInterval: 0,
   });
 
   const { LoadMore, CommentOnPostWithReplies, QuickTakesEntry } = Components;

@@ -1,4 +1,5 @@
-import { useQuery, gql } from '@apollo/client';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
+import { gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 
 export interface ContinueReading {
@@ -35,7 +36,7 @@ export const useContinueReading = (): {
     ${fragmentTextForQuery(["SequenceContinueReadingFragment","CollectionContinueReadingFragment","PostsListWithVotes"])}
   `;
   
-  const { data, loading, error } = useQuery(continueReadingQuery, {
+  const { data, loading, error } = useQueryWrapped(continueReadingQuery, {
     ssr: true,
   });
   

@@ -1,12 +1,13 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import React from "react";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 const PostsItemNewDialogueResponses = ({postId, unreadCount}: {postId: string, unreadCount: number}) => {
   
   const { ContentItemBody, Loading, NoContent }= Components
 
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQueryWrapped(gql`
     query LatestDialogueMessages($dialogueId: String!, $unreadCount: Int!) {
       latestDialogueMessages(dialogueId: $dialogueId, numMessages: $unreadCount)
     }

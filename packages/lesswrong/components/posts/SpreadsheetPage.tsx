@@ -8,10 +8,11 @@ import TableRow from '@material-ui/core/TableRow';
 import StarIcon from '@material-ui/icons/Star';
 import * as _ from 'underscore';
 import classNames from 'classnames';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { QueryLink, Link } from '../../lib/reactRouterWrapper'
 import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const cellStyle = () => ({
   maxWidth: 350,
@@ -376,7 +377,7 @@ const SpreadsheetPage = ({classes}: {
 }) => {
   const { query: { tab: selectedTab = "Intro" }, hash: selectedCell } = useLocation()
   const { LWTooltip, HoverPreviewLink, Loading, HeadTags, ContentStyles } = Components
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQueryWrapped(gql`
     query CoronaVirusData {
       CoronaVirusData {
         range

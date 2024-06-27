@@ -1,8 +1,9 @@
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { defaultAlgorithmSettings } from '../../lib/collections/users/recommendationSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { apolloSSRFlag } from '../../lib/helpers';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 export const useRecommendations = ({
   algorithm,
@@ -14,7 +15,7 @@ export const useRecommendations = ({
   recommendationsLoading: boolean;
   recommendations: PostsListWithVotesAndSequence[] | undefined;
 } => {
-  const { data, loading } = useQuery(
+  const { data, loading } = useQueryWrapped(
     gql`
       query RecommendationsQuery($count: Int, $algorithm: JSON) {
         Recommendations(count: $count, algorithm: $algorithm) {

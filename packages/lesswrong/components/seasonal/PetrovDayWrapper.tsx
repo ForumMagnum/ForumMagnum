@@ -1,7 +1,8 @@
 import { registerComponent, Components} from '../../lib/vulcan-lib';
 import React, {useEffect, useState} from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import moment from '../../lib/moment-timezone';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -9,7 +10,7 @@ import moment from '../../lib/moment-timezone';
 
 const PetrovDayWrapper = () => {
   
-  const { data: internalData } = useQuery(gql`
+  const { data: internalData } = useQueryWrapped(gql`
     query petrovDayLaunchResolvers {
       PetrovDayCheckIfIncoming {
         launched

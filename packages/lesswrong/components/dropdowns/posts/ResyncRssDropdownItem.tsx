@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { gql, useApolloClient, useQuery } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
@@ -8,6 +8,7 @@ import RssFeed from "@material-ui/icons/RssFeed";
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   diffExplanation: {
@@ -77,7 +78,7 @@ const ResyncRssDialog = ({onClose, post, classes}: {
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed
   // (see server/rss-integration/cron). HTML returned from this is already
   // sanitized.
-  const { data, loading, error } = useQuery(gql`
+  const { data, loading, error } = useQueryWrapped(gql`
     query getRssPostChanges($postId: String!) {
       RssPostChanges(postId: $postId) {
         isChanged

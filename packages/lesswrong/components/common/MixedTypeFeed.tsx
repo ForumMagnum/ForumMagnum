@@ -1,10 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { fragmentTextForQuery, registerComponent, Components } from '../../lib/vulcan-lib';
-import { gql, ObservableQuery, useSuspenseQuery } from '@apollo/client';
+import { gql, ObservableQuery } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const loadMoreDistance = 500;
 
@@ -123,7 +124,7 @@ const MixedTypeFeed = (args: {
   const {Loading} = Components;
   
   const query = getQuery({resolverName, resolverArgs, fragmentArgs, sortKeyType, renderers});
-  const queryResult = useSuspenseQuery(query, {
+  const queryResult = useQueryWrapped(query, {
     variables: {
       ...resolverArgsValues,
       ...fragmentArgsValues,
@@ -167,7 +168,7 @@ const MixedTypeFeed = (args: {
             offset: data[resolverName].endOffset,
             limit: pageSize,
           },
-          updateQuery: (prev, {fetchMoreResult}: {fetchMoreResult: any}) => {
+          updateQuery: (prev: any, {fetchMoreResult}: {fetchMoreResult: any}) => {
             queryIsPending.current = false;
             if (!fetchMoreResult) {
               return prev;

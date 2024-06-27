@@ -1,4 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
+import { gql } from "@apollo/client";
 
 export type WrappedMostReadTopic = {
   name: string;
@@ -161,7 +162,7 @@ const query = gql`
 `;
 
 export const useForumWrapped = ({ userId, year }: { userId?: string | null; year: number }) => {
-  const { data, loading } = useQuery<WrappedDataQueryResult>(
+  const { data, loading } = useQueryWrapped<WrappedDataQueryResult>(
     query,
     {
       variables: {

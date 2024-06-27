@@ -2,8 +2,9 @@ import React, {useState} from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
-import { gql, useQuery, NetworkStatus } from '@apollo/client';
+import { gql, NetworkStatus } from '@apollo/client';
 import moment from 'moment';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   empty: {
@@ -32,7 +33,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
   const [limit, setLimit] = useState(defaultLimit);
   
   // pull the latest 10 posts that the current user has read
-  const { data, loading, fetchMore, networkStatus } = useQuery(gql`
+  const { data, loading, fetchMore, networkStatus } = useQueryWrapped(gql`
     query getReadHistory($limit: Int) {
       UserReadHistory(limit: $limit) {
         posts {

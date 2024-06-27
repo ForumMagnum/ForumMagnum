@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
-import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
+import { ApolloError, ApolloQueryResult, NetworkStatus, gql } from "@apollo/client";
 import take from "lodash/take";
 import isEqual from "lodash/isEqual"
 import type { LoadMoreCallback, LoadMoreProps } from "../../lib/crud/withMulti";
 import { apolloSSRFlag } from "../../lib/helpers";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 export type UsePaginatedResolverResult<
   FragmentTypeName extends keyof FragmentTypes,
@@ -64,13 +65,12 @@ export const usePaginatedResolver = <
     refetch,
     fetchMore,
     networkStatus,
-  } = useQuery(query, {
+  } = useQueryWrapped(query, {
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
     // the query on the client (see https://github.com/apollographql/apollo-client/issues/5918)
     ssr: apolloSSRFlag(ssr),
     notifyOnNetworkStatusChange: true,
     skip,
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     variables: {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -10,6 +10,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { truncatise } from '../../lib/truncatise';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -296,7 +297,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     captureEvent("toggle_expansion_reciprocity")
   };
 
-  const { loading, error, data: topicData } = useQuery(gql`
+  const { loading, error, data: topicData } = useQueryWrapped(gql`
     query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
       GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         comment {
@@ -316,7 +317,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     skip: !currentUser || !showSuggestedTopics
   });
 
-  const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
+  const { loading: tagLoading, error: tagError, data: tagData } = useQueryWrapped(gql`
     query UserTopTags($userId: String!) {
       UserTopTags(userId: $userId) {
         tag {
@@ -331,7 +332,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     skip: !currentUser || !showSuggestedTopics
   });
 
-  const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
+  const { loading: postsLoading, error: postsError, data: postsData } = useQueryWrapped(gql`
     query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
@@ -344,7 +345,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     skip: !currentUser || !showSuggestedTopics
   });
 
-  const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
+  const { loading: commentsLoading, error: commentsError, data: commentsData } = useQueryWrapped(gql`
     query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
       UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id

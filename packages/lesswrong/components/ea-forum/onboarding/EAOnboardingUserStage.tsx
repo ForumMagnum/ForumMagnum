@@ -2,10 +2,11 @@ import React, {FormEvent, ReactNode, useCallback, useEffect, useRef, useState} f
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useEAOnboarding } from "./useEAOnboarding";
-import { useMutation, useQuery } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import classNames from "classnames";
 import gql from "graphql-tag";
 import {lightbulbIcon} from '../../icons/lightbulbIcon'
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -124,10 +125,9 @@ export const EAOnboardingUserStage = ({classes, icon = lightbulbIcon}: {
     await onContinue();
   }, [onContinue]);
 
-  const {data, loading} = useQuery(displayNameTakenQuery, {
+  const {data, loading} = useQueryWrapped(displayNameTakenQuery, {
     ssr: false,
     skip: !name,
-    pollInterval: 0,
     fetchPolicy: "network-only",
     variables: {
       displayName: name,

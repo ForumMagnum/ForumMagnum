@@ -16,6 +16,7 @@ const restrictedImportsPaths = [
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
   { name: "react-no-ssr", message: "Don't import react-no-ssr, use ForumNoSSR" },
   { name: "@material-ui/core/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
+  { name: "@apollo/client", importNames: ["useQuery"], message: "Don't import useQuery directly; use the wrapper in lib/crud/useQuery" },
 ];
 const clientRestrictedImportPaths = [
   { name: "cheerio", message: "Don't import cheerio on the client" },

@@ -1,4 +1,5 @@
-import { ApolloError, gql, useQuery } from "@apollo/client";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
+import { ApolloError, gql } from "@apollo/client";
 import { postGetCommentCountStr } from "../../lib/collections/posts/helpers";
 import { UseSingleProps } from "../../lib/crud/withSingle";
 
@@ -91,7 +92,7 @@ export const useForeignCrosspost = <Post extends PostWithForeignId, FragmentType
     throw new Error("Crosspost has not been created yet");
   }
 
-  const {data, loading, error} = useQuery(getCrosspostQuery, {
+  const {data, loading, error} = useQueryWrapped(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,
@@ -155,7 +156,7 @@ export const usePostContents = <FragmentTypeName extends CrosspostFragments>({
   const isCrosspost = isPostWithForeignId(post);
   const isForeign = isCrosspost && !post.fmCrosspost.hostedHere;
 
-  const {data, loading, error} = useQuery(getCrosspostQuery, {
+  const {data, loading, error} = useQueryWrapped(getCrosspostQuery, {
     variables: {
       args: {
         ...fetchProps,

@@ -1,9 +1,10 @@
 import React, { FC, useState, useEffect, useCallback, ChangeEvent } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import { useCurrentUser } from "../common/withUser";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 const searchSynonymsQuery = gql`
   query SearchSynonyms {
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType) => ({
 
 const AdminSynonymsEditor: FC<{classes: ClassesType}> = ({classes}) => {
   const [synonyms, setSynonyms] = useState<string[]>([]);
-  const {data, loading, error} = useQuery(searchSynonymsQuery);
+  const {data, loading, error} = useQueryWrapped(searchSynonymsQuery);
   const [updateSearchSynonyms, updateLoading] = useMutation(
     searchSynonymsMutation,
     {errorPolicy: "all"},

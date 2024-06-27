@@ -1,4 +1,5 @@
-import { OperationVariables, QueryResult, gql, useQuery } from "@apollo/client";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
+import { OperationVariables, QueryResult, gql } from "@apollo/client";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import { dialogueMatchmakingEnabled } from "../../lib/publicSettings";
 
@@ -35,7 +36,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(currentUser: 
   const { getMatchedUsers, getRecommendedUsers, getOptedInUsers, getUserDialogueChecks } = props; 
   const skipByDefault = !dialogueMatchmakingEnabled.get();
 
-  const matchedUsersQueryResult = useQuery(gql`
+  const matchedUsersQueryResult = useQueryWrapped(gql`
     query GetDialogueMatchedUsers {
       GetDialogueMatchedUsers {
         _id
@@ -44,7 +45,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(currentUser: 
     }
   `, { skip: skipByDefault || !getMatchedUsers });
 
-  const recommendedUsersQueryResult = useQuery(gql`
+  const recommendedUsersQueryResult = useQueryWrapped(gql`
     query GetDialogueRecommendedUsers {
       GetDialogueRecommendedUsers {
         _id

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { fragmentTextForQuery, registerComponent, Components } from "../../lib/vulcan-lib";
-import { useMutation, gql, useQuery } from "@apollo/client";
+import { useMutation, gql } from "@apollo/client";
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { Link, useNavigate } from "../../lib/reactRouterWrapper";
@@ -8,6 +8,7 @@ import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
 import { GoogleDocMetadata } from "../../lib/collections/revisions/helpers";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -106,7 +107,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { data: latestGoogleDocMetadataQuery } = useQuery<{ latestGoogleDocMetadata: GoogleDocMetadata }>(
+  const { data: latestGoogleDocMetadataQuery } = useQueryWrapped<{ latestGoogleDocMetadata: GoogleDocMetadata }>(
     gql`
       query latestGoogleDocMetadata($postId: String!, $version: String) {
         latestGoogleDocMetadata(postId: $postId, version: $version)
@@ -135,7 +136,7 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; 
     data: canAccessQuery,
     loading: canAccessQueryLoading,
     refetch,
-  } = useQuery<{ CanAccessGoogleDoc: boolean }>(
+  } = useQueryWrapped<{ CanAccessGoogleDoc: boolean }>(
     gql`
       query CanAccessGoogleDoc($fileUrl: String!) {
         CanAccessGoogleDoc(fileUrl: $fileUrl)

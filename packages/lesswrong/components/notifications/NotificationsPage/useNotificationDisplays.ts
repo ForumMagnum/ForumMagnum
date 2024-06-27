@@ -1,5 +1,6 @@
 import { useCurrentUser } from "../../common/withUser";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 // We have to do this manually outside of `usePaginatedResolver` because the
 // return type is pure unadulterated JSON, not a registered fragment type
@@ -13,11 +14,10 @@ const query = gql`
 
 export const useNotificationDisplays = (limit: number, type?: string) => {
   const currentUser = useCurrentUser();
-  return useQuery(query, {
+  return useQueryWrapped(query, {
     ssr: true,
     notifyOnNetworkStatusChange: true,
     skip: !currentUser,
-    pollInterval: 0,
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-only",
     variables: {

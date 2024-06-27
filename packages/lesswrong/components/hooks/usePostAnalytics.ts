@@ -1,4 +1,5 @@
-import { useQuery, gql } from '@apollo/client'
+import { useQueryWrapped } from '@/lib/crud/useQuery'
+import { gql } from '@apollo/client'
 
 export type PostAnalyticsResult = {
   allViews: number
@@ -30,7 +31,7 @@ export const usePostAnalytics = (postId: string) => {
     }
   `
   
-  const { data, loading, error } = useQuery<PostAnalyticsQueryResult>(postAnalyticsQuery, {variables: {postId}})
+  const { data, loading, error } = useQueryWrapped<PostAnalyticsQueryResult>(postAnalyticsQuery, {variables: {postId}})
   
   return {
     postAnalytics: data?.PostAnalytics,

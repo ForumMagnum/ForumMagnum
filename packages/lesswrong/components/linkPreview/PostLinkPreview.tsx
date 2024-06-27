@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import Card from '@material-ui/core/Card';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import { useSingle } from '../../lib/crud/withSingle';
@@ -11,6 +11,7 @@ import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 let missingLinkPreviewsLogged = new Set<string>();
 
@@ -465,7 +466,7 @@ const MozillaHubPreview = ({classes, href, id, children}: {
   children: ReactNode,
 }) => {
   const roomId = href.split("/")[3]
-  const { data: rawData, loading } = useQuery(gql`
+  const { data: rawData, loading } = useQueryWrapped(gql`
     query MozillaHubsRoomData {
       MozillaHubsRoomData(roomId: "${roomId || 'asdasd'}") {
         id
@@ -791,7 +792,7 @@ const ArbitalPreview = ({classes, href, id, children}: {
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
-  const { data: rawData, loading } = useQuery(gql`
+  const { data: rawData, loading } = useQueryWrapped(gql`
     query ArbitalPageRequest {
       ArbitalPageData(pageAlias: "${arbitalSlug}") {
         title

@@ -7,8 +7,9 @@ import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import ForumNoSSR from '../common/ForumNoSSR';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -39,7 +40,7 @@ const PostCollaborationEditor = ({ classes }: {
 
   const { query: { postId, key } } = useLocation();
 
-  const { data, loading, error } = useQuery(gql`
+  const { data, loading, error } = useQueryWrapped(gql`
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
         ...PostsEdit

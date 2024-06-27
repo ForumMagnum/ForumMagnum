@@ -8,11 +8,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
 import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -576,7 +577,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
-  const { data } = useQuery(gql`
+  const { data } = useQueryWrapped(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         ...PostsTopItemInfo

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../../lib/vulcan-lib';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { SettingsOption } from '../../../lib/collections/posts/dropdownOptions';
 import FilterIcon from '@material-ui/icons/FilterList';
 import { useMessages } from '../../common/withMessages';
@@ -12,6 +12,7 @@ import { DIGEST_STATUS_OPTIONS, InDigestStatusOption, StatusField, getEmailDiges
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdmin } from '../../../lib/vulcan-users/permissions';
 import classNames from 'classnames';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -172,7 +173,7 @@ const EditDigest = ({classes}: {classes: ClassesType}) => {
   const digest = results?.[0]
 
   // get the list of posts eligible for this digest
-  const { data } = useQuery(gql`
+  const { data } = useQueryWrapped(gql`
     query getDigestPlannerData($digestId: String, $startDate: Date, $endDate: Date) {
       DigestPlannerData(digestId: $digestId, startDate: $startDate, endDate: $endDate) {
         post {

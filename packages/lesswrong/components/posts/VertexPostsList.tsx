@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
-import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { NetworkStatus, gql } from '@apollo/client';
 import { VertexConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import { isServer } from '../../lib/executionEnvironment';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface VertexRecommendedPost {
@@ -63,10 +64,9 @@ export const VertexPostsList = ({ limit = 100, classes }: {
   const resolverName = DEFAULT_RESOLVER_NAME;
 
   const query = getVertexPostsQuery(resolverName);
-  const { data, loading, networkStatus } = useQuery(query, {
+  const { data, loading, networkStatus } = useQueryWrapped(query, {
     ssr: false || !isServer,
     notifyOnNetworkStatusChange: true,
-    pollInterval: 0,
     variables: {
       limit,
     },

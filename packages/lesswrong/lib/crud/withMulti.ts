@@ -1,4 +1,4 @@
-import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
+import { WatchQueryFetchPolicy, ApolloError, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import qs from 'qs';
 import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
@@ -8,7 +8,7 @@ import { invalidateQuery } from './cacheUpdates';
 import { useNavigate } from '../reactRouterWrapper';
 import { apolloSSRFlag } from '../helpers';
 import { getMultiResolverName } from './utils';
-import { wrappedUseQuery } from './useQuery';
+import { useQueryWrapped } from './useQuery';
 
 // Template of a GraphQL query for useMulti. A sample query might look
 // like:
@@ -65,7 +65,6 @@ export interface UseMultiOptions<
 > {
   terms: ViewTermsByCollectionName[CollectionName],
   extraVariablesValues?: any,
-  pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
   extraVariables?: any,
@@ -128,7 +127,6 @@ export function useMulti<
 >({
   terms,
   extraVariablesValues,
-  pollInterval = 0, //LESSWRONG: Polling defaults disabled
   enableTotal = false, //LESSWRONG: enableTotal defaults false
   enableCache = false,
   extraVariables,
@@ -178,9 +176,8 @@ export function useMulti<
   // Due to https://github.com/apollographql/apollo-client/issues/6760 this is necessary to restore the Apollo 2.0 behavior for cache-and-network policies
   const newNextFetchPolicy = nextFetchPolicy || (fetchPolicy === "cache-and-network" || fetchPolicy === "network-only") ? "cache-only" : undefined
   
-  const useQueryArgument = {
+  const {data, error, loading, refetch, fetchMore, networkStatus} = useQueryWrapped(query, {
     variables: graphQLVariables,
-    pollInterval, 
     fetchPolicy,
     nextFetchPolicy: newNextFetchPolicy as WatchQueryFetchPolicy,
     // This is a workaround for a bug in apollo where setting `ssr: false` makes it not fetch
@@ -188,8 +185,7 @@ export function useMulti<
     ssr: apolloSSRFlag(ssr),
     skip,
     notifyOnNetworkStatusChange: true
-  }
-  const {data, error, loading, refetch, fetchMore, networkStatus} = wrappedUseQuery(query, useQueryArgument);
+  });
 
   const client = useApolloClient();
   const invalidateCache = useCallback(() => invalidateQuery({

@@ -1,6 +1,6 @@
 import React, { FC, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 import classNames from "classnames";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CloudinaryPropsType } from "../common/CloudinaryImage2";
@@ -11,6 +11,7 @@ import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
 import { useMessages } from "../common/withMessages";
 import ForumNoSSR from "../common/ForumNoSSR";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -270,7 +271,7 @@ const ReviewVotingCanvas = ({
   const currentUser = useCurrentUser();
   const showHearts = currentRoute?.path === "/";
 
-  const {data, refetch} = useQuery(heartsQuery, {
+  const {data, refetch} = useQueryWrapped(heartsQuery, {
     variables: {
       electionName: "reviewVoting2022"
     },

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const INITIAL_LIMIT = 5
 
@@ -22,7 +23,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;
-  const { data, loading } = useQuery(gql`
+  const { data, loading } = useQueryWrapped(gql`
     query getTagUpdates($before: Date!, $after: Date!) {
       TagUpdatesInTimeBlock(before: $before, after: $after) {
         tag {

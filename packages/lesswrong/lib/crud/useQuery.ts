@@ -1,20 +1,31 @@
-import { useQuery as useQueryApollo, useSuspenseQuery, WatchQueryFetchPolicy } from "@apollo/client";
-import type { SuspenseQueryHookFetchPolicy, FetchPolicy } from "@apollo/client";
+// eslint-disable-next-line no-restricted-imports
+import { ApolloClient, OperationVariables, useQuery as useQueryApollo, useSuspenseQuery, WatchQueryFetchPolicy } from "@apollo/client";
 import { createContext, useContext } from "react";
 
 export const EnableSuspenseContext = createContext(false);
 
 type UseQueryOptions = {
-  fetchPolicy?: SuspenseQueryHookFetchPolicy & WatchQueryFetchPolicy,
-  ssr: boolean,
+  fetchPolicy?: WatchQueryFetchPolicy,
+  nextFetchPolicy?: WatchQueryFetchPolicy,
+  variables?: any,
+  ssr?: boolean,
+  skip?: boolean,
+  notifyOnNetworkStatusChange?: boolean
+  client?: ApolloClient<any>,
 };
 
-export function wrappedUseQuery(query: any, options: UseQueryOptions) {
+export function useQueryWrapped<TData=any,TVariables extends OperationVariables=any>(query: any, options?: UseQueryOptions) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   if (bundleIsServer && useContext(EnableSuspenseContext)) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useSuspenseQuery(query, options);
+    const suspenseQueryResult = useSuspenseQuery<TData,TVariables>(query, options);
+
+    return {
+      ...suspenseQueryResult,
+      loading: false,
+    };
   } else {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useQueryApollo(query, options);
+    return useQueryApollo<TData,TVariables>(query, options);
   }
 }

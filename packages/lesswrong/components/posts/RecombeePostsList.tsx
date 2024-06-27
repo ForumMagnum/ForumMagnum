@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
-import { NetworkStatus, gql, useQuery } from '@apollo/client';
+import { NetworkStatus, gql } from '@apollo/client';
 import { HybridRecombeeConfiguration, RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import moment from 'moment';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -133,9 +134,8 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
     : DEFAULT_RESOLVER_NAME;
 
   const query = getRecombeePostsQuery(resolverName);
-  const { data, loading, fetchMore, networkStatus } = useQuery(query, {
+  const { data, loading, fetchMore, networkStatus } = useQueryWrapped(query, {
     notifyOnNetworkStatusChange: true,
-    pollInterval: 0,
     variables: {
       limit,
       settings: recombeeSettings,

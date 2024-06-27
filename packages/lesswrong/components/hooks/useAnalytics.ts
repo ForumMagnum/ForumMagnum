@@ -1,9 +1,10 @@
-import { useQuery, gql, ApolloError } from "@apollo/client";
+import { gql, ApolloError } from "@apollo/client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";
 import { generateDateSeries } from "../../lib/helpers";
 import stringify from "json-stringify-deterministic";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 export const analyticsFieldsList = ['views', 'reads', 'karma', 'comments'] as const
 export const analyticsFields = new TupleSet(analyticsFieldsList);
@@ -98,7 +99,7 @@ export const useMultiPostAnalytics = ({
     limit,
   }), [userId, postIds, sortBy, desc, limit]);
 
-  const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
+  const { data, loading, error, fetchMore } = useQueryWrapped<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });
@@ -193,7 +194,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
   const variables = { userId, postIds, startDate, endDate };
-  const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(AnalyticsSeriesQuery, {
+  const { data, loading, error } = useQueryWrapped<AnalyticsSeriesQueryResult>(AnalyticsSeriesQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });

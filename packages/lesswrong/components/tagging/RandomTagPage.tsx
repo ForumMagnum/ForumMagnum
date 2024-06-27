@@ -1,10 +1,11 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const RandomTagPage = () => {
   const {PermanentRedirect, Loading, SingleColumnSection} = Components;
-  const {data, loading} = useQuery(gql`
+  const {data, loading} = useQueryWrapped(gql`
     query getRandomTag {
       RandomTag {slug}
     }

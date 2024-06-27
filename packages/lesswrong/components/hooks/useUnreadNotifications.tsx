@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useEffect } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useOnFocusTab } from '../hooks/useOnFocusTab';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
 import { faviconUrlSetting, faviconWithBadgeSetting } from '../../lib/instanceSettings';
 import type { NotificationCountsResult } from '../../lib/collections/notifications/schema';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 /**
  * Provided by the client (if this is running on the client not the server),
@@ -111,7 +112,7 @@ export const UnreadNotificationsContextProvider: FC<{
     // setFaviconBadge(faviconBadgeNumber);
   }
   
-  const { data, refetch: refetchCounts } = useQuery(gql`
+  const { data, refetch: refetchCounts } = useQueryWrapped(gql`
     query UnreadNotificationCountQuery {
       unreadNotificationCounts {
         unreadNotifications
@@ -122,7 +123,7 @@ export const UnreadNotificationsContextProvider: FC<{
     }
   `, {
     ssr: true,
-    onCompleted: updateFavicon,
+    //onCompleted: updateFavicon,
   });
 
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;

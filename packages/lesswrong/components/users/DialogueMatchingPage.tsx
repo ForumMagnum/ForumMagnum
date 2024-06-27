@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -34,6 +34,7 @@ import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialo
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
 import { useLocation } from '../../lib/routeUtil';
 import ForumNoSSR from '../common/ForumNoSSR';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 export type UpvotedUser = {
   _id: string;
@@ -698,7 +699,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { cl
   const { Loading, PostsTooltip } = Components;
 
 
-  const { loading, error, data } = useQuery(gql`
+  const { loading, error, data } = useQueryWrapped(gql`
     query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
@@ -744,7 +745,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { cl
 const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof styles>, targetUserId: string }) => {
   const { Loading } = Components;
 
-  const { loading, error, data } = useQuery(gql`
+  const { loading, error, data } = useQueryWrapped(gql`
     query UserTopTags($userId: String!) {
       UserTopTags(userId: $userId) {
         tag {
@@ -812,7 +813,7 @@ const UserRecommendedContent = ({ classes, targetUserId }: UserRecommendedConten
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
 
-  const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
+  const { loading: tagLoading, error: tagError, data: tagData } = useQueryWrapped(gql`
   query UserTopTags($userId: String!) {
     UserTopTags(userId: $userId) {
       tag {
@@ -827,7 +828,7 @@ const UserRecommendedContent = ({ classes, targetUserId }: UserRecommendedConten
   skip: !currentUser
 });
 
-const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
+const { loading: postsLoading, error: postsError, data: postsData } = useQueryWrapped(gql`
   query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
     UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
       _id
@@ -840,7 +841,7 @@ const { loading: postsLoading, error: postsError, data: postsData } = useQuery(g
   skip: !currentUser
 });
 
-const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
+const { loading: commentsLoading, error: commentsError, data: commentsData } = useQueryWrapped(gql`
   query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
     UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
       _id
@@ -974,7 +975,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     }
   }
 
-  const { loading, error, data } = useQuery(gql`
+  const { loading, error, data } = useQueryWrapped(gql`
     query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
       GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         comment {
@@ -1453,7 +1454,7 @@ export const DialogueMatchingPage = ({classes}: {
     usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
   } = useDialogueMatchmaking(currentUser, { getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: { limit: 1000 } });
 
-  const { loading, error, data } = useQuery(gql`
+  const { loading, error, data } = useQueryWrapped(gql`
     query getDialogueUsers {
       GetUserDialogueUsefulData {
         dialogueUsers {

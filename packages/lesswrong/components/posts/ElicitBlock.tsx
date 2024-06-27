@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
-import { useMutation, useQuery, gql } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { randomId } from '../../lib/random';
@@ -12,6 +12,7 @@ import { useDialog } from '../common/withDialog';
 import sortBy from 'lodash/sortBy';
 import some from 'lodash/some';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 const elicitDataFragment = `
   _id
@@ -191,7 +192,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
   const { UsersName, ContentStyles } = Components;
-  const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
+  const { data, loading } = useQueryWrapped(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
       MakeElicitPrediction(questionId:$questionId, prediction: $prediction) {

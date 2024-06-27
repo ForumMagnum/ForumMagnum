@@ -8,7 +8,7 @@ import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
-import { gql, useQuery } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
@@ -16,6 +16,7 @@ import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from '../../lib/collections/users/schema';
+import { useQueryWrapped } from '@/lib/crud/useQuery';
 
 type UserCoreTagReads = {
   tagId: string,
@@ -66,7 +67,7 @@ const TargetedJobAdSection = () => {
   })
   
   // check the amount that the user has read core tags to help target ads
-  const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
+  const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQueryWrapped(
     query,
     {
       variables: {

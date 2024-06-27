@@ -27,7 +27,6 @@ const RecentDiscussionThreadsList = ({
     fragmentName: 'PostsRecentDiscussion',
     fetchPolicy: 'cache-and-network',
     enableTotal: false,
-    pollInterval: 0,
     extraVariables: {
       commentsLimit: 'Int',
       maxAgeHours: 'Int',
