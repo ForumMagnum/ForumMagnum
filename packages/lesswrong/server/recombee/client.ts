@@ -56,7 +56,6 @@ const voteTypeRatingsMap: Partial<Record<string, number>> = {
 };
 
 interface OnsitePostRecommendationsInfo {
-  aboutPostId: string,
   curatedPostIds: string[],
   stickiedPostIds: string[],
   excludedPostFilter?: string,
@@ -258,11 +257,8 @@ const helpers = {
   },
 
   async getOnsitePostInfo(lwAlgoSettings: HybridRecombeeConfiguration | RecombeeConfiguration, context: ResolverContext, skipOnLoadMore = true): Promise<OnsitePostRecommendationsInfo> {
-    const aboutPostId = aboutPostIdSetting.get();
-
     if (helpers.isLoadMoreOperation(lwAlgoSettings) && skipOnLoadMore) {
       return {
-        aboutPostId,
         curatedPostIds: [],
         stickiedPostIds: [],
         excludedPostFilter: undefined,
@@ -283,7 +279,6 @@ const helpers = {
     const excludedPostFilter = `'itemId' not in {${excludedPostIds.map(id => `"${id}"`).join(', ')}}`;
 
     return {
-      aboutPostId,
       curatedPostIds,
       stickiedPostIds,
       excludedPostFilter,
@@ -555,7 +550,7 @@ const curatedPostTerms: PostsViewTerms = {
 const recombeeApi = {
   async getRecommendationsForUser(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
     const reqIsLoadMore = helpers.isLoadMoreOperation(lwAlgoSettings);
-    const { aboutPostId, curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
+    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context);
 
     const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses, includedAboutPagePostId] = await Promise.all([
       helpers.getReadStatuses(lwAlgoSettings, curatedPostIds.slice(1), recombeeUser, context),
@@ -597,7 +592,7 @@ const recombeeApi = {
   async getHybridRecommendationsForUser(recombeeUser: RecombeeUser, count: number, lwAlgoSettings: HybridRecombeeConfiguration, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
-    const { aboutPostId, curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
+    const { curatedPostIds, stickiedPostIds, excludedPostFilter } = await helpers.getOnsitePostInfo(lwAlgoSettings, context, false);
 
     const [curatedPostReadStatuses, manuallyStickiedPostReadStatuses, includedAboutPagePostId] = await Promise.all([
       helpers.getReadStatuses(lwAlgoSettings, curatedPostIds.slice(1), recombeeUser, context),
@@ -704,7 +699,7 @@ const recombeeApi = {
     const filteredPosts = await accessFilterMultiple(context.currentUser, context.Posts, [...orderedPosts, ...topDeferredPosts], context);
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
-    const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostId || result.curated || result.stickied));
+    const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied));
     const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.curated || result.stickied || result.recommId));
     const recombeeRecommendedPosts = postsWithMetadata.filter((result): result is RecombeeRecommendedPost => !!result.recommId);
 
