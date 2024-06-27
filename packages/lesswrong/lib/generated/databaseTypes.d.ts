@@ -447,7 +447,7 @@ interface DbForumEvent extends DbObject {
   contrastColor: string | null
   tagId: string
   bannerImageId: string | null
-  includesPoll: boolean | null
+  includesPoll: boolean
   publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

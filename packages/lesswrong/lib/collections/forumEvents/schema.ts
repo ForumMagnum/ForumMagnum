@@ -1,4 +1,4 @@
-import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 const defaultProps = (): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: false,
@@ -69,8 +69,8 @@ const schema: SchemaType<"ForumEvents"> = {
   },
   includesPoll: {
     ...defaultProps(),
+    ...schemaDefaultValue(false),
     optional: true,
-    nullable: true,
     type: Boolean,
     control: "FormComponentCheckbox",
   },

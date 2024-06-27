@@ -423,10 +423,14 @@ const Header = ({
       />
     );
 
-  let headerStyle: CSSProperties = {}
+  const headerStyle: CSSProperties = {}
   const bannerImageId = currentForumEvent?.bannerImageId
+  // If we're explicitly given a backgroundColor, that overrides any event header
+  if (backgroundColor) {
+    headerStyle.backgroundColor = backgroundColor
+  }
   // On EAF, forum events with polls also update the home page header background
-  if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && hasForumEvents) {
+  else if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && hasForumEvents) {
     const darkColor = currentForumEvent?.darkColor
     const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
       c: "fill",
@@ -435,13 +439,9 @@ const Header = ({
       f: "auto",
       g: "north",
     })})${darkColor ? `, ${darkColor}` : ''}`
-    headerStyle = {background}
+    headerStyle.background = background
   }
   
-  // If we're explicitly given a backgroundColor, that overrides any event header
-  if (backgroundColor) {
-    headerStyle = {backgroundColor}
-  }
   // Make all the text and icons white when we have some sort of color in the header background
   const useWhiteText = Object.keys(headerStyle).length > 0
 
