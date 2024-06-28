@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -6,38 +6,34 @@ import FormLabel from '@material-ui/core/FormLabel';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Checkbox from '@material-ui/core/Checkbox';
 import ListItemText from '@material-ui/core/ListItemText';
-import type { ForumIconProps } from '../common/ForumIcon';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
-  greyFormControl: {
-    "& .MuiOutlinedInput-notchedOutline": {
-      border: "none !important",
-    },
-  },
-  greyRoot: {
+  greyDropdownRoot: {
     width: "100%",
     minHeight: 45,
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
-    overflow: "hidden",
+    border: "none",
     display: "flex",
-    alignItems: "center",
-  },
-  greySelect: {
-    display: "flex",
-    alignItems: "center",
-    padding: "8px 30px 8px 16px",
-    width: "100%",
-    height: "100%",
-    color: theme.palette.grey[1000],
-    fontSize: 14,
-    "&:focus": {
-      background: "none",
+    "&:hover": {
+      background: theme.palette.panelBackground.loginInputHovered,
+    },
+    "& *:first-child": {
+      flexGrow: 1,
     },
   },
-  greyIcon: {
-    marginRight: 8,
+  greyDropdownTitle: {
+    minHeight: 24,
+    height: "unset",
+  },
+  greyDropdownMenu: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    padding: 8,
+    maxHeight: 400,
+    overflow: "auto",
   },
   sectionTitle: {
     fontSize: 12,
@@ -53,11 +49,6 @@ const styles = (theme: ThemeType) => ({
       paddingRight: 30,
     },
   },
-  selectGrey: {
-    '& .MuiOutlinedInput-input': {
-      fontWeight: 500,
-    },
-  },
   placeholder: {
     color: theme.palette.grey[600]
   },
@@ -70,9 +61,6 @@ type MultiselectOption = {
   value: string,
   label: string
 }
-
-const GreyIcon = (props: Omit<ForumIconProps, "icon">) =>
-  <Components.ForumIcon {...props} icon="ThickChevronDown" />
 
 /**
  * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
@@ -97,19 +85,69 @@ const MultiSelect = ({
   variant?: "default" | "grey",
   classes: ClassesType<typeof styles>,
 }) => {
-  const {SectionTitle, MenuItem} = Components;
-
   const isGrey = variant === "grey";
-  const labelNode = isGrey
-    ? <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
-    : <FormLabel className={classes.formLabel}>{label}</FormLabel>;
 
-  return <FormControl
-    className={classNames(isGrey && classes.greyFormControl)}
-  >
-    {label && labelNode}
+  const renderValue = useCallback((selected: string[]) => {
+    if (selected.length === 0) {
+      return (
+        <em className={classNames(
+          classes.placeholder,
+          isGrey && classes.placeholderGrey,
+        )}>
+          {placeholder}
+        </em>
+      );
+    }
+
+    // If any options are selected, display them separated by commas
+    return selected
+      .map((s) => options.find(option => option.value === s)?.label)
+      .join(separator || ", ");
+  }, [classes, isGrey, options, separator, placeholder]);
+
+  const toggleValue = useCallback((newValue: string) => {
+    const valueSet = new Set(value);
+    if (valueSet.has(newValue)) {
+      valueSet.delete(newValue);
+    } else {
+      valueSet.add(newValue);
+    }
+    setValue(Array.from(valueSet));
+  }, [value, setValue]);
+
+  if (isGrey) {
+    const {
+      SectionTitle, PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
+    } = Components;
+    return (
+      <div>
+        {label && <SectionTitle title={label} className={classes.sectionTitle} />}
+        <PeopleDirectoryFilterDropdown
+          title={<span>{renderValue(value)}</span>}
+          rootClassName={classes.greyDropdownRoot}
+          titleClassName={classes.greyDropdownTitle}
+          className={classes.greyDropdownMenu}
+        >
+          {options.map((option) => (
+            <PeopleDirectorySelectOption
+              key={option.value}
+              state={{
+                ...option,
+                selected: value.some((v) => v === option.value),
+                onToggle: toggleValue.bind(null, option.value),
+              }}
+            />
+          ))}
+        </PeopleDirectoryFilterDropdown>
+      </div>
+    );
+  }
+
+  const {MenuItem} = Components;
+  return <FormControl>
+    {label && <FormLabel className={classes.formLabel}>{label}</FormLabel>}
     <Select
-      className={classNames(classes.select, isGrey && classes.selectGrey)}
+      className={classes.select}
       value={value}
       input={<OutlinedInput labelWidth={0} />}
       onChange={e => {
@@ -118,27 +156,8 @@ const MultiSelect = ({
       }}
       multiple
       displayEmpty
-      renderValue={(selected: Array<string>) => {
-        if (selected.length === 0) {
-          return (
-            <em className={classNames(
-              classes.placeholder,
-              isGrey && classes.placeholderGrey,
-            )}>
-              {placeholder}
-            </em>
-          );
-        }
-        // if any options are selected, display them separated by commas
-        return selected.map(s => options.find(option => option.value === s)?.label).join(separator || ', ')
-      }}
+      renderValue={renderValue}
       {...!options.length ? {disabled: true} : {}}
-      IconComponent={isGrey ? GreyIcon : undefined}
-      classes={isGrey ? {
-        root: classes.greyRoot,
-        select: classes.greySelect,
-        icon: classes.greyIcon,
-      } : {}}
     >
         {options.map(option => {
           return <MenuItem key={option.value} value={option.value}>
