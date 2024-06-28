@@ -116,6 +116,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Comments",
+    sortField: "commentCount",
+    defaultSort: "desc",
     columnWidth: "auto",
     componentName: "PeopleDirectoryCommentCountCell",
     hideable: true,
