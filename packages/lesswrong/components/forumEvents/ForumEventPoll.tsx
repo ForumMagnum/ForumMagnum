@@ -308,8 +308,6 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
     // set the vote to the corresponding end of the slider
     const sliderRect = sliderRef.current.getBoundingClientRect()
     const sliderWidth = sliderRect.right - sliderRect.left
-    console.log('e.clientX', e.clientX)
-    console.log('sliderRect.left', sliderRect.left)
     if (e.clientX < sliderRect.left) {
       setVotePos(0)
       return
@@ -331,7 +329,6 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
    * - Otherwise (we're on the home page), open the post selection modal
    */
   const saveVotePos = useCallback(async () => {
-    console.log('pointerup')
     if (!isDragging || !event) return
 
     setIsDragging(false)

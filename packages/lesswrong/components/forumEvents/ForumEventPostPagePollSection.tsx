@@ -54,6 +54,11 @@ const styles = (theme: ThemeType) => ({
 
 const announcementPostUrl = 'https://forum.effectivealtruism.org/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7'
 
+/**
+ * This is used on the post page to display the current forum event's poll,
+ * and allow users to update their vote to show that the post changed their minds.
+ * This uses the theme name to set the root element's colors so you should NoSSR it.
+ */
 export const ForumEventPostPagePollSection = ({postId, classes}: {
   postId: string,
   classes: ClassesType<typeof styles>,
