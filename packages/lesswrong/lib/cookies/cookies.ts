@@ -164,6 +164,12 @@ export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
   description: "Stores the ids of survey schedules that the user has hidden"
 });
 
+export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
+  name: "selected_frontpage_tab",
+  type: "functional",
+  description: "Stores the selected tab for logged out users"
+});
+
 // Third party cookies
 
 // Intercom

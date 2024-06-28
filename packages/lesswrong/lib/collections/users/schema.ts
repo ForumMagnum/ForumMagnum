@@ -5,7 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -623,9 +623,9 @@ const schema: SchemaType<"Users"> = {
     control: 'UsersEmailVerification',
     canRead: ['members'],
     // EA Forum does not care about email verification
-    canUpdate: isEAForum ?
-      [userOwns, 'sunshineRegiment', 'admins'] :
-      [],
+    canUpdate: isEAForum
+      ? []
+      : [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -1797,10 +1797,13 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: isEAForum ? formGroups.aboutMe : formGroups.siteCustomizations,
+    group: isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo,
     order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
-    label: "Public map location",
+    label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
+    form: {
+      variant: "grey",
+    },
     blackbox: true,
     optional: true,
     hidden: isEAForum
@@ -2506,13 +2509,16 @@ const schema: SchemaType<"Users"> = {
   profileImageId: {
     hidden: true,
     order: isLWorAF ? 40 : 1, // would use isFriendlyUI but that's not available here
-    group: isEAForum ? formGroups.aboutMe : formGroups.default,
+    group: formGroups.default,
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    control: "ImageUpload"
+    control: "ImageUpload",
+    form: {
+      horizontal: true,
+    },
   },
   
   jobTitle: {
@@ -2522,9 +2528,10 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 2,
-    label: 'Role'
+    label: 'Role',
+    control: "FormComponentFriendlyTextInput",
   },
   
   organization: {
@@ -2534,8 +2541,9 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 3,
+    control: "FormComponentFriendlyTextInput",
   },
   
   careerStage: {
@@ -2545,21 +2553,22 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 4,
     control: 'FormComponentMultiSelect',
     label: "Career stage",
     placeholder: 'Select all that apply',
     form: {
-      separator: '\r\n',
-      options: CAREER_STAGES
+      variant: "grey",
+      separator: ", ",
+      options: CAREER_STAGES,
     },
   },
   'careerStage.$': {
     type: String,
     optional: true,
   },
-  
+
   website: {
     type: String,
     hidden: true,
@@ -2569,9 +2578,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: 'https://'
+      inputPrefix: 'https://',
+      heading: "Website",
     },
-    group: formGroups.aboutMe,
+    group: formGroups.socialMedia,
     order: 6
   },
 
@@ -2606,9 +2616,12 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
+      heading: "Social media",
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 1,
   },
   facebookProfileURL: {
     type: String,
@@ -2619,9 +2632,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 2,
   },
   twitterProfileURL: {
     type: String,
@@ -2632,9 +2647,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 3,
   },
   githubProfileURL: {
     type: String,
@@ -2647,9 +2664,10 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 4,
   },
-  
+
   profileTagIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "profileTagIds",
@@ -2662,11 +2680,13 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    group: formGroups.activity,
-    order: 1,
+    group: formGroups.aboutMe,
+    order: 100,
     control: "TagMultiselect",
-    label: `${taggingNamePluralCapitalSetting.get()} I'm interested in`,
-    tooltip: `This will also update your frontpage ${taggingNameSetting.get()} weightings.`,
+    form: {
+      variant: "grey",
+    },
+    label: "Interests",
     placeholder: `Search for ${taggingNamePluralSetting.get()}`
   },
   'profileTagIds.$': {
@@ -2697,8 +2717,10 @@ const schema: SchemaType<"Users"> = {
     tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
     form: {
       useDocumentAsUser: true,
-      separator: '\r\n',
-      multiselect: true
+      variant: "grey",
+      separator: ", ",
+      multiselect: true,
+      hideClear: true,
     },
   },
   'organizerOfGroupIds.$': {
@@ -2719,7 +2741,8 @@ const schema: SchemaType<"Users"> = {
     control: 'FormComponentMultiSelect',
     placeholder: "Which of these programs have you participated in?",
     form: {
-      separator: '\r\n',
+      variant: "grey",
+      separator: ", ",
       options: PROGRAM_PARTICIPATION
     },
   },

@@ -100,7 +100,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500]
   },
   postTitle: {
-    ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
     display: "block"
   },

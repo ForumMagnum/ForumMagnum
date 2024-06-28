@@ -981,6 +981,7 @@ importComponent(["DatePicker","FormComponentDateTime"], () => require('../compon
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
+importComponent("FormComponentFriendlyTextInput", () => require('../components/form-components/FormComponentFriendlyTextInput'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
@@ -994,6 +995,7 @@ importComponent("FormGroupLayout", () => require('../components/form-components/
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
+importComponent("FormGroupFriendlyUserProfile", () => require('../components/form-components/FormGroupFriendlyUserProfile'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 
