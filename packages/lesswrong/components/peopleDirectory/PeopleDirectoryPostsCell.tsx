@@ -18,6 +18,7 @@ const styles = (theme: ThemeType) => ({
     ...textCellStyles(theme),
     position: "relative",
     width: "100%",
+    height: "100%",
   },
   noPosts: {
     ...emptyTextCellStyles(theme),
