@@ -1,22 +1,5 @@
-import { membersGroup, adminsGroup, userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import { Sequences } from './collection';
-
-const membersActions = [
-  'sequences.edit.own',
-  'sequences.new.own',
-  'sequences.remove.own',
-  'chapters.new.own',
-  'chapters.remote.own',
-  'chapters.edit.own',
-];
-membersGroup.can(membersActions);
-
-const adminActions= [
-  'sequences.edit.all',
-  'sequences.view.all',
-  'sequences.new.all'
-]
-adminsGroup.can(adminActions);
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
