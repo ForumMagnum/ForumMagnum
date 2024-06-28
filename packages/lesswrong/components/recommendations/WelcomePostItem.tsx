@@ -1,11 +1,11 @@
 import React from "react";
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { aboutPostIdSetting } from "../../lib/routes";
 import { useCurrentUser } from "../common/withUser";
 import { useItemsRead } from "../hooks/useRecordPostView";
 import moment from "moment";
 import { useSingle } from "../../lib/crud/withSingle";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
+import { aboutPostIdSetting } from "@/lib/instanceSettings";
 
 const WelcomePostItem = () => {
   const currentUser = useCurrentUser();

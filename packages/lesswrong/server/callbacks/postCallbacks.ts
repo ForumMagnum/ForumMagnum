@@ -34,6 +34,7 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -605,7 +606,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 /* Recombee callbacks */
 
 postPublishedCallback.add((post, context) => {
-  if (post.shortform || post.unlisted) return;
+  if (!isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -625,7 +626,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -641,7 +642,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
 });
 
 voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(newDocument as DbPost, context)

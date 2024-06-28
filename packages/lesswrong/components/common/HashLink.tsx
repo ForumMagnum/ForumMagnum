@@ -94,10 +94,12 @@ export function HashLink(props: HashLinkProps) {
       {...filteredProps}
       href={to}
       onMouseDown={(ev) => {
+        // Run any custom onMouseDown logic, including event tracking (such as that passed in from `Link`) before checking for modifier keys
+        // This is necessary to capture e.g. `linkClicked` events when cmd-clicking to open links in a new tab
+        filteredProps.onMouseDown?.(ev);
         if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) {
           return;
         }
-        filteredProps.onMouseDown?.(ev)
         navigate(to);
         ev.preventDefault();
       }}

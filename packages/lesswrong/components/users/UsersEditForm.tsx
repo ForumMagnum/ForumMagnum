@@ -9,7 +9,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
-import { preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -18,6 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 600,
     margin: "auto",
     marginBottom: 100,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     }

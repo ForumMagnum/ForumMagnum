@@ -1,4 +1,5 @@
 import type { ComponentProps } from "react";
+import { taggingNameCapitalSetting } from "@/lib/instanceSettings";
 
 const cellComponents = [
   "PeopleDirectoryUserCell",
@@ -95,7 +96,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     hidden: false,
   },
   {
-    label: "Topic interests",
+    label: `${taggingNameCapitalSetting.get()} interests`,
     columnWidth: "1.5fr",
     componentName: "PeopleDirectoryTopicsCell",
     hideable: true,

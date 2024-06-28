@@ -25,6 +25,8 @@ import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
+import SurveysRepo from "./SurveysRepo";
+import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
@@ -62,6 +64,8 @@ const getAllRepos = () => ({
   sequences: new SequencesRepo(),
   sideComments: new SideCommentCachesRepo(),
   splashArtCoordinates: new SplashArtCoordinatesRepo(),
+  surveys: new SurveysRepo(),
+  surveySchedules: new SurveySchedulesRepo(),
   tags: new TagsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),

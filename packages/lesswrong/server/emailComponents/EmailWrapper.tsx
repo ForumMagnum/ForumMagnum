@@ -1,15 +1,12 @@
 import React from 'react';
-import { isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum ? {
-      fontFamily: theme.typography.fontFamily,
-      fontSize: 14,
-      lineHeight: "22px",
-    } : {}),
+    ...(isFriendlyUI ? {...theme.typography.smallText} : {}),
     "& img": {
       maxWidth: "100%",
     }
