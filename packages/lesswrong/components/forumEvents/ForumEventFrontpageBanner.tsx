@@ -11,6 +11,7 @@ import orderBy from "lodash/orderBy";
 import toPairs from "lodash/toPairs";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { POLL_MAX_WIDTH } from "./ForumEventPoll";
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   },
   expandToggleRow: {
     padding: '0 20px 20px',
-    ['@media(max-width: 1040px)']: {
+    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
       display: 'none'
     },
   },
@@ -95,7 +96,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 1000,
     padding: '0 30px 58px',
     margin: '0 auto ',
-    ['@media(max-width: 1040px)']: {
+    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
       display: 'none'
     },
   },
@@ -104,7 +105,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 500,
     textWrap: 'pretty',
     padding: '16px 30px 30px',
-    ['@media(max-width: 1040px)']: {
+    [`@media(max-width: ${POLL_MAX_WIDTH}px)`]: {
       display: 'block'
     },
   },
@@ -321,7 +322,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
-        <ForumEventPoll event={currentForumEvent} />
+        <ForumEventPoll />
         <div className={classes.expandToggleRow}>
           <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
             <ForumIcon

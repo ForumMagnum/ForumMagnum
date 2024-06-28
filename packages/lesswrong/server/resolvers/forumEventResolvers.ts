@@ -53,5 +53,5 @@ addGraphQLResolvers({
   },
 })
 
-addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Int!, delta: Int, postIds: [String]): Boolean')
+addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')

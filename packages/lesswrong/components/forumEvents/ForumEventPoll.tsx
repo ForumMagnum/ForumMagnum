@@ -9,8 +9,10 @@ import { useMulti } from "@/lib/crud/withMulti";
 import ForumNoSSR from "../common/ForumNoSSR";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
-const SLIDER_WIDTH = 1000;
+export const POLL_MAX_WIDTH = 730;
+const SLIDER_MAX_WIDTH = 1000;
 const USER_IMAGE_SIZE = 24;
 
 const styles = (theme: ThemeType) => ({
@@ -20,12 +22,9 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: '10px 30px 30px',
     margin: '0 auto',
-    // ['@media(max-width: 1040px)']: {
-    //   display: 'none'
-    // },
-    '@container (max-width: 700px)': {
-      display: 'none'
-    }
+    [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
+      display: 'none',
+    },
   },
   question: {
     fontSize: 32,
@@ -43,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   },
   sliderLineCol: {
     flexGrow: 1,
-    maxWidth: SLIDER_WIDTH,
+    maxWidth: SLIDER_MAX_WIDTH,
   },
   sliderLine: {
     position: 'relative',
@@ -70,6 +69,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.6,
     cursor: 'grab',
     zIndex: 2,
+    touchAction: 'none',
     '&:hover': {
       opacity: 1,
     }
@@ -155,7 +155,7 @@ export type ForumEventVoteData = {
 }
 
 export const addForumEventVoteQuery = gql`
-  mutation AddForumEventVote($forumEventId: String!, $x: Int!, $delta: Int, $postIds: [String]) {
+  mutation AddForumEventVote($forumEventId: String!, $x: Float!, $delta: Float, $postIds: [String]) {
     AddForumEventVote(forumEventId: $forumEventId, x: $x, delta: $delta, postIds: $postIds)
   }
 `;
@@ -165,7 +165,7 @@ const removeForumEventVoteQuery = gql`
   }
 `;
 
-const maxVotePos = SLIDER_WIDTH - USER_IMAGE_SIZE
+const maxVotePos = (SLIDER_MAX_WIDTH - USER_IMAGE_SIZE) / SLIDER_MAX_WIDTH
 // The default vote position is in the middle of the slider
 const defaultVotePos = maxVotePos / 2
 
@@ -215,19 +215,20 @@ const PollQuestion = ({event, classes}: {
  * If a postId is provided, we just give points to that post (ex. when on a post page).
  * Otherwise, we open a modal.
  */
-export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
-  event: ForumEventsDisplay,
+export const ForumEventPoll = ({postId, hideViewResults, classes}: {
   postId?: string,
   hideViewResults?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {currentForumEvent: event, refetch} = useCurrentForumEvent()
   const {onSignup} = useLoginPopoverContext()
   const {openDialog} = useDialog()
   const currentUser = useCurrentUser()
   // Pull the current user's vote position to initialize the component
   // (note that 0 is a valid vote)
-  const initialUserVotePos: number|null = currentUser ? (event.publicData?.[currentUser._id]?.x ?? null) : null
-  // The actual x position of the user's vote circle
+  const initialUserVotePos: number|null = currentUser ? (event?.publicData?.[currentUser._id]?.x ?? null) : null
+  // The actual x position of the left side of the user's vote circle,
+  // as a number between 0 and 0.976 (i.e. (SLIDER_MAX_WIDTH - USER_IMAGE_SIZE) / SLIDER_MAX_WIDTH)
   const [votePos, setVotePos] = useState<number>(initialUserVotePos ?? defaultVotePos)
   // The x position of the vote in the db
   const [currentUserVote, setCurrentUserVote] = useState<number|null>(initialUserVotePos)
@@ -240,20 +241,20 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
   // Whether or not the poll results (i.e. other users' votes) are visible.
   // They are hidden until the user clicks on "view results".
   const [resultsVisible, setResultsVisible] = useState(false)
-  const [voteCount, setVoteCount] = useState(event.voteCount)
+  const [voteCount, setVoteCount] = useState(event?.voteCount ?? 0)
   
   // Get profile image and display name for all other users who voted, to display on the slider
   const { results: voters } = useMulti({
     terms: {
       view: 'usersByUserIds',
-      userIds: event.publicData ?
-        Object.keys(event.publicData).filter(userId => userId !== currentUser?._id) :
+      userIds: event?.publicData ?
+        Object.keys(event?.publicData).filter(userId => userId !== currentUser?._id) :
         []
     },
     collectionName: "Users",
     fragmentName: 'UserOnboardingAuthor',
     enableTotal: false,
-    skip: !event.publicData,
+    skip: !event?.publicData,
   })
   
   const [addVote] = useMutation(
@@ -269,20 +270,21 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
    * When the user clicks the "x" icon, or when a logged out user tries to vote,
    * delete their vote data
    */
-  const clearVote = useCallback((e?: React.MouseEvent) => {
+  const clearVote = useCallback(async (e?: React.PointerEvent) => {
     e?.stopPropagation()
     setVotePos(defaultVotePos)
     setCurrentUserVote(null)
-    if (currentUser) {
-      void removeVote({variables: {forumEventId: event._id}})
+    if (currentUser && event) {
       setVoteCount(count => count - 1)
+      await removeVote({variables: {forumEventId: event._id}})
+      refetch?.()
     }
-  }, [setVotePos, setCurrentUserVote, currentUser, removeVote, event._id])
+  }, [setVotePos, setCurrentUserVote, currentUser, removeVote, event, refetch])
   
   /**
-   * When the user mousedowns on their vote circle, start dragging it
+   * When the user pointerdowns on their vote circle, start dragging it
    */
-  const startDragVote = useCallback((e: React.MouseEvent) => {
+  const startDragVote = useCallback((e: React.PointerEvent) => {
     e.preventDefault()
     setIsDragging(true)
   }, [setIsDragging])
@@ -290,12 +292,15 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
   /**
    * When the user drags their vote, update its x position
    */
-  const updateVotePos = useCallback((e: MouseEvent) => {
+  const updateVotePos = useCallback((e: PointerEvent) => {
     if (!isDragging || !sliderRef.current) return
     
-    // If the user's mouse is off to the left or right of the slider,
+    // If the user's pointer is off to the left or right of the slider,
     // set the vote to the corresponding end of the slider
     const sliderRect = sliderRef.current.getBoundingClientRect()
+    const sliderWidth = sliderRect.right - sliderRect.left
+    console.log('e.clientX', e.clientX)
+    console.log('sliderRect.left', sliderRect.left)
     if (e.clientX < sliderRect.left) {
       setVotePos(0)
       return
@@ -304,10 +309,10 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
       return
     }
     
-    const newVotePos = e.clientX - sliderRect.left - (USER_IMAGE_SIZE/2)
+    const newVotePos = (e.clientX - sliderRect.left - (USER_IMAGE_SIZE/2)) / sliderWidth
     setVotePos(Math.min(Math.max(newVotePos, 0), maxVotePos))
   }, [isDragging, setVotePos])
-  useEventListener("mousemove", updateVotePos)
+  useEventListener("pointermove", updateVotePos)
 
   /**
    * When the user is done dragging their vote:
@@ -316,8 +321,9 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
    * - If we have a postId (because we're on the post page), save the vote
    * - Otherwise (we're on the home page), open the post selection modal
    */
-  const saveVotePos = useCallback(() => {
-    if (!isDragging) return
+  const saveVotePos = useCallback(async () => {
+    console.log('pointerup')
+    if (!isDragging || !event) return
 
     setIsDragging(false)
     // When a logged-in user is done dragging their vote, attempt to save it
@@ -327,32 +333,34 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
         x: votePos,
       }
       if (!hasVoted) {
-        void addVote({variables: voteData})
-        setCurrentUserVote(votePos)
         setVoteCount(count => count + 1)
+        setCurrentUserVote(votePos)
+        await addVote({variables: voteData})
+        refetch?.()
         return
       }
       const delta = votePos - (currentUserVote ?? defaultVotePos)
       if (delta) {
         voteData.delta = delta
+        setCurrentUserVote(votePos)
         if (postId) {
-          void addVote({variables: {
+          await addVote({variables: {
             ...voteData,
             postIds: [postId]
           }})
+          refetch?.()
         } else if (event.tag) {
           openDialog({
             componentName: "ForumEventPostSelectionDialog",
             componentProps: {tag: event.tag, voteData}
           })
         }
-        setCurrentUserVote(votePos)
       }
     }
     // When a logged-out user tries to vote, just show the login modal
     else {
       onSignup()
-      clearVote()
+      void clearVote()
     }
   }, [
     isDragging,
@@ -360,19 +368,21 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
     hasVoted,
     currentUser,
     addVote,
-    event._id,
-    event.tag,
+    event,
     votePos,
     currentUserVote,
     postId,
     setCurrentUserVote,
     openDialog,
     onSignup,
-    clearVote
+    clearVote,
+    refetch
   ])
-  useEventListener("mouseup", saveVotePos)
+  useEventListener("pointerup", saveVotePos)
 
   const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
+  
+  if (!event) return null
 
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
@@ -399,8 +409,8 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
                   isDragging && classes.currentUserVoteDragging,
                   hasVoted && classes.currentUserVoteActive
                 )}
-                onMouseDown={startDragVote}
-                style={{left: `${votePos}px`}}
+                onPointerDown={startDragVote}
+                style={{left: `${votePos * 100}%`}}
               >
                 <LWTooltip title={hasVoted ? <div className={classes.voteTooltipBody}>Drag to move</div> : <>
                     <div className={classes.voteTooltipHeading}>Click and drag to vote</div>
@@ -411,7 +421,7 @@ export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
                     <UsersProfileImage user={currentUser} size={USER_IMAGE_SIZE} className={classes.userImage} /> :
                     <ForumIcon icon="UserCircle" className={classes.placeholderUserIcon} />
                   }
-                  <div className={classes.clearVote} onMouseDown={clearVote}>
+                  <div className={classes.clearVote} onPointerDown={clearVote}>
                     <ForumIcon icon="Close" className={classes.clearVoteIcon} />
                   </div>
                 </LWTooltip>

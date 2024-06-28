@@ -15,9 +15,9 @@ const styles = (theme: ThemeType) => ({
     padding: 24,
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
-    '@container (max-width: 700px)': {
-      display: 'none'
-    }
+    // '@media (max-width: 700px)': {
+    //   display: 'none'
+    // }
   },
   heading: {
     fontSize: 24,
@@ -44,7 +44,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ForumEventPostPagePollSection = ({classes}: {
+export const ForumEventPostPagePollSection = ({postId, classes}: {
+  postId: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
@@ -90,7 +91,7 @@ export const ForumEventPostPagePollSection = ({classes}: {
           July 1-7 is AI welfare debate week on the Forum. Some more text that’s helpful here
         </div>
         <div className={classes.pollArea} style={pollAreaStyle}>
-          <ForumEventPoll event={currentForumEvent} hideViewResults />
+          <ForumEventPoll postId={postId} hideViewResults />
         </div>
       </div>
     </AnalyticsContext>
