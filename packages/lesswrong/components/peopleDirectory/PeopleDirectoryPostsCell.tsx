@@ -62,9 +62,8 @@ export const PeopleDirectoryPostsCell = ({user, classes}: {
       </Link>
       {posts.length > 1 &&
         <span className={classes.more}>
-          {" and "}
           <Link to={userGetProfileUrl(user) + "#posts"} {...linkProps}>
-            {posts.length - 1} more
+            + {posts.length - 1} more
           </Link>
         </span>
       }
