@@ -16,11 +16,16 @@ const USER_IMAGE_SIZE = 24;
 const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'center',
+    color: theme.palette.text.alwaysWhite,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     padding: '10px 30px 30px',
     margin: '0 auto',
-    ['@media(max-width: 1040px)']: {
+    // ['@media(max-width: 1040px)']: {
+    //   display: 'none'
+    // },
+    '@container (max-width: 700px)': {
       display: 'none'
-    },
+    }
   },
   question: {
     fontSize: 32,
@@ -36,9 +41,13 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     marginTop: 36,
   },
+  sliderLineCol: {
+    flexGrow: 1,
+    maxWidth: SLIDER_WIDTH,
+  },
   sliderLine: {
     position: 'relative',
-    width: SLIDER_WIDTH,
+    width: '100%',
     height: 2,
     backgroundColor: theme.palette.text.alwaysWhite,
   },
@@ -206,9 +215,10 @@ const PollQuestion = ({event, classes}: {
  * If a postId is provided, we just give points to that post (ex. when on a post page).
  * Otherwise, we open a modal.
  */
-export const ForumEventPoll = ({event, postId, classes}: {
+export const ForumEventPoll = ({event, postId, hideViewResults, classes}: {
   event: ForumEventsDisplay,
   postId?: string,
+  hideViewResults?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {onSignup} = useLoginPopoverContext()
@@ -371,7 +381,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
 
         <div className={classes.sliderRow}>
           <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
-          <div>
+          <div className={classes.sliderLineCol}>
             <div className={classes.sliderLine} ref={sliderRef}>
               {resultsVisible && voters && voters.map(user => {
                 const vote = event.publicData[user._id]
@@ -410,7 +420,7 @@ export const ForumEventPoll = ({event, postId, classes}: {
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
               <ForumNoSSR>
-                {!resultsVisible && <div>
+                {!hideViewResults && !resultsVisible && <div>
                   {(voteCount > 0) && `${voteCount} vote${voteCount === 1 ? '' : 's'} so far. `}
                   {hasVoted ? 'Click and drag to update your vote, or ' : 'Place your vote or '}
                   <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
