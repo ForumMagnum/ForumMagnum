@@ -78,9 +78,11 @@ export const PeopleDirectoryFilterDropdown = ({
   onClose,
   children,
   className,
+  rootClassName,
+  titleClassName,
   classes,
 }: {
-  title: string,
+  title: ReactNode,
   active?: boolean,
   style?: "dropdown" | "button",
   icon?: ForumIconName,
@@ -88,6 +90,8 @@ export const PeopleDirectoryFilterDropdown = ({
   onClose?: () => void,
   children?: ReactNode,
   className?: string,
+  rootClassName?: string,
+  titleClassName?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(false);
@@ -108,13 +112,16 @@ export const PeopleDirectoryFilterDropdown = ({
   return (
     <div
       ref={anchorRef}
-      className={classNames(classes.root, {
+      className={classNames(classes.root, rootClassName, {
         [classes.dropdown]: style === "dropdown",
         [classes.button]: style === "button",
         [classes.active]: active,
       })}
     >
-      <div onClick={() => onChangeOpen(!open)} className={classes.title}>
+      <div
+        onClick={() => onChangeOpen(!open)}
+        className={classNames(classes.title, titleClassName)}
+      >
         {icon && <ForumIcon icon={icon} className={classes.icon} />}
         {title}
         {style === "dropdown" &&
