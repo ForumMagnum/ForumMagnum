@@ -583,7 +583,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           }
         },
         onFocus,
-        onInit: (editor: any) => this.setState({ckEditorReference: editor}),
+        onReady: (editor: any) => this.setState({ckEditorReference: editor}),
         document,
       }
 

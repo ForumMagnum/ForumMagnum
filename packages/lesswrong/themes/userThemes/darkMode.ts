@@ -301,7 +301,7 @@ export const darkModeTheme: UserThemeSpecification = {
       },
     },
   }, forumComponentPalette(shadePalette)),
-  make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
+  make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
       // black). Necessary because there are a handful of posts with images that
