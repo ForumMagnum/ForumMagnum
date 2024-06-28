@@ -1,13 +1,16 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
+import { recombeeEnabledSetting } from '@/lib/publicSettings';
+import { recombeeApi } from '@/lib/recombee/client';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   iconSet: {
@@ -105,10 +108,16 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 
   const { captureEvent } = useTracking() 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
+  const currentUser = useCurrentUser();
 
   const notInterestedClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if ( !!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
+      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
+    }
+
     void setIsHiddenMutation({postId: post._id, isHidden: true})
     captureEvent("recommendationNotInterestedClicked", {postId: post._id})
   }

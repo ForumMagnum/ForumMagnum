@@ -409,7 +409,7 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   return false;
 }
 
-export const isRecombeeRecommendablePost = (post: DbPost | PostsListBase): boolean => {
+export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
   // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
