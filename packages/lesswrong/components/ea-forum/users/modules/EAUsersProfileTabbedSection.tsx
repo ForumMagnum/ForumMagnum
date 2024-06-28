@@ -98,8 +98,9 @@ export type UserProfileTabType = {
   collapsable?: boolean
 }
 
-const EAUsersProfileTabbedSection = ({tabs, classes}: {
+const EAUsersProfileTabbedSection = ({tabs, id, classes}: {
   tabs: Array<UserProfileTabType>,
+  id?: string,
   classes: ClassesType,
 }) => {
   const [activeTab, setActiveTab] = useState(tabs.length ? tabs[0] : null)
@@ -139,7 +140,7 @@ const EAUsersProfileTabbedSection = ({tabs, classes}: {
   const tabsAreClickable = tabs.length > 1
 
   return (
-    <div className={classes.section}>
+    <div className={classes.section} id={id}>
       <div className={classes.tabsRow}>
         {tabs.map(tab => {
           return <Typography

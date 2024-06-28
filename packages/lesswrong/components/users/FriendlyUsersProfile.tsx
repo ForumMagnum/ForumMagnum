@@ -194,7 +194,15 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   });
   const user = getUserFromResults(results)
 
-  const { query } = useLocation()
+  const {query, hash} = useLocation();
+
+  useEffect(() => {
+    if (user && hash) {
+      const element = document.querySelector(hash);
+      setTimeout(() => element?.scrollIntoView(true), 0);
+    }
+  }, [user, hash]);
+
   // track profile views in local storage
   useEffect(() => {
     const ls = getBrowserLocalStorage()
@@ -507,7 +515,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </div>}
 
         {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
-          <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
+          <EAUsersProfileTabbedSection tabs={privateSectionTabs} id="drafts" /> :
           <Button color="primary"
             onClick={() => setDraftsSectionExpanded(true)}
             className={classes.showSectionBtn}
@@ -516,7 +524,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           </Button>
         )}
 
-        <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
+        <EAUsersProfileTabbedSection tabs={bioSectionTabs} id="bio" />
 
         {!!(userPostsCount || user.postCount) && <div className={classes.section}>
           <div className={classes.sectionHeadingRow}>
@@ -549,7 +557,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
         </div>}
 
-        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
+        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} id="contributions" />
       </SingleColumnSection>
 
       <ReportUserButton user={user}/>

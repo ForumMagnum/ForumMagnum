@@ -189,6 +189,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
         u."howICanHelpOthers"->>'html' AS "howICanHelpOthers",
         COALESCE(u."karma", 0) AS "karma",
+        COALESCE(u."commentCount", 0) AS "commentCount",
         u."slug",
         NULLIF(TRIM(u."jobTitle"), '') AS "jobTitle",
         NULLIF(TRIM(u."organization"), '') AS "organization",

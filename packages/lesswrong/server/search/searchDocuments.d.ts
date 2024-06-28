@@ -53,6 +53,7 @@ interface SearchUser extends SearchBase {
   bio: string,
   htmlBio: string,
   karma: number,
+  commentCount: number,
   slug: string,
   jobTitle?: string,
   organization?: string,

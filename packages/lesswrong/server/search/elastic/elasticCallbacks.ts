@@ -22,7 +22,11 @@ export const elasticSyncDocument = (
   }
 }
 
-if (isElasticEnabled) {
+export const registerElasticCallbacks = () => {
+  if (!isElasticEnabled) {
+    return;
+  }
+
   for (const collectionName of searchIndexedCollectionNames) {
     const callback = ({_id}: DbObject) => elasticSyncDocument(collectionName, _id);
     getCollectionHooks(collectionName).createAfter.add(callback);
