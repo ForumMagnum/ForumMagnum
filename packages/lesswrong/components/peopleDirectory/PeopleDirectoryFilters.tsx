@@ -75,7 +75,7 @@ export const PeopleDirectoryFilters = ({classes}: {
         {view === "list" &&
           <>
             <PeopleDirectoryFilterDropdown
-              title="Sorting"
+              title="Sort"
               icon="ArrowsUpDown"
               style="button"
               className={classes.columnsList}
