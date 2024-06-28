@@ -5,8 +5,13 @@ import { useCurrentUser } from './withUser';
 import { RecombeeViewPortionProps, recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { gql, useMutation } from '@apollo/client';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { useClientId } from '@/lib/abTestImpl';
 
-interface AttributionEventProps extends Omit<RecombeeViewPortionProps, 'timestamp'|'userId'> {
+interface AttributionEventProps {
+  post: PostsListBase;
+  portion: number;
+  recommId?: string;
   vertexAttributionId?: string;
 }
 
@@ -18,6 +23,7 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   const { setNode, entry } = useIsInView(observerProps);
   const [alreadySent, setAlreadySent] = useState(false);
   const currentUser = useCurrentUser();
+  const clientId = useClientId();
 
   const sendRecombeeViewPortionEvent = useCallback(
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
@@ -32,17 +38,22 @@ const AttributionInViewTracker = ({eventProps, observerProps, children}: {
   });
 
   useEffect(() => {
-    if (!!entry && !!currentUser) {
+    const attributedUserId = currentUser?._id ?? clientId;
+    if (!!entry && attributedUserId) {
       const { isIntersecting, intersectionRatio } = entry;
       if (!alreadySent && isIntersecting && intersectionRatio > 0) {
         if (recombeeEnabledSetting.get()) {
-          const { vertexAttributionId, ...recombeeEventProps } = eventProps;
-          void sendRecombeeViewPortionEvent({ ...recombeeEventProps, timestamp: new Date(), userId: currentUser._id });
+          const { vertexAttributionId, post, ...recombeeEventProps } = eventProps;
+          if (isRecombeeRecommendablePost(post)) {
+            const postId = post._id;
+            void sendRecombeeViewPortionEvent({ ...recombeeEventProps, postId, timestamp: new Date(), userId: attributedUserId });
+          }
+          
           setAlreadySent(true);
         }
 
-        if (vertexEnabledSetting.get()) {
-          const { postId, vertexAttributionId } = eventProps;
+        if (currentUser && vertexEnabledSetting.get()) {
+          const { post: { _id: postId }, vertexAttributionId } = eventProps;
           void sendVertexMediaCompleteEvent({ variables: { postId, attributionId: vertexAttributionId } });
           setAlreadySent(true);
         }

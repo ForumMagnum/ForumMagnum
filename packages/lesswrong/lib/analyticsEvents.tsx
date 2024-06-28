@@ -415,8 +415,15 @@ export function flushClientEvents() {
   const eventsToWrite = pendingAnalyticsEvents;
   pendingAnalyticsEvents = [];
   AnalyticsUtil.clientWriteEvents(eventsToWrite.map(event => ({
-    ...(isClient ? AnalyticsUtil.clientContextVars : null),
-    ...event
+    ...event,
+    props: {
+      // clientContextVars will almost always be present already, in
+      // which case adding them here will do nothing. This is to cover
+      // the edge case of events that fire before clientContextVars
+      // is initialized (e.g. "pageLoadFinished")
+      ...(isClient ? AnalyticsUtil.clientContextVars : null),
+      ...event.props
+    }
   })));
 }
 

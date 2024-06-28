@@ -703,11 +703,20 @@ function googleDocConvertLinks(html: string) {
 function googleDocConvertNestedBullets(html: string): string {
   const $ = cheerio.load(html);
 
-  // Each nesting level has a class like lst-kix_gwukp0509sil-0, or lst-kix_gwukp0509sil-1
-  // The id in the middle indicates the overall nested list that this level belongs to, and the number at the end
-  // indicates the level of indentation
+  // Each nesting level (<ul> or <ol> group) has a class like lst-kix_gwukp0509sil-0, or lst-kix_gwukp0509sil-1
+  // The number at the end indicates the level of indentation, and the group a nesting level corresponds to
+  // can be inferred from the fact that it is part of a continuous block of <ul>/<ol>s with nothing in between
   const listGroups: Record<string, {element: cheerio.Cheerio, index: number}[]> = {};
+  let currentGroupId = 0;
+  let lastListElement: cheerio.Element | null = null;
+
   $('ul[class*="lst-"], ol[class*="lst-"]').each((_, element) => {
+    // If the current list element is not immediately after the last one, it's a new group
+    if (!lastListElement || (element.prev && !$(element.prev).is(lastListElement))) {
+      currentGroupId++;
+    }
+    lastListElement = element;
+
     const classNames = $(element).attr('class')?.split(/\s+/);
     const listClass = classNames?.find(name => name.startsWith('lst-'));
     if (!listClass) return;
@@ -715,11 +724,11 @@ function googleDocConvertNestedBullets(html: string): string {
     const match = listClass.match(/lst-([a-z_0-9]+)-(\d+)/);
     if (!match) return;
 
-    const [ , id, index] = match;
-    if (!listGroups[id]) {
-      listGroups[id] = [];
+    const [ , , index] = match;
+    if (!listGroups[currentGroupId]) {
+      listGroups[currentGroupId] = [];
     }
-    listGroups[id].push({ element: $(element), index: parseInt(index) });
+    listGroups[currentGroupId].push({ element: $(element), index: parseInt(index) });
   });
 
   // Adjust the indices to account for contraints in ckeditor, and convert to genuine nesting
@@ -796,8 +805,8 @@ export async function convertImportedGoogleDoc({
     googleDocFormatting,
     googleDocConvertLinks,
     googleDocRemoveRedirects,
+    googleDocConvertNestedBullets, // Must come before removeEmptyBodyParagraphs because paragraph breaks are used to determine when to break up a nested list of bullets
     removeEmptyBodyParagraphs,
-    googleDocConvertNestedBullets,
     async (html: string) => await dataToCkEditor(html, "html"),
   ];
 

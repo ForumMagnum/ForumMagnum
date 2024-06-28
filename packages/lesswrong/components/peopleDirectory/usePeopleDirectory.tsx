@@ -8,9 +8,11 @@ import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
 import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
 import { useMulti } from "@/lib/crud/withMulti";
+import { gql, useQuery } from "@apollo/client";
 
 type PeopleDirectoryView = "list" | "map";
 
@@ -44,6 +46,12 @@ type PeopleDirectoryContext = {
 
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
 
+const tagCountQuery = gql`
+  query ActiveTagCount {
+    ActiveTagCount
+  }
+`;
+
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
   const navigate = useNavigate();
@@ -69,6 +77,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     },
   });
 
+  const {data: tagCountResult} = useQuery(tagCountQuery);
+  const tagCount = tagCountResult?.ActiveTagCount ?? 0;
+
   const roles = useSearchableMultiSelect({
     title: "Role",
     facetField: "jobTitle",
@@ -86,8 +97,8 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     options: CAREER_STAGES,
   });
   const tags = useSearchableMultiSelect({
-    title: "Topic interests",
-    placeholder: "Search topics...",
+    title: `${taggingNameCapitalSetting.get()} interests`,
+    placeholder: `Search ${tagCount ? tagCount + " " : ""}${taggingNamePluralSetting.get()}...`,
     elasticField: {index: "tags", fieldName: "name"},
     defaultSuggestions: coreTags?.map(({name}) => name),
   });

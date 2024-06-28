@@ -218,6 +218,7 @@ registerFragment(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
+    optedOutOfSurveys
   }
 `);
 
