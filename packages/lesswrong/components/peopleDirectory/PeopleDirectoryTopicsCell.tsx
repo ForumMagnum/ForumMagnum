@@ -82,7 +82,7 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
         </div>
       }
       {user.tags?.slice(0, TAG_COUNT).map(({name, slug}) => (
-        <TagDisplay name={name} slug={slug} classes={classes} />
+        <TagDisplay key={slug} name={name} slug={slug} classes={classes} />
       ))}
       {(user.tags?.length ?? 0) > TAG_COUNT &&
         <div className={classes.more}>
@@ -91,6 +91,7 @@ export const PeopleDirectoryTopicsCell = ({user, classes}: {
               <div className={classes.tooltipTags}>
                 {user.tags!.slice(TAG_COUNT).map(({name, slug}) => (
                   <TagDisplay
+                    key={slug}
                     name={name}
                     slug={slug}
                     classes={classes}
