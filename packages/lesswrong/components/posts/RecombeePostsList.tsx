@@ -6,6 +6,7 @@ import { useOnMountTracking } from '../../lib/analyticsEvents';
 import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import moment from 'moment';
+import { useCurrentUser } from '../common/withUser';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -125,6 +126,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
 
   const [loadMoreCount, setLoadMoreCount] = useState(1);
+  const currentUser = useCurrentUser();
 
   const recombeeSettings = { ...settings, scenario: algorithm };
 
@@ -144,8 +146,13 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
 
-  const postIds = results?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = results?.map(({ post, scenario, curated, stickied, generatedAt }) => {
+  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map( metadata => metadata.postId ) ?? [];
+  
+  //exclude posts with hiddenPostIds
+  const filteredResults = results?.filter(({ post }) => !hiddenPostIds.includes(post._id));
+
+  const postIds = filteredResults?.map(({post}) => post._id) ?? [];
+  const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }) => {
     let loggedScenario = scenario;
     if (!loggedScenario) {
       if (curated) {
@@ -174,18 +181,17 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
     skip: !postIds.length || loading,
   });
 
-  if (loading && !results) {
+  if (loading && !filteredResults) {
     return <PostsLoading placeholderCount={limit} />;
   }
 
-  if (!results) {
+  if (!filteredResults) {
     return null;
   }
 
-
   return <div>
     <div className={classes.root}>
-      {results.map(({ post, recommId, curated, stickied }) => <PostsItem 
+      {filteredResults.map(({ post, recommId, curated, stickied }) => <PostsItem 
         key={post._id} 
         post={post} 
         recombeeRecommId={recommId} 
@@ -199,7 +205,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
       <LoadMore
         loading={loading || networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
-          const loadMoreSettings = getLoadMoreSettings(resolverName, results, loadMoreCount);
+          const loadMoreSettings = getLoadMoreSettings(resolverName, filteredResults, loadMoreCount);
           void fetchMore({
             variables: {
               settings: { ...recombeeSettings, ...loadMoreSettings },

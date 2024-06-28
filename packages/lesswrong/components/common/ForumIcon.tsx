@@ -106,7 +106,7 @@ import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
 import MuiCommentIcon from '@material-ui/icons/ModeComment';
-
+import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
 
 
 /**
@@ -245,7 +245,8 @@ export type ForumIconName =
   "Import" |
   "AddReaction" |
   "LabBeaker" |
-  "Sparkle"
+  "Sparkle" |
+  "NotInterested"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -350,6 +351,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
+    NotInterested: MuiNotInterestedIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -452,6 +454,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
+    NotInterested: MuiNotInterestedIcon,
   },
 };
 

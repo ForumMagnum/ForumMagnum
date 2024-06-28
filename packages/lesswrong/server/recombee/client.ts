@@ -278,7 +278,8 @@ const helpers = {
     const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
     const stickiedPostIds = [...manuallyStickiedPostIds, ...stickiedPosts.map(post => post._id)];
     const staleRecPostIds = 'excludedPostIds' in lwAlgoSettings ? lwAlgoSettings.excludedPostIds ?? [] : [];
-    const excludedPostIds = uniq([...curatedPostIds, ...stickiedPostIds, ...staleRecPostIds]);
+    const userHiddenPostsIds = context.currentUser?.hiddenPostsMetadata?.map( metadata => metadata.postId) ?? [];
+    const excludedPostIds = uniq([...curatedPostIds, ...stickiedPostIds, ...staleRecPostIds, ...userHiddenPostsIds]);
     const excludedPostFilter = `'itemId' not in {${excludedPostIds.map(id => `"${id}"`).join(', ')}}`;
 
     return {

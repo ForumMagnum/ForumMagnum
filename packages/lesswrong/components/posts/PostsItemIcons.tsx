@@ -6,6 +6,8 @@ import { curatedUrl } from '../recommendations/RecommendationsAndCurated';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF } from '../../lib/instanceSettings';
+import { useTracking } from '@/lib/analyticsEvents';
+import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
 
 const styles = (theme: ThemeType) => ({
   iconSet: {
@@ -65,9 +67,12 @@ const styles = (theme: ThemeType) => ({
   dialogueIcon: {
     strokeWidth: isFriendlyUI ? "2px" : undefined,
   },
-  sparkleIcon: {
+  recommendationIcon: {
     color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
-  },
+    '&:hover': {
+      opacity: 0.5
+    }
+  }
 });
 
 export const CuratedIcon = ({hasColor, classes}: {
@@ -91,8 +96,37 @@ export const CuratedIcon = ({hasColor, classes}: {
 const CuratedIconComponent = registerComponent('CuratedIcon', CuratedIcon, {styles});
 
 
-const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon, showRecommendationIcon}: {
+const RecommendedPostIcon = ({post, hover, classes}: {
   post: PostsBase,
+  hover?: boolean,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const { LWTooltip, ForumIcon } = Components;
+
+  const { captureEvent } = useTracking() 
+  const { setIsHiddenMutation } = useSetIsHiddenMutation();
+
+  const notInterestedClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    void setIsHiddenMutation({postId: post._id, isHidden: true})
+    captureEvent("recommendationNotInterestedClicked", {postId: post._id})
+  }
+
+  return <span className={classes.postIcon}>
+    <LWTooltip title="Hide this recommendation and show fewer like it" placement="right" > 
+      {hover 
+        ? <ForumIcon icon="NotInterested" onClick={notInterestedClick} className={classNames(classes.icon, classes.recommendationIcon)} />
+        : <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.recommendationIcon)} />
+      }
+    </LWTooltip>
+  </span>
+}
+
+
+const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon, showRecommendationIcon}: {
+  post: PostsBase,
+  hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
   showRecommendationIcon?: boolean,
@@ -139,12 +173,8 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon, showR
           <a href={`https://alignmentforum.org${postGetPageUrl(post)}`}><OmegaIcon className={classNames(classes.icon, classes.alignmentIcon)}/></a>
       </LWTooltip>
     </span>}
-  
-    {showRecommendationIcon && <span className={classes.postIcon}>
-      <LWTooltip title="Recommended algorithmically for you" placement="right">
-        <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.sparkleIcon)} />
-      </LWTooltip>
-    </span>}
+
+    {showRecommendationIcon && <RecommendedPostIcon post={post} hover={hover} classes={classes}/>}
 
   </span>
 }

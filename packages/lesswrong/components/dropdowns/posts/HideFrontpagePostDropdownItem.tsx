@@ -9,6 +9,7 @@ import map from 'lodash/map';
 import reject from 'lodash/reject';
 import some from 'lodash/some';
 import { useDialog } from '../../common/withDialog';
+import { useSetIsHiddenMutation } from './useSetIsHidden';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -24,14 +25,7 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   const [hidden, setHiddenState] = useState(map((currentUser?.hiddenPostsMetadata || []), 'postId')?.includes(post._id));
   const {captureEvent} = useTracking();
 
-  const [setIsHiddenMutation] = useMutation(gql`
-    mutation setIsHidden($postId: String!, $isHidden: Boolean!) {
-      setIsHidden(postId: $postId, isHidden: $isHidden) {
-        ...UsersCurrent
-      }
-    }
-    ${fragmentTextForQuery("UsersCurrent")}
-  `);
+  const { setIsHiddenMutation } = useSetIsHiddenMutation();
 
   if (!allowHidingPosts) {
     return null;
@@ -49,37 +43,7 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
     const isHidden = !hidden;
     setHiddenState(isHidden);
 
-    // FIXME: this mutation logic is duplicated from the mutation - ideally we'd
-    // like to have a single implementation, but there wasn't an obvious place to
-    // share this logic.
-    const oldHiddenList = currentUser.hiddenPostsMetadata || [];
-    let newHiddenList: Array<{postId: string}>;
-
-    if (isHidden) {
-      const alreadyHidden = some(
-        oldHiddenList,
-        (hiddenMetadata) => hiddenMetadata.postId === post._id,
-      );
-      newHiddenList = alreadyHidden
-        ? oldHiddenList
-        : [...oldHiddenList, {postId: post._id}];
-    } else {
-      newHiddenList = reject(
-        oldHiddenList,
-        (hiddenMetadata) => hiddenMetadata.postId === post._id,
-      );
-    }
-
-    void setIsHiddenMutation({
-      variables: {postId: post._id, isHidden},
-      optimisticResponse: {
-        setIsHidden: {
-          ...currentUser,
-          hiddenPostsMetadata: newHiddenList,
-        },
-      },
-    });
-
+    void setIsHiddenMutation({postId: post._id, isHidden})
     captureEvent("hideToggle", {"postId": post._id, "hidden": isHidden});
   }
 
