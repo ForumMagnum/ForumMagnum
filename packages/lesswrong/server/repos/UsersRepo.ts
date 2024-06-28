@@ -197,10 +197,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
-          '_id', "_id",
-          'slug', "slug",
-          'name', "name"
-        )) FROM "Tags" WHERE "_id" = ANY(u."profileTagIds")) AS "tags",
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(u."profileTagIds") AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
           'github', NULLIF(TRIM(u."githubProfileURL"), ''),
