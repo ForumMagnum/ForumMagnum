@@ -265,7 +265,10 @@ const helpers = {
       };
     }
 
-    const postPromises = [curatedPostTerms, stickiedPostTerms]
+    const filterSettings: FilterSettings = lwAlgoSettings.filterSettings ?? context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
+    const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings };
+
+    const postPromises = [curatedPostTerms, filteredStickiedPostTerms]
       .map(terms => viewTermsToQuery("Posts", terms, undefined, context))
       .map(postsQuery => context.Posts.find(postsQuery.selector, postsQuery.options, { _id: 1 }).fetch());
 

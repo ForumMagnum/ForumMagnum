@@ -4,6 +4,7 @@ import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import type { FilterSettings } from '@/lib/filterSettings';
 
 export const recommendationStrategyNames = new TupleSet([
   "moreFromAuthor",
@@ -124,6 +125,7 @@ export interface RecombeeConfiguration {
     prevRecommId?: string,
   },
   excludedPostIds?: string[],
+  filterSettings?: FilterSettings,
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
@@ -131,6 +133,7 @@ export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   onlyUnread?: boolean,
   lwRationalityOnly?: boolean,
   scenario: string,
+  filterSettings?: FilterSettings,
 }
 
 export interface HybridRecombeeConfiguration {
@@ -145,6 +148,7 @@ export interface HybridRecombeeConfiguration {
     loadMoreCount?: number,
   },
   excludedPostIds?: string[],
+  filterSettings?: FilterSettings,
 }
 
 export interface VertexConfiguration {

@@ -26,6 +26,7 @@ import { vertexEnabledSetting } from '../../lib/publicSettings';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
+import isEqual from 'lodash/isEqual';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -123,8 +124,8 @@ const styles = (theme: ThemeType) => ({
   enrichedTagFilterNotice: {
     ...theme.typography.italic,
     ...theme.typography.commentStyle,
-    color: theme.palette.text.primary,
-    marginBottom: 4,
+    color: theme.palette.text.slightlyDim2,
+    marginBottom: 5,
   },
 });
 
@@ -277,11 +278,13 @@ const defaultRecombeeConfig: RecombeeConfiguration = {
   rotationTime: 24 * 30,
 };
 
-function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) {
+function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[], filterSettings: FilterSettings) {
   const [cookies, setCookie] = useCookiesWithConsent();
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
-  const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
+  const currentScenarioConfig = storedActiveScenarioConfig ?? defaultRecombeeConfig;
+  const scenarioConfigWithFilterSettings = { ...currentScenarioConfig, filterSettings };
+  const [scenarioConfig, setScenarioConfig] = useState<RecombeeConfiguration>(scenarioConfigWithFilterSettings);
   const [selectedTab] = useSelectedTab(currentUser, enabledTabs);
 
   const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
@@ -297,6 +300,13 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!isEqual(scenarioConfig.filterSettings, filterSettings)) {
+      setScenarioConfig({ ...scenarioConfig, filterSettings });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterSettings]);
 
   return {
     scenarioConfig, updateScenarioConfig
@@ -416,12 +426,13 @@ const LWHomePosts = ({ children, classes }: {
   const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
-  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
-
+  
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   const { filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
   const { desktopSettingsVisible, toggleDesktopSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'desktop', selectedTab);
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
+  
+  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
