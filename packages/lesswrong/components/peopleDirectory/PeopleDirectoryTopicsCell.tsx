@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { tagStyle, smallTagTextStyle, coreTagStyle } from "../tagging/FooterTag";
 import { InteractionWrapper } from "../common/useClickableCell";
@@ -12,15 +12,15 @@ import {
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
+    alignItems: "center",
     rowGap: "2px",
     flexWrap: "wrap",
     overflow: "hidden",
-    maxHeight: 42,
+    height: 42,
   },
   noTags: {
     ...emptyTextCellStyles(theme),
   },
-  tagWrapper: {},
   tag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
@@ -32,87 +32,76 @@ const styles = (theme: ThemeType) => ({
     marginTop: 2,
     marginLeft: 6,
   },
+  tooltip: {
+    background: theme.palette.grey[50],
+    borderRadius: theme.borderRadius.default,
+    padding: 16,
+  },
+  tooltipTags: {
+    display: "flex",
+    gap: "4px",
+    flexWrap: "wrap",
+    maxWidth: "calc(min(100vw, 300px))",
+  },
 });
 
-const TAG_COUNT = 3;
+const TAG_COUNT = 2;
+
+const TagDisplay = ({name, slug, classes}: {
+  name: string,
+  slug: string,
+  className?: string,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const {TagsTooltip} = Components;
+  return (
+    <InteractionWrapper
+      key={slug}
+      href={tagGetUrl({slug}, {from: "people_directory"})}
+      openInNewTab
+    >
+      <TagsTooltip tagSlug={slug} hideRelatedTags>
+        <div className={classes.tag}>
+          {name}
+        </div>
+      </TagsTooltip>
+    </InteractionWrapper>
+  );
+}
 
 export const PeopleDirectoryTopicsCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
-  const ref = useRef<HTMLDivElement | null>(null);
-
-  // The kind of wrapping we want here can't be done with pure CSS unfortunately
-  // since we want to show a "+ n more" message at the end after two lines of
-  // tags. We do this by iterating over the tags after the initial render and
-  // removing as many as needed until the "+ n more" message is visible.
-  useEffect(() => {
-    const container = ref.current;
-    if (!container) {
-      return;
-    }
-
-    const tags: HTMLElement[] = Array.from(
-      container.querySelectorAll(`.${classes.tagWrapper}`),
-    );
-    for (const tag of tags) {
-      tag.style.display = "block";
-    }
-
-    const more: HTMLElement | null = container.querySelector(`.${classes.more}`);
-    if (!tags.length || !more) {
-      return;
-    }
-
-    const offsets = Array.from(
-      new Set(tags.map((t) => t.getBoundingClientRect().top)),
-    ).sort();
-    if (offsets.length < 2) {
-      return;
-    }
-    while (more.getBoundingClientRect().top > offsets[1] + 15) {
-      const tag = tags.pop();
-      if (tag) {
-        tag.remove();
-      } else {
-        break;
-      }
-    }
-  }, [classes, ref.current?.clientWidth]);
-
-  const {TagsTooltip, LWTooltip} = Components;
+  const {LWTooltip} = Components;
   return (
-    <div className={classes.root} ref={ref}>
+    <div className={classes.root}>
       {(user.tags?.length ?? 0) === 0 &&
         <div className={classes.noTags}>
           {EMPTY_TEXT_PLACEHOLDER}
         </div>
       }
-      {user.tags?.slice(0, TAG_COUNT).map(({name, slug}) => {
-        return (
-          <InteractionWrapper
-            key={slug}
-            href={tagGetUrl({slug}, {from: "people_directory"})}
-            openInNewTab
-            className={classes.tagWrapper}
-          >
-            <TagsTooltip tagSlug={slug} hideRelatedTags>
-              <div className={classes.tag}>
-                {name}
-              </div>
-            </TagsTooltip>
-          </InteractionWrapper>
-        );
-      })}
+      {user.tags?.slice(0, TAG_COUNT).map(({name, slug}) => (
+        <TagDisplay name={name} slug={slug} classes={classes} />
+      ))}
       {(user.tags?.length ?? 0) > TAG_COUNT &&
         <div className={classes.more}>
-          <LWTooltip title={
-            <div>
-              {user.tags!.slice(TAG_COUNT).map(({name}) => (
-                <div key={name}>{name}</div>
-              ))}
-            </div>
-          }>
+          <LWTooltip
+            title={
+              <div className={classes.tooltipTags}>
+                {user.tags!.slice(TAG_COUNT).map(({name, slug}) => (
+                  <TagDisplay
+                    name={name}
+                    slug={slug}
+                    classes={classes}
+                  />
+                ))}
+              </div>
+            }
+            titleClassName={classes.tooltip}
+            tooltip={false}
+            clickable
+          >
             + {user.tags!.length - TAG_COUNT} more
           </LWTooltip>
         </div>
