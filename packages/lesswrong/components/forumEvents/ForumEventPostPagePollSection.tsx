@@ -6,6 +6,10 @@ import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { makeCloudinaryImageUrl } from "../common/CloudinaryImage2";
+import { POLL_MAX_WIDTH, getForumEventVoteForUser } from "./ForumEventPoll";
+import { Link } from "@/lib/reactRouterWrapper";
+import { useConcreteThemeOptions } from "../themes/useTheme";
+import { useCurrentUser } from "../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -15,9 +19,9 @@ const styles = (theme: ThemeType) => ({
     padding: 24,
     borderRadius: theme.borderRadius.default,
     marginBottom: 40,
-    // '@media (max-width: 700px)': {
-    //   display: 'none'
-    // }
+    [`@media (max-width: ${POLL_MAX_WIDTH}px)`]: {
+      display: 'none'
+    }
   },
   heading: {
     fontSize: 24,
@@ -29,8 +33,12 @@ const styles = (theme: ThemeType) => ({
   description: {
     fontSize: 14,
     fontWeight: 500,
-    lineHeight: 'normal',
+    lineHeight: '20px',
     marginBottom: 20,
+    '& a': {
+      textDecoration: "underline",
+      textUnderlineOffset: '2px',
+    }
   },
   pollArea: {
     paddingTop: 20,
@@ -44,12 +52,17 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const announcementPostUrl = 'https://forum.effectivealtruism.org/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7'
+
 export const ForumEventPostPagePollSection = ({postId, classes}: {
   postId: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {params} = useLocation();
   const {currentForumEvent} = useCurrentForumEvent();
+  const currentUser = useCurrentUser()
+  const hasVoted = getForumEventVoteForUser(currentForumEvent, currentUser) !== null
+  const themeOptions = useConcreteThemeOptions()
 
   const {document: post} = useSingle({
     collectionName: "Posts",
@@ -63,6 +76,7 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
     return null;
   }
 
+  // Only show this section for posts tagged with the event tag
   const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
   if (relevance < 1) {
     return null;
@@ -85,10 +99,19 @@ export const ForumEventPostPagePollSection = ({postId, classes}: {
 
   return (
     <AnalyticsContext pageSectionContext="forumEventPostPagePollSection">
-      <div className={classes.root} style={{background: lightColor, color: darkColor}}>
-        <h2 className={classes.heading}>Did this post change your mind?</h2>
+      <div className={classes.root} style={
+        themeOptions.name === 'dark' ? {background: darkColor, color: lightColor} : {background: lightColor, color: darkColor}
+      }>
+        <h2 className={classes.heading}>
+          {!hasVoted ? 'Have you voted yet?' : 'Did this post change your mind?'}
+        </h2>
         <div className={classes.description}>
-          July 1-7 is AI welfare debate week on the Forum. Some more text that’s helpful here
+          This post is part of <Link to={announcementPostUrl}>{currentForumEvent.title}</Link>.{" "}
+          {!hasVoted ? <>
+            Click and drag your avatar to vote on the debate statement. Votes are non-anonymous, and you can change your mind.
+          </> : <>
+            If it changed your mind, click and drag your avatar to move your vote below.
+          </>}
         </div>
         <div className={classes.pollArea} style={pollAreaStyle}>
           <ForumEventPoll postId={postId} hideViewResults />

@@ -126,7 +126,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   posts: {
-    flexGrow: 1,
+    flex: '1 1 0',
+    minWidth: 0,
     maxWidth: 600,
   },
   postsAndBody: {
@@ -144,7 +145,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   contentWithPollBody: {
-    maxWidth: 280,
+    flex: 'none',
+    width: 250,
   },
   date: {
     fontWeight: 500,
@@ -337,10 +339,9 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
             Most influential posts so far
             <LWTooltip
               title="
-                When you change your mind and move your icon on the debate slider,
-                above or in a post, we record the distance you moved and the posts you cite
-                as responsible for changing your mind. We assign the distance moved to them,
-                add this up, and end up with the below list.
+                The most influential posts are those that are responsible for the
+                most opinion change, based on the posts cited when you change your
+                mind on the banner.
               "
             >
               <ForumIcon icon="QuestionMarkCircleFilled" className={classes.postsHeadingIcon} />
@@ -353,6 +354,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
                 order={influentialPosts}
                 showLoadMore={false}
                 placeholderCount={4}
+                showKarma={false}
                 hideTag
                 showNoResults={false}
               />

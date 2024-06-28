@@ -127,9 +127,8 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
         <ForumIcon icon="Close" className={classes.closeIcon} onClick={handleDone} />
       </h2>
       <div className={classes.description}>
-        When you change your vote, we turn the distance into points.
-        Each post you select gets full credit for this change.
-        We add up everyone's points to get a list of the most influential posts.
+        Selecting a post in this list will assign it points for changing your mind.
+        We use these points to rank debate week posts in order of influence.
       </div>
       <div className={classes.postsSection}>
         {/* Adapted from PostsList2 */}

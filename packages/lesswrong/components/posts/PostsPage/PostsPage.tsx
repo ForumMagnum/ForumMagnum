@@ -748,7 +748,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      <ForumEventPostPagePollSection postId={post._id} />
+      <ForumNoSSR>
+        <ForumEventPostPagePollSection postId={post._id} />
+      </ForumNoSSR>
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">

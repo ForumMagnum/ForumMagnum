@@ -169,6 +169,16 @@ const maxVotePos = (SLIDER_MAX_WIDTH - USER_IMAGE_SIZE) / SLIDER_MAX_WIDTH
 // The default vote position is in the middle of the slider
 const defaultVotePos = maxVotePos / 2
 
+/**
+ * Pull out the given user's vote in the forum event. Note that 0 is a valid vote.
+ */
+export const getForumEventVoteForUser = (
+  event?: ForumEventsDisplay|null,
+  user?: UsersMinimumInfo|null
+): number|null => {
+  return user ? (event?.publicData?.[user._id]?.x ?? null) : null
+}
+
 const PollQuestion = ({event, classes}: {
   event: ForumEventsDisplay,
   classes: ClassesType<typeof styles>,
@@ -224,9 +234,8 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
   const {onSignup} = useLoginPopoverContext()
   const {openDialog} = useDialog()
   const currentUser = useCurrentUser()
-  // Pull the current user's vote position to initialize the component
-  // (note that 0 is a valid vote)
-  const initialUserVotePos: number|null = currentUser ? (event?.publicData?.[currentUser._id]?.x ?? null) : null
+
+  const initialUserVotePos: number|null = getForumEventVoteForUser(event, currentUser)
   // The actual x position of the left side of the user's vote circle,
   // as a number between 0 and 0.976 (i.e. (SLIDER_MAX_WIDTH - USER_IMAGE_SIZE) / SLIDER_MAX_WIDTH)
   const [votePos, setVotePos] = useState<number>(initialUserVotePos ?? defaultVotePos)
@@ -432,7 +441,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
               <ForumNoSSR>
                 {!hideViewResults && !resultsVisible && <div>
                   {(voteCount > 0) && `${voteCount} vote${voteCount === 1 ? '' : 's'} so far. `}
-                  {hasVoted ? 'Click and drag to update your vote, or ' : 'Place your vote or '}
+                  {hasVoted ? 'Click and drag your avatar to change your vote, or ' : 'Place your vote or '}
                   <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
                     view results
                   </button>
