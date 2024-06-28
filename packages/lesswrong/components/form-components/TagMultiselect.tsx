@@ -20,21 +20,22 @@ const styles = (theme: ThemeType) => ({
     "&:hover, &:focus": {}, // Overwrite styles from above
     padding: 8,
     display: "flex",
-    gap: "10px",
-    "& > *": {
-      flexBasis: "50%",
-    },
+    flexWrap: "wrap",
+    gap: "2px",
+    minHeight: 46,
     [theme.breakpoints.down("xs")]: {
       flexDirection: "column",
     },
   },
+  greyInnerContainer: {
+    display: "contents",
+  },
   greyTagContainer: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "2px",
-    "& > *": {
-      margin: 0,
-    },
+    display: "contents",
+  },
+  greyTag: {
+    height: 30,
+    margin: 0,
   },
   inputContainer: {
     display: 'inline-block',
@@ -51,8 +52,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   inputGrey: {
-    marginTop: 3,
-    marginBottom: 0,
+    margin: "3px 0 0 8px",
     "& input": {
       fontSize: "14px !important",
     },
@@ -141,13 +141,14 @@ const TagMultiselect = ({
         </div>
       }
       <div className={classNames(isGrey && classes.greyContainer)}>
-        <div>
+        <div className={classNames(isGrey && classes.greyInnerContainer)}>
           <div className={classNames(isGrey && classes.greyTagContainer)}>
             {value.map(tagId => {
               return <SingleTagItem
                 key={tagId}
                 documentId={tagId}
                 onDelete={(_: string) => removeTag(tagId)}
+                className={classNames(isGrey && classes.greyTag)}
               />
             })}
           </div>
