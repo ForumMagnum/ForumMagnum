@@ -7,6 +7,7 @@ import uniq from 'lodash/uniq';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
+import { aboutPostIdSetting } from '@/lib/instanceSettings';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -152,10 +153,12 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
   const filteredResults = results?.filter(({ post }) => !hiddenPostIds.includes(post._id));
 
   const postIds = filteredResults?.map(({post}) => post._id) ?? [];
-  const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }) => {
+  const postIdsWithScenario = filteredResults?.map(({ post, scenario, curated, stickied, generatedAt }, idx) => {
     let loggedScenario = scenario;
     if (!loggedScenario) {
-      if (curated) {
+      if (post._id === aboutPostIdSetting.get() && idx === 0) {
+        loggedScenario = 'welcome-post';
+      } else if (curated) {
         loggedScenario = 'curated';
       } else if (stickied) {
         loggedScenario = 'stickied';
