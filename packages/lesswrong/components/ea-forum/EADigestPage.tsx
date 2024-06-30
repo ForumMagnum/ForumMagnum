@@ -4,12 +4,13 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from "../../lib/crud/withMulti";
 import moment from "moment";
 import { useLocation } from "@/lib/routeUtil";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useMessages } from "../common/withMessages";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { digestLink } from "./EABestOfPage";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -189,7 +190,7 @@ const EADigestPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const digest = results?.[0]
   
   // get the list of posts in this digest
-  const { data, loading } = useQuery(digestPostsQuery, {
+  const { data, loading } = useQueryWrapped(digestPostsQuery, {
       ssr: true,
       skip: !digestNum || !digest,
       variables: {num: digestNum},

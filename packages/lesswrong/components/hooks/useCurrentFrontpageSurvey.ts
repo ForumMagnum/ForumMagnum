@@ -1,7 +1,8 @@
 import { useCallback } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 import { getFragment } from "@/lib/vulcan-lib";
 import { hasSurveys } from "@/lib/betas";
+import { useQueryWrapped } from "@/lib/crud/useQuery";
 
 const query = gql`
   query CurrentFrontpageSurvey {
@@ -17,7 +18,7 @@ export const useCurrentFrontpageSurvey = (): {
   refetch: () => Promise<void>,
   loading: boolean,
 } => {
-  const {data, loading, refetch: refetch_} = useQuery(query, {
+  const {data, loading, refetch: refetch_} = useQueryWrapped(query, {
     skip: !hasSurveys,
     ssr: true,
   });
