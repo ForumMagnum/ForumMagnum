@@ -16,6 +16,7 @@ const forceNonResolverFields = [
   "howICanHelpOthers",
   "biography",
   "frontpageDescription",
+  "frontpageDescriptionMobile",
   "postPageDescription",
 ];
 
