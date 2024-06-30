@@ -1,5 +1,5 @@
 import Users from "../../lib/vulcan-users";
-import { BoolType } from "../../lib/sql/Type";
+import { BoolType } from "@/server/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 
 export const acceptsSchemaHash = "7b3fdcd195cd62025722543603fa51e0";

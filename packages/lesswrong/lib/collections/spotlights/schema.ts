@@ -1,6 +1,6 @@
 import range from "lodash/range";
 import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
-import { getCollectionName } from "../../vulcan-lib";
+import { graphqlTypeToCollectionName } from "../../vulcan-lib/collections";
 import { isLWorAF } from "../../instanceSettings";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
@@ -44,7 +44,7 @@ const schema: SchemaType<"Spotlights"> = {
       // TODO: try a graphql union type?
       type: 'Post!',
       resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
-        const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
+        const collectionName = graphqlTypeToCollectionName(spotlight.documentType) as "Posts"|"Sequences";
         const collection = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
         return accessFilterSingle(context.currentUser, collection, document, context);
@@ -220,6 +220,16 @@ const schema: SchemaType<"Spotlights"> = {
     defaultValue: true,
     onCreate: ({document}) => document.imageFade ?? (isLWorAF ? false : true),
     canAutofillDefault: true,
+  },
+  imageFadeColor: {
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    type: String,
+    order: 87,
+    optional: true,
+    nullable: true,
+    control: "FormComponentColorPicker",
   },
   spotlightImageId: {
     type: String,

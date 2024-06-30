@@ -416,6 +416,7 @@ export const sanitize = function(s: string): string {
         'ck-cta-button',
         'ck-cta-button-centered',
         'detailsBlockContent',
+        'calendly-preview',
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],

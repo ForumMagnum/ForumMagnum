@@ -1,6 +1,6 @@
 import Comments from "../../lib/collections/comments/collection";
 import AbstractRepo from "./AbstractRepo";
-import SelectQuery from "../../lib/sql/SelectQuery";
+import SelectQuery from "@/server/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
@@ -9,6 +9,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
+import { getViewablePostsSelector } from "./helpers";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -192,6 +193,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE
         p."hideFromPopularComments" IS NOT TRUE
+        AND ${getViewablePostsSelector('p')}
         ${excludedTagIdCondition}
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC
       OFFSET $(offset)
@@ -225,9 +227,18 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         c."postedAt",
         EXTRACT(EPOCH FROM c."postedAt") * 1000 AS "publicDateMs",
         COALESCE(c."af", FALSE) AS "af",
-        author."slug" AS "authorSlug",
-        author."displayName" AS "authorDisplayName",
-        author."username" AS "authorUserName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."slug"
+        END AS "authorSlug",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."displayName"
+        END AS "authorDisplayName",
+        CASE
+          WHEN author."deleted" THEN NULL
+          ELSE author."username"
+        END AS "authorUserName",
         c."postId",
         post."title" AS "postTitle",
         post."slug" AS "postSlug",

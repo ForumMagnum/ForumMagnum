@@ -32,6 +32,19 @@ export function generateTraceId() {
   return v4();
 }
 
+export function getParentTraceId() {
+  const store = asyncLocalStorage.getStore();
+
+  let parentTraceIdField;
+  if (store) {
+    parentTraceIdField = { parent_trace_id: store.requestPerfMetric?.trace_id }
+  } else {
+    parentTraceIdField = {};
+  }
+
+  return parentTraceIdField;
+}
+
 export function openPerfMetric(props: IncompletePerfMetricProps, startedAtOverride?: Date): IncompletePerfMetric {
   return {
     ...props,
@@ -47,6 +60,24 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric, endedAtOve
   };
 
   queuePerfMetric(perfMetric);
+}
+
+export function wrapWithPerfMetric<T extends () => AnyBecauseHard>(operation: T, perfMetricGenerator: () => IncompletePerfMetric): ReturnType<T> {
+  if (!performanceMetricLoggingEnabled.get()) {
+    return operation();
+  }
+
+  const openedPerfMetric = perfMetricGenerator();
+  const result = operation();
+  if (result instanceof Promise) {
+    return result.then((res) => {
+      closePerfMetric(openedPerfMetric);
+      return res;
+    }) as ReturnType<T>;
+  }
+
+  closePerfMetric(openedPerfMetric);
+  return result;
 }
 
 export function addStartRenderTimeToPerfMetric() {

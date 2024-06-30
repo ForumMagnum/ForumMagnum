@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import { format } from 'pg-formatter'; // FIXME this requires perl to be installed, make sure it's installed in CI
-import { Vulcan, getCollection } from "../vulcan-lib";
-import { getAllCollections } from "../../lib/vulcan-lib/getCollection";
-import Table from "../../lib/sql/Table";
-import CreateTableQuery from "../../lib/sql/CreateTableQuery";
+import { format as sqlFormatter } from 'sql-formatter';
+import { Vulcan } from "../vulcan-lib";
+import { getAllCollections, isValidCollectionName } from "../../lib/vulcan-lib/getCollection";
+import Table from "@/server/sql/Table";
+import CreateTableQuery from "@/server/sql/CreateTableQuery";
 import md5 from 'md5';
 import { unlink, writeFile } from 'node:fs/promises'
 import path from 'path';
@@ -13,7 +13,12 @@ import { existsSync } from 'node:fs';
 import { ForumTypeString } from '../../lib/instanceSettings';
 import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
 import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
-import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
+import CreateExtensionQuery from '@/server/sql/CreateExtensionQuery';
+import CreateIndexQuery from '@/server/sql/CreateIndexQuery';
+import { sqlInterpolateArgs } from '@/server/sql/Type';
+import { CustomPgIndex, expectedCustomPgIndexes } from '../../lib/collectionIndexUtils';
+import { PostgresView, getAllPostgresViews } from '../postgresView';
+import TableIndex from '@/server/sql/TableIndex';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
 const acceptedSchemePath = (rootPath: string) => path.join(rootPath, "schema/accepted_schema.sql");
@@ -51,19 +56,250 @@ const schemaFileHeaderTemplate = `-- GENERATED FILE
 --
 `
 
+declare global {
+  type SchemaDependency =
+    {type: "extension", name: PostgresExtension} |
+    {type: "collection", name: CollectionNameString} |
+    {type: "function", name: string} |
+    {type: "view", name: string};
+}
+
+abstract class Node {
+  public dependencies: SchemaDependency[] = [];
+
+  addDependency(dependency: SchemaDependency) {
+    this.dependencies.push(dependency);
+  }
+
+  abstract getName(): string;
+  abstract getQuery(): {compile(): {sql: string, args: any[]}};
+
+  getHeader(): string {
+    const type = this.constructor.name.replace(/(_|Node)/g, "");
+    return `-- ${type} "${this.getName()}", hash ${this.getHash()}`;
+  }
+
+  getSource(): string {
+    const {sql, args} = this.getQuery().compile();
+    return sqlInterpolateArgs(sql, args).trim();
+  }
+
+  getAnnotatedSource(): string {
+    const source = this.getSource();
+    const hasSemi = source[source.length - 1] === ";";
+    return `${this.getHeader()}\n${source}${hasSemi ? "" : ";"}\n`;
+  }
+
+  getHash(): string {
+    return md5(this.getSource());
+  }
+}
+
+class ExtensionNode extends Node {
+  constructor(private extension: PostgresExtension) {
+    super();
+  }
+
+  getName() {
+    return this.extension;
+  }
+
+  getQuery() {
+    return new CreateExtensionQuery(this.extension);
+  }
+}
+
+class TableNode extends Node {
+  constructor(private table: Table<DbObject>) {
+    super();
+  }
+
+  getName() {
+    return this.table.getName();
+  }
+
+  getQuery() {
+    return new CreateTableQuery(this.table);
+  }
+}
+
+class IndexNode extends Node {
+  constructor(
+    private table: Table<DbObject>,
+    private index: TableIndex<DbObject>,
+  ) {
+    super();
+    this.addDependency({
+      type: "collection",
+      name: table.getName() as CollectionNameString,
+    });
+  }
+
+  getName() {
+    return this.index.getName();
+  }
+
+  getQuery() {
+    return new CreateIndexQuery({ table: this.table, index: this.index, ifNotExists: true, allowConcurrent: false });
+  }
+}
+
+class CustomIndexNode extends Node {
+  private static nameRegex = /^\s*CREATE\s+(UNIQUE\s+)?INDEX\s+(CONCURRENTLY\s+)?(IF\s+NOT\s+EXISTS\s+)?"?([a-zA-Z0-9_]+)/i;
+  private static targetRegex = /.*ON\s+(public\.)?"([A-Za-z0-9_]+)"/i;
+  private static concurrentRegex = /\s+CONCURRENTLY\s+/gi;
+
+  private name: string;
+
+  constructor(private index: CustomPgIndex) {
+    super();
+    const {source, options} = index;
+    const name = source.match(CustomIndexNode.nameRegex)?.[4];
+    if (!name) {
+      throw new Error(`Can't parse name for custom index: ${source}`);
+    }
+    this.name = name;
+
+    const target = source.match(CustomIndexNode.targetRegex)?.[2];
+    if (!target) {
+      throw new Error(`Can't parse target for custom index "${name}"`);
+    }
+    const dependency: SchemaDependency = isValidCollectionName(target)
+      ? {type: "collection", name: target}
+      : {type: "view", name: target};
+    this.addDependency(dependency);
+
+    this.dependencies = this.dependencies.concat(options?.dependencies ?? []);
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.index.source.trim().replace(CustomIndexNode.concurrentRegex, " "),
+        args: [],
+      }),
+    };
+  }
+}
+
+class FunctionNode extends Node {
+  private static nameRegex = /^\s*CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+([a-zA-Z0-9_]+)/i;
+
+  private name: string;
+
+  constructor(private func: PostgresFunction) {
+    super();
+    const name = func.source.match(FunctionNode.nameRegex)?.[2];
+    if (!name) {
+      throw new Error(`Can't find name for function: ${func.source}`);
+    }
+    const overload = func.overload ? `_${func.overload}` : "";
+    this.name = name + overload;
+    this.dependencies = this.dependencies.concat(func.dependencies ?? []);
+  }
+
+  getName() {
+    return this.name;
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.func.source.trim(),
+        args: [],
+      }),
+    };
+  }
+}
+
+class ViewNode extends Node {
+  constructor(private view: PostgresView) {
+    super();
+  }
+
+  getName() {
+    return this.view.getName();
+  }
+
+  getQuery() {
+    return {
+      compile: () => ({
+        sql: this.view.getCreateViewQuery().trim(),
+        args: [],
+      }),
+    };
+  }
+}
+
+class Graph {
+  private nodes: Record<string, Node> = {};
+
+  addNode(node: Node) {
+    const name = node.getName();
+    if (this.nodes[name]) {
+      throw new Error(`Duplicate node names: "${name}"`);
+    }
+    this.nodes[name] = node;
+  }
+
+  addNodes(nodes: Node[]) {
+    for (const node of nodes) {
+      this.addNode(node);
+    }
+  }
+
+  getOverallHash() {
+    return md5(Object.values(this.nodes).map((n) => n.getHash()).sort().join());
+  }
+
+  linearize(): Node[] {
+    const stack: Node[] = [];
+    const unvisited = new Set<string>(Object.keys(this.nodes));
+
+    const depthFirstSearch = (nodeName: string, parents: string[]) => {
+      if (parents.includes(nodeName)) {
+        throw new Error(`Dependency cycle detected for ${nodeName} via ${parents}`);
+      }
+
+      const node = this.nodes[nodeName];
+      if (!node) {
+        throw new Error(`Invalid node: "${nodeName}"`);
+      }
+
+      if (!unvisited.has(nodeName)) {
+        return;
+      }
+      unvisited.delete(nodeName);
+
+      for (const dependency of node.dependencies) {
+        depthFirstSearch(dependency.name, [...parents, nodeName]);
+      }
+
+      stack.push(node);
+    }
+
+    unvisited.forEach((node) => depthFirstSearch(node, []));
+
+    return stack;
+  }
+}
+
 const generateMigration = async ({
-  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath, forumType,
+  acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash, rootPath,
 }: {
   acceptedSchemaFile: string,
   toAcceptSchemaFile: string,
   toAcceptHash: string,
   rootPath: string,
-  forumType?: ForumTypeString,
 }) => {
   const execRun = (cmd: string) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // git diff exits with an error code if there are differences, ignore that and just always return stdout
-      exec(cmd, (error, stdout, stderr) => resolve(stdout))
+      exec(cmd, (_error, stdout, _stderr) => resolve(stdout))
     })
   }
 
@@ -83,29 +319,6 @@ const generateMigration = async ({
 }
 
 /**
- *
- * @param collectionName
- * @returns {string} The SQL required to create the table for this collection
- */
-const getCreateTableQueryForCollection = (collectionName: string, forumType?: ForumTypeString): string => {
-  const collection = getCollection(collectionName as any);
-  if (!collection) throw new Error(`Invalid collection: ${collectionName}`);
-  
-  const table = Table.fromCollection(collection, forumType);
-  const createTableQuery = new CreateTableQuery(table);
-  const compiled = createTableQuery.compile();
-
-  const sql = compiled.sql + ";";
-  const args = compiled.args;
-  
-  if (args.length) throw new Error(`Unexpected arguments: ${args}`);
-  
-  return sql;
-}
-
-type Artifact = CollectionNameString | PostgresExtension | PostgresFunction;
-
-/**
  * Update the `./schema/` files to match the current database schema, and generate a migration if there are changes which need to be accepted.
  *
  * Implementation details which may be useful to know:
@@ -116,12 +329,6 @@ type Artifact = CollectionNameString | PostgresExtension | PostgresFunction;
  * - `accepted_schema.sql`: This is a SQL view of the schema that has been accepted.
  * - `schema_to_accept.sql`: If the current schema is not accepted, this file will be generated to contain a SQL view of the "unaccepted" schema.
  *   This is useful for comparing against the accepted schema to see what changes need to be made in the migration that is generated. It is automatically deleted when the schema is accepted.
- *
- * @param {boolean} writeSchemaChangelog - If true, update the schema_changelog.json file before checking for changes
- * @param {boolean} writeAcceptedSchema - If true, update the `accepted_schema.sql` and `schema_to_accept.sql`
- * @param {boolean} generateMigrations - If true, generate a template migration file if the schema has changed
- * @param {boolean} rootPath - The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test.
- * @param {boolean} forumType - The optional forumType to switch to
  */
 export const makeMigrations = async ({
   writeSchemaChangelog=true,
@@ -131,63 +338,64 @@ export const makeMigrations = async ({
   forumType,
   silent=false,
 }: {
+  /** If true, update the schema_changelog.json file before checking for changes */
   writeSchemaChangelog: boolean,
+  /** If true, update the `accepted_schema.sql` and `schema_to_accept.sql` */
   writeAcceptedSchema: boolean,
+  /** If true, generate a template migration file if the schema has changed */
   generateMigrations: boolean,
+  /** The root path of the project, this is annoying but required because this script is sometimes run from the server bundle, and sometimes from a test. */
   rootPath: string,
+  /** The optional forumType to switch to */
   forumType?: ForumTypeString,
   silent?: boolean,
 }) => {
-  const log = silent ? (...args: any[]) => {} : console.log;
+  const log = silent ? (..._args: any[]) => {} : console.log;
   log(`=== Checking for schema changes ===`);
   // Get the most recent accepted schema hash from `schema_changelog.json`
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
   log(`-- Using accepted hash ${acceptedHash}`);
 
-  const currentHashes: Partial<Record<Artifact, string>> = {};
-  let schemaFileContents = "";
+  const graph = new Graph();
+  graph.addNodes(postgresExtensions.map((e) => new ExtensionNode(e)));
+  graph.addNodes(getAllCollections().flatMap((collection) => {
+    const table = Table.fromCollection(collection, forumType);
+    const indexes: Node[] = table.getIndexes().map((i) => new IndexNode(table, i));
+    return indexes.concat(new TableNode(table));
+  }));
+  graph.addNodes(expectedCustomPgIndexes.map((i) => new CustomIndexNode(i)));
+  graph.addNodes(postgresFunctions.map((f) => new FunctionNode(f)));
+  graph.addNodes(getAllPostgresViews().flatMap((view) => {
+    const indexQueries = view.getCreateIndexQueries();
+    const indexes: Node[] = indexQueries.map((source) => new CustomIndexNode({source}));
+    return indexes.concat(new ViewNode(view));
+  }));
 
-  for (const extensionName of postgresExtensions) {
-    const extensionHash = md5(extensionName);
-    currentHashes[extensionName] = extensionHash;
-    const query = new CreateExtensionQuery(extensionName);
-    schemaFileContents += `-- Extension "${extensionName}", hash: ${extensionHash}\n`;
-    schemaFileContents += query.compile().sql + ";\n\n";
-  }
+  const nodes = graph.linearize();
+  const rawSchema = nodes.map((n) => n.getAnnotatedSource()).join("\n");
+  const schemaFileContents = sqlFormatter(rawSchema, {
+    language: "postgresql",
+    linesBetweenQueries: 1,
+    tabWidth: 2,
+    useTabs: false,
+    keywordCase: "upper",
+    dataTypeCase: "upper",
+    functionCase: "upper",
+    identifierCase: "preserve",
+    logicalOperatorNewline: "after",
+    paramTypes: {
+      positional: false,
+      numbered: [],
+      named: [],
+      quoted: [],
+      custom: [],
+    },
+  }) + "\n";
 
-  // Sort collections by name, so that the order of the output is deterministic
-  const collectionNames: CollectionNameString[] = getAllCollections().map(c => c.collectionName).sort();
-  let failed: string[] = [];
+  const overallHash = graph.getOverallHash();
 
-  for (const collectionName of collectionNames) {
-    try {
-      const sql = getCreateTableQueryForCollection(collectionName, forumType);
-
-      const hash = md5(sql);
-      currentHashes[collectionName] = hash;
-      
-      // Include the hash of every collection to make it easier to see what changed
-      schemaFileContents += `-- Schema for "${collectionName}", hash: ${hash}\n`
-      schemaFileContents += `${format(sql)}`;
-    } catch (e) {
-      console.error(`Failed to check schema for collection ${collectionName}`);
-      failed.push(collectionName);
-      console.error(e);
-    }
-  }
-
-  for (const func of postgresFunctions) {
-    const hash = md5(func);
-    currentHashes[func] = hash;
-    schemaFileContents += `-- Function, hash: ${hash}\n`;
-    schemaFileContents += func + ";\n\n";
-  }
-
-  if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
-  
-  const overallHash = md5(Object.values(currentHashes).sort().join());
   let schemaFileHeader = schemaFileHeaderTemplate + `-- Overall schema hash: ${overallHash}\n\n`;
-  
+
   const toAcceptSchemaFile = schemaToAcceptPath(rootPath);
   const acceptedSchemaFile = acceptedSchemePath(rootPath);
 
@@ -196,7 +404,7 @@ export const makeMigrations = async ({
       await writeFile(toAcceptSchemaFile, schemaFileHeader + schemaFileContents);
     }
     if (generateMigrations) {
-      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath, forumType});
+      await generateMigration({acceptedSchemaFile, toAcceptSchemaFile, toAcceptHash: overallHash, rootPath});
     }
     throw new Error(`Schema has changed, write a migration to accept the new hash: ${overallHash}`);
   }

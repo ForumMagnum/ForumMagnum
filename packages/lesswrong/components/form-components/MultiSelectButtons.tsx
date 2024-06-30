@@ -18,6 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     color: theme.palette.buttons.primaryDarkText,
     textTransform: "none",
+    fontWeight: isFriendlyUI ? 500 : undefined,
     // TODO: This green is hardcoded, but it's k because it's only used for events
     backgroundColor: theme.palette.buttons.groupTypesMultiselect.background,
 

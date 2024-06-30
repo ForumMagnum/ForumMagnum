@@ -1,7 +1,7 @@
 import { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
-import { getCollectionName } from "../../lib/vulcan-lib";
+import { graphqlTypeToCollectionName } from "../../lib/vulcan-lib";
 import { useDialog } from "../common/withDialog";
 import { useMessages } from "../common/withMessages";
 import { useCurrentUser } from "../common/withUser";
@@ -12,7 +12,7 @@ import {
 import type { SubscriptionType } from "../../lib/collections/subscriptions/schema";
 import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
-import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
+import { userIsDefaultSubscribed, userSubscriptionStateIsFixed } from "../../lib/subscriptionUtil";
 
 export type NotifyMeDocument =
   UsersProfile |
@@ -87,7 +87,7 @@ export const useNotifyMe = ({
     fragmentName: "SubscriptionState",
   });
 
-  const collectionName = getCollectionName(document.__typename);
+  const collectionName = graphqlTypeToCollectionName(document.__typename);
   if (!isDefaultSubscriptionType(collectionName)) {
     throw new Error(`Collection ${collectionName} is not subscribable`);
   }
@@ -186,17 +186,19 @@ export const useNotifyMe = ({
     }
   }
 
+  // In some cases we know what the state will be and don't want to load/wait on another network request
+  const stateIsFixed = userSubscriptionStateIsFixed({user: currentUser, subscriptionType, documentId: document._id});
+  if (stateIsFixed) {
+    return {
+      loading: false,
+      disabled: true,
+      isSubscribed,
+    };
+  }
+
   if (loading) {
     return {
       loading: true,
-    };
-  };
-
-  // Can't subscribe to yourself
-  if (collectionName === 'Users' && document._id === currentUser?._id) {
-    return {
-      disabled: true,
-      loading: false,
     };
   }
 

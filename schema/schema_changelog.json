@@ -623,5 +623,70 @@
     "acceptsSchemaHash": "082b143a17fca4e8ba5edd982a645837",
     "acceptedByMigration": "20240419T013927.add_frontpageSelectedTab_to_Users.ts",
     "timestamp": "2024-04-19T01:39:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1907632649f70f5e77f6e6de79357d74",
+    "acceptedByMigration": "20240424T142239.add_imageFadeColor_to_Spotlights.ts",
+    "timestamp": "2024-04-24T14:22:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c192cfffc5d07ae27caf1477da048644",
+    "acceptedByMigration": "20240425T075639.add_people_directory.ts",
+    "timestamp": "2024-04-25T07:56:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ce481181abda13b83244a8ccd8ed5782",
+    "acceptedByMigration": "20240429T155712.add_fm_get_user_by_login_token_function.ts",
+    "timestamp": "2024-04-29T15:57:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5f15590a8aa900ee210026b863dde23e",
+    "acceptedByMigration": "20240502T164437.include_indexes_and_views_in_schema.ts",
+    "timestamp": "2024-05-02T16:44:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "224c974d441de3727845f2dec5ba8aac",
+    "acceptedByMigration": "20240508T220821.add_RecommendationsCaches_table.ts",
+    "timestamp": "2024-05-08T22:08:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "08f3f1875cc1bc68a6fdd52845584509",
+    "acceptedByMigration": "20240509T160927.dag_schema_dependencies.ts",
+    "timestamp": "2024-05-09T16:09:27.000Z"
+  },
+  {
+    "acceptsSchemaHash": "80ff63223032d7a466bbfbfa292b48b4",
+    "acceptedByMigration": "20240513T115214.normalize_posts_moderationGuidelines.ts",
+    "timestamp": "2024-05-13T11:52:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "aa1eac5798b9679483aaff7b85ba1e8e",
+    "acceptedByMigration": "20240513T135549.set_not_null_clientId.ts",
+    "timestamp": "2024-05-13T13:55:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a1206bafcc5c4d63fca651ad906d213",
+    "acceptedByMigration": "20240517T093146.add_swrCachingEnabled.ts",
+    "timestamp": "2024-05-17T09:31:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6fc595baf02ccdf4ffdf8777a5981d32",
+    "acceptedByMigration": "20240526T111308.set_not_null_clientId_2.ts",
+    "timestamp": "2024-05-26T11:13:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6916cc5096e4eeee5bc92639da67e9fa",
+    "acceptedByMigration": "20240611T182502.add_Posts_userId_postedAt_idx.ts",
+    "timestamp": "2024-06-11T18:25:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c1dd7ed968b6af5a78625296b5e5fec0",
+    "acceptedByMigration": "20240612T173525.add_onsite_digest_background_fields.ts",
+    "timestamp": "2024-06-12T17:35:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
   }
 ]

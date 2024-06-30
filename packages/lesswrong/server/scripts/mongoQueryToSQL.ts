@@ -1,8 +1,8 @@
-import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
-import InsertQuery from "../../lib/sql/InsertQuery";
-import SelectQuery from "../../lib/sql/SelectQuery";
-import Table from "../../lib/sql/Table";
-import UpdateQuery from "../../lib/sql/UpdateQuery";
+import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
+import InsertQuery from "@/server/sql/InsertQuery";
+import SelectQuery from "@/server/sql/SelectQuery";
+import Table from "@/server/sql/Table";
+import UpdateQuery from "@/server/sql/UpdateQuery";
 import { getCollection, Globals } from "../vulcan-lib";
 
 /**
@@ -38,7 +38,7 @@ Globals.rawUpdateOneToSQL = ({ tableName, selector, modifier }: { tableName: Col
 Globals.ensureIndexToSQL = ({ tableName, indexSpec, options }: { tableName: CollectionNameString, indexSpec: any, options?: any }) => {
   const table = Table.fromCollection(getCollection(tableName));
   const index = table.getIndex(Object.keys(indexSpec), options) ?? table.addIndex(indexSpec, options);
-  const query = new CreateIndexQuery(table, index, true);
+  const query = new CreateIndexQuery({ table, index, ifNotExists: true });
   const { sql, args } = query.compile();
 
   // eslint-disable-next-line no-console

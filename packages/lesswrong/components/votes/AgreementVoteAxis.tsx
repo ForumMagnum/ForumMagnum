@@ -1,8 +1,6 @@
 import React from 'react';
-import { Components, registerComponent, getCollection } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { CommentVotingComponentProps } from '../../lib/voting/votingSystems';
-import { Posts } from '../../lib/collections/posts/collection';
-import { Revisions } from '../../lib/collections/revisions/collection';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingProps } from './votingProps';
@@ -46,7 +44,6 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   classes: ClassesType,
 }) => {
   const { AxisVoteButton, LWTooltip } = Components;
-  const collection = getCollection(voteProps.collectionName);
   const voteCount = voteProps.document?.extendedScore?.agreementVoteCount || 0;
   const karma = voteProps.document?.extendedScore?.agreement || 0;
   const currentUser = useCurrentUser();
@@ -54,10 +51,10 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   const canVote = !fail;
 
   let documentTypeName = "comment";
-  if (collection === Posts) {
+  if (voteProps.collectionName === "Posts") {
     documentTypeName = "post";
   }
-  if (collection === Revisions) {
+  if (voteProps.collectionName === "Revisions") {
     documentTypeName = "revision";
   }
   

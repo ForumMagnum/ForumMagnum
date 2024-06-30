@@ -8,13 +8,9 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, recombeeEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { welcomeBoxes } from './WelcomeBox';
-import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -41,12 +37,16 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
+import { useVote } from '@/components/votes/withVote';
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
+export const VERTEX_ATTRIBUTION_ID_QUERY_PARAM = 'vertexAttributionId';
 
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
@@ -211,8 +211,22 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
+    [theme.breakpoints.down('sm')]: {
+      // This can only be used when display: "block" is applied, otherwise the 100% confuses the
+      // grid layout into adding loads of left margin
+      maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
+    }
   },
-  postContent: { //Used by a Cypress test
+  postBody: {
+    width: "max-content",
+  },
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
+  },
+  postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
@@ -341,6 +355,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const { query, params } = location;
   const [recommId, setRecommId] = useState<string | undefined>();
+  const [attributionId, setAttributionId] = useState<string | undefined>();
+
+  const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
+  const voteProps = useVote(post, 'Posts', votingSystem);
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -358,8 +376,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
   } : undefined;
-
-  const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
 
   const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
@@ -413,7 +429,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         componentProps: {
           post: fullPost,
         },
-        noClickawayCancel: true,
         closeOnNavigate: true,
       });
     }
@@ -484,30 +499,36 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, RecombeeInViewTracker
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker
   } = Components
 
   useEffect(() => {
     const recommId = query[RECOMBEE_RECOMM_ID_QUERY_PARAM];
+    const attributionId = query[VERTEX_ATTRIBUTION_ID_QUERY_PARAM];
 
     void recordPostView({
       post: post,
       extraEventProperties: {
         sequenceId: getSequenceId()
       },
-      recombeeOptions: {
-        recommId
+      recommendationOptions: {
+        recombeeOptions: { recommId },
+        vertexOptions: { attributionId }
       }
-
     });
 
-    if (!currentUser || !recombeeEnabledSetting.get()) return;
+    if (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get()) return;
     setRecommId(recommId);
+    setAttributionId(attributionId);
 
-    // Remove "recombeeRecommId" from query once the recommId has stored to state and initial event fired off, to prevent accidentally
-    // sharing links with a recommId
+    // Remove recombee & vertex attribution ids from query once the they're stored to state and initial event fired off, to prevent accidentally
+    // sharing links with the query params still present
     const currentQuery = isEmpty(query) ? {} : query;
-    const newQuery = {...currentQuery, [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined};
+    const newQuery = {
+      ...currentQuery,
+      [RECOMBEE_RECOMM_ID_QUERY_PARAM]: undefined,
+      [VERTEX_ATTRIBUTION_ID_QUERY_PARAM]: undefined
+    };
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`}, { replace: true });  
 
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -574,7 +595,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       componentProps: {
         post, initialHtml: html
       },
-      noClickawayCancel: true,
     })
   }, [openDialog, post]);
 
@@ -638,13 +658,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsContext>
   </>;
 
-  const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
-  const welcomeBoxProps = welcomeBoxABTestGroup === "welcomeBox" && !currentUser && maybeWelcomeBoxProps;
-  const welcomeBox = welcomeBoxProps
-    ? <div className={classes.welcomeBox}>
-        <WelcomeBox {...welcomeBoxProps} />
-      </div>
-    : null;
+  const welcomeBox = (
+    <ForumNoSSR>
+      <WelcomeBox />
+    </ForumNoSSR>
+  );
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
@@ -677,7 +695,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
@@ -687,15 +709,18 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
                 sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                voteProps={voteProps}
               />
             }
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
@@ -742,7 +767,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1, recommId}}>
+      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -759,6 +784,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}
@@ -766,14 +792,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />}
             {isAF && <AFUnreviewedCommentCount post={post}/>}
           </AnalyticsContext>
-          {isFriendlyUI && post.commentCount < 1 &&
+          {isFriendlyUI && Math.max(post.commentCount, results?.length ?? 0) < 1 &&
             <div className={classes.noCommentsPlaceholder}>
               <div>No comments on this post yet.</div>
               <div>Be the first to respond.</div>
             </div>
           }
         </div>
-      </RecombeeInViewTracker>
+      </AttributionInViewTracker>
     </AnalyticsInViewTracker>
 
   const commentsToC = fullPost

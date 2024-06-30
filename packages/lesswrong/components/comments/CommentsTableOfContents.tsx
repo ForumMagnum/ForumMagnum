@@ -5,13 +5,10 @@ import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScroll
 import { useLocation } from '../../lib/routeUtil';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
 import classNames from 'classnames';
-import { useTimezone } from '../common/withTimezone';
-import moment from 'moment';
+import { forumTypeSetting } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -72,8 +69,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow } = Components;
-  const { timezone } = useTimezone();
+  const { TableOfContentsRow, FormatDate } = Components;
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -106,7 +102,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
         {post.title?.trim()}
       </span>
       {post.postedAt && <div className={classes.tocPostedAt}>
-        {moment(new Date(post.postedAt)).tz(timezone).format("Do MMM YYYY")}
+        <FormatDate date={post.postedAt} format={"Do MMM YYYY"} />
       </div>}
     </TableOfContentsRow>
 
@@ -152,6 +148,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   const { query } = location;
   const comment = commentTree.item;
   
+  const score = forumTypeSetting.get() === "AlignmentForum"
+    ? comment.afBaseScore
+    : comment.baseScore;
+  
   return <div>
     <TableOfContentsRow
       indentLevel={indentLevel}
@@ -181,7 +181,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       <span className={classNames(classes.comment, {
         [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
       })}>
-        <span className={classes.commentKarma}>{comment.baseScore}</span>
+        <span className={classes.commentKarma}>{score}</span>
         <span className={classes.commentAuthor}>
           <UsersNameDisplay user={comment.user} simple/>
         </span>

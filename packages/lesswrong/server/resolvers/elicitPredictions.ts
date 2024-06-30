@@ -3,7 +3,6 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { generateIdResolverSingle } from '../../lib/utils/schemaUtils';
 import { elicitSourceURL } from '../../lib/publicSettings';
 import { encode } from 'querystring'
-import { onStartup } from '../../lib/executionEnvironment';
 import ElicitQuestions from '../../lib/collections/elicitQuestions/collection';
 import ElicitQuestionPredictions from '../../lib/collections/elicitQuestionPredictions/collection';
 import { useElicitApi } from '../../lib/betas';
@@ -189,7 +188,7 @@ async function getLocalElicitQuestionWithPredictions(questionId: string): Promis
   };
 }
 
-onStartup(() => {
+export function addElicitResolvers() {
   if (elicitAPIKey.get()) {
     const elicitPredictionResolver = {
       ElicitUser: {
@@ -231,4 +230,4 @@ onStartup(() => {
     addGraphQLQuery('ElicitBlockData(questionId: String): ElicitBlockData');
     addGraphQLMutation('MakeElicitPrediction(questionId: String, prediction: Int): ElicitBlockData');
   }
-})
+}

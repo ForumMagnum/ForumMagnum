@@ -35,7 +35,7 @@ Forum Magnum is built on top of a number major open-source libraries.
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
     * Starting from a fresh MacOS system, try: `brew install nvm` to install nvm, then `nvm install` in the ForumMagnum directory
-  * Curl, Perl are optional, but needed to run some scripts and tests
+  * Curl is optional, but needed to run some scripts and tests
 
 ### Installation
 
@@ -139,6 +139,10 @@ Some relevant pieces of documentation that will help you understand aspects of t
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
 
+### Caching in CloudFront (CDN)
+
+You can set up CloudFront to cache pages for logged out users. See [this README](./packages/lesswrong/server/cache/README.md) for detailed instruction.
+
 ### Understanding the codebase
 
 Eventually, it’ll be helpful to have a good understanding of each of those technologies (both to develop new features and fix many kinds of bugs). But for now, the most useful things to know are:
@@ -196,6 +200,9 @@ monorepo codebase at a non-megacorp is that we can get good results just by
 searching for `hiddenRelatedQuestion` to find exactly how that database field is
 used.
 
+You might want to set `SLOW_QUERY_REPORT_CUTOFF_MS` to something other than the default (2000 ms),
+it can give a lot of false positives when you are running against a remote database.
+
 ### Debugging
 
 * Use google chrome. Its debugging tools are superior.
@@ -243,7 +250,7 @@ For these the development process will be like this:
 
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Playwright](https://playwright.dev/) for end-to-end testing.
 
 ### Jest
 
@@ -252,14 +259,31 @@ We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress
 
 Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
-### Cypress
+### Playwright
 
-* To run Cypress tests locally, first run `yarn ea-start-testing-db`, then in a separate terminal run either `yarn ea-cypress-run` for a CLI version, or `yarn ea-cypress-open` for a GUI version. To run specific tests in the CLI, you can use the `-s <glob-file-pattern>` option.
-* Test database instance settings for Cypress are stored under `./settings-test.json`.
-* For the basics of writing Cypress tests, see [Writing your first test](https://docs.cypress.io/guides/getting-started/writing-your-first-test#Step-2-Query-for-an-element). Primarily you'll use `cy.get()` to find elements via CSS selectors, `cy.contains()` to find elements via text contents, `cy.click()` and `cy.type()` for input, and `cy.should()` for assertions. Feel free to steal from existing tests in `./cypress/integration/`.
-* Add custom commands under `./cypress/support/commands.js`, and access them via `cy.commandName()`.
-* Seed data for tests is stored under `./cypress/fixtures`, and can be accessed using `cy.fixture('<filepath>')`. See [here](https://docs.cypress.io/api/commands/fixture) for more.
-* To execute code in a node context, you can create a [task](https://docs.cypress.io/api/commands/task#Syntax) under `./cypress/plugins/index.js`. Tasks are executed using `cy.task('<task-name>', args)`.
+There is some one-time setup before you can run the playwright tests:
+ * Install `docker` (`brew install --cask docker` on OSX) and start the daemon
+ * Download the Postgres `docker` image with `yarn playwright-db` (you can Ctrl+C to exit the container once it has successfully downloaded and started)
+ * Install the browsers with `yarn playwright install`
+
+You can then run the tests with `yarn playwright test` - you can run specific tests with the `-g` flag.
+
+You can also open the Playwright UI with `yarn playwright test --ui`, but note that unlike in CLI mode this won't automatically start the database and server so you'll also need to run `yarn playwright-db` and `yarn start-playwright` in 2 separate terminals.
+
+For information on how to create Playwright tests see [their documentation](https://playwright.dev/docs/writing-tests) and the existing tests in the `playwright` directory.
+
+The server can be accessed at `localhost:3456` for debugging.
+
+You can open the tests in a normal browser (for instance, to access the DOM
+inspector or debugger) with `PWDEBUG=console yarn playwright test`. It's strongly
+recommended to use the `-g` to only run a single test, as each test will open
+in a separate browser window.
+
+Warning: The current playwright implementation is new and there are still some
+teething problems with starting the server correctly. If the tests routinely
+fail to start, remove the `webservers` section from `playwright.config.ts` and
+instead run `yarn playwright-db` and `yarn start-playwright` in separate
+terminals while running the tests.
 
 ### Where to branch off of
 

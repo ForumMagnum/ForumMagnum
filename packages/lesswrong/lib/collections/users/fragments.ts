@@ -47,7 +47,7 @@ registerFragment(`
     }
     profileTagIds
     profileTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     organizerOfGroupIds
     organizerOfGroups {
@@ -218,6 +218,7 @@ registerFragment(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
+    optedOutOfSurveys
   }
 `);
 
@@ -465,6 +466,7 @@ registerFragment(`
     mapLocation
     
     # Privacy settings
+    hideFromPeopleDirectory
     allowDatadogSessionReplay
 
     # Admin & Review

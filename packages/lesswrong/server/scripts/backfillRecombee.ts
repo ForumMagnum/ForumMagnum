@@ -1,10 +1,10 @@
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { Votes } from "../../lib/collections/votes";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import Users from "../../lib/vulcan-users";
 import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/client";
-import { Globals, createAdminContext } from "../vulcan-lib";
+import { Globals } from "../vulcan-lib";
 import chunk from "lodash/chunk";
 
 function getNextOffsetDate<T extends HasCreatedAtType>(currentOffsetDate: Date, batch: T[]) {
@@ -121,7 +121,6 @@ function getPostBatch(offsetDate: Date) {
 }
 
 async function backfillPosts(offsetDate?: Date) {
-  const adminContext = createAdminContext();
   const db = getSqlClientOrThrow();
   const recombeeClient = getRecombeeClientOrThrow();
 
@@ -141,10 +140,10 @@ async function backfillPosts(offsetDate?: Date) {
 
       const postsWithTags = batch.map(({ tags, ...post }) => ({
         post,
-        tags: tags.map(([_, name, core]) => ({ name, core }))
+        tags: tags.map(([_id, name, core]) => ({ _id, name, core }))
       }));
 
-      const requestBatch = await Promise.all(postsWithTags.map(({ post, tags }) => recombeeRequestHelpers.createUpsertPostRequest(post, adminContext, tags)));
+      const requestBatch = postsWithTags.map((postData) => recombeeRequestHelpers.createUpsertPostRequest(postData));
       const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
       await recombeeClient.send(batchRequest);
   

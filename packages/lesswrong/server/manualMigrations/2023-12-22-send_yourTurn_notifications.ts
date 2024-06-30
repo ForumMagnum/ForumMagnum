@@ -1,7 +1,7 @@
 import { registerMigration } from "./migrationUtils";
 import { createAdminContext } from "../vulcan-lib";
 import { createNotification } from "../notificationCallbacksHelpers";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../../server/sql/sqlClient";
 
 interface DialogueCheckWithExtraData extends DbDialogueCheck {
   targetUserMatchPreferenceId: string;

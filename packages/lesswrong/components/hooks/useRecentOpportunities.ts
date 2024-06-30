@@ -1,8 +1,8 @@
 import moment from "moment";
-import { useTimezone } from "../common/withTimezone";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import difference from "lodash/difference";
 import groupBy from "lodash/groupBy";
+import { useCurrentTime } from "../../lib/utils/timeUtil";
 
 const requiredTags: string[] = [
   "z8qFsGt5iXyZiLbjN", // Opportunities to take action
@@ -50,9 +50,8 @@ export const useRecentOpportunities =<
     filterMode: "x30",
   }));
 
-  const {timezone} = useTimezone();
-  const now = moment().tz(timezone);
-  const dateCutoff = now.subtract(maxAgeInDays, "days").format("YYYY-MM-DD");
+  const now = useCurrentTime();
+  const dateCutoff = moment(now).subtract(maxAgeInDays*24, "hours").startOf('hour').toISOString();
   const { results, ...useMultiResult } = useMulti<FragmentTypeName, "Posts">({
     collectionName: "Posts",
     terms: {

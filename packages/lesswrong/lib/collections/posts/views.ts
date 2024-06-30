@@ -54,6 +54,7 @@ declare global {
     authorIsUnreviewed?: boolean|null,
     before?: Date|string|null,
     after?: Date|string|null,
+    curatedAfter?: Date|string|null,
     timeField?: keyof DbPost,
     postIds?: Array<string>,
     notPostIds?: Array<string>,
@@ -165,13 +166,15 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
+ * When changing this, also update getViewablePostsSelector.
+ *
  * NB: Specifying "before" into posts views is a bit of a misnomer at present,
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
 Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
-  // Also valid fields: before, after, timeField (select on postedAt), excludeEvents, and
+  // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
 
   const postCommentedExcludeCommunity = {$or: [
@@ -273,6 +276,9 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
     } else if (!isEmpty(postedAt) && terms.timeField) {
       params.selector[terms.timeField] = postedAt;
     }
+  }
+  if (terms.curatedAfter) {
+    params.selector.curatedDate = {$gte: moment(terms.curatedAfter).toDate()}
   }
   
   return params;
@@ -591,12 +597,6 @@ Posts.addView("daily", (terms: PostsViewTerms) => ({
     sort: {baseScore: -1}
   }
 }));
-ensureIndex(Posts,
-  augmentForDefaultView({ postedAt:1, baseScore:1}),
-  {
-    name: "posts.postedAt_baseScore",
-  }
-);
 
 Posts.addView("tagRelevance", ({ sortedBy, tagId }: PostsViewTerms) => ({
   // note: this relies on the selector filtering done in the default view
@@ -1571,3 +1571,6 @@ void ensureCustomPgIndex(`
   ON "Posts" (GREATEST("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
   WHERE "collabEditorDialogue" IS TRUE;
 `);
+
+// Needed to speed up getPostsAndCommentsFromSubscriptions, which otherwise has a pretty slow nested loop when joining on Posts because of the "postedAt" filter
+ensureIndex(Posts, { userId: 1, postedAt: 1 }, { concurrently: true });

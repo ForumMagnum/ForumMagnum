@@ -5,6 +5,8 @@ import { combineUrls } from "../../vulcan-lib";
 import { TagCommentType } from "../comments/types";
 import Users from "../users/collection";
 import { isFriendlyUI } from "../../../themes/forumTheme";
+import type { RouterLocation } from '../../vulcan-lib/routes';
+import type { Request, Response } from 'express';
 
 export const tagMinimumKarmaPermissions = forumSelect({
   // Topic spampocalypse defense
@@ -123,4 +125,10 @@ export function stableSortTags<
 
     return 0;
   });
+}
+
+export const tagRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
+  const tagSlug = parsedRoute.params.slug;
+  if (!tagSlug) return false;
+  return await context.repos.tags.tagRouteWillDefinitelyReturn200(tagSlug);
 }

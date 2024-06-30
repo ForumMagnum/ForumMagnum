@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const UserSelect = ({ value, setValue, label, classes }: {
   value: string | null,
-  setValue: (newValue: string | null) => void,
+  setValue: (newValue: string | null, result: SearchUser | null) => void,
   label: string,
   classes: ClassesType,
 }) => {
@@ -22,13 +22,13 @@ const UserSelect = ({ value, setValue, label, classes }: {
     <div className={classes.root}>
       <Components.ErrorBoundary>
         <Components.UsersSearchAutoComplete
-          clickAction={(userId: string) => setValue(userId)}
+          clickAction={(userId: string, result: SearchUser) => setValue(userId, result)}
           label={label}
         />
       </Components.ErrorBoundary>
       {value && (
         <div className={classes.item}>
-          <Components.SingleUsersItem userId={value} removeItem={() => setValue(null)} />
+          <Components.SingleUsersItem userId={value} removeItem={() => setValue(null, null)} />
         </div>
       )}
     </div>

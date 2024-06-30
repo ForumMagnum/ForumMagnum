@@ -1,10 +1,10 @@
-import { onStartup } from '../lib/executionEnvironment';
 
-/* When refreshing the page, tell the browser to remember the scroll position.
+/**
+ * When refreshing the page, tell the browser to remember the scroll position.
  * Otherwise, users get scrolled to the top of the page.
+ * (See https://github.com/Lesswrong2/Lesswrong2/issues/295#issuecomment-385866050)
  */
- // (See https://github.com/Lesswrong2/Lesswrong2/issues/295#issuecomment-385866050)
-function rememberScrollPositionOnPageReload() {
+export function rememberScrollPositionOnPageReload() {
   window.addEventListener('beforeunload', () => {
     if ('scrollRestoration' in window.history) {
       try {
@@ -16,7 +16,3 @@ function rememberScrollPositionOnPageReload() {
     }
   });
 }
-
-onStartup(() => {
-  rememberScrollPositionOnPageReload();
-});

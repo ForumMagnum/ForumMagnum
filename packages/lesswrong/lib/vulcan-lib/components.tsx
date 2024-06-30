@@ -180,7 +180,7 @@ export function importAllComponents() {
   }
 }
 
-function prepareComponent(componentName: string): any
+export function prepareComponent(componentName: string): any
 {
   if (componentName in PreparedComponents) {
     return PreparedComponents[componentName];

@@ -12,7 +12,7 @@ export async function getDefaultPostLocationFields(post: DbPost) {
 }
 
 export const getDialogueResponseIds = (post: DbPost) => {
-  const html = post.contents.originalContents?.data
+  const html = post.contents?.originalContents?.data
   if (!html) return [];
 
   const $ = cheerioParse(html);
@@ -27,7 +27,7 @@ export const getDialogueResponseIds = (post: DbPost) => {
 }
 
 export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
-  const html = post.contents.originalContents?.data
+  const html = post.contents?.originalContents?.data
   if (!html) return [];
   const $ = cheerioParse(html);
     

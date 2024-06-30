@@ -1,4 +1,4 @@
-import { PublicInstanceSetting, isAF, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, aboutPostIdSetting, isAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
@@ -6,11 +6,11 @@ import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
-import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
 import pathToRegexp from "path-to-regexp";
+import type { RouterLocation } from '../../vulcan-lib/routes';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -298,71 +298,6 @@ export const postCanEditHideCommentKarma = (user: UsersCurrent|DbUser|null, post
   return !!(user?.showHideKarmaOption && (!post || !postGetCommentCount(post)))
 }
 
-/**
- * Returns the event datetimes in a user-friendly format,
- * ex: Mon, Jan 3 at 4:30 - 5:30 PM
- * 
- * @param {(PostsBase|DbPost)} post - The event to be checked.
- * @param {string} [timezone] - (Optional) Convert datetimes to this timezone.
- * @param {string} [dense] - (Optional) Exclude the day of the week.
- * @returns {string} The formatted event datetimes.
- */
-export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, dense?: boolean): string => {
-  // when no start time, just show "TBD"
-  if (!post.startTime) return 'TBD'
-  
-  let start = moment(post.startTime)
-  let end = post.endTime && moment(post.endTime)
-  // if we have event times in the local timezone, use those instead
-  const useLocalTimes = post.localStartTime && (!post.endTime || post.localEndTime)
-
-  // prefer to use the provided timezone
-  let tz = ` ${start.format('[UTC]ZZ')}`
-  if (timezone) {
-    start = start.tz(timezone)
-    end = end && end.tz(timezone)
-    tz = ` ${start.format('z')}`
-  } else if (useLocalTimes) {
-    // see postResolvers.ts for more on how local times work
-    start = moment(post.localStartTime).utc()
-    end = post.localEndTime && moment(post.localEndTime).utc()
-    tz = ''
-  }
-  
-  // hide the year if it's reasonable to assume it
-  const now = moment()
-  const sixMonthsFromNow = moment().add(6, 'months')
-  const startYear = (now.isSame(start, 'year') || start.isBefore(sixMonthsFromNow)) ? '' : `, ${start.format('YYYY')}`
-  
-  const startDate = dense ? start.format('MMM D') : start.format('ddd, MMM D')
-  const startTime = start.format('h:mm').replace(':00', '')
-  let startAmPm = ` ${start.format('A')}`
-  
-  if (!end) {
-    // just a start time
-    // ex: Starts on Mon, Jan 3 at 4:30 PM
-    // ex: Starts on Mon, Jan 3, 2023 at 4:30 PM EST
-    return `${dense ? '' : 'Starts on '}${startDate}${startYear} at ${startTime}${startAmPm}${tz}`
-  }
-
-  const endTime = end.format('h:mm A').replace(':00', '')
-  // start and end time on the same day
-  // ex: Mon, Jan 3 at 4:30 - 5:30 PM
-  // ex: Mon, Jan 3, 2023 at 4:30 - 5:30 PM EST
-  if (start.isSame(end, 'day')) {
-    // hide the start time am/pm if it's the same as the end time's
-    startAmPm = start.format('A') === end.format('A') ? '' : startAmPm
-    return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endTime}${tz}`
-  }
-
-  // start and end time on different days
-  // ex: Mon, Jan 3 at 4:30 PM - Tues, Jan 4 at 5:30 PM
-  // ex: Mon, Jan 3, 2023 at 4:30 PM - Tues, Jan 4, 2023 at 5:30 PM EST
-  const endDate = dense ? end.format('MMM D') : end.format('ddd, MMM D')
-  const endYear = (now.isSame(end, 'year') || end.isBefore(sixMonthsFromNow)) ? '' : `, ${end.format('YYYY')}`
-  return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
-}
-
 export type CoauthoredPost = Partial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
 
 export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
@@ -464,7 +399,7 @@ export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
 
-export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, context: ResolverContext) => {
+export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
   const matchPostPath = pathToRegexp('/posts/:_id/:slug?');
   const [_, postId] = matchPostPath.exec(req.path) ?? [];
 
@@ -473,3 +408,21 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   }
   return false;
 }
+
+export const isRecombeeRecommendablePost = (post: DbPost | PostsListBase): boolean => {
+  // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
+  // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
+  // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
+  // So we're not really in any danger of showing those posts to regular users
+  // TODO: figure out how to handle this more gracefully
+  return !(
+    post.shortform
+    || post.unlisted
+    || post.rejected
+    || post.isEvent
+    || !!post.groupId
+    || post.disableRecommendation
+    || post.status !== 2
+    || post._id === aboutPostIdSetting.get()
+  );
+};

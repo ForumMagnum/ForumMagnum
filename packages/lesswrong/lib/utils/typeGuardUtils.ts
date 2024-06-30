@@ -79,3 +79,7 @@ export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fiel
 
 export const isNotNullOrUndefined = <T>(value: T | null | undefined): value is T =>
   value !== null && value !== undefined
+
+export const objectKeys = <K extends string | number | symbol, V>(
+  obj: Partial<Record<K, V>>,
+): K[] => Object.keys(obj) as K[];

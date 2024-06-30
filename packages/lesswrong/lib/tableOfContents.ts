@@ -103,7 +103,13 @@ export function extractTableOfContents({
       continue;
     }
 
-    let title = element.textContent;
+    // Get title from element text
+    let title = elementToToCTitle(element);
+    // Cap the length at 300 chars
+    if (title.length > 300) {
+      title = title.substring(0, 300) + '...';
+    }
+
     if (title && title.trim() !== "") {
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
@@ -141,6 +147,28 @@ export function extractTableOfContents({
     html: document.body.innerHTML,
     sections: headings,
   };
+}
+
+/**
+ * Generate a (string) section heading from a heading element. This means
+ * taking text from text nodes (with element.textContent), except with a
+ * special case to make sure `<style>` nodes aren't included. This comes up
+ * if the MathJax stylesheet happens to be in the same block as the heading,
+ * which happens if the heading contains the first usage of LaTeX in the post.
+ * (eg: https://www.lesswrong.com/s/Gmc7vtnpyKZRHWdt5/p/tCex9F9YptGMpk2sT)
+ */
+function elementToToCTitle(element: HTMLElement): string {
+  // Check whether there's a <style> element. Usually there isn't.
+  const styleSelector = element.querySelector("style");
+  if (styleSelector) {
+    // If there's a <style>, clone the subtree, then remove style nodes from the clone
+    const elementClone: HTMLElement = element.cloneNode(true) as HTMLElement; //pass true to make the copy be deep
+    const cloneStyleSelector = elementClone.querySelectorAll("style");
+    cloneStyleSelector.forEach(i => i.remove());
+    return elementClone.textContent ?? "";
+  } else {
+    return element.textContent ?? "";
+  }
 }
 
 type CommentType = CommentsList | DbComment

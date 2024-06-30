@@ -48,6 +48,7 @@ type PostViewsViewName = never
 type PostsViewName = "userPosts"|"magic"|"top"|"new"|"recentComments"|"old"|"timeframe"|"daily"|"tagRelevance"|"frontpage"|"frontpage-rss"|"curated"|"curated-rss"|"community"|"community-rss"|"meta-rss"|"rss"|"topQuestions"|"recentQuestionActivity"|"scheduled"|"rejected"|"drafts"|"all_drafts"|"unlisted"|"userAFSubmissions"|"slugPost"|"legacyIdPost"|"recentDiscussionThreadsList"|"afRecentDiscussionThreadsList"|"2018reviewRecentDiscussionThreadsList"|"2019reviewRecentDiscussionThreadsList"|"globalEvents"|"nearbyEvents"|"events"|"eventsInTimeRange"|"upcomingEvents"|"pastEvents"|"tbdEvents"|"nonEventGroupPosts"|"postsWithBannedUsers"|"communityResourcePosts"|"sunshineNewPosts"|"sunshineNewUsersPosts"|"sunshineCuratedSuggestions"|"hasEverDialogued"|"pingbackPosts"|"nominations2018"|"nominations2019"|"reviews2018"|"reviews2019"|"voting2019"|"stickied"|"nominatablePostsByVote"|"reviewVoting"|"reviewQuickPage"|"reviewFinalVoting"|"myBookmarkedPosts"|"alignmentSuggestedPosts";
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
+type RecommendationsCachesViewName = never
 type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminClaimedReports"|"sunshineSidebarReports"|"closedReports";
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesAdminDashboard";
 type ReviewWinnerArtsViewName = "postArt";
@@ -59,6 +60,10 @@ type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
 type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightForSequence";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
+type SurveyQuestionsViewName = never
+type SurveyResponsesViewName = never
+type SurveySchedulesViewName = "surveySchedulesByCreatedAt";
+type SurveysViewName = "surveysByCreatedAt";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "tagsByTagIds"|"allTagsAlphabetical"|"userTags"|"currentUserSubforums"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"postTypeTags"|"coreAndSubforumTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags";
@@ -123,6 +128,7 @@ interface ViewTermsByCollectionName {
   Posts: PostsViewTerms
   RSSFeeds: RSSFeedsViewTerms
   ReadStatuses: ViewTermsBase
+  RecommendationsCaches: ViewTermsBase
   Reports: ReportsViewTerms
   ReviewVotes: ReviewVotesViewTerms
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
@@ -134,6 +140,10 @@ interface ViewTermsByCollectionName {
   SplashArtCoordinates: ViewTermsBase
   Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms
+  SurveyQuestions: ViewTermsBase
+  SurveyResponses: ViewTermsBase
+  SurveySchedules: SurveySchedulesViewTerms
+  Surveys: SurveysViewTerms
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
   Tags: TagsViewTerms
@@ -149,4 +159,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

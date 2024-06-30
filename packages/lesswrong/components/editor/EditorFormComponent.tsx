@@ -18,9 +18,8 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useCallbackDebugRerenders } from '../hooks/useCallbackDebugRerenders';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
+import { useMessages } from '../common/withMessages';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -46,7 +45,21 @@ const getPostPlaceholder = (post: PostsBase) => {
   return defaultEditorPlaceholder;
 }
 
-export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
+export const EditorFormComponent = ({
+  form,
+  formType,
+  formProps,
+  document,
+  name,
+  fieldName,
+  value,
+  hintText,
+  placeholder,
+  label,
+  formVariant,
+  commentStyles,
+  classes,
+}: {
   form: any,
   formType: "edit"|"new",
   formProps: FormProps,
@@ -57,12 +70,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   hintText: string,
   placeholder: string,
   label: string,
+  formVariant?: "default" | "grey",
   commentStyles: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
   const { updateCurrentValues, submitForm } = context;
+  const { flash } = useMessages()
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
@@ -339,9 +354,14 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   }, [fieldName, hasUnsavedDataRef]);
   
   const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
-    wrappedSetContents({contents: newState, autosave: false});
-    // TODO: Focus editor
-  }, [wrappedSetContents]);
+    if (isCollabEditor) {
+      // If in collab editing mode, we can't edit the editor contents.
+      flash("Restoring from local storage is not supported in the collaborative editor. Use the Version History button to restore old versions.");
+    } else {
+      wrappedSetContents({contents: newState, autosave: false});
+      // TODO: Focus editor
+    }
+  }, [wrappedSetContents, flash, isCollabEditor]);
   
   useEffect(() => {
     if (editorRef.current) {
@@ -440,6 +460,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       _classes={classes}
       currentUser={currentUser}
       label={label}
+      formVariant={formVariant}
       formType={updatedFormType}
       documentId={document._id}
       collectionName={collectionName}
@@ -460,7 +481,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
+    {!hideControls && formVariant !== "grey" &&
+      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+    }
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

@@ -70,7 +70,7 @@ export const zIndexes = {
 export const baseTheme: BaseThemeSpecification = {
   shadePalette: defaultShadePalette(),
   componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
-  make: (palette: ThemePalette): PartialDeep<ThemeType> => {
+  make: (palette: ThemePalette): NativeThemeType => {
     const spacingUnit = 8
   
     return {
@@ -92,14 +92,23 @@ export const baseTheme: BaseThemeSpecification = {
       borderRadius: {
         default: 0,
         small: 3,
+        quickTakesEntry: 3,
       },
       typography: {
+        fontFamily: palette.fonts.sansSerifStack,
         cloudinaryFont: {
           stack: "'Merriweather', serif",
           url: "https://fonts.googleapis.com/css?family=Merriweather",
         },
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
+        },
+        commentStyle: {
+          fontFamily: palette.fonts.sansSerifStack,
+        },
+        errorStyle: {
+          color: palette.error.main,
+          fontFamily: palette.fonts.sansSerifStack
         },
         contentNotice: {
           fontStyle: "italic",
@@ -120,6 +129,7 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize: '1.1rem',
           lineHeight: '1.5rem',
         },
+        headline: {},
         postsItemTitle: {
           fontSize: "1.3rem"
         },
@@ -233,6 +243,7 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize:15,
           color: palette.grey[600]
         },
+        headerStyle: {},
         subtitle: {
           fontSize: 16,
           fontWeight: 600,

@@ -10,6 +10,9 @@ declare global {
   }
 }
 
+/**
+ * When changing this, also update getViewableSequencesSelector.
+ */
 Sequences.addDefaultView((terms: SequencesViewTerms) => {
   const alignmentForum = isAF ? {af: true} : {}
   let params = {

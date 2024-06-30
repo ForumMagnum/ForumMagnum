@@ -29,7 +29,7 @@ class PageCacheRepo extends AbstractRepo<"PageCache"> {
     // Note: we use db.any here rather than e.g. oneOrNone because there may (in principle) be multiple
     // abTestGroups in the db that are a subset of the completeAbTestGroups. In this case it shouldn't
     // matter which one we use, so we just take the first one.
-    const cacheResult = await this.getRawDb().any(`
+    const cacheResult = await this.getRawDb().any<DbPageCacheEntry>(`
       -- PageCacheRepo.lookupCacheEntry
       SELECT * FROM "PageCache"
       WHERE "path" = $1
@@ -37,8 +37,15 @@ class PageCacheRepo extends AbstractRepo<"PageCache"> {
       AND "expiresAt" > NOW()
       AND fm_jsonb_subset($3::jsonb, "abTestGroups")`,
       [path, bundleHash, JSON.stringify(completeAbTestGroups)]);
+
+    const firstResult = cacheResult?.[0];
+    if (firstResult?.renderResult?.renderedAt) {
+      // We're inserting `renderResult` straight out of a JSON.stringify, which converts dates to strings.
+      // There's probably a more principled way to fix the round trip, but this is a quick patch which works.
+      firstResult.renderResult.renderedAt = new Date(firstResult.renderResult.renderedAt);
+    }
   
-    return cacheResult?.[0] ?? null;
+    return firstResult ?? null;
   }
 
   async clearExpiredEntries(): Promise<void> {

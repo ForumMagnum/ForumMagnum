@@ -1,11 +1,11 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
+import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -15,11 +15,11 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations, hasSurveys } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -304,14 +304,6 @@ export const PROGRAM_PARTICIPATION = [
   {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
   {value: '80k', label: "Received career coaching from 80,000 Hours"},
 ]
-
-export const SOCIAL_MEDIA_PROFILE_FIELDS = {
-  linkedinProfileURL: 'linkedin.com/in/',
-  facebookProfileURL: 'facebook.com/',
-  twitterProfileURL: 'twitter.com/',
-  githubProfileURL: 'github.com/'
-}
-export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
@@ -631,9 +623,9 @@ const schema: SchemaType<"Users"> = {
     control: 'UsersEmailVerification',
     canRead: ['members'],
     // EA Forum does not care about email verification
-    canUpdate: isEAForum ?
-      [userOwns, 'sunshineRegiment', 'admins'] :
-      [],
+    canUpdate: isEAForum
+      ? []
+      : [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
   },
 
@@ -912,6 +904,19 @@ const schema: SchemaType<"Users"> = {
     // note this date is hard coded as a hack
     // we originally were using petrovBeforeTime but it didn't work in this file because the database
     // public settings aren't been loaded yet.
+  },
+
+  optedOutOfSurveys: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    hidden: !hasSurveys,
+    canCreate: ["members"],
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    group: formGroups.siteCustomizations,
+    label: "Opt out of user surveys",
+    order: 97,
   },
 
   acceptedTos: {
@@ -1792,10 +1797,13 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: isEAForum ? formGroups.aboutMe : formGroups.siteCustomizations,
+    group: isLWorAF ? formGroups.siteCustomizations : formGroups.generalInfo,
     order: isLWorAF ? 101 : 5, // would use isFriendlyUI but that's not available here
-    label: "Public map location",
+    label: isLWorAF ? "Public map location" : "Location",
     control: 'LocationFormComponent',
+    form: {
+      variant: "grey",
+    },
     blackbox: true,
     optional: true,
     hidden: isEAForum
@@ -2213,7 +2221,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     tooltip: "Get early access to new in-development features",
     group: formGroups.siteCustomizations,
-    label: "Opt into experimental features",
+    label: "Opt into experimental (beta) features",
     order: 70,
   },
   reviewVotesQuadratic: {
@@ -2484,18 +2492,33 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.paymentInfo,
     hidden: !isLWorAF,
   },
-  
+
+  profileUpdatedAt: {
+    type: Date,
+    optional: false,
+    nullable: false,
+    canCreate: ["members"],
+    canRead: ["guests"],
+    canUpdate: [userOwns, "admins"],
+    hidden: true,
+    onInsert: (user) => user.createdAt,
+    ...schemaDefaultValue(new Date(0)),
+  },
+
   // Cloudinary image id for the profile image (high resolution)
   profileImageId: {
     hidden: true,
     order: isLWorAF ? 40 : 1, // would use isFriendlyUI but that's not available here
-    group: isEAForum ? formGroups.aboutMe : formGroups.default,
+    group: formGroups.default,
     type: String,
     optional: true,
     canRead: ['guests'],
     canUpdate: [userOwns, "admins", "sunshineRegiment"],
     label: "Profile Image",
-    control: "ImageUpload"
+    control: "ImageUpload",
+    form: {
+      horizontal: true,
+    },
   },
   
   jobTitle: {
@@ -2505,9 +2528,10 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 2,
-    label: 'Role'
+    label: 'Role',
+    control: "FormComponentFriendlyTextInput",
   },
   
   organization: {
@@ -2517,8 +2541,9 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 3,
+    control: "FormComponentFriendlyTextInput",
   },
   
   careerStage: {
@@ -2528,21 +2553,22 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    group: formGroups.aboutMe,
+    group: formGroups.generalInfo,
     order: 4,
     control: 'FormComponentMultiSelect',
     label: "Career stage",
     placeholder: 'Select all that apply',
     form: {
-      separator: '\r\n',
-      options: CAREER_STAGES
+      variant: "grey",
+      separator: ", ",
+      options: CAREER_STAGES,
     },
   },
   'careerStage.$': {
     type: String,
     optional: true,
   },
-  
+
   website: {
     type: String,
     hidden: true,
@@ -2552,9 +2578,10 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: 'https://'
+      inputPrefix: 'https://',
+      heading: "Website",
     },
-    group: formGroups.aboutMe,
+    group: formGroups.socialMedia,
     order: 6
   },
 
@@ -2589,9 +2616,12 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL,
+      heading: "Social media",
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 1,
   },
   facebookProfileURL: {
     type: String,
@@ -2602,9 +2632,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.facebookProfileURL,
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 2,
   },
   twitterProfileURL: {
     type: String,
@@ -2615,9 +2647,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     form: {
-      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL
+      inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.twitterProfileURL,
+      smallBottomMargin: true,
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 3,
   },
   githubProfileURL: {
     type: String,
@@ -2630,9 +2664,10 @@ const schema: SchemaType<"Users"> = {
     form: {
       inputPrefix: SOCIAL_MEDIA_PROFILE_FIELDS.githubProfileURL
     },
-    group: formGroups.socialMedia
+    group: formGroups.socialMedia,
+    order: 4,
   },
-  
+
   profileTagIds: {
     ...arrayOfForeignKeysField({
       idFieldName: "profileTagIds",
@@ -2645,11 +2680,13 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    group: formGroups.activity,
-    order: 1,
+    group: formGroups.aboutMe,
+    order: 100,
     control: "TagMultiselect",
-    label: `${taggingNamePluralCapitalSetting.get()} I'm interested in`,
-    tooltip: `This will also update your frontpage ${taggingNameSetting.get()} weightings.`,
+    form: {
+      variant: "grey",
+    },
+    label: "Interests",
     placeholder: `Search for ${taggingNamePluralSetting.get()}`
   },
   'profileTagIds.$': {
@@ -2680,8 +2717,10 @@ const schema: SchemaType<"Users"> = {
     tooltip: "If you organize a group that is missing from this list, please contact the EA Forum team.",
     form: {
       useDocumentAsUser: true,
-      separator: '\r\n',
-      multiselect: true
+      variant: "grey",
+      separator: ", ",
+      multiselect: true,
+      hideClear: true,
     },
   },
   'organizerOfGroupIds.$': {
@@ -2702,7 +2741,8 @@ const schema: SchemaType<"Users"> = {
     control: 'FormComponentMultiSelect',
     placeholder: "Which of these programs have you participated in?",
     form: {
-      separator: '\r\n',
+      variant: "grey",
+      separator: ", ",
       options: PROGRAM_PARTICIPATION
     },
   },
@@ -2853,6 +2893,18 @@ const schema: SchemaType<"Users"> = {
   },
 
   /* Privacy settings */
+  hideFromPeopleDirectory: {
+    type: Boolean,
+    optional: true,
+    hidden: !isEAForum,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    label: "Hide my profile from the People directory",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
+
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,

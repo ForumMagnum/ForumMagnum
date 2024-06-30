@@ -31,7 +31,7 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
   if (Array.isArray(userId)) throw new Error("Multiple userId headers");
   if (Array.isArray(formType)) throw new Error("Multiple formType headers");
   
-  const user = await getUserFromReq(req);
+  const user = getUserFromReq(req);
   const requestWithKey = {...req, query: {...req?.query, key: linkSharingKey}}
   const context = await computeContextFromUser(user, requestWithKey, res);
   const contextWithKey: ResolverContext = {...context, req: context.req}
@@ -48,7 +48,8 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     }
     
     const payload = {
-      iss: environmentId,
+      aud: environmentId,
+      iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: {
         id: user ? user._id : randomId(),
         name: user ? userGetDisplayName(user) : "Anonymous"
@@ -68,7 +69,8 @@ export async function ckEditorTokenHandler (req: AnyBecauseTodo, res: AnyBecause
     res.end(result);
   } else {
     const payload = {
-      iss: environmentId,
+      aud: environmentId,
+      iat: Math.floor(new Date().getTime()/1000.0), //seconds since epoch
       user: user ? {
         id: user._id,
         name: userGetDisplayName(user)

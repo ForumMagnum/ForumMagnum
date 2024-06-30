@@ -1272,7 +1272,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
   if (!!generatedDialogueId) {
     return (
       <button className={classes.lightGreenButton} onClick={(e) => redirect(generatedDialogueId, navigate)}>
-        <a data-cy="message">Go to dialogue</a>
+        <a>Go to dialogue</a>
       </button>
     );
   }
@@ -1305,7 +1305,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
         })
       }}
     >
-      <a data-cy="message">{reciprocalMatchPreference ? "Enter your topics" : "Enter topics"}</a>
+      <a>{reciprocalMatchPreference ? "Enter your topics" : "Enter topics"}</a>
     </button>
   );
 };
@@ -1323,7 +1323,7 @@ const MessageButton: React.FC<{
       [classes.hideAtXs]: isMatched,
     })}>
       <NewConversationButton user={{_id: targetUserId}} currentUser={currentUser}>
-        <a data-cy="message">Message</a>
+        <a>Message</a>
       </NewConversationButton>
     </button>
   );

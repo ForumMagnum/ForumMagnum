@@ -1,7 +1,7 @@
 import Chapters from "../../lib/collections/chapters/collection";
 import Sequences from "../../lib/collections/sequences/collection";
 import { randomId } from "../../lib/random";
-import InsertQuery from "../../lib/sql/InsertQuery";
+import InsertQuery from "@/server/sql/InsertQuery";
 
 export const up = async ({db}: MigrationContext) => {
   const [sequences, chapters] = await Promise.all([

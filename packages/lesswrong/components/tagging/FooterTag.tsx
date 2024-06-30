@@ -117,6 +117,7 @@ const FooterTag = ({
   tagRel,
   tag,
   hideScore=false,
+  hideIcon,
   smallText,
   PreviewWrapper,
   link=true,
@@ -129,6 +130,7 @@ const FooterTag = ({
   tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
+  hideIcon?: boolean,
   smallText?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   link?: boolean
@@ -142,7 +144,7 @@ const FooterTag = ({
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
+  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug] && !hideIcon);
 
   const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name

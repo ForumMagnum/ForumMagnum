@@ -74,6 +74,7 @@ build*
 !build.js
 !buildUtil.js
 yarn-error.log
+public/lesswrong-editor/obj
 
 # Created by @shelf/jest-mongodb
 globalConfig.json
@@ -99,3 +100,6 @@ ml
 
 client_meta.json
 client_stats.html
+
+playwright-report
+test-results

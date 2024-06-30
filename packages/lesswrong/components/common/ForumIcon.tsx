@@ -23,11 +23,14 @@ import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
+import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
 import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
 import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
+import MapIcon from "@heroicons/react/24/outline/MapIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
@@ -56,8 +59,10 @@ import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import QuestionMarkCircleFilledIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
+import ArrowLongUp from "@heroicons/react/20/solid/ArrowLongUpIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
@@ -65,8 +70,11 @@ import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
+import Bars3 from "@heroicons/react/24/outline/Bars3Icon";
+import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -126,6 +134,10 @@ import { VotedIcon } from "../icons/votedIcon";
 import { LightbulbChatIcon } from "../icons/lightbulbChatIcon";
 import { AddReactionIcon } from "../icons/AddReactionIcon";
 import { LabBeakerIcon } from "../icons/LabBeakerIcon";
+import { SparkleIcon } from "../icons/sparkleIcon";
+import { ListViewIcon } from "../icons/ListViewIcon";
+import { CardViewIcon } from "../icons/CardViewIcon";
+import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -156,11 +168,14 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "Clock" |
+  "No" |
   "Calendar" |
   "CalendarDays" |
   "Work" |
   "School" |
   "MapPin" |
+  "Map" |
   "Pencil" |
   "PencilSquare" |
   "Comment" |
@@ -181,10 +196,13 @@ export type ForumIconName =
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
+  "ChevronUpDown" |
   "NarrowArrowDown" |
+  "NarrowArrowUp" |
   "Plus" |
   "Check" |
   "CheckCircle" |
+  "CheckSmall" |
   "Card" |
   "List" |
   "PlusSmall" |
@@ -207,6 +225,7 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
+  "QuestionMarkCircleFilled" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -217,11 +236,16 @@ export type ForumIconName =
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
+  "Bars3" |
+  "ViewColumns" |
+  "ListView" |
+  "CardView" |
   "LightbulbChat" |
   "VoteBallot" |
   "Import" |
   "AddReaction" |
-  "LabBeaker"
+  "LabBeaker" |
+  "Sparkle"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -248,11 +272,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MuiLocationIcon,
+    Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
     Comment: MuiCommentIcon,
@@ -273,7 +300,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    ChevronUpDown: ChevronUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -288,6 +317,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
     CheckCircle: CheckCircleIcon,
+    CheckSmall: CheckSmallIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -299,6 +329,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -309,11 +340,16 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    Bars3: Bars3,
+    ViewColumns: ViewColumnsIcon,
+    ListView: ListViewIcon,
+    CardView: CardViewIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
+    Sparkle: SparkleIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -338,11 +374,14 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
     MapPin: MapPinIcon,
+    Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
     Comment: CommentIcon,
@@ -363,7 +402,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    ChevronUpDown: ChevronUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -378,6 +419,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
     CheckCircle: CheckCircleIcon,
+    CheckSmall: CheckSmallIcon,
     Card: CardIcon,
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
@@ -389,6 +431,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
@@ -399,20 +442,16 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    Bars3: Bars3,
+    ViewColumns: ViewColumnsIcon,
+    ListView: ListViewIcon,
+    CardView: CardViewIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
     AddReaction: AddReactionIcon,
     LabBeaker: LabBeakerIcon,
-  },
-};
-
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
+    Sparkle: SparkleIcon,
   },
 };
 
@@ -423,7 +462,7 @@ export type IconProps = {
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     userSelect: "none",
     width: "1em",
@@ -440,10 +479,20 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
-type ForumIconProps = Partial<IconProps> & {
+type IconClassName = keyof ClassesType<typeof styles>;
+
+// This is a map from forum types to icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
+  default: {
+    Link: "linkRotation",
+  },
+  EAForum: {
+  },
+};
+
+export type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
-  classes: ClassesType,
   style?: CSSProperties,
 };
 
@@ -453,7 +502,7 @@ const ForumIcon = ({
   className,
   classes,
   ...props
-}: ForumIconProps) => {
+}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {

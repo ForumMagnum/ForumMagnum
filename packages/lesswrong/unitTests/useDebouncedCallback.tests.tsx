@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-import React, { useEffect, ReactElement } from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { DebouncedCallbackOptions, useDebouncedCallback } from '../components/hooks/useDebouncedCallback';
 
@@ -21,12 +21,13 @@ describe('useDebouncedCallback', () => {
 
   it('replaces arguments with latest if called while waiting', () => {
     const container = document.createElement("div");
+    const root = createRoot(container);
     document.body.appendChild(container);
     const fn: (args: any) => void = jest.fn();
     const debouncedFnRef: {debouncedFn: ((args: any) => void)|null} = {debouncedFn: null};
 
     act(() => {
-      render(<ComponentWithDebouncedCallbackHook
+      root.render(<ComponentWithDebouncedCallbackHook
         fn={fn} debouncedFnRef={debouncedFnRef}
         options={{
           rateLimitMs: 1000,
@@ -34,7 +35,7 @@ describe('useDebouncedCallback', () => {
           onUnmount: "callIfScheduled",
           allowExplicitCallAfterUnmount: false,
         }}
-      />, container);
+      />);
     });
     
     expect(fn).toHaveBeenCalledTimes(0);
@@ -57,12 +58,13 @@ describe('useDebouncedCallback', () => {
 
   it('calls the callback on unmount if pending', () => {
     const container = document.createElement("div");
+    const root = createRoot(container);
     document.body.appendChild(container);
     const fn: (args: any) => void = jest.fn();
     const debouncedFnRef: {debouncedFn: ((args: any) => void)|null} = {debouncedFn: null};
 
     act(() => {
-      render(<ComponentWithDebouncedCallbackHook
+      root.render(<ComponentWithDebouncedCallbackHook
         fn={fn} debouncedFnRef={debouncedFnRef}
         options={{
           rateLimitMs: 1000,
@@ -70,7 +72,7 @@ describe('useDebouncedCallback', () => {
           onUnmount: "callIfScheduled",
           allowExplicitCallAfterUnmount: false,
         }}
-      />, container);
+      />);
     });
     
     expect(fn).toHaveBeenCalledTimes(0);
@@ -84,7 +86,9 @@ describe('useDebouncedCallback', () => {
     expect(fn).toHaveBeenCalledTimes(0);
     
     // Unmount. Should cause it to be called.
-    unmountComponentAtNode(container);
+    act(() => {
+      root.unmount();
+    });
     expect(fn).toHaveBeenCalledTimes(1);
     
     // Attempt to call it. Should be blocked because allowExplicitCallAfterUnmount is false.

@@ -49,7 +49,7 @@ const updateCollection = async (collection: AnyBecauseObsolete) => {
 
       const changes: any[] = [];
       for (const document of documents) {
-        const { html } = document.contents;
+        const { html = "" } = document.contents ?? {};
 
         const $ = cheerioParse(html);
         let edited = false;

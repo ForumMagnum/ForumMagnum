@@ -7,5 +7,7 @@ registerFragment(`
     startDate
     endDate
     publishedDate
+    onsiteImageId
+    onsitePrimaryColor
   }
 `);

@@ -46,7 +46,7 @@ registerMigration({
 
 
     const questionIds = Array.from(new Set([...postsWithPredictions, ...commentsWithPredictions]
-      .map(d => cheerioParse(d.contents.html))
+      .map(d => cheerioParse(d.contents?.html ?? ""))
       .map($ => $('[data-elicit-id]').toArray().map(elt => $(elt).attr('data-elicit-id')))
       .map(filterNonnull)
       .flat())

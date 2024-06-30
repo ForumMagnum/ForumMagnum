@@ -213,6 +213,26 @@ registerFragment(`
   }
 `)
 
+registerFragment(`
+  fragment PostsModerationGuidelines on Post {
+    ...PostsMinimumInfo
+    frontpageDate
+    user {
+      _id
+      displayName
+      moderationStyle
+    }
+    moderationStyle
+    moderationGuidelines {
+      _id
+      html
+      originalContents {
+        type
+        data
+      }
+    }
+  }
+`)
 
 registerFragment(`
   fragment PostsAuthors on Post {
@@ -241,13 +261,10 @@ registerFragment(`
     readTimeMinutes
     rejectedReason
     disableRecommendation
-    moderationGuidelines {
-      _id
-      html
-    }
     customHighlight {
       _id
       html
+      plaintextDescription
     }
     lastPromotedComment {
       _id
@@ -280,6 +297,7 @@ registerFragment(`
     contents {
       _id
       htmlHighlight
+      plaintextDescription
       wordCount
       version
     }
@@ -359,7 +377,6 @@ registerFragment(`
     }
 
     # Moderation stuff
-    showModerationGuidelines
     bannedUserIds
     moderationStyle
     
@@ -637,7 +654,12 @@ registerFragment(`
       wordCount
       version
     }
-    
+
+    moderationGuidelines {
+      _id
+      html
+    }
+
     user {
       ...UsersMinimumInfo
       biography {

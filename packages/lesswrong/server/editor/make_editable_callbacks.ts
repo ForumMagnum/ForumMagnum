@@ -14,7 +14,6 @@ import {getCollection} from '../../lib/vulcan-lib/getCollection'
 import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import * as _ from 'underscore'
-import {onStartup} from '../../lib/executionEnvironment'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
@@ -88,11 +87,12 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): 
 
 function addEditableCallbacks<N extends CollectionNameString>({collection, options = {}}: {
   collection: CollectionBase<N>,
-  options: MakeEditableOptions
+  options: MakeEditableOptions<N>,
 }) {
   const {
     fieldName = "contents",
     pingbacks = false,
+    normalized,
   } = options
 
   const collectionName = collection.collectionName;
@@ -155,11 +155,13 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
       return {
         ...doc,
-        [fieldName]: {
-          ...doc[fieldName],
-          html, version, userId, editedAt, wordCount,
-          updateType: 'initial'
-        },
+        ...(!normalized && {
+          [fieldName]: {
+            ...doc[fieldName],
+            html, version, userId, editedAt, wordCount,
+            updateType: 'initial'
+          },
+        }),
         [`${fieldName}_latest`]: firstRevision.data._id,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, null),
@@ -228,10 +230,12 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
       return {
         ...docData,
-        [fieldName]: {
-          ...docData[fieldName],
-          html, version, userId, editedAt, wordCount
-        },
+        ...(!normalized && {
+          [fieldName]: {
+            ...docData[fieldName],
+            html, version, userId, editedAt, wordCount
+          },
+        }),
         [`${fieldName}_latest`]: newRevisionId,
         ...(pingbacks ? {
           pingbacks: await htmlToPingbacks(html, [{
@@ -311,10 +315,9 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
    * It's fine to leave it here just in case though
    */
   getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
-    const isPostContentsContext = collectionName === 'Posts' && fieldName === 'contents';
-    const hasChanged = (oldDoc as DbPost)?.contents?.html !== (doc as DbPost)?.contents?.html;
+    const hasChanged = (oldDoc as AnyBecauseHard)?.[fieldName]?.html !== (doc as AnyBecauseHard)?.[fieldName]?.html;
     
-    if (isPostContentsContext && !hasChanged) return;
+    if (!hasChanged) return;
 
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
   })
@@ -338,5 +341,3 @@ export function addAllEditableCallbacks() {
     }
   }
 }
-
-onStartup(addAllEditableCallbacks);
