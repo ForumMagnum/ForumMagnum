@@ -255,6 +255,7 @@ export const usePostsItem = ({
     showIcons,
     showKarma,
     useCuratedDate,
+    hideTag,
     annualReviewMarketInfo,
     marketLink,
     showReadCheckbox,

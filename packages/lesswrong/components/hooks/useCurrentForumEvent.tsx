@@ -5,6 +5,7 @@ import { hasForumEvents } from "../../lib/betas";
 type CurrentForumEventContext = {
   currentForumEvent: ForumEventsDisplay | null,
   isEventPost: (post: PostsBase) => boolean,
+  refetch?: () => void
 }
 
 const defaultValue: CurrentForumEventContext = {
@@ -49,8 +50,9 @@ export const CurrentForumEventProvider: FC<{
       : {
         currentForumEvent,
         isEventPost,
+        refetch,
       };
-  }, [currentForumEvent, isEventPost, eventEnded]);
+  }, [currentForumEvent, isEventPost, refetch, eventEnded]);
 
   return (
     <currentForumEventContext.Provider value={value}>

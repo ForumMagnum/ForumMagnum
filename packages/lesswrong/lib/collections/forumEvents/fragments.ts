@@ -8,18 +8,27 @@ registerFragment(`
     endDate
     darkColor
     lightColor
+    contrastColor
     tagId
     bannerImageId
+    includesPoll
   }
 `);
 
 registerFragment(`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
+    publicData
+    voteCount
+
     tag {
       ...TagBasicInfo
     }
     frontpageDescription {
+      _id
+      html
+    }
+    frontpageDescriptionMobile {
       _id
       html
     }
@@ -34,6 +43,9 @@ registerFragment(`
   fragment ForumEventsEdit on ForumEvent {
     ...ForumEventsMinimumInfo
     frontpageDescription {
+      ...RevisionEdit
+    }
+    frontpageDescriptionMobile {
       ...RevisionEdit
     }
     postPageDescription {
