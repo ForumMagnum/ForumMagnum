@@ -6,6 +6,7 @@ import { usePostsList } from "../posts/usePostsList";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import FormattedMessage from "@/lib/vulcan-i18n/message";
 import Checkbox from "@material-ui/core/Checkbox";
+import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 
 const styles = (theme: ThemeType) => ({
   dialog: {
@@ -76,6 +77,7 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
   onClose?: () => void,
   classes: ClassesType<typeof styles>
 }) => {
+  const {refetch} = useCurrentForumEvent()
   const [selectedPosts, setSelectedPosts] = useState<string[]>([])
   
   const postsListProps = useMemo(() => ({
@@ -104,8 +106,9 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
       ...voteData,
       postIds: includePosts ? selectedPosts : []
     }})
+    refetch?.()
     onClose?.()
-  }, [selectedPosts, addVote, voteData, onClose])
+  }, [selectedPosts, addVote, voteData, refetch, onClose])
   
   const {
     LWDialog, EAButton, PostsNoResults, EAPostsItem, PostsLoading, ForumIcon
@@ -124,9 +127,8 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
         <ForumIcon icon="Close" className={classes.closeIcon} onClick={handleDone} />
       </h2>
       <div className={classes.description}>
-        When you change your vote, we turn the distance into points.
-        Each post you select gets full credit for this change.
-        We add up everyone's points to get a list of the most influential posts.
+        Selecting a post in this list will assign it points for changing your mind.
+        We use these points to rank debate week posts in order of influence.
       </div>
       <div className={classes.postsSection}>
         {/* Adapted from PostsList2 */}

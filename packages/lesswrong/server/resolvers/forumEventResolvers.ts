@@ -22,11 +22,8 @@ addGraphQLResolvers({
       if (postIds?.length && !!delta) {
         const pointsPerPost = Math.abs(delta)
         postIds.forEach(postId => {
-          if (postId in voteData.points) {
-            voteData.points[postId] += pointsPerPost
-          } else {
-            voteData.points[postId] = pointsPerPost
-          }
+          // Each post gets points equal to the max change attributed to that post
+          voteData.points[postId] = Math.max(pointsPerPost, voteData.points?.[postId] ?? 0)
         })
       }
       repos.forumEvents.addVote(forumEventId, currentUser._id, voteData)
@@ -53,5 +50,5 @@ addGraphQLResolvers({
   },
 })
 
-addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Int!, delta: Int, postIds: [String]): Boolean')
+addGraphQLMutation('AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean')
 addGraphQLMutation('RemoveForumEventVote(forumEventId: String!): Boolean')
