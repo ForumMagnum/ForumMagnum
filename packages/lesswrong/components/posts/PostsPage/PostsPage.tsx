@@ -517,7 +517,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       }
     });
 
-    if (!currentUser || (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get())) return;
+    if (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get()) return;
     setRecommId(recommId);
     setAttributionId(attributionId);
 
@@ -767,7 +767,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <AttributionInViewTracker eventProps={{ postId: post._id, portion: 1, recommId, vertexAttributionId: attributionId }}>
+      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>

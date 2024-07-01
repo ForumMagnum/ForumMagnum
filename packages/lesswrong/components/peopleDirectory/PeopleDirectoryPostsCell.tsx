@@ -18,9 +18,11 @@ const styles = (theme: ThemeType) => ({
     ...textCellStyles(theme),
     position: "relative",
     width: "100%",
+    height: "100%",
   },
   noPosts: {
     ...emptyTextCellStyles(theme),
+    height: "unset",
   },
   link: {
     color: theme.palette.primary.main,
@@ -28,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   },
   more: {
     position: "absolute",
-    bottom: 0,
+    bottom: 2,
     right: 0,
     paddingLeft: FADE_SIZE,
     background: `linear-gradient(to right, transparent, var(${ROW_BACKGROUND_VAR}) ${FADE_SIZE}px)`,
@@ -62,9 +64,8 @@ export const PeopleDirectoryPostsCell = ({user, classes}: {
       </Link>
       {posts.length > 1 &&
         <span className={classes.more}>
-          {" and "}
           <Link to={userGetProfileUrl(user) + "#posts"} {...linkProps}>
-            {posts.length - 1} more
+            + {posts.length - 1} more
           </Link>
         </span>
       }

@@ -5,6 +5,8 @@ import { useNewEvents } from '../../lib/events/withNewEvents';
 import { hookToHoc } from '../../lib/hocUtils';
 import { recombeeApi } from '../../lib/recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
+import { useClientId } from '@/lib/abTestImpl';
 
 export type ItemsReadContextType = {
   postsRead: Record<string,boolean>,
@@ -37,7 +39,7 @@ export interface RecommendationOptions {
 }
 
 interface RecordPostViewArgs {
-  post: ViewablePost;
+  post: PostsListBase;
   extraEventProperties?: Record<string,any>;
   recommendationOptions?: RecommendationOptions
 }
@@ -69,6 +71,7 @@ export const useRecordPostView = (post: ViewablePost) => {
   
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
+  const clientId = useClientId();
   const {postsRead, setPostRead} = useItemsRead();
   const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
@@ -103,9 +106,6 @@ export const useRecordPostView = (post: ViewablePost) => {
         };
         
         recordEvent('post-view', true, eventProperties);
-        if (recombeeEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
-          void recombeeApi.createDetailView(post._id, currentUser._id, recommendationOptions?.recombeeOptions?.recommId);
-        }
 
         if (vertexEnabledSetting.get() && !recommendationOptions?.skip && !post.draft) {
           void sendVertexViewItemEvent({
@@ -116,10 +116,16 @@ export const useRecordPostView = (post: ViewablePost) => {
           })
         }
       }
+
+      const attributedUserId = currentUser?._id ?? clientId;
+
+      if (attributedUserId && recombeeEnabledSetting.get() && !recommendationOptions?.skip && isRecombeeRecommendablePost(post)) {
+        void recombeeApi.createDetailView(post._id, attributedUserId, recommendationOptions?.recombeeOptions?.recommId);
+      }
     } catch(error) {
       console.log("recordPostView error:", error); // eslint-disable-line
     }
-  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, recordEvent]);
+  }, [postsRead, setPostRead, increasePostViewCount, sendVertexViewItemEvent, currentUser, clientId, recordEvent]);
 
   const recordPostCommentsView = ({ post }: Pick<RecordPostViewArgs, 'post'>) => {
     if (currentUser) {

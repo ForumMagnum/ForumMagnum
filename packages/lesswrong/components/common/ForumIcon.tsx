@@ -23,6 +23,8 @@ import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
+import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
 import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
@@ -57,8 +59,10 @@ import ShareIcon from "@heroicons/react/24/outline/ArrowUpTrayIcon";
 import ClipboardDocumentListIcon from "@heroicons/react/24/outline/ClipboardDocumentListIcon";
 import ClipboardDocumentIcon from "@heroicons/react/24/outline/ClipboardDocumentIcon";
 import QuestionMarkCircleIcon from "@heroicons/react/24/outline/QuestionMarkCircleIcon";
+import QuestionMarkCircleFilledIcon from "@heroicons/react/24/solid/QuestionMarkCircleIcon";
 import SearchIcon from "@heroicons/react/24/outline/MagnifyingGlassIcon";
 import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
+import ArrowLongUp from "@heroicons/react/20/solid/ArrowLongUpIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
@@ -165,6 +169,8 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "Clock" |
+  "No" |
   "Calendar" |
   "CalendarDays" |
   "Work" |
@@ -194,6 +200,7 @@ export type ForumIconName =
   "ChevronUpDown" |
   "ArrowsUpDown" |
   "NarrowArrowDown" |
+  "NarrowArrowUp" |
   "Plus" |
   "Check" |
   "CheckCircle" |
@@ -220,6 +227,7 @@ export type ForumIconName =
   "ClipboardDocumentList" |
   "ClipboardDocument" |
   "QuestionMarkCircle" |
+  "QuestionMarkCircleFilled" |
   "Search" |
   "ComputerDesktop" |
   "Menu" |
@@ -266,6 +274,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
@@ -295,6 +305,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ChevronUpDown: ChevronUpDownIcon,
     ArrowsUpDown: ArrowsUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -321,6 +332,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: MuiSearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
@@ -365,6 +377,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Clock: ClockIcon,
+    No: NoSymbolIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
@@ -394,6 +408,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ChevronUpDown: ChevronUpDownIcon,
     ArrowsUpDown: ArrowsUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
+    NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
@@ -420,6 +435,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ClipboardDocumentList: ClipboardDocumentListIcon,
     ClipboardDocument: ClipboardDocumentIcon,
     QuestionMarkCircle: QuestionMarkCircleIcon,
+    QuestionMarkCircleFilled: QuestionMarkCircleFilledIcon,
     Search: SearchIcon,
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
@@ -443,15 +459,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
-  },
-};
-
 export type IconProps = {
   className: string,
   onClick: MouseEventHandler<SVGElement>,
@@ -459,7 +466,7 @@ export type IconProps = {
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     userSelect: "none",
     width: "1em",
@@ -476,10 +483,20 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
-type ForumIconProps = Partial<IconProps> & {
+type IconClassName = keyof ClassesType<typeof styles>;
+
+// This is a map from forum types to icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
+  default: {
+    Link: "linkRotation",
+  },
+  EAForum: {
+  },
+};
+
+export type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
-  classes: ClassesType,
   style?: CSSProperties,
 };
 
@@ -489,7 +506,7 @@ const ForumIcon = ({
   className,
   classes,
   ...props
-}: ForumIconProps) => {
+}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {
