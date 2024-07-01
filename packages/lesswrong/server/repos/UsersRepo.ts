@@ -7,6 +7,7 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { getPostgresViewByName } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -195,7 +196,14 @@ class UsersRepo extends AbstractRepo<"Users"> {
         NULLIF(TRIM(u."website"), '') AS "website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
-        u."profileTagIds" AS "tags",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(u."profileTagIds") AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
           'github', NULLIF(TRIM(u."githubProfileURL"), ''),
@@ -677,8 +685,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
         ) AND
         ${getDefaultFacetFieldSelector(pgField)}
       ORDER BY "rank" DESC, ${normalizedFacetField} DESC
-      LIMIT 8
-    `, [query]);
+      LIMIT $2
+    `, [query, MULTISELECT_SUGGESTION_LIMIT]);
 
     return results.map(({result}) => result);
   }

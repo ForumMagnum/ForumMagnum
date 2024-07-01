@@ -36,7 +36,7 @@ export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   const text = String(user[fieldName] || "").trim() || EMPTY_TEXT_PLACEHOLDER;
   const {LWTooltip} = Components;
   return (
-    <LWTooltip title={String(user[fieldName])}>
+    <LWTooltip title={user[fieldName] ? String(user[fieldName]) : undefined}>
       <div className={classNames(classes.root, {
         [classes.empty]: text === EMPTY_TEXT_PLACEHOLDER,
       })}>

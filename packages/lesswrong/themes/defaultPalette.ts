@@ -1,4 +1,4 @@
-//
+//defaultpal
 // All About the Themes, the Theme Palette and Colors
 // ==================================================
 // There are two themes active at a time: the user theme and the site theme. The

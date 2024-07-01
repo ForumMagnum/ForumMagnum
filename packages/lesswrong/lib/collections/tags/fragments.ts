@@ -340,3 +340,11 @@ registerFragment(`
     squareImageId
   }
 `);
+
+registerFragment(`
+  fragment TagName on Tag {
+    _id
+    name
+    slug
+  }
+`);

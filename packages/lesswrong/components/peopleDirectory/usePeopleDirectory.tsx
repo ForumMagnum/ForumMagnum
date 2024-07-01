@@ -3,12 +3,16 @@ import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
 import { CAREER_STAGES } from "../../lib/collections/users/schema";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
-import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
+import { MULTISELECT_SUGGESTION_LIMIT, SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { taggingNamePluralSetting, taggingNameCapitalSetting } from "@/lib/instanceSettings";
+import { algoliaPrefixSetting } from "@/lib/publicSettings";
 import qs from "qs";
+import { useMulti } from "@/lib/crud/withMulti";
+import { gql, useQuery } from "@apollo/client";
 
 type PeopleDirectoryView = "list" | "map";
 
@@ -34,12 +38,19 @@ type PeopleDirectoryContext = {
   organizations: SearchableMultiSelectResult,
   locations: SearchableMultiSelectResult,
   careerStages: MultiSelectResult,
+  tags: SearchableMultiSelectResult,
   columns: (PeopleDirectoryColumn & MultiSelectState)[],
   columnsEdited: boolean,
   resetColumns: () => void,
 }
 
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
+
+const tagCountQuery = gql`
+  query ActiveTagCount {
+    ActiveTagCount
+  }
+`;
 
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const captureSearch = useSearchAnalytics();
@@ -57,6 +68,18 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [page, setPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
 
+  const {results: coreTags} = useMulti({
+    collectionName: "Tags",
+    fragmentName: "TagName",
+    terms: {
+      view: "coreTags",
+      limit: MULTISELECT_SUGGESTION_LIMIT,
+    },
+  });
+
+  const {data: tagCountResult} = useQuery(tagCountQuery);
+  const tagCount = tagCountResult?.ActiveTagCount ?? 0;
+
   const roles = useSearchableMultiSelect({
     title: "Role",
     facetField: "jobTitle",
@@ -72,6 +95,12 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const careerStages = useMultiSelect({
     title: "Career stage",
     options: CAREER_STAGES,
+  });
+  const tags = useSearchableMultiSelect({
+    title: `${taggingNameCapitalSetting.get()} interests`,
+    placeholder: `Search ${tagCount ? tagCount + " " : ""}${taggingNamePluralSetting.get()}...`,
+    elasticField: {index: "tags", fieldName: "name"},
+    defaultSuggestions: coreTags?.map(({name}) => name),
   });
 
   const flattenedResults = useMemo(() => {
@@ -103,14 +132,22 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     organizations.clear();
     locations.clear();
     careerStages.clear();
+    tags.clear();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roles.clear, organizations.clear, locations.clear, careerStages.clear]);
+  }, [
+    roles.clear,
+    organizations.clear,
+    locations.clear,
+    careerStages.clear,
+    tags.clear,
+  ]);
 
   const isEmptySearch = query === "" &&
     roles.selectedValues.length === 0 &&
     organizations.selectedValues.length === 0 &&
     locations.selectedValues.length === 0 &&
-    careerStages.selectedValues.length === 0;
+    careerStages.selectedValues.length === 0 &&
+    tags.selectedValues.length === 0;
 
   const [columns, setColumns] = useState(peopleDirectoryColumns);
   const [columnsEdited, setColumnsEdited] = useState(false);
@@ -159,6 +196,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     organizations.selectedValues,
     locations.selectedValues,
     careerStages.selectedValues,
+    tags.selectedValues,
   ]);
 
   useEffect(() => {
@@ -174,12 +212,13 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           organizations.selectedValues.map((org) => `organization:${org}`),
           locations.selectedValues.map((location) => `mapLocationAddress:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
+          tags.selectedValues.map((tag) => `tags.name:${tag}`),
           ["hideFromPeopleDirectory:false"],
           isMap ? ["_geoloc:-null"] : [],
         ];
         const response = await getSearchClient().search([
           {
-            indexName: "test_users" + sortString,
+            indexName: algoliaPrefixSetting.get() + "users" + sortString,
             query,
             params: {
               query,
@@ -205,6 +244,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           organizations: organizations.selectedValues,
           locations: locations.selectedValues,
           careerStages: careerStages.selectedValues,
+          tags: tags.selectedValues,
           hitCount: hits.length,
         });
       } catch (e) {
@@ -225,6 +265,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     organizations.selectedValues,
     locations.selectedValues,
     careerStages.selectedValues,
+    tags.selectedValues,
   ]);
 
   return (
@@ -245,6 +286,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       organizations,
       locations,
       careerStages,
+      tags,
       columns: columnSelectState,
       columnsEdited,
       resetColumns,

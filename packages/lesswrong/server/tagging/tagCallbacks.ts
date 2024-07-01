@@ -9,6 +9,7 @@ import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
 import { updatePostDenormalizedTags } from './helpers';
+import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -119,6 +120,27 @@ getCollectionHooks("TagRels").newAfter.add(async (tagRel: DbTagRel) => {
   })
   await updatePostDenormalizedTags(tagRel.postId);
   return {...tagRel, ...votedTagRel} as DbTagRel;
+});
+
+// Users who have this as a profile tag may need to be reexported to elastic
+getCollectionHooks("Tags").updateAfter.add(async (
+  newDocument: DbTag,
+  {oldDocument}: {oldDocument: DbTag},
+) => {
+  const wasDeletedChanged = !!newDocument.deleted !== !!oldDocument.deleted;
+  const wasRenamed = newDocument.name !== oldDocument.name;
+  const wasSlugChanged = newDocument.slug !== oldDocument.slug;
+  if (wasDeletedChanged || wasRenamed || wasSlugChanged) {
+    const users = await Users.find({
+      profileTagIds: oldDocument._id,
+    }, {
+      projection: {_id: 1},
+    }).fetch();
+    for (const user of users) {
+      elasticSyncDocument("Users", user._id);
+    }
+  }
+  return newDocument;
 });
 
 function voteUpdatePostDenormalizedTags({newDocument}: {newDocument: VoteableType}) {

@@ -3,6 +3,11 @@ import { MultiSelectState, buildMultiSelectSummary } from "./useMultiSelect";
 import { useLRUCache } from "./useLRUCache";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
+import { getSearchClient } from "@/lib/search/searchUtil";
+import { algoliaPrefixSetting } from "@/lib/publicSettings";
+import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+
+export const MULTISELECT_SUGGESTION_LIMIT = 8;
 
 export type SearchableMultiSelectState = MultiSelectState & {
   /**
@@ -26,27 +31,84 @@ export type SearchableMultiSelectResult = {
   grandfatheredCount: number,
 }
 
-export const useSearchableMultiSelect = ({title, facetField}: {
-  title: string,
+/**
+ * Searchable multiselect inputs can either search a user facet field or an
+ * elasticsearch index
+ */
+type MultiSelectSearchTarget = {
   facetField: string,
-}): SearchableMultiSelectResult => {
+  elasticField?: never,
+} | {
+  facetField?: never,
+  elasticField: {index: string, fieldName: string},
+}
+
+const fetchFromUserFacet = async (
+  facetField: string,
+  query: string,
+): Promise<string[]> => {
+  const response = await fetch("/api/search/userFacets", {
+    method: "POST",
+    body: JSON.stringify({
+      facetField,
+      query,
+    }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const {hits} = await response.json();
+  return hits ?? [];
+}
+
+const fetchFromElasticIndex = async (
+  index: string,
+  fieldName: string,
+  query: string,
+): Promise<string[]> => {
+  const response = await getSearchClient().search([
+    {
+      indexName: algoliaPrefixSetting.get() + index,
+      query,
+      params: {
+        query,
+        facetFilters: [],
+        page: 0,
+        hitsPerPage: MULTISELECT_SUGGESTION_LIMIT,
+      },
+    },
+  ]);
+  const hits = response?.results?.[0]?.hits ?? [];
+  return filterNonnull(hits.map((hit) => hit[fieldName]));
+}
+
+const useStableSuggestions = (suggestions: string[] = []) =>
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => suggestions, [suggestions.join("")]);
+
+export const useSearchableMultiSelect = ({
+  title,
+  placeholder,
+  facetField,
+  elasticField,
+  defaultSuggestions: defaultSuggestions_,
+}: {
+  title: string,
+  placeholder?: string,
+  defaultSuggestions?: string[],
+} & MultiSelectSearchTarget): SearchableMultiSelectResult => {
   const captureSearch = useSearchAnalytics();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchableMultiSelectState[]>([]);
+  const defaultSuggestions = useStableSuggestions(defaultSuggestions_);
 
   const selectedValues: string[] = useMemo(() => {
     return suggestions.filter(({selected}) => selected).map(({value}) => value);
   }, [suggestions]);
 
   const summary = buildMultiSelectSummary(title, suggestions, selectedValues);
-  const placeholder = `Type ${title.toLowerCase()}...`;
-
-  const clear = useCallback(() => {
-    setSearch("");
-    setLoading(false);
-    setSuggestions([]);
-  }, []);
+  placeholder ??= `Type ${title.toLowerCase()}...`;
 
   const onRemove = useCallback((removeValue: string) => {
     setSuggestions((suggestions) =>
@@ -65,23 +127,33 @@ export const useSearchableMultiSelect = ({title, facetField}: {
     }));
   }, []);
 
+  const hitToSuggestion = useCallback((hit: string, selected = false) => ({
+    value: hit,
+    label: hit,
+    selected,
+    onToggle: onToggle.bind(null, hit),
+    grandfathered: false,
+  }), [onToggle]);
+
+  const clear = useCallback(() => {
+    setSearch("");
+    setLoading(false);
+    setSuggestions(defaultSuggestions.map((s) => hitToSuggestion(s)));
+  }, [defaultSuggestions, hitToSuggestion]);
+
+  const {index, fieldName} = elasticField ?? {};
+
   const fetchSuggestions = useCallback(async (query: string) => {
     try {
-      const response = await fetch("/api/search/userFacets", {
-        method: "POST",
-        body: JSON.stringify({
-          facetField,
-          query,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const {hits} = await response.json();
+      const hits = await (index && fieldName
+        ? fetchFromElasticIndex(index, fieldName, query)
+        : fetchFromUserFacet(facetField!, query));
       captureSearch("userFacetSearch", {
         facetField,
+        index,
+        fieldName,
         query,
-        hitCount: hits?.length ?? 0,
+        hitCount: hits.length ?? 0,
       });
       return hits ?? [];
     } catch (e) {
@@ -90,14 +162,14 @@ export const useSearchableMultiSelect = ({title, facetField}: {
       captureException(e);
       return [];
     }
-  }, [captureSearch, facetField]);
+  }, [captureSearch, facetField, index, fieldName]);
 
   const getWithCache = useLRUCache<string, Promise<string[]>>(fetchSuggestions);
 
   useEffect(() => {
     setLoading(true);
     void (async () => {
-      const hits = search ? await getWithCache(search) : [];
+      const hits = search ? await getWithCache(search) : defaultSuggestions;
       setSuggestions((oldSuggestions) => {
         const grandfathered = oldSuggestions
           .filter(({value, selected}) => selected && !hits.includes(value))
@@ -106,17 +178,14 @@ export const useSearchableMultiSelect = ({title, facetField}: {
             grandfathered: true,
             onToggle: onRemove.bind(null, suggestion.value),
           }));
-        return grandfathered.concat(hits.map((hit: string) => ({
-          value: hit,
-          label: hit,
-          selected: !!oldSuggestions.find(({value}) => value === hit)?.selected,
-          onToggle: onToggle.bind(null, hit),
-          grandfathered: false,
-        })));
+        return grandfathered.concat(hits.map((hit: string) => hitToSuggestion(
+          hit,
+          !!oldSuggestions.find(({value}) => value === hit)?.selected,
+        )));
       });
       setLoading(false);
     })();
-  }, [search, getWithCache, onToggle, onRemove]);
+  }, [search, getWithCache, onToggle, onRemove, defaultSuggestions, hitToSuggestion]);
 
   const grandfatheredCount = suggestions
     .filter(({grandfathered}) => grandfathered)

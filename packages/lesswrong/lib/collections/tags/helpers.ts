@@ -29,6 +29,7 @@ type GetUrlOptions = {
   edit?: boolean,
   flagId?: string
   tab?: string
+  from?: string,
 }
 
 export const tagUrlBase = taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'
