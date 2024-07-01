@@ -1,5 +1,5 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
-import type { Element, Writer } from '@ckeditor/ckeditor5-engine';
+import type { DowncastConversionApi, Element, Writer } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import collapsibleSectionIcon from './collapsible-section-icon.svg';
@@ -24,9 +24,9 @@ import collapsibleSectionIcon from './collapsible-section-icon.svg';
  *     <summary class="detailsBlockTitle">
  *       [title]
  *     </summary>
- *     <p class="detailsBlockContent">
+ *     <div class="detailsBlockContent">
  *       [contents]
- *     </p>
+ *     </div>
  *   </details>
  *
  * In the editing representation, it looks like:
@@ -35,9 +35,9 @@ import collapsibleSectionIcon from './collapsible-section-icon.svg';
  *     <div class="detailsBlockTitle">
  *       [title]
  *     </div>
- *     <p class="detailsBlockContent">
+ *     <div class="detailsBlockContent">
  *       [contents]
- *     </p>
+ *     </div>
  *   </div>
  *
  * To collapse the block in editing mode, a global event handler checks whether
@@ -70,8 +70,7 @@ export default class CollapsibleSections extends Plugin {
       });
 
       // Bind the state of the button to the command.
-      //buttonView.bind('isOn', 'isEnabled').to(command, 'value', 'isEnabled'); //TODO
-      buttonView.bind('isOn', 'isEnabled').to(command, 'isEnabled', 'isEnabled'); //TODO
+      buttonView.bind('isOn', 'isEnabled').to(command, 'isEnabled', 'isEnabled');
 
       // Execute the command when the button is clicked (executed).
       this.listenTo(buttonView, 'execute', () => this.editor.execute('insertCollapsibleSection'));
@@ -85,19 +84,6 @@ export default class CollapsibleSections extends Plugin {
     
     schema.register('collapsibleSection', {
       allowWhere: '$block',
-      allowContentOf: ['collapsibleSectionTitle', 'collapsibleSectionContent'],
-      //allowContentOf: '$block',
-    });
-    
-    schema.register('collapsibleSectionTitle', {
-      isLimit: true,
-      allowIn: 'collapsibleSection',
-      allowContentOf: '$root',
-    });
-
-    schema.register('collapsibleSectionContent', {
-      isLimit: true,
-      allowIn: 'collapsibleSection',
       allowContentOf: '$root',
     });
   }
@@ -110,80 +96,52 @@ export default class CollapsibleSections extends Plugin {
       model: (viewElement, {writer}) => writer.createElement('collapsibleSection'),
       view: {name: "div", classes: "detailsBlock"},
     });
-    conversion.for("dataDowncast").elementToElement({
-      model: "collapsibleSection",
-      view: {name: "details", classes: "detailsBlock"},
-    });
     conversion.for('upcast').elementToElement({
       model: (viewElement, {writer}) => writer.createElement('collapsibleSection'),
       view: {name: "details", classes: "detailsBlock"},
     });
-    conversion.for("editingDowncast").elementToElement({
-      model: "collapsibleSection",
-      view: ( modelElement, { writer: viewWriter } ) => {
-        //const collapsibleSection = viewWriter.createContainerElement('div', { class: 'detailsBlock detailsBlockEdit' });
-        const collapsibleSection = viewWriter.createContainerElement('div', { class: 'detailsBlock detailsBlockEdit' });
-        //const collapsibleSection = viewWriter.createEditableElement('div', { class: 'detailsBlock detailsBlockEdit' });
+    
+    conversion.for('editingDowncast').elementToStructure({
+      model: {
+        name: "collapsibleSection",
+      },
+      view: (modelElement: Element, conversionApi: DowncastConversionApi) => {
+        const { writer } = conversionApi;
+        const collapsibleSectionElement = writer.createEditableElement('div', { class: 'detailsBlock detailsBlockEdit' });
+        const titleElement = conversionApi.writer.createEditableElement('div', { class: "detailsBlockTitle" });
+        const detailsElement = writer.createEditableElement('div', { class: "detailsBlockContent" });
+        writer.insert(writer.createPositionAt(collapsibleSectionElement, 0), titleElement);
+        writer.insert(writer.createPositionAfter(titleElement), detailsElement);
         
-        // This uses `toWidgetEditable` rather than `toWidget`. It's the parent
-        // of two editable elements (collapsibleSectionTitle and
-        // collapsibleSectionContent) without being properly editable itself;
-        // but empirically, the UI works with toWidgetEditable and is broken if
-        // we use toWidget. Specifically, with toWidget, CkEditor attaches a
-        // bunch of event handling for manipulating the block as a unit (as one
-        // would eg an image), which take precedence over the inner editables.
-        //
-        // It's technically possible to make a malformed details block this way,
-        // by range-selecting and deleting the title and leaving the contents,
-        // or vise versa.
-        return toWidgetEditable(collapsibleSection as any, viewWriter, { label: 'collapsible section' });
-        //return toWidget(collapsibleSection as any, viewWriter, { label: 'collapsible section' });
+        const titleSlot = writer.createSlot(node => node.index === 0);
+        writer.insert(writer.createPositionAt(titleElement, 0), titleSlot);
+
+        const detailsSlot = writer.createSlot(node => node.index > 0);
+        writer.insert(writer.createPositionAt(detailsElement, 0), detailsSlot);
+        
+        return collapsibleSectionElement;
       }
     });
 
-    // collapsibleSectionTitle
-    conversion.for('upcast').elementToElement({
-      model: (viewElement, {writer}) => writer.createElement('collapsibleSectionTitle'),
-      view: {name: "summary", classes: "detailsBlockTitle"},
-    });
-    conversion.for("dataDowncast").elementToElement({
-      model: "collapsibleSectionTitle",
-      view: {name: "summary", classes: "detailsBlockTitle"},
-    });
-    conversion.for('upcast').elementToElement({
-      model: (viewElement, {writer}) => writer.createElement('collapsibleSectionTitle'),
-      view: {name: "div", classes: "detailsBlockTitle"},
-    });
-    conversion.for("editingDowncast").elementToElement({
-      model: "collapsibleSectionTitle",
-      view: (modelElement, { writer: viewWriter }) => {
-        //return toWidget(collapsibleSectionTitle, viewWriter, { label: 'Title' });
-        //const collapsibleSectionTitle = viewWriter.createEditableElement('div', { class: 'detailsBlockTitle' });
-        const collapsibleSectionTitle = viewWriter.createContainerElement('div', { class: 'detailsBlockTitle' });
-        return toWidgetEditable(collapsibleSectionTitle as any, viewWriter, { label: 'Title' });
-      }
-    });
+    conversion.for('dataDowncast').elementToStructure({
+      model: {
+        name: "collapsibleSection",
+      },
+      view: (modelElement: Element, conversionApi: DowncastConversionApi) => {
+        const { writer } = conversionApi;
+        const collapsibleSectionElement = writer.createEditableElement('details', { class: 'detailsBlock' });
+        const titleElement = conversionApi.writer.createEditableElement('summary', { class: "detailsBlockTitle" });
+        const detailsElement = writer.createEditableElement('div', { class: "detailsBlockContent" });
+        writer.insert(writer.createPositionAt(collapsibleSectionElement, 0), titleElement);
+        writer.insert(writer.createPositionAfter(titleElement), detailsElement);
+        
+        const titleSlot = writer.createSlot(node => node.index === 0);
+        writer.insert(writer.createPositionAt(titleElement, 0), titleSlot);
 
-    // collapsibleSectionContent
-    const collapsibleSectionContentView = {
-      name: "div",
-      classes: "detailsBlockContent"
-    };
-    conversion.for('upcast').elementToElement({
-      model: (viewElement, {writer}) => writer.createElement('collapsibleSectionContent'),
-      view: collapsibleSectionContentView,
-    });
-    conversion.for("dataDowncast").elementToElement({
-      model: "collapsibleSectionContent",
-      view: collapsibleSectionContentView,
-    });
-    conversion.for("editingDowncast").elementToElement({
-      model: "collapsibleSectionContent",
-      view: (modelElement, { writer: viewWriter }) => {
-        const collapsibleSectionContent = viewWriter.createContainerElement('div', { class: 'detailsBlockContent' });
-        //return toWidget(collapsibleSectionContent, viewWriter, { label: 'contents' });
-        //const collapsibleSectionContent = viewWriter.createEditableElement('div', { class: 'detailsBlockContent' });
-        return toWidgetEditable(collapsibleSectionContent as any, viewWriter, { label: 'contents' });
+        const detailsSlot = writer.createSlot(node => node.index > 0);
+        writer.insert(writer.createPositionAt(detailsElement, 0), detailsSlot);
+        
+        return collapsibleSectionElement;
       }
     });
   }
@@ -222,17 +180,13 @@ function createCollapsibleSection(writer: Writer): {
   collapsibleSectionTitle: Element
 } {
   const collapsibleSection = writer.createElement('collapsibleSection');
-  const collapsibleSectionTitle = writer.createElement('collapsibleSectionTitle');
-  const collapsibleSectionContent = writer.createElement('collapsibleSectionContent');
-
-  writer.append(collapsibleSectionTitle, collapsibleSection);
-  writer.append(collapsibleSectionContent, collapsibleSection);
-
-  writer.appendElement('paragraph', collapsibleSectionTitle);
-  writer.appendElement('paragraph', collapsibleSectionContent);
+  const title = writer.createElement('paragraph');
+  const details = writer.createElement('paragraph');
+  writer.append(title, collapsibleSection);
+  writer.append(details, collapsibleSection);
 
   return {
     collapsibleSection,
-    collapsibleSectionTitle,
+    collapsibleSectionTitle: title,
   };
 }
