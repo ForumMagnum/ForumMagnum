@@ -12,6 +12,7 @@ const cellComponents = [
   "PeopleDirectorySkeletonTextCell",
   "PeopleDirectoryTopicsCell",
   "PeopleDirectoryCommentCountCell",
+  "PeopleDirectoryPostsCell",
 ] as const;
 
 type CellComponentName = typeof cellComponents[number];
@@ -120,6 +121,13 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     defaultSort: "desc",
     columnWidth: "auto",
     componentName: "PeopleDirectoryCommentCountCell",
+    hideable: true,
+    hidden: false,
+  },
+  {
+    label: "Top post",
+    columnWidth: "200px",
+    componentName: "PeopleDirectoryPostsCell",
     hideable: true,
     hidden: false,
   },

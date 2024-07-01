@@ -8,6 +8,7 @@ export const textCellStyles = (theme: ThemeType) => ({
   color: theme.palette.grey[1000],
   fontSize: 13,
   fontWeight: 500,
+  lineHeight: "1.4rem",
   overflow: "hidden",
   textOverflow: "ellipsis",
   display: "-webkit-box",
