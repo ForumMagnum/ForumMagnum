@@ -287,7 +287,7 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   // Placeholder text in the editor for a collapsible section with no title.
   // CkEditor represents this with a <br> placeholder as:
   //     <p><br data-cke-filler="true"/></p>
-  "& .detailsBlockTitle p:has(> br:only-child)::after": {
+  "& .detailsBlockTitle p:has(> br[data-cke-filler=true]:only-child)::after": {
     content: '"Collapsible Section Title"',
     color: theme.palette.greyAlpha(0.3),
     pointerEvents: "none",
