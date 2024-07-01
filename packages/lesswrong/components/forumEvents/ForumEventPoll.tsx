@@ -258,7 +258,8 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
       view: 'usersByUserIds',
       userIds: event?.publicData ?
         Object.keys(event?.publicData).filter(userId => userId !== currentUser?._id) :
-        []
+        [],
+      limit: 100,
     },
     collectionName: "Users",
     fragmentName: 'UserOnboardingAuthor',
