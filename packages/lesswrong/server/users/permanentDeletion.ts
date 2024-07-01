@@ -10,16 +10,8 @@ import md5 from "md5";
 import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 
-
 /**
- * The number of days that need to elapse between a user requesting their
- * account to be permanently deleted and the account being deleted
- */
-const PERMANENT_DELETION_CUTOFF_DAYS = 14;
-const msAgoCutoff = PERMANENT_DELETION_CUTOFF_DAYS * 24 * 60 * 60 * 1000;
-
-/**
- * Permanently (GDPR-compliant) delete a user from a Mailchimp list. Note
+ * Permanently delete a user from a Mailchimp list. Note
  * that this means they can't sign back up using the API, only with the mailchimp
  * signup form, so this should only be used if a user requests to permanently
  * delete their data.
@@ -86,7 +78,7 @@ async function permanentlyDeleteUser(user: DbUser) {
     currentUser: adminContext.currentUser,
   })
   // Wait until async callbacks finish. This is overcautious, as there should be no need for the callbacks to refetch the user object
-  await new Promise(resolve => setTimeout(resolve, 4000));
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
   // Remove from mailchimp lists
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
@@ -118,34 +110,10 @@ async function permanentlyDeleteUser(user: DbUser) {
   logger(`Permanently deleted user with display name "${user.displayName}" from the forum database`)
 }
 
-let running = false;
-
-// addCronJob({
-//   name: "permanentlyDeleteUsers",
-//   interval: "every 10 seconds",
-//   async job() {
-//     if (running) return;
-
-//     running = true;
-
-//     console.log("Running permanentlyDeleteUsers");
-//     const usersToDelete = await Users.find({
-//       // permanentDeletionRequestedAt: { $lte: new Date(Date.now() - msAgoCutoff) },
-//       permanentDeletionRequestedAt: { $lte: new Date(Date.now()) },
-//     }).fetch();
-
-//     console.log(
-//       "Users to delete",
-//       usersToDelete.map(({ _id }) => _id)
-//     );
-
-//     // for (const user of usersToDelete) {
-//     //   await permanentlyDeleteUser(user);
-//     // }
-//     running = false;
-//   },
-// });
-
+/**
+ * Permanently delete a user from the forum, this is sufficient to comply with GDPR deletion
+ * requests if their forum account and associated services is the only data we have for them
+ */
 async function permanentlyDeleteUserById(userId: string) {
   const user = await Users.findOne({_id: userId})
 

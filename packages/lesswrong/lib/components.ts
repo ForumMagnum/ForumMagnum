@@ -971,7 +971,6 @@ importComponent(["LocationPicker","LocationFormComponent"], () => require('../co
 importComponent("MuiTextField", () => require('../components/form-components/MuiTextField'));
 importComponent("MultiSelectButtons", () => require('../components/form-components/MultiSelectButtons'));
 importComponent("FormComponentCheckbox", () => require('../components/form-components/FormComponentCheckbox'));
-importComponent("FormComponentNowCheckbox", () => require('../components/form-components/FormComponentNowCheckbox'));
 importComponent("FormComponentRadioGroup", () => require('../components/form-components/FormComponentRadioGroup'));
 importComponent("SectionFooterCheckbox", () => require('../components/form-components/SectionFooterCheckbox'));
 importComponent("FormComponentDefault", () => require('../components/form-components/FormComponentDefault'));

@@ -1519,7 +1519,6 @@ interface DbUser extends DbObject {
   hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   legacyId: string | null
   deleted: boolean
-  permanentDeletionRequestedAt: Date | null
   voteBanned: boolean | null
   nullifyVotes: boolean | null
   deleteContent: boolean | null

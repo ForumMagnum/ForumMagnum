@@ -510,7 +510,6 @@ registerFragment(`
     hideFrontpageBook2020Ad
 
     deleted
-    permanentDeletionRequestedAt
   }
 `)
 
