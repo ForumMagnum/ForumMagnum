@@ -22,6 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
   noPosts: {
     ...emptyTextCellStyles(theme),
+    height: "unset",
   },
   link: {
     color: theme.palette.primary.main,
