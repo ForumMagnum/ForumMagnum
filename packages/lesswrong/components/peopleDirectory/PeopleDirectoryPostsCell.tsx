@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
   more: {
     position: "absolute",
-    bottom: 0,
+    bottom: 2,
     right: 0,
     paddingLeft: FADE_SIZE,
     background: `linear-gradient(to right, transparent, var(${ROW_BACKGROUND_VAR}) ${FADE_SIZE}px)`,
