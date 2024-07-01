@@ -10,9 +10,9 @@ import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
-import type { Editor as CKEditorType } from "@ckeditor/ckeditor5-core";
 
 const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
@@ -23,7 +23,7 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 const quickTakesEditorHeightRows = 5;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative'
   },
@@ -34,6 +34,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: 'block',
     fontSize: 10,
     marginBottom: 6,
+  },
+  sectionTitle: {
+    fontSize: 12,
   },
   markdownEditor: {
     fontSize: "inherit",
@@ -84,6 +87,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   
   ckEditorStyles: {
     ...ckEditorStyles(theme),
+  },
+  ckEditorGrey: {
+    ...greyEditorStyles(theme).root,
   },
   questionWidth: {
     width: 640,
@@ -168,6 +174,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   enteredBotTips: {
     opacity: 1
   },
+  enteringBotTips: {},
+  exitingBotTips: {},
+  exitedBotTips: {},
+  unmountedBotTips: {},
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -221,6 +231,7 @@ interface EditorProps {
   ref?: MutableRefObject<Editor|null>,
   currentUser: UsersCurrent|null,
   label?: string,
+  formVariant?: "default" | "grey",
   formType: "edit"|"new",
   documentId?: string,
   collectionName: CollectionNameString,
@@ -506,8 +517,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
 
-  renderEditorComponent = (contents: EditorContents) => {
-    switch (contents.type) {
+  renderEditorComponent = (contents: EditorContents, forceType?: EditorTypeString) => {
+    switch (forceType ?? contents.type) {
       case "ckEditorMarkup":
         return this.renderCkEditor(contents)
       case "draftJS":
@@ -581,7 +592,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
 
-      return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
+      return <div className={classNames(
+        this.getHeightClass(),
+        classes.ckEditorStyles,
+        this.props.formVariant === "grey" && classes.ckEditorGrey,
+      )}>
         {editorWarning && <Components.WarningBanner message={editorWarning} />}
         {isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
@@ -730,17 +745,28 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   render() {
     const { loading } = this.state
-    const { label, _classes: classes } = this.props
-    const { Loading, ContentStyles } = Components
+    const {label, formVariant, _classes: classes} = this.props;
+    const {Loading, ContentStyles, SectionTitle} = Components;
     const {className, contentType} = this.getBodyStyles();
 
+    const isGrey = formVariant === "grey";
+    const forceEditorType = isGrey ? "ckEditorMarkup" : undefined;
+
     return <div>
+      {label && isGrey &&
+        <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
+      }
       <ContentStyles className={classNames(classes.editor, className)} contentType={contentType}>
-        { label && <FormLabel className={classes.label}>{label}</FormLabel> }
-        { loading ? <Loading/> : this.renderEditorComponent(this.props.value) }
-        { this.renderUpdateTypeSelect() }
+        {label && !isGrey &&
+          <FormLabel className={classes.label}>{label}</FormLabel>
+        }
+        {loading
+          ? <Loading/>
+          : this.renderEditorComponent(this.props.value, forceEditorType)
+        }
+        {!isGrey && this.renderUpdateTypeSelect()}
       </ContentStyles>
-      { this.renderCommitMessageInput() }
+      {!isGrey && this.renderCommitMessageInput()}
     </div>
   }
 };

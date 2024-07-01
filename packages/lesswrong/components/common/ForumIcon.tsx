@@ -8,6 +8,7 @@ import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
+import UserCircleIcon from "@heroicons/react/24/outline/UserCircleIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
 import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
@@ -22,6 +23,8 @@ import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
+import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
+import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
 import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
@@ -156,6 +159,7 @@ export type ForumIconName =
   "KarmaOutline" |
   "Star" |
   "User" |
+  "UserCircle" |
   "Users" |
   "UsersOutline" |
   "Bell" |
@@ -193,6 +197,8 @@ export type ForumIconName =
   "TagFilled" |
   "Edit" |
   "Analytics" |
+  "ChevronLeft" |
+  "ChevronRight" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -260,6 +266,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
     User: MuiPersonIcon,
+    UserCircle: UserCircleIcon,
     Users: MuiPeopleIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
@@ -297,6 +304,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
     Analytics: MuiShowChartIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -362,6 +371,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
     User: UserIcon,
+    UserCircle: UserCircleIcon,
     Users: UsersIcon,
     UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
@@ -399,6 +409,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
     Analytics: MuiShowChartIcon,
+    ChevronLeft: ChevronLeftIcon,
+    ChevronRight: ChevronRightIcon,
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
@@ -455,15 +467,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   },
 };
 
-// This is a map from forum types to icon names to keys in the `styles` object.
-const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, string>>> = {
-  default: {
-    Link: "linkRotation",
-  },
-  EAForum: {
-  },
-};
-
 export type IconProps = {
   className: string,
   onClick: MouseEventHandler<SVGElement>,
@@ -471,7 +474,7 @@ export type IconProps = {
 
 export type IconComponent = ComponentType<Partial<IconProps>>;
 
-const styles = (_: ThemeType): JssStyles => ({
+const styles = (_: ThemeType) => ({
   root: {
     userSelect: "none",
     width: "1em",
@@ -488,10 +491,20 @@ const styles = (_: ThemeType): JssStyles => ({
   },
 });
 
-type ForumIconProps = Partial<IconProps> & {
+type IconClassName = keyof ClassesType<typeof styles>;
+
+// This is a map from forum types to icon names to keys in the `styles` object.
+const CUSTOM_CLASSES: ForumOptions<Partial<Record<ForumIconName, IconClassName>>> = {
+  default: {
+    Link: "linkRotation",
+  },
+  EAForum: {
+  },
+};
+
+export type ForumIconProps = Partial<IconProps> & {
   icon: ForumIconName,
   noDefaultStyles?: boolean,
-  classes: ClassesType,
   style?: CSSProperties,
 };
 
@@ -501,7 +514,7 @@ const ForumIcon = ({
   className,
   classes,
   ...props
-}: ForumIconProps) => {
+}: ForumIconProps & {classes: ClassesType<typeof styles>}) => {
   const icons = forumSelect(ICONS);
   const Icon = icons[icon] ?? ICONS.default[icon];
   if (!Icon) {

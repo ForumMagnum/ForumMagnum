@@ -607,6 +607,19 @@ interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly userOtherComments: string | null,
 }
 
+interface ForumEventsDefaultFragment { // fragment on ForumEvents
+  readonly title: string,
+  readonly startDate: Date,
+  readonly endDate: Date,
+  readonly darkColor: string,
+  readonly lightColor: string,
+  readonly contrastColor: string | null,
+  readonly tagId: string,
+  readonly bannerImageId: string | null,
+  readonly includesPoll: boolean,
+  readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldProbabilitiesCaches
   readonly marketId: string,
   readonly probability: number,
@@ -2718,16 +2731,6 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly onsitePrimaryColor: string | null,
 }
 
-interface ForumEventsDefaultFragment { // fragment on ForumEvents
-  readonly title: string,
-  readonly startDate: Date,
-  readonly endDate: Date,
-  readonly darkColor: string,
-  readonly lightColor: string,
-  readonly tagId: string,
-  readonly bannerImageId: string | null,
-}
-
 interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly _id: string,
   readonly title: string,
@@ -2735,17 +2738,27 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly endDate: Date,
   readonly darkColor: string,
   readonly lightColor: string,
+  readonly contrastColor: string | null,
   readonly tagId: string,
   readonly bannerImageId: string | null,
+  readonly includesPoll: boolean,
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
+  readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly voteCount: number,
   readonly tag: TagBasicInfo|null,
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
+  readonly frontpageDescriptionMobile: ForumEventsDisplay_frontpageDescriptionMobile|null,
   readonly postPageDescription: ForumEventsDisplay_postPageDescription|null,
 }
 
 interface ForumEventsDisplay_frontpageDescription { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
+interface ForumEventsDisplay_frontpageDescriptionMobile { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
 }
@@ -2757,6 +2770,7 @@ interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
 
 interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly frontpageDescription: RevisionEdit|null,
+  readonly frontpageDescriptionMobile: RevisionEdit|null,
   readonly postPageDescription: RevisionEdit|null,
 }
 
@@ -3973,6 +3987,7 @@ interface FragmentTypes {
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
+  ForumEventsDefaultFragment: ForumEventsDefaultFragment
   ManifoldProbabilitiesCachesDefaultFragment: ManifoldProbabilitiesCachesDefaultFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -4140,7 +4155,6 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
-  ForumEventsDefaultFragment: ForumEventsDefaultFragment
   ForumEventsMinimumInfo: ForumEventsMinimumInfo
   ForumEventsDisplay: ForumEventsDisplay
   ForumEventsEdit: ForumEventsEdit
@@ -4237,6 +4251,7 @@ interface FragmentTypesByCollection {
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
   ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
+  ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
   ManifoldProbabilitiesCaches: "ManifoldProbabilitiesCachesDefaultFragment"
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
   PostRelations: "PostRelationsDefaultFragment"
@@ -4274,7 +4289,6 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
-  ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
   Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
@@ -4308,6 +4322,7 @@ interface CollectionNamesByFragmentName {
   DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
+  ForumEventsDefaultFragment: "ForumEvents"
   ManifoldProbabilitiesCachesDefaultFragment: "ManifoldProbabilitiesCaches"
   NotificationsDefaultFragment: "Notifications"
   PostRelationsDefaultFragment: "PostRelations"
@@ -4475,7 +4490,6 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
-  ForumEventsDefaultFragment: "ForumEvents"
   ForumEventsMinimumInfo: "ForumEvents"
   ForumEventsDisplay: "ForumEvents"
   ForumEventsEdit: "ForumEvents"

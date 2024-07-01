@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { FC, PropsWithChildren, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -234,12 +234,16 @@ const formatImageUrl = (url: string) =>
   url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
 
 export type EAPostsItemProps = PostsItemConfig & {
+  openInNewTab?: boolean,
   hideSecondaryInfo?: boolean,
+  secondaryInfoNode?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({
+  openInNewTab,
   hideSecondaryInfo,
+  secondaryInfoNode,
   classes,
   ...props
 }: EAPostsItemProps) => {
@@ -274,19 +278,16 @@ const EAPostsItem = ({
     isVoteable,
     showKarma,
     useCuratedDate,
+    hideTag,
     className,
   } = usePostsItem(props);
-  const {onClick} = useClickableCell({href: postLink});
+  const {onClick} = useClickableCell({href: postLink, openInNewTab});
   const cardView = viewType === "card";
   const {postContents} = usePostContents({
     post,
     fragmentName: "PostsList",
     skip: !cardView,
   });
-
-  if (isRepeated) {
-    return null;
-  }
 
   const {
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
@@ -295,32 +296,57 @@ const EAPostsItem = ({
     PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
-    <>
-      <InteractionWrapper className={classes.interactionWrapper}>
-        <a onClick={toggleComments} className={classNames(
-          classes.comments,
-          cardView && classes.commentsCard,
-          hasUnreadComments && classes.newComments,
-        )}>
-          <ForumIcon icon="Comment" />
-          {commentCount}
-        </a>
+  const SecondaryInfo = useCallback(() => {
+    if (secondaryInfoNode) {
+      return <InteractionWrapper className={classes.interactionWrapper}>
+        {secondaryInfoNode}
       </InteractionWrapper>
-      <div className={classes.postActions}>
+    }
+    return (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
+      <>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
+          <a onClick={toggleComments} className={classNames(
+            classes.comments,
+            cardView && classes.commentsCard,
+            hasUnreadComments && classes.newComments,
+          )}>
+            <ForumIcon icon="Comment" />
+            {commentCount}
+          </a>
         </InteractionWrapper>
-      </div>
-      {tagRel &&
-        <div className={classes.tagRelWrapper}>
+        <div className={classes.postActions}>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <PostsItemTagRelevance tagRel={tagRel} />
+            <PostActionsButton post={post} popperGap={16} autoPlace vertical />
           </InteractionWrapper>
         </div>
-      }
-    </>
-  );
+        {tagRel &&
+          <div className={classes.tagRelWrapper}>
+            <InteractionWrapper className={classes.interactionWrapper}>
+              <PostsItemTagRelevance tagRel={tagRel} />
+            </InteractionWrapper>
+          </div>
+        }
+      </>
+    )
+  }, [
+    secondaryInfoNode,
+    hideSecondaryInfo,
+    showMostValuableCheckbox,
+    cardView,
+    hasUnreadComments,
+    commentCount,
+    post,
+    tagRel,
+    toggleComments,
+    ForumIcon,
+    PostActionsButton,
+    PostsItemTagRelevance,
+    classes
+  ]);
+  
+  if (isRepeated) {
+    return null;
+  }
   
   const karmaNode = isVoteable
     ? (
@@ -391,7 +417,7 @@ const EAPostsItem = ({
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                showEventTag
+                showEventTag={!hideTag}
                 className={classes.title}
               />
               <div className={classes.meta}>
