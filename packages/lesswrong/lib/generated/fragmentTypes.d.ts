@@ -1196,6 +1196,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
   readonly votingSystem: string,
+  readonly disableRecommendation: boolean,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -1262,7 +1263,6 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
   readonly rejectedReason: string | null,
-  readonly disableRecommendation: boolean,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,

@@ -278,7 +278,8 @@ const helpers = {
     const manuallyStickiedPostIds = recommendationsTabManuallyStickiedPostIdsSetting.get();
     const stickiedPostIds = [...manuallyStickiedPostIds, ...stickiedPosts.map(post => post._id)];
     const staleRecPostIds = 'excludedPostIds' in lwAlgoSettings ? lwAlgoSettings.excludedPostIds ?? [] : [];
-    const excludedPostIds = uniq([...curatedPostIds, ...stickiedPostIds, ...staleRecPostIds]);
+    const userHiddenPostsIds = context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
+    const excludedPostIds = uniq([...curatedPostIds, ...stickiedPostIds, ...staleRecPostIds, ...userHiddenPostsIds]);
     const excludedPostFilter = `'itemId' not in {${excludedPostIds.map(id => `"${id}"`).join(', ')}}`;
 
     return {
@@ -357,8 +358,10 @@ const helpers = {
   getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
     const loadMoreCount = hybridArgs.loadMore?.loadMoreCount;
     const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
+    const hiddenPostIds = context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
+    const excludedAndHiddenPostIds = [...excludedPostIds, ...hiddenPostIds];
     // Unfortunately, passing in an empty array translates to something like `NOT (_id IN (SELECT NULL::VARCHAR(27)))`, which filters out everything
-    const notPostIdsArg = excludedPostIds.length ? { notPostIds: excludedPostIds } : {};
+    const notPostIdsArg = excludedAndHiddenPostIds.length ? { notPostIds: excludedAndHiddenPostIds } : {};
     const filterSettings: FilterSettings = context.currentUser?.frontpageFilterSettings ?? getDefaultFilterSettings();
 
     const postsTerms: PostsViewTerms = {
@@ -703,7 +706,7 @@ const recombeeApi = {
     const postsWithMetadata = filteredPosts.map(post => helpers.assignRecommendationResultMetadata({ post, recsWithMetadata, stickiedPostIds, curatedPostIds }));
 
     const topOfListPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !!(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied));
-    const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.curated || result.stickied || result.recommId));
+    const nativeRecommendedPosts = postsWithMetadata.filter((result): result is NativeRecommendedPost => !(result.post._id === aboutPostIdSetting.get() || result.curated || result.stickied || result.recommId));
     const recombeeRecommendedPosts = postsWithMetadata.filter((result): result is RecombeeRecommendedPost => !!result.recommId);
 
     const interleavedRecommendedPosts = helpers.interleaveHybridRecommendedPosts([...nativeRecommendedPosts, ...recombeeRecommendedPosts]);
