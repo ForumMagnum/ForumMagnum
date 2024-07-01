@@ -1,5 +1,5 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
-import type { DowncastConversionApi, Element, Writer } from '@ckeditor/ckeditor5-engine';
+import { type DowncastConversionApi, Element, type Writer } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import collapsibleSectionIcon from './collapsible-section-icon.svg';
@@ -51,6 +51,7 @@ export default class CollapsibleSections extends Plugin {
 
   init() {
     this._defineSchema();
+    this._registerPostFixer();
     this._defineConverters();
     this.editor.commands.add('insertCollapsibleSection', new InsertCollapsibleSectionCommand(this.editor));
     
@@ -79,7 +80,7 @@ export default class CollapsibleSections extends Plugin {
     });
   }
   
-  _defineSchema() {
+  private _defineSchema() {
     const schema = this.editor.model.schema;
     
     schema.register('collapsibleSection', {
@@ -88,7 +89,7 @@ export default class CollapsibleSections extends Plugin {
     });
   }
   
-  _defineConverters() {
+  private _defineConverters() {
     const conversion = this.editor.conversion;
 
     // collapsibleSection
@@ -143,6 +144,27 @@ export default class CollapsibleSections extends Plugin {
         
         return collapsibleSectionElement;
       }
+    });
+  }
+  
+  private _registerPostFixer() {
+    const editor = this.editor;
+    const model = editor.model;
+
+    // Check whether the last element in the page is a collapsibleSection. If
+    // so, insert an empty paragraph after it. This ensures that you'll be able
+    // to place the cursor below the collapsibleSection.
+    model.document.registerPostFixer(writer => {
+      const root = model.document.getRoot();
+      const lastChild = root.getChild(root.childCount - 1);
+    
+      if (lastChild.is('element', 'collapsibleSection')) {
+        const paragraph = writer.createElement('paragraph');
+        writer.insert(paragraph, root, 'end');
+        return true;
+      }
+    
+      return false;
     });
   }
 }
