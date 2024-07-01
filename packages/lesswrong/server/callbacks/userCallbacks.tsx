@@ -310,6 +310,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
 
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
+  // TODO make this sync and have it return an error if the operation fails
   if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
     return;
   }

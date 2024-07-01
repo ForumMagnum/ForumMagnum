@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
+import {userGetProfileUrl, getAuth0IdIfUsernamePassword, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -399,7 +399,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins'],
     resolver: (user: DbUser) => {
       try {
-        getAuth0Id(user);
+        getAuth0IdIfUsernamePassword(user);
         return true;
       } catch {
         return false;
@@ -1249,7 +1249,25 @@ const schema: SchemaType<"Users"> = {
     label: 'Deactivate',
     tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
+    // control: 'FormComponentNowCheckbox',
     group: formGroups.deactivate,
+  },
+
+  permanentDeletionRequestedAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'admins'],
+    canUpdate: ['members', 'admins'],
+    label: 'Permanently delete',
+    tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible. After 14 days your user data will be permanently deleted, and it won't be possible to recover your account. TODO add note about posts/comments remaining",
+    control: 'FormComponentNowCheckbox',
+    group: formGroups.deactivate,
+    hidden: true,
+    onUpdate: async ({data, oldDocument}) => {
+      // Replace with the server time so users can't work around the 14 day limit
+      return !!data.permanentDeletionRequestedAt ? new Date() : null
+    }
   },
 
   // DEPRECATED

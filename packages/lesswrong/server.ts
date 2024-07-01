@@ -18,7 +18,8 @@ import './server/dialogues/cron';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/cache';
-import './server/users/cron'
+import './server/users/cron';
+import './server/users/permanentDeletion';
 import './server/curationEmails/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
