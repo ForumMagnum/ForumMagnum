@@ -147,7 +147,7 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
 
   const results: RecommendedPost[] | undefined = data?.[resolverName]?.results;
 
-  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map( metadata => metadata.postId ) ?? [];
+  const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
   
   //exclude posts with hiddenPostIds
   const filteredResults = results?.filter(({ post }) => !hiddenPostIds.includes(post._id));

@@ -711,20 +711,6 @@ const recombeeApi = {
 
     const interleavedRecommendedPosts = helpers.interleaveHybridRecommendedPosts([...nativeRecommendedPosts, ...recombeeRecommendedPosts]);
 
-    console.log({ 
-      topOfListPostCount,
-      topOfListPosts: topOfListPosts.length,
-      nativeRecommendedPosts: nativeRecommendedPosts.length,
-      recombeeRecommendedPosts: recombeeRecommendedPosts.length,
-      fixedArmCount,
-      configurableArmCount,
-      missingPostCount,
-      modifiedCount,
-      count,
-      interleavedRecommendedPosts: interleavedRecommendedPosts.map(({ post }) => post._id),
-    })
-
-
     return [...topOfListPosts, ...interleavedRecommendedPosts];
   },
 

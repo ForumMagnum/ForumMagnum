@@ -114,7 +114,7 @@ const RecommendedPostIcon = ({post, hover, classes}: {
     e.preventDefault();
     e.stopPropagation();
 
-    if ( !!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
+    if (!!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
       void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
     }
 
@@ -123,7 +123,7 @@ const RecommendedPostIcon = ({post, hover, classes}: {
   }
 
   return <span className={classes.postIcon}>
-    <LWTooltip title="Hide this recommendation and show fewer like it" placement="right" > 
+    <LWTooltip title="Hide this recommendation and show fewer like it" placement="right"> 
       {hover 
         ? <ForumIcon icon="NotInterested" onClick={notInterestedClick} className={classNames(classes.icon, classes.recommendationIcon)} />
         : <ForumIcon icon="Sparkle" className={classNames(classes.icon, classes.recommendationIcon)} />

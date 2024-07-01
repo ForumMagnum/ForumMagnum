@@ -212,7 +212,7 @@ export const styles = (theme: ThemeType) => ({
       display: "block"
     }
   },
-  nonMobileIcons: {
+  mobileIcons: {
     [theme.breakpoints.up('sm')]: {
       display: "none"
     }
@@ -514,7 +514,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
               <div className={classes.mobileSecondRowSpacer}/>
 
-              {showIcons && <div className={classes.nonMobileIcons}>
+              {showIcons && <div className={classes.mobileIcons}>
                 <PostsItemIcons post={post} />
               </div>}
 
