@@ -276,13 +276,23 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   },
   '& .detailsBlockContent': {
     padding: isFriendlyUI ? "0 8px 8px 20px" : 8,
-    
   },
   // Cancel out a global paragraph style that adds bottom margin to paragraphs
   // in the editor for some reason, which would create a page/editor mismatch
   // and mess up the bottom margin of detail block contents.
   "& .detailsBlockContent > p:last-child, & .detailsBlockTitle > p:last-child": {
     marginBottom: '0 !important',
+  },
+  
+  // Placeholder text in the editor for a collapsible section with no title.
+  // CkEditor represents this with a <br> placeholder as:
+  //     <p><br data-cke-filler="true"/></p>
+  "& .detailsBlockTitle p:has(> br:only-child)::after": {
+    content: '"Collapsible Section Title"',
+    color: theme.palette.greyAlpha(0.3),
+    pointerEvents: "none",
+    position: "absolute",
+    top: 8,
   },
   
   "& .detailsBlock.closed .detailsBlockContent": {
@@ -292,6 +302,7 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
   // The 'div' part of this selector makes it specific to the editor (outside
   // the editor it would be a <summary> tag)
   '& div.detailsBlockTitle': {
+    position: "relative",
     paddingLeft: isFriendlyUI ? 20 : 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: isFriendlyUI ? "1.6rem" : undefined,
