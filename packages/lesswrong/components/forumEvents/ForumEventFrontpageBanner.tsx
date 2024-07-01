@@ -357,6 +357,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
                 showKarma={false}
                 hideTag
                 showNoResults={false}
+                showPlacement
               />
               {tag && <div className={classes.postsSeeAll}>
                 See all eligible posts <Link to={tagGetUrl(tag)}>here</Link>
