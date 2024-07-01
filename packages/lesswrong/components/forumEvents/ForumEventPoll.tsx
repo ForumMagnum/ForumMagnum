@@ -401,7 +401,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
             <div className={classes.sliderLine} ref={sliderRef}>
               {resultsVisible && voters && voters.map(user => {
                 const vote = event.publicData[user._id]
-                return <div key={user._id} className={classes.userVote} style={{left: `${vote.x}px`}}>
+                return <div key={user._id} className={classes.userVote} style={{left: `${vote.x * 100}%`}}>
                   <LWTooltip title={<div className={classes.voteTooltipBody}>{user.displayName}</div>}>
                     <UsersProfileImage user={user} size={USER_IMAGE_SIZE} className={classes.userImage} />
                   </LWTooltip>
