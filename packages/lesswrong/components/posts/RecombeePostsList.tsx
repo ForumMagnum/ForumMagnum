@@ -8,6 +8,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { aboutPostIdSetting } from '@/lib/instanceSettings';
+import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 
 // Would be nice not to duplicate in postResolvers.ts but unfortunately the post types are different
 interface RecombeeRecommendedPost {
@@ -117,11 +118,10 @@ export const stickiedPostTerms: PostsViewTerms = {
   forum: true
 };
 
-export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecommendationIcon = false, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, limit = 15, classes }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
-  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { LoadMore, PostsItem, SectionFooter, PostsLoading } = Components;
@@ -194,15 +194,15 @@ export const RecombeePostsList = ({ algorithm, settings, limit = 15, showRecomme
 
   return <div>
     <div className={classes.root}>
-      {filteredResults.map(({ post, recommId, curated, stickied }) => <PostsItem 
-        key={post._id} 
-        post={post} 
-        recombeeRecommId={recommId} 
-        curatedIconLeft={curated} 
-        showRecommendationIcon={showRecommendationIcon}
-        emphasizeIfNew={true}
-        terms={stickied ? stickiedPostTerms : undefined}
-      />)}
+      {filteredResults.map(({ post, recommId, curated, stickied }) => <IsRecommendationContext.Provider key={post._id} value={!!recommId}>
+        <PostsItem 
+          post={post} 
+          recombeeRecommId={recommId} 
+          curatedIconLeft={curated} 
+          emphasizeIfNew={true}
+          terms={stickied ? stickiedPostTerms : undefined}
+        />
+      </IsRecommendationContext.Provider>)}
     </div>
     <SectionFooter>
       <LoadMore
