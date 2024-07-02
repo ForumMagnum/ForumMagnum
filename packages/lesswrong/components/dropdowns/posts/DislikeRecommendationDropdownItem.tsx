@@ -10,7 +10,7 @@ import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
@@ -60,7 +60,7 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-const HideFrontPageButtonComponent = registerComponent(
+const DislikeRecommendationDropdownItemComponent = registerComponent(
   'DislikeRecommendationDropdownItem',
   DislikeRecommendationDropdownItem,
   {
@@ -71,6 +71,6 @@ const HideFrontPageButtonComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    DislikeRecommendationDropdownItem: typeof HideFrontPageButtonComponent
+    DislikeRecommendationDropdownItem: typeof DislikeRecommendationDropdownItemComponent
   }
 }

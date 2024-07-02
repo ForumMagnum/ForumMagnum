@@ -158,7 +158,6 @@ const PostsTitle = ({
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
-  showRecommendationIcon=false,
   Wrapper=DefaultWrapper,
   showEventTag,
   linkEventProps,
@@ -177,7 +176,6 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
-  showRecommendationIcon?: boolean
   Wrapper?: FC<PropsWithChildren<{}>>,
   showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
@@ -236,7 +234,6 @@ const PostsTitle = ({
             post={post} 
             hideCuratedIcon={curatedIconLeft} 
             hidePersonalIcon={!showPersonalIcon}
-            showRecommendationIcon={showRecommendationIcon}
             hover={postItemHovered}
           />
         </InteractionWrapper>
