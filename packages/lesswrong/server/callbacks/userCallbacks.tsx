@@ -313,6 +313,7 @@ getCollectionHooks("Users").updateBefore.add(async function updateDigestSubscrip
   if (
     isAnyTest ||
     !hasDigests ||
+    data.subscribedToDigest === undefined || // When a mutation doesn't reference subscribedToDigest
     data.subscribedToDigest === oldDocument.subscribedToDigest
   ) {
     return data;
