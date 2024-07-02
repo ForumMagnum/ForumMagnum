@@ -12,7 +12,16 @@ export interface TemplateQueryStrings {
 }
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, from, includeModerators, templateQueries, embedConversation }: {
+const NewConversationButton = ({
+  user,
+  currentUser,
+  children,
+  from,
+  includeModerators,
+  templateQueries,
+  embedConversation,
+  openInNewTab,
+}: {
   user: {
     _id: string
   },
@@ -22,6 +31,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   children: ReactNode,
   includeModerators?: boolean,
   embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
+  openInNewTab?: boolean,
 }) => {
   const navigate = useNavigate();
   const { openDialog } = useDialog()
@@ -46,9 +56,11 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
       embedConversation(conversation._id, templateQueries)
     } else {
       const templateParams = getTemplateParams()
-      navigate({pathname: `/inbox/${conversation._id}`, ...templateParams})
+      navigate({pathname: `/inbox/${conversation._id}`, ...templateParams}, {
+        openInNewTab,
+      });
     }
-  }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries])
+  }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries, openInNewTab])
 
   const handleClick = currentUser
     ? (e: MouseEvent) => {

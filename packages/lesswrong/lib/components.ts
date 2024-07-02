@@ -1154,6 +1154,7 @@ importComponent("PeopleDirectoryResultsMap", () => require('../components/people
 importComponent("PeopleDirectoryResultsList", () => require('../components/peopleDirectory/PeopleDirectoryResultsList'));
 importComponent("PeopleDirectoryNoResults", () => require('../components/peopleDirectory/PeopleDirectoryNoResults'));
 importComponent("PeopleDirectoryResultRow", () => require('../components/peopleDirectory/PeopleDirectoryResultRow'));
+importComponent("PeopleDirectoryCard", () => require('../components/peopleDirectory/PeopleDirectoryCard'));
 importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
 importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
 importComponent("PeopleDirectoryTextCell", () => require('../components/peopleDirectory/PeopleDirectoryTextCell'));
