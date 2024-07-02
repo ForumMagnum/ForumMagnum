@@ -1,4 +1,3 @@
-import { isEAForum } from "@/lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
 import { DatabaseServerSetting } from "./databaseSettings";
@@ -7,7 +6,7 @@ import { Posts } from "@/lib/collections/posts";
 import Tweets from "@/lib/collections/tweets/collection";
 import { Globals, createMutator } from "./vulcan-lib";
 import { TwitterApi } from 'twitter-api-v2';
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
 import { dogstatsd } from "./datadog/tracer";
 
@@ -24,7 +23,7 @@ const URL_LENGTH = 24;
 async function writeTweet(post: DbPost): Promise<string> {
   const userIds = [
     post.userId,
-    ...(post.coauthorStatuses ?? []).map(({ userId }) => userId)
+    ...getConfirmedCoauthorIds(post)
   ];
 
   const users = await Users.find(
