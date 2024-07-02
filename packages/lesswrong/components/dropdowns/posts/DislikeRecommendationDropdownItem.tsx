@@ -1,12 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { AllowHidingFrontPagePostsContext, IsRecommendationContext } from './PostActions';
+import { IsRecommendationContext } from './PostActions';
 import withErrorBoundary from '../../common/withErrorBoundary';
-import map from 'lodash/map';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
+import { recombeeEnabledSetting } from '@/lib/publicSettings';
+import { recombeeApi } from '@/lib/recombee/client';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -15,22 +17,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
-  const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
+const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog()
-  const [hidden, setHiddenState] = useState(map((currentUser?.hiddenPostsMetadata || []), 'postId')?.includes(post._id));
   const {captureEvent} = useTracking();
 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
 
   // We do not show post hiding from frontpage and 'dislike recommendation' as the latter includes the former. See DislikeRecommendationDropdownItem.tsx
-  if (!allowHidingPosts || isRecommendation) {
+  if (!isRecommendation) {
     return null;
   }
 
-  const toggleShown = () => {
+  const dislikeRecommendation = () => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
@@ -39,30 +39,30 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
       return;
     }
 
-    const isHidden = !hidden;
-    setHiddenState(isHidden);
+    if (!!currentUser && recombeeEnabledSetting.get() && isRecombeeRecommendablePost(post)) {
+      void recombeeApi.createRating(post._id, currentUser._id, "bigDownvote");
+    }
 
-    void setIsHiddenMutation({postId: post._id, isHidden})
-    captureEvent("hideToggle", {"postId": post._id, "hidden": isHidden});
+    void setIsHiddenMutation({postId: post._id, isHidden: true})
+    captureEvent("recommendationNotInterestedClicked", {postId: post._id, pageSubElementContext: "tripleDot"})
   }
 
-  // Named to be consistent with bookmark / un-bookmark
-  const title = hidden ? "Un-hide from frontpage" : "Hide from frontpage";
-  const icon = hidden ? "EyeOutline" : "Eye";
+  const title = 'Dismiss recommendation'
+  const icon = 'NotInterested'
 
   const {DropdownItem} = Components;
   return (
     <DropdownItem
       title={title}
-      onClick={toggleShown}
+      onClick={dislikeRecommendation}
       icon={icon}
     />
   );
 }
 
 const HideFrontPageButtonComponent = registerComponent(
-  'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItem,
+  'DislikeRecommendationDropdownItem',
+  DislikeRecommendationDropdownItem,
   {
     styles,
     hocs: [withErrorBoundary],
@@ -71,6 +71,6 @@ const HideFrontPageButtonComponent = registerComponent(
 
 declare global {
   interface ComponentTypes {
-    HideFrontpagePostDropdownItem: typeof HideFrontPageButtonComponent
+    DislikeRecommendationDropdownItem: typeof HideFrontPageButtonComponent
   }
 }
