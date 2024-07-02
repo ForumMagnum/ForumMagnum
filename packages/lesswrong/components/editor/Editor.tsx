@@ -592,11 +592,14 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
 
-      return <div className={classNames(
-        this.getHeightClass(),
-        classes.ckEditorStyles,
-        this.props.formVariant === "grey" && classes.ckEditorGrey,
-      )}>
+      return <div
+        className={classNames(
+          this.getHeightClass(),
+          classes.ckEditorStyles,
+          this.props.formVariant === "grey" && classes.ckEditorGrey,
+        )}
+        onClick={this.interceptDetailsBlockClick.bind(this)}
+      >
         {editorWarning && <Components.WarningBanner message={editorWarning} />}
         {isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
@@ -606,6 +609,44 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             />
           : <CKEditor key="ck-default" { ...editorProps } />}
       </div>
+    }
+  }
+
+  /**
+   * When we click on a .detailsBlockTitle element, we want to toggle whether
+   * the corresponding .detailsBlock is open or closed. We do this with our own
+   * event handler, rather than a <details> tag (which is used outside the
+   * editor), because we need finer control of click targets; we don't want
+   * clicking on the text in the title to open/close the block, since you're
+   * probably trying to place the cursor, and that's disruptive.
+   */
+  interceptDetailsBlockClick = (ev: React.MouseEvent<HTMLElement>) => {
+    // Get the exact element that was clicked on. We can't use ev.target for
+    // this because React gives us the element that the event handler was bound
+    // to, but we want a more specific target than that.
+    //
+    // Normally getting the actual target would be problematic, because it can
+    // point to a child of the element of interest such as a text node. But in
+    // this case, that's what we want--click events on the text node inside the
+    // title should not trigger expand/collapse, but clicks on the background
+    // should.
+    const target = ev.nativeEvent?.target;
+    if (!target) return;
+
+    // HACK: Pointer events don't distinguish between clicking on a ::before
+    // pseudo-element and clicking on its parent, but we know the expand-arrow
+    // will fill the left edge of the title block, so use `offsetX`.
+    if ((target as HTMLElement).classList?.contains("detailsBlockTitle")
+      && ev.nativeEvent.offsetX < 24
+    ) {
+      const parentElement = (target as HTMLElement).parentElement;
+      if (parentElement?.classList.contains("detailsBlock")) {
+        if (parentElement.classList.contains("closed")) {
+          parentElement.classList.remove("closed");
+        } else {
+          parentElement.classList.add("closed");
+        }
+      }
     }
   }
 

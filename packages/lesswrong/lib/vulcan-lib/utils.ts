@@ -288,6 +288,7 @@ export const sanitizeAllowedTags = [
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
   'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio',
+  'details', 'summary',
   
   //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
   "math", "mi", "mn", "mo", "ms", "mspace", "mtext", "merror",
@@ -350,6 +351,10 @@ export const sanitize = function(s: string): string {
       // Attributes for dialogues
       section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
       
+      // Attributes for collapsible sections
+      details: ['class'],
+      summary: ['class'],
+      
       // Attributes for MathML elements
       math: [...allowedMathMLGlobalAttributes, 'display'],
       mi: allowedMathMLGlobalAttributes,
@@ -410,11 +415,14 @@ export const sanitize = function(s: string): string {
         'viewpoints-preview',
         'ck-cta-button',
         'ck-cta-button-centered',
+        'detailsBlockContent',
         'calendly-preview',
       ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
       li: [ 'footnote-item' ],
+      details: ['detailsBlock'],
+      summary: ['detailsBlockTitle'],
     },
     allowedStyles: {
       figure: {
