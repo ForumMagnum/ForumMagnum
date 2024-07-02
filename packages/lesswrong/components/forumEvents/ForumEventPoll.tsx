@@ -216,7 +216,7 @@ type ForumEventVoteDisplay = {
 const clusterForumEventVotes = (
   voters?: UserOnboardingAuthor[],
   event?: ForumEventsDisplay|null,
-  numClusters = 15
+  numClusters = 21
 ): ForumEventVoteDisplayCluster[] => {
   if (!voters || !event || !event.publicData) return []
   
