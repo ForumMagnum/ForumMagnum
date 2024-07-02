@@ -309,9 +309,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'Search and filter Forum users',
       showOnMobileStandalone: true,
       showOnCompressed: true,
-      flag: "beta",
-      desktopOnly: true,
-      betaOnly: true,
+      flag: "new",
     }, {
       id: 'takeAction',
       title: 'Take action',
