@@ -29,6 +29,7 @@ import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import SurveysRepo from "./SurveysRepo";
 import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
+import TweetsRepo from "./TweetsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
@@ -69,6 +70,7 @@ const getAllRepos = () => ({
   surveys: new SurveysRepo(),
   surveySchedules: new SurveySchedulesRepo(),
   tags: new TagsRepo(),
+  tweets: new TweetsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),
