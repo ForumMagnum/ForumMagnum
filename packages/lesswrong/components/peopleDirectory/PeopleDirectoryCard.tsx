@@ -20,6 +20,14 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.grey[30],
     },
   },
+  firstItem: {
+    borderTopLeftRadius: theme.borderRadius.default,
+    borderTopRightRadius: theme.borderRadius.default,
+  },
+  lastItem: {
+    borderBottomLeftRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
+  },
   borderTop: {
     borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
@@ -74,9 +82,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PeopleDirectoryCard = ({user, noTopBorder, classes}: {
+const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   user: SearchUser,
-  noTopBorder?: boolean,
+  isFirst?: boolean,
+  isLast?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -94,7 +103,12 @@ const PeopleDirectoryCard = ({user, noTopBorder, classes}: {
   return (
     <div
       onClick={onClick}
-      className={classNames(classes.root, !noTopBorder && classes.borderTop)}
+      className={classNames(
+        classes.root,
+        isFirst && classes.firstItem,
+        isLast && classes.lastItem,
+        !isFirst && classes.borderTop,
+      )}
     >
       <div className={classes.main}>
         <UsersProfileImage user={user} size={32} />

@@ -109,7 +109,8 @@ export const PeopleDirectoryResultsList = ({classes}: {
           <PeopleDirectoryCard
             key={result._id}
             user={result}
-            noTopBorder={i === 0}
+            isFirst={i === 0}
+            isLast={i === results.length - 1}
           />
         ))}
         {results.length > 0 &&
