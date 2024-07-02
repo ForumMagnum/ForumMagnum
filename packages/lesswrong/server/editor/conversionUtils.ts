@@ -634,6 +634,10 @@ async function googleDocCropImages(html: string): Promise<string> {
     const marginLeft = parseFloat(imgStyle.match(/margin-left:\s*([-\d.]+)px/)?.[1] || '0');
     const marginTop = parseFloat(imgStyle.match(/margin-top:\s*([-\d.]+)px/)?.[1] || '0');
 
+    if (imgWidth === 0 || imgHeight === 0) {
+      return
+    }
+
     const leftRelative = Math.max(-marginLeft, 0) / imgWidth;
     const topRelative = Math.max(-marginTop, 0) / imgHeight;
     const widthRelative = Math.round(spanWidth) / imgWidth;
