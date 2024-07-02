@@ -1,4 +1,4 @@
-import { PublicInstanceSetting, isAF, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, aboutPostIdSetting, isAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
@@ -6,7 +6,6 @@ import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
-import moment from '../../moment-timezone';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import type { Request, Response } from 'express';
@@ -409,3 +408,21 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   }
   return false;
 }
+
+export const isRecombeeRecommendablePost = (post: DbPost | PostsBase): boolean => {
+  // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
+  // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
+  // `Posts.checkAccess` already filters out posts with `isFuture` unless you're a mod or otherwise own the post
+  // So we're not really in any danger of showing those posts to regular users
+  // TODO: figure out how to handle this more gracefully
+  return !(
+    post.shortform
+    || post.unlisted
+    || post.rejected
+    || post.isEvent
+    || !!post.groupId
+    || post.disableRecommendation
+    || post.status !== 2
+    || post._id === aboutPostIdSetting.get()
+  );
+};

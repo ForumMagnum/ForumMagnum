@@ -165,6 +165,7 @@ importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/p
 importComponent("ReportPostDropdownItem", () => require('../components/dropdowns/posts/ReportPostDropdownItem'));
 importComponent("DuplicateEventDropdownItem", () => require('../components/dropdowns/posts/DuplicateEventDropdownItem'));
 importComponent("HideFrontpagePostDropdownItem", () => require('../components/dropdowns/posts/HideFrontpagePostDropdownItem'));
+importComponent("DislikeRecommendationDropdownItem", () => require('../components/dropdowns/posts/DislikeRecommendationDropdownItem'));
 importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/posts/BookmarkDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
@@ -748,6 +749,9 @@ importComponent("ForumEventForm", () => require('../components/forumEvents/Forum
 importComponent("ForumEventBanner", () => require('../components/forumEvents/ForumEventBanner'));
 importComponent("ForumEventFrontpageBanner", () => require('../components/forumEvents/ForumEventFrontpageBanner'));
 importComponent("ForumEventPostPageBanner", () => require('../components/forumEvents/ForumEventPostPageBanner'));
+importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
+importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
+importComponent("ForumEventPostSelectionDialog", () => require('../components/forumEvents/ForumEventPostSelectionDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -981,6 +985,7 @@ importComponent(["DatePicker","FormComponentDateTime"], () => require('../compon
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
+importComponent("FormComponentFriendlyTextInput", () => require('../components/form-components/FormComponentFriendlyTextInput'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
@@ -994,6 +999,7 @@ importComponent("FormGroupLayout", () => require('../components/form-components/
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
+importComponent("FormGroupFriendlyUserProfile", () => require('../components/form-components/FormGroupFriendlyUserProfile'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 
@@ -1128,6 +1134,12 @@ importComponent("CookieDialog", () => require('../components/common/CookieBanner
 importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
 importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
+
+// Surveys
+importComponent("SurveyAdminPage", () => require('../components/surveys/SurveyAdminPage'));
+importComponent("SurveyEditPage", () => require('../components/surveys/SurveyEditPage'));
+importComponent("SurveyScheduleEditPage", () => require('../components/surveys/SurveyScheduleEditPage'));
+importComponent("SurveyPostsItem", () => require('../components/surveys/SurveyPostsItem'));
 
 // People directory
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));

@@ -66,6 +66,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
       },
+      headerStyle: {
+        fontFamily: sansSerifStack,
+      },
       commentStyle: {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",

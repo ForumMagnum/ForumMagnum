@@ -60,6 +60,10 @@ type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
 type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightForSequence";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
+type SurveyQuestionsViewName = never
+type SurveyResponsesViewName = never
+type SurveySchedulesViewName = "surveySchedulesByCreatedAt";
+type SurveysViewName = "surveysByCreatedAt";
 type TagFlagsViewName = "allTagFlags";
 type TagRelsViewName = "postsWithTag"|"tagsOnPost";
 type TagsViewName = "tagsByTagIds"|"allTagsAlphabetical"|"userTags"|"currentUserSubforums"|"allPagesByNewest"|"allTagsHierarchical"|"tagBySlug"|"coreTags"|"postTypeTags"|"coreAndSubforumTags"|"newTags"|"unreviewedTags"|"suggestedFilterTags"|"allLWWikiTags"|"unprocessedLWWikiTags"|"tagsByTagFlag"|"allPublicTags";
@@ -137,6 +141,10 @@ interface ViewTermsByCollectionName {
   SplashArtCoordinates: ViewTermsBase
   Spotlights: SpotlightsViewTerms
   Subscriptions: SubscriptionsViewTerms
+  SurveyQuestions: ViewTermsBase
+  SurveyResponses: ViewTermsBase
+  SurveySchedules: SurveySchedulesViewTerms
+  Surveys: SurveysViewTerms
   TagFlags: TagFlagsViewTerms
   TagRels: TagRelsViewTerms
   Tags: TagsViewTerms
@@ -153,4 +161,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

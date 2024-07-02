@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
+import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
@@ -13,7 +13,6 @@ const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', f
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
-const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
 /**
  * Build structured data to help with SEO.

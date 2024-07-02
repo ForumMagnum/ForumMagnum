@@ -181,6 +181,7 @@ import './server/resolvers/reviewVoteResolvers';
 import './server/resolvers/petrovDayResolvers';
 import './server/resolvers/analyticsResolvers';
 import './server/resolvers/adminResolvers';
+import './server/resolvers/surveyResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
@@ -188,6 +189,7 @@ import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
+import './server/resolvers/forumEventResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

@@ -16,6 +16,12 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 1
     },
+    // It's common to put a loading spinner inside a button whilst some work is
+    // being done. By default, the spinner is vertically misaligned, which we
+    // fix here by unsetting `height`.
+    "& .Loading-spinner": {
+      height: "unset",
+    },
   },
   variantContained: {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
