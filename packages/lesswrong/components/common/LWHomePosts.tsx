@@ -639,7 +639,6 @@ const LWHomePosts = ({ children, classes }: {
               {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
-                  showRecommendationIcon
                   algorithm={'recombee-hybrid'} 
                   settings={{
                     ...scenarioConfig,
@@ -653,7 +652,7 @@ const LWHomePosts = ({ children, classes }: {
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationIcon />
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
               </AnalyticsContext>}
 
               {/* VERTEX RECOMMENDATIONS */}
