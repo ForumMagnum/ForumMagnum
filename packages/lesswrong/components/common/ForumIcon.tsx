@@ -139,6 +139,7 @@ import { SparkleIcon } from "../icons/sparkleIcon";
 import { ListViewIcon } from "../icons/ListViewIcon";
 import { CardViewIcon } from "../icons/CardViewIcon";
 import { CheckSmallIcon } from "../icons/CheckSmallIcon";
+import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -235,6 +236,7 @@ export type ForumIconName =
   "Q" |
   "BarChart" |
   "Funnel" |
+  "FilterBars" |
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
@@ -340,6 +342,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
+    FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
@@ -443,6 +446,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
+    FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,

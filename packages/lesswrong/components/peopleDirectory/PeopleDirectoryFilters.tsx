@@ -8,19 +8,43 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  filters: {
+  desktopFilters: {
     display: "flex",
     gap: "4px",
     flexGrow: 1,
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  mobilePadding: {
+    display: "none",
+    flexGrow: 1,
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+    },
   },
   options: {
     display: "flex",
     gap: "4px",
+    [theme.breakpoints.down("sm")]: {
+      width: "100%",
+    },
   },
-  columnsList: {
+  filter: {
     display: "flex",
     flexDirection: "column",
     padding: 4,
+  },
+  filtersDropdown: {
+    display: "none",
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+    },
+  },
+  columnsDropdown: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   totalResults: {
     display: "flex",
@@ -61,7 +85,7 @@ export const PeopleDirectoryFilters = ({classes}: {
   } = Components;
   return (
     <div className={classes.root}>
-      <div className={classes.filters}>
+      <div className={classes.desktopFilters}>
         <PeopleDirectorySearchableFilter filter={roles} />
         <PeopleDirectorySearchableFilter filter={organizations} />
         <PeopleDirectoryStaticFilter filter={careerStages} />
@@ -77,10 +101,19 @@ export const PeopleDirectoryFilters = ({classes}: {
         {view === "list" &&
           <>
             <PeopleDirectoryFilterDropdown
+              title="Filter"
+              icon="FilterBars"
+              style="button"
+              className={classes.filter}
+              rootClassName={classes.filtersDropdown}
+            >
+              Filters
+            </PeopleDirectoryFilterDropdown>
+            <PeopleDirectoryFilterDropdown
               title="Sort"
               icon="ArrowsUpDown"
               style="button"
-              className={classes.columnsList}
+              className={classes.filter}
             >
               <PeopleDirectoryCheckOption
                 label="Default"
@@ -106,7 +139,8 @@ export const PeopleDirectoryFilters = ({classes}: {
               title="Columns"
               icon="ViewColumns"
               style="button"
-              className={classes.columnsList}
+              className={classes.filter}
+              rootClassName={classes.columnsDropdown}
             >
               {columns.filter(({hideable}) => hideable).map((state) => (
                 <PeopleDirectorySelectOption state={state} key={state.value} />
@@ -119,6 +153,7 @@ export const PeopleDirectoryFilters = ({classes}: {
             </PeopleDirectoryFilterDropdown>
           </>
         }
+        <div className={classes.mobilePadding} />
         <PeopleDirectoryViewToggle />
       </div>
     </div>
