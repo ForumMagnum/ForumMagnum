@@ -740,8 +740,7 @@ const setNotnullCommands = `
     ALTER COLUMN "userId" SET NOT NULL;
 
   ALTER TABLE "Images"
-    ALTER COLUMN "cdnHostedUrl" SET NOT NULL,
-    ALTER COLUMN "originalUrl" SET NOT NULL;
+    ALTER COLUMN "cdnHostedUrl" SET NOT NULL;
 
   ALTER TABLE "LegacyData"
     ALTER COLUMN "collectionName" SET NOT NULL,
@@ -1216,8 +1215,7 @@ const dropNotnullCommands = `
     ALTER COLUMN "userId" DROP NOT NULL;
 
   ALTER TABLE "Images"
-    ALTER COLUMN "cdnHostedUrl" DROP NOT NULL,
-    ALTER COLUMN "originalUrl" DROP NOT NULL;
+    ALTER COLUMN "cdnHostedUrl" DROP NOT NULL;
 
   ALTER TABLE "LegacyData"
     ALTER COLUMN "collectionName" DROP NOT NULL,

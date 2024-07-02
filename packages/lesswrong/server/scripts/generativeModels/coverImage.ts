@@ -131,7 +131,7 @@ const pressMidjourneyButton = async (messageId: string, button: string) => {
 }
 
 const saveImage = async (el: string, essay: Essay, url: string) => {
-  const newUrl = await moveImageToCloudinary(url, `splashArtImagePrompt${el}`)
+  const newUrl = await moveImageToCloudinary({oldUrl: url, originDocumentId: `splashArtImagePrompt${el}`})
   if (!newUrl) {
     // eslint-disable-next-line no-console
     console.error("Failed to upload image to cloudinary", el, essay)

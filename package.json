@@ -223,6 +223,7 @@
     "intercom-client": "^2.10.2",
     "intl": "^1.2.4",
     "io-ts": "^2.2.19",
+    "jimp": "^0.22.12",
     "jsdom": "^16.5.0",
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.0",
