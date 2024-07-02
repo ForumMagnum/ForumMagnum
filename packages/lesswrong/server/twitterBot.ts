@@ -5,7 +5,7 @@ import { DatabaseServerSetting } from "./databaseSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/lib/collections/posts";
 import Tweets from "@/lib/collections/tweets/collection";
-import { createMutator } from "./vulcan-lib";
+import { Globals, createMutator } from "./vulcan-lib";
 import { TwitterApi } from 'twitter-api-v2';
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
@@ -86,49 +86,55 @@ async function postTweet(content: string) {
   }
 }
 
+async function runTwitterBot() {
+  if (!enabledSetting.get()) return;
+
+  const repo = new TweetsRepo();
+  const logger = loggerConstructor("twitter-bot");
+
+  // Get posts that have crossed `twitterBotKarmaThresholdSetting` in the last
+  // 7 days, and haven't already been tweeted. Then tweet the top one.
+  const since = new Date(Date.now() - (7 * 24 * 60 * 60 * 1000));
+  const threshold = karmaThresholdSetting.get();
+
+  logger(`Checking for posts newly crossing ${threshold} karma`);
+  const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
+
+  if (postIds.length < 1) {
+    logger(`No posts found, returning`);
+    return;
+  }
+
+  const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { baseScore: -1, title: 1 } }).fetch();
+  const topPost = posts[0]
+
+  const content = await writeTweet(topPost)
+  logger(`Posting tweet with content: ${content}`)
+  const tweetId = await postTweet(content)
+
+  if (!tweetId) {
+    logger(`Failed to create tweet`)
+    return
+  }
+  logger(`Tweet created, id: ${tweetId}`)
+
+  await createMutator({
+    collection: Tweets,
+    document: {
+      postId: topPost._id,
+      content,
+      tweetId
+    },
+    validate: false
+  })
+}
+
 addCronJob({
   name: "runTwitterBot",
   interval: "every 31 minutes",
   job: async () => {
-    if (!enabledSetting.get()) return;
-
-    const repo = new TweetsRepo();
-    const logger = loggerConstructor("twitter-bot");
-
-    // Get posts that have crossed `twitterBotKarmaThresholdSetting` in the last
-    // day, and haven't already been tweeted. Then tweet the top one.
-    const since = new Date(Date.now() - (24 * 60 * 60 * 1000));
-    const threshold = karmaThresholdSetting.get();
-
-    logger(`Checking for posts newly crossing ${threshold} karma`);
-    const postIds = await repo.getUntweetedPostsCrossingKarmaThreshold({ since, threshold });
-
-    if (postIds.length < 1) {
-      logger(`No posts found, returning`);
-      return;
-    }
-
-    const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { baseScore: -1, title: 1 } }).fetch();
-    const topPost = posts[0]
-
-    const content = await writeTweet(topPost)
-    logger(`Posting tweet with content: ${content}`)
-    const tweetId = await postTweet(content)
-
-    if (!tweetId) {
-      logger(`Failed to create tweet`)
-      return
-    }
-    logger(`Tweet created, id: ${tweetId}`)
-
-    await createMutator({
-      collection: Tweets,
-      document: {
-        postId: topPost._id,
-        content,
-        tweetId
-      },
-      validate: false
-    })
+    await runTwitterBot();
   },
 });
+
+Globals.runTwitterBot = runTwitterBot;

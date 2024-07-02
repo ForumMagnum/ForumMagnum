@@ -8,56 +8,52 @@ class TweetsRepo extends AbstractRepo<"Tweets"> {
     super(Tweets);
   }
 
+  /**
+   * @returns {string[]} The ids of posts that have crossed `threshold` karma since `since`
+   */
   async getUntweetedPostsCrossingKarmaThreshold({threshold, since}: {threshold: number, since: Date}): Promise<string[]> {
     const res = await this.getRawDb().any<{postId: string}>(`
       -- TweetsRepo.getPostsCrossingKarmaThreshold
       WITH KarmaChanges AS (
         SELECT
-          v."votedAt",
-          v."documentId" AS post_id,
-          v.power,
-          (
-            SELECT
-              sum(v1.power) AS karma
-          FROM
-            "Posts" p1
-          LEFT JOIN "Votes" v1 ON p1._id = v1."documentId"
-        WHERE
-          p1._id = v."documentId"
-          AND v1.cancelled IS FALSE
-          AND v1."votedAt" < v."votedAt"
-        GROUP BY
-          p1._id) AS prior_karma,
-        (
+          *,
+          prior_karma + power AS post_karma
+        FROM (
           SELECT
-            sum(v1.power) AS karma
+            v."votedAt",
+            v."documentId" AS post_id,
+            v.power,
+            (
+              SELECT
+                sum(v1.power) AS karma
+              FROM
+                "Votes" v1
+              WHERE
+                v1."documentId" = v."documentId"
+                AND v1.cancelled IS FALSE
+                AND v1."votedAt" < v."votedAt"
+              GROUP BY
+                v1."documentId") AS prior_karma
           FROM
-            "Posts" p1
-          LEFT JOIN "Votes" v1 ON p1._id = v1."documentId"
-        WHERE
-          p1._id = v."documentId"
-          AND v1.cancelled IS FALSE
-          AND v1."votedAt" <= v."votedAt"
-        GROUP BY
-          p1._id) AS post_karma
-      FROM
-        "Votes" v
-        INNER JOIN "Posts" p ON p._id = v."documentId"
-        LEFT JOIN "Tweets" t ON t."postId" = p._id
-        WHERE
-          "collectionName" = 'Posts'
-          AND cancelled = FALSE
-          AND "votedAt" > $2
-          AND ${getViewablePostsSelector("p")}
-          AND t._id IS NULL
-        GROUP BY
-          "votedAt",
-          "documentId",
-          "power"
-        ORDER BY
-          "votedAt" DESC
+            "Votes" v
+            INNER JOIN "Posts" p ON p._id = v."documentId"
+            LEFT JOIN "Tweets" t ON t."postId" = p._id
+          WHERE
+            "collectionName" = 'Posts'
+            AND cancelled = FALSE
+            AND "votedAt" > $2
+            AND ${getViewablePostsSelector("p")}
+            AND t._id IS NULL
+          ORDER BY
+            "votedAt" DESC) q
       )
-      SELECT post_id as "postId" FROM KarmaChanges WHERE prior_karma < $1 AND post_karma >= $1;
+      SELECT
+        post_id AS "postId"
+      FROM
+        KarmaChanges
+      WHERE
+        prior_karma < $1
+        AND post_karma >= $1;
     `, [threshold, since]);
 
     return res?.map(r => r.postId) ?? []
