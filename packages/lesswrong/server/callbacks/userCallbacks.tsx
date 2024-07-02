@@ -284,57 +284,66 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
 });
 
 /**
- * When a user explicitly unsubscribes from all emails, we also want to unsubscribe them from digest emails.
- * They can then explicitly re-subscribe to the digest while keeping "unsubscribeFromAll" checked while still being
- * unsubscribed from all other emails, if they want.
- *
- * Also unsubscribe them from the digest if they deactivate their account.
+ * Handle subscribing/unsubscribing in mailchimp when `subscribedToDigest` is changed, including cases where this
+ * happens implicitly due to changing another field
  */
-getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromDigest(data: DbUser, {oldDocument}) {
+getCollectionHooks("Users").updateBefore.add(async function updateDigestSubscription(data: DbUser, {oldDocument}) {
+  // Handle cases which force you to unsubscribe from the digest:
+  // - When a user explicitly unsubscribes from all emails. If they want they can then explicitly re-subscribe
+  // to the digest while keeping "unsubscribeFromAll" checked
+  // - When a user deactivates their account
   const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
   const deactivatedAccount = data.deleted && !oldDocument.deleted
   if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
-  return data;
-});
 
-getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
+  const handleErrorCase = (errorMessage: string) => {
+    // If the user is deactivating their account, allow the update to continue. Otherwise,
+    // the user is explicitly trying to update their subscription, so throw and block the update
+    const err = new Error(errorMessage)
+    captureException(err)
+    if (!deactivatedAccount) {
+      throw err
+    }
+    data.subscribedToDigest = false
+    return data;
+  }
+
   if (
     isAnyTest ||
     !hasDigests ||
-    newUser.subscribedToDigest === oldUser.subscribedToDigest
+    data.subscribedToDigest === oldDocument.subscribedToDigest
   ) {
-    return;
+    return data;
   }
 
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
-  // TODO make this sync and have it return an error if the operation fails
   if (!mailchimpAPIKey || !mailchimpForumDigestListId) {
-    return;
+    return handleErrorCase("Error updating digest subscription: Mailchimp not configured")
   }
-  if (!newUser.email) {
-    captureException(new Error(`Forum digest subscription failed: no email for user ${newUser.displayName}`))
-    return;
+
+  const email = getUserEmail(data)
+  if (!email) {
+    return handleErrorCase(`Error updating digest subscription: no email for user ${data.displayName}`)
   }
-  const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
-  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';
-  
-  const email = getUserEmail(newUser)
+
+  const { lat: latitude, lng: longitude, known } = userGetLocation(data);
+  const status = data.subscribedToDigest ? 'subscribed' : 'unsubscribed';
   const emailHash = md5(email!.toLowerCase());
 
-  void fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
+  const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpForumDigestListId}/members/${emailHash}`, {
     method: 'PUT',
     body: JSON.stringify({
-      email_address: newUser.email,
+      email_address: email,
       email_type: 'html', 
       ...(known && {location: {
         latitude,
         longitude,
       }}),
       merge_fields: {
-        FNAME: newUser.displayName,
+        FNAME: data.displayName,
       },
       status,
     }),
@@ -342,11 +351,14 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
       'Content-Type': 'application/json',
       Authorization: `API_KEY ${mailchimpAPIKey}`,
     },
-  }).catch(e => {
-    captureException(e);
-    // eslint-disable-next-line no-console
-    console.log(e);
   });
+
+  if (res?.status === 200) {
+    return data;
+  }
+
+  const json = await res.json()
+  return handleErrorCase(`Error updating digest subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
 });
 
 /**
