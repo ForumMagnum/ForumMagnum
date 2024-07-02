@@ -46,6 +46,11 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: SLIDER_MAX_WIDTH,
   },
+  sparkline: {
+    position: 'absolute',
+    top: -48,
+    width: '100%',
+  },
   sliderLine: {
     position: 'relative',
     display: 'flex',
@@ -451,7 +456,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
   ])
   useEventListener("pointerup", saveVotePos)
 
-  const {ForumIcon, LWTooltip, UsersProfileImage, HoverOver} = Components;
+  const {ForumIcon, LWTooltip, UsersProfileImage, HoverOver, Sparkline} = Components;
   
   if (!event) return null
 
@@ -463,7 +468,11 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
         <div className={classes.sliderRow}>
           <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
           <div className={classes.sliderLineCol}>
+            
             <div className={classes.sliderLine} ref={sliderRef}>
+              {resultsVisible && voters && <div className={classes.sparkline}>
+                <Sparkline max={maxVotePos} data={voters.map(v => event.publicData[v._id].x)} />
+              </div>}
               {resultsVisible && voters && voters.map(user => {
                 const vote = event.publicData[user._id]
                 return <div key={user._id} className={classes.userVote} style={{left: `${vote.x * 100}%`}}>
