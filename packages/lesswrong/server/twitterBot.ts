@@ -104,7 +104,7 @@ async function runTwitterBot() {
     return;
   }
 
-  const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { baseScore: -1, title: 1 } }).fetch();
+  const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
   const topPost = posts[0]
 
   const content = await writeTweet(topPost)
