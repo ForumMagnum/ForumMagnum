@@ -685,7 +685,7 @@
     "timestamp": "2024-06-12T17:35:25.000Z"
   },
   {
-    "acceptsSchemaHash": "140c99d5ddd58819eb680da46aeb734b",
+    "acceptsSchemaHash": "921336ac446e94e900442dd80abd6225",
     "acceptedByMigration": "20240621T124451.add_Images_identifier_fields.ts",
     "timestamp": "2024-06-21T12:44:51.000Z"
   }

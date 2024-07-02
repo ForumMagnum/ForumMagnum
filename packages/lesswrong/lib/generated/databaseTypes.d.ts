@@ -493,9 +493,9 @@ type ImagesCollection = CollectionBase<"Images">;
 
 interface DbImages extends DbObject {
   __collectionName?: "Images"
-  originalUrl: string
+  originalUrl: string | null
   identifier: string
-  identifierType: "sha256Hash" | "originalUrl" | null
+  identifierType: "sha256Hash" | "originalUrl"
   cdnHostedUrl: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
