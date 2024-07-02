@@ -25,7 +25,7 @@ export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
 function votesCanTriggerReview(content: DbPost | DbComment) {
   const sixMonthsAgo = moment().subtract(6, 'months');
-  return moment(content.postedAt).isBefore(sixMonthsAgo);
+  return moment(content.postedAt).isAfter(sixMonthsAgo);
 }
 
 /**
