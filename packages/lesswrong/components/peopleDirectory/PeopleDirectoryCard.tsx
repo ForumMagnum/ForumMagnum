@@ -7,6 +7,7 @@ import { formatStat } from "../users/EAUserTooltipContent";
 import { CAREER_STAGES } from "@/lib/collections/users/schema";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
+import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -27,10 +28,17 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     gap: "8px",
   },
-  name: {
+  nameSection: {
     flexGrow: 1,
+  },
+  name: {
     fontSize: 16,
     fontWeight: 700,
+  },
+  createdAt: {
+    ...textCellStyles(theme),
+    color: theme.palette.grey[600],
+    whiteSpace: "nowrap",
   },
   message: {
     marginRight: 8,
@@ -90,7 +98,14 @@ const PeopleDirectoryCard = ({user, noTopBorder, classes}: {
     >
       <div className={classes.main}>
         <UsersProfileImage user={user} size={32} />
-        <div className={classes.name}>{user.displayName}</div>
+        <div className={classes.nameSection}>
+          <div className={classes.name}>
+            {user.displayName}
+          </div>
+          <div className={classes.createdAt}>
+            Joined {moment(user.createdAt).fromNow()} ago
+          </div>
+        </div>
         <InteractionWrapper className={classes.message}>
           <NewConversationButton
             currentUser={currentUser}
