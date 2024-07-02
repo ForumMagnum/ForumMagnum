@@ -7,6 +7,11 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     display: "flex",
     gap: "10px",
+    padding: "8px 16px",
+    borderRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.grey[50],
+    },
   },
   label: {
     flexGrow: 1,

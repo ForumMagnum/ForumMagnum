@@ -20,8 +20,7 @@ const styles = (theme: ThemeType) => ({
   columnsList: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    padding: 16,
+    padding: 4,
   },
   totalResults: {
     display: "flex",
@@ -29,6 +28,9 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 14,
     fontWeight: 600,
     color: theme.palette.grey[600],
+  },
+  clearAll: {
+    padding: 6,
   },
 });
 
@@ -110,7 +112,7 @@ export const PeopleDirectoryFilters = ({classes}: {
                 <PeopleDirectorySelectOption state={state} key={state.value} />
               ))}
               {columnsEdited &&
-                <div>
+                <div className={classes.clearAll}>
                   <PeopleDirectoryClearAll text="Reset" onClear={resetColumns} />
                 </div>
               }
