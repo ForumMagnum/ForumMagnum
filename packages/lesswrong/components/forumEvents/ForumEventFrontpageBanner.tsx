@@ -331,7 +331,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
               icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
               className={classes.expandToggleIcon}
             />
-            {expanded ? 'Collapse' : `Debate week ${date}`}
+            {expanded ? 'Collapse' : `Most influential posts`}
           </button>
         </div>
         {expanded && <div className={classes.contentWithPoll}>
@@ -357,6 +357,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
                 showKarma={false}
                 hideTag
                 showNoResults={false}
+                showPlacement
               />
               {tag && <div className={classes.postsSeeAll}>
                 See all eligible posts <Link to={tagGetUrl(tag)}>here</Link>
