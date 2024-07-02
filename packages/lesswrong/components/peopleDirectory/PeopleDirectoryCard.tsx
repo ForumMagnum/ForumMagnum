@@ -2,11 +2,11 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { textCellStyles } from "./PeopleDirectoryTextCell";
-import classNames from "classnames";
 import { formatStat } from "../users/EAUserTooltipContent";
 import { CAREER_STAGES } from "@/lib/collections/users/schema";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
+import classNames from "classnames";
 import moment from "moment";
 
 const styles = (theme: ThemeType) => ({
