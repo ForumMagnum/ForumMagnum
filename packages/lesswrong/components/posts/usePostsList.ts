@@ -68,6 +68,11 @@ export type PostsListConfig = {
    */
   viewType?: PostsListViewType | "fromContext",
   /**
+   * If true, then display the number corresponding to the post
+   * item's placement in the list (i.e. index + 1) to the left of the row.
+   */
+  showPlacement?: boolean,
+  /**
    * An array of postIds. If provided, we reorder the results to match this order.
    */
   order?: string[],
@@ -110,6 +115,7 @@ export const usePostsList = ({
   hideShortform = false,
   loadMoreMessage,
   viewType: configuredViewType = "list",
+  showPlacement = false,
   order,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
@@ -277,5 +283,6 @@ export const usePostsList = ({
     showFinalBottomBorder,
     placeholderCount,
     viewType,
+    showPlacement,
   };
 }

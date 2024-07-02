@@ -14,8 +14,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   itemIsLoading: {
     opacity: .4,
   },
-  posts: {
+  postsBoxShadow: {
     boxShadow: theme.palette.boxShadow.default,
+  },
+  postsGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, min-content) minmax(10px, 1fr)',
+    columnGap: '20px',
+  },
+  placement: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 16,
+    fontWeight: 700,
+    letterSpacing: '1px',
   },
 });
 
@@ -42,6 +55,7 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
     placeholderCount,
     showFinalBottomBorder,
     viewType,
+    showPlacement,
   } = usePostsList(props);
 
   const { LoadMore, PostsNoResults, SectionFooter, PostsItem, PostsLoading } = Components;
@@ -72,8 +86,16 @@ const PostsList2 = ({classes, ...props}: PostsList2Props) => {
       {orderedResults && !orderedResults.length && <PostsNoResults />}
 
       <AnalyticsContext viewType={viewType}>
-        <div className={boxShadow ? classes.posts : undefined}>
-          {itemProps?.map((props) => <PostsItem key={props.post._id} {...props} />)}
+        <div className={classNames(
+          boxShadow && classes.postsBoxShadow,
+          showPlacement && classes.postsGrid,
+        )}>
+          {itemProps?.map((props) => <React.Fragment key={props.post._id}>
+            {showPlacement && props.index !== undefined && <div className={classes.placement}>
+              #{props.index + 1}
+            </div>}
+            <PostsItem  {...props} />
+          </React.Fragment>)}
         </div>
       </AnalyticsContext>
 

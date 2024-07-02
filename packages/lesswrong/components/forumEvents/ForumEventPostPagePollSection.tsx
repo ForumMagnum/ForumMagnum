@@ -52,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const announcementPostUrl = 'https://forum.effectivealtruism.org/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7'
+const announcementPostUrl = '/posts/PeBNdpoRSq59kAfDW/announcing-ai-welfare-debate-week-july-1-7'
 
 /**
  * This is used on the post page to display the current forum event's poll,
