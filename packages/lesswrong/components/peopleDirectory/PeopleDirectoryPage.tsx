@@ -11,6 +11,9 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "16px",
+    [theme.breakpoints.down("sm")]: {
+      padding: "20px 0",
+    },
   },
   pageTitle: {
     fontSize: 32,
