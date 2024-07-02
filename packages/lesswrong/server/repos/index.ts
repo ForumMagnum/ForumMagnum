@@ -8,6 +8,7 @@ import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
+import ForumEventsRepo from "./ForumEventsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
@@ -25,6 +26,8 @@ import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
+import SurveysRepo from "./SurveysRepo";
+import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
@@ -45,6 +48,7 @@ const getAllRepos = () => ({
   dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
+  forumEvents: new ForumEventsRepo(),
   localgroups: new LocalgroupsRepo(),
   notifications: new NotificationsRepo(),
   postEmbeddings: new PostEmbeddingsRepo(),
@@ -62,6 +66,8 @@ const getAllRepos = () => ({
   sequences: new SequencesRepo(),
   sideComments: new SideCommentCachesRepo(),
   splashArtCoordinates: new SplashArtCoordinatesRepo(),
+  surveys: new SurveysRepo(),
+  surveySchedules: new SurveySchedulesRepo(),
   tags: new TagsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
@@ -79,6 +85,7 @@ export {
   DialogueChecksRepo,
   ElectionCandidatesRepo,
   ElectionVotesRepo,
+  ForumEventsRepo,
   LocalgroupsRepo,
   ManifoldProbabilitiesCachesRepo,
   NotificationsRepo,

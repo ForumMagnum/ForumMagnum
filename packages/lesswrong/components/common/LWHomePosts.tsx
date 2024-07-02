@@ -14,19 +14,19 @@ import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useContinueReading } from '../recommendations/withContinueReading';
+import { ContinueReading, useContinueReading } from '../recommendations/withContinueReading';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { TabRecord } from './TabPicker';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, RECOMBEE_SETTINGS_COOKIE } from '../../lib/cookies/cookies';
+import { HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS, LAST_VISITED_FRONTPAGE_COOKIE, RECOMBEE_SETTINGS_COOKIE, SELECTED_FRONTPAGE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import { PostFeedDetails, homepagePostFeedsSetting } from '../../lib/instanceSettings';
 import { ObservableQuery, gql, useMutation } from '@apollo/client';
 import { vertexEnabledSetting } from '../../lib/publicSettings';
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
-import shuffle from 'lodash/shuffle';
+import { isServer } from '@/lib/executionEnvironment';
+import isEqual from 'lodash/isEqual';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -63,9 +63,6 @@ const styles = (theme: ThemeType) => ({
     marginBottom: "8px",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  loggedOutTagFilterSettingsAlignment: {
-    flexDirection: "column",
   },
   tabPicker: {
     minWidth: 0,
@@ -124,6 +121,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5,
     }
   },
+  enrichedTagFilterNotice: {
+    ...theme.typography.italic,
+    ...theme.typography.commentStyle,
+    color: theme.palette.text.slightlyDim2,
+    marginBottom: 5,
+  },
 });
 
 export const filterSettingsToggleLabels = {
@@ -139,7 +142,7 @@ const defaultLimit = 13;
 
 function getDefaultDesktopFilterSettingsVisibility(currentUser: UsersCurrent | null) {
   if (!currentUser) {
-    return true
+    return false;
   }
 
   // Hide unless user has explicitly set it to visible
@@ -191,43 +194,98 @@ function useDefaultSettingsVisibility<T extends Platform>(currentUser: UsersCurr
     [`toggle${capitalize(platform)}SettingsVisible`]: toggleSettingsVisible
   } as PlatformSettingsVisibilityState<T>;
 };
- 
-const getDefaultTab = (currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) => {
-  const defaultTab = homepagePostFeedsSetting.get()[0].name;
 
-  // If the user has a selected tab that is not in the list of enabled tabs, default to the first enabled tab
-  if (!!currentUser?.frontpageSelectedTab && !enabledTabs.map(tab => tab.name).includes(currentUser.frontpageSelectedTab)) {
-    return defaultTab;
+function getTabOrDefault(tabName: string | null, enabledTabs: TabRecord[], overrideDefaultTab?: string) {
+  const defaultTab = overrideDefaultTab
+    ?? enabledTabs.find(tab => tab.defaultTab)?.name
+    ?? 'forum-classic';
+
+  return enabledTabs.find(tab => tab.name === tabName)?.name ?? defaultTab;
+}
+ 
+function useSelectedTab(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]): [selectedTab: string, setSelectedTab: (newTab: string) => void] {
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [cookies, setCookie] = useCookiesWithConsent([SELECTED_FRONTPAGE_TAB_COOKIE]);
+  const { captureEvent } = useTracking();
+
+  const cookieTab = cookies[SELECTED_FRONTPAGE_TAB_COOKIE];
+  const isReturningVisitor = isServer ? !!cookies[LAST_VISITED_FRONTPAGE_COOKIE] : !!window.isReturningVisitor;
+
+  let currentTab: string;
+
+  if (!currentUser) {
+    if (isReturningVisitor) {
+      currentTab = getTabOrDefault(cookieTab, enabledTabs);
+    } else {
+      currentTab = 'forum-classic';
+    }
+  } else {
+    // If the user has a selected tab that is not in the list of enabled tabs,
+    // 1. first see if there's a cookie (representing a valid, enabled tab) to default to
+    // 2. if not, fall back to the regular default logic
+    currentTab = getTabOrDefault(
+      currentUser.frontpageSelectedTab,
+      enabledTabs,
+      getTabOrDefault(cookieTab, enabledTabs)
+    );
   }
 
-  return currentUser?.frontpageSelectedTab ?? defaultTab;
+  const [selectedTab, setSelectedTab] = useState<string>(currentTab);
+  const updateSelectedTab = (newTab: string) => {
+    captureEvent("postFeedSwitched", {
+      previousTab: selectedTab,
+      newTab,
+    });
+
+    setSelectedTab(newTab);
+    setCookie(SELECTED_FRONTPAGE_TAB_COOKIE, newTab, { path: '/' });
+    void updateCurrentUser({ frontpageSelectedTab: newTab });
+  };
+
+  return [selectedTab, updateSelectedTab];
 };
+
+function isTabEnabled(
+  tab: PostFeedDetails,
+  currentUser: UsersCurrent | null,
+  query: Record<string, string>,
+  continueReading: ContinueReading[]
+): boolean {
+  if (tab.disabled) {
+    return false;
+  }
+
+  const isUserLoggedIn = !!currentUser;
+  const isAdminOrExperimental = userIsAdmin(currentUser) || query.experimentalTabs === 'true';
+  const enabledForLoggedInUsers = !tab.adminOnly || isAdminOrExperimental;
+  const enabledForLoggedOutUsers = !!tab.showToLoggedOut;
+
+  const enabledForCurrentUser = (isUserLoggedIn && enabledForLoggedInUsers) || enabledForLoggedOutUsers;
+
+  const activeSubscribedTabDisabled = tab.name === 'forum-subscribed-authors' && !userHasSubscribeTabFeed(currentUser);
+
+  const hasBookmarks = (currentUser?.bookmarkedPostsMetadata.length ?? 0) >= 1;
+  const activeBookmarkTabDisabled = tab.name === 'forum-bookmarks' && !hasBookmarks;
+
+  const hasContinueReading = (continueReading?.length ?? 0) >= 1;
+  const activeContinueReadingTabDisabled = tab.name === 'forum-continue-reading' && !hasContinueReading;
+
+  return enabledForCurrentUser && !activeSubscribedTabDisabled && !activeBookmarkTabDisabled && !activeContinueReadingTabDisabled;
+}
 
 const defaultRecombeeConfig: RecombeeConfiguration = {
   rotationRate: 0.2,
   rotationTime: 24 * 30,
 };
 
-function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[]) {
+function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRecord[], filterSettings: FilterSettings) {
   const [cookies, setCookie] = useCookiesWithConsent();
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
-  const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultTab(currentUser, enabledTabs));
-  const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultRecombeeConfig);
-
-  const updateSelectedScenario = (newScenario: string) => {
-    // If we don't yet have this cookie, or have this scenario stored in the cookie, add it as the first item
-    // Otherwise, reorder the existing scenario + config tuples to have that scenario be first
-    const newCookieValue: RecombeeCookieSettings = !recombeeCookieSettings?.find(([scenario]) => newScenario === scenario)
-      ? [[newScenario, defaultRecombeeConfig], ...(recombeeCookieSettings ?? [])]
-      : [...recombeeCookieSettings].sort((a, b) => a[0] === newScenario ? -1 : 0);
-    
-    setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
-
-    const [_, newScenarioConfig] = newCookieValue[0];
-    setSelectedScenario(newScenario);
-    setScenarioConfig(newScenarioConfig);
-  };
+  const currentScenarioConfig = storedActiveScenarioConfig ?? defaultRecombeeConfig;
+  const scenarioConfigWithFilterSettings = { ...currentScenarioConfig, filterSettings };
+  const [scenarioConfig, setScenarioConfig] = useState<RecombeeConfiguration>(scenarioConfigWithFilterSettings);
+  const [selectedTab] = useSelectedTab(currentUser, enabledTabs);
 
   const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
     const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
@@ -238,13 +296,19 @@ function useRecombeeSettings(currentUser: UsersCurrent|null, enabledTabs: TabRec
 
   useEffect(() => {
     if (recombeeCookieSettings.length === 0) {
-      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[getDefaultTab(currentUser, enabledTabs), defaultRecombeeConfig]]), { path: '/' });
+      setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify([[selectedTab, defaultRecombeeConfig]]), { path: '/' });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (!isEqual(scenarioConfig.filterSettings, filterSettings)) {
+      setScenarioConfig({ ...scenarioConfig, filterSettings });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterSettings]);
+
   return {
-    selectedScenario, updateSelectedScenario,
     scenarioConfig, updateScenarioConfig
   };
 }
@@ -306,8 +370,7 @@ const FrontpageSettingsButton = ({
   return <>
     {/* Desktop button */}
     <div className={classNames(classes.hideDesktopSettingsButtonOnMobile, {
-      [classes.hide]: !currentUser,
-      [classes.tagFilterSettingsButtonContainerDesktop]: !!currentUser && styleDesktopButton
+      [classes.tagFilterSettingsButtonContainerDesktop]: styleDesktopButton
     })}>
       <SettingsButton
         {...desktopConfiguration}
@@ -334,7 +397,7 @@ const FrontpageSettingsButton = ({
   </>;
 }
 
-const LWHomePosts = ({children, classes}: {
+const LWHomePosts = ({ children, classes }: {
   children: React.ReactNode,
   classes: ClassesType<typeof styles>}
 ) => {
@@ -345,7 +408,6 @@ const LWHomePosts = ({children, classes}: {
   const { captureEvent } = useTracking();
 
   const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
   const { query } = useLocation();
   const now = useCurrentTime();
   const { continueReading } = useContinueReading();
@@ -359,36 +421,18 @@ const LWHomePosts = ({children, classes}: {
   });
 
   const availableTabs: PostFeedDetails[] = homepagePostFeedsSetting.get()
-  const enabledTabs = availableTabs
-    .filter(feed => !feed.disabled
-      && (
-        !feed.adminOnly ||
-        (userIsAdmin(currentUser) || query.experimentalTabs === 'true') ||
-        (feed.name === 'forum-subscribed-authors' && userHasSubscribeTabFeed(currentUser))
-      ) 
-      && !(feed.name === 'forum-bookmarks' && (currentUser?.bookmarkedPostsMetadata.length ?? 0) < 1)
-      && !(feed.name === 'forum-continue-reading' && continueReading?.length < 1)
-    )
+  const enabledTabs = availableTabs.filter(tab => isTabEnabled(tab, currentUser, query, continueReading));
 
-  const [selectedTab, setSelectedTab] = useState(getDefaultTab(currentUser, enabledTabs));
+  const [selectedTab, setSelectedTab] = useSelectedTab(currentUser, enabledTabs);
   const selectedTabSettings = availableTabs.find(t=>t.name===selectedTab)!;
 
-  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs);
-
-  const handleSwitchTab = (tabName: string) => {
-    captureEvent("postFeedSwitched", {
-      previousTab: selectedTab,
-      newTab: tabName,
-    });
-
-    setSelectedTab(tabName);  
-    void updateCurrentUser({frontpageSelectedTab: tabName}) // updates persistent user setting
-  }
-
+  
   // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
   const { filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter } = useFilterSettings();
   const { desktopSettingsVisible, toggleDesktopSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'desktop', selectedTab);
   const { mobileSettingsVisible, toggleMobileSettingsVisible } = useDefaultSettingsVisibility(currentUser, 'mobile', selectedTab);
+  
+  const { scenarioConfig, updateScenarioConfig } = useRecombeeSettings(currentUser, enabledTabs, filterSettings);
 
   const changeShowTagFilterSettingsDesktop = () => {
     toggleDesktopSettingsVisible(!desktopSettingsVisible);
@@ -460,6 +504,7 @@ const LWHomePosts = ({children, classes}: {
   const showInlineTabSettingsButton = (
     selectedTab === 'forum-classic' ||
     selectedTab === 'forum-subscribed-authors' ||
+    selectedTab === 'recombee-hybrid' ||
     (userIsAdmin(currentUser) && selectedTab.includes('recombee'))
   );
 
@@ -494,6 +539,9 @@ const LWHomePosts = ({children, classes}: {
           removeTagFilter={removeTagFilter} 
           flexWrapEndGrow={false}
         />
+        {selectedTab === 'recombee-hybrid' && <div className={classes.enrichedTagFilterNotice}>
+          Your settings only affect the "latest" posts on the Enriched tab.
+        </div>}
       </div>
     </AnalyticsContext>
   );
@@ -527,6 +575,8 @@ const LWHomePosts = ({children, classes}: {
     settings = filterSettingsElement;
   } else if (selectedTab === 'forum-subscribed-authors') {
     settings = subscriptionSettingsElement;
+  } else if (selectedTab === 'recombee-hybrid') {
+    settings = filterSettingsElement;
   } else if (selectedTab.includes('recombee')) {
     settings = recombeeSettingsElement;
   }
@@ -555,15 +605,15 @@ const LWHomePosts = ({children, classes}: {
     // TODO: do we need capturePostItemOnMount here?
     <AnalyticsContext pageSectionContext="postsFeed">
       <SingleColumnSection>
-        <div className={classNames(classes.settingsVisibilityControls, {[classes.loggedOutTagFilterSettingsAlignment]: !currentUser})}>
-          {!!currentUser && <div className={classes.tabPicker}>
+        <div className={classes.settingsVisibilityControls}>
+          <div className={classes.tabPicker}>
             <TabPicker 
               sortedTabs={enabledTabs} 
               defaultTab={selectedTab} 
-              onTabSelectionUpdate={handleSwitchTab}
+              onTabSelectionUpdate={setSelectedTab}
               showDescriptionOnHover
             />
-          </div>}
+          </div>
           {showInlineTabSettingsButton && inlineTabSettingsButton}
         </div>
         {settings}
@@ -589,7 +639,6 @@ const LWHomePosts = ({children, classes}: {
               {/* ENRICHED LATEST POSTS */}
               {selectedTab === 'recombee-hybrid' && <AnalyticsContext feedType={selectedTab}>
                 <RecombeePostsList 
-                  showRecommendationIcon
                   algorithm={'recombee-hybrid'} 
                   settings={{
                     ...scenarioConfig,
@@ -603,7 +652,7 @@ const LWHomePosts = ({children, classes}: {
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} showRecommendationIcon />
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
               </AnalyticsContext>}
 
               {/* VERTEX RECOMMENDATIONS */}

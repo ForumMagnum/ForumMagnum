@@ -499,7 +499,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
+    ForumEventPostPagePollSection
   } = Components
 
   useEffect(() => {
@@ -517,7 +518,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       }
     });
 
-    if (!currentUser || (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get())) return;
+    if (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get()) return;
     setRecommId(recommId);
     setAttributionId(attributionId);
 
@@ -747,6 +748,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+      <ForumNoSSR>
+        <ForumEventPostPagePollSection postId={post._id} />
+      </ForumNoSSR>
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -767,7 +771,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <AttributionInViewTracker eventProps={{ postId: post._id, portion: 1, recommId, vertexAttributionId: attributionId }}>
+      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>

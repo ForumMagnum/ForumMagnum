@@ -685,8 +685,18 @@
     "timestamp": "2024-06-12T17:35:25.000Z"
   },
   {
-    "acceptsSchemaHash": "921336ac446e94e900442dd80abd6225",
-    "acceptedByMigration": "20240621T124451.add_Images_identifier_fields.ts",
-    "timestamp": "2024-06-21T12:44:51.000Z"
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "af39464b13d09507b438054d15aba060",
+    "acceptedByMigration": "20240627T173906.add_poll_fields_to_ForumEvents.ts",
+    "timestamp": "2024-06-27T17:39:06.000Z"
+  },
+  {
+    "acceptsSchemaHash": "94df20dba53ef11f79930cbb2c17442c",
+    "acceptedByMigration": "20240702T104451.add_Images_identifier_fields.ts",
+    "timestamp": "2024-07-02T10:44:51.000Z"
   }
 ]
