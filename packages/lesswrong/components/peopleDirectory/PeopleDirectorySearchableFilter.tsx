@@ -8,17 +8,19 @@ const styles = (theme: ThemeType) => ({
   },
   noResults: {
     color: theme.palette.grey[600],
-    padding: "0 16px",
+    padding: 16,
+  },
+  loading: {
+    margin: 16,
   },
   results: {
     borderTop: `1px solid ${theme.palette.grey[300]}`,
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    padding: "16px 0",
+    padding: 4,
   },
   result: {
-    padding: "0 16px",
+    padding: 8,
   },
   grandfatheredHr: {
     borderBottom: `1px solid ${theme.palette.grey[300]}`,
@@ -26,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     margin: "4px 0",
   },
   clearAll: {
-    padding: "0 16px",
+    padding: 8,
   },
 });
 
@@ -89,7 +91,7 @@ export const PeopleDirectorySearchableFilter = ({
       </div>
       {showAnything &&
         <div className={classes.results}>
-          {showLoading && <Loading />}
+          {showLoading && <Loading className={classes.loading} />}
           {showNoResults &&
             <div className={classes.noResults}>No results found</div>
           }

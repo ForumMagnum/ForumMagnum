@@ -6,8 +6,10 @@ const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    padding: 16,
+    padding: 4,
+  },
+  clearAll: {
+    padding: 6,
   },
 });
 
@@ -32,7 +34,7 @@ export const PeopleDirectoryStaticFilter = ({
         <PeopleDirectorySelectOption state={item} key={item.value} />
       ))}
       {selectedValues.length > 1 &&
-        <div>
+        <div className={classes.clearAll}>
           <PeopleDirectoryClearAll onClear={clear} />
         </div>
       }
