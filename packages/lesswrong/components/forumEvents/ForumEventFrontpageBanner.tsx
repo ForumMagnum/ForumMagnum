@@ -331,7 +331,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
               icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
               className={classes.expandToggleIcon}
             />
-            {expanded ? 'Collapse' : `Debate week ${date}`}
+            {expanded ? 'Collapse' : `Most influential posts`}
           </button>
         </div>
         {expanded && <div className={classes.contentWithPoll}>
