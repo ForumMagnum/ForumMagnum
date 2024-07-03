@@ -50,6 +50,12 @@ const styles = (theme: ThemeType) => ({
     position: 'absolute',
     top: -48,
     width: '100%',
+    '& .Sparkline-path': {
+      stroke: `color-mix(in oklab, var(--forum-event-contrast), ${theme.palette.grey[500]})`,
+    },
+    '& .Sparkline-line': {
+      stroke: 'var(--forum-event-background)',
+    }
   },
   sliderLine: {
     position: 'relative',
@@ -133,6 +139,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     fontSize: 34,
     borderRadius: '50%',
+    // offset the additional 5px on the left added by the larger font size
+    marginLeft: -5,
   },
   clearVote: {
     display: 'none',
@@ -493,7 +501,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
                             user={vote.user}
                             size={USER_IMAGE_SIZE}
                             className={classNames(classes.userImage, classes.userImageBoxShadow)}
-                          />
+                          /> {vote.x}
                         </LWTooltip>
                       ))}
                     </div>
