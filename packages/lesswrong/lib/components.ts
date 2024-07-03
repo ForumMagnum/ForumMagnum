@@ -283,6 +283,7 @@ importComponent("ForumDropdownMultiselect", () => require('../components/common/
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
 importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("TabPicker", () => require('../components/common/TabPicker'));
+importComponent("Sparkline", () => require('../components/common/Sparkline'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
