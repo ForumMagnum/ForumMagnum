@@ -342,6 +342,7 @@ importComponent("SocialMediaLink", () => require('../components/users/SocialMedi
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
 importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
+importComponent("UsersAccountManagement", () => require('../components/users/UsersAccountManagement'));
 importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
 importComponent("UsersProfile", () => require('../components/users/UsersProfile'));

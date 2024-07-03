@@ -1,11 +1,10 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
 import { configureDatadogRum } from '../../client/datadogRum';
@@ -20,10 +19,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 100,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
-    },
-    '& .form-submit': {
-      textAlign: 'right',
-      marginRight: 5
     }
   },
 
@@ -36,16 +31,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4
-  },
+  }
 })
 
-const passwordResetMutation = gql`
-  mutation resetPassword($email: String) {
-    resetPassword(email: $email)
-  }
-`
-
-const UsersEditForm = ({terms, classes}: {
+const UsersAccountManagement = ({terms, classes}: {
   terms: {slug?: string, documentId?: string},
   classes: ClassesType,
 }) => {
@@ -53,8 +42,7 @@ const UsersEditForm = ({terms, classes}: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const { Typography } = Components;
-  const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
+  const { Typography, FormGroupLayout } = Components;
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
@@ -76,37 +64,21 @@ const UsersEditForm = ({terms, classes}: {
     return <span>Sorry, you do not have permission to do this at this time.</span>
   }
 
-  // currentUser will not be the user being edited in the case where current
-  // user is an admin. This component does not have access to the user email at
-  // all in admin mode unfortunately. In the fullness of time we could fix that,
-  // currently we disable it below
-  const requestPasswordReset = async () => {
-    const { data } = await mutate({variables: { email: getUserEmail(currentUser) }})
-    flash(data?.resetPassword)
-  } 
-
   // Since there are two urls from which this component can be rendered, with different terms, we have to
   // check both slug and documentId
   const isCurrentUser = (terms.slug && terms.slug === currentUser?.slug) || (terms.documentId && terms.documentId === currentUser?._id)
 
+  if (!isCurrentUser) {
+    throw new Error("Not implemented")
+  }
+
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}>
-        {preferredHeadingCase("Account Settings")}
+        {preferredHeadingCase("Manage Account")}
       </Typography>
-      {/* TODO(EA): Need to add a management API call to get the reset password
-          link, but for now users can reset their password from the login
-          screen */}
-      {isCurrentUser && !isEAForum && <Button
-        color="secondary"
-        variant="outlined"
-        className={classes.resetButton}
-        onClick={requestPasswordReset}
-      >
-        {preferredHeadingCase("Reset Password")}
-      </Button>}
 
-      <Components.WrappedSmartForm
+      {/* <Components.WrappedSmartForm
         collectionName="Users"
         {...terms}
         removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
@@ -130,16 +102,16 @@ const UsersEditForm = ({terms, classes}: {
         queryFragment={getFragment('UsersEdit')}
         mutationFragment={getFragment('UsersEdit')}
         showRemove={false}
-      />
+      /> */}
     </div>
   );
 };
 
 
-const UsersEditFormComponent = registerComponent('UsersEditForm', UsersEditForm, {styles});
+const UsersAccountManagementComponent = registerComponent('UsersAccountManagement', UsersAccountManagement, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersEditForm: typeof UsersEditFormComponent
+    UsersAccountManagement: typeof UsersAccountManagementComponent
   }
 }

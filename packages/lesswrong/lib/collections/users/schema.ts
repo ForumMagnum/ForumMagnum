@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations, hasSurveys } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -1249,6 +1249,7 @@ const schema: SchemaType<"Users"> = {
     label: 'Deactivate',
     tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
+    hidden: hasAccountDeletionFlow,
     group: formGroups.deactivate,
   },
 

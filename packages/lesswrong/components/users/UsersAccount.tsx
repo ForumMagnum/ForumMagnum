@@ -17,6 +17,7 @@ const UsersAccount = () => {
   const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : { documentId: currentUser._id };
   return <div>
     <Components.UsersEditForm terms={terms} />
+    <Components.UsersAccountManagement terms={terms} />
   </div>
 };
 
