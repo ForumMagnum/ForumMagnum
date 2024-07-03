@@ -384,7 +384,7 @@ async function extractSocialPreviewImage (post: DbPost) {
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {
       try {
-        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+        socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
       } catch (e) {
         captureException(e);
         socialPreviewImageAutoUrl = firstImgSrc
