@@ -1,6 +1,5 @@
 import { addCronJob } from "./cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
-import { DatabaseServerSetting } from "./databaseSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/lib/collections/posts";
 import Tweets from "@/lib/collections/tweets/collection";
@@ -9,13 +8,14 @@ import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
 import { dogstatsd } from "./datadog/tracer";
+import { PublicInstanceSetting } from "@/lib/instanceSettings";
 
-const enabledSetting = new DatabaseServerSetting<boolean>("twitterBot.enabled", false);
-const karmaThresholdSetting = new DatabaseServerSetting<number>("twitterBot.karmaTreshold", 40);
-const apiKeySetting = new DatabaseServerSetting<string | null>("twitterBot.apiKey", null);
-const apiKeySecretSetting = new DatabaseServerSetting<string | null>("twitterBot.apiKeySecret", null);
-const accessTokenSetting = new DatabaseServerSetting<string | null>("twitterBot.accessToken", null);
-const accessTokenSecretSetting = new DatabaseServerSetting<string | null>("twitterBot.accessTokenSecret", null);
+const enabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
+const karmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaTreshold", 40, "optional");
+const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
+const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
+const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
+const accessTokenSecretSetting = new PublicInstanceSetting<string | null>("twitterBot.accessTokenSecret", null, "optional");
 
 const TWEET_MAX_LENGTH = 279;
 const URL_LENGTH = 24;
@@ -105,27 +105,30 @@ async function runTwitterBot() {
   }
 
   const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
-  const topPost = posts[0]
 
-  const content = await writeTweet(topPost)
-  logger(`Posting tweet with content: ${content}`)
-  const tweetId = await postTweet(content)
+  for (const post of posts) {
+    const content = await writeTweet(post);
+    logger(`Attempting to post tweet with content: ${content}`);
+    const tweetId = await postTweet(content);
 
-  if (!tweetId) {
-    logger(`Failed to create tweet`)
-    return
+    if (tweetId) {
+      logger(`Tweet created, id: ${tweetId}`);
+      await createMutator({
+        collection: Tweets,
+        document: {
+          postId: post._id,
+          content,
+          tweetId
+        },
+        validate: false
+      });
+      return;
+    } else {
+      logger(`Failed to create tweet for post with id: ${post._id}, trying next post`);
+    }
   }
-  logger(`Tweet created, id: ${tweetId}`)
 
-  await createMutator({
-    collection: Tweets,
-    document: {
-      postId: topPost._id,
-      content,
-      tweetId
-    },
-    validate: false
-  })
+  logger(`All attempts failed, no tweets created.`);
 }
 
 addCronJob({
