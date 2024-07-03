@@ -9,6 +9,7 @@ import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
 import { dogstatsd } from "./datadog/tracer";
+import { isProduction } from "@/lib/executionEnvironment";
 
 const enabledSetting = new DatabaseServerSetting<boolean>("twitterBot.enabled", false);
 const karmaThresholdSetting = new DatabaseServerSetting<number>("twitterBot.karmaTreshold", 40);
@@ -105,33 +106,39 @@ async function runTwitterBot() {
   }
 
   const posts = await Posts.find({ _id: { $in: postIds } }, { sort: { postedAt: 1, title: 1 } }).fetch();
-  const topPost = posts[0]
 
-  const content = await writeTweet(topPost)
-  logger(`Posting tweet with content: ${content}`)
-  const tweetId = await postTweet(content)
+  for (const post of posts) {
+    const content = await writeTweet(post);
+    logger(`Attempting to post tweet with content: ${content}`);
+    const tweetId = await postTweet(content);
 
-  if (!tweetId) {
-    logger(`Failed to create tweet`)
-    return
+    if (tweetId) {
+      logger(`Tweet created, id: ${tweetId}`);
+      await createMutator({
+        collection: Tweets,
+        document: {
+          postId: post._id,
+          content,
+          tweetId
+        },
+        validate: false
+      });
+      return;
+    } else {
+      logger(`Failed to create tweet for post with id: ${post._id}, trying next post`);
+    }
   }
-  logger(`Tweet created, id: ${tweetId}`)
 
-  await createMutator({
-    collection: Tweets,
-    document: {
-      postId: topPost._id,
-      content,
-      tweetId
-    },
-    validate: false
-  })
+  logger(`All attempts failed, no tweets created.`);
 }
 
 addCronJob({
   name: "runTwitterBot",
   interval: "every 31 minutes",
   job: async () => {
+    // Make sure this doesn't tweet http://localhost/ urls
+    if (!isProduction) return;
+
     await runTwitterBot();
   },
 });
