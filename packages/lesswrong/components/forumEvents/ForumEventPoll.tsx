@@ -501,7 +501,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
                             user={vote.user}
                             size={USER_IMAGE_SIZE}
                             className={classNames(classes.userImage, classes.userImageBoxShadow)}
-                          /> {vote.x}
+                          />
                         </LWTooltip>
                       ))}
                     </div>
