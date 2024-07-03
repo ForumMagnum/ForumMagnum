@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
+// TODO try importing these from FormGroupLayout
 const styles = (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
@@ -14,6 +15,12 @@ const styles = (theme: ThemeType) => ({
   },
   formSectionCollapsed: {
     display: "none",
+  },
+  formSectionPadding: {
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    paddingRight: theme.spacing.unit*2,
+    paddingLeft: theme.spacing.unit*2,
   },
 });
 
@@ -40,7 +47,7 @@ const DummyFormGroup = ({
     <div className={classes.formSection}>
       <FormGroupHeader toggle={() => setCollapsed(!collapsed)} label={label} collapsed={collapsed} />
       <div
-        className={classNames({
+        className={classNames(classes.formSectionPadding, {
           [classes.formSectionCollapsed]: collapsed,
         })}
       >
