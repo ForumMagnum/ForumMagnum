@@ -46,6 +46,17 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: SLIDER_MAX_WIDTH,
   },
+  sparkline: {
+    position: 'absolute',
+    top: -48,
+    width: '100%',
+    '& .Sparkline-path': {
+      stroke: `color-mix(in oklab, var(--forum-event-contrast), ${theme.palette.grey[500]})`,
+    },
+    '& .Sparkline-line': {
+      stroke: 'var(--forum-event-background)',
+    }
+  },
   sliderLine: {
     position: 'relative',
     display: 'flex',
@@ -128,6 +139,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     fontSize: 34,
     borderRadius: '50%',
+    // offset the additional 5px on the left added by the larger font size
+    marginLeft: -5,
   },
   clearVote: {
     display: 'none',
@@ -451,7 +464,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
   ])
   useEventListener("pointerup", saveVotePos)
 
-  const {ForumIcon, LWTooltip, UsersProfileImage, HoverOver} = Components;
+  const {ForumIcon, LWTooltip, UsersProfileImage, HoverOver, Sparkline} = Components;
   
   if (!event) return null
 
@@ -463,7 +476,11 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
         <div className={classes.sliderRow}>
           <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
           <div className={classes.sliderLineCol}>
+            
             <div className={classes.sliderLine} ref={sliderRef}>
+              {resultsVisible && voters && <div className={classes.sparkline}>
+                <Sparkline max={maxVotePos} data={voters.map(v => event.publicData[v._id].x)} />
+              </div>}
               {resultsVisible && voters && voters.map(user => {
                 const vote = event.publicData[user._id]
                 return <div key={user._id} className={classes.userVote} style={{left: `${vote.x * 100}%`}}>
