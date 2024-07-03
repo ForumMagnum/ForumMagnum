@@ -995,6 +995,7 @@ importComponent("FormGroupLayout", () => require('../components/form-components/
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
+importComponent("DummyFormGroup", () => require('../components/form-components/DummyFormGroup'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 

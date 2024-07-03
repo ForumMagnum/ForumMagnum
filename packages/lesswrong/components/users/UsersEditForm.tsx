@@ -26,7 +26,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: 5
     }
   },
-
   header: {
     margin: theme.spacing.unit * 2,
     marginBottom: theme.spacing.unit * 4,

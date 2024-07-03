@@ -35,68 +35,30 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const UsersAccountManagement = ({terms, classes}: {
-  terms: {slug?: string, documentId?: string},
+  terms: {slug: string},
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const navigate = useNavigate();
-  const client = useApolloClient();
-  const { Typography, FormGroupLayout } = Components;
-  const currentThemeOptions = useThemeOptions();
-  const setTheme = useSetTheme();
+  const { Typography, ErrorAccessDenied, DummyFormGroup } = Components;
 
-  if(!terms.slug && !terms.documentId) {
-    // No user specified and not logged in
-    return (
-      <div className={classes.root}>
-        Log in to edit your profile.
-      </div>
-    );
-  }
-  if (!userCanEditUser(currentUser,
-    terms.documentId ?
-      {_id: terms.documentId} :
-      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
-  )) {
-    return <span>Sorry, you do not have permission to do this at this time.</span>
-  }
 
-  // Since there are two urls from which this component can be rendered, with different terms, we have to
-  // check both slug and documentId
-  const isCurrentUser = (terms.slug && terms.slug === currentUser?.slug) || (terms.documentId && terms.documentId === currentUser?._id)
+  if(!userCanEditUser(currentUser, terms)) {
+    return <ErrorAccessDenied />;
+  }
+  const isCurrentUser = (terms.slug === currentUser?.slug)
 
   return (
     <div className={classes.root}>
       <Typography variant="display2" className={classes.header}>
         {preferredHeadingCase("Manage Account")}
       </Typography>
-
-      {/* <Components.WrappedSmartForm
-        collectionName="Users"
-        {...terms}
-        removeFields={currentUser?.isAdmin ? [] : ["paymentEmail", "paymentInfo"]}
-        successCallback={async (user: AnyBecauseTodo) => {
-          if (user?.theme) {
-            const theme = {...currentThemeOptions, ...user.theme};
-            setTheme(theme);
-            captureEvent("setUserTheme", theme);
-          }
-
-          // reconfigure datadog RUM in case they have changed their settings
-          configureDatadogRum(user)
-
-          flash(`User "${userGetDisplayName(user)}" edited`);
-          try {
-            await client.resetStore()
-          } finally {
-            navigate(userGetProfileUrl(user))
-          }
-        }}
-        queryFragment={getFragment('UsersEdit')}
-        mutationFragment={getFragment('UsersEdit')}
-        showRemove={false}
-      /> */}
+      <DummyFormGroup
+        label={"Deactivate account"}
+        startCollapsed={true}
+      >
+        <div>Hello</div>
+      </DummyFormGroup>
     </div>
   );
 };
