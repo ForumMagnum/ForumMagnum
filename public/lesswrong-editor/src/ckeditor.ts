@@ -123,7 +123,6 @@ const sharedPlugins = [
 	SanitizeTags,
 	InternalBlockLinks,
 	Spoilers,
-	CollapsibleSections,
 	AutoLink,
 	Footnote,
 	Mention,
@@ -157,6 +156,7 @@ const collaborativeEditorPlugins = [
 type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
 const siteSpecificPlugins: Partial<Record<ForumTypeString,AnyBecauseTodo[]>> = {
   EAForum: [CTAButton],
+  LessWrong: [CollapsibleSections],
 };
 
 export function getPostEditor(forumType: ForumTypeString) {

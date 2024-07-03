@@ -38,7 +38,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "3951fb22dd1d87fb69ac6ab4ee92bdf5";
+export const acceptsSchemaHash = "a43d70aa333497e5911f91e0e60c2115";
 
 import Tweets from "@/lib/collections/tweets/collection";
 import { createTable, dropTable, updateIndexes } from "./meta/utils";
