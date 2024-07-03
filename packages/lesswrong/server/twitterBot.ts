@@ -1,6 +1,5 @@
 import { addCronJob } from "./cronUtil";
 import TweetsRepo from "./repos/TweetsRepo";
-import { DatabaseServerSetting } from "./databaseSettings";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { Posts } from "@/lib/collections/posts";
 import Tweets from "@/lib/collections/tweets/collection";
@@ -9,14 +8,14 @@ import { TwitterApi } from 'twitter-api-v2';
 import { getConfirmedCoauthorIds, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import Users from "@/lib/vulcan-users";
 import { dogstatsd } from "./datadog/tracer";
-import { isProduction } from "@/lib/executionEnvironment";
+import { PublicInstanceSetting } from "@/lib/instanceSettings";
 
-const enabledSetting = new DatabaseServerSetting<boolean>("twitterBot.enabled", false);
-const karmaThresholdSetting = new DatabaseServerSetting<number>("twitterBot.karmaTreshold", 40);
-const apiKeySetting = new DatabaseServerSetting<string | null>("twitterBot.apiKey", null);
-const apiKeySecretSetting = new DatabaseServerSetting<string | null>("twitterBot.apiKeySecret", null);
-const accessTokenSetting = new DatabaseServerSetting<string | null>("twitterBot.accessToken", null);
-const accessTokenSecretSetting = new DatabaseServerSetting<string | null>("twitterBot.accessTokenSecret", null);
+const enabledSetting = new PublicInstanceSetting<boolean>("twitterBot.enabled", false, "optional");
+const karmaThresholdSetting = new PublicInstanceSetting<number>("twitterBot.karmaTreshold", 40, "optional");
+const apiKeySetting = new PublicInstanceSetting<string | null>("twitterBot.apiKey", null, "optional");
+const apiKeySecretSetting = new PublicInstanceSetting<string | null>("twitterBot.apiKeySecret", null, "optional");
+const accessTokenSetting = new PublicInstanceSetting<string | null>("twitterBot.accessToken", null, "optional");
+const accessTokenSecretSetting = new PublicInstanceSetting<string | null>("twitterBot.accessTokenSecret", null, "optional");
 
 const TWEET_MAX_LENGTH = 279;
 const URL_LENGTH = 24;
@@ -136,9 +135,6 @@ addCronJob({
   name: "runTwitterBot",
   interval: "every 31 minutes",
   job: async () => {
-    // Make sure this doesn't tweet http://localhost/ urls
-    if (!isProduction) return;
-
     await runTwitterBot();
   },
 });
