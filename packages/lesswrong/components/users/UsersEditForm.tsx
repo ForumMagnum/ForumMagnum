@@ -46,35 +46,22 @@ const passwordResetMutation = gql`
 `
 
 const UsersEditForm = ({terms, classes}: {
-  terms: {slug?: string, documentId?: string},
+  terms: {slug: string},
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const { Typography } = Components;
+  const { Typography, ErrorAccessDenied } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
-  if(!terms.slug && !terms.documentId) {
-    // No user specified and not logged in
-    return (
-      <div className={classes.root}>
-        Log in to edit your profile.
-      </div>
-    );
+  if(!userCanEditUser(currentUser, terms)) {
+    return <ErrorAccessDenied />;
   }
-  if (!userCanEditUser(currentUser,
-    terms.documentId ?
-      {_id: terms.documentId} :
-      // HasSlugType wants some fields we don't have (schemaVersion, _id), but
-      // userCanEdit won't use them
-      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
-  )) {
-    return <span>Sorry, you do not have permission to do this at this time.</span>
-  }
+  const isCurrentUser = (terms.slug === currentUser?.slug)
 
   // currentUser will not be the user being edited in the case where current
   // user is an admin. This component does not have access to the user email at
@@ -83,11 +70,7 @@ const UsersEditForm = ({terms, classes}: {
   const requestPasswordReset = async () => {
     const { data } = await mutate({variables: { email: getUserEmail(currentUser) }})
     flash(data?.resetPassword)
-  } 
-
-  // Since there are two urls from which this component can be rendered, with different terms, we have to
-  // check both slug and documentId
-  const isCurrentUser = (terms.slug && terms.slug === currentUser?.slug) || (terms.documentId && terms.documentId === currentUser?._id)
+  }
 
   return (
     <div className={classes.root}>

@@ -57,8 +57,6 @@ const UsersAccountManagement = ({terms, classes}: {
   if (!userCanEditUser(currentUser,
     terms.documentId ?
       {_id: terms.documentId} :
-      // HasSlugType wants some fields we don't have (schemaVersion, _id), but
-      // userCanEdit won't use them
       {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
   )) {
     return <span>Sorry, you do not have permission to do this at this time.</span>
@@ -67,10 +65,6 @@ const UsersAccountManagement = ({terms, classes}: {
   // Since there are two urls from which this component can be rendered, with different terms, we have to
   // check both slug and documentId
   const isCurrentUser = (terms.slug && terms.slug === currentUser?.slug) || (terms.documentId && terms.documentId === currentUser?._id)
-
-  if (!isCurrentUser) {
-    throw new Error("Not implemented")
-  }
 
   return (
     <div className={classes.root}>

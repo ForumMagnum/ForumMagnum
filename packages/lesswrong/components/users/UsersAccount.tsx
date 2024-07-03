@@ -2,19 +2,20 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
+import { userCanEditUser } from '@/lib/collections/users/helpers';
 
 const UsersAccount = () => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
-  
-  if (!currentUser) {
-    return <Components.SingleColumnSection>
-      Log in to access account settings.
-    </Components.SingleColumnSection>
+
+  const { ErrorAccessDenied } = Components;
+
+  const terms = { slug: params.slug ?? currentUser?.slug };
+
+  if(!terms.slug || !userCanEditUser(currentUser, terms)) {
+    return <ErrorAccessDenied />;
   }
-  
-  // note: terms is as the same as a document-shape the SmartForm edit-mode expects to receive
-  const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : { documentId: currentUser._id };
+
   return <div>
     <Components.UsersEditForm terms={terms} />
     <Components.UsersAccountManagement terms={terms} />

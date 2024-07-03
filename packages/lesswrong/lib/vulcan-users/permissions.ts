@@ -116,8 +116,11 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
     return user._id === (document as HasUserIdType).userId;
   } else {
     // case 2: document is a user, use _id or slug to check
+    // TODO note fix for bug where admins can't edit their own slugs
     const documentUser = document as (DbUser|UsersMinimumInfo);
-    return documentUser.slug ? user.slug === documentUser.slug : user._id === documentUser._id;
+    const idsExistAndMatch = !!user._id && !!documentUser._id && user._id === documentUser._id;
+    const slugsExistAndMatch = !!user.slug && !!documentUser.slug && user.slug === documentUser.slug;
+    return idsExistAndMatch || slugsExistAndMatch;
   }
 };
 
