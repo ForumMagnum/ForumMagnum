@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -11,6 +11,7 @@ import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
 import { recombeeEnabledSetting } from '@/lib/publicSettings';
 import { recombeeApi } from '@/lib/recombee/client';
 import { useCurrentUser } from '../common/withUser';
+import { IsRecommendationContext } from '../dropdowns/posts/PostActions';
 
 const styles = (theme: ThemeType) => ({
   iconSet: {
@@ -133,15 +134,15 @@ const RecommendedPostIcon = ({post, hover, classes}: {
 }
 
 
-const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon, showRecommendationIcon}: {
+const PostsItemIcons = ({post, hover, classes, hideCuratedIcon, hidePersonalIcon}: {
   post: PostsBase,
   hover?: boolean,
   hideCuratedIcon?: boolean,
   hidePersonalIcon?: boolean
-  showRecommendationIcon?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { OmegaIcon, LWTooltip, CuratedIcon, ForumIcon } = Components;
+  const showRecommendationIcon = useContext(IsRecommendationContext)
 
   return <span className={classes.iconSet}>
     {post.curatedDate && !hideCuratedIcon && <CuratedIcon/>}

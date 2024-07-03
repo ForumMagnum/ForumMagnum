@@ -1,5 +1,6 @@
 import type MathCommand from './ckeditor5-math/mathcommand';
 import type { MathConfig } from './ckeditor5-math/math';
+import type { InsertCollapsibleSectionCommand } from './collapsible-sections-plugin';
 
 // Augmentations for CkEditor plugins. These are used to determine the types
 // if expressions like `editor.commands.get("math")`. (This pattern appears in
@@ -14,5 +15,6 @@ declare module '@ckeditor/ckeditor5-core' {
   }
   interface CommandsMap {
     math: MathCommand
+    insertCollapsibleSection: InsertCollapsibleSectionCommand
   }
 }

@@ -165,6 +165,7 @@ importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/p
 importComponent("ReportPostDropdownItem", () => require('../components/dropdowns/posts/ReportPostDropdownItem'));
 importComponent("DuplicateEventDropdownItem", () => require('../components/dropdowns/posts/DuplicateEventDropdownItem'));
 importComponent("HideFrontpagePostDropdownItem", () => require('../components/dropdowns/posts/HideFrontpagePostDropdownItem'));
+importComponent("DislikeRecommendationDropdownItem", () => require('../components/dropdowns/posts/DislikeRecommendationDropdownItem'));
 importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/posts/BookmarkDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));

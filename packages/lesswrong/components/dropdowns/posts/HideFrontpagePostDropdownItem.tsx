@@ -2,12 +2,9 @@ import React, { useState, useContext } from 'react';
 import { registerComponent, Components, fragmentTextForQuery } from '../../../lib/vulcan-lib';
 import { useCurrentUser } from '../../common/withUser';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { useMutation, gql } from '@apollo/client';
-import { AllowHidingFrontPagePostsContext } from './PostActions';
+import { AllowHidingFrontPagePostsContext, IsRecommendationContext } from './PostActions';
 import withErrorBoundary from '../../common/withErrorBoundary';
 import map from 'lodash/map';
-import reject from 'lodash/reject';
-import some from 'lodash/some';
 import { useDialog } from '../../common/withDialog';
 import { useSetIsHiddenMutation } from './useSetIsHidden';
 
@@ -20,6 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
+  const isRecommendation = useContext(IsRecommendationContext)
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog()
   const [hidden, setHiddenState] = useState(map((currentUser?.hiddenPostsMetadata || []), 'postId')?.includes(post._id));
@@ -27,7 +25,8 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
 
   const { setIsHiddenMutation } = useSetIsHiddenMutation();
 
-  if (!allowHidingPosts) {
+  // We do not show post hiding from frontpage and 'dislike recommendation' as the latter includes the former. See DislikeRecommendationDropdownItem.tsx
+  if (!allowHidingPosts || isRecommendation) {
     return null;
   }
 
