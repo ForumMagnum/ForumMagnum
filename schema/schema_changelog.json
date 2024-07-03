@@ -693,5 +693,10 @@
     "acceptsSchemaHash": "af39464b13d09507b438054d15aba060",
     "acceptedByMigration": "20240627T173906.add_poll_fields_to_ForumEvents.ts",
     "timestamp": "2024-06-27T17:39:06.000Z"
+  },
+  {
+    "acceptsSchemaHash": "94df20dba53ef11f79930cbb2c17442c",
+    "acceptedByMigration": "20240702T104451.add_Images_identifier_fields.ts",
+    "timestamp": "2024-07-02T10:44:51.000Z"
   }
 ]
