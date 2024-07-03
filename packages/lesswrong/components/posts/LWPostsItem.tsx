@@ -12,6 +12,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
+import { useHover } from '../common/withHover';
 
 
 export const KARMA_WIDTH = 32;
@@ -211,7 +212,7 @@ export const styles = (theme: ThemeType) => ({
       display: "block"
     }
   },
-  nonMobileIcons: {
+  mobileIcons: {
     [theme.breakpoints.up('sm')]: {
       display: "none"
     }
@@ -390,11 +391,11 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     curatedIconLeft,
     strikethroughTitle,
     bookmark,
-    isRecommendation,
-    showRecommendationIcon,
     emphasizeIfNew,
     className,
   } = usePostsItem(props);
+
+  const { hover, eventHandlers } = useHover();
 
   if (isRepeated) {
     return null;
@@ -407,6 +408,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
     PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
   } = Components;
+
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 
@@ -428,139 +430,141 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             [classes.isRead]: isRead && !showReadCheckbox  // readCheckbox and post-title read-status don't aesthetically match
           })}
         >
-          <PostsItemTooltipWrapper
-            post={post}
-            placement={tooltipPlacement}
-            className={classNames(
-              classes.postsItem,
-              classes.withGrayHover, {
-                [classes.dense]: dense,
-                [classes.withRelevanceVoting]: !!tagRel,
-                [classes.hasSequenceImage]: !!resumeReading,
+          <div {...eventHandlers}>
+            <PostsItemTooltipWrapper
+              post={post}
+              placement={tooltipPlacement}
+              className={classNames(
+                classes.postsItem,
+                classes.withGrayHover, {
+                  [classes.dense]: dense,
+                  [classes.withRelevanceVoting]: !!tagRel,
+                  [classes.hasSequenceImage]: !!resumeReading,
+                }
+              )}
+            >
+              {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
+              {showKarma && <PostsItem2MetaInfo className={classNames(
+                classes.karma, {
+                  [classes.karmaPredictedReviewWinner]: !!marketLink
+                })}>
+                {post.isEvent
+                  ? <AddToCalendarButton post={post} />
+                  : <KarmaDisplay document={post} linkItem={marketLink}/>
+                }
+              </PostsItem2MetaInfo>}
+
+              <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
+                <AnalyticsTracker
+                    eventType={"postItem"}
+                    eventProps={{mountedPostId: post._id, mountedPostScore: post.score, mountedPostBaseScore: post.baseScore}}
+                    captureOnMount={(eventData) => eventData.capturePostItemOnMount}
+                    captureOnClick={false}
+                >
+                  <PostsTitle
+                    postLink={postLink}
+                    post={post}
+                    read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
+                    sticky={sticky}
+                    showDraftTag={showDraftTag}
+                    {...(showPersonalIcon ? {showPersonalIcon} : {})}
+                    curatedIconLeft={curatedIconLeft}
+                    strikethroughTitle={strikethroughTitle}
+                    postItemHovered={hover}
+                  />
+                </AnalyticsTracker>
+              </span>
+
+              {(resumeReading?.sequence || resumeReading?.collection) &&
+                <div className={classes.subtitle}>
+                  {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
+                    resumeReading.sequence
+                      ? sequenceGetPageUrl(resumeReading.sequence)
+                      : collectionGetPageUrl(resumeReading.collection)
+                  }>
+                    {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
+                  </Link>
+                  {" "}
+                  {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+                </div>
               }
-            )}
-          >
-            {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && <PostsItem2MetaInfo className={classNames(
-              classes.karma, {
-                [classes.karmaPredictedReviewWinner]: !!marketLink
-              })}>
-              {post.isEvent
-                ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} linkItem={marketLink}/>
+
+              { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
+                <Components.EventVicinity post={post} />
+              </PostsItem2MetaInfo>}
+
+              {/* space in-between title and author if there is width remaining */}
+              <span className={classes.spacer} />
+
+              {showAuthor && <PostsItem2MetaInfo className={classes.author}>
+                <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
+              </PostsItem2MetaInfo>}
+
+              {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
+                <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
+                  <DebateIcon className={classes.unreadDebateResponsesIcon}/>
+                  {post.unreadDebateResponseCount}
+                </div>
+              </PostsItem2MetaInfo>}
+
+              {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} emphasizeIfNew={emphasizeIfNew} />}
+
+              <div className={classes.mobileSecondRowSpacer}/>
+
+              {showIcons && <div className={classes.mobileIcons}>
+                <PostsItemIcons post={post} />
+              </div>}
+
+              {<div className={classes.mobileActions}>
+                {!resumeReading && <PostActionsButton post={post} autoPlace />}
+              </div>}
+
+              {!resumeReading && <div className={classes.commentsIcon}>
+                <PostsItemComments
+                  small={false}
+                  commentCount={commentCount}
+                  onClick={toggleComments}
+                  unreadComments={hasUnreadComments}
+                  newPromotedComments={hasNewPromotedComments}
+                />
+              </div>}
+
+              {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
+
+              {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
+                <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
+                Review
+              </LWTooltip>}/></span>}
+
+              {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
+
+                <PostsItem2MetaInfo className={classes.reviewCounts}>
+                  {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
+                  {/* TODO:(Review) still 2019 */}
+                  {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
+                </PostsItem2MetaInfo>
+
+              </LWTooltip>}
+              {bookmark && <div className={classes.bookmark}>
+                <BookmarkButton post={post}/>
+              </div>}
+              <div className={classes.mobileDismissButton}>
+                <DismissButton {...{showDismissButton, onDismiss}} />
+              </div>
+
+              {resumeReading &&
+                <div className={classes.sequenceImage}>
+                  <img className={classes.sequenceImageImg}
+                    src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
+                      resumeReading.sequence?.gridImageId
+                        || resumeReading.collection?.gridImageId
+                        || "sequences/vnyzzznenju0hzdv6pqb.jpg"
+                    }`}
+                  />
+                </div>
               }
-            </PostsItem2MetaInfo>}
-
-            <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
-              <AnalyticsTracker
-                  eventType={"postItem"}
-                  eventProps={{mountedPostId: post._id, mountedPostScore: post.score, mountedPostBaseScore: post.baseScore}}
-                  captureOnMount={(eventData) => eventData.capturePostItemOnMount}
-                  captureOnClick={false}
-              >
-                <PostsTitle
-                  postLink={postLink}
-                  post={post}
-                  read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
-                  sticky={sticky}
-                  showDraftTag={showDraftTag}
-                  {...(showPersonalIcon ? {showPersonalIcon} : {})}
-                  curatedIconLeft={curatedIconLeft}
-                  strikethroughTitle={strikethroughTitle}
-                  showRecommendationIcon={isRecommendation && showRecommendationIcon}
-                />
-              </AnalyticsTracker>
-            </span>
-
-            {(resumeReading?.sequence || resumeReading?.collection) &&
-              <div className={classes.subtitle}>
-                {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
-                  resumeReading.sequence
-                    ? sequenceGetPageUrl(resumeReading.sequence)
-                    : collectionGetPageUrl(resumeReading.collection)
-                }>
-                  {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
-                </Link>
-                {" "}
-                {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
-              </div>
-            }
-
-            { post.isEvent && !post.onlineEvent && <PostsItem2MetaInfo className={classes.event}>
-              <Components.EventVicinity post={post} />
-            </PostsItem2MetaInfo>}
-
-            {/* space in-between title and author if there is width remaining */}
-            <span className={classes.spacer} />
-
-            {showAuthor && <PostsItem2MetaInfo className={classes.author}>
-              <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
-            </PostsItem2MetaInfo>}
-
-            {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
-              <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
-                <DebateIcon className={classes.unreadDebateResponsesIcon}/>
-                {post.unreadDebateResponseCount}
-              </div>
-            </PostsItem2MetaInfo>}
-
-            {showDate && <PostsItemDate post={post} useCuratedDate={useCuratedDate} emphasizeIfNew={emphasizeIfNew} />}
-
-            <div className={classes.mobileSecondRowSpacer}/>
-
-            {showIcons && <div className={classes.nonMobileIcons}>
-              <PostsItemIcons post={post}/>
-            </div>}
-
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostActionsButton post={post} autoPlace />}
-            </div>}
-
-            {!resumeReading && <div className={classes.commentsIcon}>
-              <PostsItemComments
-                small={false}
-                commentCount={commentCount}
-                onClick={toggleComments}
-                unreadComments={hasUnreadComments}
-                newPromotedComments={hasNewPromotedComments}
-              />
-            </div>}
-
-            {getReviewPhase() === "NOMINATIONS" && <PostsItemReviewVote post={post}/>}
-
-            {postEligibleForReview(post) && postIsVoteable(post)  && getReviewPhase() === "REVIEWS" && <span className={classes.reviewPostButton}>
-              <ReviewPostButton post={post} year={REVIEW_YEAR+""} reviewMessage={<LWTooltip title={<div><div>What was good about this post? How it could be improved? Does it stand the test of time?</div><p><em>{post.reviewCount || "No"} review{post.reviewCount !== 1 && "s"}</em></p></div>} placement="top">
-              Review
-            </LWTooltip>}/></span>}
-
-            {(showNominationCount || showReviewCount) && <LWTooltip title={reviewCountsTooltip} placement="top">
-
-              <PostsItem2MetaInfo className={classes.reviewCounts}>
-                {showNominationCount && <span>{post.nominationCount2019 || 0}</span>}
-                {/* TODO:(Review) still 2019 */}
-                {showReviewCount && <span>{" "}<span className={classes.noReviews}>{" "}•{" "}</span>{post.reviewCount2019 || <span className={classes.noReviews}>0</span>}</span>}
-              </PostsItem2MetaInfo>
-
-            </LWTooltip>}
-            {bookmark && <div className={classes.bookmark}>
-              <BookmarkButton post={post}/>
-            </div>}
-            <div className={classes.mobileDismissButton}>
-              <DismissButton {...{showDismissButton, onDismiss}} />
-            </div>
-
-            {resumeReading &&
-              <div className={classes.sequenceImage}>
-                <img className={classes.sequenceImageImg}
-                  src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
-                    resumeReading.sequence?.gridImageId
-                      || resumeReading.collection?.gridImageId
-                      || "sequences/vnyzzznenju0hzdv6pqb.jpg"
-                  }`}
-                />
-              </div>
-            }
-          </PostsItemTooltipWrapper>
+            </PostsItemTooltipWrapper>
+          </div>
 
           <PostsItemTrailingButtons
             {...{

@@ -8,6 +8,9 @@ import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 // through ~4 layers of hierarchy
 export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(false);
 
+// Same as above context provider but for whether a post is being served as a recommendation
+export const IsRecommendationContext = React.createContext<boolean>(false);
+
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     minWidth: isFriendlyUI ? undefined : 300,
@@ -32,6 +35,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
     PostAnalyticsDropdownItem, ExcludeFromRecommendationsDropdownItem,
     ApproveNewUserDropdownItem, SharePostSubmenu, PostSubscriptionsDropdownItem,
+    DislikeRecommendationDropdownItem
   } = Components;
 
   if (!post) return null;
@@ -57,6 +61,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {includeBookmark && <BookmarkDropdownItem post={post} />}
       <SetSideCommentVisibility />
       <HideFrontpagePostDropdownItem post={post} />
+      <DislikeRecommendationDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />

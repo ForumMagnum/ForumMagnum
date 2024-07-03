@@ -51,6 +51,10 @@ module.exports = {
     "template-curly-spacing": 0,
     "@typescript-eslint/comma-spacing": 0,
 
+    // This rule tries to enforce that ? and : are at the end of lines, but it's better
+    // for them to be at the beginning
+    "operator-linebreak": 0,
+
     // Assorted lint rules added by the ckeditor preset that don't pass as-is. For each of
     // these, TODO: either turn it on and make it pass, or move it out of this section and
     // write an explanation of why we don't want it.
