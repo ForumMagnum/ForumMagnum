@@ -25,9 +25,6 @@ import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
 import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
-import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/filterSettings';
-import Tags from '../../lib/collections/tags/collection';
-import keyBy from 'lodash/keyBy';
 import isEqual from 'lodash/isEqual';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
@@ -83,46 +80,6 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
     void sendVerificationEmail(user);
   }
 });
-
-getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
-  // check if the user added any tags to their profile
-  const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !oldDocument.profileTagIds?.includes(tagId)) || []
-  
-  // if so, then we want to subscribe them to the newly added tags
-  if (tagIdsAdded.length > 0) {
-    const tagsAdded = await Tags.find({_id: {$in: tagIdsAdded}}).fetch()
-    const tagsById = keyBy(tagsAdded, tag => tag._id)
-    
-    let newFrontpageFilterSettings: FilterSettings = newDocument.frontpageFilterSettings ?? getDefaultFilterSettings()
-    for (let addedTag of tagIdsAdded) {
-      const newTagFilter: FilterTag = {tagId: addedTag, tagName: tagsById[addedTag].name, filterMode: 'Subscribed'}
-      const existingFilter = newFrontpageFilterSettings.tags.find(tag => tag.tagId === addedTag)
-      // if the user already had a filter for this tag, see if we should update it or leave it alone
-      if (existingFilter) {
-        if ([0, 'Default', 'TagDefault'].includes(existingFilter.filterMode)) {
-          newFrontpageFilterSettings = {
-            ...newFrontpageFilterSettings,
-            tags: [
-              ...newFrontpageFilterSettings.tags.filter(tag => tag.tagId !== addedTag),
-              newTagFilter
-            ]
-          }
-        }
-      } else {
-        // otherwise, subscribe them to this tag
-        newFrontpageFilterSettings = {
-          ...newFrontpageFilterSettings,
-          tags: [
-            ...newFrontpageFilterSettings.tags,
-            newTagFilter
-          ]
-        }
-      }
-    }
-    return {...data, frontpageFilterSettings: newFrontpageFilterSettings}
-  }
-  return data
-})
 
 getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmissions (newUser: DbUser, oldUser: DbUser)
 {

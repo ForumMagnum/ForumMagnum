@@ -444,12 +444,17 @@ interface DbForumEvent extends DbObject {
   endDate: Date
   darkColor: string
   lightColor: string
+  contrastColor: string | null
   tagId: string
   bannerImageId: string | null
+  includesPoll: boolean
+  publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   frontpageDescription: EditableFieldContents | null
   frontpageDescription_latest: string | null
+  frontpageDescriptionMobile: EditableFieldContents | null
+  frontpageDescriptionMobile_latest: string | null
   postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null
 }
@@ -493,7 +498,9 @@ type ImagesCollection = CollectionBase<"Images">;
 
 interface DbImages extends DbObject {
   __collectionName?: "Images"
-  originalUrl: string
+  originalUrl: string | null
+  identifier: string
+  identifierType: "sha256Hash" | "originalUrl"
   cdnHostedUrl: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1351,6 +1358,17 @@ interface DbTag extends DbObject {
   moderationGuidelines_latest: string | null
 }
 
+type TweetsCollection = CollectionBase<"Tweets">;
+
+interface DbTweet extends DbObject {
+  __collectionName?: "Tweets"
+  postId: string
+  tweetId: string
+  content: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type TypingIndicatorsCollection = CollectionBase<"TypingIndicators">;
 
 interface DbTypingIndicator extends DbObject {
@@ -1960,6 +1978,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
   UserEAGDetails: UserEAGDetailsCollection
@@ -2041,6 +2060,7 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
   UserEAGDetails: DbUserEAGDetail
@@ -2122,6 +2142,7 @@ interface ObjectsByTypeName {
   TagFlag: DbTagFlag
   TagRel: DbTagRel
   Tag: DbTag
+  Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
   UserEAGDetail: DbUserEAGDetail

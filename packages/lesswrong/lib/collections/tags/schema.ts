@@ -329,7 +329,7 @@ const schema: SchemaType<"Tags"> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x600 px",
     group: formGroups.advancedOptions,
-    hidden: isEAForum,
+    hidden: !isEAForum,
   },
   // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
   squareImageId: {
@@ -342,7 +342,7 @@ const schema: SchemaType<"Tags"> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x200 px",
     group: formGroups.advancedOptions,
-    hidden: isEAForum,
+    hidden: !isEAForum,
   },
 
   tagFlagsIds: {

@@ -27,6 +27,7 @@ export const defineConverters = (editor: Editor): void => {
 	})
 
 	/***********************************Footnote Section Conversion************************************/
+
 	// ((data) view → model)
 	conversion.for('upcast').elementToElement({
 		view: {
@@ -35,6 +36,7 @@ export const defineConverters = (editor: Editor): void => {
 			},
 		},
 		model: ELEMENTS.footnoteSection,
+		converterPriority: 'high',
 	});
 
 	// (model → data view)
@@ -47,7 +49,6 @@ export const defineConverters = (editor: Editor): void => {
 				role: 'doc-endnotes',
 			},
 			classes: [CLASSES.footnoteSection, CLASSES.footnotes],
-			
 		}
 	});
 

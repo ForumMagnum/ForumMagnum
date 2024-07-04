@@ -8,6 +8,7 @@ import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
+import ForumEventsRepo from "./ForumEventsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
@@ -28,6 +29,7 @@ import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import SurveysRepo from "./SurveysRepo";
 import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
+import TweetsRepo from "./TweetsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
@@ -47,6 +49,7 @@ const getAllRepos = () => ({
   dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
+  forumEvents: new ForumEventsRepo(),
   localgroups: new LocalgroupsRepo(),
   notifications: new NotificationsRepo(),
   postEmbeddings: new PostEmbeddingsRepo(),
@@ -67,6 +70,7 @@ const getAllRepos = () => ({
   surveys: new SurveysRepo(),
   surveySchedules: new SurveySchedulesRepo(),
   tags: new TagsRepo(),
+  tweets: new TweetsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),
@@ -83,6 +87,7 @@ export {
   DialogueChecksRepo,
   ElectionCandidatesRepo,
   ElectionVotesRepo,
+  ForumEventsRepo,
   LocalgroupsRepo,
   ManifoldProbabilitiesCachesRepo,
   NotificationsRepo,

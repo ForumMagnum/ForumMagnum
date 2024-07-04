@@ -111,6 +111,7 @@ import './server/siteAdminMetadata';
 import './server/callbacks';
 import './server/notificationCallbacks';
 import './server/notificationCallbacksHelpers';
+import './server/twitterBot';
 import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';
@@ -189,6 +190,7 @@ import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
+import './server/resolvers/forumEventResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

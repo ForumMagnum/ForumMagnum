@@ -12,7 +12,7 @@ const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, AnalyticsInViewTracker, FrontpageReviewWidget,
     SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection,
     QuickTakesSection, LWHomePosts
-  } = Components
+  } = Components;
 
   return (
       <AnalyticsContext pageContext="homePage">
