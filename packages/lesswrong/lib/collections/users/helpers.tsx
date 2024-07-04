@@ -13,6 +13,8 @@ import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
+export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
+
 export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
 
 // Get a user's display name (not unique, can take special characters and spaces)

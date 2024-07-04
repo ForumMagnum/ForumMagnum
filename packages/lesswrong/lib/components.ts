@@ -341,9 +341,6 @@ importComponent("ThemePickerMenu", () => require('../components/themes/ThemePick
 importComponent("SocialMediaLink", () => require('../components/users/SocialMediaLink'));
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
-importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
-importComponent("UsersAccountManagement", () => require('../components/users/UsersAccountManagement'));
-importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
 importComponent("UsersProfile", () => require('../components/users/UsersProfile'));
 importComponent("ReportUserButton", () => require('../components/users/ReportUserButton'));
@@ -387,6 +384,18 @@ importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
+
+// users account settings page
+
+importComponent("UsersAccount", () => require('../components/users/account/UsersAccount'));
+importComponent("UsersEditForm", () => require('../components/users/account/UsersEditForm'));
+importComponent("UsersAccountManagement", () => require('../components/users/account/UsersAccountManagement'));
+importComponent("ActionButtonSection", () => require('../components/users/account/ActionButtonSection'));
+importComponent("DeactivateAccountSection", () => require('../components/users/account/DeactivateAccountSection'));
+importComponent("DeleteAccountSection", () => require('../components/users/account/DeleteAccountSection'));
+
+
+//
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
