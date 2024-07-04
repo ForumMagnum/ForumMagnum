@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import type { UpdateUserWrapper } from './UsersAccountManagement';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
+import { useDialog } from '@/components/common/withDialog';
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -30,6 +31,7 @@ const DeleteAccountSection = ({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
   });
+  const { openDialog } = useDialog();
 
   const getWarningMessage = () => {
     if (!user.permanentDeletionRequestedAt) return null;
@@ -50,23 +52,39 @@ const DeleteAccountSection = ({
     </>
   );
 
+  const onClick = useCallback(() => {
+    const permanentDeletionRequestedAt = user.permanentDeletionRequestedAt ? null : new Date();
+    const deleted = !!permanentDeletionRequestedAt;
+
+    const confirmAction = async () => {
+      await updateUserWrapper({
+        updateUser,
+        data: {
+          permanentDeletionRequestedAt,
+          deleted,
+        },
+      });
+    }
+
+    if (!permanentDeletionRequestedAt) {
+      void confirmAction()
+    } else {
+      openDialog({
+        componentName: 'DeleteAccountConfirmationModal',
+        componentProps: {
+          confirmAction
+        }
+      })
+    }
+  }, [openDialog, updateUser, updateUserWrapper, user.permanentDeletionRequestedAt]);
+
   return (
     <ActionButtonSection
       description={description}
       buttonText={user.permanentDeletionRequestedAt ? "Revoke deletion request" : "Permanently delete account"}
       buttonProps={{ variant: "outlined", className: classes.warningButton }}
       loading={loading}
-      onClick={() => {
-        const permanentDeletionRequestedAt = user.permanentDeletionRequestedAt ? null : new Date();
-        const deleted = !!permanentDeletionRequestedAt;
-        void updateUserWrapper({
-          updateUser,
-          data: {
-            permanentDeletionRequestedAt,
-            deleted,
-          },
-        });
-      }}
+      onClick={onClick}
     />
   );
 };

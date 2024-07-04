@@ -393,7 +393,7 @@ importComponent("UsersAccountManagement", () => require('../components/users/acc
 importComponent("ActionButtonSection", () => require('../components/users/account/ActionButtonSection'));
 importComponent("DeactivateAccountSection", () => require('../components/users/account/DeactivateAccountSection'));
 importComponent("DeleteAccountSection", () => require('../components/users/account/DeleteAccountSection'));
-
+importComponent("DeleteAccountConfirmationModal", () => require('../components/users/account/DeleteAccountConfirmationModal'));
 
 //
 

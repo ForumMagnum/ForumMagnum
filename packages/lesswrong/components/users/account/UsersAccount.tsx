@@ -4,6 +4,7 @@ import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
+import { hasAccountDeletionFlow } from '@/lib/betas';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,12 +17,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   header: {
-    margin: 16,
+    marginLeft: 4,
     marginTop: 32,
     marginBottom: 32,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: 4,
-    },
+    marginRight: 16,
   },
 })
 
@@ -43,10 +42,14 @@ const UsersAccount = ({ classes }: { classes: ClassesType }) => {
         {preferredHeadingCase("Account Settings")}
       </Typography>
       <Components.UsersEditForm terms={terms} />
-      <Typography variant="display2" className={classes.header}>
-        {preferredHeadingCase("Manage Account")}
-      </Typography>
-      <Components.UsersAccountManagement terms={terms} />
+      {hasAccountDeletionFlow && (
+        <>
+          <Typography variant="display2" className={classes.header}>
+            {preferredHeadingCase("Manage Account")}
+          </Typography>
+          <Components.UsersAccountManagement terms={terms} />
+        </>
+      )}
     </div>
   );
 };
