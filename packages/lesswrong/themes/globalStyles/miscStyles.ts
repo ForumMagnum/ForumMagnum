@@ -130,6 +130,11 @@ html {
    * necessary to ensure it works on modal dialogs
    * (also tried adding it to Layout.jsx's JSS, and to the styles file in the ckeditor folder)
    */
+  --ck-z-panel: 10000000002 !important;
+  /**
+   * --ck-z-modal was renamed to --ck-z-panel in https://github.com/ckeditor/ckeditor5/pull/15285
+   * it's here for backwards compatibility only
+   */
   --ck-z-modal: 10000000002 !important;
 }
 
