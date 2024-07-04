@@ -37,9 +37,18 @@ const DeleteAccountSection = ({
     if (!user.permanentDeletionRequestedAt) return null;
 
     const deletionDate = moment(user.permanentDeletionRequestedAt).add(ACCOUNT_DELETION_COOLING_OFF_DAYS, 'days').toDate();
-    return <p className={classes.warningMessage}>
-        Your account will be permanently deleted in <FormatDate date={deletionDate} tooltip />
-      </p>;
+    return (
+      <p className={classes.warningMessage}>
+        Your account will be permanently deleted{" "}
+        {deletionDate > new Date() ? (
+          <span>
+            in <FormatDate date={deletionDate} tooltip={true} />
+          </span>
+        ) : (
+          <span>within an hour</span>
+        )}
+      </p>
+    );
   }
 
   const description = (
