@@ -15,7 +15,9 @@ import { useNavigate } from '@/lib/reactRouterWrapper';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     '& .form-submit': {
-      textAlign: 'right',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-end',
       marginRight: 5
     }
   },

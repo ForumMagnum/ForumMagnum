@@ -17,10 +17,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   header: {
-    marginLeft: 4,
-    marginTop: 32,
-    marginBottom: 32,
-    marginRight: 16,
+    margin: 0,
+    padding: '32px 16px 16px 4px'
   },
 })
 

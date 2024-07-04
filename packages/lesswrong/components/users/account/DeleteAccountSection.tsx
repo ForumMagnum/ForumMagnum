@@ -46,7 +46,7 @@ const DeleteAccountSection = ({
     <>
       <div>
         Deleting your account will permanently remove your data from the Forum and associated services. You will be
-        asked for confirmation before continuing, and will have 14 days to undo this action.
+        asked for confirmation before continuing.
       </div>
       {getWarningMessage()}
     </>
@@ -54,7 +54,7 @@ const DeleteAccountSection = ({
 
   const onClick = useCallback(() => {
     const permanentDeletionRequestedAt = user.permanentDeletionRequestedAt ? null : new Date();
-    const deleted = !!permanentDeletionRequestedAt;
+    const deleted = !!permanentDeletionRequestedAt || user.deleted;
 
     const confirmAction = async () => {
       await updateUserWrapper({
@@ -76,12 +76,12 @@ const DeleteAccountSection = ({
         }
       })
     }
-  }, [openDialog, updateUser, updateUserWrapper, user.permanentDeletionRequestedAt]);
+  }, [openDialog, updateUser, updateUserWrapper, user.deleted, user.permanentDeletionRequestedAt]);
 
   return (
     <ActionButtonSection
       description={description}
-      buttonText={user.permanentDeletionRequestedAt ? "Revoke deletion request" : "Permanently delete account"}
+      buttonText={user.permanentDeletionRequestedAt ? "Revoke deletion request" : "Delete account"}
       buttonProps={{ variant: "outlined", className: classes.warningButton }}
       loading={loading}
       onClick={onClick}
