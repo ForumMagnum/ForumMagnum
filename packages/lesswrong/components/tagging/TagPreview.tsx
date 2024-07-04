@@ -44,7 +44,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.extraFaint,
     paddingTop: 6,
     display: "flex",
-    ...theme.typography.smallFont,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
     marginTop: 6,

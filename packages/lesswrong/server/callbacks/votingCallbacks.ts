@@ -23,6 +23,11 @@ import { captureException } from '@sentry/core';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
+function votesCanTriggerReview(content: DbPost | DbComment) {
+  const sixMonthsAgo = moment().subtract(6, 'months');
+  return moment(content.postedAt).isAfter(sixMonthsAgo);
+}
+
 /**
  * @summary Update the karma of the item's owner
  * @param {object} item - The item being operated on
@@ -48,7 +53,8 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
     }
   }
 
-  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
+  
+  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
     void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
