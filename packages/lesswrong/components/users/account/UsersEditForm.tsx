@@ -9,17 +9,19 @@ import { isEAForum } from '@/lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
 import { captureEvent } from '@/lib/analyticsEvents';
 import { configureDatadogRum } from '@/client/datadogRum';
-import { preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useNavigate } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    '& .form-submit': {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-end',
-      marginRight: 5
-    }
+    ...(isFriendlyUI && {
+      "& .form-submit": {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-end",
+        marginRight: 5,
+      },
+    }),
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4

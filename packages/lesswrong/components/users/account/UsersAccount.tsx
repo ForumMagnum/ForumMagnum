@@ -2,7 +2,7 @@ import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React from 'react';
 import { useLocation } from '@/lib/routeUtil';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
-import { preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 import { useCurrentUser } from '@/components/common/withUser';
 import { hasAccountDeletionFlow } from '@/lib/betas';
 
@@ -18,7 +18,13 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     margin: 0,
-    padding: '32px 16px 16px 4px'
+    paddingTop: isFriendlyUI ? '32px' : '16px',
+    paddingBottom: isFriendlyUI ? '16px' : '32px',
+    paddingLeft: isFriendlyUI ? '4px' : '16px',
+    paddingRight: '16px',
+    [theme.breakpoints.down('xs')]: {
+      paddingLeft: "4px",
+    },
   },
 })
 
