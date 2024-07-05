@@ -13,8 +13,6 @@ const styles = (_theme: ThemeType) => ({
   },
 })
 
-export type UpdateUserWrapper = (args: {updateUser: WithUpdateFunction<"Users">, data: NullablePartial<DbUser>}) => Promise<void>;
-
 const UsersAccountManagement = ({terms: { slug }, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
