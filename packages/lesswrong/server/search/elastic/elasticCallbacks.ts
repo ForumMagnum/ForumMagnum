@@ -8,7 +8,6 @@ import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
 import { isElasticEnabled } from "./elasticSettings";
 
-// TODO note changes in this PR are separate from the main thing
 export const elasticSyncDocument = async (
   collectionName: SearchIndexCollectionName,
   documentId: string,
