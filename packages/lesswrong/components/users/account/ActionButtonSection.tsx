@@ -6,7 +6,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     lineHeight: '20px',
     fontWeight: 500,
-    color: theme.palette.grey[800]
+    color: theme.palette.grey[800],
+    marginBottom: 16
   },
 });
 
@@ -31,7 +32,7 @@ const ActionButtonSection = ({
 
   return (
     <div>
-      <p className={classes.blurb}>{description}</p>
+      <div className={classes.blurb}>{description}</div>
       <EAButton {...buttonProps} onClick={onClick}>
         {!loading ? buttonText : <Loading />}
       </EAButton>
