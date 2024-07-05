@@ -86,6 +86,7 @@ export const allowSubscribeToSequencePosts = isFriendlyUI;
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
+export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();

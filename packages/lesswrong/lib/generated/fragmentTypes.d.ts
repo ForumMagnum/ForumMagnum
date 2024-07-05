@@ -126,6 +126,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly legacyId: string,
   readonly deleted: boolean,
+  readonly permanentDeletionRequestedAt: Date | null,
   readonly voteBanned: boolean,
   readonly nullifyVotes: boolean,
   readonly deleteContent: boolean,
@@ -3383,6 +3384,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
+  readonly permanentDeletionRequestedAt: Date | null,
 }
 
 interface UsersAdmin { // fragment on Users

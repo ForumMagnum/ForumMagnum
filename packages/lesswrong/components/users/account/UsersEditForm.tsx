@@ -1,39 +1,29 @@
-import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import { useMessages } from '../common/withMessages';
+import { Components, registerComponent, getFragment } from '@/lib/vulcan-lib';
+import { useMessages } from '@/components/common/withMessages';
 import React from 'react';
-import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '../../lib/collections/users/helpers';
+import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} from '@/lib/collections/users/helpers';
 import Button from '@material-ui/core/Button';
-import { useCurrentUser } from '../common/withUser';
+import { useCurrentUser } from '@/components/common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { isEAForum } from '../../lib/instanceSettings';
-import { useThemeOptions, useSetTheme } from '../themes/useTheme';
-import { captureEvent } from '../../lib/analyticsEvents';
-import { configureDatadogRum } from '../../client/datadogRum';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { useNavigate } from '../../lib/reactRouterWrapper';
+import { isEAForum } from '@/lib/instanceSettings';
+import { useThemeOptions, useSetTheme } from '@/components/themes/useTheme';
+import { captureEvent } from '@/lib/analyticsEvents';
+import { configureDatadogRum } from '@/client/datadogRum';
+import { preferredHeadingCase } from '@/themes/forumTheme';
+import { useNavigate } from '@/lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    width: "60%",
-    maxWidth: 600,
-    margin: "auto",
-    marginBottom: 100,
-    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
+    '& .form-submit': {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      marginRight: 5
     }
-  },
-
-  header: {
-    margin: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 4,
-    [theme.breakpoints.down('md')]: {
-      marginLeft: theme.spacing.unit/2,
-    },
   },
   resetButton: {
     marginBottom:theme.spacing.unit * 4
-  }
+  },
 })
 
 const passwordResetMutation = gql`
@@ -43,35 +33,22 @@ const passwordResetMutation = gql`
 `
 
 const UsersEditForm = ({terms, classes}: {
-  terms: {slug?: string, documentId?: string},
+  terms: {slug: string},
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
-  const { Typography } = Components;
+  const { ErrorAccessDenied } = Components;
   const [ mutate, loading ] = useMutation(passwordResetMutation, { errorPolicy: 'all' })
   const currentThemeOptions = useThemeOptions();
   const setTheme = useSetTheme();
 
-  if(!terms.slug && !terms.documentId) {
-    // No user specified and not logged in
-    return (
-      <div className={classes.root}>
-        Log in to edit your profile.
-      </div>
-    );
+  if(!userCanEditUser(currentUser, terms)) {
+    return <ErrorAccessDenied />;
   }
-  if (!userCanEditUser(currentUser,
-    terms.documentId ?
-      {_id: terms.documentId} :
-      // HasSlugType wants some fields we don't have (schemaVersion, _id), but
-      // userCanEdit won't use them
-      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
-  )) {
-    return <span>Sorry, you do not have permission to do this at this time.</span>
-  }
+  const isCurrentUser = (terms.slug === currentUser?.slug)
 
   // currentUser will not be the user being edited in the case where current
   // user is an admin. This component does not have access to the user email at
@@ -80,17 +57,10 @@ const UsersEditForm = ({terms, classes}: {
   const requestPasswordReset = async () => {
     const { data } = await mutate({variables: { email: getUserEmail(currentUser) }})
     flash(data?.resetPassword)
-  } 
-
-  // Since there are two urls from which this component can be rendered, with different terms, we have to
-  // check both slug and documentId
-  const isCurrentUser = (terms.slug && terms.slug === currentUser?.slug) || (terms.documentId && terms.documentId === currentUser?._id)
+  }
 
   return (
     <div className={classes.root}>
-      <Typography variant="display2" className={classes.header}>
-        {preferredHeadingCase("Account Settings")}
-      </Typography>
       {/* TODO(EA): Need to add a management API call to get the reset password
           link, but for now users can reset their password from the login
           screen */}
