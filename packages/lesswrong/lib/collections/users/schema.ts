@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
+import {userGetProfileUrl, getAuth0IdIfUsernamePassword, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -399,7 +399,7 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins'],
     resolver: (user: DbUser) => {
       try {
-        getAuth0Id(user);
+        getAuth0IdIfUsernamePassword(user);
         return true;
       } catch {
         return false;
