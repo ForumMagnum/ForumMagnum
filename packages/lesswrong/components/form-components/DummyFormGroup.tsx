@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import * as _ from 'underscore';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-// TODO try importing these from FormGroupLayout
 const styles = (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
@@ -17,10 +16,10 @@ const styles = (theme: ThemeType) => ({
     display: "none",
   },
   formSectionPadding: {
-    paddingTop: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
-    paddingRight: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*2,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingRight: 16,
+    paddingLeft: 16,
   },
 });
 
