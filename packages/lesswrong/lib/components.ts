@@ -393,6 +393,7 @@ importComponent("UsersAccount", () => require('../components/users/account/Users
 importComponent("UsersEditForm", () => require('../components/users/account/UsersEditForm'));
 importComponent("UsersAccountManagement", () => require('../components/users/account/UsersAccountManagement'));
 importComponent("ActionButtonSection", () => require('../components/users/account/ActionButtonSection'));
+importComponent("ChangeLoginDetailsSection", () => require('../components/users/account/ChangeLoginDetailsSection'));
 importComponent("DeactivateAccountSection", () => require('../components/users/account/DeactivateAccountSection'));
 importComponent("DeleteAccountSection", () => require('../components/users/account/DeleteAccountSection'));
 importComponent("DeleteAccountConfirmationModal", () => require('../components/users/account/DeleteAccountConfirmationModal'));

@@ -17,7 +17,14 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   terms: {slug: string},
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ErrorAccessDenied, DummyFormGroup, Loading, DeactivateAccountSection, DeleteAccountSection } = Components;
+  const {
+    ErrorAccessDenied,
+    DummyFormGroup,
+    Loading,
+    DeactivateAccountSection,
+    DeleteAccountSection,
+    ChangeLoginDetailsSection,
+  } = Components;
 
   const currentUser = useCurrentUser();
   const {document: user} = useSingle({
@@ -36,6 +43,11 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
 
   return (
     <div>
+      <DummyFormGroup label={"Change login details"} startCollapsed={true}>
+        <div className={classes.actionsWrapper}>
+          <ChangeLoginDetailsSection user={user} />
+        </div>
+      </DummyFormGroup>
       <DummyFormGroup label={"Deactivate account"} startCollapsed={true}>
         <div className={classes.actionsWrapper}>
           <DeactivateAccountSection user={user} />

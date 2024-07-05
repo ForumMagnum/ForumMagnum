@@ -56,21 +56,6 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
   }
 });
 
-getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
-  const newEmail = modifier.$set?.email;
-  const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail && isEAForum) {
-    await updateAuth0Email(user, newEmail);
-    /*
-     * Be careful here: DbUser does NOT includes services, so overwriting
-     * modifier.$set.services is both very easy and very bad (amongst other
-     * things, it will invalidate the user's session)
-     */
-    modifier.$set["services.auth0"] = await getAuth0Profile(user);
-  }
-  return modifier;
-});
-
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
 {
   if(modifier.$set.whenConfirmationEmailSent
@@ -235,6 +220,16 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
       await sendVerificationEmailConditional(user)
+    }
+
+    if (isEAForum) {
+      await updateAuth0Email(user, newEmail);
+      /*
+       * Be careful here: DbUser does NOT includes services, so overwriting
+       * modifier.$set.services is both very easy and very bad (amongst other
+       * things, it will invalidate the user's session)
+       */
+      modifier.$set["services.auth0"] = await getAuth0Profile(user);
     }
   }
   return modifier;
