@@ -1,20 +1,19 @@
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import React from 'react';
-import type { UpdateUserWrapper } from './UsersAccountManagement';
 import { useUpdate } from '@/lib/crud/withUpdate';
+import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 
 const DeactivateAccountSection = ({
   user,
-  updateUserWrapper,
 }: {
   user: UsersEdit,
-  updateUserWrapper: UpdateUserWrapper,
 }) => {
   const { ActionButtonSection } = Components;
-  const { mutate: updateUser, loading } = useUpdate({
+  const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
   });
+  const updateUser = useFlashErrors(rawUpdateUser);
 
   const disableDeactivateButton = !!user.permanentDeletionRequestedAt && !!user.deleted;
 
@@ -25,10 +24,10 @@ const DeactivateAccountSection = ({
       buttonProps={{ variant: "contained", disabled: disableDeactivateButton }}
       loading={loading}
       onClick={() => {
-        void updateUserWrapper({
-          updateUser,
-          data: { deleted: !user.deleted }
-        })
+        void updateUser({
+          selector: { slug: user.slug },
+          data: { deleted: !user.deleted },
+        });
       }}
     />
   );

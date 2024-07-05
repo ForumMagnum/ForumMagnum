@@ -9,9 +9,6 @@ const styles = (theme: ThemeType) => ({
   dialogPaper: {
     maxWidth: 500,
   },
-  content: {
-    // padding: '16px !important'
-  },
   close: {
     position: "absolute",
     right: 12,
@@ -59,7 +56,7 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
       maxWidth={isFriendlyUI ? "md" : "sm"}
       dialogClasses={{ paper: classes.dialogPaper }}
     >
-      <DialogContent className={classes.content}>
+      <DialogContent>
         <Typography variant="display2" className={classes.header}>
           Confirm account deletion
         </Typography>

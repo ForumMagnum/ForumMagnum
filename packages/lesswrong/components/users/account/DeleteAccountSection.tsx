@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import { useUpdate } from '@/lib/crud/withUpdate';
-import type { UpdateUserWrapper } from './UsersAccountManagement';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
+import { useFlashErrors } from '@/components/hooks/useFlashErrors';
 
 const styles = (theme: ThemeType) => ({
   warningButton: {
@@ -19,18 +19,17 @@ const styles = (theme: ThemeType) => ({
 
 const DeleteAccountSection = ({
   user,
-  updateUserWrapper,
   classes,
 }: {
   user: UsersEdit,
-  updateUserWrapper: UpdateUserWrapper,
   classes: ClassesType<typeof styles>,
 }) => {
   const { ActionButtonSection, FormatDate } = Components;
-  const { mutate: updateUser, loading } = useUpdate({
+  const { mutate: rawUpdateUser, loading } = useUpdate({
     collectionName: "Users",
     fragmentName: 'UsersEdit',
   });
+  const updateUser = useFlashErrors(rawUpdateUser);
   const { openDialog } = useDialog();
 
   const getWarningMessage = () => {
@@ -66,8 +65,8 @@ const DeleteAccountSection = ({
     const deleted = !!permanentDeletionRequestedAt || user.deleted;
 
     const confirmAction = async () => {
-      await updateUserWrapper({
-        updateUser,
+      await updateUser({
+        selector: { slug: user.slug },
         data: {
           permanentDeletionRequestedAt,
           deleted,
@@ -85,7 +84,7 @@ const DeleteAccountSection = ({
         }
       })
     }
-  }, [openDialog, updateUser, updateUserWrapper, user.deleted, user.permanentDeletionRequestedAt]);
+  }, [openDialog, updateUser, user.deleted, user.permanentDeletionRequestedAt, user.slug]);
 
   return (
     <ActionButtonSection

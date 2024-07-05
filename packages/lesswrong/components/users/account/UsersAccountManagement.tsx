@@ -1,13 +1,10 @@
 import { Components, registerComponent } from '@/lib/vulcan-lib';
-import { useMessages } from '@/components/common/withMessages';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { userCanEditUser } from '@/lib/collections/users/helpers';
 import { useCurrentUser } from '@/components/common/withUser';
-import { useUpdate } from '@/lib/crud/withUpdate';
 import { useSingle } from '@/lib/crud/withSingle';
 
-const styles = (theme: ThemeType) => ({
-  root: {},
+const styles = (_theme: ThemeType) => ({
   actionsWrapper: {
     padding: '8px 0',
     display: 'flex',
@@ -30,19 +27,6 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
     collectionName: "Users",
     fragmentName: "UsersEdit",
   });
-  const { flash } = useMessages();
-
-  // TODO make this a generic part of the hook
-  const updateUserWrapper: UpdateUserWrapper = useCallback(async ({updateUser, data}) => {
-    try {
-      await updateUser({
-        selector: { slug },
-        data,
-      });
-    } catch (error) {
-      flash({ type: "error", messageString: error.message || "Failed to update user." });
-    }
-  }, [flash, slug]);
 
   if (!user) {
     return <Loading />
@@ -53,17 +37,11 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   }
 
   return (
-    <div className={classes.root}>
+    <div>
       <DummyFormGroup label={"Deactivate account"} startCollapsed={true}>
         <div className={classes.actionsWrapper}>
-          <DeactivateAccountSection
-            user={user}
-            updateUserWrapper={updateUserWrapper}
-          />
-          <DeleteAccountSection
-            user={user}
-            updateUserWrapper={updateUserWrapper}
-          />
+          <DeactivateAccountSection user={user} />
+          <DeleteAccountSection user={user} />
         </div>
       </DummyFormGroup>
     </div>
