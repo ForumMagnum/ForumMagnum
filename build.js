@@ -91,6 +91,9 @@ const serverBundleDefinitions = {
   "estrellaPid": process.pid,
 }
 
+// TODO add watch back in
+cliopts.watch = false;
+
 const clientOutfilePath = `${getOutputDir()}/client/js/bundle.js`;
 build({
   entryPoints: ['./packages/lesswrong/client/clientStartup.ts'],

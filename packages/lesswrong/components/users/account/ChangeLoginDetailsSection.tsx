@@ -1,33 +1,33 @@
 import { Components, registerComponent } from '@/lib/vulcan-lib';
-import React from 'react';
-import { useUpdate } from '@/lib/crud/withUpdate';
-import { useFlashErrors } from '@/components/hooks/useFlashErrors';
+import React, { useEffect } from 'react';
+import { useLoginPopoverContext } from '@/components/hooks/useLoginPopoverContext';
 
 const ChangeLoginDetailsSection = ({
   user,
 }: {
   user: UsersEdit,
 }) => {
-  const { ActionButtonSection } = Components;
-  const { mutate: rawUpdateUser, loading } = useUpdate({
-    collectionName: "Users",
-    fragmentName: 'UsersEdit',
-  });
-  const updateUser = useFlashErrors(rawUpdateUser);
+  const { ActionButtonSection, EALoginPopover } = Components;
+  const {onChangeLogin} = useLoginPopoverContext();
+
+  // TODO remove, here for debugging
+  useEffect(() => {
+    onChangeLogin()
+  }, [onChangeLogin])
 
   return (
-    <ActionButtonSection
-      description="TODO blurb"
-      buttonText={"Change login details"}
-      buttonProps={{ variant: "contained" }}
-      loading={loading}
-      onClick={() => {
-        void updateUser({
-          selector: { slug: user.slug },
-          data: { deleted: !user.deleted },
-        });
-      }}
-    />
+    <>
+      <ActionButtonSection
+        description="Change your email or switch between email/password and social login."
+        buttonText={"Change login details"}
+        buttonProps={{ variant: "contained" }}
+        loading={false}
+        onClick={() => {
+          onChangeLogin();
+        }}
+      />
+      <EALoginPopover />
+    </>
   );
 };
 

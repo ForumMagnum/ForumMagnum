@@ -90,6 +90,46 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
+  /**
+   * Returns users with only a single unique email across all email related
+   * fields, which matches the one given
+   */
+  getUsersWithUnambiguousEmailAndAuth0(email: string): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getUsersWithUnambiguousEmailAndAuth0
+      SELECT *
+      FROM "Users"
+      WHERE LOWER(email) = LOWER($1)
+        AND cardinality(emails) = 1
+        AND (services->'auth0'->'emails') IS NOT NULL
+        AND jsonb_array_length(services->'auth0'->'emails') = 1
+        AND email = (emails[1]->>'address')
+        AND email = ((services->'auth0'->'emails')->0->>'value')
+    `, [email]);
+  }
+
+  /**
+   * Returns users where the given email matches any email related fields
+   */
+  getUsersByAnyEmailField(email: string): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.getUsersByAnyEmailField
+      SELECT *
+      FROM "Users"
+      WHERE LOWER(email) = LOWER($1)
+      OR _id IN (
+        SELECT _id
+        FROM "Users", UNNEST(emails) unnested
+        WHERE LOWER(unnested->>'address') = LOWER($1)
+      )
+      OR _id IN (
+        SELECT _id
+        FROM "Users", jsonb_array_elements(services->'auth0'->'emails') auth0_emails
+        WHERE LOWER(auth0_emails->>'value') = LOWER($1)
+      )
+    `, [email]);
+  }
+
   async clearLoginTokens(userId: string): Promise<void> {
     await this.none(`
       -- UsersRepo.clearLoginTokens

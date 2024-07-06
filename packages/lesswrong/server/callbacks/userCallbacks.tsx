@@ -14,7 +14,7 @@ import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authenticatio
 import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
+import {userGetLocation, getUserEmail, getAuth0Id} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -23,7 +23,7 @@ import { EventDebouncer } from '../debouncer';
 import { Components } from '../../lib/vulcan-lib/components';
 import { Conversations } from '../../lib/collections/conversations/collection';
 import { Messages } from '../../lib/collections/messages/collection';
-import { getAuth0Profile, updateAuth0Email } from '../authentication/auth0';
+import { getAuth0ProfileByUser, updateAuth0Email } from '../authentication/auth0';
 import { triggerReviewIfNeeded } from './sunshineCallbackUtils';
 import isEqual from 'lodash/isEqual';
 import {userFindOneByEmail} from "../commonQueries";
@@ -199,9 +199,12 @@ const sendVerificationEmailConditional = async  (user: DbUser) => {
 
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
   // if email is being modified, update user.emails too
-  if (modifier.$set && modifier.$set.email) {
-
+  if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
     const newEmail = modifier.$set.email;
+
+    if (isEAForum && !modifier.$set["services.auth0"]) {
+      throw new Error("Cannot update email without also updating auth0 profile")
+    }
 
     // check for existing emails and throw error if necessary
     const userWithSameEmail = await userFindOneByEmail(newEmail);
@@ -222,15 +225,16 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
       await sendVerificationEmailConditional(user)
     }
 
-    if (isEAForum) {
-      await updateAuth0Email(user, newEmail);
-      /*
-       * Be careful here: DbUser does NOT includes services, so overwriting
-       * modifier.$set.services is both very easy and very bad (amongst other
-       * things, it will invalidate the user's session)
-       */
-      modifier.$set["services.auth0"] = await getAuth0Profile(user);
-    }
+    // if (isEAForum) {
+    //   // TODO remove this case, require using the "Change login details" method (TODO check LW also)
+    //   await updateAuth0Email(user, newEmail);
+    //   /*
+    //    * Be careful here: DbUser does NOT includes services, so overwriting
+    //    * modifier.$set.services is both very easy and very bad (amongst other
+    //    * things, it will invalidate the user's session)
+    //    */
+    //   modifier.$set["services.auth0"] = await getAuth0ProfileByUser(getAuth0Id(user));
+    // }
   }
   return modifier;
 });

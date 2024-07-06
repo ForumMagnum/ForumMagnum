@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0IdIfUsernamePassword, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
+import {userGetProfileUrl, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS, getAuth0Provider } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -393,19 +393,25 @@ const schema: SchemaType<"Users"> = {
     blackbox: true,
     canRead: ownsOrIsAdmin
   },
+  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: resolverOnlyField({
     type: Boolean,
     // Mods cannot read because they cannot read services, which is a prerequisite
     canRead: [userOwns, 'admins'],
     resolver: (user: DbUser) => {
-      try {
-        getAuth0IdIfUsernamePassword(user);
-        return true;
-      } catch {
-        return false;
-      }
+      // TODO flag change
+      return getAuth0Provider(user) === 'auth0';
     },
   }),
+
+  // /**  */
+  // authorizedAuth0Profile: {
+  //   type: Object,
+  //   optional: true,
+  //   blackbox: true,
+  //   canRead: ownsOrIsAdmin
+  // },
+
   // The name displayed throughout the app. Can contain spaces and special characters, doesn't need to be unique
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {

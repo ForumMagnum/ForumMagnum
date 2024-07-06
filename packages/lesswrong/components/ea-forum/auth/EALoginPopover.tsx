@@ -9,6 +9,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useRefetchCurrentUser } from "../../common/withUser";
 import {forumTitleSetting, siteNameWithArticleSetting} from '../../../lib/instanceSettings'
 import { LoginAction, useLoginPopoverContext } from "../../hooks/useLoginPopoverContext";
+import { useChangeLoginDetails } from "./useChangeLoginDetails";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -88,6 +89,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
   },
+  lightText: {
+    color: theme.palette.grey[800]
+  },
   error: {
     color: theme.palette.text.error2,
     marginBottom: 4,
@@ -160,6 +164,24 @@ const styles = (theme: ThemeType) => ({
   passwordPolicy: {
     textAlign: "left",
   },
+  confirmDetails: {
+    textAlign: 'left',
+    width: 'fit-content',
+    padding: '0px 12px',
+    margin: 'auto',
+    marginBottom: 12,
+    maxWidth: '100%',
+    '& div': {
+      marginBottom: 6,
+      fontSize: 14,
+      fontWeight: 500,
+      color: theme.palette.grey[800],
+      maxWidth: '100%',
+      whiteSpace: 'nowrap',
+      textOverflow: 'ellipsis',
+      overflow: 'hidden'
+    }
+  }
 });
 
 type Tree = {
@@ -217,6 +239,22 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
+const HEADING_TEXT: Record<LoginAction, string> = {
+  login: "Welcome back",
+  signup: `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`,
+  changeLogin: "Change login details",
+  confirmLoginChange: "Change login details"
+}
+
+const BUTTON_TEXT: Record<LoginAction, string> = {
+  login: "Login",
+  signup: "Sign up",
+  changeLogin: "Submit",
+  confirmLoginChange: "Submit"
+}
+
+type LoginMethodString = "Email/password" | "Google" | "Facebook";
+
 export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = true, googleEnabled = true, classes}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
@@ -230,8 +268,12 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
 
   const open = !!action;
   const isSignup = action === "signup";
+  const isLogin = action === "login";
+  const isChangeLogin = action === "changeLogin";
+  const isConfirmLoginChange = action === "confirmLoginChange";
 
   const client = useAuth0Client();
+  // TODO change back
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -241,6 +283,10 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   const [error, setError] = useState<string | null>(null);
   const [policy, setPolicy] = useState<string | null>(null);
   const refetchCurrentUser = useRefetchCurrentUser();
+
+  // Variables for changing login details
+  const { canChangeLoginDetailsTo, changeLoginDetailsTo } = useChangeLoginDetails();
+  const [newLoginMethod, setNewLoginMethod] = useState<LoginMethodString>("Email/password")
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -288,11 +334,27 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
 
     try {
       setLoading(true);
-      await (
-        isSignup
-          ? client.signup(email, password)
-          : client.login(email, password)
-      );
+      switch (action) {
+        case "signup":
+          await client.signup(email, password);
+          break;
+        case "login":
+          await client.login(email, password);
+          break;
+        case "changeLogin":
+          const canChangeDetails = await canChangeLoginDetailsTo(email, password);
+          if (canChangeDetails) {
+            setAction("confirmLoginChange")
+          } else {
+            setError(`User with email already exists, please contact support if you would like to merge the two accounts`)
+          }
+          break;
+        case "confirmLoginChange":
+          await changeLoginDetailsTo(email, password);
+          break;
+        default:
+          throw new Error(`Unhandled action type: ${action}`);
+      }
       await refetchCurrentUser();
     } catch (e) {
       // eslint-disable-next-line no-console
@@ -302,24 +364,31 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } finally {
       setLoading(false);
     }
-  }, [
-    client, email, password, isSignup, isResettingPassword,
-    onSendPasswordReset, refetchCurrentUser,
-  ]);
+  }, [isResettingPassword, email, password, onSendPasswordReset, action, refetchCurrentUser, client, canChangeLoginDetailsTo, changeLoginDetailsTo, setAction]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
     setError(null);
     setPolicy(null);
-    client.socialLogin("google-oauth2");
-  }, [client]);
+
+    if (!isChangeLogin) {
+      client.socialLogin("google-oauth2");
+    } else {
+      throw new Error("Not implemented")
+    }
+  }, [client, isChangeLogin]);
 
   const onClickFacebook = useCallback(async () => {
     setMessage(null);
     setError(null);
     setPolicy(null);
-    client.socialLogin("facebook");
-  }, [client]);
+
+    if (!isChangeLogin) {
+      client.socialLogin("facebook");
+    } else {
+      throw new Error("Not implemented")
+    }
+  }, [client, isChangeLogin]);
 
   const onForgotPassword = useCallback(() => {
     setIsResettingPassword(true);
@@ -339,8 +408,9 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
 
   useEffect(() => {
     if (!open) {
-      setEmail("");
-      setPassword("");
+      // TODO revert
+      // setEmail("");
+      // setPassword("");
       setShowPassword(false);
       setLoading(false);
       setMessage(null);
@@ -350,13 +420,179 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     }
   }, [open]);
 
-  const title = isSignup
-    ? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`
-    : "Welcome back";
+  // TODO don't use ! here
+  const title = HEADING_TEXT[action!]
 
   const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
+  const emailPlaceholder = isChangeLogin ? "New email" : "Email";
+  const passwordPlaceholder = isChangeLogin ? "New password (can match existing)" : "Password";
 
   const {BlurredBackgroundModal, ForumIcon, EAButton, Loading} = Components;
+
+  const defaultContent = <>
+    {/* TODO update message */}
+    {isChangeLogin && <div className={classNames(classes.message, classes.lightText)}>
+      TEST If the details match an existing user, you will be asked if you want to merge the two users
+    </div>}
+    <div className={classes.formContainer}>
+      <form onSubmit={onSubmit} className={classes.form}>
+        <div className={classNames(classes.inputContainer, {
+          [classes.inputBottomMargin]: isResettingPassword,
+        })}>
+          <input
+            type="text"
+            placeholder={emailPlaceholder}
+            value={email}
+            onChange={onChangeEmail}
+            data-testid="login-email-input"
+            className={classes.input}
+            autoFocus
+          />
+        </div>
+        {!isResettingPassword &&
+          <div className={classes.inputContainer}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder={passwordPlaceholder}
+              value={password}
+              onChange={onChangePassword}
+              data-testid="login-password-input"
+              className={classes.input}
+            />
+            <ForumIcon
+              icon={showPassword ? "EyeSlash" : "Eye"}
+              onClick={toggleShowPassword}
+              className={classes.showPasswordButton}
+            />
+          </div>
+        }
+        {isLogin && !isResettingPassword &&
+          <div className={classes.forgotPassword}>
+            <a onClick={onForgotPassword}>Forgot password?</a>
+          </div>
+        }
+        {message &&
+          <div className={classes.message}>
+            {message}
+          </div>
+        }
+        {error &&
+          <div className={classes.error}>
+            {error}
+            {policy && <PasswordPolicy policy={policy} classes={classes} />}
+          </div>
+        }
+        <EAButton
+          type="submit"
+          style="primary"
+          disabled={!canSubmit}
+          data-testid="login-submit"
+          className={classes.button}
+        >
+          {loading
+            ? <Loading />
+            : isResettingPassword
+              ? "Request password reset"
+              : BUTTON_TEXT[action!]
+          }
+        </EAButton>
+      </form>
+      <div className={classes.orContainer}>
+        <span className={classes.orHr} />OR<span className={classes.orHr} />
+      </div>
+      <div className={classes.socialContainer}>
+        {googleEnabled && <EAButton
+          style="grey"
+          variant="outlined"
+          onClick={onClickGoogle}
+          className={classNames(classes.button, classes.socialButton)}
+        >
+          <img src={links.googleLogo} /> Continue with Google
+        </EAButton>}
+        {facebookEnabled && <EAButton
+          style="grey"
+          variant="outlined"
+          onClick={onClickFacebook}
+          className={classNames(classes.button, classes.socialButton)}
+        >
+          <FacebookIcon /> Continue with Facebook
+        </EAButton>}
+      </div>
+      {isSignup && (
+        <div className={classes.switchPrompt}>
+          Already have an account?{" "}
+          <a
+            onClick={onLinkToLogin}
+            className={classes.switchPromptButton}
+          >
+            Login
+          </a>
+        </div>
+      )}
+      {isLogin && (
+        <div className={classes.switchPrompt}>
+          Don't have an account?{" "}
+          <a
+            onClick={onLinkToSignup}
+            className={classes.switchPromptButton}
+          >
+            Sign up
+          </a>
+        </div>
+      )}
+    </div>
+    {isSignup && <div className={classes.finePrint}>
+      By creating an{" " + forumTitleSetting.get() + " "}account, you agree to the{" "}
+      <Link to={links.terms} target="_blank" rel="noopener noreferrer">
+        Terms of Use
+      </Link> and{" "}
+      <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
+        Privacy Policy
+      </Link>.
+    </div>}
+  </>;
+
+  // TODO maybe combine this with the above
+  const confirmContent = <>
+    {isConfirmLoginChange && <div className={classNames(classes.message, classes.lightText)}>
+      Are you sure you want to use these login details? Once you submit you won't be able to log in using your old details.
+    </div>}
+    <div className={classes.formContainer}>
+      <form onSubmit={onSubmit} className={classes.form}>
+        <div className={classes.confirmDetails}>
+          <div><b>Login method:</b>{" "}{newLoginMethod}</div>
+          <div><b>Email:</b>{" "}{email}</div>
+          <div><b>Password:</b>{" "}{'•'.repeat(password.length)}</div>
+        </div>
+        {message &&
+          <div className={classes.message}>
+            {message}
+          </div>
+        }
+        {error &&
+          <div className={classes.error}>
+            {error}
+            {policy && <PasswordPolicy policy={policy} classes={classes} />}
+          </div>
+        }
+        <EAButton
+          type="submit"
+          style="primary"
+          disabled={!canSubmit}
+          data-testid="login-submit"
+          className={classes.button}
+        >
+          {loading
+            ? <Loading />
+            : isResettingPassword
+              ? "Request password reset"
+              : BUTTON_TEXT[action!]
+          }
+        </EAButton>
+      </form>
+    </div>
+  </>;
+
   return (
     <BlurredBackgroundModal open={open} onClose={onClose} className={classes.root}>
       <AnalyticsContext pageElementContext="loginPopover">
@@ -367,126 +603,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
         />
         <div className={classes.lightbulb}>{lightbulbIcon}</div>
         <div className={classes.title}>{title}</div>
-        <div className={classes.formContainer}>
-          <form onSubmit={onSubmit} className={classes.form}>
-            <div className={classNames(classes.inputContainer, {
-              [classes.inputBottomMargin]: isResettingPassword,
-            })}>
-              <input
-                type="text"
-                placeholder="Email"
-                value={email}
-                onChange={onChangeEmail}
-                data-testid="login-email-input"
-                className={classes.input}
-                autoFocus
-              />
-            </div>
-            {!isResettingPassword &&
-              <div className={classes.inputContainer}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={onChangePassword}
-                  data-testid="login-password-input"
-                  className={classes.input}
-                />
-                <ForumIcon
-                  icon={showPassword ? "EyeSlash" : "Eye"}
-                  onClick={toggleShowPassword}
-                  className={classes.showPasswordButton}
-                />
-              </div>
-            }
-            {!isSignup && !isResettingPassword &&
-              <div className={classes.forgotPassword}>
-                <a onClick={onForgotPassword}>Forgot password?</a>
-              </div>
-            }
-            {message &&
-              <div className={classes.message}>
-                {message}
-              </div>
-            }
-            {error &&
-              <div className={classes.error}>
-                {error}
-                {policy && <PasswordPolicy policy={policy} classes={classes} />}
-              </div>
-            }
-            <EAButton
-              type="submit"
-              style="primary"
-              disabled={!canSubmit}
-              data-testid="login-submit"
-              className={classes.button}
-            >
-              {loading
-                ? <Loading />
-                : isResettingPassword
-                  ? "Request password reset"
-                  : isSignup
-                    ? "Sign up"
-                    : "Login"
-              }
-            </EAButton>
-          </form>
-          <div className={classes.orContainer}>
-            <span className={classes.orHr} />OR<span className={classes.orHr} />
-          </div>
-          <div className={classes.socialContainer}>
-            {googleEnabled && <EAButton
-              style="grey"
-              variant="outlined"
-              onClick={onClickGoogle}
-              className={classNames(classes.button, classes.socialButton)}
-            >
-              <img src={links.googleLogo} /> Continue with Google
-            </EAButton>}
-            {facebookEnabled && <EAButton
-              style="grey"
-              variant="outlined"
-              onClick={onClickFacebook}
-              className={classNames(classes.button, classes.socialButton)}
-            >
-              <FacebookIcon /> Continue with Facebook
-            </EAButton>}
-          </div>
-          {isSignup
-            ? (
-              <div className={classes.switchPrompt}>
-                Already have an account?{" "}
-                <a
-                  onClick={onLinkToLogin}
-                  className={classes.switchPromptButton}
-                >
-                  Login
-                </a>
-              </div>
-            )
-            : (
-              <div className={classes.switchPrompt}>
-                Don't have an account?{" "}
-                <a
-                  onClick={onLinkToSignup}
-                  className={classes.switchPromptButton}
-                >
-                  Sign up
-                </a>
-              </div>
-            )
-          }
-        </div>
-        {isSignup && <div className={classes.finePrint}>
-          By creating an{" " + forumTitleSetting.get() + " "}account, you agree to the{" "}
-          <Link to={links.terms} target="_blank" rel="noopener noreferrer">
-            Terms of Use
-          </Link> and{" "}
-          <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
-            Privacy Policy
-          </Link>.
-        </div>}
+        {!isConfirmLoginChange ? defaultContent : confirmContent}
       </AnalyticsContext>
     </BlurredBackgroundModal>
   );

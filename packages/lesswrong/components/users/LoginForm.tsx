@@ -8,6 +8,7 @@ import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import type { LoginAction } from '../hooks/useLoginPopoverContext.tsx';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -235,11 +236,11 @@ const LoginFormEA = ({
   onClose,
 }: LoginFormProps) => {
   const { pathname, query } = useLocation()
-  const [action, setAction] = useState<"login" | "signup" | null>(
+  const [action, setAction] = useState<LoginAction | null>(
     startingState === "pwReset" ? "login" : "signup",
   );
 
-  const wrappedSetAction = useCallback((action: "login" | "signup" | null) => {
+  const wrappedSetAction = useCallback((action: LoginAction | null) => {
     setAction(action);
     if (!action) {
       onClose?.();

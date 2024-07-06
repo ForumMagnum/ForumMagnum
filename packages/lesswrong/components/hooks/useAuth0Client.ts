@@ -38,9 +38,19 @@ class Auth0Client {
     await this.post("/auth/auth0/embedded-signup", {email, password});
   }
 
+  async connectLoginToUser(email: string, password: string): Promise<void> {
+    await this.post("/auth/auth0/connect-login-to-user", {email, password});
+  }
+
   socialLogin(connection: "google-oauth2" | "facebook"): void {
     const returnTo = encodeURIComponent(window.location.href);
     window.location.href = `/auth/auth0?returnTo=${returnTo}&connection=${connection}`;
+  }
+
+  connectSocialLoginToUser(connection: "google-oauth2" | "facebook"): void {
+    throw new Error("Not implemented")
+    // const returnTo = encodeURIComponent(window.location.href);
+    // window.location.href = `/auth/auth0?returnTo=${returnTo}&connection=${connection}`;
   }
 
   async resetPassword(email: string): Promise<void> {

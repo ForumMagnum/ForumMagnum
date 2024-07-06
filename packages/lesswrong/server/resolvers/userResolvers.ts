@@ -15,6 +15,7 @@ import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { createPaginatedResolver } from './paginatedResolver';
+import { canChangeLoginDetailsTo, changeLoginDetailsTo } from '../users/changeLoginDetails';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -223,6 +224,48 @@ addGraphQLResolvers({
       
       return updatedUser
     },
+    /**
+     * Returns true if we can immediately create a new auth0 user with these credentials without colliding with an existing user,
+     * returns false if there is an existing user that that could be merged with. Throws an error otherwise (e.g. in the case where
+     * there is an existing user, but it's not possible to merge with it).
+     *
+     * Note: this does not actually mutate anything, it's defined as a mutation because it makes calling it simpler (it's called via
+     * a callback function, rather than running automatically when a component renders).
+     */
+    async CanChangeLoginDetailsTo(root: void, {email, password}: {email: string, password: string}, context: ResolverContext): Promise<boolean> {
+      // TODO throw an error if admins try to edit a user which is not their own
+      const { currentUser } = context;
+
+      if (!currentUser) {
+        throw new Error("User must already be logged in to change login details")
+      }
+      if (!email || typeof email !== "string") {
+        throw new Error("Email is required");
+      }
+      if (!password || typeof password !== "string") {
+        throw new Error("Password is required");
+      }
+
+      return await canChangeLoginDetailsTo({email, password, currentUser});
+    },
+    async ChangeLoginDetailsTo(root: void, {email, password}: {email: string, password: string}, context: ResolverContext) {
+      // TODO throw an error if admins try to edit a user which is not their own
+      const { currentUser } = context;
+
+      if (!currentUser) {
+        throw new Error("User must already be logged in to change login details")
+      }
+      if (!email || typeof email !== "string") {
+        throw new Error("Email is required");
+      }
+      if (!password || typeof password !== "string") {
+        throw new Error("Password is required");
+      }
+
+      await changeLoginDetailsTo({email, password, currentUser, context});
+
+      return true;
+    }
   },
 
   Query: {
@@ -263,8 +306,12 @@ addGraphQLMutation(
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
+addGraphQLMutation('CanChangeLoginDetailsTo(email: String!, password: String!): Boolean')
+addGraphQLMutation('ChangeLoginDetailsTo(email: String!, password: String!): Boolean')
+
 addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
+
 
 defineQuery({
   name: "GetUserDialogueUsefulData",

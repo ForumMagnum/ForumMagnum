@@ -9,7 +9,7 @@ import {
   UserMetadata,
 } from "auth0";
 import Profile from "passport-auth0/lib/Profile";
-import { getAuth0Id, getAuth0IdIfUsernamePassword } from "../../lib/collections/users/helpers";
+import { getAuth0Id, getAuth0Provider } from "../../lib/collections/users/helpers";
 import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
@@ -31,7 +31,7 @@ type Auth0User = User<AppMetadata, UserMetadata>;
 abstract class IAuth0BackendClient {
   abstract getUserById(auth0UserId: string): Promise<Auth0User>;
   abstract updateUserById(auth0UserId: string, data: UpdateUserData): Promise<Auth0User>;
-  abstract signupUser(email: string, password: string): Promise<void>;
+  abstract signupUser(email: string, password: string): Promise<User<AppMetadata, UserMetadata> | null>;
   abstract loginUser(email: string, password: string): Promise<string | null>;
   abstract getGrants({auth0UserId, clientId}: {auth0UserId: string, clientId?: string}): Promise<GrantResponse[]>;
   abstract revokeApplicationAuthorization(auth0UserId: string): Promise<void>;
@@ -60,8 +60,9 @@ class MockAuth0Client extends IAuth0BackendClient {
     throw new Error("updateUserById not implemented for tests");
   }
 
-  async signupUser(_email: string, _password: string): Promise<void> {
+  async signupUser(_email: string, _password: string) {
     this.assertIsE2E();
+    return null;
   }
 
   async loginUser(email: string, _password: string): Promise<string | null> {
@@ -134,12 +135,12 @@ class Auth0Client extends IAuth0BackendClient {
     return client.updateUser({id: auth0UserId}, data);
   }
 
-  async signupUser(email: string, password: string): Promise<void> {
+  async signupUser(email: string, password: string) {
     const client = this.getAuthClient();
     if (!client.database) {
       throw new Error("Database authenticator not initialized");
     }
-    await client.database.signUp({
+    return await client.database.signUp({
       email,
       password,
       connection: getAuth0Connection(),
@@ -203,7 +204,8 @@ class Auth0Client extends IAuth0BackendClient {
   }
 }
 
-const auth0Client: IAuth0BackendClient = isE2E
+// TODO no export
+export const auth0Client: IAuth0BackendClient = isE2E
   ? new MockAuth0Client()
   : new Auth0Client();
 
@@ -262,16 +264,23 @@ export async function auth0RemoveAssociationAndTryDeleteUser(user: DbUser): Prom
   return true;
 }
 
-// TODO: Probably good to fix this, IM(JP)O. It works because we only use it in
-// a context where we're guaranteed to have an email/password user.
-/** Warning! Only returns profiles of users who do not use OAuth */
-export const getAuth0Profile = async (user: DbUser) => {
-  const result = await auth0Client.getUserById(getAuth0IdIfUsernamePassword(user));
+// TODO flag removing restriction to email/password accounts
+export const getAuth0ProfileByUser = async (user: DbUser) => {
+  const result = await auth0Client.getUserById(getAuth0Id(user));
   return new Profile(result, JSON.stringify(result));
 }
 
+export const getAuth0ProfileById = async (auth0Id: string) => {
+  const result = await auth0Client.getUserById(auth0Id);
+  return new Profile(result, JSON.stringify(result));
+}
+
+// TODO remove
 export const updateAuth0Email = (user: DbUser, newEmail: string) => {
-  return auth0Client.updateUserById(getAuth0IdIfUsernamePassword(user), {email: newEmail});
+  if (getAuth0Provider(user) !== 'auth0') {
+    throw new Error("Cannot update email for user that doesn't use email/password login")
+  }
+  return auth0Client.updateUserById(getAuth0Id(user), {email: newEmail});
 }
 
 class Auth0Error extends Error {
