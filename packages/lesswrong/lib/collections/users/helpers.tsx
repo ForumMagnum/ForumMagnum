@@ -551,9 +551,20 @@ export const isMod = (user: UsersProfile|DbUser): boolean => {
 // TODO: I (JP) think this should be configurable in the function parameters
 /** Warning! Only returns *auth0*-provided auth0 Ids. If a user has an ID that
  * we get from auth0 but is ultimately from google this function will throw. */
-export const getAuth0Id = (user: DbUser) => {
+export const getAuth0IdIfUsernamePassword = (user: DbUser) => {
   const auth0 = user.services?.auth0;
   if (auth0 && auth0.provider === "auth0") {
+    const id = auth0.id ?? auth0.user_id;
+    if (id) {
+      return id;
+    }
+  }
+  throw new Error("User does not use username/password login or does not have an Auth0 user ID");
+}
+
+export const getAuth0Id = (user: DbUser) => {
+  const auth0 = user.services?.auth0;
+  if (auth0) {
     const id = auth0.id ?? auth0.user_id;
     if (id) {
       return id;

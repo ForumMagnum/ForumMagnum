@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 import { useCurrentUser } from "../common/withUser";
@@ -10,6 +10,8 @@ import ForumNoSSR from "../common/ForumNoSSR";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import range from "lodash/range";
+import sortBy from "lodash/sortBy";
 
 export const POLL_MAX_WIDTH = 730;
 const SLIDER_MAX_WIDTH = 1000;
@@ -44,8 +46,21 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     maxWidth: SLIDER_MAX_WIDTH,
   },
+  sparkline: {
+    position: 'absolute',
+    top: -48,
+    width: '100%',
+    '& .Sparkline-path': {
+      stroke: `color-mix(in oklab, var(--forum-event-contrast), ${theme.palette.grey[500]})`,
+    },
+    '& .Sparkline-line': {
+      stroke: 'var(--forum-event-background)',
+    }
+  },
   sliderLine: {
     position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
     width: '100%',
     height: 2,
     backgroundColor: theme.palette.text.alwaysWhite,
@@ -60,6 +75,21 @@ const styles = (theme: ThemeType) => ({
   sliderArrowRight: {
     marginLeft: -15,
   },
+  voteCluster: {
+    position: 'relative',
+    flexGrow: 1,
+    height: USER_IMAGE_SIZE + 6,
+    opacity: 0.3,
+    zIndex: 4,
+    '&:hover': {
+      background: `radial-gradient(${theme.palette.text.alwaysBlack} 60%, transparent)`,
+    }
+  },
+  voteClusterHoverOver: {
+    display: 'flex',
+    columnGap: '4px',
+    padding: 10,
+  },
   userVote: {
     position: 'absolute',
     top: -USER_IMAGE_SIZE/2,
@@ -68,7 +98,7 @@ const styles = (theme: ThemeType) => ({
   currentUserVote: {
     opacity: 0.6,
     cursor: 'grab',
-    zIndex: 2,
+    zIndex: 10,
     touchAction: 'none',
     '&:hover': {
       opacity: 1,
@@ -100,12 +130,17 @@ const styles = (theme: ThemeType) => ({
   userImage: {
     outline: `2px solid ${theme.palette.text.alwaysWhite}`,
   },
+  userImageBoxShadow: {
+    boxShadow: theme.palette.boxShadow.eaCard,
+  },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
     background: `radial-gradient(${theme.palette.text.alwaysBlack} 50%, transparent 50%)`,
     color: theme.palette.text.alwaysWhite,
     fontSize: 34,
     borderRadius: '50%',
+    // offset the additional 5px on the left added by the larger font size
+    marginLeft: -5,
   },
   clearVote: {
     display: 'none',
@@ -178,6 +213,47 @@ export const getForumEventVoteForUser = (
 ): number|null => {
   return user ? (event?.publicData?.[user._id]?.x ?? null) : null
 }
+
+type ForumEventVoteDisplayCluster = {
+  center: number,
+  votes: ForumEventVoteDisplay[]
+}
+type ForumEventVoteDisplay = {
+  x: number,
+  user: UserOnboardingAuthor,
+}
+
+/**
+ * Groups the given forum event votes into n equal-width clusters
+ */
+const clusterForumEventVotes = (
+  voters?: UserOnboardingAuthor[],
+  event?: ForumEventsDisplay|null,
+  numClusters = 21
+): ForumEventVoteDisplayCluster[] => {
+  if (!voters || !event || !event.publicData) return []
+  
+  let votes = voters.map(voter => {
+    const vote = event.publicData[voter._id].x
+    return {
+      x: vote,
+      user: voter,
+    }
+  })
+  votes = sortBy(votes, 'x')
+  
+  const clusterWidth = maxVotePos / numClusters
+  const clusters: ForumEventVoteDisplayCluster[] = range(0, numClusters).map(i => ({
+    center: (i + 0.5) * clusterWidth,
+    votes: [],
+  }))
+  votes.forEach(vote => {
+    const clusterIndex = Math.min(Math.floor(vote.x / clusterWidth), numClusters - 1)
+    clusters[clusterIndex].votes.push(vote)
+  })
+  return clusters
+}
+
 
 const PollQuestion = ({event, classes}: {
   event: ForumEventsDisplay,
@@ -259,13 +335,14 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
       userIds: event?.publicData ?
         Object.keys(event?.publicData).filter(userId => userId !== currentUser?._id) :
         [],
-      limit: 300,
+      limit: 500,
     },
     collectionName: "Users",
     fragmentName: 'UserOnboardingAuthor',
     enableTotal: false,
     skip: !event?.publicData,
   })
+  const voteClusters = useMemo(() => clusterForumEventVotes(voters, event), [voters, event])
   
   const [addVote] = useMutation(
     addForumEventVoteQuery,
@@ -387,7 +464,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
   ])
   useEventListener("pointerup", saveVotePos)
 
-  const {ForumIcon, LWTooltip, UsersProfileImage} = Components;
+  const {ForumIcon, LWTooltip, UsersProfileImage, HoverOver, Sparkline} = Components;
   
   if (!event) return null
 
@@ -399,14 +476,42 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
         <div className={classes.sliderRow}>
           <ForumIcon icon="ChevronLeft" className={classNames(classes.sliderArrow, classes.sliderArrowLeft)} />
           <div className={classes.sliderLineCol}>
+            
             <div className={classes.sliderLine} ref={sliderRef}>
+              {resultsVisible && voters && <div className={classes.sparkline}>
+                <Sparkline max={maxVotePos} data={voters.map(v => event.publicData[v._id].x)} />
+              </div>}
               {resultsVisible && voters && voters.map(user => {
                 const vote = event.publicData[user._id]
                 return <div key={user._id} className={classes.userVote} style={{left: `${vote.x * 100}%`}}>
-                  <LWTooltip title={<div className={classes.voteTooltipBody}>{user.displayName}</div>}>
-                    <UsersProfileImage user={user} size={USER_IMAGE_SIZE} className={classes.userImage} />
-                  </LWTooltip>
+                  <UsersProfileImage user={user} size={USER_IMAGE_SIZE} className={classes.userImage} />
                 </div>
+              })}
+              {resultsVisible && voteClusters.map(cluster => {
+                return <HoverOver
+                  key={cluster.center}
+                  title={
+                    <div className={classes.voteClusterHoverOver}>
+                      {cluster.votes.map(vote => (
+                        <LWTooltip
+                          key={vote.user._id}
+                          title={<div className={classes.voteTooltipBody}>{vote.user.displayName}</div>}
+                        >
+                          <UsersProfileImage
+                            user={vote.user}
+                            size={USER_IMAGE_SIZE}
+                            className={classNames(classes.userImage, classes.userImageBoxShadow)}
+                          />
+                        </LWTooltip>
+                      ))}
+                    </div>
+                  }
+                  placement="bottom"
+                  clickable
+                  className={classes.voteCluster}
+                >
+                  <div></div>
+                </HoverOver>
               })}
               <div
                 className={classNames(

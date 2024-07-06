@@ -313,7 +313,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     return null;
   }
 
-  const {title, bannerImageId, tag, frontpageDescription, frontpageDescriptionMobile} = currentForumEvent;
+  const {title, bannerImageId, tag, frontpageDescription, frontpageDescriptionMobile, darkColor, contrastColor} = currentForumEvent;
   const date = formatDate(currentForumEvent);
   const mobileDescription = frontpageDescriptionMobile?.html ?? frontpageDescription?.html
   
@@ -321,9 +321,15 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     CloudinaryImage2, ForumEventPoll, ForumIcon, LWTooltip, PostsList2, ContentStyles, ContentItemBody
   } = Components;
   
+  // Define colors with CSS variables to be accessed in the styles
+  const style = {
+    "--forum-event-background": darkColor,
+    "--forum-event-contrast": contrastColor,
+  } as CSSProperties;
+  
   return (
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
-      <div className={classes.root}>
+      <div className={classes.root} style={style}>
         <ForumEventPoll />
         <div className={classes.expandToggleRow}>
           <button className={classes.expandToggleButton} onClick={() => setExpanded(!expanded)}>
@@ -331,7 +337,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
               icon={expanded ? "ThickChevronDown" : "ThickChevronRight"}
               className={classes.expandToggleIcon}
             />
-            {expanded ? 'Collapse' : `Debate week ${date}`}
+            {expanded ? 'Collapse' : `Most influential posts`}
           </button>
         </div>
         {expanded && <div className={classes.contentWithPoll}>
@@ -357,6 +363,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
                 showKarma={false}
                 hideTag
                 showNoResults={false}
+                showPlacement
               />
               {tag && <div className={classes.postsSeeAll}>
                 See all eligible posts <Link to={tagGetUrl(tag)}>here</Link>

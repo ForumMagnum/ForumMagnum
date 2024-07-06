@@ -18,7 +18,8 @@ import './server/dialogues/cron';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/cache';
-import './server/users/cron'
+import './server/users/cron';
+import './server/users/permanentDeletion';
 import './server/curationEmails/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
@@ -110,6 +111,7 @@ import './server/siteAdminMetadata';
 import './server/callbacks';
 import './server/notificationCallbacks';
 import './server/notificationCallbacksHelpers';
+import './server/twitterBot';
 import './server/voteServer';
 import './server/recommendations';
 import './server/recommendations/mutations';

@@ -11,12 +11,11 @@ export const useEAVirtualPrograms = () => {
   // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
   // (though it will sometimes move to the 3rd or 5th Sunday - this is not accounted for in the code).
   // This defaults to the Sunday in the week of the 28th day of this month.
-  // NOTE: I changed it to the 5th Sunday since that's what they used for June 2024, but that might change later.
   const now = useCurrentTime()
-  let deadline = moment(now).tz(timezone).date(35).day(0).endOf('day')
+  let deadline = moment(now).tz(timezone).date(28).day(0).endOf('day')
   // If that Sunday is in the past, use next month's 4th Sunday.
   if (deadline.isBefore(now)) {
-    deadline = moment(now).add(1, 'months').date(35).day(0)
+    deadline = moment(now).add(1, 'months').date(28).day(0)
   }
   
   // VP starts 22 days after the deadline, on a Monday
