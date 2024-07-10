@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
+const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
   classes: ClassesType<typeof styles>,

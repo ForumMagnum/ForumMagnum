@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryPostsCell = ({user, classes}: {
+const PeopleDirectoryPostsCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {

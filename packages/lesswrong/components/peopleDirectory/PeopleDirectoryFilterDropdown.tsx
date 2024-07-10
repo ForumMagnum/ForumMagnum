@@ -69,7 +69,7 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryFilterDropdown = ({
+const PeopleDirectoryFilterDropdown = ({
   title,
   active,
   style = "dropdown",

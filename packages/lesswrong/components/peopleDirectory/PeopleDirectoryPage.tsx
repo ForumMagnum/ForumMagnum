@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryPage = ({classes}: {
+const PeopleDirectoryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {

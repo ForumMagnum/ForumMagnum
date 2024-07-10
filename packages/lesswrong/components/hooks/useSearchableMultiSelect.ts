@@ -20,6 +20,7 @@ export type SearchableMultiSelectState = MultiSelectState & {
 }
 
 export type SearchableMultiSelectResult = {
+  title: string,
   search: string,
   setSearch: (value: string) => void,
   loading: boolean,
@@ -192,6 +193,7 @@ export const useSearchableMultiSelect = ({
     .length;
 
   return {
+    title,
     search,
     setSearch,
     loading,

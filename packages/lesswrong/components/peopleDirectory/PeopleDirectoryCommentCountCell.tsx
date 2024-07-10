@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryCommentCountCell = ({user, classes}: {
+const PeopleDirectoryCommentCountCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {

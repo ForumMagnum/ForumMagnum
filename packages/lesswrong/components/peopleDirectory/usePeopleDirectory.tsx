@@ -26,6 +26,18 @@ const defaultSorting: PeopleDirectorySorting = {
   direction: "desc",
 };
 
+type PeopleDirectoryStaticFilterConfig = {
+  type: "static",
+  filter: MultiSelectResult,
+}
+
+type PeopleDirectorySearchableFilterConfig = {
+  type: "searchable",
+  filter: SearchableMultiSelectResult,
+}
+
+type PeopleDirectoryFilterConfig = PeopleDirectoryStaticFilterConfig | PeopleDirectorySearchableFilterConfig;
+
 type PeopleDirectoryContext = {
   view: PeopleDirectoryView,
   setView: (view: PeopleDirectoryView) => void,
@@ -40,11 +52,7 @@ type PeopleDirectoryContext = {
   resultsLoading: boolean,
   totalResults: number,
   loadMore: () => void,
-  roles: SearchableMultiSelectResult,
-  organizations: SearchableMultiSelectResult,
-  locations: SearchableMultiSelectResult,
-  careerStages: MultiSelectResult,
-  tags: SearchableMultiSelectResult,
+  filters: PeopleDirectoryFilterConfig[],
   columns: (PeopleDirectoryColumn & MultiSelectState)[],
   columnsEdited: boolean,
   resetColumns: () => void,
@@ -114,6 +122,29 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     elasticField: {index: "tags", fieldName: "name"},
     defaultSuggestions: coreTags?.map(({name}) => name),
   });
+
+  const filters: PeopleDirectoryFilterConfig[] = [
+    {
+      type: "searchable",
+      filter: roles,
+    },
+    {
+      type: "searchable",
+      filter: organizations,
+    },
+    {
+      type: "static",
+      filter: careerStages,
+    },
+    {
+      type: "searchable",
+      filter: locations,
+    },
+    {
+      type: "searchable",
+      filter: tags,
+    },
+  ];
 
   const flattenedResults = useMemo(() => {
     const flattenedResults = results.flatMap((resultsPage) => resultsPage);
@@ -296,11 +327,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       resultsLoading,
       totalResults,
       loadMore,
-      roles,
-      organizations,
-      locations,
-      careerStages,
-      tags,
+      filters,
       columns: columnSelectState,
       columnsEdited,
       resetColumns,

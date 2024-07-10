@@ -69,7 +69,7 @@ const TagDisplay = ({name, slug, classes}: {
   );
 }
 
-export const PeopleDirectoryTopicsCell = ({user, classes}: {
+const PeopleDirectoryTopicsCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {

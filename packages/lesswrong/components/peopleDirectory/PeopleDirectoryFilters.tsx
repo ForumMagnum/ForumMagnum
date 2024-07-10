@@ -58,16 +58,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryFilters = ({classes}: {
+const PeopleDirectoryFilters = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
     view,
-    roles,
-    organizations,
-    locations,
-    careerStages,
-    tags,
+    filters,
     sorting,
     setSorting,
     isDefaultSorting,
@@ -81,16 +77,16 @@ export const PeopleDirectoryFilters = ({classes}: {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
     PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
     PeopleDirectoryClearAll, PeopleDirectoryViewToggle,
-    PeopleDirectoryCheckOption,
+    PeopleDirectoryCheckOption, PeopleDirectoryAllFiltersDropdown,
   } = Components;
   return (
     <div className={classes.root}>
       <div className={classes.desktopFilters}>
-        <PeopleDirectorySearchableFilter filter={roles} />
-        <PeopleDirectorySearchableFilter filter={organizations} />
-        <PeopleDirectoryStaticFilter filter={careerStages} />
-        <PeopleDirectorySearchableFilter filter={locations} />
-        <PeopleDirectorySearchableFilter filter={tags} />
+        {filters.map(({type, filter}) => (
+          type === "searchable"
+            ? <PeopleDirectorySearchableFilter key={filter.title} filter={filter} />
+            : <PeopleDirectoryStaticFilter key={filter.title} filter={filter} />
+        ))}
         {totalResults > 0 && !isEmptySearch &&
           <div className={classes.totalResults}>
             {formatStat(totalResults)} {totalResults === 1 ? "result" : "results"}
@@ -104,10 +100,9 @@ export const PeopleDirectoryFilters = ({classes}: {
               title="Filter"
               icon="FilterBars"
               style="button"
-              className={classes.filter}
               rootClassName={classes.filtersDropdown}
             >
-              Filters
+              <PeopleDirectoryAllFiltersDropdown />
             </PeopleDirectoryFilterDropdown>
             <PeopleDirectoryFilterDropdown
               title="Sort"

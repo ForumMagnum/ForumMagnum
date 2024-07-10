@@ -58,7 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryResultsList = ({classes}: {
+const PeopleDirectoryResultsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results, resultsLoading, columns, loadMore} = usePeopleDirectory();
