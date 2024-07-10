@@ -89,6 +89,8 @@ const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const isCurrentUser = user._id === currentUser?._id;
+
   const {onClick} = useClickableCell({
     href: user ? `${userGetProfileUrl(user)}?from=people_directory` : "#",
     ignoreLinks: true,
@@ -120,16 +122,18 @@ const PeopleDirectoryCard = ({user, isFirst, isLast, classes}: {
             Joined {moment(user.createdAt).fromNow()} ago
           </div>
         </div>
-        <InteractionWrapper className={classes.message}>
-          <NewConversationButton
-            currentUser={currentUser}
-            user={user}
-            from="people_directory"
-            openInNewTab
-          >
-            <ForumIcon icon="Envelope" />
-          </NewConversationButton>
-        </InteractionWrapper>
+        {!isCurrentUser &&
+          <InteractionWrapper className={classes.message}>
+            <NewConversationButton
+              currentUser={currentUser}
+              user={user}
+              from="people_directory"
+              openInNewTab
+            >
+              <ForumIcon icon="Envelope" />
+            </NewConversationButton>
+          </InteractionWrapper>
+        }
       </div>
       {(user.jobTitle || user.organization) &&
         <div className={classes.role}>
