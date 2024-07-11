@@ -2,6 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { formatStat } from "../users/EAUserTooltipContent";
+import sum from "lodash/sum";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -73,6 +74,11 @@ const PeopleDirectoryFilters = ({classes}: {
     totalResults,
     isEmptySearch,
   } = usePeopleDirectory();
+
+  const filterCount = sum(filters.map(
+    ({filter: {selectedValues}}) => selectedValues.length),
+  );
+
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
     PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
@@ -97,9 +103,10 @@ const PeopleDirectoryFilters = ({classes}: {
         {view === "list" &&
           <>
             <PeopleDirectoryFilterDropdown
-              title="Filter"
+              title={`Filter${filterCount > 0 ? `: ${filterCount}` : ""}`}
               icon="FilterBars"
               style="button"
+              primary={filterCount > 0}
               rootClassName={classes.filtersDropdown}
             >
               <PeopleDirectoryAllFiltersDropdown />

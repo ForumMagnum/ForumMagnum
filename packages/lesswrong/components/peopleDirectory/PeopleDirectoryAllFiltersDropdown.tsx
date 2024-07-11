@@ -12,6 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
   rootFilter: {
     position: "relative",
+    paddingBottom: 8,
   },
   filterName: {
     cursor: "pointer",
@@ -33,7 +34,6 @@ const styles = (theme: ThemeType) => ({
   icon: {
     width: 16,
     height: 16,
-    marginLeft: 16,
     color: theme.palette.grey[600],
   },
   backButton: {
@@ -59,6 +59,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 600,
     padding: 16,
+  },
+  filterTitle: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginRight: 16,
+  },
+  selectedCount: {
+    color: theme.palette.primary.main,
+    fontSize: 13,
+    fontWeight: 500,
   },
   staticWrapper: {
     padding: 4,
@@ -112,7 +122,12 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
             className={classes.filterName}
             onClick={setSelectedFilterName.bind(null, filter.title)}
           >
-            <span>{filter.title}</span>
+            <div className={classes.filterTitle}>{filter.title}</div>
+            {filter.selectedValues.length > 0 &&
+              <div className={classes.selectedCount}>
+                {filter.selectedValues.length} selected
+              </div>
+            }
             <ForumIcon icon="ThickChevronRight" className={classes.icon} />
           </div>
         ))}

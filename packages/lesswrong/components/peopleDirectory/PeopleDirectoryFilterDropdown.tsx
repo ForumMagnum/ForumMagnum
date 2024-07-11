@@ -37,6 +37,9 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
   },
+  primary: {
+    color: theme.palette.primary.main,
+  },
   title: {
     userSelect: "none",
     fontSize: 14,
@@ -72,6 +75,7 @@ export const styles = (theme: ThemeType) => ({
 const PeopleDirectoryFilterDropdown = ({
   title,
   active,
+  primary,
   style = "dropdown",
   icon,
   onOpen,
@@ -84,6 +88,7 @@ const PeopleDirectoryFilterDropdown = ({
 }: {
   title: ReactNode,
   active?: boolean,
+  primary?: boolean,
   style?: "dropdown" | "button",
   icon?: ForumIconName,
   onOpen?: () => void,
@@ -116,6 +121,7 @@ const PeopleDirectoryFilterDropdown = ({
         [classes.dropdown]: style === "dropdown",
         [classes.button]: style === "button",
         [classes.active]: active,
+        [classes.primary]: primary,
       })}
     >
       <div
