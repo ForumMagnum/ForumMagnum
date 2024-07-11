@@ -73,6 +73,15 @@ const styles = (theme: ThemeType) => ({
   staticWrapper: {
     padding: 4,
   },
+  clearAll: {
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontWeight: 600,
+    padding: 12,
+    "& > *": {
+      cursor: "pointer",
+    },
+  },
 });
 
 const PeopleDirectoryAllFiltersDropdown = ({classes}: {
@@ -85,6 +94,13 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
   );
 
   const clearSelection = useCallback(() => setSelectedFilterName(null), []);
+
+  const clearAll = useCallback(() => {
+    clearSelection();
+    for (const {filter} of filters) {
+      filter.clear();
+    }
+  }, [filters, clearSelection]);
 
   const {
     LWClickAwayListener, ForumIcon, PeopleDirectorySearchableFilter,
@@ -113,6 +129,10 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
     );
   }
 
+  const hasFilters = filters.some(
+    ({filter: {selectedValues}}) => selectedValues.length > 0,
+  );
+
   return (
     <LWClickAwayListener onClickAway={clearSelection}>
       <div className={classNames(classes.root, classes.rootMain)}>
@@ -131,6 +151,11 @@ const PeopleDirectoryAllFiltersDropdown = ({classes}: {
             <ForumIcon icon="ThickChevronRight" className={classes.icon} />
           </div>
         ))}
+        {hasFilters &&
+          <div className={classes.clearAll}>
+            <span onClick={clearAll}>Clear all</span>
+          </div>
+        }
       </div>
     </LWClickAwayListener>
   );
