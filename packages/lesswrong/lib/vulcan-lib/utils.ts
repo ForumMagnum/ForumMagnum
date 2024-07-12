@@ -394,7 +394,8 @@ export const sanitize = function(s: string): string {
       'strawpoll.com',
       'estimaker.app',
       'viewpoints.xyz',
-      'calendly.com'
+      'calendly.com',
+      'neuronpedia.org'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
@@ -406,6 +407,7 @@ export const sanitize = function(s: string): string {
         'footnote-reference',
         'metaculus-preview',
         'manifold-preview',
+        'neuronpedia-preview',
         'metaforecast-preview',
         'owid-preview',
         'elicit-binary-prediction',

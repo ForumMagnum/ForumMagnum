@@ -58,6 +58,15 @@ const embedConfig = {
 			`
 		},
 		{
+			name: "Neuronpedia",
+			url: /^neuronpedia\.org\/([a-zA-Z0-9-/]+\?embed=true.*)/,
+			html: ([match, longslug]: RegExpMatchArray) => `
+				<div class="neuronpedia-preview">
+					<iframe style="height: ${match.match(/(?:[?&]height=)(\d+)/)?.[1] || "230"}px; width: 100%; border: none; overflow: hidden;" scrolling="no" src="https://neuronpedia.org/${longslug}"/>
+				</div>
+			`
+		},
+		{
 			name: "StrawPoll",
 			url: /^https:\/\/strawpoll\.com\/polls\/([\w-]+)$/,
 			html: ([match, pollId]: RegExpMatchArray) => `

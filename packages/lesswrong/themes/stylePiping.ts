@@ -77,6 +77,16 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.neuronpedia-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 440,
+      border: "none",
+    },
+  },
+});
+
 export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.calendly-preview": {
     "& iframe": {
@@ -515,6 +525,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...neuronpediaPreviewStyles(theme),
     ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
