@@ -529,6 +529,8 @@ importComponent("EAEmojisVoteOnPost", () => require('../components/votes/EAEmoji
 importComponent("EAEmojisVoteOnPostSecondary", () => require('../components/votes/EAEmojisVoteOnPostSecondary'));
 importComponent("EAEmojiPalette", () => require('../components/votes/EAEmojiPalette'));
 importComponent("AgreementVoteAxis", () => require('../components/votes/AgreementVoteAxis'));
+importComponent("ReactBallotVoteOnComment", () => require('../components/votes/ReactBallotVoteOnComment'));
+importComponent("EmojiReactionVoteOnComment", () => require('../components/votes/EmojiReactionVoteOnComment'));
 
 // Reaction components
 importComponent(["NamesAttachedReactionsVoteOnComment","NamesAttachedReactionsCommentBottom"], () => require('../components/votes/lwReactions/NamesAttachedReactionsVoteOnComment'));
