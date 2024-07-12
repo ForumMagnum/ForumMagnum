@@ -676,7 +676,7 @@ const neuronpediaStyles = (theme: ThemeType): JssStyles => ({
     width: 580,
     height: 240,
     border: "none",
-    maxWidth: "100vw",
+    maxWidth: 639,
   },
   link: linkStyle(theme),
 });
