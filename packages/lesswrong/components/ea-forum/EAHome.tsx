@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { ReactNode, Suspense, useCallback, useEffect, useState, useTransition } from 'react'
 import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
@@ -7,6 +7,7 @@ import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import ForumNoSSR from '../common/ForumNoSSR'
+import DeferRender from '../common/DeferRender'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -48,33 +49,34 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const FrontpageNode = React.memo(({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   const {
     RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
     HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
   } = Components
+
   return (
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
       <HomeLatestPosts />
-      {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-      {isEAForum && <QuickTakesSection />}
-      <ForumNoSSR if={!!currentUser}>
+      <DeferRender noSSR={false}>
+        {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+        <QuickTakesSection />
+      </DeferRender>
+      <DeferRender noSSR={!!currentUser}>
         <EAPopularCommentsSection />
-      </ForumNoSSR>
-      <ForumNoSSR if={!!currentUser}>
         <RecentDiscussionFeed
           title="Recent discussion"
           af={false}
           commentsLimit={recentDiscussionCommentsPerPost}
           maxAgeHours={18}
         />
-      </ForumNoSSR>
+      </DeferRender>
     </>
   );
-}
+});
 
 const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()

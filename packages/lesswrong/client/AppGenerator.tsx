@@ -1,5 +1,5 @@
 // Client-side React wrapper/context provider
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
@@ -11,7 +11,7 @@ import { CookiesProvider } from 'react-cookie';
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abTestImpl';
 import type { AbstractThemeOptions } from '../themes/themeNames';
-import type { SSRMetadata, TimeOverride } from '../lib/utils/timeUtil';
+import type { SSRMetadata, EnvironmentOverride } from '../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
@@ -24,14 +24,16 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
 }) => {
-  const [timeOverride, setTimeOverride] = useState<TimeOverride | null>(ssrMetadata ? {
-    currentTime: new Date(ssrMetadata.renderedAt),
-    cacheFriendly: ssrMetadata.cacheFriendly,
-    timezone: ssrMetadata.timezone
-  } : null);
+  const [envOverride, setEnvOverride] = useState<EnvironmentOverride>(ssrMetadata ? {
+    ...ssrMetadata,
+    matchSSR: true
+  } : { matchSSR: false });
+  const [_isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setTimeOverride(null);
+    startTransition(() => {
+      setEnvOverride({matchSSR: false});
+    });
   }, []);
 
   const App = (
@@ -42,7 +44,7 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
-                  <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+                  <Components.App apolloClient={apolloClient} envOverride={envOverride}/>
                 </LayoutOptionsContextProvider>
               </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>

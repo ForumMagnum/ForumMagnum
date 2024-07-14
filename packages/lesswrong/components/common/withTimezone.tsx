@@ -5,17 +5,17 @@ import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { DEFAULT_TIMEZONE, TimeOverrideContext } from '../../lib/utils/timeUtil';
+import { DEFAULT_TIMEZONE, EnvironmentOverrideContext } from '../../lib/utils/timeUtil';
 
 export const TimezoneContext = React.createContext<string|null>(null);
 
 export const useTimezone = (): WithTimezoneProps => {
-  const time = React.useContext(TimeOverrideContext);
+  const time = React.useContext(EnvironmentOverrideContext);
   const timezone = React.useContext(TimezoneContext);
 
   return {
-    timezone: time?.timezone ?? timezone ?? DEFAULT_TIMEZONE,
-    timezoneIsKnown: !!(time?.timezone ?? timezone),
+    timezone: time.timezone ?? timezone ?? DEFAULT_TIMEZONE,
+    timezoneIsKnown: !!(time.timezone ?? timezone),
   };
 }
 
