@@ -1,5 +1,5 @@
 // Client-side React wrapper/context provider
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
@@ -31,28 +31,33 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   const [_isPending, startTransition] = useTransition();
 
   useEffect(() => {
+    if (envOverride.matchSSR === false) return;
+
     startTransition(() => {
       setEnvOverride({matchSSR: false});
     });
-  }, []);
+  }, [envOverride.matchSSR]);
 
-  const App = (
-    <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientProvider value={foreignApolloClient}>
-        <CookiesProvider>
-          <BrowserRouter>
-            <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <PrefersDarkModeProvider>
-                <LayoutOptionsContextProvider>
-                  <Components.App apolloClient={apolloClient} envOverride={envOverride}/>
-                </LayoutOptionsContextProvider>
-              </PrefersDarkModeProvider>
-            </ABTestGroupsUsedContext.Provider>
-          </BrowserRouter>
-        </CookiesProvider>
-      </ForeignApolloClientProvider>
-    </ApolloProvider>
-  );
-  return wrapWithMuiTheme(App, themeOptions);
+  const App = useMemo(() => {
+    const app = (
+      <ApolloProvider client={apolloClient}>
+        <ForeignApolloClientProvider value={foreignApolloClient}>
+          <CookiesProvider>
+            <BrowserRouter>
+              <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
+                <PrefersDarkModeProvider>
+                  <LayoutOptionsContextProvider>
+                    <Components.App apolloClient={apolloClient} envOverride={envOverride} />
+                  </LayoutOptionsContextProvider>
+                </PrefersDarkModeProvider>
+              </ABTestGroupsUsedContext.Provider>
+            </BrowserRouter>
+          </CookiesProvider>
+        </ForeignApolloClientProvider>
+      </ApolloProvider>
+    );
+    return wrapWithMuiTheme(app, themeOptions);
+  }, [abTestGroupsUsed, apolloClient, envOverride, foreignApolloClient, themeOptions]);
+  return App;
 };
 export default AppGenerator;

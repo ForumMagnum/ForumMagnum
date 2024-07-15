@@ -61,11 +61,11 @@ const FrontpageNode = React.memo(({classes}: {classes: ClassesType<typeof styles
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
       <HomeLatestPosts />
-      <DeferRender noSSR={false}>
+      <DeferRender noSSR={false} clientTiming="mobile-aware">
         {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
         <QuickTakesSection />
       </DeferRender>
-      <DeferRender noSSR={!!currentUser}>
+      <DeferRender noSSR={!!currentUser} clientTiming="async-non-blocking">
         <EAPopularCommentsSection />
         <RecentDiscussionFeed
           title="Recent discussion"
