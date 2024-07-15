@@ -487,8 +487,6 @@ const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBo
     "dangerouslySetInnerHTML": "deep",
     replacedSubstrings: "deep"
   },
-
-  debugRerenders: true,
 });
 
 declare global {
