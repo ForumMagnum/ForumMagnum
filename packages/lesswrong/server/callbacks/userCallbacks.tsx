@@ -463,14 +463,14 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
     }
-  }
-  if (data.shortformFeedId) {
-    void updateMutator({
-      collection: Posts,
-      documentId: data.shortformFeedId,
-      set: {title: userShortformPostTitle(data)},
-      validate: false,
-    });
+    if (data.shortformFeedId) {
+      void updateMutator({
+        collection: Posts,
+        documentId: data.shortformFeedId,
+        set: {title: userShortformPostTitle(data)},
+        validate: false,
+      });
+    }
   }
   return data;
 });
