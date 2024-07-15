@@ -11,10 +11,10 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
+import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, recombeeEnabledSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
-import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
+import {userGetLocation, getUserEmail, userShortformPostTitle} from "../../lib/collections/users/helpers";
 import { captureException } from "@sentry/core";
 import { getAdminTeamAccount } from './commentCallbacks';
 import { wrapAndSendEmail } from '../emails/renderEmail';
@@ -462,6 +462,14 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
+    }
+    if (data.shortformFeedId && !isLWorAF) {
+      void updateMutator({
+        collection: Posts,
+        documentId: data.shortformFeedId,
+        set: {title: userShortformPostTitle(data)},
+        validate: false,
+      });
     }
   }
   return data;

@@ -635,3 +635,8 @@ export const socialMediaSiteNameToHref = (
 ) => siteName === "website"
   ? `https://${userUrl}`
   : profileFieldToSocialMediaHref(`${siteName}ProfileURL`, userUrl);
+
+export const userShortformPostTitle = (user: Pick<DbUser, "displayName">) => {
+  const shortformName = isEAForum ? "Quick takes" : "Shortform";
+  return `${user.displayName}'s ${shortformName}`;
+}
