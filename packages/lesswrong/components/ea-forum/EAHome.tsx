@@ -48,7 +48,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const FrontpageNode = React.memo(({classes}: {classes: ClassesType<typeof styles>}) => {
+const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const currentUser = useCurrentUser();
   const recentDiscussionCommentsPerPost = currentUser && currentUser.isAdmin ? 4 : 3;
   const {
@@ -75,7 +75,7 @@ const FrontpageNode = React.memo(({classes}: {classes: ClassesType<typeof styles
       </DeferRender>
     </>
   );
-});
+};
 
 const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()

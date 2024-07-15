@@ -35,12 +35,10 @@ const DeferRender = ({
 
   const [_isPending, startTransition] = useTransition();
   const { matchSSR } = useContext(EnvironmentOverrideContext);
-  const [clientCanRender, setClientCanRender] = useState(mobileAwareTiming === "sync" || (matchSSR && ssr));
-
-  const canRender = matchSSR ? ssr : clientCanRender;
+  const [canRender, setClientCanRender] = useState(matchSSR ? ssr : mobileAwareTiming === "sync");
 
   useEffect(() => {
-    if (clientCanRender) return;
+    if (canRender) return;
 
     if (mobileAwareTiming === "async-non-blocking") {
       startTransition(() => {
@@ -49,7 +47,7 @@ const DeferRender = ({
     } else {
       setClientCanRender(true);
     }
-  }, [clientCanRender, mobileAwareTiming]);
+  }, [canRender, mobileAwareTiming]);
 
   if (!canRender) return <>{fallback}</>;
 
