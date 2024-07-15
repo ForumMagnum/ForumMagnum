@@ -1,4 +1,4 @@
-import React, { ReactNode, Suspense, useCallback, useEffect, useState, useTransition } from 'react'
+import React, { useCallback } from 'react'
 import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import ForumNoSSR from '../common/ForumNoSSR'
 import DeferRender from '../common/DeferRender'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
@@ -61,11 +60,11 @@ const FrontpageNode = React.memo(({classes}: {classes: ClassesType<typeof styles
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
       <HomeLatestPosts />
-      <DeferRender noSSR={false} clientTiming="mobile-aware">
+      <DeferRender ssr={true} clientTiming="mobile-aware">
         {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
         <QuickTakesSection />
       </DeferRender>
-      <DeferRender noSSR={!!currentUser} clientTiming="async-non-blocking">
+      <DeferRender ssr={!!currentUser} clientTiming="async-non-blocking">
         <EAPopularCommentsSection />
         <RecentDiscussionFeed
           title="Recent discussion"

@@ -5,23 +5,26 @@ import React, { ReactNode, useContext, useEffect, useState, useTransition } from
 export type DeferRenderTiming = "sync" | "async-blocking" | "async-non-blocking";
 
 const DeferRender = ({
-  noSSR = true,
+  ssr,
   clientTiming = "sync",
   fallback = null,
   children,
 }: {
-  noSSR?: boolean;
+  /**
+   * Whether to render the children during SSR
+   */
+  ssr: boolean;
   /**
    * - sync: Render children on the first pass that this component is rendered,
-   * except when noSSR blocks this (during SSR and on the very first hydration pass)
+   * except when `ssr` overrides this (during SSR and on the very first hydration pass)
    * - async-blocking: Render children in a second pass after everything else has rendered,
    * as a regular priority render
    * - async-non-blocking: Render children in a second pass after everything else has rendered,
    * using useTransition to mark the render as low priority so the rest of the page remains interactive
-   * - mobile-aware: Use "sync" on desktop and "async-non-blocking" on mobile. This is best in a lot of
+   * - mobile-aware: Use "sync" on desktop and "async-non-blocking" on mobile. This may be best in a lot of
    * cases because:
    *   1. Using async for down-screen elements is more likely to cause layout shift on desktop
-   *   2. CPU resources are more limited on mobile so "async-non-blocking" helps with interactivity more
+   *   2. Resources are more limited on mobile so "async-non-blocking" helps more with interactivity
    */
   clientTiming?: "sync" | "async-blocking" | "async-non-blocking" | "mobile-aware";
   fallback?: ReactNode;
@@ -34,9 +37,9 @@ const DeferRender = ({
 
   const [_isPending, startTransition] = useTransition();
   const { matchSSR } = useContext(EnvironmentOverrideContext);
-  const [clientCanRender, setClientCanRender] = useState(mobileAwareTiming === "sync" || (matchSSR && !noSSR));
+  const [clientCanRender, setClientCanRender] = useState(mobileAwareTiming === "sync" || (matchSSR && ssr));
 
-  const canRender = matchSSR ? !noSSR : clientCanRender;
+  const canRender = matchSSR ? ssr : clientCanRender;
 
   useEffect(() => {
     if (clientCanRender) return;

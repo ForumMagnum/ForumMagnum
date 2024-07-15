@@ -11,8 +11,8 @@ import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
-import ForumNoSSR from '../common/ForumNoSSR';
 import { Link } from '../../lib/reactRouterWrapper';
+import DeferRender from '../common/DeferRender';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -196,7 +196,7 @@ const SequencesPage = ({ documentId, classes }: {
       />
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>
-          <ForumNoSSR>
+          <DeferRender ssr={false}>
             <div>
               <CloudinaryImage
                 publicId={bannerId}
@@ -205,7 +205,7 @@ const SequencesPage = ({ documentId, classes }: {
               />
               <div className={classes.imageScrim}/>
             </div>
-          </ForumNoSSR>
+          </DeferRender>
         </div>
       </div>}
       <SingleColumnSection>
