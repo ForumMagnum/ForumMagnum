@@ -26,6 +26,7 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
+  # TODO: run both x-post tests
   runPlaywrightTests:
     runs-on: ubuntu-latest
     strategy:
