@@ -1,5 +1,5 @@
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
-import { ReactNode, useContext, useEffect, useState, useTransition } from "react";
+import React, { ReactNode, useContext, useEffect, useState, useTransition } from "react";
 
 export type DeferRenderTiming = "sync" | "async-blocking" | "async-non-blocking";
 
@@ -40,9 +40,9 @@ const DeferRender = ({
     }
   }, [clientCanRender, clientTiming]);
 
-  if (!canRender) return fallback;
+  if (!canRender) return <>{fallback}</>;
 
-  return children;
+  return <>{children}</>;
 };
 
 export default DeferRender;
