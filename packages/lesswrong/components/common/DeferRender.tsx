@@ -2,8 +2,6 @@ import { isMobile } from "@/lib/utils/isMobile";
 import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import React, { ReactNode, useContext, useEffect, useState, useTransition } from "react";
 
-export type DeferRenderTiming = "sync" | "async-blocking" | "async-non-blocking";
-
 const DeferRender = ({
   ssr,
   clientTiming = "sync",
@@ -11,7 +9,7 @@ const DeferRender = ({
   children,
 }: {
   /**
-   * Whether to render the children during SSR
+   * Whether to render the children during SSR. This is always respected and overrides `clientTiming`
    */
   ssr: boolean;
   /**
