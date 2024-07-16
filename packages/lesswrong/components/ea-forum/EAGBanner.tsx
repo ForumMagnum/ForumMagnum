@@ -86,7 +86,7 @@ const eagLocation = {
 const eagCountry = 'CA'
 const eagPostLink = "/events/WGeby2GfMHH8jXmMY/eagxtoronto"
 const eagLink = "https://www.effectivealtruism.org/ea-global/events/eagxtoronto-2024"
-const applicationDeadline = moment('2024-07-31', 'YYYY-MM-DD')
+const applicationDeadline = moment.utc('2024-07-31', 'YYYY-MM-DD')
 
 
 /**
@@ -127,7 +127,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   const userInCountry = countryCode === eagCountry
   const isRelevant = userLocationNearby || userInCountry
   if (
-    moment().isAfter(applicationDeadline) ||
+    moment.utc().isAfter(applicationDeadline, 'day') ||
     cookies[HIDE_EAG_BANNER_COOKIE] === "true" ||
     !isRelevant
   ) {
