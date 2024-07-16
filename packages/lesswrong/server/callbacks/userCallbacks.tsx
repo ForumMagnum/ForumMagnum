@@ -30,6 +30,7 @@ import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
 import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
+import { regenerateAllType3AudioForUser } from '../type3';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -500,4 +501,12 @@ getCollectionHooks("Users").editSync.add(function syncProfileUpdatedAt(modifier,
     }
   }
   return modifier;
+});
+
+getCollectionHooks("Users").editAsync.add(async function updatingPostAudio(newUser: DbUser, oldUser: DbUser) {
+  const deletedChanged = newUser.deleted !== oldUser.deleted;
+  const nameChanged = newUser.displayName !== oldUser.displayName;
+  if (nameChanged || deletedChanged) {
+    await regenerateAllType3AudioForUser(newUser._id);
+  }
 });

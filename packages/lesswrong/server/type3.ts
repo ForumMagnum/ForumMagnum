@@ -1,5 +1,6 @@
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
+import { Posts } from "@/lib/collections/posts";
 
 /* Currently unused
 const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
@@ -32,15 +33,31 @@ const type3ApiRequest = async (
   }
 }
 
-export const regenerateType3Audio = async (post: Pick<DbPost, "_id" | "slug">) => {
+const postWithAudioProjection = {_id: 1, slug: 1} as const;
+
+type PostWithAudio = Pick<DbPost, keyof typeof postWithAudioProjection>;
+
+export const regenerateType3Audio = async (post: PostWithAudio) => {
   await type3ApiRequest("narration/regenerate", "POST", {
     source_url: postGetPageUrl(post, true),
     priority: "immediate",
   });
 }
 
-export const deleteType3Audio = async (post: Pick<DbPost, "_id" | "slug">) => {
+export const deleteType3Audio = async (post: PostWithAudio) => {
   await type3ApiRequest("narration/delete-by-url", "DELETE", {
     source_url: postGetPageUrl(post, true),
   });
+}
+
+export const regenerateAllType3AudioForUser = async (userId: string) => {
+  const posts: PostWithAudio[] = await Posts.find({
+    userId,
+  }, {
+    projection: postWithAudioProjection,
+  }).fetch();
+
+  for (const post of posts) {
+    await regenerateType3Audio(post);
+  }
 }
