@@ -3,6 +3,9 @@ import { captureEvent } from '../../lib/analyticsEvents';
 import Users from '../../lib/collections/users/collection';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from '../rateLimitUtils';
+import { userIsAdminOrMod, userOwns } from '@/lib/vulcan-users';
+import LWEventsRepo from '../repos/LWEventsRepo';
+import { isEAForum } from '@/lib/instanceSettings';
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -16,6 +19,13 @@ getCollectionHooks("Posts").updateValidate.add(async function PostsUndraftRateLi
   // Only undrafting is rate limited, not other edits
   if (oldDocument.draft && !newDocument.draft && !newDocument.isEvent) {
     await enforcePostRateLimit(currentUser!);
+  }
+  return validationErrors;
+});
+
+getCollectionHooks("Users").updateValidate.add(async function ChangeDisplayNameRateLimit (validationErrors, { oldDocument, newDocument, currentUser }) {
+  if (oldDocument.displayName !== newDocument.displayName) {
+    await enforceDisplayNameRateLimit({ userToUpdate: oldDocument, currentUser: currentUser! });
   }
   return validationErrors;
 });
@@ -48,6 +58,25 @@ getCollectionHooks("Comments").createAsync.add(async ({document, context}: {
     }
   }
 })
+
+async function enforceDisplayNameRateLimit({userToUpdate, currentUser}: {userToUpdate: DbUser, currentUser: DbUser}) {
+  if (userIsAdminOrMod(currentUser)) return;
+
+  if (!userOwns(currentUser, userToUpdate)) {
+    throw new Error(`You do not have permission to update this user`)
+  }
+
+  if (!isEAForum) return;
+
+  const nameChangeCount = await new LWEventsRepo().countDisplayNameChanges({
+    userId: userToUpdate._id,
+    sinceDaysAgo: 30,
+  });
+
+  if (nameChangeCount > 0) {
+    throw new Error("You can only change your display name once every 30 days. Please contact support if you would like to change it again");
+  }
+}
 
 // Check whether the given user can post a post right now. If they can, does
 // nothing; if they would exceed a rate limit, throws an exception.

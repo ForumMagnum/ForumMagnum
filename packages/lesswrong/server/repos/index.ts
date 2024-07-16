@@ -33,6 +33,7 @@ import TweetsRepo from "./TweetsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
+import LWEventsRepo from "./LWEventsRepo";
 
 declare global {
   type Repos = ReturnType<typeof getAllRepos>;
@@ -51,6 +52,7 @@ const getAllRepos = () => ({
   electionVotes: new ElectionVotesRepo(),
   forumEvents: new ForumEventsRepo(),
   localgroups: new LocalgroupsRepo(),
+  lwEvents: new LWEventsRepo(),
   notifications: new NotificationsRepo(),
   postEmbeddings: new PostEmbeddingsRepo(),
   pageCaches: new PageCacheRepo(),
