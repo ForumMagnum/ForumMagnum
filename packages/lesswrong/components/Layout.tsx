@@ -70,6 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+    },
     [theme.breakpoints.down('sm')]: {
       paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
