@@ -123,7 +123,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
 
   // This EAG(x) is relevant to the user if they are within 500 miles of it,
   // or they live in relevant/nearby countries.
-  const userLocationNearby = distance(eagLocation, userLocation, 'mi') < 500
+  const userLocationNearby = userLocation.known && (distance(eagLocation, userLocation, 'mi') < 500)
   const userInCountry = countryCode === eagCountry
   const isRelevant = userLocationNearby || userInCountry
   if (
