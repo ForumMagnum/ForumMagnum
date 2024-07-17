@@ -80,6 +80,7 @@ export const PeopleDirectoryFilters = ({classes}: {
               title="Sort"
               icon="ArrowsUpDown"
               style="button"
+              smallIcon
               className={classes.columnsList}
             >
               <PeopleDirectoryCheckOption

@@ -51,6 +51,9 @@ export const styles = (theme: ThemeType) => ({
     width: 20,
     marginRight: 4,
   },
+  smallIcon: {
+    width: "18px !important",
+  },
   chevron: {
     width: 16,
     marginLeft: 4,
@@ -79,6 +82,7 @@ export const PeopleDirectoryFilterDropdown = ({
   onOpen,
   onClose,
   children,
+  smallIcon,
   className,
   rootClassName,
   titleClassName,
@@ -91,6 +95,7 @@ export const PeopleDirectoryFilterDropdown = ({
   onOpen?: () => void,
   onClose?: () => void,
   children?: ReactNode,
+  smallIcon?: boolean,
   className?: string,
   rootClassName?: string,
   titleClassName?: string,
@@ -122,7 +127,12 @@ export const PeopleDirectoryFilterDropdown = ({
         })}
       >
         <div className={classNames(classes.title, titleClassName)}>
-          {icon && <ForumIcon icon={icon} className={classes.icon} />}
+          {icon &&
+            <ForumIcon
+              icon={icon}
+              className={classNames(classes.icon, smallIcon && classes.smallIcon)}
+            />
+          }
           {title}
           {style === "dropdown" &&
             <ForumIcon
