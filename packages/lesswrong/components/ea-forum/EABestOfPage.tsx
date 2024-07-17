@@ -267,7 +267,7 @@ const EABestOfPage = ({ classes }: { classes: ClassesType }) => {
                   ))}
                 </div>
                 <div className={classes.viewMore}>
-                  <Link to="/allPosts?timeframe=monthly&hideCommunity=true&sortedBy=top">
+                  <Link to="/recommendations">
                     View more
                   </Link>
                 </div>
