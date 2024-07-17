@@ -202,7 +202,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       }
       return sorting ?? defaultSorting;
     });
-  }, [columns]);
+  }, [columns, toggleColumn]);
 
   const isDefaultSorting = sorting === defaultSorting;
 
