@@ -1,10 +1,17 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 
+const styles = (_theme: ThemeType) => ({
+  tooltipPopper: {
+    maxWidth: 200,
+    textAlign: 'center'
+  },
+});
+
 /**
- * Wrap certain special characters in `name` with a tooltip explaining them
+ * Wrap certain special characters with a tooltip explaining them
  */
-const DisplayNameWithMarkers = ({ name }: { name: string; }) => {
+const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
   // Show a tooltip if they have the 🔸 or 🔹 at the end of their profile
@@ -27,7 +34,7 @@ const DisplayNameWithMarkers = ({ name }: { name: string; }) => {
     <span>
       {beforeMarker}
       {hasMarker && (
-        <LWTooltip placement="top" title={tooltipTitle}>
+        <LWTooltip placement="top" title={tooltipTitle} popperClassName={classes.tooltipPopper}>
           {marker}
         </LWTooltip>
       )}
@@ -37,6 +44,7 @@ const DisplayNameWithMarkers = ({ name }: { name: string; }) => {
 };
 
 const DisplayNameWithMarkersComponent = registerComponent("DisplayNameWithMarkers", DisplayNameWithMarkers, {
+  styles,
   areEqual: "auto",
 });
 
