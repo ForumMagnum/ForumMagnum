@@ -35,14 +35,12 @@ const UsersAccountManagement = ({terms: { slug }, classes}: {
   }
 
   return (
-    <div>
-      <DummyFormGroup label={"Deactivate account"} startCollapsed={true}>
-        <div className={classes.actionsWrapper}>
-          <DeactivateAccountSection user={user} />
-          <DeleteAccountSection user={user} />
-        </div>
-      </DummyFormGroup>
-    </div>
+    <DummyFormGroup label={"Deactivate account"} startCollapsed={true}>
+      <div className={classes.actionsWrapper}>
+        <DeactivateAccountSection user={user} />
+        <DeleteAccountSection user={user} />
+      </div>
+    </DummyFormGroup>
   );
 };
 

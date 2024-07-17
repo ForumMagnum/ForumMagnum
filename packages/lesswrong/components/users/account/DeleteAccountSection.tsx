@@ -66,7 +66,7 @@ const DeleteAccountSection = ({
 
     const confirmAction = async () => {
       await updateUser({
-        selector: { slug: user.slug },
+        selector: { _id: user._id },
         data: {
           permanentDeletionRequestedAt,
           deleted,
@@ -84,7 +84,7 @@ const DeleteAccountSection = ({
         }
       })
     }
-  }, [openDialog, updateUser, user.deleted, user.permanentDeletionRequestedAt, user.slug]);
+  }, [openDialog, updateUser, user._id, user.deleted, user.permanentDeletionRequestedAt]);
 
   return (
     <ActionButtonSection

@@ -20,7 +20,7 @@ export const useFlashErrors = <T, R>(func: (args: T) => R, flashErrors = true) =
         flash({type: 'error', messageString: e.message});
         return;
       }
-      throw e;
+      throw new Error("useFlashErrors: An error occurred in the wrapped function", {cause: e});
     }
   }, [flash, flashErrors, func]);
 

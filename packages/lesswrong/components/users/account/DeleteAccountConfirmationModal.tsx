@@ -4,6 +4,7 @@ import { isFriendlyUI } from '@/themes/forumTheme';
 import { Components, registerComponent } from '@/lib/vulcan-lib';
 import { Link } from '@/lib/reactRouterWrapper';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
+import { useMessages } from '@/components/common/withMessages';
 
 const styles = (theme: ThemeType) => ({
   dialogPaper: {
@@ -47,6 +48,7 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
 }) => {
   const {LWDialog, EAButton, Loading, Typography} = Components;
   const [loading, setLoading] = useState(false);
+  const { flash } = useMessages();
 
   return (
     <LWDialog
@@ -81,6 +83,8 @@ const DeleteAccountConfirmationModal = ({onClose, confirmAction, classes}: {
               setLoading(true);
               try {
                 await confirmAction();
+              } catch (e) {
+                flash(e.message)
               } finally {
                 setLoading(false);
                 onClose();

@@ -19,13 +19,13 @@ const DeactivateAccountSection = ({
 
   return (
     <ActionButtonSection
-      description="Deactivating your account means your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible. This can be reversed at any time."
+      description="Deactivating your account means your posts and comments will be listed as '[Anonymous]', and your user profile won't be accessible. This can be reversed at any time."
       buttonText={`${user.deleted ? "Reactivate" : "Deactivate"} account`}
       buttonProps={{ variant: "contained", disabled: disableDeactivateButton }}
       loading={loading}
       onClick={() => {
         void updateUser({
-          selector: { slug: user.slug },
+          selector: { _id: user._id },
           data: { deleted: !user.deleted },
         });
       }}
