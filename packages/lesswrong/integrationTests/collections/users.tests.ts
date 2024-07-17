@@ -28,6 +28,7 @@ describe('updateUser – ', () => {
       fieldName:'displayName',
       collectionType:'User',
     })
+    graphQLerrors.getErrors(); // Ignore the details of the error
   });
   it("fails when user updates their createdAt", async () => {
     const user = await createDummyUser()
