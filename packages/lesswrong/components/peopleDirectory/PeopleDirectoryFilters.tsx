@@ -115,6 +115,7 @@ const PeopleDirectoryFilters = ({classes}: {
               title="Sort"
               icon="ArrowsUpDown"
               style="button"
+              smallIcon
               className={classes.filter}
             >
               <PeopleDirectoryCheckOption

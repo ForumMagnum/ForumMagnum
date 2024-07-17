@@ -14,7 +14,7 @@ const PeopleDirectoryViewToggle = ({classes}: {
   }, [isList, setView]);
   const {ForumIcon} = Components;
   return (
-    <div className={classNames(classes.root, classes.button)} onClick={onClick}>
+    <div className={classNames(classes.container, classes.button)} onClick={onClick}>
       <div className={classes.title}>
         <ForumIcon
           icon={isList ? "Map" : "Bars3"}

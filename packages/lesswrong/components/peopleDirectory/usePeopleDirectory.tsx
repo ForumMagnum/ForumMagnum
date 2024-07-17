@@ -82,12 +82,6 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [page, setPage] = useState(0);
   const [numPages, setNumPages] = useState(0);
 
-  const setSorting = useCallback((sorting: PeopleDirectorySorting | null) => {
-    setSorting_(sorting ?? defaultSorting);
-  }, []);
-
-  const isDefaultSorting = sorting === defaultSorting;
-
   const {results: coreTags} = useMulti({
     collectionName: "Tags",
     fragmentName: "TagName",
@@ -218,6 +212,30 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       onToggle: () => toggleColumn(column.label),
     }));
   }, [columns, toggleColumn]);
+
+  const setSorting = useCallback((sorting: PeopleDirectorySorting | null) => {
+    setSorting_((oldSorting) => {
+      if (
+        sorting &&
+        sorting.field === oldSorting.field &&
+        sorting.direction === oldSorting.direction
+      ) {
+        return defaultSorting;
+      }
+      if (sorting) {
+        const column = columns.find(
+          ({sortField}) => sortField === sorting.field,
+        );
+        if (column?.hideable && column.hidden) {
+          toggleColumn(column.label);
+          setColumnsEdited(true);
+        }
+      }
+      return sorting ?? defaultSorting;
+    });
+  }, [columns, toggleColumn]);
+
+  const isDefaultSorting = sorting === defaultSorting;
 
   const loadMore = useCallback(() => {
     const newPage = page + 1;

@@ -5,11 +5,13 @@ import classNames from "classnames";
 
 export const styles = (theme: ThemeType) => ({
   root: {
-    cursor: "pointer",
     display: "inline-block",
-    padding: "4px 8px",
+  },
+  container: {
+    cursor: "pointer",
     fontFamily: theme.palette.fonts.sansSerifStack,
     borderRadius: theme.borderRadius.small,
+    padding: "4px 8px",
   },
   dropdown: {
     color: theme.palette.grey[1000],
@@ -52,6 +54,9 @@ export const styles = (theme: ThemeType) => ({
     width: 20,
     marginRight: 4,
   },
+  smallIcon: {
+    width: "18px !important",
+  },
   chevron: {
     width: 16,
     marginLeft: 4,
@@ -81,6 +86,7 @@ const PeopleDirectoryFilterDropdown = ({
   onOpen,
   onClose,
   children,
+  smallIcon,
   className,
   rootClassName,
   titleClassName,
@@ -94,6 +100,7 @@ const PeopleDirectoryFilterDropdown = ({
   onOpen?: () => void,
   onClose?: () => void,
   children?: ReactNode,
+  smallIcon?: boolean,
   className?: string,
   rootClassName?: string,
   titleClassName?: string,
@@ -115,27 +122,31 @@ const PeopleDirectoryFilterDropdown = ({
 
   const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
-    <div
-      ref={anchorRef}
-      className={classNames(classes.root, rootClassName, {
-        [classes.dropdown]: style === "dropdown",
-        [classes.button]: style === "button",
-        [classes.active]: active,
-        [classes.primary]: primary,
-      })}
-    >
+    <div ref={anchorRef} className={classes.root}>
       <div
         onClick={() => onChangeOpen(!open)}
-        className={classNames(classes.title, titleClassName)}
+        className={classNames(classes.container, rootClassName, {
+          [classes.dropdown]: style === "dropdown",
+          [classes.button]: style === "button",
+          [classes.active]: active,
+          [classes.primary]: primary,
+        })}
       >
-        {icon && <ForumIcon icon={icon} className={classes.icon} />}
-        {title}
-        {style === "dropdown" &&
-          <ForumIcon
-            icon="ThickChevronDown"
-            className={classNames(classes.chevron, {[classes.chevronOpen]: open})}
-          />
-        }
+        <div className={classNames(classes.title, titleClassName)}>
+          {icon &&
+            <ForumIcon
+              icon={icon}
+              className={classNames(classes.icon, smallIcon && classes.smallIcon)}
+            />
+          }
+          {title}
+          {style === "dropdown" &&
+            <ForumIcon
+              icon="ThickChevronDown"
+              className={classNames(classes.chevron, {[classes.chevronOpen]: open})}
+            />
+          }
+        </div>
       </div>
       <LWPopper
         placement="bottom-start"
