@@ -77,7 +77,7 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
-    // FIXME should skip on EAF
+    // Note: This is still gated by verifyEmailsSetting because `canUpdate` of whenConfirmationEmailSent is controlled by verifyEmailsSetting
     void sendVerificationEmail(user);
   }
 });
@@ -154,14 +154,7 @@ getCollectionHooks("Users").editSync.add(function clearKarmaChangeBatchOnSetting
 });
 
 getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user: DbUser) {
-  // Regardless of the config setting, try to confirm the user's email address
-  // (But not in unit-test contexts, where this function is unavailable and sending
-  // emails doesn't make sense.)
-  // FIXME use sendVerificationEmailConditional
-  if (!isAnyTest && verifyEmailsSetting.get()) {
-    void sendVerificationEmail(user);
-    await bellNotifyEmailVerificationRequired(user);
-  }
+  await sendVerificationEmailConditional(user);
 });
 
 getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
