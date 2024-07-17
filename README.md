@@ -200,8 +200,10 @@ monorepo codebase at a non-megacorp is that we can get good results just by
 searching for `hiddenRelatedQuestion` to find exactly how that database field is
 used.
 
-You might want to set `SLOW_QUERY_REPORT_CUTOFF_MS` to something other than the default (2000 ms),
-it can give a lot of false positives when you are running against a remote database.
+**Environment variables**
+
+- `SLOW_QUERY_REPORT_CUTOFF_MS`: You might want to set this to something other than the default (2000 ms), it can give a lot of false positives when you are running against a remote database.
+- `FM_WATCH`: Set this to `true` or `false` to override the `--watch` CLI flag for the build process. It can sometimes be annoying for the project to rebuild on every save.
 
 ### Debugging
 
