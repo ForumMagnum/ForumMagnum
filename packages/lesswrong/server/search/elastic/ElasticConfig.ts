@@ -5,6 +5,7 @@ import type {
 import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
 import { isEAForum } from "../../../lib/instanceSettings";
+import { isFriendlyUI } from "@/themes/forumTheme";
 
 export type Ranking = {
   field: string,
@@ -256,7 +257,12 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "organization",
       "howICanHelpOthers",
       "howOthersCanHelpMe",
-      "tags.name",
+      ...(isFriendlyUI
+        ? [
+          "tags.name",
+          "posts.title",
+        ]
+        : []),
     ],
     snippet: "bio",
     ranking: [
@@ -307,6 +313,11 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
         _id: keywordMapping,
         slug: keywordMapping,
         name: keywordMapping,
+      }),
+      posts: objectMapping({
+        _id: keywordMapping,
+        slug: keywordMapping,
+        title: fullTextMapping,
       }),
       _geoloc: geopointMapping,
     },
