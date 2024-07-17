@@ -1,5 +1,6 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { useEventListener } from "../hooks/useEventListener";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 
@@ -119,6 +120,8 @@ const PeopleDirectoryFilterDropdown = ({
       return newOpen;
     });
   }, [onOpen, onClose]);
+
+  useEventListener("resize", () => setOpen(false));
 
   const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
