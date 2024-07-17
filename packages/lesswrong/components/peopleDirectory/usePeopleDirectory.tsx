@@ -183,16 +183,25 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   }, [columns, toggleColumn]);
 
   const setSorting = useCallback((sorting: PeopleDirectorySorting | null) => {
-    setSorting_(sorting ?? defaultSorting);
-    if (sorting) {
-      const column = columns.find(
-        ({sortField}) => sortField === sorting.field,
-      );
-      if (column?.hideable && column.hidden) {
-        toggleColumn(column.label);
-        setColumnsEdited(true);
+    setSorting_((oldSorting) => {
+      if (
+        sorting &&
+        sorting.field === oldSorting.field &&
+        sorting.direction === oldSorting.direction
+      ) {
+        return defaultSorting;
       }
-    }
+      if (sorting) {
+        const column = columns.find(
+          ({sortField}) => sortField === sorting.field,
+        );
+        if (column?.hideable && column.hidden) {
+          toggleColumn(column.label);
+          setColumnsEdited(true);
+        }
+      }
+      return sorting ?? defaultSorting;
+    });
   }, [columns]);
 
   const isDefaultSorting = sorting === defaultSorting;
