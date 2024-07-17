@@ -624,9 +624,11 @@ const schema: SchemaType<"Users"> = {
     canRead: ['members'],
     // EA Forum does not care about email verification
     // FIXME iiiinteresting, there are cases where it can be edited
+    // TODO change to the verifyEmails setting
     canUpdate: isEAForum
       ? []
       : [userOwns, 'sunshineRegiment', 'admins'],
+    // Jim changed this on 21st June, and fixed the issue: https://github.com/ForumMagnum/ForumMagnum/commit/39efbd507cd7c064fbfdc19c8e6a0f805c67e4be
     canCreate: ['members'],
   },
 
