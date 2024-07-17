@@ -623,6 +623,7 @@ const schema: SchemaType<"Users"> = {
     control: 'UsersEmailVerification',
     canRead: ['members'],
     // EA Forum does not care about email verification
+    // FIXME iiiinteresting, there are cases where it can be edited
     canUpdate: isEAForum
       ? []
       : [userOwns, 'sunshineRegiment', 'admins'],

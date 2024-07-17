@@ -37,6 +37,7 @@ class UsersEmailVerification extends PureComponent<UsersEmailVerificationProps,U
   sendConfirmationEmail() {
     const { updateCurrentUser, currentUser } = this.props;
     if (!currentUser) return;
+    // TODO this is hit via the bell notification warning people that they need to verify their email
     void updateCurrentUser({
       whenConfirmationEmailSent: new Date()
     });

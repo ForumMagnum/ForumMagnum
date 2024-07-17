@@ -326,6 +326,7 @@ addGraphQLMutation('login(username: String, password: String): LoginReturnData')
 addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String, abTestKey: String): LoginReturnData');
 addGraphQLMutation('logout: LoginReturnData');
 addGraphQLMutation('resetPassword(email: String): String');
+// FIXME I think this mutation version isn't used
 addGraphQLMutation('verifyEmail(userId: String): String');
 
 async function insertHashedLoginToken(userId: string, hashedToken: string) {

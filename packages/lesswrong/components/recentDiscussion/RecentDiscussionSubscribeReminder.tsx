@@ -201,8 +201,9 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
+    // TODO update comment
     // EA Forum does not care about email verification
-    if (!isEAForum && !userEmailAddressIsVerified(currentUser)) {
+    if (!userEmailAddressIsVerified(currentUser)) {
       userSubscriptionData.whenConfirmationEmailSent = new Date();
     }
 
@@ -313,6 +314,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
               userSubscriptionData.unsubscribeFromAll = false;
               await updateCurrentUser(userSubscriptionData);
 
+              // FIXME I think this should use !userEmailAddressIsVerified(currentUser) (and therefore always bypass on EAF)
               if (isEAForum) {
                 // Confirmation-email mutation is separate from the send-verification-email
                 // mutation because otherwise it goes to the old email address (aka null)
@@ -386,7 +388,8 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
         {dontAskAgainButton}
       </div>
     </AnalyticsWrapper>
-  } else if ((!isEAForum && !userEmailAddressIsVerified(currentUser)) || adminBranch===4) {
+
+  } else if (!userEmailAddressIsVerified(currentUser) || adminBranch===4) {
     // User is subscribed, but they haven't verified their email address. Show
     // a resend-verification-email button.
     return <AnalyticsWrapper branch="needs-email-verification">
