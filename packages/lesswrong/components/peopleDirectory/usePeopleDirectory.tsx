@@ -21,6 +21,11 @@ type PeopleDirectorySorting = {
   direction: "asc" | "desc",
 }
 
+const defaultSorting: PeopleDirectorySorting = {
+  field: "profileCompletion",
+  direction: "desc",
+};
+
 type PeopleDirectoryContext = {
   view: PeopleDirectoryView,
   setView: (view: PeopleDirectoryView) => void,
@@ -28,8 +33,9 @@ type PeopleDirectoryContext = {
   setQuery: (query: string) => void,
   clearSearch: () => void,
   isEmptySearch: boolean,
-  sorting: PeopleDirectorySorting | null,
+  sorting: PeopleDirectorySorting,
   setSorting: (sorting: PeopleDirectorySorting | null) => void,
+  isDefaultSorting: boolean,
   results: SearchUser[],
   resultsLoading: boolean,
   totalResults: number,
@@ -58,7 +64,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const {location, query: urlQuery} = useLocation();
   const [view, setView] = useState<PeopleDirectoryView>("list");
   const [query, setQuery_] = useState(urlQuery.query ?? "");
-  const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
+  const [sorting, setSorting_] = useState<PeopleDirectorySorting>(defaultSorting);
   // We store the results in an 2D-array, where the index in the first array
   // corresponds to the "page" of the contained results. This prevents a class
   // of bugs where updates cause results to be out-of-order or duplicated.
@@ -176,6 +182,30 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     }));
   }, [columns, toggleColumn]);
 
+  const setSorting = useCallback((sorting: PeopleDirectorySorting | null) => {
+    setSorting_((oldSorting) => {
+      if (
+        sorting &&
+        sorting.field === oldSorting.field &&
+        sorting.direction === oldSorting.direction
+      ) {
+        return defaultSorting;
+      }
+      if (sorting) {
+        const column = columns.find(
+          ({sortField}) => sortField === sorting.field,
+        );
+        if (column?.hideable && column.hidden) {
+          toggleColumn(column.label);
+          setColumnsEdited(true);
+        }
+      }
+      return sorting ?? defaultSorting;
+    });
+  }, [columns, toggleColumn]);
+
+  const isDefaultSorting = sorting === defaultSorting;
+
   const loadMore = useCallback(() => {
     const newPage = page + 1;
     if (!resultsLoading && newPage < numPages) {
@@ -204,9 +234,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     void (async () => {
       try {
         const isMap = view === "map";
-        const sortString = sorting
-          ? `_${sorting.field}:${sorting.direction}`
-          : "";
+        const sortString = query && isDefaultSorting
+          ? ""
+          : `_${sorting.field}:${sorting.direction}`;
         const facetFilters = [
           roles.selectedValues.map((role) => `jobTitle:${role}`),
           organizations.selectedValues.map((org) => `organization:${org}`),
@@ -261,6 +291,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     view,
     query,
     sorting,
+    isDefaultSorting,
     roles.selectedValues,
     organizations.selectedValues,
     locations.selectedValues,
@@ -278,6 +309,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       isEmptySearch,
       sorting,
       setSorting,
+      isDefaultSorting,
       results: flattenedResults,
       resultsLoading,
       totalResults,

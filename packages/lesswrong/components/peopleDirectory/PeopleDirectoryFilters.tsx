@@ -20,8 +20,7 @@ const styles = (theme: ThemeType) => ({
   columnsList: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
-    padding: 16,
+    padding: 4,
   },
   totalResults: {
     display: "flex",
@@ -29,6 +28,9 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 14,
     fontWeight: 600,
     color: theme.palette.grey[600],
+  },
+  clearAll: {
+    padding: 6,
   },
 });
 
@@ -42,6 +44,9 @@ export const PeopleDirectoryFilters = ({classes}: {
     locations,
     careerStages,
     tags,
+    sorting,
+    setSorting,
+    isDefaultSorting,
     columns,
     columnsEdited,
     resetColumns,
@@ -52,6 +57,7 @@ export const PeopleDirectoryFilters = ({classes}: {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
     PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
     PeopleDirectoryClearAll, PeopleDirectoryViewToggle,
+    PeopleDirectoryCheckOption,
   } = Components;
   return (
     <div className={classes.root}>
@@ -69,21 +75,50 @@ export const PeopleDirectoryFilters = ({classes}: {
       </div>
       <div className={classes.options}>
         {view === "list" &&
-          <PeopleDirectoryFilterDropdown
-            title="Columns"
-            icon="ViewColumns"
-            style="button"
-            className={classes.columnsList}
-          >
-            {columns.filter(({hideable}) => hideable).map((state) => (
-              <PeopleDirectorySelectOption state={state} key={state.value} />
-            ))}
-            {columnsEdited &&
-              <div>
-                <PeopleDirectoryClearAll text="Reset" onClear={resetColumns} />
-              </div>
-            }
-          </PeopleDirectoryFilterDropdown>
+          <>
+            <PeopleDirectoryFilterDropdown
+              title="Sort"
+              icon="ArrowsUpDown"
+              style="button"
+              smallIcon
+              className={classes.columnsList}
+            >
+              <PeopleDirectoryCheckOption
+                label="Default"
+                selected={isDefaultSorting}
+                onSelect={setSorting.bind(null, null)}
+              />
+              {columns.map(({label, sortField, defaultSort}) => sortField
+                ? (
+                  <PeopleDirectoryCheckOption
+                    key={label}
+                    label={label}
+                    selected={sortField === sorting.field}
+                    onSelect={setSorting.bind(null, {
+                      field: sortField,
+                      direction: defaultSort ?? "asc",
+                    })}
+                  />
+                )
+                : null
+              )}
+            </PeopleDirectoryFilterDropdown>
+            <PeopleDirectoryFilterDropdown
+              title="Columns"
+              icon="ViewColumns"
+              style="button"
+              className={classes.columnsList}
+            >
+              {columns.filter(({hideable}) => hideable).map((state) => (
+                <PeopleDirectorySelectOption state={state} key={state.value} />
+              ))}
+              {columnsEdited &&
+                <div className={classes.clearAll}>
+                  <PeopleDirectoryClearAll text="Reset" onClear={resetColumns} />
+                </div>
+              }
+            </PeopleDirectoryFilterDropdown>
+          </>
         }
         <PeopleDirectoryViewToggle />
       </div>
