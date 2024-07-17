@@ -3406,6 +3406,7 @@ interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
   readonly slug: string,
+  readonly displayName: string,
   readonly jobTitle: string,
   readonly organization: string,
   readonly careerStage: Array<string>,

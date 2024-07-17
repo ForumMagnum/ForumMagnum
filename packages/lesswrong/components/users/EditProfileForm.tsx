@@ -162,6 +162,7 @@ const EditProfileForm = ({classes}: {
         collectionName="Users"
         {...terms}
         fields={[
+          ...(isFriendlyUI ? ['displayName'] : []), // In UsersEditForm (account setting) in book UI
           'profileImageId',
           'jobTitle',
           'organization',

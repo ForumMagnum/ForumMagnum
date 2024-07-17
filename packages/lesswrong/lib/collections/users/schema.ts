@@ -410,8 +410,8 @@ const schema: SchemaType<"Users"> = {
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
     type: String,
+    hidden: isFriendlyUI,
     optional: true,
-    input: 'text',
     // On the EA Forum name changing is rate limited in rateLimitCallbacks
     canUpdate: ['sunshineRegiment', 'admins', isEAForum ? 'members' : userHasntChangedName],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -421,6 +421,7 @@ const schema: SchemaType<"Users"> = {
       return user.displayName || createDisplayName(user);
     },
     group: formGroups.default,
+    control: isFriendlyUI ? "FormComponentFriendlyDisplayNameInput" : undefined,
   },
   /**
    Used for tracking changes of displayName
