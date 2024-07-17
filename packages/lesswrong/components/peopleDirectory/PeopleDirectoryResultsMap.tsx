@@ -8,7 +8,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryResultsMap = ({classes}: {
+const PeopleDirectoryResultsMap = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = usePeopleDirectory();

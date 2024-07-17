@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useRef } from "react";
+import React, { Fragment, ReactNode, useCallback, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { SearchableMultiSelectResult } from "../hooks/useSearchableMultiSelect";
 
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectorySearchableFilter = ({
+const PeopleDirectorySearchableFilter = ({
   filter: {
     search,
     setSearch,
@@ -44,9 +44,11 @@ export const PeopleDirectorySearchableFilter = ({
     clear,
     grandfatheredCount,
   },
+  justContent,
   classes,
 }: {
   filter: SearchableMultiSelectResult,
+  justContent?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const ref = useRef<HTMLInputElement | null>(null);
@@ -69,17 +71,30 @@ export const PeopleDirectorySearchableFilter = ({
   const showClearAll = !loading && selectedValues.length > 0;
   const showAnything = showLoading || showNoResults || showResults || showClearAll;
 
+  const Wrapper = useCallback(({children}: {children: ReactNode}) => {
+    if (justContent) {
+      return (
+        <>{children}</>
+      );
+    }
+    return (
+      <Components.PeopleDirectoryFilterDropdown
+        title={summary}
+        active={selectedValues.length > 0}
+        onOpen={onOpen}
+        onClose={onClose}
+      >
+        {children}
+      </Components.PeopleDirectoryFilterDropdown>
+    );
+  }, [justContent, summary, selectedValues.length, onOpen, onClose]);
+
   const {
-    PeopleDirectoryFilterDropdown, PeopleDirectoryInput, Loading,
-    PeopleDirectorySelectOption, PeopleDirectoryClearAll,
+    PeopleDirectoryInput, Loading, PeopleDirectorySelectOption,
+    PeopleDirectoryClearAll,
   } = Components;
   return (
-    <PeopleDirectoryFilterDropdown
-      title={summary}
-      active={selectedValues.length > 0}
-      onOpen={onOpen}
-      onClose={onClose}
-    >
+    <Wrapper>
       <div className={classes.search}>
         <PeopleDirectoryInput
           value={search}
@@ -113,7 +128,7 @@ export const PeopleDirectorySearchableFilter = ({
           }
         </div>
       }
-    </PeopleDirectoryFilterDropdown>
+    </Wrapper>
   );
 }
 

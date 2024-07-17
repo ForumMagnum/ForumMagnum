@@ -1,5 +1,6 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { useEventListener } from "../hooks/useEventListener";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 
@@ -39,6 +40,9 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
   },
+  primary: {
+    color: theme.palette.primary.main,
+  },
   title: {
     userSelect: "none",
     fontSize: 14,
@@ -74,9 +78,10 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryFilterDropdown = ({
+const PeopleDirectoryFilterDropdown = ({
   title,
   active,
+  primary,
   style = "dropdown",
   icon,
   onOpen,
@@ -90,6 +95,7 @@ export const PeopleDirectoryFilterDropdown = ({
 }: {
   title: ReactNode,
   active?: boolean,
+  primary?: boolean,
   style?: "dropdown" | "button",
   icon?: ForumIconName,
   onOpen?: () => void,
@@ -115,6 +121,8 @@ export const PeopleDirectoryFilterDropdown = ({
     });
   }, [onOpen, onClose]);
 
+  useEventListener("resize", () => setOpen(false));
+
   const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
     <div ref={anchorRef} className={classes.root}>
@@ -124,6 +132,7 @@ export const PeopleDirectoryFilterDropdown = ({
           [classes.dropdown]: style === "dropdown",
           [classes.button]: style === "button",
           [classes.active]: active,
+          [classes.primary]: primary,
         })}
       >
         <div className={classNames(classes.title, titleClassName)}>

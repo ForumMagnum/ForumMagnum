@@ -20,6 +20,7 @@ export type SearchableMultiSelectState = MultiSelectState & {
 }
 
 export type SearchableMultiSelectResult = {
+  title: string,
   search: string,
   setSearch: (value: string) => void,
   loading: boolean,
@@ -103,9 +104,13 @@ export const useSearchableMultiSelect = ({
   const [suggestions, setSuggestions] = useState<SearchableMultiSelectState[]>([]);
   const defaultSuggestions = useStableSuggestions(defaultSuggestions_);
 
+  const filteredSelectedValues = suggestions.filter(
+    ({selected}) => selected).map(({value}) => value,
+  );
   const selectedValues: string[] = useMemo(() => {
-    return suggestions.filter(({selected}) => selected).map(({value}) => value);
-  }, [suggestions]);
+    return filteredSelectedValues;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredSelectedValues.join(" ")]);
 
   const summary = buildMultiSelectSummary(title, suggestions, selectedValues);
   placeholder ??= `Type ${title.toLowerCase()}...`;
@@ -192,6 +197,7 @@ export const useSearchableMultiSelect = ({
     .length;
 
   return {
+    title,
     search,
     setSearch,
     loading,

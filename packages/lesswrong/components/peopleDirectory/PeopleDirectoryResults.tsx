@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
-export const PeopleDirectoryResults = () => {
+const PeopleDirectoryResults = () => {
   const {view} = usePeopleDirectory();
   const {PeopleDirectoryResultsList, PeopleDirectoryResultsMap} = Components;
   return view === "list"

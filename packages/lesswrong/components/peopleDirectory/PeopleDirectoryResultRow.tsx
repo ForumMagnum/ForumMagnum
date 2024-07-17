@@ -57,7 +57,7 @@ const Column: FC<{
   );
 }
 
-export const PeopleDirectoryResultRow = ({result, classes}: {
+const PeopleDirectoryResultRow = ({result, classes}: {
   result?: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {

@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectorySelectOption = ({state, className, classes}: {
+const PeopleDirectorySelectOption = ({state, className, classes}: {
   state: MultiSelectState,
   className?: string,
   classes: ClassesType<typeof styles>,

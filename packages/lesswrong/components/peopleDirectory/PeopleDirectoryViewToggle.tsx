@@ -4,7 +4,7 @@ import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";
 
-export const PeopleDirectoryViewToggle = ({classes}: {
+const PeopleDirectoryViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {view, setView} = usePeopleDirectory();
