@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectorySkeletonTextCell = ({lines = 1, classes}: {
+const PeopleDirectorySkeletonTextCell = ({lines = 1, classes}: {
   lines?: number,
   classes: ClassesType<typeof styles>,
 }) => {

@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
+const PeopleDirectoryClearAll = ({text = "Clear all", onClear, classes}: {
   text?: string,
   onClear: () => void,
   classes: ClassesType<typeof styles>,

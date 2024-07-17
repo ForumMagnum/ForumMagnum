@@ -24,11 +24,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryUserCell = ({user, classes}: {
+const PeopleDirectoryUserCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const isCurrentUser = user._id === currentUser?._id;
   const {
     UsersProfileImage, NewConversationButton, ForumIcon, LWTooltip,
   } = Components;
@@ -36,13 +37,20 @@ export const PeopleDirectoryUserCell = ({user, classes}: {
     <div className={classes.root}>
       <UsersProfileImage user={user} size={32} />
       <div className={classes.name}>{user.displayName}</div>
-      <InteractionWrapper>
-        <LWTooltip title="Send message" placement="bottom">
-          <NewConversationButton currentUser={currentUser} user={user} from="people_directory">
-            <ForumIcon icon="Envelope" className={classes.message} />
-          </NewConversationButton>
-        </LWTooltip>
-      </InteractionWrapper>
+      {!isCurrentUser &&
+        <InteractionWrapper>
+          <LWTooltip title="Send message" placement="bottom">
+            <NewConversationButton
+              currentUser={currentUser}
+              user={user}
+              from="people_directory"
+              openInNewTab
+            >
+              <ForumIcon icon="Envelope" className={classes.message} />
+            </NewConversationButton>
+          </LWTooltip>
+        </InteractionWrapper>
+      }
     </div>
   );
 }

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryHeading = ({column, classes}: {
+const PeopleDirectoryHeading = ({column, classes}: {
   column: PeopleDirectoryColumn,
   classes: ClassesType<typeof styles>,
 }) => {
