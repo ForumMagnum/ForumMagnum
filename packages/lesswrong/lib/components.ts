@@ -1167,6 +1167,7 @@ importComponent("PeopleDirectorySocialMediaCell", () => require('../components/p
 importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));
 importComponent("PeopleDirectorySkeletonUserCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonUserCell'));
 importComponent("PeopleDirectorySkeletonTextCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonTextCell'));
+importComponent("PeopleDirectoryTopicsCell", () => require('../components/peopleDirectory/PeopleDirectoryTopicsCell'));
 
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
