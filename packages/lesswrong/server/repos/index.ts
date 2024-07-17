@@ -91,6 +91,7 @@ export {
   ElectionVotesRepo,
   ForumEventsRepo,
   LocalgroupsRepo,
+  LWEventsRepo,
   ManifoldProbabilitiesCachesRepo,
   NotificationsRepo,
   PageCacheRepo,
