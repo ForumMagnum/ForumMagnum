@@ -185,9 +185,8 @@ export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('for
 
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
-// TODO combine with email.assumeVerified
 /** Whether this forum verifies user emails */
-export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", !isEAForum, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
@@ -256,9 +255,6 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
     },
   ]
   , 'optional')
-
-// TODO probably can be combined with the other email verification setting
-export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>('email.assumeVerified', isEAForum, 'optional')
 
 /**
  * This is a filepath that is _relative_ to the location of the instance settings file itself.
