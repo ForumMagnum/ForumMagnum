@@ -174,9 +174,7 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    // TODO !userEmailAddressIsVerified will always be false for EAF (via assumeUserEmailVerifiedSetting). !isLWorAF will always be false for LW or AF, so this
-    // path can only be hit on other instances. Ask Vlad if he is using it and cut it if not
-    if (!isLWorAF && !userEmailAddressIsVerified(currentUser)) {
+    if (!userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
