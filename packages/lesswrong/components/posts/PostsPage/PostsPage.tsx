@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -8,7 +8,7 @@ import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
-import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
+import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
@@ -566,7 +566,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     (post.contents?.wordCount ?? 0) >= 500;
   const recommendationsPosition = getRecommendationsPosition();
 
-  const commentId = query.commentId || params.commentId
+  const queryCommentId = query.commentId || params.commentId
 
   const description = fullPost ? getPostDescription(fullPost) : null
   const ogUrl = postGetPageUrl(post, true) // open graph
@@ -580,15 +580,15 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
   const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
-  const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
+  const isDebateResponseLink = queryCommentId && debateResponseIds.has(queryCommentId);
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      navigate({ ...location.location, hash: `#debate-comment-${commentId}` }, {replace: true});
+      navigate({ ...location.location, hash: `#debate-comment-${queryCommentId}` }, {replace: true});
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDebateResponseLink, commentId]);
+  }, [isDebateResponseLink, queryCommentId]);
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
@@ -616,8 +616,42 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const marketInfo = getMarketInfo(post)
 
+  // check for deep equality between terms and eagerPostComments.terms
+  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
+
+  const lazyResults = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    skip: useEagerResults,
+    ...postsCommentsThreadMultiOptions,
+  });
+
+  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  const commentCount = results?.length ?? 0;
+  const commentTree = unflattenComments(results ?? []);
+  const answersTree = unflattenComments(answersAndReplies ?? []);
+
+  const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
+  // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
+  const showHashCommentFallback = useMemo(() => (
+    hashCommentId && !loading && results && !results.map(({ _id }) => _id).includes(hashCommentId)
+  ), [hashCommentId, loading, results]);
+
+  const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? queryCommentId : null)
+  useEffect(() => { // useEffect required because `location.hash` isn't sent to the server
+    if (fullPost && !isDebateResponseLink) {
+      if (queryCommentId) {
+        setPermalinkedCommentId(queryCommentId)
+      } else if (showHashCommentFallback) {
+        setPermalinkedCommentId(hashCommentId)
+      } else {
+        setPermalinkedCommentId(null)
+      }
+    }
+  }, [fullPost, hashCommentId, isDebateResponseLink, queryCommentId, showHashCommentFallback])
+
   const header = <>
-    {fullPost && !commentId && <>
+    {fullPost && !queryCommentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
         title={post.title}
@@ -638,8 +672,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
-          {fullPost && commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={fullPost} />}
-          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
+          {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={fullPost} />}
+          {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: permalinkedCommentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
               imgProps={{ar: '191:100', w: '682', q: '100'}}
@@ -670,20 +704,26 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
   </>;
 
-  // check for deep equality between terms and eagerPostComments.terms
-  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
-
-  const lazyResults = useMulti({
-    terms: {...commentTerms, postId: post._id},
-    skip: useEagerResults,
-    ...postsCommentsThreadMultiOptions,
-  });
-
-
   // If this is a non-AF post being viewed on AF, redirect to LW.
   if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
+  }
+
+  // Redirect from ?commentId=... to #... if we should always show comments in context
+  if (queryCommentId && commentPermalinkStyleSetting.get() === 'in-context') {
+    const urlSearchParams = new URLSearchParams(location.query);
+    urlSearchParams.delete('commentId');
+    const otherQueryParams = urlSearchParams.toString();
+    const hashVersion = `#${queryCommentId}`;
+    const redirectUrl = `${location.pathname}${otherQueryParams ? `?${otherQueryParams}` : ''}${hashVersion}`;
+
+    if (isServer) {
+      return <PermanentRedirect url={redirectUrl} status={302} />
+    } else {
+      // navigate doesn't result in the whole page unmounting momentarily
+      navigate(redirectUrl, { replace: true });
+    }
   }
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
@@ -701,7 +741,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       classes.postBody,
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
-      {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
+      {showSplashPageHeader && !permalinkedCommentId && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
       {/* Body */}
@@ -763,12 +803,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       }
     </div>
 
-  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
-
-  const commentCount = results?.length ?? 0;
-  const commentTree = unflattenComments(results ?? []);
-  const answersTree = unflattenComments(answersAndReplies ?? []);
-  
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
       <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
@@ -821,7 +855,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader
+    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
       // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
       post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
