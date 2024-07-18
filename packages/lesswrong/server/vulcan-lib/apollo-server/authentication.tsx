@@ -360,23 +360,6 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     currentUser: user,
     validate: false,
   })
-  
-  const clientId = getCookieFromReq(req, "clientId");
-  if (clientId) {
-    void recordAssociationBetweenUserAndClientID(clientId, user);
-  }
-}
-
-async function recordAssociationBetweenUserAndClientID(clientId: string, user: DbUser) {
-  const clientIdEntry = await ClientIds.findOne({clientId});
-  if (clientIdEntry) {
-    const userId = user._id;
-    if (!clientIdEntry.userIds?.includes(userId)) {
-      await ClientIds.rawUpdateOne({clientId}, {$set: {
-        userIds: [...(clientIdEntry.userIds??[]), userId],
-      }});
-    }
-  }
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
