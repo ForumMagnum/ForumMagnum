@@ -5,7 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -623,10 +623,10 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    // EA Forum does not care about email verification
-    canUpdate: isEAForum
-      ? []
-      : [userOwns, 'sunshineRegiment', 'admins'],
+    // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
+    canUpdate: verifyEmailsSetting.get()
+      ? [userOwns, 'sunshineRegiment', 'admins']
+      : [],
     canCreate: ['members'],
   },
 
