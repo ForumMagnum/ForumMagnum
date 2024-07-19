@@ -29,6 +29,8 @@ import DebateIcon from '@material-ui/icons/Forum';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import Sequences from './collections/sequences/collection';
+import DialogueChecks from './collections/dialogueChecks/collection';
+import DialogueMatchPreferences from './collections/dialogueMatchPreferences/collection';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -92,7 +94,7 @@ export type NotificationDisplay =
     tagRelId?: string,
   };
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueMatchPreference'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -170,6 +172,9 @@ type DocumentSummary =
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
   | { type: 'sequence'; document: DbSequence; associatedUserName: null; displayName: null }
+  | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
+  | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
+
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
@@ -235,6 +240,10 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         displayName: null,
         associatedUserName: null,
       }
+    case 'dialogueCheck':
+      return null
+    case 'dialogueMatchPreference':
+      return null
     default:
       //eslint-disable-next-line no-console
       console.error(`Invalid documentType type: ${documentType}`)
@@ -455,6 +464,43 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
   },
   causesRedBadge: false,
   Display: ({Post}) => <>New content in the dialogue <Post /></>,
+});
+
+// New dialogue match between you and another user
+export const NewDialogueMatchNotification = registerNotificationType({
+  name: "newDialogueMatch",
+  userSettingField: "notificationDialogueMatch",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    return "This is an old notification for a deprecated feature."
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  }
+});
+
+// Notification that you have new interested parties for dialogues
+export const NewDialogueCheckNotification = registerNotificationType({
+  name: "newDialogueChecks",
+  userSettingField: "notificationNewDialogueChecks",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    return "This is an old notification for a deprecated feature."
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  }
+});
+
+export const YourTurnMatchFormNotification = registerNotificationType({
+  name: "yourTurnMatchForm",
+  userSettingField: "notificationYourTurnMatchForm",
+  allowedChannels: ["onsite", "none"],
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    return "This is an old notification for a deprecated feature."
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  }
 });
 
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
