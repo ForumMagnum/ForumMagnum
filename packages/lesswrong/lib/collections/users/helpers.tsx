@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import {assumeUserEmailVerifiedSetting, forumTypeSetting, isEAForum} from '../../instanceSettings'
+import {forumTypeSetting, isEAForum, verifyEmailsSetting} from '../../instanceSettings'
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +12,8 @@ import { DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
+
+export const ACCOUNT_DELETION_COOLING_OFF_DAYS = 14;
 
 export type UserDisplayNameInfo = { username: string | null, fullName?: string | null, displayName: string | null };
 
@@ -296,9 +298,10 @@ export const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post
 // Return true if the user's account has at least one verified email address.
 export const userEmailAddressIsVerified = (user: UsersCurrent|DbUser|null): boolean => {
   // Some forums don't do their own email verification
-  if (assumeUserEmailVerifiedSetting.get()) {
+  if (!verifyEmailsSetting.get()) {
     return true
   }
+
   if (!user || !user.emails)
     return false;
   for (let email of user.emails) {
