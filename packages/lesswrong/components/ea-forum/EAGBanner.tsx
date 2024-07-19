@@ -16,8 +16,8 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
-    columnGap: "10px",
-    padding: '10px 10px 10px 12px',
+    columnGap: "6px",
+    padding: '10px 10px 10px 9px',
     backgroundColor: theme.palette.grey[200],
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 15,
@@ -28,8 +28,8 @@ const styles = (theme: ThemeType) => ({
   },
   lightbulb: {
     flex: 'none',
-    height: 30,
-    width: 30,
+    height: 37,
+    width: 37,
     alignSelf: 'center',
     color: theme.palette.buttons.alwaysPrimary,
   },
@@ -61,6 +61,7 @@ const styles = (theme: ThemeType) => ({
     textDecoration: 'underline',
     textUnderlineOffset: '3px',
     whiteSpace: 'nowrap',
+    marginLeft: 4,
     '&:hover': {
       textDecoration: 'underline',
       opacity: 0.75,
@@ -70,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     flex: 'none',
     fontSize: 20,
     cursor: "pointer",
-    marginLeft: 13,
+    marginLeft: 16,
     "&:hover": {
       opacity: 0.75,
     },
@@ -170,9 +171,9 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
                 <HoverPreviewLink href={eagPostLink}>
                   <span className={classes.bold}>{eagName}</span>
                 </HoverPreviewLink>{" "}
-                applications close on {applicationDeadline.format('ddd MMMM D')} &#8212;{" "}
+                applications close on {applicationDeadline.format('ddd MMMM D')}.{" "}
                 <Link to={eagLink} className={classes.applyLink}>
-                  apply now
+                  Apply now
                 </Link>
               </div>
             </div>
