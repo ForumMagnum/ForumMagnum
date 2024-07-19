@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type ActionButtonSectionProps = {
   buttonText: string;
-  buttonProps: Partial<ComponentProps<typeof Components.EAButton>>;
+  buttonProps: Partial<Omit<ComponentProps<typeof Components.EAButton>, "onClick">>;
   description: ReactNode;
   loading?: boolean;
   onClick: () => void;
