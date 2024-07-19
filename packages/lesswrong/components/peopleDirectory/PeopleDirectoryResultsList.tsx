@@ -7,10 +7,22 @@ import { useObserver } from "../hooks/useObserver";
 const HORIZ_PADDING = 24;
 
 const styles = (theme: ThemeType) => ({
-  root: {
+  mobileRoot: {
+    display: "none",
+    background: theme.palette.grey[0],
+    border: `1px solid ${theme.palette.grey[300]}`,
+    borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down("sm")]: {
+      display: "block",
+    },
+  },
+  desktopRoot: {
     marginLeft: -SCROLL_INDICATOR_SIZE,
     width: `calc(100% + ${2 * SCROLL_INDICATOR_SIZE}px)`,
     maxWidth: "unset !important", // Overwrite the HorizScrollBlock default
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   contents: {
     border: `1px solid ${theme.palette.grey[300]}`,
@@ -46,11 +58,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryResultsList = ({classes}: {
+const PeopleDirectoryResultsList = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results, resultsLoading, columns, loadMore} = usePeopleDirectory();
-  const loadMoreRef = useObserver<HTMLDivElement>({onEnter: loadMore});
+  const desktopLoadMoreRef = useObserver<HTMLDivElement>({onEnter: loadMore});
+  const mobileLoadMoreRef = useObserver<HTMLDivElement>({onEnter: loadMore});
 
   let gridTemplateColumns = "";
   for (const column of columns) {
@@ -61,32 +74,50 @@ export const PeopleDirectoryResultsList = ({classes}: {
 
   const {
     HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow,
-    PeopleDirectoryNoResults,
+    PeopleDirectoryNoResults, PeopleDirectoryCard,
   } = Components;
   if (results.length < 1 && !resultsLoading) {
     return <PeopleDirectoryNoResults />
   }
   return (
-    <HorizScrollBlock className={classes.root} contentsClassName={classes.contents}>
-      <div className={classes.gridWrapper}>
-        <div className={classes.grid} style={{gridTemplateColumns}}>
-          {columns.map((column) =>
-            !column.hideable || !column.hidden
-              ? <PeopleDirectoryHeading key={column.label} column={column} />
-              : null
-          )}
-          {results.map((result) => (
-            <PeopleDirectoryResultRow key={result._id} result={result} />
-          ))}
-          {resultsLoading && Array.from(Array(10).keys()).map((i) => (
-            <PeopleDirectoryResultRow key={i} />
-          ))}
-          {results.length > 0 &&
-            <div className={classes.loadMore} ref={loadMoreRef} />
-          }
+    <>
+      <HorizScrollBlock
+        className={classes.desktopRoot}
+        contentsClassName={classes.contents}
+      >
+        <div className={classes.gridWrapper}>
+          <div className={classes.grid} style={{gridTemplateColumns}}>
+            {columns.map((column) =>
+              !column.hideable || !column.hidden
+                ? <PeopleDirectoryHeading key={column.label} column={column} />
+                : null
+            )}
+            {results.map((result) => (
+              <PeopleDirectoryResultRow key={result._id} result={result} />
+            ))}
+            {resultsLoading && Array.from(Array(10).keys()).map((i) => (
+              <PeopleDirectoryResultRow key={i} />
+            ))}
+            {results.length > 0 &&
+              <div className={classes.loadMore} ref={desktopLoadMoreRef} />
+            }
+          </div>
         </div>
+      </HorizScrollBlock>
+      <div className={classes.mobileRoot}>
+        {results.map((result, i) => (
+          <PeopleDirectoryCard
+            key={result._id}
+            user={result}
+            isFirst={i === 0}
+            isLast={i === results.length - 1}
+          />
+        ))}
+        {results.length > 0 &&
+          <div className={classes.loadMore} ref={mobileLoadMoreRef} />
+        }
       </div>
-    </HorizScrollBlock>
+    </>
   );
 }
 
