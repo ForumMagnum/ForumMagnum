@@ -77,8 +77,7 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
       && (!user.whenConfirmationEmailSent
           || user.whenConfirmationEmailSent.getTime() !== modifier.$set.whenConfirmationEmailSent.getTime()))
   {
-    // Note: This is still gated by verifyEmailsSetting because `canUpdate` of whenConfirmationEmailSent is controlled by verifyEmailsSetting
-    void sendVerificationEmail(user);
+    void sendVerificationEmailConditional(user);
   }
 });
 
