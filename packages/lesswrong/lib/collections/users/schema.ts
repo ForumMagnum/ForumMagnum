@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations, hasSurveys } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -1250,7 +1250,27 @@ const schema: SchemaType<"Users"> = {
     label: 'Deactivate',
     tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
+    hidden: hasAccountDeletionFlow,
     group: formGroups.deactivate,
+  },
+
+  // permanentDeletionRequestedAt: The date the user requested their account to be permanently deleted,
+  // it will be deleted by the script in packages/lesswrong/server/users/permanentDeletion.ts after a cooling
+  // off period
+  permanentDeletionRequestedAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['members', 'admins'],
+    hidden: true, // Editing is handled outside a form
+    onUpdate: ({data}) => {
+      if (!data.permanentDeletionRequestedAt) return data.permanentDeletionRequestedAt;
+
+      // Whenever the field is set, reset it to the current server time to ensure users
+      // can't work around the cooling off period
+      return new Date();
+    },
   },
 
   // DEPRECATED

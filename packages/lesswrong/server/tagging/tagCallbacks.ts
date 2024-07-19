@@ -137,7 +137,7 @@ getCollectionHooks("Tags").updateAfter.add(async (
       projection: {_id: 1},
     }).fetch();
     for (const user of users) {
-      elasticSyncDocument("Users", user._id);
+      void elasticSyncDocument("Users", user._id);
     }
   }
   return newDocument;
