@@ -6,6 +6,10 @@ import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleTo
 import { userIsAdminOrMod, userOwns } from '@/lib/vulcan-users';
 import LWEventsRepo from '../repos/LWEventsRepo';
 import { isEAForum } from '@/lib/instanceSettings';
+import { DatabaseServerSetting } from '../databaseSettings';
+
+const changesAllowedSetting = new DatabaseServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
+const sinceDaysAgoSetting = new DatabaseServerSetting<number>('displayNameRateLimit.sinceDaysAgo', 60);
 
 // Post rate limiting
 getCollectionHooks("Posts").createValidate.add(async function PostsNewRateLimit (validationErrors, { newDocument: post, currentUser }) {
@@ -68,13 +72,17 @@ async function enforceDisplayNameRateLimit({userToUpdate, currentUser}: {userToU
 
   if (!isEAForum) return;
 
+  const sinceDaysAgo = sinceDaysAgoSetting.get();
+  const changesAllowed = changesAllowedSetting.get();
+
   const nameChangeCount = await new LWEventsRepo().countDisplayNameChanges({
     userId: userToUpdate._id,
-    sinceDaysAgo: 30,
+    sinceDaysAgo,
   });
 
-  if (nameChangeCount > 0) {
-    throw new Error("You can only change your display name once every 30 days. Please contact support if you would like to change it again");
+  if (nameChangeCount >= changesAllowed) {
+    const times = changesAllowed === 1 ? 'time' : 'times';
+    throw new Error(`You can only change your display name ${changesAllowed} ${times} every ${sinceDaysAgo} days. Please contact support if you would like to change it again`);
   }
 }
 
