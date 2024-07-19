@@ -78,6 +78,7 @@ import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
+import ArrowsUpDownIcon from "@heroicons/react/20/solid/ArrowsUpDownIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -141,6 +142,7 @@ import { SparkleIcon } from "../icons/sparkleIcon";
 import { ListViewIcon } from "../icons/ListViewIcon";
 import { CardViewIcon } from "../icons/CardViewIcon";
 import { CheckSmallIcon } from "../icons/CheckSmallIcon";
+import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -203,6 +205,7 @@ export type ForumIconName =
   "ThickChevronRight" |
   "ThickChevronDown" |
   "ChevronUpDown" |
+  "ArrowsUpDown" |
   "NarrowArrowDown" |
   "NarrowArrowUp" |
   "Plus" |
@@ -239,6 +242,7 @@ export type ForumIconName =
   "Q" |
   "BarChart" |
   "Funnel" |
+  "FilterBars" |
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
@@ -311,6 +315,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     ChevronUpDown: ChevronUpDownIcon,
+    ArrowsUpDown: ArrowsUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
     NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
@@ -347,6 +352,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
+    FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
@@ -417,6 +423,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
     ChevronUpDown: ChevronUpDownIcon,
+    ArrowsUpDown: ArrowsUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
     NarrowArrowUp: ArrowLongUp,
     Plus: PlusIcon,
@@ -453,6 +460,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
+    FilterBars: FilterBarsIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,

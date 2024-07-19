@@ -7,6 +7,8 @@ import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { getPostgresViewByName } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
+import { getViewablePostsSelector } from "./helpers";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -171,7 +173,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
 
   private getSearchDocumentQuery(): string {
     return `
-      -- UsersRepo.getSearchDocumentQuery
       SELECT
         u."_id",
         u."_id" AS "objectID",
@@ -188,6 +189,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
         u."howICanHelpOthers"->>'html' AS "howICanHelpOthers",
         COALESCE(u."karma", 0) AS "karma",
+        COALESCE(u."commentCount", 0) AS "commentCount",
         u."slug",
         NULLIF(TRIM(u."jobTitle"), '') AS "jobTitle",
         NULLIF(TRIM(u."organization"), '') AS "organization",
@@ -195,7 +197,23 @@ class UsersRepo extends AbstractRepo<"Users"> {
         NULLIF(TRIM(u."website"), '') AS "website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
-        u."profileTagIds" AS "tags",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(u."profileTagIds") AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
+        (SELECT ARRAY_AGG(JSONB_BUILD_OBJECT(
+          '_id', p."_id",
+          'slug', p."slug",
+          'title', p."title"
+        ) ORDER BY p."baseScore" DESC) FROM "Posts" p WHERE
+          p."userId" = u."_id" AND
+          p."shortform" IS NOT TRUE AND
+          ${getViewablePostsSelector("p")}
+        ) AS "posts",
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
           'github', NULLIF(TRIM(u."githubProfileURL"), ''),
@@ -212,6 +230,24 @@ class UsersRepo extends AbstractRepo<"Users"> {
           )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
         u."profileUpdatedAt",
+        (
+          CASE WHEN u."profileImageId" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."jobTitle" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."organization" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."biography"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."howOthersCanHelpMe"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."howICanHelpOthers"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."careerStage" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."website" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."githubProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."twitterProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."linkedinProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."facebookProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."commentCount" < 1 THEN 0 ELSE 1 END +
+          CASE WHEN u."postCount" < 1 THEN 0 ELSE 2 END +
+          CASE WHEN u."karma" IS NULL OR u."karma" <= 0 THEN 0 ELSE 1 - 1 / u."karma" END * 100
+        ) AS "profileCompletion",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;
@@ -677,8 +713,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
         ) AND
         ${getDefaultFacetFieldSelector(pgField)}
       ORDER BY "rank" DESC, ${normalizedFacetField} DESC
-      LIMIT 8
-    `, [query]);
+      LIMIT $2
+    `, [query, MULTISELECT_SUGGESTION_LIMIT]);
 
     return results.map(({result}) => result);
   }

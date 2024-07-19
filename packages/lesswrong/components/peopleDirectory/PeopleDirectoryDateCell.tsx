@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryDateCell = ({user, fieldName, format, classes}: {
+const PeopleDirectoryDateCell = ({user, fieldName, format, classes}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
   format: string,
