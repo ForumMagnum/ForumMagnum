@@ -64,8 +64,10 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
         {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
         <QuickTakesSection />
       </DeferRender>
-      <DeferRender ssr={!!currentUser} clientTiming="async-non-blocking">
+      <DeferRender ssr={!!currentUser} clientTiming="mobile-aware">
         <EAPopularCommentsSection />
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="async-non-blocking">
         <RecentDiscussionFeed
           title="Recent discussion"
           af={false}

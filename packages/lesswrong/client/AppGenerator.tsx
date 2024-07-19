@@ -39,6 +39,8 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
 
   }, [envOverride.matchSSR]);
 
+  // useMemo is required here so that `_isPending` changing doesn't trigger a rerender (the whole point
+  // of the useTransition is to make it so that the costly second render of App runs in concurrent mode)
   const App = useMemo(() => {
     const app = (
       <ApolloProvider client={apolloClient}>
