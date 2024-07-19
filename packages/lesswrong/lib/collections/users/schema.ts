@@ -412,7 +412,8 @@ const schema: SchemaType<"Users"> = {
     type: String,
     optional: true,
     input: 'text',
-    canUpdate: ['sunshineRegiment', 'admins', userHasntChangedName],
+    // On the EA Forum name changing is rate limited in rateLimitCallbacks
+    canUpdate: ['sunshineRegiment', 'admins', isEAForum ? 'members' : userHasntChangedName],
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
