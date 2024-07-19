@@ -10,12 +10,12 @@ import { DEFAULT_TIMEZONE, EnvironmentOverrideContext } from '../../lib/utils/ti
 export const TimezoneContext = React.createContext<string|null>(null);
 
 export const useTimezone = (): WithTimezoneProps => {
-  const time = React.useContext(EnvironmentOverrideContext);
+  const { timezone: overrideTimezone } = React.useContext(EnvironmentOverrideContext);
   const timezone = React.useContext(TimezoneContext);
 
   return {
-    timezone: time.timezone ?? timezone ?? DEFAULT_TIMEZONE,
-    timezoneIsKnown: !!(time.timezone ?? timezone),
+    timezone: overrideTimezone ?? timezone ?? DEFAULT_TIMEZONE,
+    timezoneIsKnown: !!(overrideTimezone ?? timezone),
   };
 }
 

@@ -29,9 +29,9 @@ export const EnvironmentOverrideContext = React.createContext<EnvironmentOverrid
 // (This isn't necessary inside of event handlers or in any context that
 // isn't a component or used by components.)
 export function useCurrentTime(): Date {
-  const time = useContext(EnvironmentOverrideContext);
-  if (time?.renderedAt) {
-    return new Date(time.renderedAt);
+  const { renderedAt } = useContext(EnvironmentOverrideContext);
+  if (renderedAt) {
+    return new Date(renderedAt);
   } else {
     return new Date();
   }
