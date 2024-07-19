@@ -5,7 +5,6 @@ import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
-import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
 import ForumEventsRepo from "./ForumEventsRepo";
@@ -46,7 +45,6 @@ const getAllRepos = () => ({
   curationEmails: new CurationEmailsRepo(),
   databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
-  dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
   forumEvents: new ForumEventsRepo(),
@@ -84,7 +82,6 @@ export {
   CurationEmailsRepo,
   DatabaseMetadataRepo,
   DebouncerEventsRepo,
-  DialogueChecksRepo,
   ElectionCandidatesRepo,
   ElectionVotesRepo,
   ForumEventsRepo,

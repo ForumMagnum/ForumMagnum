@@ -26,10 +26,6 @@ import { GiftIcon } from '../components/icons/giftIcon';
 import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
-import DialogueChecks from './collections/dialogueChecks/collection';
-import { getUserABTestGroup } from './abTestImpl';
-import { checkNotificationMessageContent } from './abTests';
-import DialogueMatchPreferences from './collections/dialogueMatchPreferences/collection';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import Sequences from './collections/sequences/collection';
@@ -96,7 +92,7 @@ export type NotificationDisplay =
     tagRelId?: string,
   };
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'sequence', 'localgroup', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -174,8 +170,6 @@ type DocumentSummary =
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
   | { type: 'sequence'; document: DbSequence; associatedUserName: null; displayName: null }
-  | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
-  | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
@@ -240,28 +234,6 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         document: sequence,
         displayName: null,
         associatedUserName: null,
-      }
-    case 'dialogueCheck':
-      const dialogueCheck = await DialogueChecks.findOne({ _id: documentId })
-      const targetUser = await Users.findOne(dialogueCheck?.targetUserId)
-      return dialogueCheck && {
-        type: documentType,
-        document: dialogueCheck,
-        associatedUserName: userGetDisplayName(targetUser),
-        displayName: null,
-      }
-    case 'dialogueMatchPreference':
-      const dialogueMatchPreference = await DialogueMatchPreferences.findOne(documentId)
-      if (!dialogueMatchPreference) return null;  
-      const dialogueCheckMatch = await DialogueChecks.findOne(dialogueMatchPreference.dialogueCheckId)
-      if (!dialogueCheckMatch) return null;  
-      const userMatch = await Users.findOne(dialogueCheckMatch.userId)
-      if (!userMatch) return null;  
-      return (dialogueMatchPreference && userMatch) && {
-        type: documentType,
-        document: dialogueMatchPreference,
-        associatedUserName: userGetDisplayName(userMatch),
-        displayName: null,
       }
     default:
       //eslint-disable-next-line no-console
@@ -483,81 +455,6 @@ export const NewPublishedDialogueMessagesNotification = registerNotificationType
   },
   causesRedBadge: false,
   Display: ({Post}) => <>New content in the dialogue <Post /></>,
-});
-
-// New dialogue match between you and another user
-export const NewDialogueMatchNotification = registerNotificationType({
-  name: "newDialogueMatch",
-  userSettingField: "notificationDialogueMatch",
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const summary = await getDocumentSummary(documentType, documentId)
-    if (summary && summary?.associatedUserName) {
-      return `You matched with ${summary.associatedUserName} for Dialogue Matching!`
-    }
-    return "You have a new Dialogue Match!"
-  },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
-  getLink() {
-    return "/dialogueMatching"
-  },
-  Display: ({notification: {link}}) => <>
-    You have a <Link to={link}>new dialogue match</Link>
-  </>,
-});
-
-// Notification that you have new interested parties for dialogues
-export const NewDialogueCheckNotification = registerNotificationType({
-  name: "newDialogueChecks",
-  userSettingField: "notificationNewDialogueChecks",
-  allowedChannels: ["onsite", "none"],
-  async getMessage(props: GetMessageProps) {
-    let notificationAbGroup = ""
-    const userId = props.extraData?.userId
-    if (userId) { 
-      const user = await getDocument("user", userId) as DbUser
-      notificationAbGroup = getUserABTestGroup({user}, checkNotificationMessageContent)
-    }
-    switch (notificationAbGroup) {
-      case "v1":
-        return `New users interested in dialoguing with you (not a match yet)`
-      case "v2":
-        return `You got new checks in dialogue matching`
-      case "v3":
-        return `New users want to dialogue with you, since last you checked`
-      case "v4":
-        return `You got new users who checked you for dialogues`
-      default:
-        return `New users interested in dialoguing with you (not a match yet)`
-    }    
-  },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
-  getLink() {
-    return "/dialogueMatching"
-  }
-});
-
-export const YourTurnMatchFormNotification = registerNotificationType({
-  name: "yourTurnMatchForm",
-  userSettingField: "notificationYourTurnMatchForm",
-  allowedChannels: ["onsite", "none"],
-  async getMessage({documentType, documentId}: GetMessageProps) {
-    const summary = await getDocumentSummary(documentType, documentId)
-    return `Your turn: see & reply to ${summary?.associatedUserName ?? 'your match'}'s dialogue ideas`
-  },
-  getIcon() {
-    return <DebateIcon style={iconStyles}/>
-  },
-  getLink({ extraData }: { extraData: Record<string,any> }) { 
-    const url = new URL('/dialogueMatching', 'https://dummy.com');
-    if (extraData?.checkId) {
-      url.searchParams.append('dialogueCheckId', extraData.checkId);
-    }
-    return url.pathname + url.search;
-  }
 });
 
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
