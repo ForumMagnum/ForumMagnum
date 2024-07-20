@@ -1,5 +1,5 @@
-import { testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import CreateIndexQuery from "../../lib/sql/CreateIndexQuery";
+import { testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
 
 describe("CreateIndexQuery", () => {
   runTestCases([

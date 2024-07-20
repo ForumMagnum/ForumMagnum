@@ -8,6 +8,7 @@ import ForumNoSSR from "../common/ForumNoSSR";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
+    position: "relative",
     "& .comments-node-root": {
       marginBottom: 8,
       ...(isLWorAF ? {

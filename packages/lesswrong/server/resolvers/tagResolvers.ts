@@ -67,7 +67,7 @@ const subforumFeedSortings: Record<SubforumSorting, SubforumFeedSort> = {
   },
 }
 
-const createSubforumFeedResolver = <SortKeyType>(sorting: SubforumFeedSort) => async ({
+const createSubforumFeedResolver = <SortKeyType extends number | Date>(sorting: SubforumFeedSort) => async ({
   limit = 20, cutoff, offset, args: {tagId, af}, context,
 }: {
   limit?: number,
@@ -389,7 +389,9 @@ addGraphQLResolvers({
           removed: rev.changeMetrics.removed,
         };
       });
-    }
+    },
+
+    ActiveTagCount: () => Tags.find({deleted: {$ne: true}}).count(),
   }
 });
 
@@ -397,6 +399,7 @@ addGraphQLMutation('mergeTags(sourceTagId: String!, targetTagId: String!, transf
 addGraphQLQuery('TagUpdatesInTimeBlock(before: Date!, after: Date!): [TagUpdates!]');
 addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [TagUpdates!]');
 addGraphQLQuery('RandomTag: Tag!');
+addGraphQLQuery('ActiveTagCount: Int!');
 
 type ContributorWithStats = {
   user: Partial<DbUser>,

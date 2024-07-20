@@ -13,7 +13,7 @@ import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
-export const tagStyle = (theme: ThemeType): JssStyles => ({
+export const tagStyle = (theme: ThemeType) => ({
   marginRight: isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
@@ -29,7 +29,7 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   whiteSpace: isFriendlyUI ? "nowrap": undefined,
 })
 
-const newTagStyle = (theme: ThemeType): JssStyles => ({
+const newTagStyle = (theme: ThemeType) => ({
   marginRight: 4,
   padding: 5,
   paddingLeft: 8,
@@ -41,7 +41,7 @@ const newTagStyle = (theme: ThemeType): JssStyles => ({
   fontSize: 15
 })
 
-export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
+export const smallTagTextStyle = (theme: ThemeType) => ({
   fontSize: 12,
   paddingTop: 1,
   paddingBottom: 2,
@@ -49,7 +49,7 @@ export const smallTagTextStyle = (theme: ThemeType): JssStyles => ({
   marginBottom: 0
 });
 
-export const coreTagStyle = (theme: ThemeType): JssStyles => ({
+export const coreTagStyle = (theme: ThemeType) => ({
   backgroundColor: theme.palette.tag.coreTagBackground,
   border: theme.palette.tag.coreTagBorder,
   color: theme.palette.tag.coreTagText,
@@ -59,7 +59,7 @@ export const coreTagStyle = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "inline-block",
     cursor: "pointer",
@@ -121,6 +121,7 @@ const FooterTag = ({
   tagRel,
   tag,
   hideScore=false,
+  hideIcon,
   smallText,
   PreviewWrapper,
   link=true,
@@ -134,6 +135,7 @@ const FooterTag = ({
   tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
+  hideIcon?: boolean,
   smallText?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   link?: boolean
@@ -141,14 +143,14 @@ const FooterTag = ({
   neverCoreStyling?: boolean,
   hideRelatedTags?: boolean,
   className?: string,
-  classes: ClassesType,
   noBackground?: boolean
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
+  const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug] && !hideIcon);
 
   const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name

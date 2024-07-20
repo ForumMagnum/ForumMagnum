@@ -3,24 +3,7 @@ import { parsePath, parseRoute } from '../lib/vulcan-core/appContext';
 import { getUserFromReq } from './vulcan-lib/apollo-server/context';
 import express from 'express';
 import { getCookieFromReq } from './utils/httpUtil';
-import { DatabaseServerSetting } from './databaseSettings';
-import { RouterLocation } from './vulcan-lib';
-import { Posts } from '../lib/collections/posts';
-
-const swrCachingEnabledSetting = new DatabaseServerSetting<boolean>('swrCaching.enabled', false)
-
-/**
- * Whether stale-while-revalidate caching is enabled on this specific route. To be removed once
- * the kinks have been worked out
- */
-const experimentalCachingEnabled = async (parsedRoute: RouterLocation): Promise<boolean> => {
-  if (parsedRoute.currentRoute?.name !== "posts.single") return false;
-  const postId = parsedRoute.params?._id
-  if (!postId) return false;
-
-  const post = await Posts.findOne({_id: postId}, {}, {swrCachingEnabled: 1})
-  return !!post?.swrCachingEnabled
-}
+import { swrCachingEnabledSetting } from './cache/swr';
 
 /**
  * Returns whether the Cache-Control header indicates that this response may be cached by a shared
@@ -42,7 +25,7 @@ const privateCacheHeader = "private, no-cache, no-store, must-revalidate, max-ag
 const swrCacheHeader = "max-age=1, s-max-age=1, stale-while-revalidate=86400"
 
 export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
-  addMiddleware(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  addMiddleware((req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (!swrCachingEnabledSetting.get()) {
       next();
       return;
@@ -58,9 +41,7 @@ export const addCacheControlMiddleware = (addMiddleware: AddMiddlewareType) => {
     const theme = getCookieFromReq(req, "theme");
 
     if (parsedRoute.currentRoute?.swrCaching === "logged-out" && !user && !theme) {
-      if (await experimentalCachingEnabled(parsedRoute)) {
-        res.setHeader("Cache-Control", swrCacheHeader);
-      }
+      res.setHeader("Cache-Control", swrCacheHeader);
     } else if (user) {
       res.setHeader("Cache-Control", privateCacheHeader)
     }

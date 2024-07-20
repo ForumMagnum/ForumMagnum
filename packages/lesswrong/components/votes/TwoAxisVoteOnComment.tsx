@@ -13,8 +13,8 @@ interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType
 }
 
-const TwoAxisVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
+  const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, AgreementVoteAxis } = Components;
   
   return <span className={classes.root}>

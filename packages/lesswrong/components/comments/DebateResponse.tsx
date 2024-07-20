@@ -5,7 +5,6 @@ import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
 import {useVote} from '../votes/withVote';
 import {getVotingSystemByName} from '../../lib/voting/votingSystems';
-import {Comments} from '../../lib/collections/comments';
 import type { ContentItemBody } from '../common/ContentItemBody';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -182,7 +181,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
           {VoteBottomComponent && <VoteBottomComponent
             document={comment}
             hideKarma={post.hideCommentKarma}
-            collection={Comments}
+            collectionName="Comments"
             votingSystem={votingSystem}
             commentBodyRef={commentBodyRef}
             voteProps={voteProps}

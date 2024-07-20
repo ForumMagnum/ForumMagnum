@@ -59,22 +59,19 @@ const EAHomeCommunityPosts = ({classes}: {classes: ClassesType}) => {
       toggleExpanded={toggleExpanded}
       title="Posts tagged community"
       afterTitleTo="/topics/community"
-      Content={() => (
-        <>
-          <AnalyticsContext listContext={"communityPosts"}>
-            <PostsList2 terms={recentPostsTerms} showLoadMore={false} />
-          </AnalyticsContext>
-          <SectionFooter>
-            <Link
-              to="/topics/community"
-              className={classes.readMoreLinkMobile}
-            >
-              View more
-            </Link>
-          </SectionFooter>
-        </>
-      )}
-    />
+    >
+      <AnalyticsContext listContext={"communityPosts"}>
+        <PostsList2 terms={recentPostsTerms} showLoadMore={false} hideHiddenFrontPagePosts />
+      </AnalyticsContext>
+      <SectionFooter>
+        <Link
+          to="/topics/community"
+          className={classes.readMoreLinkMobile}
+        >
+          View more
+        </Link>
+      </SectionFooter>
+    </ExpandableSection>
   );
 }
 

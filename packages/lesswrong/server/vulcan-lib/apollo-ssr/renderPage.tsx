@@ -31,7 +31,7 @@ import { maxRenderQueueSize } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
-import { onStartup, isAnyTest, isProduction } from '../../../lib/executionEnvironment';
+import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
@@ -273,11 +273,11 @@ function maybeStartQueuedRequests() {
   }
 }
 
-onStartup(() => {
+export function initRenderQueueLogging() {
   if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
     setInterval(logRenderQueueState, 5000)
   }
-})
+}
 
 function logRenderQueueState() {
   if (requestPriorityQueue.size() > 0) {

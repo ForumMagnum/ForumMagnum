@@ -207,8 +207,8 @@ const BallotStandaloneReaction = ({reaction, voteProps, classes}: {
   </div>
 }
 
-const ReactBallotVoteOnComment = ({document, hideKarma=false, collection, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
-  const voteProps = useVote(document, collection.options.collectionName, votingSystem);
+const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
+  const voteProps = useVote(document, collectionName, votingSystem);
   const { OverallVoteAxis, PopperCard } = Components;
   const { hover, anchorEl, eventHandlers } = useHover();
   

@@ -70,6 +70,7 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
+  menuItemClassName?: string,
   afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
@@ -96,6 +97,7 @@ const DropdownItem = ({
   to,
   icon,
   iconClassName,
+  menuItemClassName,
   afterIcon,
   tooltip,
   disabled,
@@ -112,31 +114,31 @@ const DropdownItem = ({
         <MenuItem
           onClick={onClick}
           disabled={disabled}
-          className={classNames(classes.main, {[classes.noIcon]: !icon})}
+          className={classNames(classes.main, menuItemClassName, {[classes.noIcon]: !icon})}
         >
           {loading &&
             <ListItemIcon>
               <Loading />
             </ListItemIcon>
           }
-          {icon && !loading &&
-            <ListItemIcon>
+          {!loading && <>
+            {icon && <ListItemIcon>
               {typeof icon === "string"
                 ? <ForumIcon icon={icon} className={iconClassName} />
                 : icon()
               }
-            </ListItemIcon>
-          }
-          <span className={classes.title}>{title}</span>
-          {typeof afterIcon === "string"
-            ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
-            : afterIcon?.()
-          }
-          {sideMessage &&
-            <div className={classes.sideMessage}>
-              {sideMessage}
-            </div>
-          }
+            </ListItemIcon>}
+            <span className={classes.title}>{title}</span>
+            {typeof afterIcon === "string"
+              ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+              : afterIcon?.()
+            }
+            {sideMessage &&
+              <div className={classes.sideMessage}>
+                {sideMessage}
+              </div>
+            }
+          </>}
         </MenuItem>
       </TooltipWrapper>
     </LinkWrapper>

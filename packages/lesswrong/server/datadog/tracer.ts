@@ -19,7 +19,7 @@ export const dogstatsd = isDatadogEnabled
   ? new StatsD({
       host: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
       prefix: 'forummagnum.',
-      sampleRate: 0.1
+      sampleRate: 1
     })
   : null;
 

@@ -152,6 +152,24 @@ export const POSTS_LIST_VIEW_TYPE_COOKIE = registerCookie({
   description: "Whether to display post lists as list items or card items"
 });
 
+export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
+  name: "hide_subscribed_feed_suggested_users",
+  type: "necessary",
+  description: "Whether to hide the suggested users section on the subscribed tab feed"
+});
+
+export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
+  name: "hide_survey_schedule_ids",
+  type: "necessary",
+  description: "Stores the ids of survey schedules that the user has hidden"
+});
+
+export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
+  name: "selected_frontpage_tab",
+  type: "functional",
+  description: "Stores the selected tab for logged out users"
+});
+
 // Third party cookies
 
 // Intercom

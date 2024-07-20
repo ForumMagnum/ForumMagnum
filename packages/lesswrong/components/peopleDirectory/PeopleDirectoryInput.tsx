@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryInput = ({
+const PeopleDirectoryInput = ({
   value,
   setValue,
   icon,

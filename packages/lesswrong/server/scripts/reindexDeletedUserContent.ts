@@ -1,5 +1,5 @@
 import { Globals } from "../vulcan-lib";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient"
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient"
 import ElasticClient from "../search/elastic/ElasticClient";
 import ElasticExporter from "../search/elastic/ElasticExporter";
 import chunk from "lodash/chunk";

@@ -2,7 +2,7 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
-export const PeopleDirectoryMainSearch = () => {
+const PeopleDirectoryMainSearch = () => {
   const {query, setQuery} = usePeopleDirectory();
   const {PeopleDirectoryInput} = Components;
   return (

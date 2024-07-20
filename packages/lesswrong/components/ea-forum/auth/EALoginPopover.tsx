@@ -377,6 +377,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                 placeholder="Email"
                 value={email}
                 onChange={onChangeEmail}
+                data-testid="login-email-input"
                 className={classes.input}
                 autoFocus
               />
@@ -388,6 +389,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
                   placeholder="Password"
                   value={password}
                   onChange={onChangePassword}
+                  data-testid="login-password-input"
                   className={classes.input}
                 />
                 <ForumIcon
@@ -417,6 +419,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
               type="submit"
               style="primary"
               disabled={!canSubmit}
+              data-testid="login-submit"
               className={classes.button}
             >
               {loading

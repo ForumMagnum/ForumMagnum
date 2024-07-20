@@ -1,12 +1,9 @@
 import { useQuery, gql, ApolloError } from "@apollo/client";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "../../lib/routeUtil";
-import qs from "qs";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TupleSet, UnionOf } from "../../lib/utils/typeGuardUtils";
 import moment from "moment";
 import { generateDateSeries } from "../../lib/helpers";
 import stringify from "json-stringify-deterministic";
-import { useNavigate } from "../../lib/reactRouterWrapper";
 
 export const analyticsFieldsList = ['views', 'reads', 'karma', 'comments'] as const
 export const analyticsFields = new TupleSet(analyticsFieldsList);
@@ -82,7 +79,6 @@ export const useMultiPostAnalytics = ({
   desc,
   initialLimit = 10,
   itemsPerPage = 20,
-  queryLimitName = "postsLimit",
 }: {
   userId?: string;
   postIds?: string[];
@@ -90,17 +86,18 @@ export const useMultiPostAnalytics = ({
   desc?: boolean;
   initialLimit?: number;
   itemsPerPage?: number;
-  queryLimitName?: string;
 }) => {
-  const { query: locationQuery } = useLocation();
-  const navigate = useNavigate();
-
-  const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
-
-  const [limit, setLimit] = useState(locationQueryLimit ?? initialLimit);
+  const [limit, setLimit] = useState(initialLimit);
   const [moreLoading, setMoreLoading] = useState(false);
 
-  const variables = { userId, postIds, sortBy, desc, limit };
+  const variables = useMemo(() => ({
+    userId,
+    postIds,
+    sortBy,
+    desc,
+    limit,
+  }), [userId, postIds, sortBy, desc, limit]);
+
   const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
@@ -109,12 +106,10 @@ export const useMultiPostAnalytics = ({
   const currentData = data?.MultiPostAnalytics
   const totalCount = currentData?.totalCount ?? 0
   const count = currentData?.posts?.length ?? 0
-  const showLoadMore = userId && (count < totalCount);
+  const showLoadMore = !!userId && (count < totalCount);
 
-  const loadMore = async (limitOverride?: number) => {
+  const loadMore = useCallback(async (limitOverride?: number) => {
     const newLimit = limitOverride ?? (limit + itemsPerPage);
-    const newQuery = {...locationQuery, [queryLimitName]: newLimit}
-    navigate({...location, search: `?${qs.stringify(newQuery)}`})
 
     setMoreLoading(true);
     void fetchMore({
@@ -129,15 +124,20 @@ export const useMultiPostAnalytics = ({
       },
     });
     setLimit(newLimit);
-  };
+  }, [
+    limit,
+    itemsPerPage,
+    fetchMore,
+    variables,
+  ]);
 
-  const loadMoreProps = {
+  const loadMoreProps = useMemo(() => ({
     loadMore,
     count,
     totalCount,
     loading: moreLoading,
     hidden: !showLoadMore,
-  };
+  }), [loadMore, count, totalCount, moreLoading, showLoadMore]);
 
   return {
     data: data?.MultiPostAnalytics,

@@ -1,4 +1,4 @@
-import React, { FC, PropsWithChildren } from "react";
+import React, { FC, PropsWithChildren, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { usePostsItem, PostsItemConfig } from "./usePostsItem";
@@ -69,6 +69,9 @@ export const styles = (theme: ThemeType) => ({
   },
   containerCardWithImage: {
     paddingBottom: 0,
+  },
+  containerNoKarma: {
+    paddingLeft: 20
   },
   postsVote: {
     position: "relative",
@@ -186,6 +189,9 @@ export const styles = (theme: ThemeType) => ({
       gap: "12px",
     },
   },
+  cardNoKarma: {
+    paddingLeft: 20
+  },
   cardText: {
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
@@ -228,12 +234,16 @@ const formatImageUrl = (url: string) =>
   url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
 
 export type EAPostsItemProps = PostsItemConfig & {
+  openInNewTab?: boolean,
   hideSecondaryInfo?: boolean,
+  secondaryInfoNode?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({
+  openInNewTab,
   hideSecondaryInfo,
+  secondaryInfoNode,
   classes,
   ...props
 }: EAPostsItemProps) => {
@@ -266,20 +276,18 @@ const EAPostsItem = ({
     analyticsProps,
     viewType,
     isVoteable,
+    showKarma,
     useCuratedDate,
+    hideTag,
     className,
   } = usePostsItem(props);
-  const {onClick} = useClickableCell({href: postLink});
+  const {onClick} = useClickableCell({href: postLink, openInNewTab});
   const cardView = viewType === "card";
   const {postContents} = usePostContents({
     post,
     fragmentName: "PostsList",
     skip: !cardView,
   });
-
-  if (isRepeated) {
-    return null;
-  }
 
   const {
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
@@ -288,32 +296,70 @@ const EAPostsItem = ({
     PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
-    <>
-      <InteractionWrapper className={classes.interactionWrapper}>
-        <a onClick={toggleComments} className={classNames(
-          classes.comments,
-          cardView && classes.commentsCard,
-          hasUnreadComments && classes.newComments,
-        )}>
-          <ForumIcon icon="Comment" />
-          {commentCount}
-        </a>
+  const SecondaryInfo = useCallback(() => {
+    if (secondaryInfoNode) {
+      return <InteractionWrapper className={classes.interactionWrapper}>
+        {secondaryInfoNode}
       </InteractionWrapper>
-      <div className={classes.postActions}>
+    }
+    return (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
+      <>
         <InteractionWrapper className={classes.interactionWrapper}>
-          <PostActionsButton post={post} popperGap={16} autoPlace vertical />
+          <a onClick={toggleComments} className={classNames(
+            classes.comments,
+            cardView && classes.commentsCard,
+            hasUnreadComments && classes.newComments,
+          )}>
+            <ForumIcon icon="Comment" />
+            {commentCount}
+          </a>
         </InteractionWrapper>
-      </div>
-      {tagRel &&
-        <div className={classes.tagRelWrapper}>
+        <div className={classes.postActions}>
           <InteractionWrapper className={classes.interactionWrapper}>
-            <PostsItemTagRelevance tagRel={tagRel} />
+            <PostActionsButton post={post} popperGap={16} autoPlace vertical />
           </InteractionWrapper>
         </div>
-      }
-    </>
-  );
+        {tagRel &&
+          <div className={classes.tagRelWrapper}>
+            <InteractionWrapper className={classes.interactionWrapper}>
+              <PostsItemTagRelevance tagRel={tagRel} />
+            </InteractionWrapper>
+          </div>
+        }
+      </>
+    )
+  }, [
+    secondaryInfoNode,
+    hideSecondaryInfo,
+    showMostValuableCheckbox,
+    cardView,
+    hasUnreadComments,
+    commentCount,
+    post,
+    tagRel,
+    toggleComments,
+    ForumIcon,
+    PostActionsButton,
+    PostsItemTagRelevance,
+    classes
+  ]);
+  
+  if (isRepeated) {
+    return null;
+  }
+  
+  const karmaNode = isVoteable
+    ? (
+      <InteractionWrapper className={classNames(
+        classes.interactionWrapper,
+        classes.postsVote,
+      )}>
+        <PostsVote post={post} />
+      </InteractionWrapper>
+    )
+    : (
+      <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
+    )
 
   // The nesting here gets a little messy: we need to add the extra `Link`
   // around the title to make it right-clickable/cmd+clickable. However,
@@ -330,6 +376,7 @@ const EAPostsItem = ({
   );
 
   const body =
+    post.customHighlight?.plaintextDescription ||
     postContents?.plaintextDescription ||
     post.contents?.plaintextDescription ||
     "";
@@ -353,20 +400,9 @@ const EAPostsItem = ({
             classes.container,
             cardView && classes.containerCard,
             cardView && post.socialPreviewData.imageUrl && classes.containerCardWithImage,
+            !showKarma && classes.containerNoKarma,
           )}>
-            {isVoteable
-              ? (
-                <InteractionWrapper className={classNames(
-                  classes.interactionWrapper,
-                  classes.postsVote,
-                )}>
-                  <PostsVote post={post} />
-                </InteractionWrapper>
-              )
-              : (
-                <EAKarmaDisplay post={post} className={classes.karmaDisplay} />
-              )
-            }
+            {showKarma && karmaNode}
             <div className={classes.details}>
               <PostsTitle
                 {...{
@@ -381,7 +417,7 @@ const EAPostsItem = ({
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
-                showEventTag
+                showEventTag={!hideTag}
                 className={classes.title}
               />
               <div className={classes.meta}>
@@ -422,7 +458,7 @@ const EAPostsItem = ({
             </InteractionWrapper>
           </div>
           {cardView && (hasBody || hasImage) &&
-            <div className={classes.card} onClick={onClick}>
+            <div className={classNames(classes.card, !showKarma && classes.cardNoKarma)} onClick={onClick}>
               <div className={classNames(
                 classes.cardText,
                 hasImage && classes.cardTextWithImage,

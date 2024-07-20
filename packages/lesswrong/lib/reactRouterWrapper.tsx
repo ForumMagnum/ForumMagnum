@@ -11,6 +11,7 @@ import qs from 'qs'
 
 type LinkProps = {
   to?: HashLinkProps['to']|null
+  doOnDown?: boolean
   onMouseDown?: HashLinkProps['onMouseDown']
   onClick?: HashLinkProps['onClick']
   rel?: string

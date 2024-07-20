@@ -29,6 +29,8 @@ const UsersName = ({
   noTooltip?: boolean,
   color?: boolean,
   pageSectionContext?: string,
+  /** LW specific */
+  hideFollowButton?: boolean,
   /** Add an extra class/styling to the link */
   className?: string,
 }) => {

@@ -16,7 +16,6 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { createPaginatedResolver } from './paginatedResolver';
 
-
 addGraphQLSchema(`
   type CommentCountTag {
     name: String!
@@ -338,7 +337,7 @@ defineQuery({
     if (!currentUser) {
       throw new Error("You must be logged in to do this");
     }
-    const isTaken = await context.repos.users.isDisplayNameTaken(displayName);
+    const isTaken = await context.repos.users.isDisplayNameTaken({ displayName, currentUserId: currentUser._id });
     return isTaken;
   }
 });

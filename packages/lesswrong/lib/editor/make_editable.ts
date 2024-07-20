@@ -44,6 +44,7 @@ export type MakeEditableOptions<N extends CollectionNameString> = {
     canCreate?: any,
   },
   label?: string,
+  formVariant?: "default" | "grey",
   order?: number,
   hideControls?: boolean,
   hintText?: string,
@@ -224,6 +225,7 @@ export const makeEditable = <N extends CollectionNameString>({
     permissions,
     fieldName = "contents" as EditableFieldName<N>,
     label,
+    formVariant,
     hintText,
     order,
     hidden = false,
@@ -273,6 +275,7 @@ export const makeEditable = <N extends CollectionNameString>({
       resolveAs: buildEditableResolver(collection, fieldName, normalized),
       form: {
         label,
+        formVariant,
         hintText,
         fieldName,
         collectionName,

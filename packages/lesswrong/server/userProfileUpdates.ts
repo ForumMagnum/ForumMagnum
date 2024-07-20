@@ -1,5 +1,5 @@
 import { Globals } from "./vulcan-lib";
-import { getSqlClientOrThrow } from "../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 export const simpleUserProfileFields: (keyof DbUser)[] = [
   "username",

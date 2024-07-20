@@ -9,6 +9,7 @@ registerFragment(`
     comments {
       ...CommentsList
     }
+    expandCommentIds
     postIsFromSubscribedUser
   }
 `);

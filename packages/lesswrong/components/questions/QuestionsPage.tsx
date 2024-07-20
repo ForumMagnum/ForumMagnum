@@ -2,15 +2,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
-import { useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser'
 import AddBoxIcon from '@material-ui/icons/AddBox'
-import {userCanPost} from "../../lib/collections/posts";
 
 const QuestionsPage = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
-  const { openDialog } = useDialog();
   const { SingleColumnSection, SectionTitle,  PostsList2, SectionButton, LWTooltip } = Components
 
   const topQuestionsTerms = {

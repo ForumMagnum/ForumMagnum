@@ -577,27 +577,11 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
-                        <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
-                          <div className={classes.bannerText}>
-                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
-                            <p>May 31st to June 2nd, Berkely CA</p>
-                            <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
-                          </div>
-                        </AnalyticsContext>
-                        <div className={classes.backgroundGradient}/>
-                      </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
-                  </>
-                }
+                {isLW && <>
+                  {standaloneNavigation && <div className={classes.imageColumn}>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                  </div>}
+                </>}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
