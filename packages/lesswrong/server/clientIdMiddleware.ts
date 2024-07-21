@@ -52,7 +52,7 @@ export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
         void clientIdsRepo.ensureClientId({
           clientId,
           userId,
-          referrer: referrer,
+          referrer,
           landingPage: url,
         });
         setHasSeen({clientId, userId})
