@@ -344,21 +344,37 @@ export function denormalizedField<N extends CollectionNameString>({ needsUpdate,
 export function denormalizedCountOfReferences<
   SourceCollectionName extends CollectionNameString,
   TargetCollectionName extends CollectionNameString
->({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
+>({
+  collectionName,
+  fieldName,
+  foreignCollectionName,
+  foreignTypeName,
+  foreignFieldName,
+  filterFn,
+  resyncElastic,
+}: {
   collectionName: SourceCollectionName,
   fieldName: string & keyof ObjectsByCollectionName[SourceCollectionName],
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
   foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
   filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName]) => boolean,
+  resyncElastic?: boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
   const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
 
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
   
-  if (isServer)
-  {
+  if (bundleIsServer) {
+    const resync = (documentId: string) => {
+      if (resyncElastic) {
+        // eslint-disable-next-line import/no-restricted-paths
+        const {elasticSyncDocument} = require("../../server/search/elastic/elasticCallbacks");
+        elasticSyncDocument(collectionName, documentId);
+      }
+    }
+
     // When inserting a new document which potentially needs to be counted, follow
     // its reference and update with $inc.
     const createCallback = async (newDoc: AnyBecauseTodo, {currentUser, collection, context}: AnyBecauseTodo) => {
@@ -369,6 +385,7 @@ export function denormalizedCountOfReferences<
         await collection.rawUpdateOne(newDoc[foreignFieldName], {
           $inc: { [fieldName]: 1 }
         });
+        resync(newDoc[foreignFieldName]);
       }
       
       return newDoc;
@@ -389,6 +406,7 @@ export function denormalizedCountOfReferences<
             await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
         } else if (!filter(newDoc) && filter(oldDocument)) {
           // The old doc counted, but the new doc doesn't. Decrement on the old doc.
@@ -397,6 +415,7 @@ export function denormalizedCountOfReferences<
             await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
         } else if (filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
           denormalizedLogger(`${foreignFieldName} of ${foreignTypeName} has changed from ${oldDocument[foreignFieldName]} to ${newDoc[foreignFieldName]}`)
@@ -407,12 +426,14 @@ export function denormalizedCountOfReferences<
             await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
           if (newDoc[foreignFieldName]) {
             denormalizedLogger(`changing ${foreignFieldName} leads to increment of ${newDoc[foreignFieldName]}`)
             await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
         }
         return newDoc;
@@ -427,6 +448,7 @@ export function denormalizedCountOfReferences<
           await countingCollection.rawUpdateOne(document[foreignFieldName], {
             $inc: { [fieldName]: -1 }
           });
+          resync(document[foreignFieldName]);
         }
       }
     );

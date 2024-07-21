@@ -343,8 +343,6 @@ importComponent("ThemePickerMenu", () => require('../components/themes/ThemePick
 importComponent("SocialMediaLink", () => require('../components/users/SocialMediaLink'));
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
-importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
-importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
 importComponent("UsersProfile", () => require('../components/users/UsersProfile'));
 importComponent("ReportUserButton", () => require('../components/users/ReportUserButton'));
@@ -388,6 +386,18 @@ importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
+
+// users account settings page
+
+importComponent("UsersAccount", () => require('../components/users/account/UsersAccount'));
+importComponent("UsersEditForm", () => require('../components/users/account/UsersEditForm'));
+importComponent("UsersAccountManagement", () => require('../components/users/account/UsersAccountManagement'));
+importComponent("ActionButtonSection", () => require('../components/users/account/ActionButtonSection'));
+importComponent("DeactivateAccountSection", () => require('../components/users/account/DeactivateAccountSection'));
+importComponent("DeleteAccountSection", () => require('../components/users/account/DeleteAccountSection'));
+importComponent("DeleteAccountConfirmationModal", () => require('../components/users/account/DeleteAccountConfirmationModal'));
+
+//
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -1000,6 +1010,7 @@ importComponent("FormGroupLayout", () => require('../components/form-components/
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
+importComponent("DummyFormGroup", () => require('../components/form-components/DummyFormGroup'))
 importComponent("FormGroupFriendlyUserProfile", () => require('../components/form-components/FormGroupFriendlyUserProfile'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
@@ -1151,13 +1162,16 @@ importComponent("PeopleDirectoryFilters", () => require('../components/peopleDir
 importComponent("PeopleDirectoryFilterDropdown", () => require('../components/peopleDirectory/PeopleDirectoryFilterDropdown'));
 importComponent("PeopleDirectoryStaticFilter", () => require('../components/peopleDirectory/PeopleDirectoryStaticFilter'));
 importComponent("PeopleDirectorySearchableFilter", () => require('../components/peopleDirectory/PeopleDirectorySearchableFilter'));
+importComponent("PeopleDirectoryAllFiltersDropdown", () => require('../components/peopleDirectory/PeopleDirectoryAllFiltersDropdown'));
 importComponent("PeopleDirectorySelectOption", () => require('../components/peopleDirectory/PeopleDirectorySelectOption'));
+importComponent("PeopleDirectoryCheckOption", () => require('../components/peopleDirectory/PeopleDirectoryCheckOption'));
 importComponent("PeopleDirectoryClearAll", () => require('../components/peopleDirectory/PeopleDirectoryClearAll'));
 importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
 importComponent("PeopleDirectoryResultsMap", () => require('../components/peopleDirectory/PeopleDirectoryResultsMap'));
 importComponent("PeopleDirectoryResultsList", () => require('../components/peopleDirectory/PeopleDirectoryResultsList'));
 importComponent("PeopleDirectoryNoResults", () => require('../components/peopleDirectory/PeopleDirectoryNoResults'));
 importComponent("PeopleDirectoryResultRow", () => require('../components/peopleDirectory/PeopleDirectoryResultRow'));
+importComponent("PeopleDirectoryCard", () => require('../components/peopleDirectory/PeopleDirectoryCard'));
 importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
 importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
 importComponent("PeopleDirectoryTextCell", () => require('../components/peopleDirectory/PeopleDirectoryTextCell'));
@@ -1167,6 +1181,9 @@ importComponent("PeopleDirectorySocialMediaCell", () => require('../components/p
 importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));
 importComponent("PeopleDirectorySkeletonUserCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonUserCell'));
 importComponent("PeopleDirectorySkeletonTextCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonTextCell'));
+importComponent("PeopleDirectoryTopicsCell", () => require('../components/peopleDirectory/PeopleDirectoryTopicsCell'));
+importComponent("PeopleDirectoryCommentCountCell", () => require('../components/peopleDirectory/PeopleDirectoryCommentCountCell'));
+importComponent("PeopleDirectoryPostsCell", () => require('../components/peopleDirectory/PeopleDirectoryPostsCell'));
 
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
