@@ -1,12 +1,15 @@
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
+import { Globals } from "@/lib/vulcan-lib";
 import { Posts } from "@/lib/collections/posts";
+import { captureEvent } from "@/lib/analyticsEvents";
 
 /* Currently unused
 const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
 const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
 */
 const type3ApiTokenSetting = new DatabaseServerSetting<string | null>("type3.apiToken", null);
+const type3SourceUrlSetting = new DatabaseServerSetting<string>("type3.sourceUrl", "");
 
 const type3ApiRequest = async (
   endpoint: string,
@@ -37,17 +40,40 @@ const postWithAudioProjection = {_id: 1, slug: 1} as const;
 
 type PostWithAudio = Pick<DbPost, keyof typeof postWithAudioProjection>;
 
+const getPostUrl = (post: PostWithAudio) =>
+  type3SourceUrlSetting.get() + postGetPageUrl(post);
+
 export const regenerateType3Audio = async (post: PostWithAudio) => {
-  await type3ApiRequest("narration/regenerate", "POST", {
-    source_url: postGetPageUrl(post, true),
+  const body = {
+    source_url: getPostUrl(post),
     priority: "immediate",
-  });
+  };
+  await type3ApiRequest("narration/regenerate", "POST", body);
+  captureEvent("regenerateType3Audio", {postId: post._id, ...body});
+}
+
+const regenerateType3AudioForPostId = async (postId: string) => {
+  const post = await Posts.findOne({_id: postId});
+  if (!post) {
+    throw new Error("Post not found");
+  }
+  await regenerateType3Audio(post);
 }
 
 export const deleteType3Audio = async (post: PostWithAudio) => {
-  await type3ApiRequest("narration/delete-by-url", "DELETE", {
-    source_url: postGetPageUrl(post, true),
-  });
+  const body = {
+    source_url: getPostUrl(post),
+  };
+  await type3ApiRequest("narration/delete-by-url", "DELETE", body);
+  captureEvent("deleteType3Audio", {postId: post._id, ...body});
+}
+
+const deleteType3AudioForPostId = async (postId: string) => {
+  const post = await Posts.findOne({_id: postId});
+  if (!post) {
+    throw new Error("Post not found");
+  }
+  await deleteType3Audio(post);
 }
 
 export const regenerateAllType3AudioForUser = async (userId: string) => {
@@ -61,3 +87,7 @@ export const regenerateAllType3AudioForUser = async (userId: string) => {
     await regenerateType3Audio(post);
   }
 }
+
+Globals.regenerateType3AudioForPostId = regenerateType3AudioForPostId;
+Globals.deleteType3AudioForPostId = deleteType3AudioForPostId;
+Globals.regenerateAllType3AudioForUser = regenerateAllType3AudioForUser;
