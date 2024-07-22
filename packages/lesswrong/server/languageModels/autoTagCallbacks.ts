@@ -11,6 +11,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import { preprocessHtml } from './llmUtil';
 
 /**
  * To set up automatic tagging:
@@ -108,22 +109,6 @@ import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 const bodyWordCountLimit = 1500;
 const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
 
-
-/**
- * Preprocess HTML before converting to markdown to be then converted into a
- * language model prompt. Strips links, and replaces images with their alt text
- * or with "IMAGE". We do this to prevent URLs (which tend to be long, and
- * uninformative, and prone to future distribution shifts if we change how our
- * image hosting works) from chewing up limited context-window space.
- *
- * TODO: Replace images with their alt text
- * TODO: Replace any Unicode characters that are going to cause trouble for the GPT-3 tokenizer
- */
-function preprocessHtml(html: string): string {
-  const $ = cheerioParse(html) as any;
-  $('a').contents().unwrap();
-  return $.html();
-}
 
 export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
   template: LanguageModelTemplate,

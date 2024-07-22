@@ -11,6 +11,7 @@ import chunk from 'lodash/chunk';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
+import { postprocessMarkdown } from '@/server/languageModels/llmUtil';
 
 type FinetuneDatasetOptions = {
   postKarmaThreshold: number
@@ -260,7 +261,7 @@ async function renderForFinetune({options, post, comments, getAuthorName}: {
     const body = post.contents?.originalContents;
     if (body) {
       const bodyMarkdown = dataToMarkdown(body.data, body.type);
-      sb.push(bodyMarkdown);
+      sb.push(postprocessMarkdown(bodyMarkdown));
       sb.push('\n\n');
     }
   } else {
@@ -274,7 +275,7 @@ async function renderForFinetune({options, post, comments, getAuthorName}: {
     const body = comment.contents?.originalContents;
     if (body) {
       const bodyMarkdown = dataToMarkdown(body.data, body.type);
-      sb.push(bodyMarkdown);
+      sb.push(postprocessMarkdown(bodyMarkdown));
       sb.push('\n\n');
     }
   }
