@@ -6,7 +6,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.panelBackground.loginInput,
-    padding: "4px 6px",
+    padding: "11px 6px",
     display: "flex",
     alignItems: "center",
     fontSize: 14,
