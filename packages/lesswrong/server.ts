@@ -78,6 +78,7 @@ import './server/scripts/cleanUpDuplicatePostAutosaves';
 import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";
 import "./server/scripts/generativeModels/coverImage";
+import "./server/scripts/generativeModels/generateFinetuneDataset";
 import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
