@@ -10,13 +10,18 @@ import filter from 'lodash/filter';
 import { tagGetSubforumUrl, tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 import startCase from 'lodash/startCase';
+import { isFriendlyUI } from '@/themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   headingLink: {
     color: theme.palette.text.maxIntensity,
     textDecoration: "none",
     fontWeight: "normal",
-    fontFamily: "Arial, sans-serif"
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    ...(isFriendlyUI ? {
+      fontSize: "2.4rem",
+      lineHeight: '1.25em'
+    } : {}),
   },
   commentHr: {
     marginLeft: 5,

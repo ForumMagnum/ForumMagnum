@@ -145,6 +145,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       panelBackground: {
         default: shadePalette.grey[20],
         modalBackground: "#292929",
+        mapboxTooltip: "rgba(75,75,75,.94)",
         loginInput: "#3d3d3d",
         loginInputHovered: "#3f3f3f",
         onboardingSection: "#424242",
@@ -300,7 +301,7 @@ export const darkModeTheme: UserThemeSpecification = {
       },
     },
   }, forumComponentPalette(shadePalette)),
-  make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
+  make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
       // black). Necessary because there are a handful of posts with images that

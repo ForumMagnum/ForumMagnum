@@ -7,7 +7,7 @@ import {useCurrentUser} from "../common/withUser";
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: 16,
-    ...theme.typography.commentStyles,
+    ...theme.typography.commentStyle,
     ...theme.typography.body2,
     maxWidth: 600,
   },

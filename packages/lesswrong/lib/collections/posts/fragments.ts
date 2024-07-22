@@ -173,6 +173,8 @@ registerFragment(`
     reviewCount2019
 
     votingSystem
+    
+    disableRecommendation
   }
 `);
 
@@ -260,10 +262,10 @@ registerFragment(`
     ...PostsAuthors
     readTimeMinutes
     rejectedReason
-    disableRecommendation
     customHighlight {
       _id
       html
+      plaintextDescription
     }
     lastPromotedComment {
       _id

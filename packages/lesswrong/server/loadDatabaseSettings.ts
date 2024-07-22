@@ -59,7 +59,7 @@ const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
       return await loadDatabaseSettingsPostgres();
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error("Failed to load database settings from Postgres");
+      console.error("Failed to load database settings from Postgres", e);
     }
   }
   return {

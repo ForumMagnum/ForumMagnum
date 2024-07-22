@@ -21,12 +21,12 @@ adminsGroup.can(adminActions);
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
 Sequences.checkAccess = async (user, document) => {
-  if (!document) {
+  if (!document || document.isDeleted) {
     return false;
   }
   
-  // If it isn't a draft and isn't deleted, it's public
-  if (!document.draft && !document.isDeleted) {
+  // If it isn't a draft, it's public
+  if (!document.draft) {
     return true;
   }
   

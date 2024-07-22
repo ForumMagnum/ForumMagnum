@@ -37,6 +37,9 @@ import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import ForumNoSSR from '../../common/ForumNoSSR';
+import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
+import { useVote } from '@/components/votes/withVote';
+import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -217,6 +220,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   postBody: {
     width: "max-content",
   },
+  audioPlayerHidden: {
+    // Only show the play button next to headings if the audio player is visible
+    '& .t3a-heading-play-button': {
+      display: 'none !important'
+    },
+  },
   postContent: {
     marginBottom: isFriendlyUI ? 40 : undefined
   },
@@ -348,6 +357,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const [recommId, setRecommId] = useState<string | undefined>();
   const [attributionId, setAttributionId] = useState<string | undefined>();
 
+  const votingSystem = getVotingSystemByName(post.votingSystem || 'default');
+  const voteProps = useVote(post, 'Posts', votingSystem);
+
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
@@ -417,7 +429,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         componentProps: {
           post: fullPost,
         },
-        noClickawayCancel: true,
         closeOnNavigate: true,
       });
     }
@@ -488,7 +499,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
-    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
+    ForumEventPostPagePollSection
   } = Components
 
   useEffect(() => {
@@ -506,7 +518,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       }
     });
 
-    if (!currentUser || (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get())) return;
+    if (!recombeeEnabledSetting.get() && !vertexEnabledSetting.get()) return;
     setRecommId(recommId);
     setAttributionId(attributionId);
 
@@ -584,7 +596,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       componentProps: {
         post, initialHtml: html
       },
-      noClickawayCancel: true,
     })
   }, [openDialog, post]);
 
@@ -685,7 +696,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // the same time.
 
   const postBodySection =
-    <div id="postBody" className={classNames(classes.centralColumn, classes.postBody)}>
+    <div id="postBody" className={classNames(
+      classes.centralColumn,
+      classes.postBody,
+      !showEmbeddedPlayer && classes.audioPlayerHidden
+    )}>
       {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
@@ -695,15 +710,18 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
+          <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
             {htmlWithAnchors &&
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
                 sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                voteProps={voteProps}
               />
             }
           </CommentOnSelectionContentWrapper>
+          </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
@@ -730,6 +748,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+      <ForumNoSSR>
+        <ForumEventPostPagePollSection postId={post._id} />
+      </ForumNoSSR>
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -750,7 +771,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-      <AttributionInViewTracker eventProps={{ postId: post._id, portion: 1, recommId, vertexAttributionId: attributionId }}>
+      <AttributionInViewTracker eventProps={{ post, portion: 1, recommId, vertexAttributionId: attributionId }}>
         {/* Answers Section */}
         {post.question && <div className={classes.centralColumn}>
           <div id="answers"/>
@@ -767,6 +788,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               totalComments={totalCount as number}
               commentCount={commentCount}
               loadingMoreComments={loadingMore}
+              loading={loading}
               post={fullPost}
               newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
               highlightDate={highlightDate ?? undefined}

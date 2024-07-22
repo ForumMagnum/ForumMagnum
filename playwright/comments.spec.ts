@@ -30,6 +30,8 @@ test("create and edit comment", async ({page, context}) => {
 
   // Enter and save the new comment contents
   const newContents = "Edited comment body 123";
+  // Clear and fill the editor in two separate steps, because Playwright's .fill() fails in Firefox (but not other browsers) if these are one step
+  await commentItem.getByRole("textbox").fill("");
   await commentItem.getByRole("textbox").fill(newContents);
   await commentItem.getByRole("button", {name: "Save"}).click();
 

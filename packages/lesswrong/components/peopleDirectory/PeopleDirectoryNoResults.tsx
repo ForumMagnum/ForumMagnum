@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryNoResults = ({classes}: {
+const PeopleDirectoryNoResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {clearSearch} = usePeopleDirectory();

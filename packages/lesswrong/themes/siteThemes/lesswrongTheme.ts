@@ -67,7 +67,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontSize: '.85em'
       },
       body2: {
-        fontSize: "1.16rem"
+        fontSize: 15.1
       },
       commentStyle: {
         fontFamily: sansSerifStack,
@@ -101,15 +101,15 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       MuiTooltip: {
         tooltip: {
-          fontSize: "1rem",
-          padding: ".7rem",
+          fontSize: 13,
+          padding: "9.1px",
           zIndex: 10000000
         }
       },
       MuiDialogContent: {
         root: {
           fontFamily: sansSerifStack,
-          fontSize: "1.16rem",
+          fontSize: 15.1,
           lineHeight: "1.5em"
         }
       },
@@ -117,7 +117,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         root: {
           fontFamily: sansSerifStack,
           color: palette.grey[800],
-          fontSize: "1.1rem",
+          fontSize: 14.3,
           lineHeight: "1.1em"
         }
       },

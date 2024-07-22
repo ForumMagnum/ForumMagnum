@@ -160,6 +160,23 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
+  interests: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    marginTop: 14,
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "2px",
+    overflowX: "hidden",
+    "& .FooterTag-root": {
+      margin: "0",
+    },
+    "& > :first-child": {
+      marginRight: 6,
+    },
+  },
 })
 
 const FriendlyUsersProfile = ({terms, slug, classes}: {
@@ -177,7 +194,15 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   });
   const user = getUserFromResults(results)
 
-  const { query } = useLocation()
+  const {query, hash} = useLocation();
+
+  useEffect(() => {
+    if (user && hash) {
+      const element = document.querySelector(hash);
+      setTimeout(() => element?.scrollIntoView(true), 0);
+    }
+  }, [user, hash]);
+
   // track profile views in local storage
   useEffect(() => {
     const ls = getBrowserLocalStorage()
@@ -241,7 +266,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
     ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown
+    UserNotifyDropdown, FooterTag,
   } = Components
 
   if (loading) {
@@ -466,12 +491,22 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
               user={user}
               currentUser={currentUser}
             >
-              <a tabIndex={0} className={classes.messageBtn} data-cy="message">
+              <a tabIndex={0} className={classes.messageBtn}>
                 Message
               </a>
             </NewConversationButton>
             <UserNotifyDropdown user={user} />
           </div>}
+
+          {(user.profileTags?.length ?? 0) > 0 &&
+            <div className={classes.interests}>
+              <div>Interests:</div>
+              {user.profileTags.map((tag) =>
+                <FooterTag key={tag._id} tag={tag} neverCoreStyling hideIcon />
+              )}
+            </div>
+          }
+
           <EAUsersProfileLinks user={user} />
         </div>
 
@@ -480,7 +515,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
         </div>}
 
         {(ownPage || currentUser?.isAdmin) && (draftsSectionExpanded ?
-          <EAUsersProfileTabbedSection tabs={privateSectionTabs} /> :
+          <EAUsersProfileTabbedSection tabs={privateSectionTabs} id="drafts" /> :
           <Button color="primary"
             onClick={() => setDraftsSectionExpanded(true)}
             className={classes.showSectionBtn}
@@ -489,9 +524,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           </Button>
         )}
 
-        <EAUsersProfileTabbedSection tabs={bioSectionTabs} />
+        <EAUsersProfileTabbedSection tabs={bioSectionTabs} id="bio" />
 
-        {!!(userPostsCount || user.postCount) && <div className={classes.section}>
+        {!!(userPostsCount || user.postCount) && <div className={classes.section} id="posts">
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Posts <div className={classes.sectionHeadingCount}>{(userPostsCount || user.postCount)}</div>
@@ -513,7 +548,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           </AnalyticsContext>
         </div>}
 
-        {!!user.sequenceCount && <div className={classes.section}>
+        {!!user.sequenceCount && <div className={classes.section} id="sequences">
           <div className={classes.sectionHeadingRow}>
             <Typography variant="headline" className={classes.sectionHeading}>
               Sequences <div className={classes.sectionHeadingCount}>{user.sequenceCount}</div>
@@ -522,7 +557,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           <SequencesGridWrapper terms={{view: "userProfile", userId: user._id, limit: 9}} showLoadMore={true} />
         </div>}
 
-        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} />
+        <EAUsersProfileTabbedSection tabs={commentsSectionTabs} id="contributions" />
       </SingleColumnSection>
 
       <ReportUserButton user={user}/>

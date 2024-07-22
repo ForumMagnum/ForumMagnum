@@ -22,7 +22,7 @@ test("can create and edit events in group", async ({page, context}) => {
   await page.waitForURL("/newPost**");
   const title = "Test event title";
   await page.getByPlaceholder("Event name").fill(title);
-  await page.getByLabel("Rich Text Editor, main").fill("Test event body");
+  await page.getByLabel("Rich Text Editor. Editing area: main").fill("Test event body");
   await page.getByText("Submit").click();
 
   // Submitting the new event navigates to the event page
@@ -36,7 +36,7 @@ test("can create and edit events in group", async ({page, context}) => {
   await page.getByText("Edit", {exact: true}).click();
   await page.waitForURL("/editPost**");
   const newBody = "Edited event body";
-  await page.getByLabel("Rich Text Editor, main").fill(newBody);
+  await page.getByLabel("Rich Text Editor. Editing area: main").fill(newBody);
   await page.getByText("Publish changes").click();
 
   // Submitting the new event navigates to the event page

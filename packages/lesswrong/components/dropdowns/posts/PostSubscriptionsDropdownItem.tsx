@@ -34,14 +34,6 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
   },
   {
     document: post.user,
-    enabled: userHasSubscribeTabFeed(currentUser) && !!post.user && post.user._id !== currentUser?._id,
-    subscribeMessage: `Subscribe to ${userGetDisplayName(post.user)} in your feed`,
-    unsubscribeMessage: `Unsubscribe from ${userGetDisplayName(post.user)} in your feed`,
-    title: `New activity by ${userGetDisplayName(post.user)}`,
-    subscriptionType: subscriptionTypes.newActivityForFeed,
-  },
-  {
-    document: post.user,
     enabled: !!post.user && post.user._id !== currentUser?._id,
     subscribeMessage: `Subscribe to posts by ${userGetDisplayName(post.user)}`,
     unsubscribeMessage: `Unsubscribe from posts by ${userGetDisplayName(post.user)}`,

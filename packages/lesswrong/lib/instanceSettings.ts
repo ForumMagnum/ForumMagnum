@@ -186,7 +186,7 @@ export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('for
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
 /** Whether this forum verifies user emails */
-export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", !isEAForum, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
@@ -233,7 +233,8 @@ export type PostFeedDetails = {
   adminOnly?: boolean,
   showLabsIcon?: boolean,
   isInfiniteScroll?: boolean,
-  slug?: string
+  slug?: string,
+  showToLoggedOut?: boolean,
 }
 
 export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [
@@ -255,8 +256,6 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
   ]
   , 'optional')
 
-export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>('email.assumeVerified', isEAForum, 'optional')
-
 /**
  * This is a filepath that is _relative_ to the location of the instance settings file itself.
  * See full explanation in `google-vertex/client.ts`
@@ -264,3 +263,7 @@ export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>
 export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
 
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
+
+export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
+
+export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route

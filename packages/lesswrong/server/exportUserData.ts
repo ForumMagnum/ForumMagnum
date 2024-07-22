@@ -24,6 +24,21 @@ import { Votes } from "../lib/collections/votes";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { writeFile } from "fs/promises";
 import { Globals } from "./vulcan-lib";
+import CkEditorUserSessions from "@/lib/collections/ckEditorUserSessions/collection";
+import CurationEmails from "@/lib/collections/curationEmails/collection";
+import DialogueChecks from "@/lib/collections/dialogueChecks/collection";
+import ElectionVotes from "@/lib/collections/electionVotes/collection";
+import ElicitQuestionPredictions from "@/lib/collections/elicitQuestionPredictions/collection";
+import GardenCodes from "@/lib/collections/gardencodes/collection";
+import GoogleServiceAccountSessions from "@/lib/collections/googleServiceAccountSessions/collection";
+import { LWEvents } from "@/lib/collections/lwevents";
+import PostRecommendations from "@/lib/collections/postRecommendations/collection";
+import RecommendationsCaches from "@/lib/collections/recommendationsCaches/collection";
+import ReviewVotes from "@/lib/collections/reviewVotes/collection";
+import TypingIndicators from "@/lib/collections/typingIndicators/collection";
+import UserEAGDetails from "@/lib/collections/userEAGDetails/collection";
+import UserJobAds from "@/lib/collections/userJobAds/collection";
+import { UserRateLimits } from "@/lib/collections/userRateLimits";
 
 type Entry<N extends CollectionNameString> = [
   CollectionBase<N>,
@@ -45,14 +60,30 @@ export const exportUserData = async (
   }
 
   const userId = user._id;
+  const email = user.email;
 
   const entries: Entry<CollectionNameString>[] = [
     [Users, {fetch: () => Promise.resolve([user])}],
     [Bans, Bans.find({userId})],
+    [CkEditorUserSessions, CkEditorUserSessions.find({userId})],
     [ClientIds, ClientIds.find({userIds: userId})],
     [Collections, Collections.find({userId})],
     [Comments, Comments.find({userId})],
     [Conversations, Conversations.find({participantIds: userId})],
+    [CurationEmails, CurationEmails.find({userId})],
+    [DialogueChecks, DialogueChecks.find({userId})],
+    [GardenCodes, GardenCodes.find({userId})],
+    [GoogleServiceAccountSessions, GoogleServiceAccountSessions.find({email})],
+    [ElectionVotes, ElectionVotes.find({userId})],
+    [ElicitQuestionPredictions, ElicitQuestionPredictions.find({userId})],
+    [PostRecommendations, PostRecommendations.find({userId})],
+    [RecommendationsCaches, RecommendationsCaches.find({userId})],
+    [ReviewVotes, ReviewVotes.find({userId})],
+    [TypingIndicators, TypingIndicators.find({userId})],
+    [UserEAGDetails, UserEAGDetails.find({userId})],
+    [UserJobAds, UserJobAds.find({userId})],
+    [UserRateLimits, UserRateLimits.find({userId})],
+    [LWEvents, LWEvents.find({userId})],
     [Localgroups, Localgroups.find({organizerIds: userId})],
     [Messages, Messages.find({userId})],
     [ModeratorActions, ModeratorActions.find({userId})],

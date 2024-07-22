@@ -12,10 +12,7 @@ const PostAnalyticsDropdownItem = ({post}: {post: PostsBase}) => {
     return null;
   }
 
-  const link = {
-    pathname: "/postAnalytics",
-    search: `?${qs.stringify({postId: post._id})}`,
-  };
+  const link = `/postAnalytics?${qs.stringify({postId: post._id})}`;
 
   const {DropdownItem} = Components;
   return (

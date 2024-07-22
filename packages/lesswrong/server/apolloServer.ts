@@ -56,6 +56,8 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
+import { getCookieFromReq } from './utils/httpUtil';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -395,6 +397,8 @@ export function startWebserver() {
     // by multiple tabs), this is generated in `clientStartup.ts` instead.
     const tabId = responseIsCacheable(response) ? null : randomId();
     
+    const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
+
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -412,6 +416,7 @@ export function startWebserver() {
         // Embedded script tags that must precede the client bundle
         + publicSettingsHeader
         + embedAsGlobalVar("tabId", tabId)
+        + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
         // The client bundle. Because this uses <script async>, its load order
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.

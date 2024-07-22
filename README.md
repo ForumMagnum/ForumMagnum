@@ -139,6 +139,10 @@ Some relevant pieces of documentation that will help you understand aspects of t
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
 
+### Caching in CloudFront (CDN)
+
+You can set up CloudFront to cache pages for logged out users. See [this README](./packages/lesswrong/server/cache/README.md) for detailed instruction.
+
 ### Understanding the codebase
 
 Eventually, it’ll be helpful to have a good understanding of each of those technologies (both to develop new features and fix many kinds of bugs). But for now, the most useful things to know are:
@@ -196,8 +200,10 @@ monorepo codebase at a non-megacorp is that we can get good results just by
 searching for `hiddenRelatedQuestion` to find exactly how that database field is
 used.
 
-You might want to set `SLOW_QUERY_REPORT_CUTOFF_MS` to something other than the default (2000 ms),
-it can give a lot of false positives when you are running against a remote database.
+**Environment variables**
+
+- `SLOW_QUERY_REPORT_CUTOFF_MS`: You might want to set this to something other than the default (2000 ms), it can give a lot of false positives when you are running against a remote database.
+- `FM_WATCH`: Set this to `true` or `false` to override the `--watch` CLI flag for the build process. It can sometimes be annoying for the project to rebuild on every save.
 
 ### Debugging
 

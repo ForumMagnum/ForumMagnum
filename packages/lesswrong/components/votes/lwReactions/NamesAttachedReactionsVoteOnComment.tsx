@@ -376,12 +376,12 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   }
 
   function handleMouseEnter (e: any) {
-    setHoveredReaction?.({reactionName: react, isHovered: true});
+    setHoveredReaction?.({reactionName: react, isHovered: true, quote: null});
     onMouseOver(e);
   }
   
   function handleMouseLeave () {
-    setHoveredReaction?.({reactionName: react, isHovered: false});
+    setHoveredReaction?.({reactionName: react, isHovered: false, quote: null});
     onMouseLeave();
   }
 
@@ -534,16 +534,15 @@ export const AddReactionButton = ({voteProps, classes}: {
       className={classNames(classes.addReactionButton, "react-hover-style")}
     >
       <AddReactionIcon />
-      {open && <LWClickAwayListener onClickAway={() => {
-        setOpen(false)
-        captureEvent("reactPaletteStateChanged", {open: false})
-      }}>
-        <PopperCard
-          open={open} anchorEl={buttonRef.current}
-          placement="bottom-end"
-          allowOverflow={true}
-          
-        >
+      <PopperCard
+        open={open} anchorEl={buttonRef.current}
+        placement="bottom-end"
+        allowOverflow={true}
+      >
+        <LWClickAwayListener onClickAway={() => {
+          setOpen(false)
+          captureEvent("reactPaletteStateChanged", {open: false})
+        }}>
           <div className={classes.hoverBallot}>
             <ReactionsPalette
               quote={null}
@@ -551,8 +550,8 @@ export const AddReactionButton = ({voteProps, classes}: {
               toggleReaction={handleToggleReaction}
             />
           </div>
-        </PopperCard>
-      </LWClickAwayListener>}
+        </LWClickAwayListener>
+      </PopperCard>
     </span>
   </LWTooltip>
 }

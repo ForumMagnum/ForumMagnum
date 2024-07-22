@@ -40,6 +40,28 @@ makeEditable({
 makeEditable({
   collection: ForumEvents,
   options: {
+    fieldName: "frontpageDescriptionMobile",
+    label: "Frontpage description (mobile)",
+    commentEditor: true,
+    commentStyles: true,
+    hideControls: true,
+    getLocalStorageId: (forumEvent) => {
+      return {
+        id: `forumEvent:frontpageDescriptionMobile:${forumEvent?._id ?? "create"}`,
+        verify: true,
+      };
+    },
+    permissions: {
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+});
+
+makeEditable({
+  collection: ForumEvents,
+  options: {
     fieldName: "postPageDescription",
     label: "Post page description",
     commentEditor: true,

@@ -17,13 +17,13 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
   notifications: {
     order: 10,
     name: "notifications",
-    label: "Notifications",
+    label: preferredHeadingCase("Notifications"),
     startCollapsed: true,
   },
   emails: {
     order: 15,
     name: "emails",
-    label: "Emails",
+    label: preferredHeadingCase("Emails"),
     startCollapsed: true,
   },
   privacy: {
@@ -62,20 +62,25 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
     label: preferredHeadingCase(isFriendlyUI ? "Moderation" : "Moderation & Moderation Guidelines"),
     startCollapsed: true,
   },
+  generalInfo: {
+    name: "generalInfo",
+    order: 90,
+    label: preferredHeadingCase("General Info"),
+  },
   aboutMe: {
     name: 'aboutMe',
     order: 100,
-    label: isFriendlyUI ? "About you" : "About Me",
+    label: preferredHeadingCase(isFriendlyUI ? "About You" : "About Me"),
   },
   socialMedia: {
     name: 'socialMedia',
     order: 110,
-    label: isFriendlyUI ? "Social media" : "My Social Media",
+    label: preferredHeadingCase(isFriendlyUI ? "Social Media" : "My Social Media"),
   },
   activity: {
     name: 'activity',
     order: 120,
-    label: isFriendlyUI ? "Your activity" : "My Activity",
+    label: preferredHeadingCase(isFriendlyUI ? "Participation" : "My Activity"),
   },
   deactivate: {
     order: 130,

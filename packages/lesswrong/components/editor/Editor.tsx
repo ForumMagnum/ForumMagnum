@@ -10,9 +10,9 @@ import { debounce } from 'underscore';
 import { isClient } from '../../lib/executionEnvironment';
 import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
+import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
-import type { Editor as CKEditorType } from "@ckeditor/ckeditor5-core";
 
 const postEditorHeight = isEAForum ? 250 : 500;
 const questionEditorHeight = 150;
@@ -23,7 +23,7 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 const quickTakesEditorHeightRows = 5;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     position: 'relative'
   },
@@ -34,6 +34,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: 'block',
     fontSize: 10,
     marginBottom: 6,
+  },
+  sectionTitle: {
+    fontSize: 12,
   },
   markdownEditor: {
     fontSize: "inherit",
@@ -84,6 +87,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   
   ckEditorStyles: {
     ...ckEditorStyles(theme),
+  },
+  ckEditorGrey: {
+    ...greyEditorStyles(theme).root,
   },
   questionWidth: {
     width: 640,
@@ -168,6 +174,10 @@ export const styles = (theme: ThemeType): JssStyles => ({
   enteredBotTips: {
     opacity: 1
   },
+  enteringBotTips: {},
+  exitingBotTips: {},
+  exitedBotTips: {},
+  unmountedBotTips: {},
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -221,6 +231,7 @@ interface EditorProps {
   ref?: MutableRefObject<Editor|null>,
   currentUser: UsersCurrent|null,
   label?: string,
+  formVariant?: "default" | "grey",
   formType: "edit"|"new",
   documentId?: string,
   collectionName: CollectionNameString,
@@ -506,8 +517,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
 
-  renderEditorComponent = (contents: EditorContents) => {
-    switch (contents.type) {
+  renderEditorComponent = (contents: EditorContents, forceType?: EditorTypeString) => {
+    switch (forceType ?? contents.type) {
       case "ckEditorMarkup":
         return this.renderCkEditor(contents)
       case "draftJS":
@@ -572,7 +583,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
           }
         },
         onFocus,
-        onInit: (editor: any) => this.setState({ckEditorReference: editor}),
+        onReady: (editor: any) => this.setState({ckEditorReference: editor}),
         document,
       }
 
@@ -581,7 +592,14 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
       // TODO: figure out a better solution to this problem.
 
-      return <div className={classNames(this.getHeightClass(), classes.ckEditorStyles)}>
+      return <div
+        className={classNames(
+          this.getHeightClass(),
+          classes.ckEditorStyles,
+          this.props.formVariant === "grey" && classes.ckEditorGrey,
+        )}
+        onClick={this.interceptDetailsBlockClick.bind(this)}
+      >
         {editorWarning && <Components.WarningBanner message={editorWarning} />}
         {isCollaborative
           ? <Components.CKPostEditor key="ck-collaborate"
@@ -591,6 +609,44 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
             />
           : <CKEditor key="ck-default" { ...editorProps } />}
       </div>
+    }
+  }
+
+  /**
+   * When we click on a .detailsBlockTitle element, we want to toggle whether
+   * the corresponding .detailsBlock is open or closed. We do this with our own
+   * event handler, rather than a <details> tag (which is used outside the
+   * editor), because we need finer control of click targets; we don't want
+   * clicking on the text in the title to open/close the block, since you're
+   * probably trying to place the cursor, and that's disruptive.
+   */
+  interceptDetailsBlockClick = (ev: React.MouseEvent<HTMLElement>) => {
+    // Get the exact element that was clicked on. We can't use ev.target for
+    // this because React gives us the element that the event handler was bound
+    // to, but we want a more specific target than that.
+    //
+    // Normally getting the actual target would be problematic, because it can
+    // point to a child of the element of interest such as a text node. But in
+    // this case, that's what we want--click events on the text node inside the
+    // title should not trigger expand/collapse, but clicks on the background
+    // should.
+    const target = ev.nativeEvent?.target;
+    if (!target) return;
+
+    // HACK: Pointer events don't distinguish between clicking on a ::before
+    // pseudo-element and clicking on its parent, but we know the expand-arrow
+    // will fill the left edge of the title block, so use `offsetX`.
+    if ((target as HTMLElement).classList?.contains("detailsBlockTitle")
+      && ev.nativeEvent.offsetX < 24
+    ) {
+      const parentElement = (target as HTMLElement).parentElement;
+      if (parentElement?.classList.contains("detailsBlock")) {
+        if (parentElement.classList.contains("closed")) {
+          parentElement.classList.remove("closed");
+        } else {
+          parentElement.classList.add("closed");
+        }
+      }
     }
   }
 
@@ -730,17 +786,28 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
   render() {
     const { loading } = this.state
-    const { label, _classes: classes } = this.props
-    const { Loading, ContentStyles } = Components
+    const {label, formVariant, _classes: classes} = this.props;
+    const {Loading, ContentStyles, SectionTitle} = Components;
     const {className, contentType} = this.getBodyStyles();
 
+    const isGrey = formVariant === "grey";
+    const forceEditorType = isGrey ? "ckEditorMarkup" : undefined;
+
     return <div>
+      {label && isGrey &&
+        <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
+      }
       <ContentStyles className={classNames(classes.editor, className)} contentType={contentType}>
-        { label && <FormLabel className={classes.label}>{label}</FormLabel> }
-        { loading ? <Loading/> : this.renderEditorComponent(this.props.value) }
-        { this.renderUpdateTypeSelect() }
+        {label && !isGrey &&
+          <FormLabel className={classes.label}>{label}</FormLabel>
+        }
+        {loading
+          ? <Loading/>
+          : this.renderEditorComponent(this.props.value, forceEditorType)
+        }
+        {!isGrey && this.renderUpdateTypeSelect()}
       </ContentStyles>
-      { this.renderCommitMessageInput() }
+      {!isGrey && this.renderCommitMessageInput()}
     </div>
   }
 };

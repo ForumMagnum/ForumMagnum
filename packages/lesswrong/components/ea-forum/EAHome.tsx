@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
+import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
@@ -13,7 +13,6 @@ const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', f
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
-const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
 /**
  * Build structured data to help with SEO.
@@ -95,6 +94,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {
     EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
     FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner,
+    EAGBanner,
   } = Components
   return (
     <AnalyticsContext pageContext="homePage">
@@ -103,6 +103,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
       {shouldRenderBotSiteBanner && <BotSiteBanner />}
+      {isEAForum && <EAGBanner />}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>

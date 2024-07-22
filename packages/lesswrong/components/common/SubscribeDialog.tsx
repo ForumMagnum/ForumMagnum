@@ -169,21 +169,12 @@ class SubscribeDialog extends Component<SubscribeDialogProps,SubscribeDialogStat
     event.target && 'select' in event.target && event.target.select();
   }
 
-  sendVerificationEmail() {
-    const { updateCurrentUser, currentUser } = this.props;
-    if (!currentUser) return;
-    
-    void updateCurrentUser({
-      whenConfirmationEmailSent: new Date()
-    });
-  }
-
   subscribeByEmail() {
     let mutation: Partial<DbUser> = { emailSubscribedToCurated: true }
     const { currentUser, updateCurrentUser, captureEvent } = this.props;
     if (!currentUser) return;
 
-    if (!isLWorAF && !userEmailAddressIsVerified(currentUser)) {
+    if (!userEmailAddressIsVerified(currentUser)) {
       // Combine mutations into a single update call.
       // (This reduces the number of server-side callback
       // invocations. In a past version this worked around
