@@ -41,7 +41,7 @@ type FinetuneDatasetOptions = {
   
   documentSeparator: string,
 }
-const defaultFinetuneDataseOptions: FinetuneDatasetOptions = {
+const defaultFinetuneDatasetOptions: FinetuneDatasetOptions = {
   postKarmaThreshold: 60,
   commentKarmaThreshold: 30,
   outputFilename: "ml/finetuneData.txt",
@@ -55,7 +55,7 @@ const defaultFinetuneDataseOptions: FinetuneDatasetOptions = {
 }
 
 async function generateFinetuneDataset(_options?: Partial<FinetuneDatasetOptions>) {
-  const options = {...defaultFinetuneDataseOptions, ..._options};
+  const options = {...defaultFinetuneDatasetOptions, ..._options};
   const startTime = new Date();
   
   // Ensure the dir containing the output file exists, and open it for streaming write
