@@ -12,8 +12,9 @@ import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import keyBy from 'lodash/keyBy';
 import { postprocessMarkdown } from '@/server/languageModels/llmUtil';
+import shuffle from 'lodash/shuffle';
 
-type FinetuneDatasetOptions = {
+type HighKarmaContentDatasetOptions = {
   postKarmaThreshold: number
   commentKarmaThreshold: number
   outputFilename: string
@@ -42,7 +43,7 @@ type FinetuneDatasetOptions = {
   
   documentSeparator: string,
 }
-const defaultFinetuneDatasetOptions: FinetuneDatasetOptions = {
+const defaultHighKarmaContentDatasetOptions: HighKarmaContentDatasetOptions = {
   postKarmaThreshold: 60,
   commentKarmaThreshold: 30,
   outputFilename: "ml/finetuneData.txt",
@@ -55,17 +56,25 @@ const defaultFinetuneDatasetOptions: FinetuneDatasetOptions = {
   documentSeparator: "========",
 }
 
-async function generateFinetuneDataset(_options?: Partial<FinetuneDatasetOptions>) {
-  const options = {...defaultFinetuneDatasetOptions, ..._options};
+async function generateHighKarmaContentDataset(_options?: Partial<HighKarmaContentDatasetOptions>) {
+  const options = {...defaultHighKarmaContentDatasetOptions, ..._options};
   const startTime = new Date();
-  
-  // Ensure the dir containing the output file exists, and open it for streaming write
-  const outputFileDir = path.dirname(options.outputFilename);
-  ensurePathExists(outputFileDir);
 
-  const fileHandle = await fsPromises.open(options.outputFilename, 'w');
+  await withStreamingWrite(options.outputFilename, async (write) => {
+    await writeHighKarmaContentDatasetTo(options, write);
+    // eslint-disable-next-line no-console
+    console.log(`Finetune dataset generated in ${new Date().getTime() - startTime.getTime()}ms`);
+  });
+}
+
+async function withStreamingWrite(
+  filename: string,
+  fn: (write: (s: string) => Promise<void>) => Promise<void>
+): Promise<void> {
+  ensurePathExists(filename);
+  const fileHandle = await fsPromises.open(filename, 'w');
   if (!fileHandle) {
-    throw new Error(`Unable to open ${options.outputFilename} for writing`);
+    throw new Error(`Unable to open ${filename} for writing`);
   }
   try {
     const writeStream = fileHandle.createWriteStream();
@@ -78,16 +87,13 @@ async function generateFinetuneDataset(_options?: Partial<FinetuneDatasetOptions
         });
       });
     }
-
-    await writeFinetuneDatasetTo(options, write);
-    // eslint-disable-next-line no-console
-    console.log(`Finetune dataset generated in ${new Date().getTime() - startTime.getTime()}ms`);
+    await fn(write);
   } finally {
     await fileHandle.close();
   }
 }
 
-async function writeFinetuneDatasetTo(options: FinetuneDatasetOptions, write: (s: string) => Promise<void>) {
+async function writeHighKarmaContentDatasetTo(options: HighKarmaContentDatasetOptions, write: (s: string) => Promise<void>) {
   // eslint-disable-next-line no-console
   const log = console.log;
   
@@ -243,7 +249,7 @@ async function writeFinetuneDatasetTo(options: FinetuneDatasetOptions, write: (s
 }
 
 async function renderForFinetune({options, post, comments, getAuthorName}: {
-  options: FinetuneDatasetOptions,
+  options: HighKarmaContentDatasetOptions,
   post: DbPost|null
   comments: DbComment[],
   getAuthorName: (authorId: string) => Promise<string>
@@ -251,19 +257,7 @@ async function renderForFinetune({options, post, comments, getAuthorName}: {
   const sb: string[] = [];
   
   if (post) {
-    sb.push(`${post.title}\n`)
-    sb.push(`by ${await getAuthorName(post.userId)}\n`)
-    sb.push(`${post.baseScore} points\n`);
-    sb.push(`\n`);
-    if ('url' in post && post.url) {
-      sb.push(`This is a linkpost for ${post.url}\n\n`);
-    }
-    const body = post.contents?.originalContents;
-    if (body) {
-      const bodyMarkdown = dataToMarkdown(body.data, body.type);
-      sb.push(postprocessMarkdown(bodyMarkdown));
-      sb.push('\n\n');
-    }
+    sb.push(await renderPostForFinetune({post, getAuthorName}));
   } else {
     sb.push("Shortform\n\n");
   }
@@ -271,17 +265,47 @@ async function renderForFinetune({options, post, comments, getAuthorName}: {
   const sortedComments: DbComment[] = sortBy(comments, c=>c.postedAt);
   for (let comment of sortedComments) {
     sb.push(options.documentSeparator+'\n\n');
-    sb.push(`Comment by ${await getAuthorName(comment.userId)}\n\n`);
-    const body = comment.contents?.originalContents;
-    if (body) {
-      const bodyMarkdown = dataToMarkdown(body.data, body.type);
-      sb.push(postprocessMarkdown(bodyMarkdown));
-      sb.push('\n\n');
-    }
+    sb.push(await renderCommentForFinetune({comment, getAuthorName}));
   }
   
   sb.push(options.documentSeparator+"\n\n");
   return sb.join("");
+}
+
+async function renderPostForFinetune({ post, getAuthorName }: {
+  post: DbPost
+  getAuthorName: (authorId: string) => Promise<string>
+}) {
+  const sb: string[] = [];
+  sb.push(`${post.title}\n`)
+  sb.push(`by ${await getAuthorName(post.userId)}\n`)
+  sb.push(`${post.baseScore} points\n`);
+  sb.push(`\n`);
+  if ('url' in post && post.url) {
+    sb.push(`This is a linkpost for ${post.url}\n\n`);
+  }
+  const body = post.contents?.originalContents;
+  if (body) {
+    const bodyMarkdown = dataToMarkdown(body.data, body.type);
+    sb.push(postprocessMarkdown(bodyMarkdown));
+    sb.push('\n\n');
+  }
+  return sb.join('');
+}
+
+async function renderCommentForFinetune({ comment, getAuthorName }: {
+  comment: DbComment
+  getAuthorName: (authorId: string) => Promise<string>
+}) {
+  const sb: string[] = [];
+  sb.push(`Comment by ${await getAuthorName(comment.userId)}\n\n`);
+  const body = comment.contents?.originalContents;
+  if (body) {
+    const bodyMarkdown = dataToMarkdown(body.data, body.type);
+    sb.push(postprocessMarkdown(bodyMarkdown));
+    sb.push('\n\n');
+  }
+  return sb.join('');
 }
 
 /**
@@ -289,7 +313,8 @@ async function renderForFinetune({options, post, comments, getAuthorName}: {
  * in order; if any don't exist, creates them with fs.mkdirSync. If any path
  * component exists but isn't a directory, throws an exception.
  */
-function ensurePathExists(dirname: string): void {
+function ensurePathExists(filename: string): void {
+  const dirname = path.dirname(filename);
   const normalizedPath = path.normalize(dirname);
   const pathComponents = normalizedPath.split(path.sep);
   
@@ -307,4 +332,105 @@ function ensurePathExists(dirname: string): void {
   }
 }
 
-Globals.generateFinetuneDataset = generateFinetuneDataset
+Globals.generateHighKarmaContentDataset = generateHighKarmaContentDataset
+
+
+
+type PostResponsePairsOptions = {
+  outputFilename: string
+
+  postKarmaThreshold: number
+  commentKarmaThreshold: number
+  examplesCount: number
+
+  // Filter for posts to include. This will be merged with the default post
+  // view, which takes care of excluding drafts, spam, etc, and with the
+  // postKarmaThreshold option above.
+  postFilter: ViewQueryAndOptions<"Posts",DbPost>["selector"]
+  
+  // Filter for comments to include. This will be merged with the default
+  // comment view, which takes care of excluding deleted comments.
+  commentFilter: ViewQueryAndOptions<"Comments",DbComment>["selector"]
+  
+  systemPrompt: "You are highly capable writing assistant that helps authors by replying to their essays as other people will. Your replies may riff on, refute, or comment on the essay or the essay's topic."
+}
+
+const defaultPostResponsePairsOptions = {
+  outputFilename: "ml/postResponsePairs.json",
+  commentKarmaThreshold: 50,
+  postKarmaThreshold: -20,
+  examplesCount: 500,
+
+  postFilter: {
+    frontpageDate: {$gt: new Date(0)}
+  },
+}
+
+async function generatePostResponsePairsDataset(_options: PostResponsePairsOptions) {
+  const options = {...defaultPostResponsePairsOptions, ..._options};
+  const startTime = new Date();
+  await withStreamingWrite(options.outputFilename, async (write) => {
+    console.log("Selecting comments for post-comment pairs data");
+    // Pick random high-karma comments that meet the requirements
+    const commentSelector = mergeSelectors(
+      getDefaultViewSelector("Comments"),
+      options.commentFilter,
+      {
+        baseScore: {$gte: options.commentKarmaThreshold},
+        postId: {$ne: null},
+        parentCommentId: null,
+      },
+    );
+    const eligibleComments = await Comments.find(commentSelector, {
+      projection: {_id: true, postId: true}
+    }).fetch();
+
+    console.log("Getting posts for post-comment pairs data");
+    const postSelector = mergeSelectors(
+      getDefaultViewSelector("Posts"),
+      options.postFilter
+    );
+    const eligiblePostIds = (await Posts.find(postSelector, {
+      projection: {_id: true}
+    }).fetch()).map(p => p._id);
+    const eligiblePostIdsSet = new Set<string>(eligiblePostIds);
+    
+    const eligibleCommentsOnEligiblePosts = eligibleComments
+      .filter(c => c.postId && eligiblePostIdsSet.has(c.postId));
+    const commentIds = shuffle(eligibleCommentsOnEligiblePosts).slice(0, options.examplesCount);
+    
+    console.log("Downloading full posts/comments");
+    const comments = await Comments.find({
+      _id: {$in: commentIds.map(c=>c._id)}
+    }).fetch();
+    const postIds = new Set(comments.map(c => c.postId));
+    const posts = await Posts.find({
+      _id: {$in: [...postIds.values()]}
+    }).fetch();
+    const postsById = keyBy(posts, p=>p._id);
+    
+    const getAuthorName = async (userId: string) => "AnonymizedUser"
+
+    console.log("Writing out examples");
+    const data: any[] = [];
+    for (let comment of comments) {
+      const post = postsById[comment.postId!];
+      const renderedPost = await renderPostForFinetune({post, getAuthorName})
+      const renderedComment = await renderCommentForFinetune({comment, getAuthorName})
+      const example = {
+        messages: [
+          {role: "system", content: options.systemPrompt},
+          {role: "user", content: renderedPost},
+          {role: "assistant", content: renderedComment},
+        ],
+      };
+      await write(JSON.stringify(example)+"\n");
+    }
+    // eslint-disable-next-line no-console
+    console.log(`Finetune dataset generated in ${new Date().getTime() - startTime.getTime()}ms`);
+  });
+}
+
+
+
+Globals.generatePostResponsePairs = generatePostResponsePairsDataset
