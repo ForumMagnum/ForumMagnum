@@ -32,7 +32,7 @@ const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: Clas
   const markerIndices = MARKERS.map(marker => name.lastIndexOf(marker.text)).filter(i => i !== -1);
 
   const lastMarkerIndex = Math.max(...markerIndices);
-  const hasMarker = lastMarkerIndex !== -1;
+  const hasMarker = lastMarkerIndex >= 0;
 
   if (!hasMarker) {
     return <span>{name}</span>
