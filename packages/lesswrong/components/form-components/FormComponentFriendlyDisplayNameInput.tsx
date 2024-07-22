@@ -6,38 +6,28 @@ const styles = (theme: ThemeType) => ({
   inputRow: {
     display: "flex",
     gap: `12px`,
-    [theme.breakpoints.down('xs')]: {
+    [theme.breakpoints.down("xs")]: {
       gap: `6px`,
-    }
+    },
   },
   formInput: {
     flex: "1",
-  },
-  rightSection: {
-    display: "flex",
-    paddingTop: 29, // Match "Display name" label
-    alignItems: "center"
-  },
-  copyChips: {
-    display: "flex",
-    gap: "6px",
-    height: "min-content",
-    marginRight: 6,
-    [theme.breakpoints.down('sm')]: {
-      marginRight: 0,
-    }
   },
   blurb: {
     marginTop: 8,
     fontWeight: 450,
     color: theme.palette.grey[600],
+    marginRight: 28, // Make it wrap so the text flows better
+    ["@media(max-width: 715px)"]: {
+      marginRight: 0,
+    },
   },
   link: {
     textDecoration: "underline",
     textUnderlineOffset: "4px",
-    '&:hover': {
+    "&:hover": {
       textDecoration: "underline",
-    }
+    },
   },
 });
 
@@ -54,28 +44,20 @@ export const FormComponentFriendlyDisplayNameInput = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 } & FormComponentProps<string>) => {
-  const { FormComponentFriendlyTextInput, CopyChip } = Components;
+  const { FormComponentFriendlyTextInput } = Components;
 
   const blurbContent = (
     <span>
-      If you've taken the{" "}
+      If you have taken the {tenPercentPledgeDiamond}10% Pledge or {trialPledgeDiamond}Trial Pledge, consider adding a
+      diamond to your name to show others.{" "}
       <a
         className={classes.link}
         href="https://www.givingwhatwecan.org/pledge"
         target="_blank"
         rel="noopener noreferrer"
       >
-        {tenPercentPledgeDiamond}10% Pledge
-      </a>{" "}
-      or{" "}
-      <a
-        className={classes.link}
-        href="https://www.givingwhatwecan.org/pledge#pledge-options"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        🔹Trial Pledge
-      </a>, consider adding a diamond to your name to show others
+        Learn more.
+      </a>
     </span>
   );
 
@@ -83,12 +65,6 @@ export const FormComponentFriendlyDisplayNameInput = ({
     <div>
       <div className={classes.inputRow}>
         <FormComponentFriendlyTextInput value={value} {...props} className={classes.formInput} />
-        <div className={classes.rightSection}>
-          <div className={classes.copyChips}>
-            <CopyChip text={tenPercentPledgeDiamond} />
-            <CopyChip text={trialPledgeDiamond} />
-          </div>
-        </div>
       </div>
       <div className={classes.blurb}>{blurbContent}</div>
     </div>
