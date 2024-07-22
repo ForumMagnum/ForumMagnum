@@ -11,34 +11,47 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
+type Marker = {
+  text: string;
+  tooltip: (name: string) => string;
+};
+
+const MARKERS: Marker[] = [
+  {text: tenPercentPledgeDiamond, tooltip: (name: string) => `${name} has taken the ${tenPercentPledgeDiamond}10% Pledge`},
+  {text: trialPledgeDiamond, tooltip: (name: string) => `${name} has taken the ${trialPledgeDiamond}Trial Pledge`},
+];
+
 /**
- * Wrap certain special characters with a tooltip explaining them
+ * Wrap certain special characters with a tooltip explaining them. Currently only allows one tooltip, preferring
+ * the one closest to the end of their name.
  */
 const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
   // Show a tooltip if they have the 10% or Trial pledge diamond at the end of their profile
-  const tenPercentPledgeIndex = name.lastIndexOf(tenPercentPledgeDiamond);
-  const trialPledgeIndex = name.lastIndexOf(trialPledgeDiamond);
+  const markerIndices = MARKERS.map(marker => name.lastIndexOf(marker.text)).filter(i => i !== -1);
 
-  const lastMarkerIndex = Math.max(tenPercentPledgeIndex, trialPledgeIndex);
+  const lastMarkerIndex = Math.max(...markerIndices);
   const hasMarker = lastMarkerIndex !== -1;
 
-  const beforeMarker = hasMarker ? name.slice(0, lastMarkerIndex) : name;
-  const afterMarker = hasMarker ? name.slice(lastMarkerIndex + 2) : "";
+  if (!hasMarker) {
+    return <span>{name}</span>
+  }
 
-  const marker = hasMarker ? name.slice(lastMarkerIndex, lastMarkerIndex + 2) : "";
+  const beforeMarker = name.slice(0, lastMarkerIndex);
+  const afterMarker = name.slice(lastMarkerIndex + 2);
 
-  const tooltipTitle = `${[beforeMarker, afterMarker].join("")} has taken the ${
-    marker === tenPercentPledgeDiamond ? `${tenPercentPledgeDiamond}10% Pledge` : `${trialPledgeDiamond}Trial Pledge`
-  }`;
+  const markerStr = name.slice(lastMarkerIndex, lastMarkerIndex + 2);
+  const markerObject = MARKERS.find(marker => marker.text === markerStr);
+
+  const tooltipTitle = markerObject!.tooltip([beforeMarker, afterMarker].join(''));
 
   return (
     <span>
       {beforeMarker}
       {hasMarker && (
         <LWTooltip placement="top" title={tooltipTitle} popperClassName={classes.tooltipPopper}>
-          {marker}
+          {markerStr}
         </LWTooltip>
       )}
       {afterMarker}
