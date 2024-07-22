@@ -5,7 +5,7 @@ import { useMessages } from "../common/withMessages";
 const styles = (theme: ThemeType) => ({
   root: {
     borderRadius: theme.borderRadius.default,
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.panelBackground.loginInput,
     padding: "4px 6px",
     display: "flex",
     alignItems: "center",
@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     gap: "2px",
     "&:hover": {
-      backgroundColor: theme.palette.grey[300],
+      backgroundColor: theme.palette.panelBackground.loginInputHovered,
     },
   },
   icon: {

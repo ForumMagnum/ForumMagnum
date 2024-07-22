@@ -1,6 +1,9 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 
+export const tenPercentPledgeDiamond = "🔸";
+export const trialPledgeDiamond = "🔹";
+
 const styles = (_theme: ThemeType) => ({
   tooltipPopper: {
     maxWidth: 200,
@@ -14,9 +17,9 @@ const styles = (_theme: ThemeType) => ({
 const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
-  // Show a tooltip if they have the 🔸 or 🔹 at the end of their profile
-  const tenPercentPledgeIndex = name.lastIndexOf("🔸");
-  const trialPledgeIndex = name.lastIndexOf("🔹");
+  // Show a tooltip if they have the 10% or Trial pledge diamond at the end of their profile
+  const tenPercentPledgeIndex = name.lastIndexOf(tenPercentPledgeDiamond);
+  const trialPledgeIndex = name.lastIndexOf(trialPledgeDiamond);
 
   const lastMarkerIndex = Math.max(tenPercentPledgeIndex, trialPledgeIndex);
   const hasMarker = lastMarkerIndex !== -1;
@@ -27,7 +30,7 @@ const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: Clas
   const marker = hasMarker ? name.slice(lastMarkerIndex, lastMarkerIndex + 2) : "";
 
   const tooltipTitle = `${[beforeMarker, afterMarker].join("")} has taken the ${
-    marker === "🔸" ? "🔸10% Pledge" : "🔹Trial Pledge"
+    marker === tenPercentPledgeDiamond ? `${tenPercentPledgeDiamond}10% Pledge` : `${trialPledgeDiamond}Trial Pledge`
   }`;
 
   return (

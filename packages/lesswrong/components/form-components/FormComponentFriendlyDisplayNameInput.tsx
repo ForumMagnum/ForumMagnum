@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { tenPercentPledgeDiamond, trialPledgeDiamond } from "../ea-forum/users/DisplayNameWithMarkers";
 
 const styles = (theme: ThemeType) => ({
   inputRow: {
@@ -12,19 +13,22 @@ const styles = (theme: ThemeType) => ({
   formInput: {
     flex: "1",
   },
+  rightSection: {
+    display: "flex",
+    paddingTop: 29, // Match "Display name" label
+    alignItems: "center"
+  },
   copyChips: {
     display: "flex",
     gap: "6px",
     height: "min-content",
-    marginTop: "auto",
     marginRight: 6,
-    marginBottom: 8,
     [theme.breakpoints.down('sm')]: {
       marginRight: 0,
     }
   },
   blurb: {
-    marginTop: 6,
+    marginTop: 8,
     fontWeight: 450,
     color: theme.palette.grey[600],
   },
@@ -61,7 +65,7 @@ export const FormComponentFriendlyDisplayNameInput = ({
         target="_blank"
         rel="noopener noreferrer"
       >
-        🔸10% Pledge
+        {tenPercentPledgeDiamond}10% Pledge
       </a>{" "}
       or{" "}
       <a
@@ -79,9 +83,11 @@ export const FormComponentFriendlyDisplayNameInput = ({
     <div>
       <div className={classes.inputRow}>
         <FormComponentFriendlyTextInput value={value} {...props} className={classes.formInput} />
-        <div className={classes.copyChips}>
-          <CopyChip text="🔸" />
-          <CopyChip text="🔹" />
+        <div className={classes.rightSection}>
+          <div className={classes.copyChips}>
+            <CopyChip text={tenPercentPledgeDiamond} />
+            <CopyChip text={trialPledgeDiamond} />
+          </div>
         </div>
       </div>
       <div className={classes.blurb}>{blurbContent}</div>
