@@ -176,6 +176,14 @@ export const HIDE_EAG_BANNER_COOKIE = registerCookie({
   description: "Don't show any EAG(x) banners",
 });
 
+export const NAV_MANU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
+registerCookie({
+  name: `${NAV_MANU_FLAG_COOKIE_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(NAV_MANU_FLAG_COOKIE_PREFIX),
+  type: "necessary",
+  description: "Whether or not to show particular flags in the main navigation menu",
+});
+
 // Third party cookies
 
 // Intercom
