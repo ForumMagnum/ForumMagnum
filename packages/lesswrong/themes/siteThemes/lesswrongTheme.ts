@@ -67,7 +67,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontSize: '.85em'
       },
       body2: {
-        fontSize: 15.1
+        fontSize: 15.08
       },
       commentStyle: {
         fontFamily: sansSerifStack,
@@ -109,7 +109,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       MuiDialogContent: {
         root: {
           fontFamily: sansSerifStack,
-          fontSize: 15.1,
+          fontSize: 15.08,
           lineHeight: "1.5em"
         }
       },

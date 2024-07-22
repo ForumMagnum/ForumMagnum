@@ -148,7 +148,7 @@ export const eaForumTheme: SiteThemeSpecification = {
         fontFamily: sansSerifStack,
         body1: {
           ...basicText,
-          fontSize: 16.9,
+          fontSize: 15.6,
           fontFamily: serifStack,
         },
         body2: {
