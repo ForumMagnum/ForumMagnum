@@ -28,7 +28,6 @@ const MARKERS: Marker[] = [
 const DisplayNameWithMarkers = ({ name, classes }: { name: string; classes: ClassesType<typeof styles> }) => {
   const { LWTooltip } = Components;
 
-  // Show a tooltip if they have the 10% or Trial pledge diamond at the end of their profile
   const markerIndices = MARKERS.map(marker => name.lastIndexOf(marker.text)).filter(i => i !== -1);
 
   const lastMarkerIndex = Math.max(...markerIndices);
