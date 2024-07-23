@@ -638,6 +638,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   ), [hashCommentId, loading, results]);
 
   const [permalinkedCommentId, setPermalinkedCommentId] = useState(fullPost && !isDebateResponseLink ? queryCommentId : null)
+  // Don't show loading state if we are are getting the id from the hash, because it might be a hash referencing a non-comment id in the page
+  const silentLoadingPermalink = permalinkedCommentId === hashCommentId;
   useEffect(() => { // useEffect required because `location.hash` isn't sent to the server
     if (fullPost && !isDebateResponseLink) {
       if (queryCommentId) {
@@ -672,7 +674,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
-          {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={fullPost} />}
+          {permalinkedCommentId && <CommentPermalink documentId={permalinkedCommentId} post={fullPost} silentLoading={silentLoadingPermalink} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: permalinkedCommentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
