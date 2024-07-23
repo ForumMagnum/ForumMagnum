@@ -26,7 +26,6 @@ jobs:
       uses: ./.github/actions/setupEnvironment
     - run: yarn run tsc
 
-  # TODO: run both x-post tests
   runPlaywrightTests:
     runs-on: ubuntu-latest
     strategy:
@@ -56,7 +55,9 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - name: Setup database
-      run: psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+      run: |
+        psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+        psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
     - name: Install browsers
       run: yarn playwright install ${{ matrix.project }} --with-deps
     - name: Run playwright tests
@@ -72,6 +73,68 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Playwright test results ${{ matrix.project }}
+        path: test-results
+
+  runCrosspostTests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    services:
+      postgresLocal:
+        image: ankane/pgvector
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      postgresForeign:
+        image: ankane/pgvector
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
+      SLOW_QUERY_REPORT_CUTOFF_MS: "-1"
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Setup databases
+      run: |
+        psql postgres://postgres:password@localhost:5433/postgres -f schema/accepted_schema.sql
+        psql postgres://postgres:password@localhost:5433/postgres -f playwright/fixtures.sql
+        psql postgres://postgres:password@localhost:5434/postgres -f schema/accepted_schema.sql
+        psql postgres://postgres:password@localhost:5434/postgres -f playwright/fixtures.sql
+    - name: Install browsers
+      run: yarn playwright install chromium --with-deps
+    - name: Run crossposting tests
+      run: yarn playwright-test-crosspost
+    - name: Upload crosspost report
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Crosspost report
+        path: playwright-report
+    - name: Upload crosspost test results
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: Crosspost test results
         path: test-results
 
   runUnitTests:
