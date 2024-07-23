@@ -9,8 +9,11 @@ import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { cloudinaryCloudNameSetting } from "../../lib/publicSettings";
 import { usePostContents } from "../hooks/useForeignCrosspost";
+import { usePostsListView } from "../hooks/usePostsListView";
 
 const KARMA_WIDTH = 50;
+const CARD_IMG_HEIGHT = 78;
+const CARD_IMG_WIDTH = 153;
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -109,6 +112,19 @@ export const styles = (theme: ThemeType) => ({
       "-webkit-line-clamp": 3,
     },
   },
+  titleCardView: {
+    // When card view is active, *all* post items change font weight,
+    // even those that are not a card, so that all titles are consistent.
+    fontWeight: 700,
+  },
+  titleCard: {
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+    [theme.breakpoints.down("xs")]: {
+      "-webkit-line-clamp": 3,
+    },
+  },
   meta: {
     display: "flex",
     alignItems: "center",
@@ -184,7 +200,7 @@ export const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     display: "flex",
     alignItems: "flex-end",
-    gap: "70px",
+    gap: "47px",
     [theme.breakpoints.down("xs")]: {
       gap: "12px",
     },
@@ -202,7 +218,7 @@ export const styles = (theme: ThemeType) => ({
     fontSize: 13,
     lineHeight: "150%",
     color: theme.palette.grey[600],
-    maxHeight: 70,
+    maxHeight: CARD_IMG_HEIGHT,
     [theme.breakpoints.down("xs")]: {
       "-webkit-line-clamp": 4,
       lineHeight: "140%",
@@ -212,14 +228,14 @@ export const styles = (theme: ThemeType) => ({
     marginTop: 12,
   },
   cardTextNoImage: {
-    marginRight: 30,
+    maxWidth: 509,
   },
   cardImage: {
     borderRadius: theme.borderRadius.small,
-    width: 124,
-    minWidth: 124,
-    height: 70,
-    minHeight: 70,
+    width: CARD_IMG_WIDTH,
+    minWidth: CARD_IMG_WIDTH,
+    height: CARD_IMG_HEIGHT,
+    minHeight: CARD_IMG_HEIGHT,
     objectFit: "cover",
     [theme.breakpoints.down("xs")]: {
       width: 100,
@@ -231,7 +247,7 @@ export const styles = (theme: ThemeType) => ({
 const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
 
 const formatImageUrl = (url: string) =>
-  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_124,h_70,dpr_2,`);
+  url.replace(cloudinaryBase, `${cloudinaryBase}c_fill,w_${CARD_IMG_WIDTH},h_${CARD_IMG_HEIGHT},dpr_2,`);
 
 export type EAPostsItemProps = PostsItemConfig & {
   openInNewTab?: boolean,
@@ -283,6 +299,10 @@ const EAPostsItem = ({
   } = usePostsItem(props);
   const {onClick} = useClickableCell({href: postLink, openInNewTab});
   const cardView = viewType === "card";
+  // When card view is active, *all* post items change font weight,
+  // even those that are not a card, so that all titles are consistent.
+  const {view} = usePostsListView()
+
   const {postContents} = usePostContents({
     post,
     fragmentName: "PostsList",
@@ -368,7 +388,7 @@ const EAPostsItem = ({
   // started so we need to wrap that whole thing in an `InteractionWrapper`
   // too.
   const TitleWrapper: FC<PropsWithChildren<{}>> = ({children}) => (
-    <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span">
+    <PostsItemTooltipWrapper post={post} placement={tooltipPlacement} As="span" disabled={viewType === 'card'}>
       <InteractionWrapper className={classes.titleWrapper}>
         <Link to={postLink}>{children}</Link>
       </InteractionWrapper>
@@ -414,11 +434,16 @@ const EAPostsItem = ({
                   curatedIconLeft,
                   showIcons,
                 }}
+                wrap={cardView}
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
                 showEventTag={!hideTag}
-                className={classes.title}
+                className={classNames(
+                  classes.title,
+                  view === 'card' && classes.titleCardView,
+                  cardView && classes.titleCard
+                )}
               />
               <div className={classes.meta}>
                 <EAPostMeta post={post} useCuratedDate={useCuratedDate} />
