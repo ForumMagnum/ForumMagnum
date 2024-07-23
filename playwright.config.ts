@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 type WebServers = Extract<Parameters<typeof defineConfig>[0]["webServer"], any[]>;
 type Projects = Extract<Parameters<typeof defineConfig>[0]["projects"], any[]>;
 
-const CROSSPOST_TEST_REGEX = "**/crossposts.spec.ts"; // TODO;
+const CROSSPOST_TEST_REGEX = "**/crossposts.spec.ts";
 
 const getWebServers = () => {
   const webServers: WebServers = [];
@@ -25,7 +25,7 @@ const getWebServers = () => {
     stdout: "ignore",
     stderr: "pipe",
   });
-  
+
   if (process.env.CROSSPOST_TEST) {
     if (!process.env.CI) {
       webServers.push({
@@ -36,7 +36,7 @@ const getWebServers = () => {
         stderr: "ignore",
       });
     }
-    
+
     webServers.push({
       command: "yarn start-playwright-crosspost",
       url: "http://localhost:3467",
