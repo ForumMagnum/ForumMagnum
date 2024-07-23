@@ -6,6 +6,7 @@ import { forumHeaderTitleSetting } from "../common/Header";
 import { gql, useMutation } from "@apollo/client";
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
+import { useLocation } from "@/lib/routeUtil";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,7 +45,7 @@ const CrosspostLoginPage = ({classes}: {
   const [connectCrossposter, loading] = useMutation(connectCrossposterMutation, {errorPolicy: "all"});
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
-  const token = new URLSearchParams(location.search).get("token");
+  const {query: {token}} = useLocation();
 
   const onConfirm = async () => {
     if (!currentUser) {
