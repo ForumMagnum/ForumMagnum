@@ -4,7 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
+import { DatabasePublicSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import { max } from "underscore";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
@@ -404,6 +404,11 @@ export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Respon
   const [_, postId] = matchPostPath.exec(req.path) ?? [];
 
   if (postId) {
+    if (req.query.commentId && commentPermalinkStyleSetting.get() === 'in-context') {
+      // Will redirect from ?commentId=... to #...
+      return false;
+    }
+
     return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
   }
   return false;
