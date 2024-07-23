@@ -6,7 +6,6 @@ import { forumHeaderTitleSetting } from "../common/Header";
 import { gql, useMutation } from "@apollo/client";
 import { hasProminentLogoSetting } from "../../lib/publicSettings";
 import { isE2E } from "@/lib/executionEnvironment";
-import { CurrentRefinements } from "react-instantsearch-dom";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
