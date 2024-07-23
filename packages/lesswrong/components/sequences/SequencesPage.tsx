@@ -115,6 +115,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       textAlign: 'left'
     }
   },
+  edit: {
+    marginTop: 12,
+  },
   imageScrim: {
     ...sequencesImageScrim(theme)
   }
@@ -222,12 +225,14 @@ const SequencesPage = ({ documentId, classes }: {
                   <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
                   {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
                 </div>
-                {canEdit && <span className={classes.leftAction}><SectionSubtitle>
-                  <a onClick={showEdit}>edit</a>
-                </SectionSubtitle></span>}
+                {!allowSubscribeToSequencePosts && canEdit && <span className={classes.leftAction}>
+                  <SectionSubtitle>
+                    <a onClick={showEdit}>edit</a>
+                  </SectionSubtitle>
+                </span>}
               </SectionFooter>
             </div>
-            {allowSubscribeToSequencePosts && !canEdit && <div className={classes.notifyCol}>
+            {allowSubscribeToSequencePosts && <div className={classes.notifyCol}>
               <AnalyticsContext pageElementContext="notifyMeButton">
                 <NotifyMeButton
                   document={document}
@@ -239,6 +244,11 @@ const SequencesPage = ({ documentId, classes }: {
                   hideFlashes
                 />
               </AnalyticsContext>
+              {canEdit && <SectionFooter className={classes.edit}>
+                <SectionSubtitle>
+                  <a onClick={showEdit}>Edit sequence</a>
+                </SectionSubtitle>
+              </SectionFooter>}
             </div>}
           </section>
           
