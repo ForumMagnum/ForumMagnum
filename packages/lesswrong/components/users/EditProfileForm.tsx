@@ -102,13 +102,8 @@ const EditProfileForm = ({classes}: {
     );
   }
   // current user doesn't have edit permission
-  if (!userCanEditUser(currentUser,
-    terms.documentId ?
-      {_id: terms.documentId} :
-      // HasSlugType wants a bunch of fields we don't have (schemaVersion, _id),
-      // but userCanEdit won't use them
-      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
-  )) {
+  const userInfo = terms.documentId ? {_id: terms.documentId} : terms.slug ? {slug: terms.slug} : null;
+  if (!userInfo || !userCanEditUser(currentUser, userInfo)) {
     return <div className={classes.root}>
       Sorry, you do not have permission to do this at this time.
     </div>
@@ -162,6 +157,7 @@ const EditProfileForm = ({classes}: {
         collectionName="Users"
         {...terms}
         fields={[
+          ...(isFriendlyUI ? ['displayName'] : []), // In UsersEditForm ("Account settings") in book UI
           'profileImageId',
           'jobTitle',
           'organization',

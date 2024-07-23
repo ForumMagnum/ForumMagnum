@@ -1,6 +1,6 @@
 import Users from "@/lib/collections/users/collection";
 import { addCronJob } from "../cronUtil";
-import { getUserEmail } from "@/lib/collections/users/helpers";
+import { ACCOUNT_DELETION_COOLING_OFF_DAYS, getUserEmail } from "@/lib/collections/users/helpers";
 import { Globals, createAdminContext, deleteMutator, updateMutator } from "../vulcan-lib";
 import { getAdminTeamAccount } from "../callbacks/commentCallbacks";
 import { loggerConstructor } from "@/lib/utils/logging";
@@ -9,6 +9,7 @@ import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from
 import md5 from "md5";
 import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
+import { dogstatsd } from "../datadog/tracer";
 
 /**
  * Permanently delete a user from a Mailchimp list. Note
@@ -125,5 +126,33 @@ async function permanentlyDeleteUserById(userId: string) {
 
   await permanentlyDeleteUser(user)
 }
+
+const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
+
+addCronJob({
+  name: "permanentlyDeleteUsers",
+  interval: "every 1 hour",
+  job: async () => {
+    const deletionRequestCutoff = new Date(Date.now() - cutoffOffsetMs)
+
+    const usersToDelete = await Users.find({ permanentDeletionRequestedAt: { $lt: deletionRequestCutoff } }).fetch();
+
+    if (usersToDelete.length > 10) {
+      dogstatsd?.increment("user_deleted", usersToDelete.length, 1.0, {outcome: 'error'})
+      throw new Error("Unexpectedly high number of users queued for deletion")
+    }
+
+    for (const user of usersToDelete) {
+      try {
+        await permanentlyDeleteUser(user)
+        dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'success'})
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e)
+        dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'error'})
+      }
+    }
+  },
+});
 
 Globals.permanentlyDeleteUserById = permanentlyDeleteUserById

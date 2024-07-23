@@ -261,8 +261,8 @@ interface DbObject extends HasIdType {
   schemaVersion: number
 }
 
-interface HasSlugType extends DbObject {
-  slug: string | null
+interface HasSlugType {
+  slug: string
 }
 
 interface HasCreatedAtType extends DbObject {

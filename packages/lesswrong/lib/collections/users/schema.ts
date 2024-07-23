@@ -5,7 +5,7 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting } from "../../instanceSettings";
+import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralSetting, verifyEmailsSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations, hasSurveys } from '../../betas';
+import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, dialoguesEnabled, hasAccountDeletionFlow, hasPostRecommendations, hasSurveys } from '../../betas';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -410,9 +410,10 @@ const schema: SchemaType<"Users"> = {
   // Hide the option to change your displayName (for now) TODO: Create proper process for changing name
   displayName: {
     type: String,
+    hidden: isFriendlyUI,
     optional: true,
-    input: 'text',
-    canUpdate: ['sunshineRegiment', 'admins', userHasntChangedName],
+    // On the EA Forum name changing is rate limited in rateLimitCallbacks
+    canUpdate: ['sunshineRegiment', 'admins', isEAForum ? 'members' : userHasntChangedName],
     canCreate: ['sunshineRegiment', 'admins'],
     canRead: ['guests'],
     order: 10,
@@ -420,6 +421,7 @@ const schema: SchemaType<"Users"> = {
       return user.displayName || createDisplayName(user);
     },
     group: formGroups.default,
+    control: isFriendlyUI ? "FormComponentFriendlyDisplayNameInput" : undefined,
   },
   /**
    Used for tracking changes of displayName
@@ -622,10 +624,10 @@ const schema: SchemaType<"Users"> = {
     group: formGroups.emails,
     control: 'UsersEmailVerification',
     canRead: ['members'],
-    // EA Forum does not care about email verification
-    canUpdate: isEAForum
-      ? []
-      : [userOwns, 'sunshineRegiment', 'admins'],
+    // Editing this triggers a verification email, so don't allow editing on instances (like EAF) that don't use email verification
+    canUpdate: verifyEmailsSetting.get()
+      ? [userOwns, 'sunshineRegiment', 'admins']
+      : [],
     canCreate: ['members'],
   },
 
@@ -1249,7 +1251,27 @@ const schema: SchemaType<"Users"> = {
     label: 'Deactivate',
     tooltip: "Your posts and comments will be listed as '[Anonymous]', and your user profile won't accessible.",
     control: 'checkbox',
+    hidden: hasAccountDeletionFlow,
     group: formGroups.deactivate,
+  },
+
+  // permanentDeletionRequestedAt: The date the user requested their account to be permanently deleted,
+  // it will be deleted by the script in packages/lesswrong/server/users/permanentDeletion.ts after a cooling
+  // off period
+  permanentDeletionRequestedAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canUpdate: ['members', 'admins'],
+    hidden: true, // Editing is handled outside a form
+    onUpdate: ({data}) => {
+      if (!data.permanentDeletionRequestedAt) return data.permanentDeletionRequestedAt;
+
+      // Whenever the field is set, reset it to the current server time to ensure users
+      // can't work around the cooling off period
+      return new Date();
+    },
   },
 
   // DEPRECATED

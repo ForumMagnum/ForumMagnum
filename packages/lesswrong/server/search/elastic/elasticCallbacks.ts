@@ -8,14 +8,14 @@ import ElasticClient from "./ElasticClient";
 import ElasticExporter from "./ElasticExporter";
 import { isElasticEnabled } from "./elasticSettings";
 
-export const elasticSyncDocument = (
+export const elasticSyncDocument = async (
   collectionName: SearchIndexCollectionName,
   documentId: string,
 ) => {
   try {
     const client = new ElasticClient();
     const exporter = new ElasticExporter(client);
-    void exporter.updateDocument(collectionName, documentId);
+    await exporter.updateDocument(collectionName, documentId);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(`[${collectionName}] Failed to index Elasticsearch document:`, e);
@@ -29,8 +29,8 @@ export const registerElasticCallbacks = () => {
 
   for (const collectionName of searchIndexedCollectionNames) {
     const callback = ({_id}: DbObject) => elasticSyncDocument(collectionName, _id);
-    getCollectionHooks(collectionName).createAfter.add(callback);
-    getCollectionHooks(collectionName).updateAfter.add(callback);
+    getCollectionHooks(collectionName).createAsync.add(({ document }) => callback(document));
+    getCollectionHooks(collectionName).editAsync.add(callback);
   }
 
   getCollectionHooks("Users").editAsync.add(async function reindexDeletedUserContent(
