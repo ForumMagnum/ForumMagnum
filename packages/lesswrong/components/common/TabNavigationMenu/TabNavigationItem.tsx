@@ -159,8 +159,8 @@ const useFlag = (tab: MenuTabRegular): {
       cookie,
       (value: string) => setCookie(cookieName, value),
     );
-    const MS_PER_MONTH = 2_628_000_000;
-    if (clickedAt || firstViewedAt < new Date(Date.now() - MS_PER_MONTH)) {
+    const MS_PER_28_DAYS = 2_628_000_000;
+    if (clickedAt || firstViewedAt < new Date(Date.now() - MS_PER_28_DAYS)) {
       return {flag: undefined};
     }
     return {
