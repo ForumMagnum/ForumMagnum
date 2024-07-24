@@ -279,7 +279,6 @@
     "react-instantsearch-dom": "6.40.4",
     "react-jss": "^8.1.0",
     "react-map-gl": "^5.2.9",
-    "react-no-ssr": "^1.1.0",
     "react-popper": "^2.3.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",

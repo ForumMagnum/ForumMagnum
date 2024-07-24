@@ -36,10 +36,10 @@ import { usePostReadProgress } from '../usePostReadProgress';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import { RecombeeRecommendationsContextWrapper } from '../../recommendations/RecombeeRecommendationsContextWrapper';
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import ForumNoSSR from '../../common/ForumNoSSR';
 import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/HoveredReactionContextProvider';
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
+import DeferRender from '@/components/common/DeferRender';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -696,9 +696,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   </>;
 
   const welcomeBox = (
-    <ForumNoSSR>
+    <DeferRender ssr={false}>
       <WelcomeBox />
-    </ForumNoSSR>
+    </DeferRender>
   );
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
@@ -790,9 +790,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const betweenPostAndCommentsSection =
     <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      <ForumNoSSR>
+      <DeferRender ssr={false}>
         <ForumEventPostPagePollSection postId={post._id} />
-      </ForumNoSSR>
+      </DeferRender>
   
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
@@ -894,7 +894,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <ForumNoSSR><StickyDigestAd /></ForumNoSSR>}
+    {isEAForum && showDigestAd && <DeferRender ssr={false}><StickyDigestAd /></DeferRender>}
     {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}

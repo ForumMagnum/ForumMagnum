@@ -5,7 +5,7 @@ import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
-import ForumNoSSR from "../common/ForumNoSSR";
+import DeferRender from "../common/DeferRender";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,7 +100,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
 
   const {ForumIcon} = Components;
   return (
-    <ForumNoSSR if={!currentUser}>
+    <DeferRender ssr={!!currentUser}>
       <div className={classes.root}>
         Take the 4 minute EA Forum Survey to help inform our strategy and funding decisions
         <TypeformPopupEmbed
@@ -117,7 +117,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
           className={classes.close}
         />
       </div>
-    </ForumNoSSR>
+    </DeferRender>
   );
 }
 
