@@ -12,8 +12,8 @@ import { usePostContents } from "../hooks/useForeignCrosspost";
 import { usePostsListView } from "../hooks/usePostsListView";
 
 const KARMA_WIDTH = 50;
-const CARD_IMG_HEIGHT = 78;
-const CARD_IMG_WIDTH = 153;
+const CARD_IMG_HEIGHT = 80;
+const CARD_IMG_WIDTH = 160;
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -237,6 +237,7 @@ export const styles = (theme: ThemeType) => ({
     height: CARD_IMG_HEIGHT,
     minHeight: CARD_IMG_HEIGHT,
     objectFit: "cover",
+    marginTop: -9,
     [theme.breakpoints.down("xs")]: {
       width: 100,
       minWidth: 100,
