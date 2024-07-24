@@ -77,4 +77,15 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[1].reload();
   await expect(pages[1].getByText(newTitle)).toBeVisible();
   await expect(pages[1].getByText(newBody)).toBeVisible();
+
+  // Move the post to drafts on the local forum
+  await pages[0].locator(".PostActionsButton-root").first().click();
+  await pages[0].getByText("Move to draft").click();
+  await expect(pages[0].getByText("[Draft]")).toBeVisible();
+
+  // Check that the version on the foreign forum is now also a draft
+  await pages[1].waitForTimeout(1000);
+  await pages[1].reload();
+  await pages[1].waitForTimeout(1000);
+  await expect(pages[1].getByText(newTitle)).not.toBeVisible();
 });
