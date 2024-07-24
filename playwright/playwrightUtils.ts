@@ -1,4 +1,4 @@
-import type { Browser, BrowserContext, Cookie } from "@playwright/test";
+import type { Browser, BrowserContext, Cookie, Page } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
 import getSlug from "speakingurl";
 
@@ -291,15 +291,21 @@ export const deleteCookie = async (context: BrowserContext, cookieName: string) 
 export const logout = (context: BrowserContext) =>
   deleteCookie(context, "loginToken");
 
-export const createCrosspostContexts = async (browser: Browser) => {
+export const createCrosspostContexts = async (browser: Browser): Promise<{
+  contexts: [BrowserContext, BrowserContext],
+  pages: [Page, Page],
+  users: [PlaywrightUser, PlaywrightUser],
+}> => {
   const contexts = await Promise.all([
     browser.newContext({baseURL: "http://localhost:3456"}),
     browser.newContext({baseURL: "http://localhost:3467"}),
   ]);
-  const pages = await Promise.all(contexts.map((ctx) => ctx.newPage()));
+  const pages = await Promise.all(
+    contexts.map((ctx) => ctx.newPage()),
+  ) as [Page, Page];
   const users = await Promise.all(contexts.map((ctx, i) => loginNewUser(ctx, {
     database: [db, crosspostDb][i],
     karma: 1000,
-  })));
+  }))) as [PlaywrightUser, PlaywrightUser];
   return {contexts, pages, users};
 }
