@@ -6,8 +6,8 @@ test("connect crossposting account and create post", async ({browser}) => {
 
   // Create a post with a title and body
   await pages[0].goto("/newPost");
-  const title = "Test crosspost title";
-  const body = "Test crosspost body";
+  const title = `Test crosspost title ${Math.random()}`;
+  const body = `Test crosspost body ${Math.random()}`;
   await pages[0].getByPlaceholder("Post title").fill(title);
   await pages[0].getByLabel("Rich Text Editor. Editing area: main").fill(body);
 
@@ -50,4 +50,31 @@ test("connect crossposting account and create post", async ({browser}) => {
   await expect(pages[1].getByText(title)).toBeVisible();
   await expect(pages[1].getByText(body)).toBeVisible();
   await expect(pages[1].getByText("Crossposted from")).toBeVisible();
+
+  // Go to the edit post page
+  await pages[0].locator(".PostActionsButton-root").first().click();
+  await pages[0].getByText("Edit", {exact: true}).click();
+  await pages[0].waitForURL("/editPost**");
+
+  // Edit the post
+  const newTitle = `Edited test crosspost title ${Math.random()}`;
+  const newBody = `Edited test crosspost body ${Math.random()}`;
+  await pages[0].getByPlaceholder("Post title").fill(newTitle);
+
+  // Clear and fill the editor in two separate steps, because Playwright's .fill()
+  // fails in Firefox (but not other browsers) if these are one step
+  await pages[0].getByLabel("Rich Text Editor. Editing area: main").fill("");
+  await pages[0].getByLabel("Rich Text Editor. Editing area: main").fill(newBody);
+
+  await pages[0].getByText("Publish changes").click();
+
+  // Check the edits were saved locally
+  await pages[0].waitForURL("/posts/**/**");
+  await expect(pages[0].getByText(newTitle)).toBeVisible();
+  await expect(pages[0].getByText(newBody)).toBeVisible();
+
+  // Check the edits propagated to the foreign site
+  await pages[1].reload();
+  await expect(pages[1].getByText(newTitle)).toBeVisible();
+  await expect(pages[1].getByText(newBody)).toBeVisible();
 });
