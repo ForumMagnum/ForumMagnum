@@ -541,6 +541,7 @@ registerFragment(`
   fragment UsersProfileEdit on User {
     _id
     slug
+    displayName
     jobTitle
     organization
     careerStage

@@ -1,5 +1,5 @@
 // Client-side React wrapper/context provider
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import { ApolloProvider } from '@apollo/client';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import { Components } from '../lib/vulcan-lib';
@@ -11,7 +11,7 @@ import { CookiesProvider } from 'react-cookie';
 import { BrowserRouter } from 'react-router-dom';
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '../lib/abTestImpl';
 import type { AbstractThemeOptions } from '../themes/themeNames';
-import type { SSRMetadata, TimeOverride } from '../lib/utils/timeUtil';
+import type { SSRMetadata, EnvironmentOverride } from '../lib/utils/timeUtil';
 import { LayoutOptionsContextProvider } from '../components/hooks/useLayoutOptions';
 
 // Client-side wrapper around the app. There's another AppGenerator which is
@@ -24,33 +24,43 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
   themeOptions: AbstractThemeOptions,
   ssrMetadata?: SSRMetadata,
 }) => {
-  const [timeOverride, setTimeOverride] = useState<TimeOverride | null>(ssrMetadata ? {
-    currentTime: new Date(ssrMetadata.renderedAt),
-    cacheFriendly: ssrMetadata.cacheFriendly,
-    timezone: ssrMetadata.timezone
-  } : null);
+  const [envOverride, setEnvOverride] = useState<EnvironmentOverride>(ssrMetadata ? {
+    ...ssrMetadata,
+    matchSSR: true
+  } : { matchSSR: false });
+  const [_isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setTimeOverride(null);
-  }, []);
+    if (envOverride.matchSSR === false) return;
 
-  const App = (
-    <ApolloProvider client={apolloClient}>
-      <ForeignApolloClientProvider value={foreignApolloClient}>
-        <CookiesProvider>
-          <BrowserRouter>
-            <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
-              <PrefersDarkModeProvider>
-                <LayoutOptionsContextProvider>
-                  <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
-                </LayoutOptionsContextProvider>
-              </PrefersDarkModeProvider>
-            </ABTestGroupsUsedContext.Provider>
-          </BrowserRouter>
-        </CookiesProvider>
-      </ForeignApolloClientProvider>
-    </ApolloProvider>
-  );
-  return wrapWithMuiTheme(App, themeOptions);
+    startTransition(() => {
+      setEnvOverride({matchSSR: false});
+    });
+
+  }, [envOverride.matchSSR]);
+
+  // useMemo is required here so that `_isPending` changing doesn't trigger a rerender (the whole point
+  // of the useTransition is to make it so that the costly second render of App runs in concurrent mode)
+  const App = useMemo(() => {
+    const app = (
+      <ApolloProvider client={apolloClient}>
+        <ForeignApolloClientProvider value={foreignApolloClient}>
+          <CookiesProvider>
+            <BrowserRouter>
+              <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
+                <PrefersDarkModeProvider>
+                  <LayoutOptionsContextProvider>
+                    <Components.App apolloClient={apolloClient} envOverride={envOverride} />
+                  </LayoutOptionsContextProvider>
+                </PrefersDarkModeProvider>
+              </ABTestGroupsUsedContext.Provider>
+            </BrowserRouter>
+          </CookiesProvider>
+        </ForeignApolloClientProvider>
+      </ApolloProvider>
+    );
+    return wrapWithMuiTheme(app, themeOptions);
+  }, [abTestGroupsUsed, apolloClient, envOverride, foreignApolloClient, themeOptions]);
+  return App;
 };
 export default AppGenerator;

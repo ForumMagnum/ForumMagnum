@@ -22,7 +22,7 @@ import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, Bloc
 import { isClient } from '../../lib/executionEnvironment';
 import { styleMap } from "./draftJsEditorStyleMap";
 import * as _ from 'underscore';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender.js';
 
 function customBlockStyleFn(contentBlock: AnyBecauseTodo) {
   const type = contentBlock.getType();
@@ -163,7 +163,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
 
     return (
       <div>
-        <ForumNoSSR>
+        <DeferRender ssr={false}>
         <div className={this.props.className} onClick={this.focus}>
           <Editor
             editorState={editorState}
@@ -179,7 +179,7 @@ class DraftJSEditor extends Component<DraftJSEditorProps,{}> {
         </div>
         <InlineToolbar />
         <AlignmentTool />
-        </ForumNoSSR>
+        </DeferRender>
       </div>
     )
   }
