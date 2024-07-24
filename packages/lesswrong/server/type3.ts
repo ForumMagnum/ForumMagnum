@@ -11,6 +11,8 @@ const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type
 const type3ApiTokenSetting = new DatabaseServerSetting<string | null>("type3.apiToken", null);
 const type3SourceUrlSetting = new DatabaseServerSetting<string>("type3.sourceUrl", "");
 
+export const hasType3ApiAccess = () => !!type3ApiTokenSetting.get();
+
 const type3ApiRequest = async (
   endpoint: string,
   method: "POST" | "DELETE",
