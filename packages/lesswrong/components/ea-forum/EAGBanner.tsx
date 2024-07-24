@@ -4,13 +4,13 @@ import { useCurrentUser } from "../common/withUser";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
-import ForumNoSSR from "../common/ForumNoSSR";
 import { HIDE_EAG_BANNER_COOKIE } from "@/lib/cookies/cookies";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useUserLocation } from "@/lib/collections/users/helpers";
 import { distance } from "../community/modules/LocalGroups";
 import { getCachedUserCountryCode } from "../common/CookieBanner/geolocation";
 import { lightbulbIcon } from "../icons/lightbulbIcon";
+import DeferRender from "../common/DeferRender";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -143,7 +143,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   }
 
   return (
-    <ForumNoSSR if={!currentUser}>
+    <DeferRender ssr={!!currentUser}>
       <AnalyticsContext pageElementContext="EAGBanner">
         <AnalyticsInViewTracker eventProps={inViewEventProps}>
           <SingleColumnSection className={classes.root}>
@@ -185,7 +185,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
           </SingleColumnSection>
         </AnalyticsInViewTracker>
       </AnalyticsContext>
-    </ForumNoSSR>
+    </DeferRender>
   );
 }
 
