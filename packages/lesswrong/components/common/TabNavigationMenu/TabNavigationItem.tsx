@@ -7,7 +7,7 @@ import { forumSelect } from '../../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
-import { NAV_MANU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
+import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
 
 export const iconWidth = 30
 
@@ -150,7 +150,7 @@ const useFlag = (tab: MenuTabRegular): {
   flag: string | undefined,
   onClickFlag?: () => void,
 } => {
-  const cookieName = `${NAV_MANU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
+  const cookieName = `${NAV_MENU_FLAG_COOKIE_PREFIX}${tab.id}_${tab.flag}`;
   const [cookies, setCookie] = useCookiesWithConsent();
   const cookie = cookies[cookieName];
   const flag = tab.flag;
