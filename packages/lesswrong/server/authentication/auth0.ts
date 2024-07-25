@@ -9,7 +9,7 @@ import {
   UserMetadata,
 } from "auth0";
 import Profile from "passport-auth0/lib/Profile";
-import { getAuth0Id, getAuth0IdIfUsernamePassword } from "../../lib/collections/users/helpers";
+import { getAuth0Id, getAuth0Provider } from "../../lib/collections/users/helpers";
 import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
@@ -262,16 +262,17 @@ export async function auth0RemoveAssociationAndTryDeleteUser(user: DbUser): Prom
   return true;
 }
 
-// TODO: Probably good to fix this, IM(JP)O. It works because we only use it in
-// a context where we're guaranteed to have an email/password user.
-/** Warning! Only returns profiles of users who do not use OAuth */
 export const getAuth0Profile = async (user: DbUser) => {
-  const result = await auth0Client.getUserById(getAuth0IdIfUsernamePassword(user));
+  const result = await auth0Client.getUserById(getAuth0Id(user));
   return new Profile(result, JSON.stringify(result));
 }
 
 export const updateAuth0Email = (user: DbUser, newEmail: string) => {
-  return auth0Client.updateUserById(getAuth0IdIfUsernamePassword(user), {email: newEmail});
+  if (getAuth0Provider(user) !== 'auth0') {
+    throw new Error("Cannot update email for user that doesn't use username/password login")
+  }
+
+  return auth0Client.updateUserById(getAuth0Id(user), {email: newEmail});
 }
 
 class Auth0Error extends Error {
