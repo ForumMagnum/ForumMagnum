@@ -149,7 +149,6 @@ export const documentIsNotDeleted = (
 }
 
 export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
-  console.log("userCanComment", user, userIsAdminOrMod(user), user.allCommentingDisabled, hideUnreviewedAuthorCommentsSettings.get(), user.reviewedByUserId)
   if (!user) {
     return false;
   }
