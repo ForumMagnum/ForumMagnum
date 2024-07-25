@@ -38,16 +38,16 @@ test("connect crossposting account and create post", async ({browser}) => {
 
   // Check the post exists on the source site
   await pages[0].waitForURL("/posts/**/**");
-  await expect(pages[0].getByText(title)).toBeVisible();
-  await expect(pages[0].getByText(body)).toBeVisible();
+  await expect(pages[0].getByText(title, {exact: true})).toBeVisible();
+  await expect(pages[0].locator("#postBody").getByText(body)).toBeVisible();
   await expect(pages[0].getByText("Crossposted to")).toBeVisible();
 
   // Check the post exists on the foreign site
   await pages[1].goto(`/users/${users[1].slug}`);
   await pages[1].getByText(title).click();
   await pages[1].waitForURL("/posts/**/**");
-  await expect(pages[1].getByText(title)).toBeVisible();
-  await expect(pages[1].getByText(body)).toBeVisible();
+  await expect(pages[1].getByText(title, {exact: true})).toBeVisible();
+  await expect(pages[1].locator("#postBody").getByText(body)).toBeVisible();
   await expect(pages[1].getByText("Crossposted from")).toBeVisible();
 
   // Go to the edit post page
@@ -63,13 +63,13 @@ test("connect crossposting account and create post", async ({browser}) => {
 
   // Check the edits were saved locally
   await pages[0].waitForURL("/posts/**/**");
-  await expect(pages[0].getByText(newTitle)).toBeVisible();
-  await expect(pages[0].getByText(newBody)).toBeVisible();
+  await expect(pages[0].getByText(newTitle, {exact: true})).toBeVisible();
+  await expect(pages[0].locator("#postBody").getByText(newBody)).toBeVisible();
 
   // Check the edits propagated to the foreign site
   await pages[1].reload();
-  await expect(pages[1].getByText(newTitle)).toBeVisible();
-  await expect(pages[1].getByText(newBody)).toBeVisible();
+  await expect(pages[1].getByText(newTitle, {exact: true})).toBeVisible();
+  await expect(pages[1].locator("#postBody").getByText(newBody)).toBeVisible();
 
   // Move the post to drafts on the local forum
   await pages[0].locator(".PostActionsButton-root").first().click();
