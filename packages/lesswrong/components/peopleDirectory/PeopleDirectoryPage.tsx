@@ -47,7 +47,7 @@ const PeopleDirectoryPage = ({classes}: {
           People directory
         </h1>
         <div className={classes.feedback}>
-          This is a beta feature, help us out by{" "}
+          This is a new feature, help us out by{" "}
           <Link
             to="https://tally.so/r/meBLeJ"
             target="_blank"

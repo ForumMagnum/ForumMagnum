@@ -4,7 +4,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '../../lib/vulcan-users';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,9 +38,9 @@ const SunshineNewUsersProfileInfo = ({userId, classes}: {userId: string, classes
   }
   
   return <div className={classes.root}>
-    <ForumNoSSR>
+    <DeferRender ssr={false}>
       <SunshineNewUsersInfo user={user} currentUser={currentUser} refetch={refetch}/>
-    </ForumNoSSR>
+    </DeferRender>
   </div>
 }
 

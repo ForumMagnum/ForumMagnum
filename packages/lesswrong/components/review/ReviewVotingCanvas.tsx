@@ -10,7 +10,7 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { REVIEW_YEAR, eligibleToNominate } from "../../lib/reviewUtils";
 import { TARGET_REVIEW_NUM } from "./ReviewVotingProgressBar";
 import { useMessages } from "../common/withMessages";
-import ForumNoSSR from "../common/ForumNoSSR";
+import DeferRender from "../common/DeferRender";
 
 export type GivingSeasonHeart = {
   userId: string,
@@ -400,7 +400,7 @@ const ReviewVotingCanvas = ({
         })}
       >
           <div className={classes.gsHearts}>
-            <ForumNoSSR>
+            <DeferRender ssr={false}>
               {hearts.map((heart) => (
                 <Heart
                   key={heart.userId}
@@ -419,7 +419,7 @@ const ReviewVotingCanvas = ({
                   disabled={!userHasVotedEnough}
                 />
               }
-            </ForumNoSSR>
+            </DeferRender>
           </div>
       </div>
     </AnalyticsContext>

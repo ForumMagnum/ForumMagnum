@@ -170,6 +170,20 @@ export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
   description: "Stores the selected tab for logged out users"
 });
 
+export const HIDE_EAG_BANNER_COOKIE = registerCookie({
+  name: "hide_eag_banner",
+  type: "necessary",
+  description: "Don't show any EAG(x) banners",
+});
+
+export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
+registerCookie({
+  name: `${NAV_MENU_FLAG_COOKIE_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(NAV_MENU_FLAG_COOKIE_PREFIX),
+  type: "necessary",
+  description: "Whether or not to show particular flags in the main navigation menu",
+});
+
 // Third party cookies
 
 // Intercom

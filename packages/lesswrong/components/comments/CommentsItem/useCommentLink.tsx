@@ -4,6 +4,7 @@ import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/help
 import { useSubscribedLocation } from "../../../lib/routeUtil";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
+import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -20,7 +21,7 @@ export const useCommentLink = ({
   tag,
   scrollOnClick,
   scrollIntoView,
-  permalink = true,
+  permalink,
 }: UseCommentLinkProps) => {
   const navigate = useNavigate();
   const {location, query} = useSubscribedLocation();
@@ -51,10 +52,16 @@ export const useCommentLink = ({
     }
 
     event.preventDefault();
-    navigate({
-      ...location,
+    const navigateArgs = commentPermalinkStyleSetting.get() === 'top' ? {
       search: qs.stringify({...query, commentId: comment._id}),
       hash: null,
+    } : {
+      search: qs.stringify(query),
+      hash: comment._id,
+    }
+    navigate({
+      ...location,
+      ...navigateArgs
     });
 
     if (scrollIntoView) {

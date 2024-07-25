@@ -5,8 +5,16 @@ import express from 'express';
 import { responseIsCacheable } from './cacheControlMiddleware';
 import { ClientIdsRepo } from './repos';
 import LRU from 'lru-cache';
+import { getUserFromReq } from './vulcan-lib';
 
+// Cache of seen (clientId, userId) pairs
 const seenClientIds = new LRU<string, boolean>({ max: 10_000, maxAge: 1000 * 60 * 60 });
+
+const hasSeen = ({ clientId, userId }: { clientId: string; userId?: string }) =>
+  seenClientIds.get(`${clientId}_${userId}`);
+
+const setHasSeen = ({ clientId, userId }: { clientId: string; userId?: string }) =>
+  seenClientIds.set(`${clientId}_${userId}`, true);
 
 const isApplicableUrl = (url: string) =>
   url !== "/robots.txt" && url.indexOf("/api/") < 0;
@@ -14,6 +22,7 @@ const isApplicableUrl = (url: string) =>
 /**
  * - Assign a client id if there isn't one currently assigned
  * - Ensure the client id is stored in our DB (it may have been generated externally)
+ * - Ensure the clientId and userId are associated
  */
 export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
   addMiddleware(function addClientId(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -37,14 +46,16 @@ export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
 
     // 2. If there is a client id, ensure (asynchronously) that it is stored in the DB
     const clientId = existingClientId ?? newClientId;
-    if (clientId && isApplicableUrl(req.url) && !isNotRandomId(clientId) && !seenClientIds.get(clientId)) {
+    const userId = getUserFromReq(req)?._id;
+    if (clientId && isApplicableUrl(req.url) && !isNotRandomId(clientId) && !hasSeen({clientId, userId})) {
       try {
         void clientIdsRepo.ensureClientId({
           clientId,
-          firstSeenReferrer: referrer,
-          firstSeenLandingPage: url,
+          userId,
+          referrer,
+          landingPage: url,
         });
-        seenClientIds.set(clientId, true);
+        setHasSeen({clientId, userId})
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(e);

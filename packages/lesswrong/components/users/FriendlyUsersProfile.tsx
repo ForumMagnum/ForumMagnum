@@ -266,7 +266,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
     ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
-    UserNotifyDropdown, FooterTag,
+    UserNotifyDropdown, FooterTag, DisplayNameWithMarkers
   } = Components
 
   if (loading) {
@@ -311,8 +311,8 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
   postTerms.hideCommunity = currentHideCommunity
 
-  const username = userGetDisplayName(user)
-  const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
+  const displayName = userGetDisplayName(user)
+  const metaDescription = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
   const userKarma = user.karma || 0
 
   const privateSectionTabs: Array<UserProfileTabType> = [{
@@ -480,7 +480,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
           }
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
-            {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
+            <DisplayNameWithMarkers name={displayName} />{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}

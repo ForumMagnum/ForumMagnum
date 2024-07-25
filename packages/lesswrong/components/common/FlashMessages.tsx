@@ -21,7 +21,15 @@ export const MessageContextProvider = ({children}: {
   const [messages,setMessages] = useState<AnyBecauseTodo[]>([]);
   
   const flash = useCallback((message: AnyBecauseTodo) => {
-    setMessages([...messages, message]);
+    if (!messages.length) {
+      setMessages([message])
+    } else {
+      // Show the transition for clearing the old message, then pop up the new one
+      setMessages(messages.map((message: AnyBecauseTodo) => ({...message, hide:true})));
+      setTimeout(() => {
+        setMessages([message]);
+      }, 500);
+    }
   }, [messages]);
 
   const clear = useCallback(() => {
