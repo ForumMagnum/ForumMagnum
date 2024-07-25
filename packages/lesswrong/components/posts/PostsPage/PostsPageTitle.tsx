@@ -27,7 +27,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
     : {
       fontSize: '4.5rem',
       lineHeight: '1.1',
-      fontFamily: 'Warnock Pro Display'
+      fontFamily: 'warnock-pro'
     }),
 })
 

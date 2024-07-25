@@ -15,6 +15,7 @@ import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
+import { z } from 'zod';
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
   if (sections.length === 0) {
@@ -73,6 +74,32 @@ const styles = (theme: ThemeType) => ({
     },
     wordBreak: 'break-word',
     transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
+    '&:hover $row': {
+      opacity: 1,
+    },
+  },
+  row: {
+    opacity: 0,
+    zIndex: 1,
+  },
+  rowWithDot: {
+    '&:before': {
+      content: "⬤",
+      color: 'rgba(150,150,150,1)',
+      fontSize: 3,
+      left: 0,
+      top: 11,
+      background: 'white',
+      position: 'absolute',
+      /* height: 6px; */
+      width: 7,
+      lineHeight: 8,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      /* height: 4px; */
+      /* z-index: -1; */
+    }
   },
   fadeOut: {
     opacity: 0,
@@ -287,28 +314,32 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
 
   const rows = normalizedSections.map((section, index) => {
     return (
-      <TableOfContentsRow
-        key={section.anchor}
-        indentLevel={section.level}
-        divider={section.divider}
-        highlighted={section.anchor === currentSection}
-        href={"#"+section.anchor}
-        offset={section.offset}
-        onClick={(ev) => {
-          if (isRegularClick(ev)) {
-            void handleClick(ev, () => {
-              jumpToAnchor(section.anchor)
-            });
-          }
-        }}
-        answer={!!section.answer}
-        fullHeight
-      >
-        {section.answer
-          ? <AnswerTocRow answer={section.answer} />
-          : <span>{adjustHeadingText(section.title)}</span>
-        }
-      </TableOfContentsRow>
+      <span className={classes.rowWithDot}>
+        <span className={classes.row}>
+          <TableOfContentsRow
+            key={section.anchor}
+            indentLevel={section.level}
+            divider={section.divider}
+            highlighted={section.anchor === currentSection}
+            href={"#"+section.anchor}
+            offset={section.offset}
+            onClick={(ev) => {
+              if (isRegularClick(ev)) {
+                void handleClick(ev, () => {
+                  jumpToAnchor(section.anchor)
+                });
+              }
+            }}
+            answer={!!section.answer}
+            fullHeight
+          >
+            {section.answer
+              ? <AnswerTocRow answer={section.answer} />
+              : <span>{adjustHeadingText(section.title)}</span>
+            }
+          </TableOfContentsRow>
+        </span>
+      </span>
     )
   });
 

@@ -48,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.link.tocLink,
     lineHeight: fullHeightToCEnabled ? "1em" : "1.2em",
     '&:hover':{
-      opacity:1,
+      // opacity:1,
       color: theme.palette.link.tocLinkHighlighted,
     },
     ...(isFriendlyUI && {
