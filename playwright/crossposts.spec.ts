@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createCrosspostContexts } from "./playwrightUtils";
+import { createCrosspostContexts, setPostContent } from "./playwrightUtils";
 
 test("connect crossposting account and create post", async ({browser}) => {
   const {pages, users} = await createCrosspostContexts(browser);
@@ -8,8 +8,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[0].goto("/newPost");
   const title = `Test crosspost title ${Math.random()}`;
   const body = `Test crosspost body ${Math.random()}`;
-  await pages[0].getByPlaceholder("Post title").fill(title);
-  await pages[0].getByLabel("Rich Text Editor. Editing area: main").fill(body);
+  await setPostContent(pages[0], title, body);
 
   // Connect the crossposting account
   await pages[0].getByText("Options").click();
@@ -59,13 +58,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   // Edit the post
   const newTitle = `Edited test crosspost title ${Math.random()}`;
   const newBody = `Edited test crosspost body ${Math.random()}`;
-  await pages[0].getByPlaceholder("Post title").fill(newTitle);
-
-  // Clear and fill the editor in two separate steps, because Playwright's .fill()
-  // fails in Firefox (but not other browsers) if these are one step
-  await pages[0].getByLabel("Rich Text Editor. Editing area: main").fill("");
-  await pages[0].getByLabel("Rich Text Editor. Editing area: main").fill(newBody);
-
+  await setPostContent(pages[0], newTitle, newBody);
   await pages[0].getByText("Publish changes").click();
 
   // Check the edits were saved locally

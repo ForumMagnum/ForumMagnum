@@ -309,3 +309,19 @@ export const createCrosspostContexts = async (browser: Browser): Promise<{
   }))) as [PlaywrightUser, PlaywrightUser];
   return {contexts, pages, users};
 }
+
+/**
+ * Fill in the title and body on the "new post" or "edit post" page.
+ * This is extracted into a helper method for two reasons:
+ *  - MUI inputs are super-buggy and require special handling
+ *  - The CK editor selector is pretty obscure
+ */
+export const setPostContent = async (page: Page, title: string, body: string) => {
+  // Clear and fill the editor in two separate steps, because Playwright's .fill()
+  // fails in Firefox (but not other browsers) if these are one step
+  await page.getByPlaceholder("Post title").fill("");
+  await page.getByPlaceholder("Post title").fill(title);
+
+  await page.getByLabel("Rich Text Editor. Editing area: main").fill("");
+  await page.getByLabel("Rich Text Editor. Editing area: main").fill(body);
+}

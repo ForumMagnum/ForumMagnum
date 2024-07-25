@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser, logout } from "./playwrightUtils";
+import { createNewPost, loginNewUser, logout, setPostContent } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
   await loginNewUser(context);
@@ -8,8 +8,7 @@ test("create and edit post", async ({page, context}) => {
   // Create a post with a title and body
   const title = "Test post 123";
   const body = "Test body 123";
-  await page.getByPlaceholder("Post title").fill(title);
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill(body);
+  await setPostContent(page, title, body);
   await page.getByText("Submit").click();
 
   // Submitting navigates to the post page - check our new post is there
@@ -25,12 +24,7 @@ test("create and edit post", async ({page, context}) => {
   // Edit the post
   const newTitle = "Edited test post";
   const newBody = "Edited test body";
-  await page.getByPlaceholder("Post title").fill(newTitle);
-
-  // Clear and fill the editor in two separate steps, because Playwright's .fill() fails in Firefox (but not other browsers) if these are one step
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill("");
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill(newBody);
-
+  await setPostContent(page, newTitle, newBody);
   await page.getByText("Publish changes").click();
 
   // Submitting navigates to the post page - check it has our edits
@@ -47,8 +41,7 @@ test("can create 5 posts per day, but not 6", async ({page, context}) => {
   // Create five posts with a single user
   for (let i = 0; i < 5; i++) {
     await page.goto("/newPost");
-    await page.getByPlaceholder("Post title").fill(`Test post ${i}`);
-    await page.getByLabel("Rich Text Editor. Editing area: main").fill(`Test body ${i}`);
+    await setPostContent(page, `Test post ${i}`, `Test body ${i}`);
     await page.getByText("Submit").click();
     await page.waitForURL("/posts/**");
   }

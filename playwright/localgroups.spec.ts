@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createNewGroup, createNewUser, loginUser } from "./playwrightUtils";
+import { createNewGroup, createNewUser, loginUser, setPostContent } from "./playwrightUtils";
 
 test("can create and edit events in group", async ({page, context}) => {
   const nonOrganizerUser = await createNewUser();
@@ -21,8 +21,7 @@ test("can create and edit events in group", async ({page, context}) => {
   await page.getByText("New event").click();
   await page.waitForURL("/newPost**");
   const title = "Test event title";
-  await page.getByPlaceholder("Event name").fill(title);
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill("Test event body");
+  await setPostContent(page, title, "Test event body");
   await page.getByText("Submit").click();
 
   // Submitting the new event navigates to the event page
@@ -36,7 +35,7 @@ test("can create and edit events in group", async ({page, context}) => {
   await page.getByText("Edit", {exact: true}).click();
   await page.waitForURL("/editPost**");
   const newBody = "Edited event body";
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill(newBody);
+  await setPostContent(page, title, newBody);
   await page.getByText("Publish changes").click();
 
   // Submitting the new event navigates to the event page
