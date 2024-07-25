@@ -10,6 +10,24 @@ import md5 from "md5";
 import { captureException } from "@sentry/core";
 import { auth0RemoveAssociationAndTryDeleteUser } from "../authentication/auth0";
 import { dogstatsd } from "../datadog/tracer";
+import { isEAForum } from "@/lib/instanceSettings";
+
+type DeleteOptions = { includingNonForumData: boolean };
+const defaultDeleteOptions = { includingNonForumData: false };
+
+/**
+ * Additional mailchimp lists to delete a user from if they are requesting removal of all the
+ * data CEA Online has on them, rather than just deleting their forum account
+ */
+const EAF_EXTRA_MAILCHIMP_LISTS = [
+  '51c1df13ac', // The EA Newsletter
+  // The lists below are very rarely/never used
+  '744dc0ccaa', // EA.org
+  '32149ddbad', // Top 20% readers of EA Forum AI safety posts
+  '4ef6c1c639', // Forum Readers (Non-Active)
+  '8671bf958a', // Evergreen posts
+  'a8a23445f6', // Forum Beta Users
+]
 
 /**
  * Permanently delete a user from a Mailchimp list. Note
@@ -63,7 +81,7 @@ const permanentlyDeleteFromMailchimpList = async ({
   }
 };
 
-async function permanentlyDeleteUser(user: DbUser) {
+async function permanentlyDeleteUser(user: DbUser, options: DeleteOptions) {
   const logger = loggerConstructor(`permanentlyDeleteUsers`);
   const adminContext = createAdminContext();
   const adminTeamAccount = await getAdminTeamAccount();
@@ -85,7 +103,10 @@ async function permanentlyDeleteUser(user: DbUser) {
   const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
   const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
 
-  const listIdsToDeleteFrom = [mailchimpEAForumListId, mailchimpForumDigestListId].filter(v => v) as string[]
+  const listIdsToDeleteFrom = [mailchimpEAForumListId, mailchimpForumDigestListId].filter(v => v) as string[];
+  if (isEAForum && options.includingNonForumData) {
+    listIdsToDeleteFrom.push(...EAF_EXTRA_MAILCHIMP_LISTS);
+  }
 
   const email = getUserEmail(user);
   if (email) {
@@ -115,7 +136,7 @@ async function permanentlyDeleteUser(user: DbUser) {
  * Permanently delete a user from the forum, this is sufficient to comply with GDPR deletion
  * requests if their forum account and associated services is the only data we have for them
  */
-async function permanentlyDeleteUserById(userId: string) {
+async function permanentlyDeleteUserById(userId: string, options?: DeleteOptions) {
   const user = await Users.findOne({_id: userId})
 
   if (!user) {
@@ -124,7 +145,7 @@ async function permanentlyDeleteUserById(userId: string) {
     return
   }
 
-  await permanentlyDeleteUser(user)
+  await permanentlyDeleteUser(user, options ?? defaultDeleteOptions)
 }
 
 const cutoffOffsetMs = ACCOUNT_DELETION_COOLING_OFF_DAYS * 24 * 60 * 60 * 1000;
@@ -144,7 +165,7 @@ addCronJob({
 
     for (const user of usersToDelete) {
       try {
-        await permanentlyDeleteUser(user)
+        await permanentlyDeleteUser(user, defaultDeleteOptions)
         dogstatsd?.increment("user_deleted", 1, 1.0, {outcome: 'success'})
       } catch (e) {
         // eslint-disable-next-line no-console
