@@ -134,7 +134,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     marginRight: 6
   },
   tabs: {
-    maxWidth: 634,
+    maxWidth: 440,
     margin: '0 auto 40px',
     '& .MuiTab-labelContainer': {
       fontSize: '1rem'
@@ -204,9 +204,8 @@ const Community = ({classes}: {
   const navigate = useNavigate();
   const { location, query } = useLocation();
   const { captureEvent } = useTracking();
-  
-  // local, online, or individuals
-  const [tab, setTab] = useState('local')
+
+  const [tab, setTab] = useState<"local" | "online">('local')
   const [distanceUnit, setDistanceUnit] = useState<"km"|"mi">('km')
   const [keywordSearch, setKeywordSearch] = useState('')
   const [includeInactive, setIncludeInactive] = useState(query?.includeInactive === 'true')
@@ -215,10 +214,8 @@ const Community = ({classes}: {
     // unfortunately the hash is unavailable on the server, so we check it here instead
     if (location.hash === '#online') {
       setTab('online')
-    } else if (location.hash === '#individuals') {
-      setTab('individuals')
     }
-    
+
     // only US and UK default to miles - everyone else defaults to km
     // (this is checked here to allow SSR to work properly)
     if (['en-US', 'en-GB'].some(lang => lang === window?.navigator?.language)) {
@@ -335,17 +332,14 @@ const Community = ({classes}: {
       componentName: currentUser ? "EventNotificationsDialog" : "LoginPopup",
     });
   }
-  
-  const openSetPersonalLocationForm = () => {
-    openDialog({
-      componentName: currentUser ? "SetPersonalMapLocationDialog" : "LoginPopup",
-    });
-  }
-  
-  const { CommunityBanner, LocalGroups, OnlineGroups, CommunityMembers, GroupFormLink,
+
+  const { CommunityBanner, LocalGroups, OnlineGroups, GroupFormLink,
           DistanceUnitToggle, ForumIcon } = Components
   
-  const handleChangeTab = (e: React.ChangeEvent, value: string) => {
+  const handleChangeTab = (_e: React.ChangeEvent, value: string) => {
+    if (value !== "local" && value !== "online") {
+      return;
+    }
     setTab(value)
     setKeywordSearch('')
     navigate({...location, hash: `#${value}`}, {replace: true})
@@ -375,10 +369,9 @@ const Community = ({classes}: {
       <CommunityBanner />
 
       <div className={classes.section}>
-        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} scrollable aria-label='view local or online groups, or individual community members'>
+        <Tabs value={tab} onChange={handleChangeTab} className={classes.tabs} scrollable aria-label='view local or online groups'>
           <Tab label="Local Groups" value="local" />
           <Tab label="Online Groups" value="online" />
-          <Tab label="Community Members" value="individuals" />
         </Tabs>
         
         {tab === 'local' && <div key="local">
@@ -477,51 +470,11 @@ const Community = ({classes}: {
           
           <OnlineGroups keywordSearch={keywordSearch} includeInactive={includeInactive} toggleIncludeInactive={handleToggleIncludeInactive} />
         </div>}
-        
-        {tab === 'individuals' && <div key="individuals">
-          <CommunityMembers
-            currentUser={currentUser}
-            userLocation={userLocation}
-            distanceUnit={distanceUnit}
-            locationFilterNode={(
-              <div>
-                <div className={classes.where}>
-                  <span className={classes.whereTextDesktop}>People near</span>
-                  <span className={classes.whereTextMobile}>Near</span>
-                  {mapsLoaded
-                    && <div className={classes.geoSuggest}>
-                        <Geosuggest
-                          placeholder="search for a location"
-                          onSuggestSelect={(suggestion) => {
-                            if (suggestion?.location) {
-                              saveUserLocation({
-                                ...suggestion.location,
-                                gmaps: suggestion.gmaps
-                              })
-                            }
-                          }}
-                          initialValue={userLocation?.label}
-                        />
-                      </div>
-                  }
-                </div>
-                {userLocation.known && <DistanceUnitToggle distanceUnit={distanceUnit} onChange={setDistanceUnit} skipDefaultEffect />}
-              </div>
-            )}
-          />
-          
-          <div className={classes.localGroupsBtns}>
-            <Button variant="outlined" color="primary" className={classes.localGroupsBtn} onClick={openSetPersonalLocationForm}>
-              {currentUser?.mapLocation ? "Edit my location on the map" : "Add me to the map"}
-            </Button>
-          </div>
+
+
+        {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
+          <GroupFormLink isOnline={tab === 'online'} />
         </div>}
-        
-        {tab !== 'individuals' && <>
-          {canCreateGroups && <div className={classes.addGroup} title="Currently only visible to admins">
-            <GroupFormLink isOnline={tab === 'online'} />
-          </div>}
-        </>}
       </div>
     </AnalyticsContext>
   )
