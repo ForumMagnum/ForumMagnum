@@ -150,7 +150,7 @@ const EARecentDiscussionThread = ({
       <PostExcerpt
         post={post}
         lines={comments?.length ? 3 : 10}
-        preferCustomHighlight={false}
+        useCustomHighlight={false}
         className={classNames({
           [classes.excerptBottomMargin]: nestedComments.length,
         })}
