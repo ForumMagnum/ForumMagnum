@@ -316,12 +316,26 @@ export const createCrosspostContexts = async (browser: Browser): Promise<{
  *  - MUI inputs are super-buggy and require special handling
  *  - The CK editor selector is pretty obscure
  */
-export const setPostContent = async (page: Page, title: string, body: string) => {
+export const setPostContent = async (page: Page, {
+  title,
+  body,
+  titlePlaceholder = "Post title",
+  bodyLabel = "Rich Text Editor. Editing area: main",
+}: {
+  title?: string,
+  body?: string,
+  titlePlaceholder?: string,
+  bodyLabel?: string,
+}) => {
   // Clear and fill the editor in two separate steps, because Playwright's .fill()
   // fails in Firefox (but not other browsers) if these are one step
-  await page.getByPlaceholder("Post title").fill("");
-  await page.getByPlaceholder("Post title").fill(title);
+  if (title) {
+    await page.getByPlaceholder(titlePlaceholder).fill("");
+    await page.getByPlaceholder(titlePlaceholder).fill(title);
+  }
 
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill("");
-  await page.getByLabel("Rich Text Editor. Editing area: main").fill(body);
+  if (body) {
+    await page.getByLabel(bodyLabel).fill("");
+    await page.getByLabel(bodyLabel).fill(body);
+  }
 }

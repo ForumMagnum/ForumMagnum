@@ -8,7 +8,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   await pages[0].goto("/newPost");
   const title = `Test crosspost title ${Math.random()}`;
   const body = `Test crosspost body ${Math.random()}`;
-  await setPostContent(pages[0], title, body);
+  await setPostContent(pages[0], {title, body});
 
   // Connect the crossposting account
   await pages[0].getByText("Options").click();
@@ -58,7 +58,7 @@ test("connect crossposting account and create post", async ({browser}) => {
   // Edit the post
   const newTitle = `Edited test crosspost title ${Math.random()}`;
   const newBody = `Edited test crosspost body ${Math.random()}`;
-  await setPostContent(pages[0], newTitle, newBody);
+  await setPostContent(pages[0], {title: newTitle, body: newBody});
   await pages[0].getByText("Publish changes").click();
 
   // Check the edits were saved locally
