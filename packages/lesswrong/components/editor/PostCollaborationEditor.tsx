@@ -8,7 +8,7 @@ import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -97,7 +97,7 @@ const PostCollaborationEditor = ({ classes }: {
       You are editing an already-published post. The primary author can push changes from the edited revision to the <Link to={postGetPageUrl(post)}>published revision</Link>.
     </div>*/}
     <ContentStyles className={classes.editor} contentType="post">
-      <ForumNoSSR>
+      <DeferRender ssr={false}>
         <Components.CKPostEditor
           documentId={postId}
           collectionName="Posts"
@@ -113,7 +113,7 @@ const PostCollaborationEditor = ({ classes }: {
           post={post}
           postId={postId}
         />
-      </ForumNoSSR>
+      </DeferRender>
     </ContentStyles>
   </SingleColumnSection>
 };

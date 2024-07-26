@@ -6,12 +6,12 @@ import { useEventListener } from "../hooks/useEventListener";
 import { gql, useMutation } from "@apollo/client";
 import { useDialog } from "../common/withDialog";
 import { useMulti } from "@/lib/crud/withMulti";
-import ForumNoSSR from "../common/ForumNoSSR";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { useLoginPopoverContext } from "../hooks/useLoginPopoverContext";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import range from "lodash/range";
 import sortBy from "lodash/sortBy";
+import DeferRender from "../common/DeferRender";
 
 export const POLL_MAX_WIDTH = 730;
 const SLIDER_MAX_WIDTH = 1000;
@@ -541,7 +541,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
             </div>
             <div className={classes.sliderLabels}>
               <div>Disagree</div>
-              <ForumNoSSR>
+              <DeferRender ssr={false}>
                 {!hideViewResults && !resultsVisible && <div>
                   {(voteCount > 0) && `${voteCount} vote${voteCount === 1 ? '' : 's'} so far. `}
                   {hasVoted ? 'Click and drag your avatar to change your vote, or ' : 'Place your vote or '}
@@ -549,7 +549,7 @@ export const ForumEventPoll = ({postId, hideViewResults, classes}: {
                     view results
                   </button>
                 </div>}
-              </ForumNoSSR>
+              </DeferRender>
               <div>Agree</div>
             </div>
           </div>

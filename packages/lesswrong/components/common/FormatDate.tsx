@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React, { useContext } from 'react';
 import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';
-import { TimeOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
+import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
@@ -28,7 +28,7 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
 }) => {
   const now = useCurrentTime();
   const { timezone } = useTimezone();
-  const { cacheFriendly=false } = useContext(TimeOverrideContext) ?? {};
+  const { cacheFriendly=false } = useContext(EnvironmentOverrideContext);
   const dateToRender = date||now;
   const dateTimeAttr = granularity === "datetime" ? dateToRender : moment(dateToRender).tz(timezone).format("YYYY-MM-DD")
   const { LWTooltip, TimeTag } = Components

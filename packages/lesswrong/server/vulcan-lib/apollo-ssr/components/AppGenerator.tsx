@@ -35,9 +35,9 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
                 <Components.App
                   apolloClient={apolloClient}
                   serverRequestStatus={serverRequestStatus}
-                  timeOverride={{
-                    currentTime: new Date(ssrMetadata.renderedAt),
-                    ...ssrMetadata
+                  envOverride={{
+                    ...ssrMetadata,
+                    matchSSR: true
                   }}
                 />
               </LayoutOptionsContextProvider>

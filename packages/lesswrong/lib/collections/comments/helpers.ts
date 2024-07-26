@@ -6,7 +6,7 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName } from "../users/helpers";
 import { tagGetCommentLink } from '../tags/helpers';
 import { TagCommentType } from './types';
-import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
+import { commentPermalinkStyleSetting, hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { forumSelect } from '../../forumTypeUtils';
 
 // Get a comment author's name
@@ -42,7 +42,7 @@ export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbs
 }
 
 // TODO there are several functions which do this, some of them should be combined
-export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink=true, isAbsolute=false}: {
+export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentType, commentId, permalink, isAbsolute=false}: {
   postId?: string | null,
   postSlug?: string,
   tagSlug?: string,
@@ -51,6 +51,8 @@ export function commentGetPageUrlFromIds({postId, postSlug, tagSlug, tagCommentT
   permalink?: boolean, isAbsolute?: boolean,
 }): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
+
+  permalink = permalink ?? commentPermalinkStyleSetting.get() === 'top';
 
   if (postId) {
     if (permalink) {

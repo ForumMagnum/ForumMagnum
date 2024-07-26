@@ -33,7 +33,7 @@ import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommende
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
 import { useLocation } from '../../lib/routeUtil';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender';
 
 export type UpvotedUser = {
   _id: string;
@@ -1713,9 +1713,9 @@ export const DialogueMatchingPage = ({classes}: {
 }
 
 const NoSSRMatchingPage = (props: { classes: ClassesType<typeof styles> }) => (
-  <ForumNoSSR if={useABTest(dialogueMatchingPageNoSSRABTest) === "noSSR"}>
+  <DeferRender ssr={useABTest(dialogueMatchingPageNoSSRABTest) !== "noSSR"}>
     <DialogueMatchingPage {...props} />
-  </ForumNoSSR>
+  </DeferRender>
 );
 
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
