@@ -30,6 +30,7 @@ import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
 import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
+import { hasAuth0 } from '../authenticationMiddlewares';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -216,7 +217,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
       await sendVerificationEmailConditional(user)
     }
 
-    if (isEAForum) {
+    if (hasAuth0()) {
       await updateAuth0Email(user, newEmail);
       /*
        * Be careful here: DbUser does NOT includes services, so overwriting
