@@ -30,6 +30,7 @@ import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
 import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
+import { hasAuth0 } from '../authenticationMiddlewares';
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from '../type3';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
@@ -55,21 +56,6 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
-});
-
-getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
-  const newEmail = modifier.$set?.email;
-  const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail && isEAForum) {
-    await updateAuth0Email(user, newEmail);
-    /*
-     * Be careful here: DbUser does NOT includes services, so overwriting
-     * modifier.$set.services is both very easy and very bad (amongst other
-     * things, it will invalidate the user's session)
-     */
-    modifier.$set["services.auth0"] = await getAuth0Profile(user);
-  }
-  return modifier;
 });
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
@@ -209,7 +195,7 @@ const sendVerificationEmailConditional = async  (user: DbUser) => {
 
 getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (modifier, user: DbUser) {
   // if email is being modified, update user.emails too
-  if (modifier.$set && modifier.$set.email) {
+  if (modifier.$set && modifier.$set.email && modifier.$set.email !== user.email) {
 
     const newEmail = modifier.$set.email;
 
@@ -230,6 +216,16 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
     } else {
       modifier.$set.emails = [{address: newEmail, verified: false}];
       await sendVerificationEmailConditional(user)
+    }
+
+    if (hasAuth0()) {
+      await updateAuth0Email(user, newEmail);
+      /*
+       * Be careful here: DbUser does NOT includes services, so overwriting
+       * modifier.$set.services is both very easy and very bad (amongst other
+       * things, it will invalidate the user's session)
+       */
+      modifier.$set["services.auth0"] = await getAuth0Profile(user);
     }
   }
   return modifier;
