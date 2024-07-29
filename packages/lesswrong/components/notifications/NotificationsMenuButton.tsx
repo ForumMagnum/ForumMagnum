@@ -8,6 +8,7 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import classNames from 'classnames';
+import { useEventListener } from '../hooks/useEventListener';
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -180,6 +181,8 @@ const FriendlyNotificationsMenuButton = ({
     setOpen((open) => !open);
     toggle();
   }, [toggle]);
+
+  useEventListener("scroll", () => setOpen(false));
 
   const {LWTooltip, LWPopper, ForumIcon, NotificationsPopover} = Components;
   return (
