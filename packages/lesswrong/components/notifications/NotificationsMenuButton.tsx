@@ -9,6 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import classNames from 'classnames';
 import { useEventListener } from '../hooks/useEventListener';
+import DeferRender from '../common/DeferRender';
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -184,7 +185,9 @@ const FriendlyNotificationsMenuButton = ({
 
   useEventListener("scroll", () => setOpen(false));
 
-  const {LWTooltip, LWPopper, ForumIcon, NotificationsPopover} = Components;
+  const {
+    LWTooltip, LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
+  } = Components;
   return (
     <div ref={anchorEl}>
       <LWTooltip
@@ -226,16 +229,22 @@ const FriendlyNotificationsMenuButton = ({
           </IconButton>
         </Badge>
       </LWTooltip>
-      <LWPopper
-        open={open}
-        anchorEl={anchorEl.current}
-        placement="bottom"
-        tooltip={false}
-        overflowPadding={16}
-        clickable
-      >
-        <NotificationsPopover />
-      </LWPopper>
+      <DeferRender ssr={false}>
+        <LWPopper
+          open={open}
+          anchorEl={anchorEl.current}
+          placement="bottom"
+          tooltip={false}
+          overflowPadding={16}
+          clickable
+        >
+          <LWClickAwayListener onClickAway={() => setOpen(false)}>
+            <NotificationsPopover
+              karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
+            />
+          </LWClickAwayListener>
+        </LWPopper>
+      </DeferRender>
     </div>
   );
 }

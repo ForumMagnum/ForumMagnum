@@ -54,10 +54,14 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.tooltipBackground2,
   },
   meta: {
-    marginBottom: 12,
     lineHeight: "1.5em",
     fontWeight: 500,
     maxWidth: "100%",
+    display: "flex",
+    flexGrow: 1,
+  },
+  bottomMargin: {
+    marginBottom: 12,
   },
   hideOnMobile: {
     [theme.breakpoints.down("xs")]: {
@@ -78,6 +82,7 @@ export const NotificationsPageItem = ({
   iconTooltip,
   post,
   previewCommentId,
+  noMargin,
   children,
   classes,
 }: {
@@ -86,6 +91,7 @@ export const NotificationsPageItem = ({
   iconTooltip?: string,
   post?: PostsMinimumInfo,
   previewCommentId?: string,
+  noMargin?: boolean,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -105,12 +111,13 @@ export const NotificationsPageItem = ({
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
         <div className={classes.container}>
-          <div className={classNames(classes.iconContainer, {
-            [classes.iconPrimary]: iconVariant === "primary",
-            [classes.iconGrey]: iconVariant === "grey",
-            [classes.iconYellow]: iconVariant === "yellow",
-            [classes.iconClear]: iconVariant === "clear",
-          })}>
+          <div className={classNames(
+            classes.iconContainer,
+            iconVariant === "primary" && classes.iconPrimary,
+            iconVariant === "grey" && classes.iconGrey,
+            iconVariant === "yellow" && classes.iconYellow,
+            iconVariant === "clear" && classes.iconClear,
+          )}>
             <LWTooltip
               title={iconTooltip}
               popperClassName={classes.iconTooltip}
@@ -122,7 +129,10 @@ export const NotificationsPageItem = ({
               }
             </LWTooltip>
           </div>
-          <div className={classes.meta}>
+          <div className={classNames(
+            classes.meta,
+            !noMargin && classes.bottomMargin,
+            )}>
             {children}
           </div>
         </div>

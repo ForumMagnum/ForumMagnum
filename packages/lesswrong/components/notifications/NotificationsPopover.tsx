@@ -4,6 +4,7 @@ import { HEADER_HEIGHT } from "../common/Header";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
+import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,6 +17,9 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
   },
+  loading: {
+    height: 20,
+  },
   title: {
     fontSize: 24,
     fontWeight: 600,
@@ -25,30 +29,38 @@ const styles = (theme: ThemeType) => ({
   },
   notifications: {
     overflow: "hidden",
+    maskImage: `linear-gradient(to bottom, ${theme.palette.grey[0]} 90%, transparent 100%)`,
+    "-webkit-mask-image": `linear-gradient(to bottom, ${theme.palette.grey[0]} 90%, transparent 100%)`,
   },
-  loading: {
-    height: 20,
+  notification: {
+    display: "flex",
   },
 });
 
-const NotificationsPopover = ({classes}: {
+const NotificationsPopover = ({karmaChanges, classes}: {
+  karmaChanges?: KarmaChanges,
   classes: ClassesType<typeof styles>,
 }) => {
   const {data, loading: notificationsLoading} = useNotificationDisplays(20);
   const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
 
-  const {SectionTitle, Loading, NotificationsPageNotification} = Components;
+  const {
+    SectionTitle, Loading, NotificationsPageKarmaChangeList,
+    NotificationsPopoverNotification,
+  } = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
       <SectionTitle title="Karma & reacts" className={classes.sectionTitle} />
+      {karmaChanges &&
+        <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+      }
       <SectionTitle title="Posts & comments" className={classes.sectionTitle} />
       <div className={classes.notifications}>
         {notifs.map((notification) =>
-          <NotificationsPageNotification
+          <NotificationsPopoverNotification
             key={notification._id}
             notification={notification}
-            hideCommentPreviews
           />
         )}
         {notificationsLoading && <Loading className={classes.loading} />}
