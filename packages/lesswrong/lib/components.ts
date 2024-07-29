@@ -57,6 +57,7 @@ importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHa
 importComponent("EAHomeRightHandSide", () => require('../components/ea-forum/EAHomeRightHandSide'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/wrapped/EAForumWrappedPage'));
 importComponent("EASurveyBanner", () => require('../components/ea-forum/EASurveyBanner'));
+importComponent("EAGBanner", () => require('../components/ea-forum/EAGBanner'));
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
 importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
 importComponent("EditDigestHeader", () => require('../components/ea-forum/digest/EditDigestHeader'));
@@ -90,6 +91,7 @@ importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText
 importComponent("EAButton", () => require('../components/ea-forum/EAButton'))
 importComponent(["EAGApplicationImportFormWrapper", "EAGApplicationImportForm"], () => require('../components/ea-forum/users/EAGApplicationImportForm'))
 importComponent("FriendlyUsersProfile", () => require('../components/users/FriendlyUsersProfile'))
+importComponent("DisplayNameWithMarkers", () => require('../components/ea-forum/users/DisplayNameWithMarkers'))
 importComponent("EAUsersProfileImage", () => require('../components/ea-forum/users/EAUsersProfileImage'))
 importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/users/EAUsersProfileLinks'))
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
@@ -335,7 +337,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview", "ViewpointsPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "NeuronpediaPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview", "ViewpointsPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
@@ -343,8 +345,6 @@ importComponent("ThemePickerMenu", () => require('../components/themes/ThemePick
 importComponent("SocialMediaLink", () => require('../components/users/SocialMediaLink'));
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
-importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
-importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
 importComponent("UsersProfile", () => require('../components/users/UsersProfile'));
 importComponent("ReportUserButton", () => require('../components/users/ReportUserButton'));
@@ -388,6 +388,18 @@ importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
+
+// users account settings page
+
+importComponent("UsersAccount", () => require('../components/users/account/UsersAccount'));
+importComponent("UsersEditForm", () => require('../components/users/account/UsersEditForm'));
+importComponent("UsersAccountManagement", () => require('../components/users/account/UsersAccountManagement'));
+importComponent("ActionButtonSection", () => require('../components/users/account/ActionButtonSection'));
+importComponent("DeactivateAccountSection", () => require('../components/users/account/DeactivateAccountSection'));
+importComponent("DeleteAccountSection", () => require('../components/users/account/DeleteAccountSection'));
+importComponent("DeleteAccountConfirmationModal", () => require('../components/users/account/DeleteAccountConfirmationModal'));
+
+//
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -983,6 +995,7 @@ importComponent("FormComponentNumber", () => require('../components/form-compone
 importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
 importComponent("FormComponentFriendlyTextInput", () => require('../components/form-components/FormComponentFriendlyTextInput'));
+importComponent("FormComponentFriendlyDisplayNameInput", () => require('../components/form-components/FormComponentFriendlyDisplayNameInput'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
@@ -996,6 +1009,7 @@ importComponent("FormGroupLayout", () => require('../components/form-components/
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
+importComponent("DummyFormGroup", () => require('../components/form-components/DummyFormGroup'))
 importComponent("FormGroupFriendlyUserProfile", () => require('../components/form-components/FormGroupFriendlyUserProfile'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));

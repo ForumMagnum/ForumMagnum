@@ -77,6 +77,16 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.neuronpedia-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 440,
+      border: "none",
+    },
+  },
+});
+
 export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.calendly-preview": {
     "& iframe": {
@@ -220,7 +230,7 @@ const hrStyles = (theme: ThemeType): JssStyles => ({
   '&:after': {
     marginLeft: 12,
     color: theme.palette.icon.horizRuleDots,
-    fontSize: "1rem",
+    fontSize: 13,
     letterSpacing: "12px", /* increase space between dots */
     content: '"•••"',
   }
@@ -305,7 +315,7 @@ const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     paddingLeft: isFriendlyUI ? 20 : 24,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: isFriendlyUI ? "1.6rem" : undefined,
+    fontSize: isFriendlyUI ? "20.8px" : undefined,
     lineHeight: isFriendlyUI ? "1.25em" : undefined,
     fontWeight: isFriendlyUI ? 600 : undefined,
   },
@@ -515,6 +525,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...neuronpediaPreviewStyles(theme),
     ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
@@ -627,8 +638,8 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
-    lineHeight: "1.75rem",
+    fontSize: isFriendlyUI ? 14.3 : 16.64,
+    lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
       ...theme.typography.body2,
@@ -640,8 +651,8 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
-      lineHeight: "1.8rem",
+      fontSize: isFriendlyUI ? 14.3 : 16.64,
+      lineHeight: "23.4px",
     }
   };
 }
@@ -771,7 +782,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time': {
           color: theme.palette.grey[600],
-          fontSize: "1rem"
+          fontSize: 13
         },
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"

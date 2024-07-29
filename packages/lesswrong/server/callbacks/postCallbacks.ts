@@ -25,7 +25,6 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
@@ -37,9 +36,6 @@ import { googleVertexApi } from '../google-vertex/client';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
-
-const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
-const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {

@@ -703,5 +703,10 @@
     "acceptsSchemaHash": "a43d70aa333497e5911f91e0e60c2115",
     "acceptedByMigration": "20240702T120844.create_Tweets.ts",
     "timestamp": "2024-07-02T12:08:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a2faca5a61a921ed5828a0be4fb26461",
+    "acceptedByMigration": "20240704T135716.add_permanentDeletionRequestedAt.ts",
+    "timestamp": "2024-07-04T13:57:16.000Z"
   }
 ]

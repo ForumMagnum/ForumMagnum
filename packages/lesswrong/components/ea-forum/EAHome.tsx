@@ -6,7 +6,7 @@ import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import ForumNoSSR from '../common/ForumNoSSR'
+import DeferRender from '../common/DeferRender'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
@@ -55,26 +55,29 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
     RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
     HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
   } = Components
+
   return (
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
       <HomeLatestPosts />
-      {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-      {isEAForum && <QuickTakesSection />}
-      <ForumNoSSR if={!!currentUser}>
+      <DeferRender ssr={true} clientTiming="mobile-aware">
+        {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+        <QuickTakesSection />
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="mobile-aware">
         <EAPopularCommentsSection />
-      </ForumNoSSR>
-      <ForumNoSSR if={!!currentUser}>
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="async-non-blocking">
         <RecentDiscussionFeed
           title="Recent discussion"
           af={false}
           commentsLimit={recentDiscussionCommentsPerPost}
           maxAgeHours={18}
         />
-      </ForumNoSSR>
+      </DeferRender>
     </>
   );
-}
+};
 
 const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()
@@ -94,6 +97,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const {
     EAHomeMainContent, SmallpoxBanner, EventBanner, MaintenanceBanner,
     FrontpageReviewWidget, SingleColumnSection, HeadTags, BotSiteBanner,
+    EAGBanner,
   } = Components
   return (
     <AnalyticsContext pageContext="homePage">
@@ -102,6 +106,7 @@ const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
       {shouldRenderSmallpox && <SmallpoxBanner/>}
       {shouldRenderEventBanner && <EventBanner />}
       {shouldRenderBotSiteBanner && <BotSiteBanner />}
+      {isEAForum && <EAGBanner />}
 
       {reviewIsActive() && <SingleColumnSection>
         <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>

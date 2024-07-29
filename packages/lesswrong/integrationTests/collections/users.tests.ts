@@ -6,19 +6,29 @@ import {
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
   withNoLogs,
+  waitUntilCallbacksFinished,
 } from '../utils';
 
 describe('updateUser – ', () => {
   let graphQLerrors = catchGraphQLErrors(beforeEach, afterEach);
-  it("fails when user updates their displayName", async () => {
+  it("fails when user updates their displayName more than once", async () => {
     const user = await createDummyUser()
+    // Should succeed the first time
+    await userUpdateFieldSucceeds({
+      user:user,
+      document:user,
+      fieldName:'displayName',
+      collectionType:'User',
+    })
+    await waitUntilCallbacksFinished();
+    // Should hit the rate limit the second time
     await userUpdateFieldFails({
       user:user,
       document:user,
       fieldName:'displayName',
       collectionType:'User',
     })
-    assertIsPermissionsFlavoredError(graphQLerrors.getErrors());
+    graphQLerrors.getErrors(); // Ignore the details of the error
   });
   it("fails when user updates their createdAt", async () => {
     const user = await createDummyUser()

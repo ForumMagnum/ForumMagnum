@@ -98,7 +98,7 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       },
       MuiTooltip: {
         tooltip: {
-          fontSize: "1rem"
+          fontSize: 13
         }
       },
       PostsVoteDefault: {

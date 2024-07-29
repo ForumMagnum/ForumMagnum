@@ -57,6 +57,24 @@ const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.aut
 const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null)
 const auth0DomainSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.domain', null)
 
+export const hasAuth0 = () => {
+  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
+
+  return !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
+}
+
+export const getAuth0Credentials = () => {
+  const auth0ClientId = auth0ClientIdSetting.get();
+  const auth0OAuthSecret = auth0OAuthSecretSetting.get();
+  const auth0Domain = auth0DomainSetting.get();
+
+  return {
+    auth0ClientId,
+    auth0OAuthSecret,
+    auth0Domain,
+  }
+}
+
 const facebookClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.appId', null)
 const facebookOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.facebook.secret', null)
 
@@ -509,14 +527,14 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
 
   // NB: You must also set the expressSessionSecret setting in your database
   // settings - auth0 passport strategy relies on express-session to store state
-  const auth0ClientId = auth0ClientIdSetting.get();
-  const auth0OAuthSecret = auth0OAuthSecretSetting.get()
-  const auth0Domain = auth0DomainSetting.get()
-  const hasAuth0 = !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
-  const profileFromAccessToken = hasAuth0
-    ? addAuth0Strategy(addConnectHandler, auth0ClientId, auth0OAuthSecret, auth0Domain)
+  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
+
+  // NB: You must also set the expressSessionSecret setting in your database
+  // settings - auth0 passport strategy relies on express-session to store state
+  const profileFromAccessToken = hasAuth0()
+    ? addAuth0Strategy(addConnectHandler, auth0ClientId!, auth0OAuthSecret!, auth0Domain!)
     : mockProfileFromAccessToken;
-  if (hasAuth0 || isE2E) {
+  if (hasAuth0() || isE2E) {
     addEmbeddedAuth0Handlers(addConnectHandler, profileFromAccessToken);
   }
 

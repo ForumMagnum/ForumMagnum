@@ -185,3 +185,6 @@ export const blackBarTitle = new DatabasePublicSetting<string | null>('blackBarT
 export const quickTakesTagsEnabledSetting = new DatabasePublicSetting<boolean>('quickTakes.tagsEnabled', isEAForum)
 
 export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVertex.enabled', false);
+
+/** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
+export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top');
