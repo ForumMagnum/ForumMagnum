@@ -16,7 +16,7 @@ import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
 import { buildRevision } from '../editor/make_editable_callbacks';
-import { cheerioParse } from '../utils/htmlUtil';
+import { cheerioParse, htmlContainsFootnotes } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
@@ -279,6 +279,20 @@ augmentFieldsDict(Posts, {
         }
       }
     },
+  },
+  hasFootnotes: {
+    resolveAs: {
+      type: 'Boolean',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        // TODO: This is used for deciding column-widths, but is too slow to
+        // have uncached in a resolver like this. Replace it with something more
+        // efficient
+        const html = post.contents?.html;
+        if (!html) return false;
+        
+        return htmlContainsFootnotes(html);
+      }
+    }
   },
   dialogueMessageContents: {
     resolveAs: {

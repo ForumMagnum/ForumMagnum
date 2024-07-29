@@ -10,7 +10,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
+import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -41,8 +41,9 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
-export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
+export const MAX_COLUMN_WIDTH = CENTRAL_COLUMN_WIDTH
+//export const MAX_COLUMN_WIDTH = 720
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
@@ -664,10 +665,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       <WelcomeBox />
     </ForumNoSSR>
   );
+  
+  const showSidenotes = post.hasFootnotes;
 
-  const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
+  const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
+    {showSidenotes && <div style={{width:300}}/>}
+    <Components.SideItemsSidebar/>
   </>;
 
   // check for deep equality between terms and eagerPostComments.terms
@@ -818,6 +823,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={fullPost ?? null}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
+    <Components.SideItemsContainer>
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -867,6 +873,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </ImageProvider>
+    </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>

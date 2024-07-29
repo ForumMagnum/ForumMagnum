@@ -12,9 +12,9 @@ import some from 'lodash/some';
 
 const styles = (theme: ThemeType): JssStyles => ({
   sideCommentIconWrapper: {
-    float: "right",
-    position: 'relative',
-    width: 0,
+    //float: "right",
+    //position: 'relative',
+    //width: 0,
     background: theme.palette.panelBackground.darken03,
     borderRadius: 8,
     color: theme.palette.icon.dim6,
@@ -28,10 +28,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   sideCommentIcon: {
-    position: 'absolute',
+    //position: 'absolute',
     cursor: "pointer",
     paddingTop: 4,
-    marginLeft: 25,
+    //marginLeft: 25,
     whiteSpace: "nowrap",
     "& svg": {
       height: 17,
@@ -95,7 +95,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   post: PostsList
   classes: ClassesType
 }) => {
-  const {LWPopper, LWClickAwayListener, SideCommentHover} = Components;
+  const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
   const {sideCommentsActive, setSideCommentsActive} = useContext(SidebarsContext)!;
   
@@ -129,33 +129,35 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   
   const isOpen = (pinned==="open" || (pinned==="auto" && hover));
   
-  return <div className={classes.sideCommentIconWrapper}
-    onMouseLeave={onMouseLeave}
-  >
-    <span {...eventHandlers}
-      onClick={onClick}
-      className={classes.sideCommentIcon}
-    >
-      <BadgeWrapper commentCount={commentIds.length} classes={classes}>
-        <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
-      </BadgeWrapper>
-      {isOpen && <span className={classes.clickToPinMessage}>
-        Click to {pinned==="open" ? "close" : "pin"}
-      </span>}
-      {isOpen && <span className={classes.extendHoverTarget}/>}
-    </span>
-    <LWPopper
+  return <SideItem options={{
+    format: "icon"
+  }}>
+    <span className={classes.sideCommentWrapper} onMouseLeave={onMouseLeave}>
+      <span {...eventHandlers}
+        onClick={onClick}
+        className={classes.sideCommentIcon}
+      >
+        <BadgeWrapper commentCount={commentIds.length} classes={classes}>
+          <CommentIcon className={classNames({[classes.pinned]: (pinned==="open")})} />
+        </BadgeWrapper>
+        {isOpen && <span className={classes.clickToPinMessage}>
+          Click to {pinned==="open" ? "close" : "pin"}
+        </span>}
+        {isOpen && <span className={classes.extendHoverTarget}/>}
+      </span>
+      <LWPopper
         open={isOpen} anchorEl={anchorEl}
         className={classes.popper}
         clickable={true}
         allowOverflow={true}
         placement={"bottom-start"}
       >
-      <LWClickAwayListener onClickAway={onClickAway}>
-        <SideCommentHover post={post} commentIds={commentIds}/>
-      </LWClickAwayListener>
-    </LWPopper>
-  </div>
+        <LWClickAwayListener onClickAway={onClickAway}>
+          <SideCommentHover post={post} commentIds={commentIds}/>
+        </LWClickAwayListener>
+      </LWPopper>
+    </span>
+  </SideItem>
 }
 
 const SideCommentHover = ({commentIds, post, classes}: {

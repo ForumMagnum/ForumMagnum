@@ -86,3 +86,8 @@ export function cheerioParseAndMarkOffsets(html: string) {
   return parsed;
 }
 
+export function htmlContainsFootnotes(html: string) {
+  const $ = cheerioParse(html);
+  const footnotes = $(".footnote-reference");
+  return footnotes.length > 0;
+}

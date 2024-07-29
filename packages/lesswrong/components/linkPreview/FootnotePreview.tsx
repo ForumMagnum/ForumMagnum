@@ -3,7 +3,8 @@ import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
-import { hasCollapsedFootnotes } from '@/lib/betas';
+import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
+import classNames from 'classnames';
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
@@ -21,26 +22,41 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  
+  anchorHover: {
+    background: theme.palette.greyAlpha(0.1),
+  },
+
+  sidenote: {
+    "& .footnote-back-link": {
+      display: "none",
+    },
+    paddingBottom: 24,
+  },
+  
+  sidenoteHover: {
+    background: theme.palette.greyAlpha(0.1),
+  },
 })
 
-const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
+const FootnotePreview = ({classes, href, id, rel, children}: {
   classes: ClassesType,
   href: string,
-  onsite?: boolean,
   id?: string,
   rel?: string,
   children: React.ReactNode,
 }) => {
-  const { ContentStyles, LWPopper } = Components
+  const { ContentStyles, SideItem, LWPopper } = Components
   
-  const { eventHandlers, hover, anchorEl } = useHover({
+  const { eventHandlers: anchorEventHandlers, hover: anchorHovered, anchorEl } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
       hoverPreviewType: "DefaultPreview",
       href,
-      onsite,
     },
   });
+  const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
+  const eitherHovered = anchorHovered || sidenoteHovered;
   
   let footnoteContentsNonempty = false;
   let footnoteHTML = "";
@@ -71,9 +87,9 @@ const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
   }, [href]);
 
   return (
-    <span {...eventHandlers}>
+    <span>
       {footnoteContentsNonempty && <LWPopper
-        open={hover}
+        open={anchorHovered}
         anchorEl={anchorEl}
         placement="bottom-start"
         allowOverflow
@@ -84,12 +100,28 @@ const FootnotePreview = ({classes, href, onsite=false, id, rel, children}: {
           </ContentStyles>
         </Card>
       </LWPopper>}
+      
+      {hasSidenotes && <SideItem>
+        <div
+          {...sidenoteEventHandlers}
+          className={classNames(
+            classes.sidenote,
+            eitherHovered && classes.sidenoteHover
+          )}
+        >
+          <ContentStyles contentType="postHighlight">
+            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
+          </ContentStyles>
+        </div>
+      </SideItem>}
 
       <a
+        {...anchorEventHandlers}
         href={hasCollapsedFootnotes ? undefined : href}
         id={id}
         rel={rel}
         onClick={onClick}
+        className={classNames(eitherHovered && classes.anchorHover)}
       >
         {children}
       </a>

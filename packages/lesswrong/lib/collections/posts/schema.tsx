@@ -2568,6 +2568,11 @@ const schema: SchemaType<"Posts"> = {
       }
     },
   },
+  
+  hasFootnotes: {
+    type: Boolean,
+    canRead: ['guests'],
+  },
 
   moderationStyle: {
     type: String,

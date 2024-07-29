@@ -872,6 +872,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tableOfContentsRevision: any,
   readonly sideComments: any,
   readonly sideCommentVisibility: string,
+  readonly hasFootnotes: boolean|null,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
@@ -1077,6 +1078,7 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly rejected: boolean,
   readonly debate: boolean,
   readonly collabEditorDialogue: boolean,
+  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
