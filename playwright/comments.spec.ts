@@ -26,7 +26,7 @@ test("create and edit comment", async ({page, context}) => {
 
   // Switch the comment to edit mode
   await commentItem.locator(".CommentsItemMeta-menu").click();
-  await page.getByText("Edit").click();
+  await page.getByText("Edit", {exact: true}).click();
 
   // Enter and save the new comment contents
   const newContents = "Edited comment body 123";

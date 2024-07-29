@@ -11,6 +11,7 @@ import { ConnectCrossposterArgs, GetCrosspostRequest, UnlinkCrossposterPayload }
 import { DatabaseServerSetting } from "../databaseSettings";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
+import { isE2E } from "@/lib/executionEnvironment";
 
 const fmCrosspostTimeoutMsSetting = new DatabaseServerSetting<number>('fmCrosspostTimeoutMs', 15000)
 
@@ -130,7 +131,7 @@ const crosspostResolvers = {
   Query: {
     getCrosspost: async (_root: void, {args}: {args: GetCrosspostRequest}) => {
       const key = stringify(args);
-      let promise = foreignPostCache.get(key);
+      let promise = isE2E ? null : foreignPostCache.get(key);
       if (!promise) {
         promise = makeCrossSiteRequest(
           'getCrosspost',
