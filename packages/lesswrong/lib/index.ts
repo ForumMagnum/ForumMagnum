@@ -127,6 +127,8 @@ import './collections/tags/fragments';
 import './collections/tags/helpers';
 import './collections/tags/schema';
 
+import './collections/tweets/collection'
+
 import './collections/chapters/views';
 
 import './collections/sequences/permissions';
@@ -325,6 +327,18 @@ import './collections/curationEmails/collection';
 
 // Recommendations cache
 import './collections/recommendationsCaches/collection';
+
+// Surveys
+import "./collections/surveys/collection";
+import "./collections/surveys/fragments";
+import "./collections/surveys/views";
+import "./collections/surveyQuestions/collection";
+import "./collections/surveyQuestions/fragments";
+import "./collections/surveyResponses/collection";
+import "./collections/surveyResponses/fragments";
+import "./collections/surveySchedules/collection";
+import "./collections/surveySchedules/fragments";
+import "./collections/surveySchedules/views";
 
 // Alignment Forum
 import './alignment-forum/permissions';

@@ -46,6 +46,12 @@ const isProduction = !!opts.production;
 const isE2E = !!opts.e2e;
 const settingsFile = opts.settings || "settings.json"
 
+// Allow FM_WATCH to override the --watch CLI flag that is passed in
+const watchEnvVar = process.env.FM_WATCH?.toLowerCase();
+if (watchEnvVar === 'true' || watchEnvVar === 'false') {
+  cliopts.watch = watchEnvVar === 'true';
+}
+
 const databaseConfig = getDatabaseConfig(opts);
 process.env.PG_URL = databaseConfig.postgresUrl;
 
@@ -184,7 +190,7 @@ build({
     "bcrypt", "node-pre-gyp", "intercom-client", "node:*",
     "fsevents", "chokidar", "auth0", "dd-trace", "pg-formatter",
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
-    "cheerio",
+    "cheerio"
   ],
 })
 

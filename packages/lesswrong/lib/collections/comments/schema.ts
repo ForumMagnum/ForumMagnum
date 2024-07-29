@@ -708,7 +708,7 @@ const schema: SchemaType<"Comments"> = {
     ...schemaDefaultValue(false),
   },
   
-  // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
+  // How well does ModGPT (GPT-4o) think this comment adheres to forum norms and rules? (currently EAF only)
   modGPTAnalysis: {
     type: String,
     optional: true,

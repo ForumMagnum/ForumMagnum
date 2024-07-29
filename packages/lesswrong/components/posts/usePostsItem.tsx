@@ -87,7 +87,6 @@ export type PostsItemConfig = {
   isVoteable?: boolean,
   recombeeRecommId?: string,
   vertexAttributionId?: string,
-  showRecommendationIcon?: boolean,
   /** Whether or not to make new post items have bold post item dates */
   emphasizeIfNew?: boolean,
   className?: string,
@@ -137,7 +136,6 @@ export const usePostsItem = ({
   isVoteable = false,
   recombeeRecommId,
   vertexAttributionId,
-  showRecommendationIcon = false,
   emphasizeIfNew = false,
   className,
 }: PostsItemConfig) => {
@@ -255,6 +253,7 @@ export const usePostsItem = ({
     showIcons,
     showKarma,
     useCuratedDate,
+    hideTag,
     annualReviewMarketInfo,
     marketLink,
     showReadCheckbox,
@@ -280,7 +279,6 @@ export const usePostsItem = ({
     bookmark,
     isVoteable,
     isRecommendation,
-    showRecommendationIcon,
     emphasizeIfNew,
     className,
   };

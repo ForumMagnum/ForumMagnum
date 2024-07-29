@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryCareerStageCell = ({user, classes}: {
+const PeopleDirectoryCareerStageCell = ({user, classes}: {
   user: SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {

@@ -26,10 +26,12 @@ test("create and edit comment", async ({page, context}) => {
 
   // Switch the comment to edit mode
   await commentItem.locator(".CommentsItemMeta-menu").click();
-  await page.getByText("Edit").click();
+  await page.getByText("Edit", {exact: true}).click();
 
   // Enter and save the new comment contents
   const newContents = "Edited comment body 123";
+  // Clear and fill the editor in two separate steps, because Playwright's .fill() fails in Firefox (but not other browsers) if these are one step
+  await commentItem.getByRole("textbox").fill("");
   await commentItem.getByRole("textbox").fill(newContents);
   await commentItem.getByRole("button", {name: "Save"}).click();
 

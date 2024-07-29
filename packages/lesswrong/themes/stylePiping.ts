@@ -77,6 +77,16 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const neuronpediaPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.neuronpedia-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 440,
+      border: "none",
+    },
+  },
+});
+
 export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.calendly-preview": {
     "& iframe": {
@@ -220,7 +230,7 @@ const hrStyles = (theme: ThemeType): JssStyles => ({
   '&:after': {
     marginLeft: 12,
     color: theme.palette.icon.horizRuleDots,
-    fontSize: "1rem",
+    fontSize: 13,
     letterSpacing: "12px", /* increase space between dots */
     content: '"•••"',
   }
@@ -242,6 +252,87 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
     padding: "0 0.3em",
     width: '95%',
   },
+});
+
+const collapsibleSectionStyles = (theme: ThemeType): JssStyles => ({
+  '& .detailsBlock': {
+    // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
+    // that tries to turn border off and on to indicate selection. Use
+    // !important to ensure it's visible.
+    border: isFriendlyUI ? undefined : theme.palette.border.normal+' !important',
+    borderRadius: 8,
+    marginTop: isFriendlyUI ? 0 : 8,
+    marginBottom: 8,
+  },
+  '& .detailsBlockTitle': {
+    padding: 8,
+    borderRadius: 0,
+
+    // give background !important to take precedence over CkEditor making it
+    // pure-white when the cursor is inside it, which would make the
+    // title-vs-contents distinction invisible
+    background: isFriendlyUI ? undefined : theme.palette.panelBackground.darken05+'!important',
+    
+    "&>p": {
+      display: "inline-block",
+    },
+  },
+  '& .detailsBlockTitle[open]': {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
+  '& summary.detailsBlockTitle': {
+    cursor: "pointer",
+  },
+  '& .detailsBlockContent': {
+    padding: isFriendlyUI ? "0 8px 8px 20px" : 8,
+  },
+  // Cancel out a global paragraph style that adds bottom margin to paragraphs
+  // in the editor for some reason, which would create a page/editor mismatch
+  // and mess up the bottom margin of detail block contents.
+  "& .detailsBlockContent > p:last-child, & .detailsBlockTitle > p:last-child": {
+    marginBottom: '0 !important',
+  },
+  
+  // Placeholder text in the editor for a collapsible section with no title.
+  // CkEditor represents this with a <br> placeholder as:
+  //     <p><br data-cke-filler="true"/></p>
+  "& .detailsBlockTitle p:has(> br[data-cke-filler=true]:only-child)::after": {
+    content: '"Collapsible Section Title"',
+    color: theme.palette.greyAlpha(0.3),
+    pointerEvents: "none",
+    position: "absolute",
+    top: 8,
+  },
+  
+  "& .detailsBlock.closed .detailsBlockContent": {
+    display: "none",
+  },
+  
+  // The 'div' part of this selector makes it specific to the editor (outside
+  // the editor it would be a <summary> tag)
+  '& div.detailsBlockTitle': {
+    position: "relative",
+    paddingLeft: isFriendlyUI ? 20 : 24,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: isFriendlyUI ? "20.8px" : undefined,
+    lineHeight: isFriendlyUI ? "1.25em" : undefined,
+    fontWeight: isFriendlyUI ? 600 : undefined,
+  },
+
+  // The 'div' part of this selector makes it specific to the editor (outside
+  // the editor it would be a <summary> tag)
+  '& div.detailsBlockTitle::before': {
+    content: '"▼"',
+    cursor: "pointer",
+    fontSize: isFriendlyUI ? 12 : 14,
+    paddingRight: 4,
+    position: "absolute",
+    left: isFriendlyUI ? 0 : 8,
+  },
+  '& .detailsBlock.closed div.detailsBlockTitle::before': {
+    content: '"▶"',
+  }
 });
 
 // Calling requireCssVar results in the variable being defined in the stylesheet
@@ -434,6 +525,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...neuronpediaPreviewStyles(theme),
     ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
@@ -442,6 +534,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
+    ...collapsibleSectionStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
@@ -545,8 +638,8 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
-    lineHeight: "1.75rem",
+    fontSize: isFriendlyUI ? 14.3 : 16.64,
+    lineHeight: "22.75px",
     ...theme.typography.postStyle,
     '& blockquote': {
       ...theme.typography.body2,
@@ -558,8 +651,8 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
-      lineHeight: "1.8rem",
+      fontSize: isFriendlyUI ? 14.3 : 16.64,
+      lineHeight: "23.4px",
     }
   };
 }
@@ -689,7 +782,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         },
         '& .ck-annotation__info-name, & .ck-annotation__info-time': {
           color: theme.palette.grey[600],
-          fontSize: "1rem"
+          fontSize: 13
         },
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"

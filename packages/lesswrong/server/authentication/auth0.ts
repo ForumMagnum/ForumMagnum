@@ -2,13 +2,14 @@ import { DatabaseServerSetting } from "../databaseSettings";
 import {
   AppMetadata,
   AuthenticationClient,
+  GrantResponse,
   ManagementClient,
   UpdateUserData,
   User,
   UserMetadata,
 } from "auth0";
 import Profile from "passport-auth0/lib/Profile";
-import { getAuth0Id } from "../../lib/collections/users/helpers";
+import { getAuth0Id, getAuth0Provider } from "../../lib/collections/users/helpers";
 import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
@@ -28,10 +29,13 @@ export const AUTH0_SCOPE = "profile email openid offline_access";
 type Auth0User = User<AppMetadata, UserMetadata>;
 
 abstract class IAuth0BackendClient {
-  abstract getUserById(userId: string): Promise<Auth0User>;
-  abstract updateUserById(userId: string, data: UpdateUserData): Promise<Auth0User>;
+  abstract getUserById(auth0UserId: string): Promise<Auth0User>;
+  abstract updateUserById(auth0UserId: string, data: UpdateUserData): Promise<Auth0User>;
   abstract signupUser(email: string, password: string): Promise<void>;
   abstract loginUser(email: string, password: string): Promise<string | null>;
+  abstract getGrants({auth0UserId, clientId}: {auth0UserId: string, clientId?: string}): Promise<GrantResponse[]>;
+  abstract revokeApplicationAuthorization(auth0UserId: string): Promise<void>;
+  abstract deleteUser(auth0UserId: string): Promise<void>;
 }
 
 /**
@@ -46,12 +50,12 @@ class MockAuth0Client extends IAuth0BackendClient {
     }
   }
 
-  getUserById(_userId: string): Promise<Auth0User> {
+  getUserById(_auth0UserId: string): Promise<Auth0User> {
     this.assertIsE2E();
     throw new Error("getUserById not implemented for tests");
   }
 
-  updateUserById(_userId: string, _data: UpdateUserData): Promise<Auth0User> {
+  updateUserById(_auth0UserId: string, _data: UpdateUserData): Promise<Auth0User> {
     this.assertIsE2E();
     throw new Error("updateUserById not implemented for tests");
   }
@@ -63,6 +67,21 @@ class MockAuth0Client extends IAuth0BackendClient {
   async loginUser(email: string, _password: string): Promise<string | null> {
     this.assertIsE2E();
     return `access-token-${email}`;
+  }
+
+  async getGrants({auth0UserId: _auth0UserId, clientId: _clientId}: {auth0UserId: string, clientId?: string}): Promise<GrantResponse[]> {
+    this.assertIsE2E();
+    throw new Error("getGrants not implemented for tests");
+  }
+
+  async revokeApplicationAuthorization(_auth0UserId: string): Promise<void> {
+    this.assertIsE2E();
+    throw new Error("revokeApplicationAuthorization not implemented for tests");
+  }
+
+  async deleteUser(_auth0UserId: string): Promise<void> {
+    this.assertIsE2E();
+    throw new Error("deleteUser not implemented for tests");
   }
 }
 
@@ -92,7 +111,7 @@ class Auth0Client extends IAuth0BackendClient {
     if (!this.managementClient) {
       this.managementClient = new ManagementClient({
         ...this.getSettings(),
-        scope: "read:users update:users",
+        scope: "read:users update:users read:client_grants read:grants delete:grants delete:users",
       });
     }
     return this.managementClient;
@@ -105,14 +124,14 @@ class Auth0Client extends IAuth0BackendClient {
     return this.authClient;
   }
 
-  getUserById(userId: string): Promise<Auth0User> {
+  getUserById(auth0UserId: string): Promise<Auth0User> {
     const client = this.getManagementClient();
-    return client.getUser({id: userId});
+    return client.getUser({id: auth0UserId});
   }
 
-  updateUserById(userId: string, data: UpdateUserData): Promise<Auth0User> {
+  updateUserById(auth0UserId: string, data: UpdateUserData): Promise<Auth0User> {
     const client = this.getManagementClient();
-    return client.updateUser({id: userId}, data);
+    return client.updateUser({id: auth0UserId}, data);
   }
 
   async signupUser(email: string, password: string): Promise<void> {
@@ -137,21 +156,122 @@ class Auth0Client extends IAuth0BackendClient {
     });
     return grant?.access_token ?? null;
   }
+
+  async getGrants({auth0UserId, clientId}: {auth0UserId: string, clientId?: string}): Promise<GrantResponse[]> {
+    const client = this.getManagementClient();
+
+    // getGrants has clientId and audience as required parameters. These are not actually required, and we
+    // need to get the grants for other applications to see if it is safe to delete the user
+    // @ts-ignore
+    const grants = await client.getGrants({
+      user_id: auth0UserId,
+      // @ts-ignore
+      client_id: clientId
+    }) as Promise<GrantResponse[]>;
+
+    return grants;
+  }
+
+  async revokeApplicationAuthorization(auth0UserId: string) {
+    const client = this.getManagementClient();
+    const { clientId } = this.getSettings();
+
+    const grants = await this.getGrants({
+      auth0UserId,
+      clientId
+    });
+
+    const grant = grants[0];
+
+    if (!grant) {
+      throw new Error("No grants found for this user")
+    }
+
+    if (grant.clientID !== clientId) {
+      throw new Error("Grant clientID doesn't match application clientId, something has gone wrong")
+    }
+
+    await client.deleteGrant(grant)
+  }
+
+  /**
+   * Permanently deletes the user in auth0
+   */
+  async deleteUser(auth0UserId: string) {
+    const client = this.getManagementClient();
+    await client.deleteUser({ id: auth0UserId });
+  }
 }
 
 const auth0Client: IAuth0BackendClient = isE2E
   ? new MockAuth0Client()
   : new Auth0Client();
 
-// TODO: Probably good to fix this, IM(JP)O. It works because we only use it in
-// a context where we're guaranteed to have an email/password user.
-/** Warning! Only returns profiles of users who do not use OAuth */
+/**
+ * The goal of this function is to absolve the forum instance of any responsibility
+ * for the Auth0 user:
+ * 1. Remove the user's authorization for the forum application
+ * 2. If the user is not authorized to do anything else, delete the user
+ *
+ * If the user does have other authorizations then it is the responsibility of those
+ * applications to delete the user if necessary
+ *
+ * @returns {boolean} Whether the user was newly deleted from Auth0
+ */
+export async function auth0RemoveAssociationAndTryDeleteUser(user: DbUser): Promise<boolean> {
+  let auth0UserId = '';
+  try {
+    auth0UserId = getAuth0Id(user);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.log(e)
+    // User has no auth0 id (common for old users), so we can consider them already deleted
+    return false;
+  }
+
+  try {
+    await auth0Client.getUserById(auth0UserId)
+  } catch (e) {
+    if (e.message !== 'The user does not exist.') {
+      throw e;
+    }
+    // eslint-disable-next-line no-console
+    console.log(`User ${auth0UserId} does not exist in Auth0, no need to delete`)
+    return false;
+  }
+
+  try {
+    await auth0Client.revokeApplicationAuthorization(auth0UserId)
+  } catch (e) {
+    // 'No grants found for this user' means the grants have already been removed, so we can safely continue to trying to delete the user
+    if (e.message !== 'No grants found for this user') {
+      throw e;
+    }
+  }
+
+  // getGrants will throw if there is any kind of error, so we can be sure we have the correct grants
+  const grants = await auth0Client.getGrants({auth0UserId})
+
+  if (grants.length) {
+    // eslint-disable-next-line no-console
+    console.log(`Auth0 user has remaining grants after removing forum association, not deleting user ${auth0UserId}`)
+    return false;
+  }
+
+  await auth0Client.deleteUser(auth0UserId)
+  return true;
+}
+
 export const getAuth0Profile = async (user: DbUser) => {
   const result = await auth0Client.getUserById(getAuth0Id(user));
   return new Profile(result, JSON.stringify(result));
 }
 
 export const updateAuth0Email = (user: DbUser, newEmail: string) => {
+  if (getAuth0Provider(user) !== 'auth0') {
+    throw new Error("Cannot update email for user that doesn't use username/password login")
+  }
+
   return auth0Client.updateUserById(getAuth0Id(user), {email: newEmail});
 }
 

@@ -4,7 +4,7 @@ import { Images } from '../../lib/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { ckEditorUploadUrlSetting, cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { randomId } from '../../lib/random';
-import cloudinary from 'cloudinary';
+import cloudinary, { UploadApiResponse } from 'cloudinary';
 import cheerio from 'cheerio';
 import { cheerioParse } from '../utils/htmlUtil';
 import { URL } from 'url';
@@ -15,61 +15,128 @@ import { loggerConstructor } from '../../lib/utils/logging';
 import { Posts } from '../../lib/collections/posts';
 import { getAtPath, setAtPath } from '../../lib/helpers';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import crypto from 'crypto';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
 
-// Given a URL which (probably) points to an image, download that image,
-// re-upload it to cloudinary, and return a cloudinary URL for that image. If
-// the URL is already Cloudinary or can't be downloaded, returns null instead.
-export async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
-  const logger = loggerConstructor("image-conversion")
-  const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
-  if (alreadyRehosted) return alreadyRehosted;
-  
+type CloudinaryCredentials = {
+  cloud_name: string,
+  api_key: string,
+  api_secret: string,
+}
+
+/**
+ * Credentials that can be spread into `cloudinary.v2` functions, like so: `cloudinary.v2.url(publicId, { ...credentials })`
+ */
+const getCloudinaryCredentials = () => {
   const cloudName = cloudinaryCloudNameSetting.get();
   const apiKey = cloudinaryApiKey.get();
   const apiSecret = cloudinaryApiSecret.get();
-  
+
   if (!cloudName || !apiKey || !apiSecret) {
     // eslint-disable-next-line no-console
-    console.error("Cannot upload image to Cloudinary: not configured");
+    console.error("Cloudinary credentials not configured");
     return null;
   }
-  
-  const result = await cloudinary.v2.uploader.upload(
-    oldUrl,
-    {
-      folder: `mirroredImages/${originDocumentId}`,
-      cloud_name: cloudName,
-      api_key: apiKey,
-      api_secret: apiSecret,
-    }
-  );
-  logger(`Result of moving image: ${result.secure_url}`);
 
-  // Serve all images with automatic quality and format transformations to save on bandwidth
-  const autoQualityFormatUrl = cloudinary.v2.url(result.public_id, {
+  const credentials: CloudinaryCredentials = {
     cloud_name: cloudName,
     api_key: apiKey,
     api_secret: apiSecret,
-    quality: 'auto',
-    fetch_format: 'auto',
-    secure: true
-  });
-  
-  await Images.rawInsert({
-    originalUrl: oldUrl,
-    cdnHostedUrl: autoQualityFormatUrl,
-  });
-  
-  return autoQualityFormatUrl;
+  };
+  return credentials;
+};
+
+/** If an image has already been re-hosted, return its CDN URL. Otherwise null. */
+async function findAlreadyMovedImage(identifier: string): Promise<string|null> {
+  const image = await Images.findOne({identifier});
+  return image?.cdnHostedUrl ?? null;
 }
 
-/// If an image has already been re-hosted, return its CDN URL. Otherwise null.
-async function findAlreadyMovedImage(url: string): Promise<string|null> {
-  const image = await Images.findOne({originalUrl: url});
-  return image?.cdnHostedUrl ?? null;
+/**
+ * Re-upload the given image URL to cloudinary, and return the cloudinary URL. If the image has already been uploaded
+ * it will return the existing cloudinary URL.
+ */
+export async function moveImageToCloudinary({oldUrl, originDocumentId}: {oldUrl: string, originDocumentId: string}): Promise<string|null> {
+  const upload = async (credentials: CloudinaryCredentials) => await cloudinary.v2.uploader.upload(
+    oldUrl,
+    {
+      folder: `mirroredImages/${originDocumentId}`,
+      ...credentials
+    }
+  );
+
+  return getOrCreateCloudinaryImage({identifier: oldUrl, identifierType: 'originalUrl', upload})
+}
+
+/**
+ * Upload the given image buffer to cloudinary, and return the cloudinary URL. If the image has already been uploaded
+ * (identified by SHA256 hash) it will return the existing cloudinary URL.
+ */
+export async function uploadBufferToCloudinary(buffer: Buffer) {
+  const hash = crypto.createHash('sha256').update(buffer).digest('hex');
+  const upload = async (credentials: CloudinaryCredentials) => new Promise<UploadApiResponse>((resolve) => {
+    cloudinary.v2.uploader
+      .upload_stream(
+        {
+          ...credentials,
+          folder: `mirroredImages/${hash}`
+        },
+        (error, result) => {
+          if (error || !result) {
+            // eslint-disable-next-line no-console
+            console.error("Failed to upload buffer to Cloudinary:", error);
+            throw error;
+          }
+          return resolve(result);
+        }
+      )
+      .end(buffer);
+  })
+
+  return getOrCreateCloudinaryImage({identifier: hash, identifierType: 'sha256Hash', upload})
+}
+
+/**
+ * Returns a cloudinary url of the image corresponding to `identifier`, uploads the image if it doesn't
+ * already exist in cloudinary
+ */
+async function getOrCreateCloudinaryImage({
+  identifier,
+  identifierType,
+  upload,
+}: {
+  identifier: string;
+  identifierType: string;
+  upload: (credentials: CloudinaryCredentials) => Promise<UploadApiResponse>;
+}) {
+  const logger = loggerConstructor("image-conversion");
+  const alreadyRehosted = await findAlreadyMovedImage(identifier);
+  if (alreadyRehosted) return alreadyRehosted;
+
+  const credentials = getCloudinaryCredentials();
+
+  if (!credentials) return null;
+
+  const uploadResponse = await upload(credentials);
+  logger(`Result of uploading image: ${uploadResponse.secure_url}`);
+
+  // Serve all images with automatic quality and format transformations to save on bandwidth
+  const autoQualityFormatUrl = cloudinary.v2.url(uploadResponse.public_id, {
+    ...credentials,
+    quality: "auto",
+    fetch_format: "auto",
+    secure: true,
+  });
+
+  await Images.rawInsert({
+    identifier,
+    identifierType,
+    cdnHostedUrl: autoQualityFormatUrl,
+  });
+
+  return autoQualityFormatUrl;
 }
 
 /**
@@ -116,7 +183,7 @@ export async function convertImagesInHTML(html: string, originDocumentId: string
   const mirrorUrls: Record<string,string> = {};
   await Promise.all(imgUrls.map(async (url) => {
     // resolve to the url of the image on cloudinary
-    const movedImage = await moveImageToCloudinary(url, originDocumentId)
+    const movedImage = await moveImageToCloudinary({oldUrl: url, originDocumentId})
     if (movedImage) {
       mirrorUrls[url] = movedImage;
     }
@@ -287,7 +354,7 @@ export const rehostPostMetaImages = async (post: DbPost) => {
 
     let newUrl: string | null = null;
     try {
-      newUrl = await moveImageToCloudinary(currentUrl, post._id);
+      newUrl = await moveImageToCloudinary({oldUrl: currentUrl, originDocumentId: post._id});
     } catch (e) {
       // eslint-disable-next-line
       console.error(`Failed to move image for ${post._id}:`, field, `(error ${e})`);

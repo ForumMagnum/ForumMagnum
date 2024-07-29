@@ -24,6 +24,8 @@ dump/*
 settings*.json
 *conn.txt
 *settings.js
+!settings-test-crosspost.json
+!settings-test.json
 
 .idea
 .tern-project
@@ -74,6 +76,7 @@ build*
 !build.js
 !buildUtil.js
 yarn-error.log
+public/lesswrong-editor/obj
 
 # Created by @shelf/jest-mongodb
 globalConfig.json

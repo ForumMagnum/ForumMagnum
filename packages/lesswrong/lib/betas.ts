@@ -14,6 +14,7 @@ import {
   hasSideCommentsSetting, 
   hasDialoguesSetting, 
   hasPostInlineReactionsSetting,
+  isBotSiteSetting,
   isLW,
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
@@ -57,7 +58,7 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 export const userHasPeopleDirectory = (user: UsersCurrent|DbUser|null) =>
-  isEAForum && !!user?.beta;
+  isEAForum;
 
 export const userHasSubscribeTabFeed = isLW ? shippedFeature : disabled;
 
@@ -85,11 +86,13 @@ export const allowSubscribeToSequencePosts = isFriendlyUI;
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
+export const hasAccountDeletionFlow = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = isLWorAF;
 export const hasForumEvents = isEAForum;
+export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
 export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
 

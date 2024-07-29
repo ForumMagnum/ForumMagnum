@@ -289,6 +289,15 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
     description: "",
     filter: {opacity: 0.6, translateY: 1, scale: 1.05},
+    deprecated:true
+  },
+  {
+    name: "heart",
+    label: "Heart",
+    searchTerms: ["empathy"],
+    svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
+    description: "",
+    filter: {opacity: 0.6, translateY: 1, scale: 1.05},
     deprecated:false
   },
   {

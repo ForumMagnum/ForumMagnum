@@ -1,15 +1,18 @@
 import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { useEventListener } from "../hooks/useEventListener";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 
 export const styles = (theme: ThemeType) => ({
   root: {
-    cursor: "pointer",
     display: "inline-block",
-    padding: "4px 8px",
+  },
+  container: {
+    cursor: "pointer",
     fontFamily: theme.palette.fonts.sansSerifStack,
     borderRadius: theme.borderRadius.small,
+    padding: "4px 8px",
   },
   dropdown: {
     color: theme.palette.grey[1000],
@@ -37,6 +40,9 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
   },
+  primary: {
+    color: theme.palette.primary.main,
+  },
   title: {
     userSelect: "none",
     fontSize: 14,
@@ -48,6 +54,9 @@ export const styles = (theme: ThemeType) => ({
   icon: {
     width: 20,
     marginRight: 4,
+  },
+  smallIcon: {
+    width: "18px !important",
   },
   chevron: {
     width: 16,
@@ -69,25 +78,33 @@ export const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryFilterDropdown = ({
+const PeopleDirectoryFilterDropdown = ({
   title,
   active,
+  primary,
   style = "dropdown",
   icon,
   onOpen,
   onClose,
   children,
+  smallIcon,
   className,
+  rootClassName,
+  titleClassName,
   classes,
 }: {
-  title: string,
+  title: ReactNode,
   active?: boolean,
+  primary?: boolean,
   style?: "dropdown" | "button",
   icon?: ForumIconName,
   onOpen?: () => void,
   onClose?: () => void,
   children?: ReactNode,
+  smallIcon?: boolean,
   className?: string,
+  rootClassName?: string,
+  titleClassName?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(false);
@@ -104,25 +121,35 @@ export const PeopleDirectoryFilterDropdown = ({
     });
   }, [onOpen, onClose]);
 
+  useEventListener("resize", () => setOpen(false));
+
   const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
-    <div
-      ref={anchorRef}
-      className={classNames(classes.root, {
-        [classes.dropdown]: style === "dropdown",
-        [classes.button]: style === "button",
-        [classes.active]: active,
-      })}
-    >
-      <div onClick={() => onChangeOpen(!open)} className={classes.title}>
-        {icon && <ForumIcon icon={icon} className={classes.icon} />}
-        {title}
-        {style === "dropdown" &&
-          <ForumIcon
-            icon="ThickChevronDown"
-            className={classNames(classes.chevron, {[classes.chevronOpen]: open})}
-          />
-        }
+    <div ref={anchorRef} className={classes.root}>
+      <div
+        onClick={() => onChangeOpen(!open)}
+        className={classNames(classes.container, rootClassName, {
+          [classes.dropdown]: style === "dropdown",
+          [classes.button]: style === "button",
+          [classes.active]: active,
+          [classes.primary]: primary,
+        })}
+      >
+        <div className={classNames(classes.title, titleClassName)}>
+          {icon &&
+            <ForumIcon
+              icon={icon}
+              className={classNames(classes.icon, smallIcon && classes.smallIcon)}
+            />
+          }
+          {title}
+          {style === "dropdown" &&
+            <ForumIcon
+              icon="ThickChevronDown"
+              className={classNames(classes.chevron, {[classes.chevronOpen]: open})}
+            />
+          }
+        </div>
       </div>
       <LWPopper
         placement="bottom-start"

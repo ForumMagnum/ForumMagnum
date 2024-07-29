@@ -57,6 +57,7 @@ importComponent("EAHomeHandbook", () => require('../components/ea-forum/EAHomeHa
 importComponent("EAHomeRightHandSide", () => require('../components/ea-forum/EAHomeRightHandSide'));
 importComponent("EAForumWrappedPage", () => require('../components/ea-forum/wrapped/EAForumWrappedPage'));
 importComponent("EASurveyBanner", () => require('../components/ea-forum/EASurveyBanner'));
+importComponent("EAGBanner", () => require('../components/ea-forum/EAGBanner'));
 importComponent("Digests", () => require('../components/ea-forum/digest/Digests'));
 importComponent("EditDigest", () => require('../components/ea-forum/digest/EditDigest'));
 importComponent("EditDigestHeader", () => require('../components/ea-forum/digest/EditDigestHeader'));
@@ -90,6 +91,7 @@ importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText
 importComponent("EAButton", () => require('../components/ea-forum/EAButton'))
 importComponent(["EAGApplicationImportFormWrapper", "EAGApplicationImportForm"], () => require('../components/ea-forum/users/EAGApplicationImportForm'))
 importComponent("FriendlyUsersProfile", () => require('../components/users/FriendlyUsersProfile'))
+importComponent("DisplayNameWithMarkers", () => require('../components/ea-forum/users/DisplayNameWithMarkers'))
 importComponent("EAUsersProfileImage", () => require('../components/ea-forum/users/EAUsersProfileImage'))
 importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/users/EAUsersProfileLinks'))
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
@@ -165,6 +167,7 @@ importComponent("EditTagsDropdownItem", () => require('../components/dropdowns/p
 importComponent("ReportPostDropdownItem", () => require('../components/dropdowns/posts/ReportPostDropdownItem'));
 importComponent("DuplicateEventDropdownItem", () => require('../components/dropdowns/posts/DuplicateEventDropdownItem'));
 importComponent("HideFrontpagePostDropdownItem", () => require('../components/dropdowns/posts/HideFrontpagePostDropdownItem'));
+importComponent("DislikeRecommendationDropdownItem", () => require('../components/dropdowns/posts/DislikeRecommendationDropdownItem'));
 importComponent("BookmarkDropdownItem", () => require('../components/dropdowns/posts/BookmarkDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
 importComponent("EditPostDropdownItem", () => require('../components/dropdowns/posts/EditPostDropdownItem'));
@@ -282,6 +285,7 @@ importComponent("ForumDropdownMultiselect", () => require('../components/common/
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
 importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("TabPicker", () => require('../components/common/TabPicker'));
+importComponent("Sparkline", () => require('../components/common/Sparkline'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -333,7 +337,7 @@ importComponent("SubscribeWidget", () => require('../components/common/Subscribe
 importComponent("SubscribeDialog", () => require('../components/common/SubscribeDialog'));
 
 importComponent("HoverPreviewLink", () => require('../components/linkPreview/HoverPreviewLink'));
-importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview", "ViewpointsPreview"], () => require('../components/linkPreview/PostLinkPreview'));
+importComponent(["PostLinkPreview", "PostLinkCommentPreview", "PostLinkPreviewSequencePost", "PostLinkPreviewSlug", "PostLinkPreviewLegacy", "CommentLinkPreviewLegacy", "PostLinkPreviewWithPost", "PostCommentLinkPreviewGreaterWrong", "DefaultPreview", "MozillaHubPreview", "OWIDPreview", "MetaculusPreview", "ManifoldPreview", "NeuronpediaPreview", "MetaforecastPreview", "ArbitalPreview", "SequencePreview", "EstimakerPreview", "ViewpointsPreview"], () => require('../components/linkPreview/PostLinkPreview'));
 importComponent("FootnotePreview", () => require('../components/linkPreview/FootnotePreview'));
 importComponent("LinkToPost", () => require('../components/linkPreview/LinkToPost'));
 
@@ -341,8 +345,6 @@ importComponent("ThemePickerMenu", () => require('../components/themes/ThemePick
 importComponent("SocialMediaLink", () => require('../components/users/SocialMediaLink'));
 importComponent("BannedNotice", () => require('../components/users/BannedNotice'));
 importComponent("UsersMenu", () => require('../components/users/UsersMenu'));
-importComponent("UsersEditForm", () => require('../components/users/UsersEditForm'));
-importComponent("UsersAccount", () => require('../components/users/UsersAccount'));
 importComponent("UsersAccountMenu", () => require('../components/users/UsersAccountMenu'));
 importComponent("UsersProfile", () => require('../components/users/UsersProfile'));
 importComponent("ReportUserButton", () => require('../components/users/ReportUserButton'));
@@ -386,6 +388,18 @@ importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("EditProfileForm", () => require('../components/users/EditProfileForm'))
+
+// users account settings page
+
+importComponent("UsersAccount", () => require('../components/users/account/UsersAccount'));
+importComponent("UsersEditForm", () => require('../components/users/account/UsersEditForm'));
+importComponent("UsersAccountManagement", () => require('../components/users/account/UsersAccountManagement'));
+importComponent("ActionButtonSection", () => require('../components/users/account/ActionButtonSection'));
+importComponent("DeactivateAccountSection", () => require('../components/users/account/DeactivateAccountSection'));
+importComponent("DeleteAccountSection", () => require('../components/users/account/DeleteAccountSection'));
+importComponent("DeleteAccountConfirmationModal", () => require('../components/users/account/DeleteAccountConfirmationModal'));
+
+//
 
 importComponent("OmegaIcon", () => require('../components/icons/OmegaIcon'));
 importComponent("SettingsButton", () => require('../components/icons/SettingsButton'));
@@ -748,6 +762,9 @@ importComponent("ForumEventForm", () => require('../components/forumEvents/Forum
 importComponent("ForumEventBanner", () => require('../components/forumEvents/ForumEventBanner'));
 importComponent("ForumEventFrontpageBanner", () => require('../components/forumEvents/ForumEventFrontpageBanner'));
 importComponent("ForumEventPostPageBanner", () => require('../components/forumEvents/ForumEventPostPageBanner'));
+importComponent("ForumEventPostPagePollSection", () => require('../components/forumEvents/ForumEventPostPagePollSection'));
+importComponent("ForumEventPoll", () => require('../components/forumEvents/ForumEventPoll'));
+importComponent("ForumEventPostSelectionDialog", () => require('../components/forumEvents/ForumEventPostSelectionDialog'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
@@ -981,6 +998,8 @@ importComponent(["DatePicker","FormComponentDateTime"], () => require('../compon
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
 importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
+importComponent("FormComponentFriendlyTextInput", () => require('../components/form-components/FormComponentFriendlyTextInput'));
+importComponent("FormComponentFriendlyDisplayNameInput", () => require('../components/form-components/FormComponentFriendlyDisplayNameInput'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));
 importComponent("TagFlagToggleList", () => require('../components/form-components/TagFlagToggleList'));
@@ -994,6 +1013,8 @@ importComponent("FormGroupLayout", () => require('../components/form-components/
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 importComponent("FormGroupQuickTakes", () => require('../components/form-components/FormGroupQuickTakes'))
+importComponent("DummyFormGroup", () => require('../components/form-components/DummyFormGroup'))
+importComponent("FormGroupFriendlyUserProfile", () => require('../components/form-components/FormGroupFriendlyUserProfile'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 
@@ -1129,6 +1150,12 @@ importComponent("CookiePolicy", () => require('../components/common/CookieBanner
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
 importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 
+// Surveys
+importComponent("SurveyAdminPage", () => require('../components/surveys/SurveyAdminPage'));
+importComponent("SurveyEditPage", () => require('../components/surveys/SurveyEditPage'));
+importComponent("SurveyScheduleEditPage", () => require('../components/surveys/SurveyScheduleEditPage'));
+importComponent("SurveyPostsItem", () => require('../components/surveys/SurveyPostsItem'));
+
 // People directory
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
 importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));
@@ -1138,13 +1165,16 @@ importComponent("PeopleDirectoryFilters", () => require('../components/peopleDir
 importComponent("PeopleDirectoryFilterDropdown", () => require('../components/peopleDirectory/PeopleDirectoryFilterDropdown'));
 importComponent("PeopleDirectoryStaticFilter", () => require('../components/peopleDirectory/PeopleDirectoryStaticFilter'));
 importComponent("PeopleDirectorySearchableFilter", () => require('../components/peopleDirectory/PeopleDirectorySearchableFilter'));
+importComponent("PeopleDirectoryAllFiltersDropdown", () => require('../components/peopleDirectory/PeopleDirectoryAllFiltersDropdown'));
 importComponent("PeopleDirectorySelectOption", () => require('../components/peopleDirectory/PeopleDirectorySelectOption'));
+importComponent("PeopleDirectoryCheckOption", () => require('../components/peopleDirectory/PeopleDirectoryCheckOption'));
 importComponent("PeopleDirectoryClearAll", () => require('../components/peopleDirectory/PeopleDirectoryClearAll'));
 importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
 importComponent("PeopleDirectoryResultsMap", () => require('../components/peopleDirectory/PeopleDirectoryResultsMap'));
 importComponent("PeopleDirectoryResultsList", () => require('../components/peopleDirectory/PeopleDirectoryResultsList'));
 importComponent("PeopleDirectoryNoResults", () => require('../components/peopleDirectory/PeopleDirectoryNoResults'));
 importComponent("PeopleDirectoryResultRow", () => require('../components/peopleDirectory/PeopleDirectoryResultRow'));
+importComponent("PeopleDirectoryCard", () => require('../components/peopleDirectory/PeopleDirectoryCard'));
 importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
 importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
 importComponent("PeopleDirectoryTextCell", () => require('../components/peopleDirectory/PeopleDirectoryTextCell'));
@@ -1154,6 +1184,9 @@ importComponent("PeopleDirectorySocialMediaCell", () => require('../components/p
 importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));
 importComponent("PeopleDirectorySkeletonUserCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonUserCell'));
 importComponent("PeopleDirectorySkeletonTextCell", () => require('../components/peopleDirectory/PeopleDirectorySkeletonTextCell'));
+importComponent("PeopleDirectoryTopicsCell", () => require('../components/peopleDirectory/PeopleDirectoryTopicsCell'));
+importComponent("PeopleDirectoryCommentCountCell", () => require('../components/peopleDirectory/PeopleDirectoryCommentCountCell'));
+importComponent("PeopleDirectoryPostsCell", () => require('../components/peopleDirectory/PeopleDirectoryPostsCell'));
 
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));

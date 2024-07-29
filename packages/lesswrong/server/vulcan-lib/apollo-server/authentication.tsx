@@ -311,13 +311,6 @@ const authenticationResolvers = {
       else
         return `Failed to send password reset email. The account might not have a valid email address configured.`;
     },
-    async verifyEmail(root: void, { userId }: {userId: string}, context: ResolverContext) {
-      if (!userId) throw Error("User ID is required for validating your email")
-      const user = await Users.findOne({_id: userId})
-      if (!user) throw Error("Can't find user with given ID")
-      await sendVerificationEmail(user)
-      return `Successfully sent verification email to ${user.displayName}`
-    }
   } 
 };
 
@@ -326,7 +319,6 @@ addGraphQLMutation('login(username: String, password: String): LoginReturnData')
 addGraphQLMutation('signup(username: String, email: String, password: String, subscribeToCurated: Boolean, reCaptchaToken: String, abTestKey: String): LoginReturnData');
 addGraphQLMutation('logout: LoginReturnData');
 addGraphQLMutation('resetPassword(email: String): String');
-addGraphQLMutation('verifyEmail(userId: String): String');
 
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
   const tokenWithMetadata = {
@@ -360,23 +352,6 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     currentUser: user,
     validate: false,
   })
-  
-  const clientId = getCookieFromReq(req, "clientId");
-  if (clientId) {
-    void recordAssociationBetweenUserAndClientID(clientId, user);
-  }
-}
-
-async function recordAssociationBetweenUserAndClientID(clientId: string, user: DbUser) {
-  const clientIdEntry = await ClientIds.findOne({clientId});
-  if (clientIdEntry) {
-    const userId = user._id;
-    if (!clientIdEntry.userIds?.includes(userId)) {
-      await ClientIds.rawUpdateOne({clientId}, {$set: {
-        userIds: [...(clientIdEntry.userIds??[]), userId],
-      }});
-    }
-  }
 }
 
 const reCaptchaSecretSetting = new DatabaseServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret

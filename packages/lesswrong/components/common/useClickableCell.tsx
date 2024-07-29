@@ -61,16 +61,17 @@ export const useClickableCell = ({
  */
 export const InteractionWrapper: FC<{
   href?: string,
+  openInNewTab?: boolean,
   children: ReactNode,
   className?: string,
-}> = ({href, children, className}) => {
+}> = ({href, openInNewTab, children, className}) => {
   const navigate = useNavigate();
   const onClick = useCallback((e: MouseEvent) => {
     e.stopPropagation();
     if (href) {
-      navigate(href);
+      navigate(href, {openInNewTab});
     }
-  }, [navigate, href]);
+  }, [navigate, href, openInNewTab]);
   return (
     <div onClick={onClick} className={className}>
       {children}

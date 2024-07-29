@@ -46,7 +46,21 @@ const getPostPlaceholder = (post: PostsBase) => {
   return defaultEditorPlaceholder;
 }
 
-export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
+export const EditorFormComponent = ({
+  form,
+  formType,
+  formProps,
+  document,
+  name,
+  fieldName,
+  value,
+  hintText,
+  placeholder,
+  label,
+  formVariant,
+  commentStyles,
+  classes,
+}: {
   form: any,
   formType: "edit"|"new",
   formProps: FormProps,
@@ -57,8 +71,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   hintText: string,
   placeholder: string,
   label: string,
+  formVariant?: "default" | "grey",
   commentStyles: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
@@ -446,6 +461,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       _classes={classes}
       currentUser={currentUser}
       label={label}
+      formVariant={formVariant}
       formType={updatedFormType}
       documentId={document._id}
       collectionName={collectionName}
@@ -466,7 +482,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
+    {!hideControls && formVariant !== "grey" &&
+      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+    }
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

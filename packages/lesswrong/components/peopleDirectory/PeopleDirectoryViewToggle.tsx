@@ -4,7 +4,7 @@ import { usePeopleDirectory } from "./usePeopleDirectory";
 import { styles } from "./PeopleDirectoryFilterDropdown";
 import classNames from "classnames";
 
-export const PeopleDirectoryViewToggle = ({classes}: {
+const PeopleDirectoryViewToggle = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {view, setView} = usePeopleDirectory();
@@ -14,7 +14,7 @@ export const PeopleDirectoryViewToggle = ({classes}: {
   }, [isList, setView]);
   const {ForumIcon} = Components;
   return (
-    <div className={classNames(classes.root, classes.button)} onClick={onClick}>
+    <div className={classNames(classes.container, classes.button)} onClick={onClick}>
       <div className={classes.title}>
         <ForumIcon
           icon={isList ? "Map" : "Bars3"}

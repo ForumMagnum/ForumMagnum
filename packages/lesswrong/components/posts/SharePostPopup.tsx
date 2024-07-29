@@ -185,10 +185,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 type ShareButtonProps = { label: string; icon: JSX.Element; clickAction?: () => void; classes: ClassesType };
 
 const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) => {
-  const { Typography } = Components;
-
   return (
-    // TODO rename classes (shareButtonWrapper -> shareButton, shareButton -> shareButtonIcon)
     <div className={classes.shareButton}>
       <div onClick={clickAction} className={classes.shareButtonIcon}>
         {icon}

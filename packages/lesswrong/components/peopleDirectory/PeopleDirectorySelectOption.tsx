@@ -14,6 +14,11 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    padding: "6px 8px",
+    borderRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.grey[100],
+    },
   },
   check: {
     display: "inline",
@@ -35,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectorySelectOption = ({state, className, classes}: {
+const PeopleDirectorySelectOption = ({state, className, classes}: {
   state: MultiSelectState,
   className?: string,
   classes: ClassesType<typeof styles>,

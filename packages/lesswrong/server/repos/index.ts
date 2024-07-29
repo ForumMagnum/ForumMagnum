@@ -8,6 +8,7 @@ import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
+import ForumEventsRepo from "./ForumEventsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
@@ -25,10 +26,14 @@ import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
+import SurveysRepo from "./SurveysRepo";
+import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
+import TweetsRepo from "./TweetsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
+import LWEventsRepo from "./LWEventsRepo";
 
 declare global {
   type Repos = ReturnType<typeof getAllRepos>;
@@ -45,7 +50,9 @@ const getAllRepos = () => ({
   dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
+  forumEvents: new ForumEventsRepo(),
   localgroups: new LocalgroupsRepo(),
+  lwEvents: new LWEventsRepo(),
   notifications: new NotificationsRepo(),
   postEmbeddings: new PostEmbeddingsRepo(),
   pageCaches: new PageCacheRepo(),
@@ -62,7 +69,10 @@ const getAllRepos = () => ({
   sequences: new SequencesRepo(),
   sideComments: new SideCommentCachesRepo(),
   splashArtCoordinates: new SplashArtCoordinatesRepo(),
+  surveys: new SurveysRepo(),
+  surveySchedules: new SurveySchedulesRepo(),
   tags: new TagsRepo(),
+  tweets: new TweetsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
   votes: new VotesRepo(),
@@ -79,7 +89,9 @@ export {
   DialogueChecksRepo,
   ElectionCandidatesRepo,
   ElectionVotesRepo,
+  ForumEventsRepo,
   LocalgroupsRepo,
+  LWEventsRepo,
   ManifoldProbabilitiesCachesRepo,
   NotificationsRepo,
   PageCacheRepo,

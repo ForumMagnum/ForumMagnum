@@ -685,8 +685,33 @@
     "timestamp": "2024-06-12T17:35:25.000Z"
   },
   {
-    "acceptsSchemaHash": "d95c1228f4b2a050f51e79c38e92e282",
-    "acceptedByMigration": "20240614T185929.normalize_post_contents.ts",
-    "timestamp": "2024-06-14T18:59:29.000Z"
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "af39464b13d09507b438054d15aba060",
+    "acceptedByMigration": "20240627T173906.add_poll_fields_to_ForumEvents.ts",
+    "timestamp": "2024-06-27T17:39:06.000Z"
+  },
+  {
+    "acceptsSchemaHash": "94df20dba53ef11f79930cbb2c17442c",
+    "acceptedByMigration": "20240702T104451.add_Images_identifier_fields.ts",
+    "timestamp": "2024-07-02T10:44:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a43d70aa333497e5911f91e0e60c2115",
+    "acceptedByMigration": "20240702T120844.create_Tweets.ts",
+    "timestamp": "2024-07-02T12:08:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a2faca5a61a921ed5828a0be4fb26461",
+    "acceptedByMigration": "20240704T135716.add_permanentDeletionRequestedAt.ts",
+    "timestamp": "2024-07-04T13:57:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d2ff8b556fc6f740b2bb57ddf5347f64",
+    "acceptedByMigration": "20240729T183041.normalize_post_contents.ts",
+    "timestamp": "2024-07-29T18:30:41.000Z"
   }
 ]

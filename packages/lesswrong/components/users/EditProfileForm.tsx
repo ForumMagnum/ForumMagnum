@@ -9,13 +9,20 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_IMPORT_EAG_PROFILE } from '../../lib/cookies/cookies';
 import { userHasEagProfileImport } from '../../lib/betas';
 import moment from 'moment';
-import { preferredHeadingCase } from '@/themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '@/themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    maxWidth: 800,
-    margin: '0 auto'
-  },
+const styles = (theme: ThemeType) => ({
+  root: isFriendlyUI
+    ? {
+      margin: "0 auto",
+      maxWidth: 700,
+      marginTop: 32,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }
+    : {
+      margin: "0 auto",
+      maxWidth: 800,
+    },
   heading: {
     marginTop: 0,
     [theme.breakpoints.down('sm')]: {
@@ -66,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const EditProfileForm = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const navigate = useNavigate();
@@ -75,7 +82,9 @@ const EditProfileForm = ({classes}: {
     HIDE_IMPORT_EAG_PROFILE,
   ]);
 
-  const {Typography, ForumIcon, WrappedSmartForm} = Components
+  const {
+    Typography, ForumIcon, WrappedSmartForm, FormGroupFriendlyUserProfile,
+  } = Components;
 
   let terms: {slug?: string, documentId?: string} = {}
   if (params.slug) {
@@ -93,13 +102,8 @@ const EditProfileForm = ({classes}: {
     );
   }
   // current user doesn't have edit permission
-  if (!userCanEditUser(currentUser,
-    terms.documentId ?
-      {_id: terms.documentId} :
-      // HasSlugType wants a bunch of fields we don't have (schemaVersion, _id),
-      // but userCanEdit won't use them
-      {slug: terms.slug, __collectionName: 'Users'} as HasSlugType
-  )) {
+  const userInfo = terms.documentId ? {_id: terms.documentId} : terms.slug ? {slug: terms.slug} : null;
+  if (!userInfo || !userCanEditUser(currentUser, userInfo)) {
     return <div className={classes.root}>
       Sorry, you do not have permission to do this at this time.
     </div>
@@ -118,8 +122,12 @@ const EditProfileForm = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <Typography variant="display3" className={classes.heading} gutterBottom>
-        {preferredHeadingCase("Edit Public Profile")}
+      <Typography
+        variant="display3"
+        gutterBottom={!isFriendlyUI}
+        className={classes.heading}
+      >
+        {preferredHeadingCase(isFriendlyUI ? "Edit Profile" : "Edit Public Profile")}
       </Typography>
 
       {!isEAForum &&
@@ -149,6 +157,7 @@ const EditProfileForm = ({classes}: {
         collectionName="Users"
         {...terms}
         fields={[
+          ...(isFriendlyUI ? ['displayName'] : []), // In UsersEditForm ("Account settings") in book UI
           'profileImageId',
           'jobTitle',
           'organization',
@@ -166,6 +175,9 @@ const EditProfileForm = ({classes}: {
           'organizerOfGroupIds',
           'programParticipation',
         ]}
+        formComponents={{
+          FormGroupLayout: isFriendlyUI ? FormGroupFriendlyUserProfile : undefined,
+        }}
         excludeHiddenFields={false}
         queryFragment={getFragment('UsersProfileEdit')}
         mutationFragment={getFragment('UsersProfileEdit')}
