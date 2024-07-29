@@ -1,6 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -244,7 +244,6 @@ const Header = ({
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
-  const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
@@ -292,10 +291,8 @@ const Header = ({
 
     if (hasNotificationsPage) {
       captureEvent("notificationsIconToggle", {
-        navigate: true,
         previousCheck: lastNotificationsCheck,
       });
-      navigate("/notifications");
     } else {
       captureEvent("notificationsIconToggle", {
         open: !notificationOpen,
