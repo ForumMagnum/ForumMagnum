@@ -180,7 +180,6 @@ const FriendlyNotificationsMenuButton = ({
     setOpen((open) => !open);
     toggle();
   }, [toggle]);
-  console.log("open", open, anchorEl);
 
   const {LWTooltip, LWPopper, ForumIcon, NotificationsPopover} = Components;
   return (
@@ -229,7 +228,7 @@ const FriendlyNotificationsMenuButton = ({
         anchorEl={anchorEl.current}
         placement="bottom"
         tooltip={false}
-        allowOverflow={false}
+        overflowPadding={16}
         clickable
       >
         <NotificationsPopover />
