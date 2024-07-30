@@ -526,12 +526,6 @@ declare global {
       panelBackgroundDark: ColorString,
       postScoreArrow: ColorString,
     },
-    dialogueMatching: {
-      checkedNotMatched: ColorString,
-      checkedMatched: ColorString,
-      optIn: ColorString,
-      warning: ColorString,
-    },
     namesAttachedReactions: {
       selectedAnti: ColorString,
     },
