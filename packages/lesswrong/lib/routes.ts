@@ -1270,7 +1270,6 @@ addRoute(...forumSelect<Route[]>({
       fullscreen: true,
     },
   ],
-  
   default: [
     {
       name: 'inbox',
@@ -1302,6 +1301,12 @@ addRoute(...forumSelect<Route[]>({
     },
   ]
 }))
+
+addRoute({
+  name: 'userInitiateConversation',
+  path: '/message/:slug',
+  componentName: 'MessageUser',
+})
 
 addRoute({
   name: 'AllComments',
