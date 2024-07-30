@@ -101,9 +101,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       <span className={classes.postTitle}>
         {post.title?.trim()}
       </span>
-      {post.postedAt && <div className={classes.tocPostedAt}>
-        <FormatDate date={post.postedAt} format={"Do MMM YYYY"} />
-      </div>}
     </TableOfContentsRow>
 
     {answersTree && answersTree.map(answer => <>

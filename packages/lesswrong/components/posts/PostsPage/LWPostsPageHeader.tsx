@@ -13,7 +13,6 @@ import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import CommentsIcon from '@material-ui/icons/ModeComment';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -26,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isFriendlyUI ? 20 : theme.spacing.unit*2,
+    marginBottom: isFriendlyUI ? 20 : 72  ,
     paddingTop: 75
   },
   headerLeft: {
@@ -158,20 +157,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   nonhumanAudio: {
     color: theme.palette.grey[500],
   },
-  headerFooter: { 
-    display: 'flex',
-    justifyContent: 'space-between',
-    [theme.breakpoints.down('sm')]: {
-      flexDirection: 'column',
-    },
-    marginTop: 8,
-    marginBottom: 16,
-  },
   tagSection: {
     position: 'absolute',
     right: 8, 
     top: -42,
-    display: 'flex'
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+      top: 8,
+      right: 8
+    }
   },
   rightHeaderVote: {
     display: 'flex',
@@ -190,10 +184,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'center',
     margin: '0px 8px 0px 3px'
   },
-  commentsIcon: {
-    fontSize: 12,
-    marginLeft: 4,
-    color: theme.palette.grey[300]
+  rightButtons: {
+    position: "absolute",
+    display: "flex",
+    flexDirection: "column",
+    right: 0,
+    top: '50%',
+    transform: 'translateY(-50%)'
+  },
+  sequenceNav: {
+    marginTop: 60,
+    marginBottom: -52
   }
 });
 
@@ -224,28 +225,6 @@ function getHostname(url: string): string {
   return parser.hostname;
 }
 
-const CommentsLink: FC<{
-  anchor: string,
-  children: React.ReactNode,
-  className?: string,
-}> = ({anchor, children, className}) => {
-  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const elem = document.querySelector(anchor);
-    if (elem) {
-      // Match the scroll behaviour from TableOfContentsList
-      window.scrollTo({
-        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
-        behavior: "smooth",
-      });
-    }
-  }
-  return (
-    <a className={className} {...(isFriendlyUI ? {onClick} : {href: anchor})}>
-      {children}
-    </a>
-  );
-}
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
@@ -324,13 +303,13 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       </LWTooltip>
     );
 
-  const answersNode = !post.question || minimalSecondaryInfo
-    ? null
-    : (
-      <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
-        {postGetAnswerCountStr(answerCount)}
-      </CommentsLink>
-    );
+  // const answersNode = !post.question || minimalSecondaryInfo
+  //   ? null
+  //   : (
+  //     <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
+  //       {postGetAnswerCountStr(answerCount)}
+  //     </CommentsLink>
+  //   );
 
   const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
 
@@ -366,10 +345,9 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       {readingTimeNode} */}
       {/* {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />} */}
       {post.isEvent && <GroupLinks document={post} noMargin />}
-      {/* {answersNode}
-      {audioNode}
-      {addToCalendarNode}
-      {tripleDotMenuNode} */}
+
+      {/* {addToCalendarNode} */}
+      {/* {tripleDotMenuNode} */}
     </div>
   </div>
   
@@ -382,20 +360,33 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      {('sequence' in post) && <PostsTopSequencesNav post={post} />}
+      {('sequence' in post) && <div className={classes.sequenceNav}>
+        <PostsTopSequencesNav post={post} />
+      </div>}
     </AnalyticsContext>
     {!post.shortform && !post.isEvent && !hideTags && <div className={classes.tagSection}>
       <AnalyticsContext pageSectionContext="tagHeader">
         <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground />
       </AnalyticsContext>
       <div className={classes.rightHeaderVote}>
-        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
+        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>
+      {/* {audioNode} */}
+      {/* <CommentsLink anchor="#comments" className={classes.commentsCount}>
+        {commentCount} <CommentsIcon className={classes.commentsIcon} />
+      </CommentsLink> */}
+      {postActionsButton}
+    </div>}
+    <div className={classes.rightButtons}>
+      {/* <div className={classes.rightHeaderVote}>
+        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
+      </div>
+      {audioNode}
       <CommentsLink anchor="#comments" className={classes.commentsCount}>
         {commentCount} <CommentsIcon className={classes.commentsIcon} />
       </CommentsLink>
-      {postActionsButton}
-    </div>}
+      {postActionsButton} */}
+    </div>
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
@@ -403,9 +394,8 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
           <div className={classes.authorInfo}>
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
-              {" | "}
-              <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
             </div>
+            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
             {rssFeedSource && rssFeedSource.user &&
               <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
@@ -418,9 +408,6 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       {/* {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
       </div>} */}
-    </div>
-    <div className={classes.headerFooter}>
-      
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>

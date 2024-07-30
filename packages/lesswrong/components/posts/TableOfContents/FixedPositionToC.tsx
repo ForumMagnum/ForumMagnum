@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { FC, MouseEvent, useContext, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -16,6 +16,8 @@ import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { z } from 'zod';
+import CommentsIcon from '@material-ui/icons/ModeComment';
+
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
   if (sections.length === 0) {
@@ -60,6 +62,29 @@ function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToC
   return sectionsWithOffsets;
 }
 
+const CommentsLink: FC<{
+  anchor: string,
+  children: React.ReactNode,
+  className?: string,
+}> = ({anchor, children, className}) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const elem = document.querySelector(anchor);
+    if (elem) {
+      // Match the scroll behaviour from TableOfContentsList
+      window.scrollTo({
+        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
+        behavior: "smooth",
+      });
+    }
+  }
+  return (
+    <a className={className} href={anchor}>
+      {children}
+    </a>
+  );
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     left: 0,
@@ -74,32 +99,28 @@ const styles = (theme: ThemeType) => ({
     },
     wordBreak: 'break-word',
     transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
-    '&:hover $row': {
+    '&:hover $rowOpacity': {
       opacity: 1,
     },
   },
-  row: {
+  rowWrapper: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center"
+  },
+  rowOpacity: {
     opacity: 0,
     zIndex: 1,
+    transition: '.1s'
   },
-  rowWithDot: {
-    '&:before': {
-      content: "⬤",
-      color: 'rgba(150,150,150,1)',
-      fontSize: 3,
-      left: 0,
-      top: 11,
-      background: 'white',
-      position: 'absolute',
-      /* height: 6px; */
-      width: 7,
-      lineHeight: 8,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      /* height: 4px; */
-      /* z-index: -1; */
-    }
+  rowDot: {
+    fontSize: 3,
+    height: 9,
+    paddingTop: 3,
+    paddingBottom: 3,
+    background: theme.palette.background.pageActiveAreaBackground,
+    marginLeft: 2,
+    marginRight: 8
   },
   fadeOut: {
     opacity: 0,
@@ -172,6 +193,19 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
+  comments: {
+    paddingBottom: 18,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+    color: theme.palette.link.tocLink,
+    display: "flex",
+    alignItems: "center"
+  },
+  commentsIcon: {
+    fontSize: 20,
+    marginRight: 4,
+    color: theme.palette.grey[400]
+  }
 });
 
 const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
@@ -311,42 +345,42 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     </div> */}
     </TableOfContentsRow>
   );
+  
+  const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
 
-  const rows = normalizedSections.map((section, index) => {
+  const rows = renderedSections.map((section, index) => {
     return (
-      <span className={classes.rowWithDot}>
-        <span className={classes.row}>
-          <TableOfContentsRow
-            key={section.anchor}
-            indentLevel={section.level}
-            divider={section.divider}
-            highlighted={section.anchor === currentSection}
-            href={"#"+section.anchor}
-            offset={section.offset}
-            onClick={(ev) => {
-              if (isRegularClick(ev)) {
-                void handleClick(ev, () => {
-                  jumpToAnchor(section.anchor)
-                });
-              }
-            }}
-            answer={!!section.answer}
-            fullHeight
-          >
-            {section.answer
-              ? <AnswerTocRow answer={section.answer} />
-              : <span>{adjustHeadingText(section.title)}</span>
-            }
-          </TableOfContentsRow>
-        </span>
-      </span>
+      <TableOfContentsRow
+        key={section.anchor}
+        indentLevel={section.level}
+        divider={section.divider}
+        highlighted={section.anchor === currentSection}
+        href={"#"+section.anchor}
+        offset={section.offset}
+        onClick={(ev) => {
+          if (isRegularClick(ev)) {
+            void handleClick(ev, () => {
+              jumpToAnchor(section.anchor)
+            });
+          }
+        }}
+        answer={!!section.answer}
+        fullHeight
+      >
+        {section.answer
+          ? <AnswerTocRow answer={section.answer} />
+          : <span>{adjustHeadingText(section.title)}</span>
+        }
+      </TableOfContentsRow>
     )
   });
 
-  const commentsRow = normalizedSections.slice(-1)?.[0]?.anchor === 'comments' ? rows.pop() : undefined;
+  const commentsRow = normalizedSections.slice(-1)?.[0]
 
   if (!tocSections || !hasLoaded)
     return <div/>
+
+  console.log(normalizedSections)
 
   return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
     {titleRow}
@@ -356,10 +390,19 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         <div className={classes.unfilledProgressBar}/>
       </div>
       <div className={classes.nonTitleRows}>
-        {rows}
+        {rows.map(row => <span className={classes.rowWrapper}>
+          <span className={classes.rowDot}>⬤</span>
+            <span className={classes.rowOpacity}>
+              {row}
+            </span>
+          </span>
+        )}
       </div>
     </div>
-    {/* {commentsRow} */}
+    {commentsRow && <CommentsLink anchor="#comments" className={classes.comments}>
+      <CommentsIcon className={classes.commentsIcon} />  {commentsRow?.title?.split(" ")[0]}
+     
+    </CommentsLink>}
   </div>
 }
 
