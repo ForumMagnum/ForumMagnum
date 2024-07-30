@@ -12,7 +12,11 @@ import { useTracking } from "../../lib/analyticsEvents";
  * Note: the initiateConversation callback doesn't return the created conversation, it is returned separately
  * by the hook
  */
-export const useInitiateConversation = (props?: { includeModerators?: boolean }) => {
+export const useInitiateConversation = (props?: {
+  includeModerators?: boolean;
+  /** If given the conversation will be initiated immediately */
+  userIds?: string[]
+}) => {
   const {captureEvent} = useTracking({
     eventType: "initiateConversation",
     eventProps: props,
@@ -21,7 +25,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
 
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const [userIds, setUserIds] = useState<string[] | null>(null);
+  const [userIds, setUserIds] = useState<string[] | null>(props?.userIds ?? null);
   const skip = !currentUser || !userIds?.length
 
   const alignmentFields = isAF ? { af: true } : {};
@@ -29,7 +33,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
 
   const participantIds = skip ? [] : [currentUser._id, ...userIds];
 
-  const { results, error } = useMulti({
+  const { results, loading, error } = useMulti({
     terms: {
       view: "userGroupUntitledConversations",
       userId: currentUser?._id,
@@ -65,6 +69,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
 
   return {
     conversation,
+    conversationLoading: loading,
     initiateConversation,
   };
 };

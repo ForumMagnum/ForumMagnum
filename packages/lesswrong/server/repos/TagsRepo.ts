@@ -1,7 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { TagWithCommentCount } from "../../components/dialogues/DialogueRecommendationRow";
 import { getViewableTagsSelector } from "./helpers";
 
 class TagsRepo extends AbstractRepo<"Tags"> {
@@ -69,41 +68,6 @@ class TagsRepo extends AbstractRepo<"Tags"> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Tags"`);
     return count;
-  }
-
-  async getUserTopTags(userId: string, limit = 15): Promise<TagWithCommentCount[]> {
-    const tags = await this.getRawDb().any(`
-      -- TagsRepo.getUserTopTags
-      SELECT
-        t.*,
-        COUNT(*) AS "commentCount"
-      FROM "TagRels" tr
-      INNER JOIN "Tags" t ON tr."tagId" = t._id
-      WHERE
-        tr."postId" IN (
-          SELECT c."postId"
-          FROM "Comments" c
-          WHERE c."userId" = $1
-          AND c."postedAt" > NOW() - INTERVAL '3 years'
-        )
-      AND t.name NOT IN (
-        'Community', 'Rationality', 'World Modeling', 'Site Meta', 'Covid-19', 'Practical', 
-        'World Optimization', 'Best of LessWrong', 'LessWrong Review', 'LessWrong Event Transcripts', 
-        'Existential Risk', 'AI Risk', 'Epistemic Review', 'Open Threads', 'AI', 'Politics', 'Epistemology',
-        'Drama', 'Meta', 'Has Diagram', 'News', 'LW Moderation', 'Experiments', 'Dialogue (format)', 'LW Team Announcements', 
-        'Bounties & Prizes (active)', 'Training', 'Distinctions', 'Social & Cultural Dynamics', 'Technological Forecasting'
-      )
-      GROUP BY t._id
-      ORDER BY "commentCount" DESC
-      LIMIT $2
-    `, [userId, limit]);
-    return tags.map(tag => {
-      const {commentCount, ...rest} = tag;
-      return ({
-        tag: rest,
-        commentCount
-      })
-    })
   }
 
 }

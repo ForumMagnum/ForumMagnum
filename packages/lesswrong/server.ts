@@ -14,7 +14,6 @@ import './server/analyticsViews';
 import './server/database-import/database_import_new';
 import './server/rss-integration/cron';
 import './server/rss-integration/callbacks';
-import './server/dialogues/cron';
 import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/cache';
@@ -154,7 +153,6 @@ import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
 import './server/callbacks/digestCallbacks';
-import './server/callbacks/dialogueMatchPreferenceCallbacks';
 
 
 import './server/resolvers/alignmentForumMutations';
@@ -185,7 +183,6 @@ import './server/resolvers/adminResolvers';
 import './server/resolvers/surveyResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
-import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
 import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
