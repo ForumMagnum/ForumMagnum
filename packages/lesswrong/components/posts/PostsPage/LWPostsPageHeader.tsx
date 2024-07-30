@@ -20,13 +20,15 @@ const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
 const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    paddingTop: 75,
+  },
   header: {
     position: 'relative',
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isFriendlyUI ? 20 : 72  ,
-    paddingTop: 75
+    marginBottom: isFriendlyUI ? 20 : 72,
   },
   headerLeft: {
     width: "100%"
@@ -160,7 +162,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagSection: {
     position: 'absolute',
     right: 8, 
-    top: -42,
+    top: -48,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
       top: 8,
@@ -170,7 +172,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightHeaderVote: {
     display: 'flex',
     flexDirection: 'row-reverse',
-    padding: 4
+    paddingLeft: 8,
+    paddingRight: 8
   },
   postActionsButton: {
     display: 'flex',
@@ -193,8 +196,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: 'translateY(-50%)'
   },
   sequenceNav: {
-    marginTop: 60,
-    marginBottom: -52
+    marginBottom: 8,
+    marginTop: -22
   }
 });
 
@@ -240,9 +243,9 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
-    PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag, PostsSplashPageHeaderVote} = Components;
+    PostActionsButton, PostsGroupDetails, PostsTopSequencesNav,
+    PostsPageEventData, FooterTagList, AddToCalendarButton,
+    NewFeaturePulse, ForumIcon, GroupLinks, PostsSplashPageHeaderVote} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -303,14 +306,6 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       </LWTooltip>
     );
 
-  // const answersNode = !post.question || minimalSecondaryInfo
-  //   ? null
-  //   : (
-  //     <CommentsLink anchor="#answers" className={classes.secondaryInfoLink}>
-  //       {postGetAnswerCountStr(answerCount)}
-  //     </CommentsLink>
-  //   );
-
   const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
 
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
@@ -318,6 +313,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>
+
   const audioNode = toggleEmbeddedPlayer && (
     (cachedTooltipSeen || isLWorAF)
       ? audioIcon
@@ -346,7 +342,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       {/* {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />} */}
       {post.isEvent && <GroupLinks document={post} noMargin />}
 
-      {/* {addToCalendarNode} */}
+      {addToCalendarNode}
       {/* {tripleDotMenuNode} */}
     </div>
   </div>
@@ -357,7 +353,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
-  return <>
+  return <div className={classes.root}>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       {('sequence' in post) && <div className={classes.sequenceNav}>
@@ -371,22 +367,8 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       <div className={classes.rightHeaderVote}>
         <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>
-      {/* {audioNode} */}
-      {/* <CommentsLink anchor="#comments" className={classes.commentsCount}>
-        {commentCount} <CommentsIcon className={classes.commentsIcon} />
-      </CommentsLink> */}
       {postActionsButton}
     </div>}
-    <div className={classes.rightButtons}>
-      {/* <div className={classes.rightHeaderVote}>
-        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
-      </div>
-      {audioNode}
-      <CommentsLink anchor="#comments" className={classes.commentsCount}>
-        {commentCount} <CommentsIcon className={classes.commentsIcon} />
-      </CommentsLink>
-      {postActionsButton} */}
-    </div>
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
@@ -410,7 +392,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
       </div>} */}
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
-  </>
+  </div>
 }
 
 const LWPostsPageHeaderComponent = registerComponent(

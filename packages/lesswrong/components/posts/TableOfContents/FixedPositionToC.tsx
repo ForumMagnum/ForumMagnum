@@ -380,8 +380,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   if (!tocSections || !hasLoaded)
     return <div/>
 
-  console.log(normalizedSections)
-
   return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
     {titleRow}
     <div className={classes.belowTitle}>

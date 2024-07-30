@@ -10,7 +10,7 @@ import { VotingSystem } from '../../lib/voting/votingSystems';
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
     display: 'flex',
-    flexDirection: 'row-reverse',
+    flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'center',
     background: theme.palette.panelBackground.default,
@@ -18,17 +18,15 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 4,
   },
   upvoteHorizontal: {
-    paddingRight: 6,
-    paddingBottom: 2,
     fontSize: 18,
+    marginBottom: -1,
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
-    paddingLeft: 6,
-    paddingBottom: 2,
     fontSize: 18,
+    marginTop: -4,
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
