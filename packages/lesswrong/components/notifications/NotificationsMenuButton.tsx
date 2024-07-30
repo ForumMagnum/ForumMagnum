@@ -8,7 +8,6 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import classNames from 'classnames';
-import { useEventListener } from '../hooks/useEventListener';
 import DeferRender from '../common/DeferRender';
 
 /**
@@ -182,8 +181,6 @@ const FriendlyNotificationsMenuButton = ({
     setOpen((open) => !open);
     toggle();
   }, [toggle]);
-
-  useEventListener("scroll", () => setOpen(false));
 
   const {
     LWTooltip, LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,

@@ -132,7 +132,7 @@ export const NotificationsPageItem = ({
           <div className={classNames(
             classes.meta,
             !noMargin && classes.bottomMargin,
-            )}>
+          )}>
             {children}
           </div>
         </div>
