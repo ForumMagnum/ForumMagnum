@@ -82,34 +82,42 @@ const NotificationsPopoverNotification = ({notification, classes}: {
   const isRead = currentUser.lastNotificationsCheck > notification.createdAt;
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
-  const {NotificationsPageItem} = Components;
+  const {post, comment, type, message, createdAt} = notification;
+  const {PostsTooltip, NotificationsPageItem} = Components;
   return (
-    <div onClick={onClick} className={classes.root}>
-      <NotificationsPageItem
-        Icon={Icon}
-        iconVariant={iconVariant}
-        noMargin
-      >
-        <div className={classes.container}>
-          <div className={classes.info}>
-            <div className={classes.type}>
-              {formatNotificationType(notification.type)}
+    <PostsTooltip
+      postId={post?._id ?? comment?.post?._id}
+      commentId={comment?._id}
+      placement="left-start"
+      clickable
+    >
+      <div onClick={onClick} className={classes.root}>
+        <NotificationsPageItem
+          Icon={Icon}
+          iconVariant={iconVariant}
+          noMargin
+        >
+          <div className={classes.container}>
+            <div className={classes.info}>
+              <div className={classes.type}>
+                {formatNotificationType(type)}
+              </div>
+              <div className={classNames(
+                classes.message,
+                isRead && classes.messageRead,
+                !isRead && classes.messageUnread,
+              )}>
+                {message}
+              </div>
             </div>
-            <div className={classNames(
-              classes.message,
-              isRead && classes.messageRead,
-              !isRead && classes.messageUnread,
-            )}>
-              {notification.message}
+            {!isRead && <div className={classes.unreadFlag} />}
+            <div className={classes.date}>
+              {moment(createdAt).fromNow()}
             </div>
           </div>
-          {!isRead && <div className={classes.unreadFlag} />}
-          <div className={classes.date}>
-            {moment(notification.createdAt).fromNow()}
-          </div>
-        </div>
-      </NotificationsPageItem>
-    </div>
+        </NotificationsPageItem>
+      </div>
+    </PostsTooltip>
   );
 }
 
