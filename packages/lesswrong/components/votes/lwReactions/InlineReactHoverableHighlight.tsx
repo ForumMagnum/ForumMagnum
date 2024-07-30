@@ -112,7 +112,7 @@ const SidebarInlineReact = ({quote,reactions, voteProps, classes}: {
   );
   
   return <span>
-    {reactionsUsed.map(r => <span>
+    {reactionsUsed.map(r => <span key={r}>
       <Components.ReactionIcon react={r}/>
     </span>)}
   </span>

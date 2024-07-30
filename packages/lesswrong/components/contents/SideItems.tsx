@@ -29,12 +29,18 @@ type SideItemsState = {
 type SideItemsPlacementContextType = {
   addSideItem: (anchorEl: HTMLElement, options: SideItemOptions) => HTMLDivElement
   removeSideItem: (anchorEl: HTMLElement) => void
+  resizeItem: (anchorEl: HTMLElement) => void
 }
 type SideItemsDisplayContextType = {
   sideItems: SideItem[]
 };
 const SideItemsPlacementContext = createContext<SideItemsPlacementContextType|null>(null);
 const SideItemsDisplayContext = createContext<SideItemsDisplayContextType|null>(null);
+
+export type SideItemContentContextType = {
+  resizeItem: () => void
+};
+export const SideItemContentContext = createContext<SideItemContentContextType|null>(null);
 
 export const styles = (theme: ThemeType): JssStyles => ({
   sideItem: {
@@ -48,8 +54,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
 ///////////////////////////////////////////////////////////////////////////
 
 function useForceRerender() {
-  const [_,rerender] = useReducer(c=>c+1, 0);
-  return rerender;
+  const [renderCount, rerender] = useReducer(c=>c+1, 0);
+  return {renderCount, rerender};
 }
 
 const SideItemsContainer = ({classes, children}: {
@@ -57,7 +63,7 @@ const SideItemsContainer = ({classes, children}: {
   children: React.ReactNode
 }) => {
   const state = useRef<SideItemsState>({sideItems: [], maxId: -1});
-  const rerender = useForceRerender();
+  const {renderCount, rerender} = useForceRerender();
   
   const addSideItem = useCallback((anchorEl: HTMLElement, options: SideItemOptions) => {
     const container = document.createElement("div");
@@ -83,14 +89,19 @@ const SideItemsContainer = ({classes, children}: {
     }
   }, [rerender]);
   
+  const resizeItem = useCallback((anchorEl: HTMLElement) => {
+    state.current.sideItems = [...state.current.sideItems];
+    rerender();
+  }, [rerender]);
+  
   const sideItemsPlacementContext: SideItemsPlacementContextType = useMemo(() => ({
-    addSideItem, removeSideItem
-  }), [addSideItem, removeSideItem]);
+    addSideItem, removeSideItem, resizeItem
+  }), [addSideItem, removeSideItem, resizeItem]);
   
   const sideItemsDisplayContext: SideItemsDisplayContextType = useMemo(() => ({
     sideItems: state.current.sideItems
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [state.current.sideItems]);
+  }), [renderCount, state.current.sideItems]);
   
   return (
     <SideItemsPlacementContext.Provider value={sideItemsPlacementContext}>
@@ -179,6 +190,13 @@ const SideItem = ({options, children}: {
   const anchorRef = useRef<HTMLSpanElement>(null);
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement|null>(null);
   const mergedOptions: SideItemOptions = {...defaultSideItemOptions, ...options};
+  
+  const resizeItem = useCallback(() => {
+    if (anchorRef.current) {
+      placementContext?.resizeItem(anchorRef.current);
+    }
+  }, [placementContext]);
+  const contentContext = useMemo(() => ({resizeItem}), [resizeItem]);
 
   useEffect(() => {
     if (placementContext && anchorRef.current) {
@@ -198,7 +216,9 @@ const SideItem = ({options, children}: {
   }
 
   return <span ref={anchorRef}>
-    {portalContainer && createPortal(children, portalContainer)}
+    <SideItemContentContext.Provider value={contentContext}>
+      {portalContainer && createPortal(children, portalContainer)}
+    </SideItemContentContext.Provider>
   </span>
 }
 

@@ -1,10 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
+import { SideItemContentContext } from '../contents/SideItems';
+import { truncate } from '@/lib/editor/ellipsize';
+import { parseDocumentFromString } from '@/lib/domParser';
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
@@ -32,6 +35,21 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
     paddingBottom: 24,
+  },
+
+  sidenoteWithIndex: {
+    display: "flex",
+  },
+
+  sidenoteIndex: {
+    display: "inline-block",
+    verticalAlign: "top",
+    fontSize: 15,
+  },
+  
+  sidenoteContent: {
+    display: "inline-block",
+    verticalAlign: "top",
   },
   
   sidenoteHover: {
@@ -109,9 +127,10 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
             eitherHovered && classes.sidenoteHover
           )}
         >
-          <ContentStyles contentType="postHighlight">
-            <div dangerouslySetInnerHTML={{__html: footnoteHTML || ""}} />
-          </ContentStyles>
+          <SidenoteDisplay
+            footnoteHTML={footnoteHTML}
+            classes={classes}
+          />
         </div>
       </SideItem>}
 
@@ -126,6 +145,49 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         {children}
       </a>
     </span>
+  );
+}
+
+const SidenoteDisplay = ({footnoteHTML, classes}: {
+  footnoteHTML: string,
+  classes: ClassesType,
+}) => {
+  const { ContentStyles } = Components;
+  const sideItemContext = useContext(SideItemContentContext);
+  const [isTruncated,setIsTruncated] = useState(true);
+  
+  const maybeTruncatedHTML = isTruncated
+    ? truncate(footnoteHTML, 20, "words")
+    : footnoteHTML;
+  // FIXME: `truncate` doesn't handle suffixing content wrapped in a `<div>`
+  // very well; the ... winds up outside the block
+  
+  function expand() {
+    setIsTruncated(false);
+    sideItemContext?.resizeItem();
+  }
+  
+  // Parse the footnote for its data-footnote-id, use that to find the footnote
+  // reference (which is a span that wraps around the part of the footnote that
+  // got hover-preview-ified), and take the data-footnote-index from that to
+  // display.
+  const { document: parsedFootnote } = parseDocumentFromString(footnoteHTML);
+  const footnoteId = parsedFootnote
+    .getElementsByClassName("footnote-back-link")
+    ?.[0]
+    ?.getAttribute("data-footnote-id")
+  const footnoteIndex = footnoteId
+    ? (document.getElementById("fnref"+footnoteId)
+        ?.getAttribute("data-footnote-index"))
+    : undefined;
+
+  return (
+    <ContentStyles contentType="postHighlight">
+      <span className={classes.sidenoteWithIndex} onClick={ev => expand()}>
+        <span className={classes.sidenoteIndex}>{footnoteIndex}</span>
+        <div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: maybeTruncatedHTML}} />
+      </span>
+    </ContentStyles>
   );
 }
 
