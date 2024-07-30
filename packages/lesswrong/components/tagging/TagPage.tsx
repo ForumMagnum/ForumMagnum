@@ -20,6 +20,7 @@ import truncateTagDescription from "../../lib/utils/truncateTagDescription";
 import { getTagStructuredData } from "./TagPageRouter";
 import { HEADER_HEIGHT } from "../common/Header";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import DeferRender from "../common/DeferRender";
 
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
@@ -210,7 +211,7 @@ const TagPage = ({classes}: {
     PostsList2, ContentItemBody, Loading, AddPostsToTag, Error404, Typography,
     PermanentRedirect, HeadTags, UsersNameDisplay, TagFlagItem, TagDiscussionSection,
     TagPageButtonRow, ToCColumn, SubscribeButton, CloudinaryImage2, TagIntroSequence,
-    TagTableOfContents, TagVersionHistoryButton, ContentStyles,
+    TagTableOfContents, TagVersionHistoryButton, ContentStyles, CommentsListCondensed,
   } = Components;
   const currentUser = useCurrentUser();
   const { query, params: { slug } } = useLocation();
@@ -446,17 +447,35 @@ const TagPage = ({classes}: {
             tag={tag}
           />}
           {tag.sequence && <TagIntroSequence tag={tag} />}
-          {!tag.wikiOnly && <AnalyticsContext pageSectionContext="tagsSection">
-            <PostsListHeading tag={tag} query={query} classes={classes} />
-            <PostsList2
-              terms={terms}
-              enableTotal
-              tagId={tag._id}
-              itemsPerPage={200}
-            >
-              <AddPostsToTag tag={tag} />
-            </PostsList2>
-          </AnalyticsContext>}
+          {!tag.wikiOnly && <>
+            <AnalyticsContext pageSectionContext="tagsSection">
+              <PostsListHeading tag={tag} query={query} classes={classes} />
+              <PostsList2
+                terms={terms}
+                enableTotal
+                tagId={tag._id}
+                itemsPerPage={200}
+              >
+                <AddPostsToTag tag={tag} />
+              </PostsList2>
+            </AnalyticsContext>
+            <DeferRender ssr={false}>
+              <AnalyticsContext pageSectionContext="quickTakesSection">
+                <CommentsListCondensed
+                  label="Quick takes"
+                  terms={{
+                    view: "tagSubforumComments" as const,
+                    tagId: tag._id,
+                    sortBy: 'new',
+                  }}
+                  initialLimit={8}
+                  itemsPerPage={20}
+                  showTotal
+                  hideTag
+                />
+              </AnalyticsContext>
+            </DeferRender>
+          </>}
         </div>
       </ToCColumn>
     </div>

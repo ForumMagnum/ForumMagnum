@@ -844,12 +844,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: "All Dialogues",
     },
     {
-      name:'users.dialogueMatching',
-      path:'/dialogueMatching',
-      componentName: 'DialogueMatchingPage',
-      title: "Dialogue Matching",
-    },
-    {
       name: 'about',
       path: '/about',
       componentName: 'PostsSingleRoute',
@@ -1276,7 +1270,6 @@ addRoute(...forumSelect<Route[]>({
       fullscreen: true,
     },
   ],
-  
   default: [
     {
       name: 'inbox',
@@ -1308,6 +1301,12 @@ addRoute(...forumSelect<Route[]>({
     },
   ]
 }))
+
+addRoute({
+  name: 'userInitiateConversation',
+  path: '/message/:slug',
+  componentName: 'MessageUser',
+})
 
 addRoute({
   name: 'AllComments',

@@ -27,12 +27,6 @@ const schema: SchemaType<"DialogueChecks"> = {
     canRead: ['members'],
     canCreate: ['members'],
   },
-  match: {
-    type: Boolean,
-    nullable: false,
-    canRead: ['members'],
-    // Defined in server/resolvers/dialogueChecksResolvers.ts
-  },
   hideInRecommendations: {
     type: Boolean,
     nullable: false,
