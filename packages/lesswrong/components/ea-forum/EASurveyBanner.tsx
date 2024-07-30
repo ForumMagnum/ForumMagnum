@@ -83,7 +83,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
     setCookie(HIDE_EA_FORUM_SURVEY_BANNER_COOKIE, "true", {
       expires: moment().add(3, "months").toDate(),
     });
-  }, [HIDE_EA_FORUM_SURVEY_BANNER_COOKIE, setCookie]);
+  }, [setCookie]);
 
   const onDismissBanner = useCallback(() => {
     hideBanner();
@@ -107,7 +107,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
         <Link
           to="https://forms.cea.community/test?utm_source=ea_forum&utm_medium=banner"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           onClick={onSubmitSurvey}
           className={classes.button}
         >
