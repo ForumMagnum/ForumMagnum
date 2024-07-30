@@ -67,37 +67,56 @@ const NotificationsPopover = ({karmaChanges, classes}: {
     return null;
   }
 
-  const {karmaChangeNotifierSettings: {updateFrequency}} = currentUser;
+  const {
+    karmaChangeNotifierSettings: {updateFrequency},
+    subscribedToDigest,
+  } = currentUser;
+  const showNotifications = notificationsLoading || notifs.length > 0 || karmaChanges;
 
   const {
-    SectionTitle, Loading, NotificationsPageKarmaChangeList,
-    NotificationsPopoverNotification,
+    SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
+    Loading, NotificationsPopoverNotification,
   } = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
-      <SectionTitle title="Karma & reacts" className={classes.sectionTitle} />
-      {karmaChanges &&
-        <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+      {showNotifications
+        ? (
+          <>
+            <SectionTitle
+              title="Karma & reacts"
+              className={classes.sectionTitle}
+            />
+            {karmaChanges &&
+              <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+            }
+            {!karmaChanges &&
+              <div className={classes.noKarma}>
+                No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
+                <Link to={karmaSettingsLink} className={classes.link}>
+                  Change settings
+                </Link>
+              </div>
+            }
+            <SectionTitle
+              title="Posts & comments"
+              className={classes.sectionTitle}
+            />
+            <div className={classes.notifications}>
+              {notifs.map((notification) =>
+                <NotificationsPopoverNotification
+                  key={notification._id}
+                  notification={notification}
+                />
+              )}
+              {notificationsLoading && <Loading className={classes.loading} />}
+            </div>
+          </>
+        )
+        : (
+          <NoNotificationsPlaceholder subscribedToDigest={subscribedToDigest} />
+        )
       }
-      {!karmaChanges &&
-        <div className={classes.noKarma}>
-          No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-          <Link to={karmaSettingsLink} className={classes.link}>
-            Change settings
-          </Link>
-        </div>
-      }
-      <SectionTitle title="Posts & comments" className={classes.sectionTitle} />
-      <div className={classes.notifications}>
-        {notifs.map((notification) =>
-          <NotificationsPopoverNotification
-            key={notification._id}
-            notification={notification}
-          />
-        )}
-        {notificationsLoading && <Loading className={classes.loading} />}
-      </div>
     </div>
   );
 }

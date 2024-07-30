@@ -216,6 +216,7 @@ importComponent("NotificationsPageNotification", () => require('../components/no
 importComponent("NotificationsPageKarmaChange", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChange'));
 importComponent("NotificationsPageKarmaChangeList", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChangeList'));
 importComponent("NotificationsPopover", () => require('../components/notifications/NotificationsPopover'));
+importComponent("NoNotificationsPlaceholder", () => require('../components/notifications/NoNotificationsPlaceholder'));
 importComponent("NotificationsPopoverNotification", () => require('../components/notifications/NotificationsPopoverNotification'));
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
