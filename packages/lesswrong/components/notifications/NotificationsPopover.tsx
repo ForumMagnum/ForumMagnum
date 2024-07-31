@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../common/Header";
@@ -60,8 +60,17 @@ const NotificationsPopover = ({karmaChanges, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const {data, loading: notificationsLoading} = useNotificationDisplays(20);
-  const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
+  const [limit, setLimit] = useState(20);
+  const {data, loading: notificationsLoading} = useNotificationDisplays(limit);
+  const loadMore = useCallback(() => setLimit((limit) => limit + 10), []);
+
+  const notifs = useRef<NotificationDisplay[]>([]);
+  if (
+    data?.NotificationDisplays?.results?.length &&
+    data.NotificationDisplays.results.length !== notifs.current.length
+  ) {
+    notifs.current = data.NotificationDisplays.results ?? [];
+  }
 
   if (!currentUser) {
     return null;
@@ -71,11 +80,16 @@ const NotificationsPopover = ({karmaChanges, classes}: {
     karmaChangeNotifierSettings: {updateFrequency},
     subscribedToDigest,
   } = currentUser;
-  const showNotifications = notificationsLoading || notifs.length > 0 || karmaChanges;
+
+  const showNotifications = !!(
+    notificationsLoading ||
+    notifs.current.length > 0 ||
+    karmaChanges
+  );
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
-    Loading, NotificationsPopoverNotification,
+    LoadMore, NotificationsPopoverNotification,
   } = Components;
   return (
     <div className={classes.root}>
@@ -103,13 +117,17 @@ const NotificationsPopover = ({karmaChanges, classes}: {
               className={classes.sectionTitle}
             />
             <div className={classes.notifications}>
-              {notifs.map((notification) =>
+              {notifs.current.map((notification) =>
                 <NotificationsPopoverNotification
                   key={notification._id}
                   notification={notification}
                 />
               )}
-              {notificationsLoading && <Loading className={classes.loading} />}
+              <LoadMore
+                loadMore={loadMore}
+                loading={notificationsLoading}
+                loadingClassName={classes.loading}
+              />
             </div>
           </>
         )
