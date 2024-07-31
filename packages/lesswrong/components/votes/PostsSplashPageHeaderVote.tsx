@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: '0.9rem',
+    fontSize: '1rem',
   },
   tooltip: {
     color: theme.palette.grey[500],

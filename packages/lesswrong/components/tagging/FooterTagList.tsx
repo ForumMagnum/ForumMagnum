@@ -304,6 +304,10 @@ const FooterTagList = ({
       )
     )
 
+  let eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
+    <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody}/>
+  </MaybeLink> : null
+
   const sortedTagInfo = results
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
     : post.tags.map((tag) => ({ tag, tagRel: undefined }));
@@ -335,6 +339,7 @@ const FooterTagList = ({
           )
       )}
       {!hidePostTypeTag && postType}
+      {eventTag}
       {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}

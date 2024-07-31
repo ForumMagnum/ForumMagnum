@@ -22,11 +22,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     marginTop: theme.spacing.unit*2,
-    ...theme.typography.postStyle,
     color: theme.palette.text.dim,
-    ...(isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       display: 'block',
     },

@@ -105,22 +105,25 @@ const styles = (theme: ThemeType) => ({
   },
   rowWrapper: {
     position: "relative",
+    zIndex: 1,
+    transition: '.1s',
     display: "flex",
-    alignItems: "center"
+    flexDirection: "column-reverse",
   },
   rowOpacity: {
     opacity: 0,
-    zIndex: 1,
-    transition: '.1s'
+  },
+  rowDotContainer: {
+    display: "flex",
+    alignItems: "center"
   },
   rowDot: {
-    fontSize: 3,
+    fontSize: 9,
     height: 9,
-    paddingTop: 3,
-    paddingBottom: 3,
     background: theme.palette.background.pageActiveAreaBackground,
     marginLeft: 2,
-    marginRight: 8
+    marginRight: 8,
+    zIndex: 1
   },
   fadeOut: {
     opacity: 0,
@@ -184,7 +187,6 @@ const styles = (theme: ThemeType) => ({
   nonTitleRows: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
     flexGrow: 1,
     '& .TableOfContentsRow-link': {
       background: theme.palette.panelBackground.default
@@ -349,12 +351,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
 
   const rows = renderedSections.map((section, index) => {
-    return (
+    console.log(section.title, section.offset)
+    const offsetStyling = section.offset !== undefined ? { flex: section.offset } : undefined;
+
+    const tocRow = (
       <TableOfContentsRow
-        key={section.anchor}
         indentLevel={section.level}
         divider={section.divider}
-        highlighted={section.anchor === currentSection}
         href={"#"+section.anchor}
         offset={section.offset}
         onClick={(ev) => {
@@ -373,6 +376,17 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         }
       </TableOfContentsRow>
     )
+
+    return (
+      <div className={classes.rowWrapper} style={offsetStyling} key={section.anchor}>
+        <div className={classes.rowDotContainer}>
+          <div className={classes.rowDot}>•</div>
+          <span className={classes.rowOpacity}>
+            {tocRow}
+          </span>
+        </div>
+      </div>
+    )
   });
 
   const commentsRow = normalizedSections.slice(-1)?.[0]
@@ -388,13 +402,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         <div className={classes.unfilledProgressBar}/>
       </div>
       <div className={classes.nonTitleRows}>
-        {rows.map(row => <span className={classes.rowWrapper}>
-          <span className={classes.rowDot}>⬤</span>
-            <span className={classes.rowOpacity}>
-              {row}
-            </span>
-          </span>
-        )}
+        {rows}
       </div>
     </div>
     {commentsRow && <CommentsLink anchor="#comments" className={classes.comments}>

@@ -21,29 +21,8 @@ const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 75,
-  },
-  header: {
-    position: 'relative',
-    display:"flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: isFriendlyUI ? 20 : 72,
-  },
-  headerLeft: {
-    width: "100%"
-  },
-  headerVote: {
-    textAlign: 'center',
-    fontSize: 42,
-    position: isFriendlyUI ? 'absolute' : "relative",
-    top: isFriendlyUI ? 0 : undefined,
-    left: isFriendlyUI ? -93 : undefined,
-    [theme.breakpoints.down("sm")]: {
-      position: 'relative',
-      top: 'auto',
-      left: 'auto'
-    }
+    paddingTop: 100,
+    marginBottom: 96
   },
   eventHeader: {
     marginBottom: 0,
@@ -52,13 +31,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     alignItems: 'baseline',
     columnGap: SECONDARY_SPACING,
+    ...theme.typography.commentStyle,
     flexWrap: 'wrap',
-    fontSize: isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
     fontWeight: isFriendlyUI ? 450 : undefined,
-    fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
     paddingBottom: isFriendlyUI ? 12 : undefined,
     borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined
+  },
+  authorInfo: {
+    maxWidth: "calc(100% - 150px)"
   },
   secondaryInfo: {
     flexGrow: 1,
@@ -100,6 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
   },
   audioIcon: {
+    marginLeft: 8,
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
@@ -122,15 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     "@media print": { display: "none" },
   },
-  authorInfo: {
-    display: 'flex',
-    alignItems: 'baseline',
-    columnGap: SECONDARY_SPACING,
-  },
-  authors: {
-    ...theme.typography.commentStyle,
-    fontSize: theme.typography.body1.fontSize,
-  },
+
   feedName: {
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
@@ -198,6 +172,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   sequenceNav: {
     marginBottom: 8,
     marginTop: -22
+  },
+  eventData: {
+    marginTop: 48
   }
 });
 
@@ -245,7 +222,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, PostsSplashPageHeaderVote} = Components;
+    NewFeaturePulse, ForumIcon, GroupLinks, PostsSplashPageHeaderVote, RSVPs} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -327,71 +304,47 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
   </div>
-
-  const tripleDotMenuNode = !hideMenu &&
-    <span className={classes.actions}>
-      <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
-      </AnalyticsContext>
-    </span>
-
-  const secondaryInfoNode = <div className={classes.secondaryInfo}>
-    <div className={classes.secondaryInfoLeft}>
-      {/* {crosspostNode}
-      {readingTimeNode} */}
-      {/* {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />} */}
-      {post.isEvent && <GroupLinks document={post} noMargin />}
-
-      {addToCalendarNode}
-      {/* {tripleDotMenuNode} */}
-    </div>
-  </div>
   
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
-
-  return <div className={classes.root}>
+  
+  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      {('sequence' in post) && <div className={classes.sequenceNav}>
+      {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
         <PostsTopSequencesNav post={post} />
       </div>}
     </AnalyticsContext>
-    {!post.shortform && !post.isEvent && !hideTags && <div className={classes.tagSection}>
-      <AnalyticsContext pageSectionContext="tagHeader">
+    {!post.shortform && <div className={classes.tagSection}>
+      {!hideTags && <AnalyticsContext pageSectionContext="tagHeader">
         <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground />
-      </AnalyticsContext>
+      </AnalyticsContext>}
+      {audioNode}
       <div className={classes.rightHeaderVote}>
         <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>
       {postActionsButton}
     </div>}
-    <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
-      <div className={classes.headerLeft}>
-        <PostsPageTitle post={post} />
-        <div className={classes.authorAndSecondaryInfo}>
-          <div className={classes.authorInfo}>
-            <div className={classes.authors}>
-              <PostsAuthors post={post} pageSectionContext="post_header" />
-            </div>
-            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-            {rssFeedSource && rssFeedSource.user &&
-              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
-                <a href={feedLink}>{rssFeedSource.nickname}</a>
-              </LWTooltip>
-            }
-          </div>
-          {secondaryInfoNode}
-        </div>
+    <PostsPageTitle post={post} />
+    <div className={classes.authorAndSecondaryInfo}>
+      <div className={classes.authorInfo}>
+        <PostsAuthors post={post} pageSectionContext="post_header" />
       </div>
-      {/* {!post.shortform && <div className={classes.headerVote}>
-        <PostsVote post={post} />
-      </div>} */}
+      <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+      {rssFeedSource && rssFeedSource.user &&
+        <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+          <a href={feedLink}>{rssFeedSource.nickname}</a>
+        </LWTooltip>
+      }
+      {post.isEvent && <GroupLinks document={post} noMargin />}
+      {addToCalendarNode}
     </div>
-    {post.isEvent && <PostsPageEventData post={post}/>}
+    {post.isEvent && <div className={classes.eventData}>
+      <PostsPageEventData post={post}/>
+    </div>}
   </div>
 }
 

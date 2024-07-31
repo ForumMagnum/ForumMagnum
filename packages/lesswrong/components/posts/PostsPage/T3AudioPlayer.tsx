@@ -50,7 +50,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
       </Helmet>
       <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} >
          {/* @ts-ignore */}
-        {isEAForum ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player analytics="custom"></type-3-player>}
+        {isEAForum ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>}
       </div>
     </div>
 }
