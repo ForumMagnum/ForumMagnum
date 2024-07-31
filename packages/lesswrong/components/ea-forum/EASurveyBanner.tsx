@@ -105,7 +105,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
       <div className={classes.root}>
         Take the 2024 EA Forum Survey to help inform our strategy and priorities
         <Link
-          to="https://forms.cea.community/test?utm_source=ea_forum&utm_medium=banner"
+          to="https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=banner"
           target="_blank"
           rel="noopener"
           onClick={onSubmitSurvey}
