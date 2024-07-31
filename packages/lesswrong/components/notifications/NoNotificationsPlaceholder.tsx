@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { useCurrentUser } from "../common/withUser";
+import { getUserEmail } from "@/lib/collections/users/helpers";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,6 +28,20 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
   },
+  emailContainer: {
+    marginBottom: -30,
+    width: "100%",
+    display: "flex",
+    gap: "8px",
+  },
+  input: {
+    height: 44,
+  },
+  button: {
+    width: 44,
+    height: 44,
+    whiteSpace: "nowrap",
+  },
 });
 
 const SubscribedPlaceholder = ({classes}: {
@@ -47,14 +64,50 @@ const SubscribedPlaceholder = ({classes}: {
 const NotSubscribedPlaceholder = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const currentUserEmail = getUserEmail(currentUser);
+  const [email, setEmail] = useState(currentUserEmail ?? "");
+  const [canEditEmail] = useState(!currentUserEmail?.length);
+
+  const onSubmit = useCallback(() => {
+    void updateCurrentUser({
+      email: canEditEmail ? email : undefined,
+      subscribedToDigest: true,
+    });
+  }, [updateCurrentUser, email, canEditEmail]);
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const {ForumIcon, EAOnboardingInput, EAButton} = Components;
   return (
     <div className={classes.root}>
+      <ForumIcon icon="EAEnvelope" className={classes.icon} />
       <div className={classes.title}>
         Turn on email digest
       </div>
       <div className={classes.subtitle}>
         The EA Forum Digest is a curated reading list of Forum posts,{" "}
         sent every Wednesday
+      </div>
+      <div className={classes.emailContainer}>
+        <EAOnboardingInput
+          value={email}
+          setValue={setEmail}
+          disabled={!canEditEmail}
+          placeholder="Email"
+          className={classes.input}
+        />
+        <EAButton
+          style="primary"
+          onClick={onSubmit}
+          disabled={email.length < 1}
+          className={classes.button}
+        >
+          -&gt;
+        </EAButton>
       </div>
     </div>
   );
