@@ -2,14 +2,27 @@ import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { tagGetUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-const NewTagPage = () => {
+export const styles = (_theme: ThemeType) => ({
+  root: {
+    position: "relative",
+  },
+  guide: {
+    position: "absolute",
+    top: -50,
+    right: -320,
+  },
+});
+
+const NewTagPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, SectionTitle, WrappedSmartForm } = Components;
-  
+  const {
+    SingleColumnSection, SectionTitle, WrappedSmartForm, NewTagInfoBox,
+  } = Components;
+
   if (!currentUser) {
     return (
       <SingleColumnSection>
@@ -34,7 +47,7 @@ const NewTagPage = () => {
   }
   
   return (
-    <SingleColumnSection>
+    <SingleColumnSection className={classes.root}>
       <SectionTitle title={`New ${taggingNameCapitalSetting.get()}`}/>
       <WrappedSmartForm
         collectionName="Tags"
@@ -43,11 +56,16 @@ const NewTagPage = () => {
           navigate({pathname: tagGetUrl(tag)});
         }}
       />
+      {isEAForum &&
+        <div className={classes.guide}>
+          <NewTagInfoBox />
+        </div>
+      }
     </SingleColumnSection>
   );
 }
 
-const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage);
+const NewTagPageComponent = registerComponent('NewTagPage', NewTagPage, {styles});
 
 declare global {
   interface ComponentTypes {
