@@ -52,6 +52,7 @@ export const zIndexes = {
   postItemMenu: 1050,
   searchResults: 1100,
   tabNavigation: 1101,
+  hideTableOfContentsButton: 1200,
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,

@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 type WebServers = Extract<Parameters<typeof defineConfig>[0]["webServer"], any[]>;
 type Projects = Extract<Parameters<typeof defineConfig>[0]["projects"], any[]>;
 
+const CROSSPOST_TEST_REGEX = "**/crossposts.spec.ts";
+
 const getWebServers = () => {
   const webServers: WebServers = [];
 
@@ -24,10 +26,36 @@ const getWebServers = () => {
     stderr: "pipe",
   });
 
+  if (process.env.CROSSPOST_TEST) {
+    if (!process.env.CI) {
+      webServers.push({
+        command: "yarn playwright-db-crosspost",
+        port: 5434,
+        reuseExistingServer: true,
+        stdout: "ignore",
+        stderr: "ignore",
+      });
+    }
+
+    webServers.push({
+      command: "yarn start-playwright-crosspost",
+      url: "http://localhost:3467",
+      reuseExistingServer: true,
+      stdout: "ignore",
+      stderr: "pipe",
+    });
+  }
   return webServers;
 }
 
 const getProjects = () => {
+  if (process.env.CROSSPOST_TEST) {
+    return [{
+      name: "crosspost",
+      use: {...devices["Desktop Chrome"]},
+      testMatch: CROSSPOST_TEST_REGEX,
+    }];
+  }
   let projects: Projects = [
     {
       name: "chromium",
@@ -124,4 +152,5 @@ export default defineConfig({
   },
   projects: getProjects(),
   webServer: getWebServers(),
+  testIgnore: process.env.CROSSPOST_TEST ? "" : CROSSPOST_TEST_REGEX,
 });

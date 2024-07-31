@@ -1,4 +1,4 @@
-import type { BrowserContext, Cookie } from "@playwright/test";
+import type { Browser, BrowserContext, Cookie, Page } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
 import getSlug from "speakingurl";
 
@@ -36,22 +36,28 @@ type PlaywrightGroup = {
   name: string,
 }
 
-const db = new class {
+class Database {
   private client: IDatabase<{}> | null = null;
+
+  constructor(private port: number) {}
 
   get() {
     if (!this.client) {
       const pgPromiseLib = pgp({
         noWarnings: true,
       });
+      const host = `localhost:${this.port}`;
       this.client = pgPromiseLib({
-        connectionString: "postgres://postgres:password@localhost:5433/postgres",
+        connectionString: `postgres://postgres:password@${host}/postgres`,
         max: 5,
       });
     }
     return this.client;
   }
 }
+
+const db = new Database(5433);
+const crosspostDb = new Database(5434);
 
 const uniqueId = new class {
   private usedUserIds = new Set<number>();
@@ -94,18 +100,22 @@ export const createNewUserDetails = (): PlaywrightUser => {
 }
 
 type CreateNewUserOptions = Partial<{
+  database: Database,
   isAdmin: boolean,
+  karma: number,
 }>;
 
 export const createNewUser = async ({
+  database = db,
   isAdmin = false,
+  karma = 0,
 }: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
   const {_id, username, email, slug, displayName} = user;
   const abtestkey = `abtestkey-${username}`;
   const emails = [{address: email, verifed: false}];
 
-  await db.get().none(`
+  await database.get().none(`
     INSERT INTO "Users" (
       "_id",
       "username",
@@ -115,10 +125,11 @@ export const createNewUser = async ({
       "slug",
       "abTestKey",
       "isAdmin",
+      "karma",
       "usernameUnset",
       "acceptedTos"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, FALSE, TRUE)
-  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin]);
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma]);
 
   return user;
 }
@@ -279,3 +290,52 @@ export const deleteCookie = async (context: BrowserContext, cookieName: string) 
 
 export const logout = (context: BrowserContext) =>
   deleteCookie(context, "loginToken");
+
+export const createCrosspostContexts = async (browser: Browser): Promise<{
+  contexts: [BrowserContext, BrowserContext],
+  pages: [Page, Page],
+  users: [PlaywrightUser, PlaywrightUser],
+}> => {
+  const contexts = await Promise.all([
+    browser.newContext({baseURL: "http://localhost:3456"}),
+    browser.newContext({baseURL: "http://localhost:3467"}),
+  ]);
+  const pages = await Promise.all(
+    contexts.map((ctx) => ctx.newPage()),
+  ) as [Page, Page];
+  const users = await Promise.all(contexts.map((ctx, i) => loginNewUser(ctx, {
+    database: [db, crosspostDb][i],
+    karma: 1000,
+  }))) as [PlaywrightUser, PlaywrightUser];
+  return {contexts, pages, users};
+}
+
+/**
+ * Fill in the title and body on the "new post" or "edit post" page.
+ * This is extracted into a helper method for two reasons:
+ *  - MUI inputs are super-buggy and require special handling
+ *  - The CK editor selector is pretty obscure
+ */
+export const setPostContent = async (page: Page, {
+  title,
+  body,
+  titlePlaceholder = "Post title",
+  bodyLabel = "Rich Text Editor. Editing area: main",
+}: {
+  title?: string,
+  body?: string,
+  titlePlaceholder?: string,
+  bodyLabel?: string,
+}) => {
+  // Clear and fill the editor in two separate steps, because Playwright's .fill()
+  // fails in Firefox (but not other browsers) if these are one step
+  if (title) {
+    await page.getByPlaceholder(titlePlaceholder).fill("");
+    await page.getByPlaceholder(titlePlaceholder).fill(title);
+  }
+
+  if (body) {
+    await page.getByLabel(bodyLabel).fill("");
+    await page.getByLabel(bodyLabel).fill(body);
+  }
+}

@@ -43,13 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, currentShowMatches, currentShowRecommendedPartners, hideReciprocityButtons, classes}: {
+const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
-  currentShowMatches: boolean,
-  currentShowRecommendedPartners: boolean,
-  hideReciprocityButtons: boolean
   classes: ClassesType,
 }) => {
   const { MetaInfo } = Components
@@ -66,26 +63,6 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
 
   return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
-          {!hideReciprocityButtons && <Tooltip title="People you matched with on dialogue matching">
-            <div className={classes.setting}>
-              <Checkbox
-                style={{padding: 7}}
-                checked={currentShowMatches}
-                onChange={() => setSetting('showMatches', !currentShowMatches)}
-              />
-              <MetaInfo>Show Matches</MetaInfo>
-            </div>
-          </Tooltip>}
-          {!hideReciprocityButtons && <Tooltip title="Recommended partners for you to consider dialogueing with">
-            <div className={classes.setting}>
-              <Checkbox
-                style={{padding: 7}}
-                checked={currentShowRecommendedPartners}
-                onChange={() => setSetting('showRecommendedPartners', !currentShowRecommendedPartners)}
-              />
-              <MetaInfo>Show Recommended Partners</MetaInfo>
-            </div>
-          </Tooltip>}
           <Tooltip title="Dialogues with new content">
             <div className={classes.setting}>
               <Checkbox 

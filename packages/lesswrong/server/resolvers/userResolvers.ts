@@ -13,7 +13,6 @@ import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
-import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { createPaginatedResolver } from './paginatedResolver';
 
 addGraphQLSchema(`
@@ -265,64 +264,6 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
-
-defineQuery({
-  name: "GetUserDialogueUsefulData",
-  resultType: "UserDialogueUsefulData",
-  fn: async (root: void, _: any, context: ResolverContext) => {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('User must be logged in to get top upvoted users');
-    }
-
-    const [dialogueUsers, topUsers, activeDialogueMatchSeekers] = await Promise.all([
-      new UsersRepo().getUsersWhoHaveMadeDialogues(),
-      new UsersRepo().getUsersTopUpvotedUsers(currentUser),
-      new UsersRepo().getActiveDialogueMatchSeekers(100),
-    ]);
-
-    const results: UserDialogueUsefulData = {
-      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
-      topUsers: topUsers,
-      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
-    }
-    return results
-  }
-});
-
-defineQuery({
-  name: "GetDialogueMatchedUsers",
-  resultType: "[User]!",
-  fn: async (root, _, context) => {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('User must be logged in to get matched users');
-    }
-
-    const matchedUsers = await new UsersRepo().getDialogueMatchedUsers(currentUser._id);
-    return accessFilterMultiple(currentUser, Users, matchedUsers, context);
-  }
-});
-
-defineQuery({
-  name: "GetDialogueRecommendedUsers",
-  resultType: "[User]!",
-  fn: async (root, _, context) => {
-    const { currentUser } = context
-    if (!currentUser) {
-      throw new Error('User must be logged in to get recommended users');
-    }
-
-    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 35, 30)
-    const recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
-
-    // Shuffle and limit the list to 2 users
-    const shuffled = recommendedUsers.sort(() => 0.5 - Math.random());
-    const sampleSize = 2;
-
-    return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
-  }
-}); 
 
 defineQuery({
   name: "IsDisplayNameTaken",
