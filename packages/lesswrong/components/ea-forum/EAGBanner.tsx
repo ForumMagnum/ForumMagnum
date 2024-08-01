@@ -4,13 +4,13 @@ import { useCurrentUser } from "../common/withUser";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
-import ForumNoSSR from "../common/ForumNoSSR";
 import { HIDE_EAG_BANNER_COOKIE } from "@/lib/cookies/cookies";
 import { Link } from "@/lib/reactRouterWrapper";
 import { useUserLocation } from "@/lib/collections/users/helpers";
 import { distance } from "../community/modules/LocalGroups";
 import { getCachedUserCountryCode } from "../common/CookieBanner/geolocation";
 import { lightbulbIcon } from "../icons/lightbulbIcon";
+import DeferRender from "../common/DeferRender";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,6 +94,8 @@ const applicationDeadline = moment.utc('2024-07-31', 'YYYY-MM-DD')
  * This is an experimental banner at the top of the EA Forum homepage.
  * We are considering displaying a small banner when an EAG(x) application deadline is near,
  * visible only to users who we think are in a relevant location for that conference.
+ *
+ * UPDATE: I've now removed it from EAHome. We'll probably redesign it and try again in the future.
  */
 const EAGBanner = ({classes}: {classes: ClassesType}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EAG_BANNER_COOKIE]);
@@ -143,7 +145,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   }
 
   return (
-    <ForumNoSSR if={!currentUser}>
+    <DeferRender ssr={!!currentUser}>
       <AnalyticsContext pageElementContext="EAGBanner">
         <AnalyticsInViewTracker eventProps={inViewEventProps}>
           <SingleColumnSection className={classes.root}>
@@ -185,7 +187,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
           </SingleColumnSection>
         </AnalyticsInViewTracker>
       </AnalyticsContext>
-    </ForumNoSSR>
+    </DeferRender>
   );
 }
 

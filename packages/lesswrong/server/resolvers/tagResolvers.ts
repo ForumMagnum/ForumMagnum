@@ -538,30 +538,3 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
-
-defineQuery({
-  name: "UserTopTags",
-  resultType: "[TagWithCommentCount!]",
-  argTypes: "(userId: String!)",
-  schema: `
-    type TagWithCommentCount {
-      tag: Tag
-      commentCount: Int!
-    }`,
-  fn: async (root: void, {userId}: {userId: string}, context: ResolverContext) => {
-    const tagsRepo = new TagsRepo();
-    const topTags = await tagsRepo.getUserTopTags(userId);
-
-    const topTagsFiltered = []
-    for (const tagWithCommentCount of topTags) {
-      const filteredTag = await accessFilterSingle(context.currentUser, context.Tags, tagWithCommentCount.tag, context)
-      if (filteredTag) {
-        topTagsFiltered.push({
-          tag: filteredTag,
-          commentCount: tagWithCommentCount.commentCount
-        })
-      }
-    }
-    return topTagsFiltered
-  },
-});

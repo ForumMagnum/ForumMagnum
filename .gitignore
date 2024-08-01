@@ -24,6 +24,8 @@ dump/*
 settings*.json
 *conn.txt
 *settings.js
+!settings-test-crosspost.json
+!settings-test.json
 
 .idea
 .tern-project

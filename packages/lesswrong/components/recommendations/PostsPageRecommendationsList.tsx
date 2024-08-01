@@ -7,7 +7,7 @@ import type {
   WeightedFeature,
 } from "../../lib/collections/users/recommendationSettings";
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH } from "../posts/PostsPage/PostsPage";
-import ForumNoSSR from "../common/ForumNoSSR";
+import DeferRender from "../common/DeferRender";
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
@@ -81,7 +81,7 @@ const PostsPageRecommendationsList = ({
   return (
     <div className={classes.root}>
       {title && <SectionTitle title={title} className={classes.title} />}
-      <ForumNoSSR onSSR={loadingFallback}>
+      <DeferRender ssr={false} fallback={loadingFallback}>
         <RecommendationsList
           algorithm={recommendationsAlgorithm}
           loadingFallback={loadingFallback}
@@ -99,7 +99,7 @@ const PostsPageRecommendationsList = ({
             )
           }
         />
-      </ForumNoSSR>
+      </DeferRender>
     </div>
   );
 }

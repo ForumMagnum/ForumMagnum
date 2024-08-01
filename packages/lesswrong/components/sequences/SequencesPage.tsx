@@ -11,8 +11,8 @@ import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 import { allowSubscribeToSequencePosts } from '../../lib/betas';
-import ForumNoSSR from '../common/ForumNoSSR';
 import { Link } from '../../lib/reactRouterWrapper';
+import DeferRender from '../common/DeferRender';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -115,6 +115,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       textAlign: 'left'
     }
   },
+  edit: {
+    marginTop: 12,
+  },
   imageScrim: {
     ...sequencesImageScrim(theme)
   }
@@ -196,7 +199,7 @@ const SequencesPage = ({ documentId, classes }: {
       />
       {bannerId && <div className={classes.banner}>
         <div className={classes.bannerWrapper}>
-          <ForumNoSSR>
+          <DeferRender ssr={false}>
             <div>
               <CloudinaryImage
                 publicId={bannerId}
@@ -205,7 +208,7 @@ const SequencesPage = ({ documentId, classes }: {
               />
               <div className={classes.imageScrim}/>
             </div>
-          </ForumNoSSR>
+          </DeferRender>
         </div>
       </div>}
       <SingleColumnSection>
@@ -222,12 +225,14 @@ const SequencesPage = ({ documentId, classes }: {
                   <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
                   {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
                 </div>
-                {canEdit && <span className={classes.leftAction}><SectionSubtitle>
-                  <a onClick={showEdit}>edit</a>
-                </SectionSubtitle></span>}
+                {!allowSubscribeToSequencePosts && canEdit && <span className={classes.leftAction}>
+                  <SectionSubtitle>
+                    <a onClick={showEdit}>edit</a>
+                  </SectionSubtitle>
+                </span>}
               </SectionFooter>
             </div>
-            {allowSubscribeToSequencePosts && !canEdit && <div className={classes.notifyCol}>
+            {allowSubscribeToSequencePosts && <div className={classes.notifyCol}>
               <AnalyticsContext pageElementContext="notifyMeButton">
                 <NotifyMeButton
                   document={document}
@@ -239,6 +244,11 @@ const SequencesPage = ({ documentId, classes }: {
                   hideFlashes
                 />
               </AnalyticsContext>
+              {canEdit && <SectionFooter className={classes.edit}>
+                <SectionSubtitle>
+                  <a onClick={showEdit}>Edit sequence</a>
+                </SectionSubtitle>
+              </SectionFooter>}
             </div>}
           </section>
           

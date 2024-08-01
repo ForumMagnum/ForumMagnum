@@ -7,13 +7,13 @@ import { Vulcan } from '../../vulcan-lib';
 import { wrapVulcanAsyncScript } from '../utils';
 import * as _ from 'underscore';
 import { htmlToText } from 'html-to-text';
-import { modGPTPrompt } from '../../languageModels/modGPT';
+import { modGPTPrompt, sanitizeHtmlOptions } from '../../languageModels/modGPT';
 import Posts from '../../../lib/collections/posts/collection';
 import difference from 'lodash/difference';
 import { truncatise } from '../../../lib/truncatise';
 
 /**
- * This was written for the EA Forum to test out having GPT-4 help moderate comments.
+ * This was written for the EA Forum to test out having GPT-4o help moderate comments.
  */
 Vulcan.testModGPT = wrapVulcanAsyncScript(
   'testModGPT',
@@ -33,31 +33,20 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
       const post = await Posts.findOne(comment.postId)
       if (!post) continue
       
-      const commentText = sanitizeHtml(comment.contents?.html ?? "", {
-        allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
-        nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
-      })
-      const postText = sanitizeHtml(post.contents?.html ?? "", {
-        allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
-        nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
-      })
+      const commentText = sanitizeHtml(comment.contents?.html ?? "", sanitizeHtmlOptions)
+      const postText = sanitizeHtml(post.contents?.html ?? "", sanitizeHtmlOptions)
       const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})
       
       // Build the message that will be attributed to the user
-      let userText = `
-        <post>
+      let userText = `<post>
         Title: ${post.title}
         Excerpt: ${postExcerpt}
-        </post>
-      `
+        </post>`
       if (comment.parentCommentId) {
         // If this comment has a parent, include that as well
         const parentComment = await Comments.findOne({_id: comment.parentCommentId})
         if (parentComment) {
-          const parentCommentText = sanitizeHtml(parentComment.contents?.html ?? "", {
-            allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
-            nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
-          })
+          const parentCommentText = sanitizeHtml(parentComment.contents?.html ?? "", sanitizeHtmlOptions)
           userText += `<parent>${parentCommentText}</parent>`
         }
       }
@@ -68,7 +57,7 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
       console.log(userText)
       
       const response = await api.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           {role: 'system', content: modGPTPrompt},
           {role: 'user', content: userText},
