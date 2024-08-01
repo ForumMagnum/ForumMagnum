@@ -9,11 +9,16 @@ import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
+
+const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
 const styles = (theme: ThemeType) => ({
   root: {
     ...popoverStyles(theme).root,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    position: "relative",
     padding: 16,
     width: 400,
     maxWidth: "calc(100vw - 32px)",
@@ -28,6 +33,24 @@ const styles = (theme: ThemeType) => ({
   title: {
     fontSize: 24,
     fontWeight: 600,
+  },
+  menuContainer: {
+    position: "absolute",
+    right: 16,
+    top: 16,
+  },
+  menu: {
+    width: 32,
+    height: 32,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    color: theme.palette.grey[600],
+    borderRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.grey[140],
+    },
   },
   sectionTitle: {
     fontSize: 12,
@@ -60,9 +83,25 @@ const NotificationsPopover = ({karmaChanges, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const [limit, setLimit] = useState(20);
   const {data, loading: notificationsLoading} = useNotificationDisplays(limit);
   const loadMore = useCallback(() => setLimit((limit) => limit + 10), []);
+  const anchorEl = useRef<HTMLDivElement | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const {notificationsOpened} = useUnreadNotifications();
+
+  const toggleMenu = useCallback(() => setIsOpen((open) => !open), []);
+  const closeMenu = useCallback(() => setIsOpen(false), []);
+
+  const markAllAsRead = useCallback(() => {
+    const now = new Date();
+    void updateCurrentUser({
+      karmaChangeLastOpened: now,
+      karmaChangeBatchStart: now,
+    });
+    void notificationsOpened();
+  }, [updateCurrentUser, notificationsOpened]);
 
   const notifs = useRef<NotificationDisplay[]>([]);
   if (
@@ -89,11 +128,35 @@ const NotificationsPopover = ({karmaChanges, classes}: {
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
-    LoadMore, NotificationsPopoverNotification,
+    LoadMore, NotificationsPopoverNotification, ForumIcon, LWClickAwayListener,
+    PopperCard, DropdownMenu, DropdownItem,
   } = Components;
   return (
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
+      <div className={classes.menuContainer}>
+        <div className={classes.menu} onClick={toggleMenu} ref={anchorEl}>
+          <ForumIcon icon="EllipsisVertical" />
+        </div>
+        <PopperCard
+          open={isOpen}
+          anchorEl={anchorEl.current}
+          placement="bottom-end"
+        >
+          <LWClickAwayListener onClickAway={closeMenu}>
+            <DropdownMenu>
+              <DropdownItem
+                title="Mark all as read"
+                onClick={markAllAsRead}
+              />
+              <DropdownItem
+                title="Notification settings"
+                to={notificationsSettingsLink}
+              />
+            </DropdownMenu>
+          </LWClickAwayListener>
+        </PopperCard>
+      </div>
       {showNotifications
         ? (
           <>
