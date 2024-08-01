@@ -9,6 +9,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Badge from '@material-ui/core/Badge';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -158,8 +159,9 @@ const FriendlyNotificationsMenuButton = ({
   classes,
 }: NotificationsMenuButtonProps) => {
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotifications} = useUnreadNotifications();
+  const {unreadNotifications, notificationsOpened} = useUnreadNotifications();
   const [open, setOpen] = useState(false);
   const anchorEl = useRef<HTMLDivElement>(null);
   const {document: karmaChanges, refetch} = useSingle({
@@ -176,6 +178,17 @@ const FriendlyNotificationsMenuButton = ({
   useEffect(() => {
     void refetch();
   }, [refetch, currentUser?.karmaChangeLastOpened]);
+
+  const markAllAsRead = useCallback(() => {
+    const now = new Date();
+    void updateCurrentUser({
+      karmaChangeLastOpened: now,
+      karmaChangeBatchStart: now,
+    });
+    void notificationsOpened();
+  }, [updateCurrentUser, notificationsOpened]);
+
+  const closePopover = useCallback(() => setOpen(false), []);
 
   const onClick = useCallback(() => {
     setOpen((open) => !open);
@@ -235,11 +248,15 @@ const FriendlyNotificationsMenuButton = ({
           overflowPadding={16}
           clickable
         >
-          <LWClickAwayListener onClickAway={() => setOpen(false)}>
-            <NotificationsPopover
-              karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
-            />
-          </LWClickAwayListener>
+          {open &&
+            <LWClickAwayListener onClickAway={() => setOpen(false)}>
+                <NotificationsPopover
+                  karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
+                  markAllAsRead={markAllAsRead}
+                  closePopover={closePopover}
+                />
+            </LWClickAwayListener>
+          }
         </LWPopper>
       </DeferRender>
     </div>

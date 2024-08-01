@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEvent, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { getDisplayConfig } from "./NotificationsPage/NotificationsPageNotification";
 import { useCurrentUser } from "../common/withUser";
@@ -72,18 +72,26 @@ const formatNotificationType = (type: string): string => {
   return words.charAt(0).toUpperCase() + words.slice(1).toLowerCase();
 }
 
-const NotificationsPopoverNotification = ({notification, classes}: {
+const NotificationsPopoverNotification = ({notification, onClick, classes}: {
   notification: NotificationDisplay,
+  onClick?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {onClick} = useClickableCell({href: notification.link ?? "#"});
-
   const currentUser = useCurrentUser();
+  const {onClick: redirect} = useClickableCell({href: notification.link ?? "#"});
+  const [isRead, setIsRead] = useState(
+    (currentUser?.lastNotificationsCheck ?? new Date()) > notification.createdAt,
+  );
+
+  const onSelect = useCallback((ev: MouseEvent<HTMLDivElement>) => {
+    onClick?.();
+    setIsRead(true);
+    redirect(ev);
+  }, [redirect, onClick]);
+
   if (!currentUser) {
     return null;
   }
-
-  const isRead = currentUser.lastNotificationsCheck > notification.createdAt;
 
   const {Icon, iconVariant} = getDisplayConfig(notification);
   const {post, comment, type, message, createdAt} = notification;
@@ -95,7 +103,7 @@ const NotificationsPopoverNotification = ({notification, classes}: {
       placement="left-start"
       clickable
     >
-      <div onClick={onClick} className={classes.root}>
+      <div onClick={onSelect} className={classes.root}>
         <NotificationsPageItem
           Icon={Icon}
           iconVariant={iconVariant}

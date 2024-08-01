@@ -1,10 +1,8 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
@@ -83,30 +81,33 @@ const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
   }
 }
 
-const NotificationsPopover = ({karmaChanges, classes}: {
+const defaultLimit = 20;
+
+const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classes}: {
   karmaChanges?: KarmaChanges,
+  markAllAsRead?: () => void,
+  closePopover?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(defaultLimit);
   const {data, loading: notificationsLoading} = useNotificationDisplays(limit);
   const loadMore = useCallback(() => setLimit((limit) => limit + 10), []);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const {notificationsOpened} = useUnreadNotifications();
+  const [cachedKarmaChanges] = useState(karmaChanges);
 
-  const toggleMenu = useCallback(() => setIsOpen((open) => !open), []);
+  const toggleMenu = useCallback(() => {
+    setIsOpen((open) => !open);
+    markAllAsRead?.();
+  }, [markAllAsRead]);
+
   const closeMenu = useCallback(() => setIsOpen(false), []);
 
-  const markAllAsRead = useCallback(() => {
-    const now = new Date();
-    void updateCurrentUser({
-      karmaChangeLastOpened: now,
-      karmaChangeBatchStart: now,
-    });
-    void notificationsOpened();
-  }, [updateCurrentUser, notificationsOpened]);
+  const closeAll = useCallback(() => {
+    closeMenu();
+    closePopover?.();
+  }, [closePopover, closeMenu]);
 
   const notifs = useRef<NotificationDisplay[]>([]);
   if (
@@ -115,6 +116,12 @@ const NotificationsPopover = ({karmaChanges, classes}: {
   ) {
     notifs.current = data.NotificationDisplays.results ?? [];
   }
+
+  useEffect(() => {
+    if (!notificationsLoading && notifs.current.length <= defaultLimit) {
+      markAllAsRead?.();
+    }
+  }, [notificationsLoading, markAllAsRead]);
 
   if (!currentUser) {
     return null;
@@ -125,7 +132,7 @@ const NotificationsPopover = ({karmaChanges, classes}: {
     subscribedToDigest,
   } = currentUser;
 
-  const showNotifications = !!(notifs.current.length > 0 || karmaChanges);
+  const showNotifications = !!(notifs.current.length > 0 || cachedKarmaChanges);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
@@ -165,10 +172,10 @@ const NotificationsPopover = ({karmaChanges, classes}: {
               title="Karma & reacts"
               className={classes.sectionTitle}
             />
-            {karmaChanges &&
-              <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+            {cachedKarmaChanges &&
+              <NotificationsPageKarmaChangeList karmaChanges={cachedKarmaChanges} />
             }
-            {!karmaChanges &&
+            {!cachedKarmaChanges &&
               <div className={classes.noKarma}>
                 No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
                 <Link to={karmaSettingsLink} className={classes.link}>
@@ -185,6 +192,7 @@ const NotificationsPopover = ({karmaChanges, classes}: {
                 <NotificationsPopoverNotification
                   key={notification._id}
                   notification={notification}
+                  onClick={closeAll}
                 />
               )}
               <LoadMore
