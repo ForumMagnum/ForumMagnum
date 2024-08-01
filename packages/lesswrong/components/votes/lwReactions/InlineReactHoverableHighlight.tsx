@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Components, registerComponent } from '@/lib/vulcan-lib/components';
-import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFromVoteProps, reactionsListToDisplayedNumbers } from '@/lib/voting/namesAttachedReactions';
+import { QuoteLocator, NamesAttachedReactionsList, getNormalizedReactionsListFromVoteProps } from '@/lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
 import { HoveredReactionListContext, InlineReactVoteContext, SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import sumBy from 'lodash/sumBy';

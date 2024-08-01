@@ -7,9 +7,11 @@ import { registerComponent } from '@/lib/vulcan-lib';
 
 type SideItemOptions = {
   format: "block"|"icon"
+  offsetTop: number,
 }
 const defaultSideItemOptions: SideItemOptions = {
-  format: "block"
+  format: "block",
+  offsetTop: 0,
 };
 
 type SideItem = {
@@ -144,7 +146,7 @@ const SideItemsSidebar = ({classes}: {
     // reflow if layout is invalidated.)
     for (let i=0; i<displayContext.sideItems.length; i++) {
       const sideItem = displayContext.sideItems[i];
-      sideItem.anchorTop = getOffsetChainTop(sideItem.anchorEl) - sidebarColumnTop;
+      sideItem.anchorTop = getOffsetChainTop(sideItem.anchorEl) - sidebarColumnTop + sideItem.options.offsetTop;
       sideItem.anchorLeft = sideItem.anchorEl.offsetLeft;
       sideItem.sideItemHeight = sideItem.container.clientHeight;
     }

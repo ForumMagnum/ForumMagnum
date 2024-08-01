@@ -10,6 +10,7 @@ import { truncate } from '@/lib/editor/ellipsize';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/PostsPage';
+import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 
 export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
   theme.breakpoints.down('md')
@@ -67,12 +68,31 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   
   sidenoteContent: {
     display: "inline-block",
+    position: "relative",
     verticalAlign: "top",
     lineHeight: "20px",
+    maxHeight: 200,
+    overflowY: "hidden",
+  },
+  
+  overflowFade: {
+    position: "absolute",
+    top: 160,
+    height: 40,
+    width: "100%",
+    background: `linear-gradient(0deg,${theme.palette.background.pageActiveAreaBackground},transparent)`,
   },
   
   sidenoteHover: {
     background: theme.palette.greyAlpha(0.1),
+    
+    "& $sidenoteContent": {
+      maxHeight: "unset",
+      overflowY: "visible",
+    },
+    "& $overflowFade": {
+      display: "none",
+    },
   },
 })
 
@@ -126,11 +146,13 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
+  const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("md");
+  const sidenoteIsVisible = hasSidenotes && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
       {footnoteContentsNonempty && <LWPopper
-        open={anchorHovered}
+        open={anchorHovered && !sidenoteIsVisible}
         anchorEl={anchorEl}
         placement="bottom-start"
         allowOverflow
@@ -142,7 +164,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         </Card>
       </LWPopper>}
       
-      {hasSidenotes && !sidenotesDisabledOnPost && <SideItem>
+      {hasSidenotes && !sidenotesDisabledOnPost && <SideItem options={{offsetTop: -6}}>
         <div
           {...sidenoteEventHandlers}
           className={classNames(
@@ -208,7 +230,10 @@ const SidenoteDisplay = ({footnoteHTML, classes}: {
       <span className={classes.sidenoteWithIndex} onClick={ev => expand()}>
         <span className={classes.sidenoteIndex}>{footnoteIndex}{"."}</span>
         {/*<div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: maybeTruncatedHTML}} />*/}
-        <div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: footnoteHTML}} />
+        <div className={classes.sidenoteContent}>
+          <div dangerouslySetInnerHTML={{__html: footnoteHTML}} />
+          <div className={classes.overflowFade} />
+        </div>
       </span>
     </ContentStyles>
   );

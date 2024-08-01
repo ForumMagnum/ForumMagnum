@@ -12,8 +12,6 @@ import some from 'lodash/some';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
-    background: theme.palette.panelBackground.darken03,
-    borderRadius: 8,
     color: theme.palette.icon.dim6,
     
     [theme.breakpoints.down('xs')]: {
