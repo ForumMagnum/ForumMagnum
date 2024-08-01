@@ -7,19 +7,40 @@ import { Globals } from "./vulcan-lib";
 import { inspect } from "util";
 import md5 from "md5";
 import { isAnyTest, isE2E } from "../lib/executionEnvironment";
-import { isEAForum } from "../lib/instanceSettings";
+import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
+import { forumSelect } from "@/lib/forumTypeUtils";
 
-export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum && !isE2E;
+export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = (isEAForum || isLWorAF) && !isE2E;
 
-export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
-const NEW_EMBEDDINGS_MODEL = "text-embedding-3-large";
+const LEGACY_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
+const DEFAULT_EMBEDDINGS_MODEL = "text-embedding-3-large";
+// The NodeJS tokenizer library doesn't (yet) support the `text-embedding-3-large` model prefix:
+// https://github.com/dqbd/tiktoken/blob/a7cce9922b10bca567be8453f1ef0489428fa02f/js/src/core.ts#L211
+// But using the old one for tokenization works just fine, since it maps to the same encoding, according to the original python library:
+// https://github.com/openai/tiktoken/blob/c0ba74c238d18b4824c25f3c27fc8698055b9a76/tiktoken/model.py#L31
+const TOKENIZER_MODEL: TiktokenModel = 'text-embedding-ada-002'
 
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
+  
+export const embeddingsSettings = forumSelect({
+  "EAForum": {
+    "tokenizerModel": TOKENIZER_MODEL,
+    "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
+    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+    "supportsBatchUpdate": false,
+  },
+  "default": {
+    "tokenizerModel": TOKENIZER_MODEL,
+    "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
+    "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+    "supportsBatchUpdate": true,
+  }
+})
 
 type EmbeddingsResult = {
   embeddings: number[],
@@ -70,13 +91,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
     throw new Error("OpenAI client is not configured");
   }
 
-  // The NodeJS tokenizer library doesn't (yet) support the `text-embedding-3-large` model prefix:
-  // https://github.com/dqbd/tiktoken/blob/a7cce9922b10bca567be8453f1ef0489428fa02f/js/src/core.ts#L211
-  // But using the old one for tokenization works just fine, since it maps to the same encoding, according to the original python library:
-  // https://github.com/openai/tiktoken/blob/c0ba74c238d18b4824c25f3c27fc8698055b9a76/tiktoken/model.py#L31
-  const tokenizerModel = DEFAULT_EMBEDDINGS_MODEL;
-  const embeddingModel = NEW_EMBEDDINGS_MODEL;
-  const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
+  const { tokenizerModel, embeddingModel, maxTokens } = embeddingsSettings
 
   const trimmedInputTuples: [string, string][] = [];
   for (const [postId, postText] of Object.entries(inputs)) {
@@ -137,12 +152,14 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   if (!api) {
     throw new Error("OpenAI client is not configured");
   }
-  const model = DEFAULT_EMBEDDINGS_MODEL;
-  const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
-  const trimmedText = trimText(text, model, maxTokens);
+
+  const { maxTokens, embeddingModel, tokenizerModel } = embeddingsSettings
+
+  const trimmedText = trimText(text, tokenizerModel, maxTokens);
   const result = await api.embeddings.create({
     input: trimmedText,
-    model,
+    model: embeddingModel,
+    dimensions: EMBEDDINGS_VECTOR_SIZE
   });
   const embeddings = result?.data?.[0].embedding;
   if (
@@ -155,7 +172,7 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   }
   return {
     embeddings,
-    model,
+    model: embeddingModel,
   };
 }
 
@@ -209,8 +226,14 @@ const updateAllPostEmbeddings = async () => {
     collection: Posts,
     batchSize: 100,
     callback: async (posts: DbPost[]) => {
+      // eslint-disable-next-line no-console
+      console.log("Processing next batch")
       try {
-        await batchUpdatePostEmbeddings(posts);
+        if (embeddingsSettings.supportsBatchUpdate) {
+          await batchUpdatePostEmbeddings(posts);
+        } else {
+          await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
+        }
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error", e);
@@ -221,13 +244,26 @@ const updateAllPostEmbeddings = async () => {
 
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
-  for (const idBatch of chunk(ids, 50)) {
-    try {
-      const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
-      await batchUpdatePostEmbeddings(posts);
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });
+
+  if (embeddingsSettings.supportsBatchUpdate) {
+    for (const idBatch of chunk(ids, 50)) {
+      try {
+        const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
+        await batchUpdatePostEmbeddings(posts);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });
+      }
+    }
+  } else {
+    for (const id of ids) {
+      try {
+        // One at a time to avoid being rate limited by the API
+        await updatePostEmbeddings(id);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`Failed to generate or update embeddings`, { error: e.response ?? e });
+      }
     }
   }
 }
