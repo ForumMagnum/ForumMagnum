@@ -1,11 +1,12 @@
 import React, { MouseEvent, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { getDisplayConfig } from "./NotificationsPage/NotificationsPageNotification";
+import { useClickableCell } from "../common/useClickableCell";
+import { useTracking } from "@/lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import classNames from "classnames";
 import moment from "moment";
-import { useClickableCell } from "../common/useClickableCell";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -78,6 +79,7 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const {captureEvent} = useTracking();
   const {onClick: redirect} = useClickableCell({href: notification.link ?? "#"});
   const [isRead, setIsRead] = useState(
     (currentUser?.lastNotificationsCheck ?? new Date()) > notification.createdAt,
@@ -86,8 +88,14 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
   const onSelect = useCallback((ev: MouseEvent<HTMLDivElement>) => {
     onClick?.();
     setIsRead(true);
+    captureEvent("notificationClick", {
+      notification: {
+        _id: notification._id,
+        link: notification.link,
+      },
+    });
     redirect(ev);
-  }, [redirect, onClick]);
+  }, [redirect, onClick, captureEvent, notification]);
 
   if (!currentUser) {
     return null;

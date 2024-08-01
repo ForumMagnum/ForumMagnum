@@ -9,6 +9,7 @@ import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
+import { AnalyticsContext } from "@/lib/analyticsEvents";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
@@ -140,78 +141,84 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
     PopperCard, DropdownMenu, DropdownItem, Loading,
   } = Components;
   return (
-    <div className={classes.root}>
-      <div className={classes.title}>Notifications</div>
-      <div className={classes.menuContainer}>
-        <div className={classes.menu} onClick={toggleMenu} ref={anchorEl}>
-          <ForumIcon icon="EllipsisVertical" />
-        </div>
-        <PopperCard
-          open={isOpen}
-          anchorEl={anchorEl.current}
-          placement="bottom-end"
-        >
-          <LWClickAwayListener onClickAway={closeMenu}>
-            <DropdownMenu>
-              <DropdownItem
-                title="Mark all as read"
-                onClick={markAllAsRead}
-              />
-              <DropdownItem
-                title="Notification settings"
-                to={notificationsSettingsLink}
-              />
-            </DropdownMenu>
-          </LWClickAwayListener>
-        </PopperCard>
-      </div>
-      {showNotifications
-        ? (
-          <>
-            <SectionTitle
-              title="Karma & reacts"
-              className={classes.sectionTitle}
-            />
-            {cachedKarmaChanges &&
-              <NotificationsPageKarmaChangeList karmaChanges={cachedKarmaChanges} />
-            }
-            {!cachedKarmaChanges &&
-              <div className={classes.noKarma}>
-                No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-                <Link to={karmaSettingsLink} className={classes.link}>
-                  Change settings
-                </Link>
-              </div>
-            }
-            <SectionTitle
-              title="Posts & comments"
-              className={classes.sectionTitle}
-            />
-            <div className={classes.notifications}>
-              {notifs.current.map((notification) =>
-                <NotificationsPopoverNotification
-                  key={notification._id}
-                  notification={notification}
-                  onClick={closeAll}
+    <AnalyticsContext pageSectionContext="notificationsPopover">
+      <div className={classes.root}>
+        <div className={classes.title}>Notifications</div>
+        <div className={classes.menuContainer}>
+          <div className={classes.menu} onClick={toggleMenu} ref={anchorEl}>
+            <ForumIcon icon="EllipsisVertical" />
+          </div>
+          <PopperCard
+            open={isOpen}
+            anchorEl={anchorEl.current}
+            placement="bottom-end"
+          >
+            <LWClickAwayListener onClickAway={closeMenu}>
+              <DropdownMenu>
+                <DropdownItem
+                  title="Mark all as read"
+                  onClick={markAllAsRead}
                 />
-              )}
-              <LoadMore
-                loadMore={loadMore}
-                loading={notificationsLoading}
-                loadingClassName={classes.loading}
-              />
-            </div>
-          </>
-        )
-        : notificationsLoading
+                <DropdownItem
+                  title="Notification settings"
+                  to={notificationsSettingsLink}
+                />
+              </DropdownMenu>
+            </LWClickAwayListener>
+          </PopperCard>
+        </div>
+        {showNotifications
           ? (
-            <Loading className={classes.mainLoading} />
+            <>
+              <SectionTitle
+                title="Karma & reacts"
+                className={classes.sectionTitle}
+              />
+              {cachedKarmaChanges &&
+                <NotificationsPageKarmaChangeList
+                  karmaChanges={cachedKarmaChanges}
+                />
+              }
+              {!cachedKarmaChanges &&
+                <div className={classes.noKarma}>
+                  No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
+                  <Link to={karmaSettingsLink} className={classes.link}>
+                    Change settings
+                  </Link>
+                </div>
+              }
+              <SectionTitle
+                title="Posts & comments"
+                className={classes.sectionTitle}
+              />
+              <div className={classes.notifications}>
+                {notifs.current.map((notification) =>
+                  <NotificationsPopoverNotification
+                    key={notification._id}
+                    notification={notification}
+                    onClick={closeAll}
+                  />
+                )}
+                <LoadMore
+                  loadMore={loadMore}
+                  loading={notificationsLoading}
+                  loadingClassName={classes.loading}
+                />
+              </div>
+            </>
           )
-          : (
-            <NoNotificationsPlaceholder subscribedToDigest={subscribedToDigest} />
-          )
-      }
-    </div>
+          : notificationsLoading
+            ? (
+              <Loading className={classes.mainLoading} />
+            )
+            : (
+              <NoNotificationsPlaceholder
+                subscribedToDigest={subscribedToDigest}
+          />
+            )
+        }
+      </div>
+    </AnalyticsContext>
   );
 }
 
