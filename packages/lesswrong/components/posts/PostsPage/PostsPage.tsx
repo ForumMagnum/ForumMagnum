@@ -857,7 +857,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     : undefined
 
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={fullPost ?? null}>
+    <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
