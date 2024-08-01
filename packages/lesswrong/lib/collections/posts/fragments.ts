@@ -289,6 +289,7 @@ registerFragment(`
     unreadDebateResponseCount
     dialogTooltipPreview
     hasFootnotes
+    disableSidenotes
   }
 `);
 

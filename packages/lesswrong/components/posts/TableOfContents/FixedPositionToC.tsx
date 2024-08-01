@@ -165,7 +165,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  const postContext = usePostsPageContext();
+  const postContext = usePostsPageContext()?.fullPost;
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
   const { readingProgressBarRef } = usePostReadProgress({

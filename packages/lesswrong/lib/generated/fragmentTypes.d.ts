@@ -873,6 +873,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly sideComments: any,
   readonly sideCommentVisibility: string,
   readonly hasFootnotes: boolean|null,
+  readonly disableSidenotes: boolean,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
@@ -1275,6 +1276,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
   readonly hasFootnotes: boolean|null,
+  readonly disableSidenotes: boolean,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions

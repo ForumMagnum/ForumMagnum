@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { SideItemContentContext } from '../contents/SideItems';
 import { truncate } from '@/lib/editor/ellipsize';
 import { parseDocumentFromString } from '@/lib/domParser';
+import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
@@ -103,6 +104,10 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const onClick = useCallback(() => {
     window.dispatchEvent(new CustomEvent(EXPAND_FOOTNOTES_EVENT, {detail: href}));
   }, [href]);
+  
+  const postPageContext = usePostsPageContext();
+  const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
+  const sidenotesDisabledOnPost = post?.disableSidenotes;
 
   return (
     <span>
