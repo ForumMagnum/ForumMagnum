@@ -10,11 +10,8 @@ import classNames from 'classnames';
 import Badge from '@material-ui/core/Badge';
 import some from 'lodash/some';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
-    //float: "right",
-    //position: 'relative',
-    //width: 0,
     background: theme.palette.panelBackground.darken03,
     borderRadius: 8,
     color: theme.palette.icon.dim6,
@@ -28,10 +25,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   sideCommentIcon: {
-    //position: 'absolute',
     cursor: "pointer",
     paddingTop: 4,
-    //marginLeft: 25,
     whiteSpace: "nowrap",
     "& svg": {
       height: 17,
@@ -93,7 +88,7 @@ const BadgeWrapper = ({commentCount, classes, children}: {
 const SideCommentIcon = ({commentIds, post, classes}: {
   commentIds: string[]
   post: PostsList
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
   const {LWPopper, LWClickAwayListener, SideCommentHover, SideItem} = Components;
   const {eventHandlers, hover, anchorEl} = useHover();
@@ -132,7 +127,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
   return <SideItem options={{
     format: "icon"
   }}>
-    <span className={classes.sideCommentWrapper} onMouseLeave={onMouseLeave}>
+    <span className={classes.sideCommentIconWrapper} onMouseLeave={onMouseLeave}>
       <span {...eventHandlers}
         onClick={onClick}
         className={classes.sideCommentIcon}
@@ -163,7 +158,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 const SideCommentHover = ({commentIds, post, classes}: {
   commentIds: string[],
   post: PostsList
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { SideCommentSingle } = Components;
   
@@ -186,7 +181,7 @@ const SideCommentHover = ({commentIds, post, classes}: {
 const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
   commentId: string,
   post: PostsList,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   dontTruncateRoot?: boolean,
 }) => {
   const theme = useTheme();
