@@ -40,9 +40,14 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
+import { sidenotesHiddenBreakpoint } from '@/components/linkPreview/FootnotePreview';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
+
+export const RIGHT_COLUMN_WIDTH_WITH_SIDENOTES = 300;
+export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
+export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES_XS = 25;
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
@@ -208,17 +213,10 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   centralColumn: {
-    maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      // This can only be used when display: "block" is applied, otherwise the 100% confuses the
-      // grid layout into adding loads of left margin
-      maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
-    }
   },
   postBody: {
-    width: "max-content",
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
@@ -316,13 +314,21 @@ export const styles = (theme: ThemeType) => ({
     fontWeight: '600'
   },
   reserveSpaceForSidenotes: {
-    [theme.breakpoints.up('lg')]: {
-      width: 300,
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES_XS,
+      },
     },
   },
   reserveSpaceForIcons: {
-    [theme.breakpoints.up('md')]: {
-      width: 80,
+    width: 0,
+    [theme.breakpoints.up('xs')]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES_XS,
+      [theme.breakpoints.up('sm')]: {
+        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      },
     },
   },
 })

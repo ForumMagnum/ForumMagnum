@@ -9,8 +9,12 @@ import { SideItemContentContext } from '../contents/SideItems';
 import { truncate } from '@/lib/editor/ellipsize';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/PostsPage';
 
-const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
+export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
+  theme.breakpoints.down('md')
+
+const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
     padding: 16,
     ...theme.typography.body2,
@@ -28,17 +32,25 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   },
   
   anchorHover: {
-    background: theme.palette.greyAlpha(0.1),
+    border: `2px solid ${theme.palette.primary.dark}`,
+    margin: -2,
+    borderRadius: 2,
   },
 
   sidenote: {
-    [theme.breakpoints.down('md')]: {
+    [sidenotesHiddenBreakpoint(theme)]: {
       display: "none",
     },
     "& .footnote-back-link": {
       display: "none",
     },
-    paddingBottom: 24,
+
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    padding: 12,
+    
+    "& .footnote-content": {
+      width: "auto !important",
+    },
   },
 
   sidenoteWithIndex: {
@@ -49,11 +61,14 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
     display: "inline-block",
     verticalAlign: "top",
     fontSize: 15,
+    marginRight: 5,
+    whiteSpace: "nowrap",
   },
   
   sidenoteContent: {
     display: "inline-block",
     verticalAlign: "top",
+    lineHeight: "20px",
   },
   
   sidenoteHover: {
@@ -165,10 +180,9 @@ const SidenoteDisplay = ({footnoteHTML, classes}: {
   const [isTruncated,setIsTruncated] = useState(true);
   
   const maybeTruncatedHTML = isTruncated
-    ? truncate(footnoteHTML, 20, "words")
+    ? truncate(footnoteHTML, 20, "words", "")
     : footnoteHTML;
-  // FIXME: `truncate` doesn't handle suffixing content wrapped in a `<div>`
-  // very well; the ... winds up outside the block
+  const isActuallyTruncated = (maybeTruncatedHTML !== footnoteHTML);
   
   function expand() {
     setIsTruncated(false);
@@ -192,8 +206,9 @@ const SidenoteDisplay = ({footnoteHTML, classes}: {
   return (
     <ContentStyles contentType="postHighlight">
       <span className={classes.sidenoteWithIndex} onClick={ev => expand()}>
-        <span className={classes.sidenoteIndex}>{footnoteIndex}</span>
-        <div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: maybeTruncatedHTML}} />
+        <span className={classes.sidenoteIndex}>{footnoteIndex}{"."}</span>
+        {/*<div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: maybeTruncatedHTML}} />*/}
+        <div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: footnoteHTML}} />
       </span>
     </ContentStyles>
   );
