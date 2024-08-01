@@ -27,6 +27,10 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
   },
+  meta: {
+    display: "flex",
+    flexGrow: 1,
+  },
   type: {
     color: theme.palette.grey[600],
     fontSize: 12,
@@ -95,6 +99,7 @@ const NotificationsPopoverNotification = ({notification, classes}: {
         <NotificationsPageItem
           Icon={Icon}
           iconVariant={iconVariant}
+          metaClassName={classes.meta}
           noMargin
         >
           <div className={classes.container}>

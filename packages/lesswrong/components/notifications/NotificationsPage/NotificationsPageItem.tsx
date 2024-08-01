@@ -57,8 +57,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.5em",
     fontWeight: 500,
     maxWidth: "100%",
-    display: "flex",
-    flexGrow: 1,
   },
   bottomMargin: {
     marginBottom: 12,
@@ -84,6 +82,7 @@ export const NotificationsPageItem = ({
   previewCommentId,
   noMargin,
   children,
+  metaClassName,
   classes,
 }: {
   Icon: ForumIconName | FC,
@@ -93,6 +92,7 @@ export const NotificationsPageItem = ({
   previewCommentId?: string,
   noMargin?: boolean,
   children?: ReactNode,
+  metaClassName?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const showPreviewComment = !!previewCommentId;
@@ -132,6 +132,7 @@ export const NotificationsPageItem = ({
           <div className={classNames(
             classes.meta,
             !noMargin && classes.bottomMargin,
+            metaClassName,
           )}>
             {children}
           </div>

@@ -3,14 +3,14 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "@/lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../common/Header";
 import { useCurrentUser } from "../common/withUser";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
+import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles as popoverStyles } from "../common/FriendlyHoverOver";
 import { useNotificationDisplays } from "./NotificationsPage/useNotificationDisplays";
 import { karmaSettingsLink } from "./NotificationsPage/NotificationsPageFeed";
 import type { NotificationDisplay } from "@/lib/notificationTypes";
 import type { KarmaChanges } from "@/lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "@/lib/collections/users/schema";
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
-import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 
 const notificationsSettingsLink = "/account?highlightField=auto_subscribe_to_my_posts";
 
