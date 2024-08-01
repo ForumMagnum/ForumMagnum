@@ -87,6 +87,12 @@ export function cheerioParseAndMarkOffsets(html: string) {
 }
 
 export function htmlContainsFootnotes(html: string) {
+  // Post HTML contains footnotes if it contains an element with the class
+  // "footnote-reference". Before spending CPU to parse HTML, check whether that
+  // string is present at all as a faster check
+  if (!html.includes(".footnote-reference")) {
+    return false;
+  }
   const $ = cheerioParse(html);
   const footnotes = $(".footnote-reference");
   return footnotes.length > 0;

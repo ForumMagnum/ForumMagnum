@@ -1078,7 +1078,6 @@ interface PostsMinimumInfo { // fragment on Posts
   readonly rejected: boolean,
   readonly debate: boolean,
   readonly collabEditorDialogue: boolean,
-  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
@@ -1275,6 +1274,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
+  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions

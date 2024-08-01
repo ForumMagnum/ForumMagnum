@@ -22,7 +22,6 @@ registerFragment(`
     rejected
     debate
     collabEditorDialogue
-    hasFootnotes
   }
 `);
 
@@ -289,6 +288,7 @@ registerFragment(`
     totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
+    hasFootnotes
   }
 `);
 

@@ -284,9 +284,6 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        // TODO: This is used for deciding column-widths, but is too slow to
-        // have uncached in a resolver like this. Replace it with something more
-        // efficient
         const html = post.contents?.html;
         if (!html) return false;
         
