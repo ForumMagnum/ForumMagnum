@@ -14,9 +14,6 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
-const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
-// some padding around the icon to make it look like a stateful toggle button
-const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -90,24 +87,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: 'default',
     "@media print": { display: "none" },
   },
-  togglePodcastContainer: {
-    alignSelf: 'center',
-    color: isFriendlyUI ? undefined : theme.palette.primary.main,
-    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
-  },
-  audioIcon: {
-    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
-    padding: PODCAST_ICON_PADDING
-  },
-  audioNewFeaturePulse: {
-    top: PODCAST_ICON_PADDING * 1.5,
-  },
-  audioIconOn: {
-    background: theme.palette.grey[200],
-    borderRadius: theme.borderRadius.small
-  },
   actions: {
     color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
@@ -150,9 +129,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&:hover": {
       opacity: 0.5,
     },
-  },
-  nonhumanAudio: {
-    color: theme.palette.grey[500],
   },
   headerFooter: { 
     display: 'flex',
@@ -237,19 +213,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag} = Components;
-  const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
-
-  useEffect(() => {
-    if(!cachedTooltipSeen) {
-      setCookie(PODCAST_TOOLTIP_SEEN_COOKIE, true, {
-        expires: moment().add(2, 'years').toDate(),
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, AudioToggle} = Components;
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
@@ -306,22 +270,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </CommentsLink>
     );
 
-  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
 
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
-    <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
-    </a>
-  </LWTooltip>
-  const audioNode = toggleEmbeddedPlayer && (
-    (cachedTooltipSeen || isLWorAF)
-      ? audioIcon
-      : (
-        <NewFeaturePulse className={classes.audioNewFeaturePulse}>
-          {audioIcon}
-        </NewFeaturePulse>
-      )
-  )
+
 
   const addToCalendarNode = post.startTime && <div className={classes.secondaryInfoLink}>
     <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
@@ -334,31 +284,12 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </AnalyticsContext>
     </span>
 
-  let secondaryInfoNode;
-  if (isBookUI) {
-    // this is the info section under the post title, to the right of the author names
-    secondaryInfoNode = <div className={classes.secondaryInfo}>
-      <div className={classes.secondaryInfoLeft}>
-        {crosspostNode}
-        {readingTimeNode}
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {post.isEvent && <GroupLinks document={post} noMargin />}
-        {answersNode}
-        <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-          {postGetCommentCountStr(post, commentCount)}
-        </CommentsLink>
-        {audioNode}
-        {addToCalendarNode}
-        {tripleDotMenuNode}
-      </div>
-    </div>
-  } else {
     // EA Forum splits the info into two sections, plus has the info in a different order
-    secondaryInfoNode = <div className={classes.secondaryInfo}>
+  const secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
         {readingTimeNode}
-        {audioNode}
+        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
         {!post.shortform &&
@@ -377,7 +308,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {tripleDotMenuNode}
       </div>
     </div>
-  }
 
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
@@ -414,9 +344,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
       </div>}
-    </div>
-    <div className={classes.headerFooter}>
-      
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>

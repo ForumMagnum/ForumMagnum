@@ -104,7 +104,7 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
       tooltipBody: <div>
         An event post.
       </div>,
-      linkTarget: "/events",
+      linkTarget: "/community",
       Icon: EventIcon
     },
     shortform: {

@@ -31,6 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
   alignRight: {
     justifyContent: 'flex-end',
+    
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",

@@ -13,7 +13,6 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    background: theme.palette.panelBackground.default,
     opacity: .76,
     borderRadius: 4,
   },

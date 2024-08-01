@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      background: `linear-gradient(0deg, ${theme.palette.panelBackground.default} 3%, transparent 48%)`,
+      background: `linear-gradient(180deg, ${theme.palette.panelBackground.translucent} 64px, transparent 30%, transparent 48%, ${theme.palette.panelBackground.default} 97%)`,
       pointerEvents: 'none'
     },
     transition: 'opacity 0.5s ease-in-out',
@@ -134,7 +134,9 @@ const styles = (theme: ThemeType) => ({
   },
   top: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginRight: 8
   },
   leftSection: {
     display: 'flex',
@@ -142,8 +144,7 @@ const styles = (theme: ThemeType) => ({
     width: 'fit-content',
     maxWidth: '350px',
     textAlign: 'left',
-    marginLeft: 6,
-    padding: 8,
+    marginLeft: 16,
     whiteSpace: 'nowrap',
     ...theme.typography.commentStyle,
   },
@@ -260,20 +261,12 @@ const styles = (theme: ThemeType) => ({
   },
   reviewNavigation: {
     display: 'block',
-    backgroundColor: theme.palette.panelBackground.reviewGold,
-    padding: 6,
-    borderRadius: 4,
-    color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
   },
   reviewNavigationMobile: {
-    backgroundColor: theme.palette.panelBackground.reviewGold,
-    padding: 6, 
-    borderRadius: 4,
-    color: theme.palette.text.alwaysWhite,
     display: 'none',
     [theme.breakpoints.down('xs')]: {
       display: 'block',
@@ -375,7 +368,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote, LWPostsPageHeaderTopRight } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -452,15 +445,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     return () => setToCVisible(true);
   }, [post, selectedImageInfo, imageFlipped, setToCVisible]);
 
-  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF;
 
-  const audioIcon = (
-    <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio, [classes.audioIconOn]: showEmbeddedPlayer})}>
-      <a href="#" onClick={toggleEmbeddedPlayer}>
-        <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {})} />
-      </a>
-    </LWTooltip>
-  );
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
@@ -473,7 +458,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       <Link className={classes.reviewNavigationMobile} to="/leastwrong?sort=year">
         #{post.reviewWinner.reviewRanking + 1} in {post.reviewWinner.reviewYear} Review
       </Link>
-      {toggleEmbeddedPlayer && audioIcon}
     </div>
   );
 
@@ -508,13 +492,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>
   );
 
-  const audioPlayer = (
-    <div className={classes.audioPlayerContainer}>
-      <div className={classes.audioPlayer}>
-        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
-      </div>
-    </div>
-  );
 
   const reviewContainer = (
     <div className={classes.reviewContainer} onMouseLeave={() => {
@@ -573,10 +550,8 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>}
     <div className={classes.top}>
       {topLeftSection}
-      {topRightSection}
+      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} />
     </div>
-
-    {audioPlayer}
     {reviewContainer}
     {centralSection}
   </div>
