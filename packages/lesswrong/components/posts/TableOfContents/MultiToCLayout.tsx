@@ -23,9 +23,9 @@ const styles = (theme: ThemeType) => ({
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
       minmax(0px, ${FULL_HEIGHT_TOC_LEFT_MARGIN})
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN})
-      min-content
       10px
+      min-content
+      minmax(0px, ${DEFAULT_TOC_MARGIN})
       ${RIGHT_COLUMN_WIDTH}
     `,
     [theme.breakpoints.down('sm')]: {

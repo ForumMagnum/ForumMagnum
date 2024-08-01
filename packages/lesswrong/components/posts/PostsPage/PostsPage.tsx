@@ -41,9 +41,8 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 
+export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
-export const MAX_COLUMN_WIDTH = CENTRAL_COLUMN_WIDTH
-//export const MAX_COLUMN_WIDTH = 720
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
@@ -183,7 +182,7 @@ const getStructuredData = ({
 
 
 // Also used in PostsCompareRevisions
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   readingProgressBar: {
     position: 'fixed',
     top: 0,
@@ -315,7 +314,17 @@ export const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: 1,
     textWrap: 'balance',
     fontWeight: '600'
-  }
+  },
+  reserveSpaceForSidenotes: {
+    [theme.breakpoints.up('lg')]: {
+      width: 300,
+    },
+  },
+  reserveSpaceForIcons: {
+    [theme.breakpoints.up('md')]: {
+      width: 80,
+    },
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -338,7 +347,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -702,12 +711,12 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     </DeferRender>
   );
   
-  const showSidenotes = post.hasFootnotes;
+  const showSidenotes = post.hasFootnotes && !post.disableSidenotes;
 
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    {showSidenotes && <div style={{width:300}}/>}
+    {<div className={showSidenotes ? classes.reserveSpaceForSidenotes : classes.reserveSpaceForIcons}/>}
     <Components.SideItemsSidebar/>
   </>;
 

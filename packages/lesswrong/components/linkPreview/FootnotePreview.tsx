@@ -32,6 +32,9 @@ const footnotePreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 
   sidenote: {
+    [theme.breakpoints.down('md')]: {
+      display: "none",
+    },
     "& .footnote-back-link": {
       display: "none",
     },
@@ -124,7 +127,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         </Card>
       </LWPopper>}
       
-      {hasSidenotes && <SideItem>
+      {hasSidenotes && !sidenotesDisabledOnPost && <SideItem>
         <div
           {...sidenoteEventHandlers}
           className={classNames(

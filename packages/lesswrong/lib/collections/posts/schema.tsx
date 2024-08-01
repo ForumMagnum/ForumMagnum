@@ -2577,6 +2577,8 @@ const schema: SchemaType<"Posts"> = {
    */
   hasFootnotes: {
     type: Boolean,
+    optional: true,
+    hidden: true,
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
