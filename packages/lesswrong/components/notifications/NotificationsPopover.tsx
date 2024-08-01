@@ -68,6 +68,11 @@ const styles = (theme: ThemeType) => ({
   notification: {
     display: "flex",
   },
+  mainLoading: {
+    display: "flex",
+    alignItems: "center",
+    height: 350,
+  },
 });
 
 const getKarmaFrequency = (batchingFrequency: KarmaChangeUpdateFrequency) => {
@@ -120,16 +125,12 @@ const NotificationsPopover = ({karmaChanges, classes}: {
     subscribedToDigest,
   } = currentUser;
 
-  const showNotifications = !!(
-    notificationsLoading ||
-    notifs.current.length > 0 ||
-    karmaChanges
-  );
+  const showNotifications = !!(notifs.current.length > 0 || karmaChanges);
 
   const {
     SectionTitle, NotificationsPageKarmaChangeList, NoNotificationsPlaceholder,
     LoadMore, NotificationsPopoverNotification, ForumIcon, LWClickAwayListener,
-    PopperCard, DropdownMenu, DropdownItem,
+    PopperCard, DropdownMenu, DropdownItem, Loading,
   } = Components;
   return (
     <div className={classes.root}>
@@ -194,9 +195,13 @@ const NotificationsPopover = ({karmaChanges, classes}: {
             </div>
           </>
         )
-        : (
-          <NoNotificationsPlaceholder subscribedToDigest={subscribedToDigest} />
-        )
+        : notificationsLoading
+          ? (
+            <Loading className={classes.mainLoading} />
+          )
+          : (
+            <NoNotificationsPlaceholder subscribedToDigest={subscribedToDigest} />
+          )
       }
     </div>
   );
