@@ -29,7 +29,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'column',
-    ...theme.typography.postStyle,
     '&::before': {
       content: '""',
       position: 'absolute',
@@ -119,6 +118,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   centralSection: {
+    ...theme.typography.postStyle,
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -368,7 +368,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote, LWPostsPageHeaderTopRight } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageTopHeaderVote, LWPostsPageHeaderTopRight } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -446,10 +446,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   }, [post, selectedImageInfo, imageFlipped, setToCVisible]);
 
 
-
-  const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
-  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
-
   const topLeftSection = (
     <div className={classes.leftSection}>
       <Link className={classes.reviewNavigation} to="/leastwrong?sort=year">
@@ -478,20 +474,13 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>
   );
 
-  const topRightSection = (
-    <div className={classes.rightSection}>
-      <AnalyticsContext pageSectionContext="tagHeader">
-        <div className={classes.rightSectionTopRow}>
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} align="right" />
-        </div>
-      </AnalyticsContext>
-      <div className={classes.rightSectionBottomRow}>
-        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
+  const audioPlayer = (
+    <div className={classes.audioPlayerContainer}>
+      <div className={classes.audioPlayer}>
+        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
       </div>
-      {imagePreviewAndCrop}
     </div>
   );
-
 
   const reviewContainer = (
     <div className={classes.reviewContainer} onMouseLeave={() => {
@@ -550,7 +539,11 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>}
     <div className={classes.top}>
       {topLeftSection}
-      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} />
+      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+    </div>
+    {audioPlayer}
+    <div className={classes.rightSection}>
+      {imagePreviewAndCrop}
     </div>
     {reviewContainer}
     {centralSection}

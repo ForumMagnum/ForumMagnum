@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
+export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) => {
   return post.podcastEpisode || isPostAllowedType3Audio(post);
 }
 

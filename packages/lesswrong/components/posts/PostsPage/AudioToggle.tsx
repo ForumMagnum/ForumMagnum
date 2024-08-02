@@ -19,22 +19,18 @@ const styles = (theme: ThemeType) => ({
     height: PODCAST_ICON_SIZE,
   },
   audioIcon: {
-    marginLeft: 8,
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     transform: `translateY(-${PODCAST_ICON_PADDING}px)`,
     padding: PODCAST_ICON_PADDING
   },
   audioNewFeaturePulse: {
-    top: PODCAST_ICON_PADDING * 1.5,
+    top: PODCAST_ICON_PADDING * 1.5
   },
   audioIconOn: {
-    background: theme.palette.grey[200],
+    background: theme.palette.icon.dim05,
     borderRadius: theme.borderRadius.small
-  },
-  nonhumanAudio: {
-    color: theme.palette.grey[500],
-  },
+  }
 });
 
 const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
@@ -42,7 +38,6 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
-  nonhumanAudio?: boolean,
 }) => {
   const { LWTooltip, NewFeaturePulse, ForumIcon } = Components;
 
@@ -58,14 +53,16 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>
 
-  if (toggleEmbeddedPlayer && (cachedTooltipSeen || isLWorAF)) {
+  if (!toggleEmbeddedPlayer) {
+    return null
+  }
+  if (cachedTooltipSeen || isLWorAF) {
     return audioIcon
   }
   return (

@@ -137,7 +137,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight } = Components;
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper } = Components;
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
@@ -158,7 +158,10 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
         <PostsTopSequencesNav post={post} />
       </div>}
     </AnalyticsContext>
-    {!post.shortform && <span className={classes.topRight}><LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} /></span>}
+    {!post.shortform && <span className={classes.topRight}>
+      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+    </span>}
+    {post && <span><PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/></span>}
     <PostsPageTitle post={post} />
     <div className={classes.authorAndSecondaryInfo}>
       <div className={classes.authorInfo}>

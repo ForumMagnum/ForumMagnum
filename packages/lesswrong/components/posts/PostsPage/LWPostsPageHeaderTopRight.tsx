@@ -9,6 +9,8 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexWrap: "nowrap",
+    alignItems: "center",
+    columnGap: 8,
     [theme.breakpoints.down('sm')]: {
       top: 8,
       right: 8
@@ -17,8 +19,6 @@ const styles = (theme: ThemeType) => ({
   vote: {
     display: 'flex',
     flexDirection: 'row-reverse',
-    paddingLeft: 8,
-    paddingRight: 8
   },
   postActionsButton: {
     display: 'flex',
@@ -33,7 +33,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean
 }) => {
-  const { FooterTagList, PostsSplashPageHeaderVote, AudioToggle, PostActionsButton } = Components;
+  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
@@ -43,7 +43,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
       </AnalyticsContext>}
       <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       <div className={classes.vote}>
-        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} /> 
+        <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>
       <PostActionsButton post={post} className={classes.postActionsButton} flip />
   </div>;
