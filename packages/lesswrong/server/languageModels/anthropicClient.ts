@@ -1,7 +1,7 @@
 import { anthropicApiKey } from "@/lib/instanceSettings";
 import Anthropic from "@anthropic-ai/sdk";
 
-const getAnthropicClientOrThrow = (() => {
+export const getAnthropicClientOrThrow = (() => {
   let client: Anthropic;
 
   return () => {
