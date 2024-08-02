@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   },
   container: {
     display: "flex",
-    gap: "8px",
+    gap: "12px",
   },
   iconContainer: {
     display: "flex",

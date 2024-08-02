@@ -12,6 +12,7 @@ const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     padding: 8,
+    paddingLeft: 0,
     borderRadius: theme.borderRadius.default,
     "&:hover": {
       background: theme.palette.grey[140],
