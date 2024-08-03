@@ -1187,3 +1187,5 @@ importComponent("PeopleDirectoryPostsCell", () => require('../components/peopleD
 
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
+
+importComponent("LanguageModelChat", () => require('../components/languageModels/LanguageModelChat'));

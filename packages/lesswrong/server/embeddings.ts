@@ -141,7 +141,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   };
 }
 
-const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
+export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
   if (isAnyTest) {
     return {
       embeddings: [],

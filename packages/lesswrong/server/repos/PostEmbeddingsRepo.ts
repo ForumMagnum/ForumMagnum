@@ -36,7 +36,35 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
         "embeddings" = $5
     `, [randomId(), postId, postHash, now, JSON.stringify(embeddings), model]);
   }
+
+  getNearestPostsWeightedByQuality(
+    inputEmbedding: number[],
+    limit = 10,
+  ): Promise<DbPost[]> {
+      return this.getRawDb().any(`
+        -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
+        WITH embedding_distances AS (
+          SELECT
+            pe."postId", 
+            pe.embeddings <#> $(inputEmbedding) AS distance
+          FROM public."PostEmbeddings" pe
+          ORDER BY distance
+          LIMIT 200 
+        )
+        SELECT
+          p.*
+        FROM embedding_distances ed
+        LEFT JOIN "Posts" p ON p._id = ed."postId"
+        JOIN "Users" u ON p."userId" = u._id
+        WHERE draft IS FALSE
+        AND p."baseScore" > 0
+        ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore"))
+        LIMIT $(limit)
+      `, { inputEmbedding, limit });
+  }
+
 }
+
 
 recordPerfMetrics(PostEmbeddingsRepo);
 
