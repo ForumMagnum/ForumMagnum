@@ -837,6 +837,7 @@ importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("TruncatedTagsList", () => require('../components/tagging/TruncatedTagsList'));
 importComponent("CoreTagIcon", () => require('../components/tagging/CoreTagIcon'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
+importComponent("NewTagInfoBox", () => require('../components/tagging/NewTagInfoBox'));
 importComponent("RandomTagPage", () => require('../components/tagging/RandomTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));
