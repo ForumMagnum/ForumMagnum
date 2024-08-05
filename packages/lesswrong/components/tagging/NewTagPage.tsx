@@ -12,7 +12,10 @@ export const styles = (_theme: ThemeType) => ({
   guide: {
     position: "absolute",
     top: -50,
-    right: -320,
+    right: -280,
+    "@media (max-width: 1400px)": {
+      right: -220,
+    },
   },
 });
 

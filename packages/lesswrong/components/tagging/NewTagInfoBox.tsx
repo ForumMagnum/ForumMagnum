@@ -4,11 +4,19 @@ import { styles as postInfoStyles } from "../posts/NewPostHowToGuides";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { taggingNameSetting } from "@/lib/instanceSettings";
 import { Link } from "@/lib/reactRouterWrapper";
+import classNames from "classnames";
 
 const wikiFaqLink = "/topics/ea-wiki-faq";
 
 const styles = (theme: ThemeType) => ({
   ...postInfoStyles(theme),
+  width: {
+    width: 250,
+    marginRight: 0,
+    "@media (max-width: 1400px)": {
+      width: 200,
+    },
+  },
   content: {
     fontWeight: 500,
     fontSize: 14,
@@ -30,7 +38,7 @@ const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const tag = taggingNameSetting.get();
   return (
     <AnalyticsContext pageElementContext="newTagInfoBox">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, classes.width)}>
         <div className={classes.title}>
           Adding a new {tag}
         </div>
