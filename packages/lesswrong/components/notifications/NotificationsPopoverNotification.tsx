@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   container: {
     flexGrow: 1,
     display: "flex",
-    gap: "8px",
+    gap: "4px",
     width: "100%",
   },
   info: {
@@ -57,11 +57,11 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   unreadFlag: {
-    marginTop: 7,
-    width: 8,
-    height: 8,
-    minWidth: 8,
-    minHeight: 8,
+    marginTop: 5,
+    width: 10,
+    height: 10,
+    minWidth: 10,
+    minHeight: 10,
     borderRadius: "50%",
     background: theme.palette.primary.main,
   },
