@@ -18,6 +18,9 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.grey[140],
     },
   },
+  icon: {
+    marginTop: 4,
+  },
   container: {
     flexGrow: 1,
     display: "flex",
@@ -116,6 +119,7 @@ const NotificationsPopoverNotification = ({notification, onClick, classes}: {
         <NotificationsPageItem
           Icon={Icon}
           iconVariant={iconVariant}
+          iconClassName={classes.icon}
           metaClassName={classes.meta}
           noMargin
         >

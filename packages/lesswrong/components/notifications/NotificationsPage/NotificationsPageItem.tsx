@@ -82,6 +82,7 @@ export const NotificationsPageItem = ({
   previewCommentId,
   noMargin,
   children,
+  iconClassName,
   metaClassName,
   classes,
 }: {
@@ -92,6 +93,7 @@ export const NotificationsPageItem = ({
   previewCommentId?: string,
   noMargin?: boolean,
   children?: ReactNode,
+  iconClassName?: string,
   metaClassName?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -117,6 +119,7 @@ export const NotificationsPageItem = ({
             iconVariant === "grey" && classes.iconGrey,
             iconVariant === "yellow" && classes.iconYellow,
             iconVariant === "clear" && classes.iconClear,
+            iconClassName,
           )}>
             <LWTooltip
               title={iconTooltip}
