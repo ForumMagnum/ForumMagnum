@@ -44,9 +44,10 @@ export type SideItemContentContextType = {
 };
 export const SideItemContentContext = createContext<SideItemContentContextType|null>(null);
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   sideItem: {
     position: "absolute",
+    width: "100%",
   },
   sidebar: {
     position: "relative",
@@ -65,6 +66,7 @@ const SideItemsContainer = ({classes, children}: {
   children: React.ReactNode
 }) => {
   const state = useRef<SideItemsState>({sideItems: [], maxId: -1});
+  const contentsRef = useRef<HTMLDivElement|null>(null);
   const {renderCount, rerender} = useForceRerender();
   
   const addSideItem = useCallback((anchorEl: HTMLElement, options: SideItemOptions) => {
@@ -105,10 +107,31 @@ const SideItemsContainer = ({classes, children}: {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [renderCount, state.current.sideItems]);
   
+  useEffect(() => {
+    // Watch contents for size-change of the central column, which will happen
+    // if text reflows because browser width changed, or if the user
+    // opened/closed a collapsible section, or various other things. When that
+    // happens, rerender, so that the vertical positions of anchor elements are
+    // rechecked.
+    const contentsDiv = contentsRef.current;
+    if (contentsDiv) {
+      const resizeObserver = new ResizeObserver((_entries) => {
+        //rerender();
+      });
+      resizeObserver.observe(contentsDiv);
+      
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }
+  }, []);
+  
   return (
     <SideItemsPlacementContext.Provider value={sideItemsPlacementContext}>
     <SideItemsDisplayContext.Provider value={sideItemsDisplayContext}>
-      {children}
+      <div ref={contentsRef}>
+        {children}
+      </div>
     </SideItemsDisplayContext.Provider>
     </SideItemsPlacementContext.Provider>
   );

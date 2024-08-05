@@ -288,6 +288,7 @@ importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch
 importComponent("TabPicker", () => require('../components/common/TabPicker'));
 importComponent("Sparkline", () => require('../components/common/Sparkline'));
 importComponent(["SideItem","SideItemsSidebar","SideItemsContainer"], () => require('../components/contents/SideItems'));
+importComponent("SideItemLine", () => require('../components/contents/SideItemLine'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));

@@ -47,7 +47,7 @@ export const CENTRAL_COLUMN_WIDTH = 682
 
 export const RIGHT_COLUMN_WIDTH_WITH_SIDENOTES = 300;
 export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
-export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES_XS = 25;
+export const RIGHT_COLUMN_WIDTH_XS = 5;
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
@@ -318,14 +318,14 @@ export const styles = (theme: ThemeType) => ({
     [sidenotesHiddenBreakpoint(theme)]: {
       width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
       [theme.breakpoints.down('xs')]: {
-        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES_XS,
+        width: RIGHT_COLUMN_WIDTH_XS,
       },
     },
   },
   reserveSpaceForIcons: {
     width: 0,
     [theme.breakpoints.up('xs')]: {
-      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES_XS,
+      width: RIGHT_COLUMN_WIDTH_XS,
       [theme.breakpoints.up('sm')]: {
         width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
       },

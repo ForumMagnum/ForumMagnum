@@ -62,17 +62,29 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     display: "inline-block",
     verticalAlign: "top",
     fontSize: 15,
-    marginRight: 5,
+    marginRight: 0,
     whiteSpace: "nowrap",
+    lineHeight: "19px",
+
+    color: theme.palette.greyAlpha(0.65),
+    "$sidenoteHover &": {
+      color: theme.palette.text.normal,
+    },
   },
   
   sidenoteContent: {
     display: "inline-block",
     position: "relative",
     verticalAlign: "top",
-    lineHeight: "20px",
+    fontSize: 15,
+    lineHeight: "19px",
     maxHeight: 200,
     overflowY: "hidden",
+
+    color: theme.palette.greyAlpha(0.65),
+    "$sidenoteHover &": {
+      color: theme.palette.text.normal,
+    },
   },
   
   overflowFade: {
@@ -85,6 +97,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   
   sidenoteHover: {
     background: theme.palette.greyAlpha(0.1),
+    //background: theme.palette.background.pageActiveAreaBackground,
     
     "& $sidenoteContent": {
       maxHeight: "unset",

@@ -20,9 +20,9 @@ const styles = (theme: ThemeType) => ({
     gridTemplateColumns: `
       0px
       minmax(200px, 270px)
-      minmax(0px, 0.5fr)
+      minmax(35px, 0.5fr)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      10px
+      minmax(10px,30px)
       min-content
       minmax(0px, 0.5fr)
     `,

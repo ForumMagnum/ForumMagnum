@@ -12,9 +12,23 @@ const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
     backgroundColor: theme.palette.grey[200],
   },
+
+  sidebarInlineReactIcons: {
+    display: "none",
+    width: "100%",
+    textAlign: "right",
+    
+    [theme.breakpoints.up('sm')]: {
+      display: "block",
+    },
+  },
+  inlineReactSidebarLine: {
+    background: "#88f", //TODO: themeify
+  },
   
   // Keeping this empty class around is necessary for the following @global style to work properly
   highlight: {},
+
   // Comment or post hovered
   "@global": {
     [
@@ -105,17 +119,21 @@ const SidebarInlineReact = ({quote,reactions, voteProps, classes}: {
   voteProps: VotingProps<VoteableTypeClient>,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { SideItemLine } = Components;
   const currentUser = useCurrentUser();
   const normalizedReactions = getNormalizedReactionsListFromVoteProps(voteProps)?.reacts ?? {};
   const reactionsUsed = Object.keys(normalizedReactions).filter(react =>
     normalizedReactions[react]?.some(r=>r.quotes?.includes(quote))
   );
   
-  return <span>
-    {reactionsUsed.map(r => <span key={r}>
-      <Components.ReactionIcon react={r}/>
-    </span>)}
-  </span>
+  return <>
+    <SideItemLine colorClass={classes.inlineReactSidebarLine}/>
+    <span className={classes.sidebarInlineReactIcons}>
+      {reactionsUsed.map(r => <span key={r}>
+        <Components.ReactionIcon react={r}/>
+      </span>)}
+    </span>
+  </>
 }
 
 function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsList): boolean {
