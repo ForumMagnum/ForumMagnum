@@ -265,7 +265,7 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPage = isFriendlyUI;
+  const hasNotificationsPopover = isFriendlyUI;
   const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
   const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
@@ -289,7 +289,7 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    if (hasNotificationsPage) {
+    if (hasNotificationsPopover) {
       captureEvent("notificationsIconToggle", {
         previousCheck: lastNotificationsCheck,
       });
@@ -411,7 +411,7 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = currentUser && !hasNotificationsPage
+  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
     && (
       <NotificationsMenu
         open={notificationOpen}
