@@ -162,6 +162,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
                 <DropdownItem
                   title="Notification settings"
                   to={notificationsSettingsLink}
+                  onClick={closeAll}
                 />
               </DropdownMenu>
             </LWClickAwayListener>
@@ -182,7 +183,11 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
               {!cachedKarmaChanges &&
                 <div className={classes.noKarma}>
                   No new karma or reacts{getKarmaFrequency(updateFrequency)}.{" "}
-                  <Link to={karmaSettingsLink} className={classes.link}>
+                  <Link
+                    to={karmaSettingsLink}
+                    onClick={closeAll}
+                    className={classes.link}
+                  >
                     Change settings
                   </Link>
                 </div>
@@ -214,7 +219,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
             : (
               <NoNotificationsPlaceholder
                 subscribedToDigest={subscribedToDigest}
-          />
+              />
             )
         }
       </div>
