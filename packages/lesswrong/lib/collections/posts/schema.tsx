@@ -2592,7 +2592,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     group: formGroups.advancedOptions,
     canRead: ['guests'],
-    canCreate: ['members'],
+    // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
+    canCreate: ['sunshineRegiment'],
     canUpdate: ['members'],
     hidden: !hasSidenotes,
     ...schemaDefaultValue(false),
