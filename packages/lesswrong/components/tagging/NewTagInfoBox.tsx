@@ -11,16 +11,16 @@ const wikiFaqLink = "/topics/ea-wiki-faq";
 const styles = (theme: ThemeType) => ({
   ...postInfoStyles(theme),
   width: {
-    width: 250,
     marginRight: 0,
     "@media (max-width: 1400px)": {
-      width: 200,
+      width: 220,
     },
   },
   content: {
     fontWeight: 500,
     fontSize: 14,
     lineHeight: "140%",
+    marginTop: -6,
     "& li": {
       marginLeft: -16,
       "&:not(:last-child)": {
@@ -30,6 +30,10 @@ const styles = (theme: ThemeType) => ({
     "& a": {
       fontWeight: 600,
       color: theme.palette.primary.main,
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+      },
     },
   },
 });
@@ -40,12 +44,9 @@ const NewTagInfoBox = ({classes}: {classes: ClassesType<typeof styles>}) => {
     <AnalyticsContext pageElementContext="newTagInfoBox">
       <div className={classNames(classes.root, classes.width)}>
         <div className={classes.title}>
-          Adding a new {tag}
+          Your {tag} may be rejected if:
         </div>
         <div className={classes.content}>
-          <p>
-            Your {tag} may be rejected if:
-          </p>
           <ol>
             <li>
               A similar {tag} already exists.
