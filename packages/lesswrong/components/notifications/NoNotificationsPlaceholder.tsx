@@ -27,6 +27,7 @@ const styles = (theme: ThemeType) => ({
   subtitle: {
     fontSize: 14,
     fontWeight: 500,
+    lineHeight: "21px",
   },
   emailContainer: {
     marginBottom: -30,
