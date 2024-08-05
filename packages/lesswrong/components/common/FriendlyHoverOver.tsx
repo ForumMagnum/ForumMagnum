@@ -7,7 +7,7 @@ import classNames from "classnames";
 export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
 export const FRIENDLY_HOVER_OVER_WIDTH = 340;
 
-const styles = (theme: ThemeType) => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
