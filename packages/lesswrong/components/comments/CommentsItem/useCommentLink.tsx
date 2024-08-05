@@ -35,6 +35,7 @@ export const useCommentLink = ({
     tagCommentType: comment.tagCommentType,
     permalink,
   });
+  console.log('url', url);
 
   const furtherContext = "dateIcon"; // For historical reasons
 

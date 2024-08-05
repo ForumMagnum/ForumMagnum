@@ -762,19 +762,21 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   }
 
   // Redirect from ?commentId=... to #... if we should always show comments in context
+  // TODO; useeffect
   if (queryCommentId && commentPermalinkStyleSetting.get() === 'in-context') {
-    const urlSearchParams = new URLSearchParams(location.query);
-    urlSearchParams.delete('commentId');
-    const otherQueryParams = urlSearchParams.toString();
-    const hashVersion = `#${queryCommentId}`;
-    const redirectUrl = `${location.pathname}${otherQueryParams ? `?${otherQueryParams}` : ''}${hashVersion}`;
+    // const urlSearchParams = new URLSearchParams(location.query);
+    // urlSearchParams.delete('commentId');
+    // const otherQueryParams = urlSearchParams.toString();
+    // const hashVersion = `#${queryCommentId}`;
+    // const redirectUrl = `${location.pathname}${otherQueryParams ? `?${otherQueryParams}` : ''}${hashVersion}`;
 
-    if (isServer) {
-      return <PermanentRedirect url={redirectUrl} status={302} />
-    } else {
+    // if (isServer) {
+    //   return <PermanentRedirect url={redirectUrl} status={302} />
+    // } else {
       // navigate doesn't result in the whole page unmounting momentarily
-      navigate(redirectUrl, { replace: true });
-    }
+      // navigate(redirectUrl, { replace: true });
+    document.getElementById(queryCommentId)?.scrollIntoView(); // scroll offset??
+    // }
   }
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);

@@ -172,6 +172,7 @@ const CommentsNode = ({
     return (top >= 0) && (top <= window.innerHeight);
   }
 
+  // TODO; Maybe use this
   const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
     if (!isInViewport()) {
       const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
