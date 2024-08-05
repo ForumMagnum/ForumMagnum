@@ -87,7 +87,7 @@ const NotSubscribedPlaceholder = ({classes}: {
     <div className={classes.root}>
       <ForumIcon icon="EAEnvelope" className={classes.icon} />
       <div className={classes.title}>
-        Turn on email digest
+        Subscribe to email digest
       </div>
       <div className={classes.subtitle}>
         The EA Forum Digest is a curated reading list of Forum posts,{" "}
