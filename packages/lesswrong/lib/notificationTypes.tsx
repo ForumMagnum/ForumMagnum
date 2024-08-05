@@ -29,8 +29,7 @@ import DebateIcon from '@material-ui/icons/Forum';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 import Sequences from './collections/sequences/collection';
-import DialogueChecks from './collections/dialogueChecks/collection';
-import DialogueMatchPreferences from './collections/dialogueMatchPreferences/collection';
+import { sequenceGetPageUrl } from './collections/sequences/helpers';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -579,6 +578,9 @@ export const NewSequencePostsNotification = registerNotificationType({
   },
   getIcon() {
     return <PostsIcon style={iconStyles}/>
+  },
+  getLink({documentId}) {
+    return documentId ? sequenceGetPageUrl({_id: documentId}) : "#";
   },
   Display: ({Sequence}) => <>Posts added to <Sequence /></>,
 });
