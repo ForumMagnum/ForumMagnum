@@ -176,6 +176,12 @@ export const HIDE_EAG_BANNER_COOKIE = registerCookie({
   description: "Don't show any EAG(x) banners",
 });
 
+export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
+  name: "hide_ea_forum_survey_banner",
+  type: "necessary",
+  description: "Don't show the EA Forum survey banner",
+});
+
 export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
 registerCookie({
   name: `${NAV_MENU_FLAG_COOKIE_PREFIX}[*]`,
