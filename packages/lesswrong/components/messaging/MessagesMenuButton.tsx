@@ -3,19 +3,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
-import { styles as baseStyles } from "../notifications/NotificationsMenuButton";
+import { styles  } from "../notifications/NotificationsMenuButton";
 import Badge from "@material-ui/core/Badge";
 import IconButton from "@material-ui/core/IconButton";
 import classNames from "classnames";
-
-const styles = (theme: ThemeType) => ({
-  ...baseStyles(theme),
-  tooltip: {
-    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
-    padding: "5px 13px",
-    transform: "translateY(5px)",
-  },
-});
 
 const MessagesMenuButton = ({className, classes}: {
   className?: string,

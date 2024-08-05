@@ -26,7 +26,10 @@ type DisplayConfig = {
   iconVariant: IconVariant,
 }
 
-const getDisplayConfig = ({type, comment}: NotificationDisplay): DisplayConfig => {
+export const getDisplayConfig = ({
+  type,
+  comment,
+}: NotificationDisplay): DisplayConfig => {
   try {
     const {Display} = getNotificationTypeByName(type);
     return {
