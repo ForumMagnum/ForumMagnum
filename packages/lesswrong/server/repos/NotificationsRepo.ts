@@ -110,6 +110,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."_id",
         n."type",
         n."link",
+        n."message",
         n."createdAt",
         tr."_id" "tagRelId",
         COALESCE(

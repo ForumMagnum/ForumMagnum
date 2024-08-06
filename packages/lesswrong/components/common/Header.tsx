@@ -1,6 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -244,7 +244,6 @@ const Header = ({
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
-  const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
@@ -266,7 +265,7 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPage = isFriendlyUI;
+  const hasNotificationsPopover = isFriendlyUI;
   const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
   const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
@@ -290,12 +289,10 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    if (hasNotificationsPage) {
+    if (hasNotificationsPopover) {
       captureEvent("notificationsIconToggle", {
-        navigate: true,
         previousCheck: lastNotificationsCheck,
       });
-      navigate("/notifications");
     } else {
       captureEvent("notificationsIconToggle", {
         open: !notificationOpen,
@@ -414,7 +411,7 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = currentUser && !hasNotificationsPage
+  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
     && (
       <NotificationsMenu
         open={notificationOpen}
