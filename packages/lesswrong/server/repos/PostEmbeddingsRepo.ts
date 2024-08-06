@@ -46,19 +46,20 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
         WITH embedding_distances AS (
           SELECT
             pe."postId", 
-            pe.embeddings <#> $(inputEmbedding) AS distance
+            pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
           FROM public."PostEmbeddings" pe
           ORDER BY distance
           LIMIT 200 
         )
         SELECT
-          p.*
+          p.*,
+          COALESCE(u."displayName", u."username") AS author
         FROM embedding_distances ed
         LEFT JOIN "Posts" p ON p._id = ed."postId"
-        JOIN "Users" u ON p."userId" = u._id
+        JOIN "Users" u ON p."userId" = u._id AND u."deleted" IS NOT TRUE AND p."hideAuthor" IS NOT TRUE
         WHERE draft IS FALSE
         AND p."baseScore" > 0
-        ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore"))
+        ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
         LIMIT $(limit)
       `, { inputEmbedding, limit });
   }
