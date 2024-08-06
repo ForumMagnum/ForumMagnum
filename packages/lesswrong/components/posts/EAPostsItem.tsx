@@ -243,6 +243,9 @@ export const styles = (theme: ThemeType) => ({
       minWidth: 100,
     },
   },
+  cardMeta: {
+    maxWidth: `calc(100% - ${CARD_IMG_WIDTH}px)`,
+  },
 });
 
 const cloudinaryBase = `${cloudinaryCloudNameSetting.get()}/image/upload/`;
@@ -447,7 +450,11 @@ const EAPostsItem = ({
                 )}
               />
               <div className={classes.meta}>
-                <EAPostMeta post={post} useCuratedDate={useCuratedDate} />
+                <EAPostMeta
+                  post={post}
+                  useCuratedDate={useCuratedDate}
+                  className={cardView && hasImage ? classes.cardMeta : undefined}
+                />
                 <div className={classNames(
                   classes.secondaryContainer,
                   classes.onlyMobile,
