@@ -10,10 +10,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   sidebarInlineReactMobileLine: {
-    width: 2,
+    width: 4,
     height: 24,
     position: "relative",
-    left: 10,
+    left: 9,
+    borderTopLeftRadius: 4,
+    borderBottomLeftRadius: 4,
   },
 })
 
