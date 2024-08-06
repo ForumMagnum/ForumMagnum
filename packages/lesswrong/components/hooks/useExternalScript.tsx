@@ -53,8 +53,8 @@ export const useExternalScript = (href: string, scriptProps: Partial<Record<stri
       const scriptTag = document.createElement("script");
       scriptTag.async = true;
       scriptTag.src = href;
-      for (let key of Object.keys(scriptProps)) {
-        (scriptTag as any)[key] = scriptProps[key];
+      for (const key in scriptProps) {
+        scriptTag.setAttribute(key, scriptProps[key] ?? "");
       }
       scriptTag.onerror = () => {
         // If the script fails to load, remove it from window.externalScripts
