@@ -1,9 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useTracking } from "../../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
-import { Helmet } from '../../../lib/utils/componentsWithChildren';
 import { isEAForum } from '@/lib/instanceSettings';
 import { useExternalScript } from '@/components/hooks/useExternalScript';
 

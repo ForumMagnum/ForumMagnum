@@ -21,6 +21,10 @@ declare global {
  * tab and this hook is no longer present. This is because removing a script
  * tag from the DOM will often not actually clean it up; repeatedly removing
  * a script tag and then adding it back is likely to be a memory leak.
+ *
+ * `scriptProps` adds props to the script tag; these should not be changed
+ * after first render (changes won't be applied as the tag has already been
+ * added).
  */
 export const useExternalScript = (href: string, scriptProps: Partial<Record<string,string>>): {
   ready: boolean
@@ -79,6 +83,8 @@ export const useExternalScript = (href: string, scriptProps: Partial<Record<stri
     } else {
       setReady(true);
     }
+  // Ignore `scriptProps` being missing from the useEffect dependency list
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [href]);
   
   return {ready};
