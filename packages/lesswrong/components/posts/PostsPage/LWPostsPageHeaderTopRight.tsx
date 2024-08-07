@@ -28,6 +28,8 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.3
   },
   tagList: {
+    marginTop: 12,
+    marginBottom: 12,
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
@@ -48,7 +50,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   return <div className={classes.root}>
       {<AnalyticsContext pageSectionContext="tagHeader">
         <div className={classes.tagList}>
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground />
+          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground neverCoreStyling />
         </div>
       </AnalyticsContext>}
       <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />

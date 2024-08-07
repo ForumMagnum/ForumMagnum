@@ -68,6 +68,9 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
+  neverCoreStyling: {
+    color: theme.palette.tag.text,
+  },
   noBackground: {
     '&&&': {
       backgroundColor: 'transparent',
@@ -129,7 +132,8 @@ const FooterTagList = ({
   annualReviewMarketInfo,
   classes,
   align = "left",
-  noBackground = false
+  noBackground = false,
+  neverCoreStyling = false
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -138,7 +142,7 @@ const FooterTagList = ({
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
-  link?: boolean
+  link?: boolean,
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
   overrideMargins?: boolean,
@@ -146,7 +150,8 @@ const FooterTagList = ({
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
-  noBackground?: boolean
+  noBackground?: boolean,
+  neverCoreStyling?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -260,9 +265,10 @@ const FooterTagList = ({
 
   const contentTypeInfo = forumSelect(contentTypes);
 
-  const PostTypeTag = useCallback(({tooltipBody, label}: {
+  const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
     tooltipBody: ReactNode,
     label: string,
+    neverCoreStyling?: boolean
   }) => {
     const {HoverOver, ContentStyles} = Components;
     return (
@@ -279,6 +285,7 @@ const FooterTagList = ({
         <div className={classNames(classes.frontpageOrPersonal, {
           [classes.smallText]: smallText,
           [classes.noBackground]: noBackground,
+          [classes.neverCoreStyling]: neverCoreStyling,
         })}>
           {label}
         </div>
@@ -291,15 +298,15 @@ const FooterTagList = ({
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
-        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody}/>
+        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling/>
       </Link>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody}/>
+          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling/>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
-            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
+            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling/>
           </MaybeLink>
         : null
       )
@@ -336,6 +343,7 @@ const FooterTagList = ({
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
               link={link}
               noBackground={noBackground}
+              neverCoreStyling={neverCoreStyling}
             />
           )
       )}

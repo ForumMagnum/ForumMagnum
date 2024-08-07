@@ -113,10 +113,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   eventData: {
     marginTop: 48
   },
-  title: {
+  titleSection: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
+  },
+  title: {
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 10
+    }
   },
   mobileHeaderVote: {
     textAlign: 'center',
@@ -208,8 +213,8 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
         </span>}
       </div>
-      <div className={classes.title}>
-        <div>
+      <div className={classes.titleSection}>
+        <div className={classes.title}>
           <PostsPageTitle post={post} />
           <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>

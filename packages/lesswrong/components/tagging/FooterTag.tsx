@@ -113,7 +113,9 @@ const styles = (theme: ThemeType) => ({
   },
   noBackground: {
     backgroundColor: "transparent",
-    border: 'none'
+    border: 'none',
+    paddingTop: 3,
+    paddingBottom: 3,
   }
 });
 
