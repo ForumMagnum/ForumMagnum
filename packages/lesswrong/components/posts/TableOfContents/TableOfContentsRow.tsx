@@ -131,7 +131,7 @@ const levelToClassName = (level: number, classes: ClassesType<typeof styles>) =>
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset, fullHeight, commentToC, isPostTitle
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset, fullHeight, commentToC
 }: {
   indentLevel?: number,
   highlighted?: boolean,
@@ -148,8 +148,7 @@ const TableOfContentsRow = ({
    */
   offset?: number,
   fullHeight?: boolean,
-  commentToC?: boolean,
-  isPostTitle?: boolean,
+  commentToC?: boolean
 }) => {
   const [isPinned, setIsPinned] = useState(true);
   const rowRef = useRef<HTMLDivElement>(null);
