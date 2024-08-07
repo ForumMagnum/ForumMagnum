@@ -28,7 +28,10 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       flexDirection: "column",
       gap: "12px",
-      paddingRight: 60,
+      padding: "12px 48px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      paddingTop: 20,
     },
   },
   button: {
@@ -49,6 +52,13 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     "&:hover": {
       opacity: 0.75,
+    },
+    [theme.breakpoints.down("sm")]: {
+      right: 12,
+      top: 12,
+    },
+    [theme.breakpoints.down("xs")]: {
+      top: 20,
     },
   },
 });
