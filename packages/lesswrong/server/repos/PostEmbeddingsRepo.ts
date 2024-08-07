@@ -39,7 +39,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
 
   getNearestPostsWeightedByQuality(
     inputEmbedding: number[],
-    limit = 10,
+    limit = 5,
   ): Promise<DbPost[]> {
       return this.getRawDb().any(`
         -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
