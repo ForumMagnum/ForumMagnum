@@ -43,6 +43,7 @@ const LWPopper = ({
   className,
   tooltip=false,
   allowOverflow,
+  overflowPadding,
   flip,
   open,
   anchorEl,
@@ -54,6 +55,7 @@ const LWPopper = ({
   children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
+  overflowPadding?: number,
   flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
@@ -71,12 +73,13 @@ const LWPopper = ({
     }
   ] : [];
 
-  const preventOverflowModifier = allowOverflow ? [
+  const preventOverflowModifier = [
     {
       name: 'preventOverflow',
-      enabled: false,
+      enabled: !allowOverflow,
+      options: {padding: overflowPadding},
     }
-  ] : [];
+  ];
 
   const { styles, attributes } = usePopper(anchorEl, popperElement, {
     placement,

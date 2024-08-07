@@ -13,6 +13,8 @@ import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGr
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
 import { useNotificationDisplays } from "./useNotificationDisplays";
 
+export const karmaSettingsLink = "/account?highlightField=karmaChangeNotifierSettings";
+
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -148,7 +150,7 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
             <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
             <div className={classes.karmaBatching}>
               <span>{batchingMessages[karmaChanges!.updateFrequency]}{" "}</span>
-              <Link to="/account?highlightField=karmaChangeNotifierSettings">
+              <Link to={karmaSettingsLink}>
                 Change settings
               </Link>
             </div>

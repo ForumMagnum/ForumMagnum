@@ -143,6 +143,7 @@ import { ListViewIcon } from "../icons/ListViewIcon";
 import { CardViewIcon } from "../icons/CardViewIcon";
 import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
+import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -221,6 +222,7 @@ export type ForumIconName =
   "Settings" |
   "Email" |
   "Envelope" |
+  "EAEnvelope" |
   "Puzzle" |
   "Image" |
   "Document" |
@@ -326,6 +328,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
     Envelope: EnvelopeIcon,
+    EAEnvelope: EAEnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,
@@ -434,6 +437,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Settings: SettingsIcon,
     Email: EmailIcon,
     Envelope: EnvelopeIcon,
+    EAEnvelope: EAEnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,

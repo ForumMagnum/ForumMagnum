@@ -3,8 +3,8 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { useTracking } from "../../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';
-import { Helmet } from '../../../lib/utils/componentsWithChildren';
 import { isEAForum } from '@/lib/instanceSettings';
+import { useExternalScript } from '@/components/hooks/useExternalScript';
 
 const styles = (theme: ThemeType): JssStyles => ({
   embeddedPlayer: {
@@ -29,7 +29,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
   const setMouseOverDiv = (isMouseOver: boolean) => {
     mouseOverDiv.current = isMouseOver;
   };
-       
+
   // (Note: this was copied from PostsPodcastPlayer)
   // Dumb hack to let us figure out when the iframe inside the div was clicked on, as a (fuzzy) proxy for people clicking the play button
   // Inspiration: https://gist.github.com/jaydson/1780598
@@ -39,20 +39,25 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
       captureEvent('clickInsidePodcastPlayer', { postId, playerType: "t3-audio" });
     }
   });
+  
+  const { ready: type3scriptLoaded } = useExternalScript("https://embed.type3.audio/player.js", {
+    defer: "true",
+    type: "module",
+    "cross-origin": "anonymous",
+  });
 
   return <div
-      ref={divRef}
-      onMouseOver={() => setMouseOverDiv(true)}
-      onMouseOut={() => setMouseOverDiv(false)}
-    >
-      <Helmet>
-        <script defer type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>
-      </Helmet>
-      <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} >
-         {/* @ts-ignore */}
-        {isEAForum ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>}
-      </div>
+    ref={divRef}
+    onMouseOver={() => setMouseOverDiv(true)}
+    onMouseOut={() => setMouseOverDiv(false)}
+  >
+    <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+      {type3scriptLoaded && (
+        /* @ts-ignore */
+        isEAForum ? <type-3-player analytics="custom" sticky="true" header-play-buttons="true" title=""></type-3-player> : <type-3-player sticky="true" analytics="custom"></type-3-player>
+      )}
     </div>
+  </div>
 }
 
 const T3AudioPlayerComponent = registerComponent('T3AudioPlayer', T3AudioPlayer, {styles});

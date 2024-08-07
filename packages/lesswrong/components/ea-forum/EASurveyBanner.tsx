@@ -82,6 +82,7 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
   const hideBanner = useCallback(() => {
     setCookie(HIDE_EA_FORUM_SURVEY_BANNER_COOKIE, "true", {
       expires: moment().add(3, "months").toDate(),
+      path: "/",
     });
   }, [setCookie]);
 
