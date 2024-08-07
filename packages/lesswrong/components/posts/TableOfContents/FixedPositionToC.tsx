@@ -93,29 +93,30 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    paddingTop: 22,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
     wordBreak: 'break-word',
-    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
-    '&:hover $rowOpacity': {
-      opacity: 1,
-    },
+    transition: 'opacity .25s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
   },
   hover: {
     '& $rowOpacity': {
       opacity: 1,
     },
+    '& $tocTitle': {
+      opacity: 1,
+    }
   },
   rowWrapper: {
     position: "relative",
     zIndex: 1,
-    transition: '.1s',
     display: "flex",
     flexDirection: "column-reverse",
   },
   rowOpacity: {
+    transition: '.25s',
     opacity: 0,
   },
   rowDotContainer: {
@@ -130,21 +131,11 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
     zIndex: 1
   },
-  fadeOut: {
-    opacity: 0,
-    transform: 'translateX(-50px)',
-    transitionDelay: '0s',
-  },
   //Use our PostTitle styling with small caps
   tocTitle: {
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
     fontSize: "1.3rem",
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  tocPostedAt: {
-    color: theme.palette.link.tocLink
   },
   belowTitle: {
     display: 'flex',
@@ -328,6 +319,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
 
   const titleRow = (
     <TableOfContentsRow
+      indentLevel={0}
       key="postTitle"
       href="#"
       offset={0}
@@ -339,13 +331,12 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
           });
         }
       }}
-      highlighted={currentSection === "above"}
       title
       fullHeight
     >
-      {/* <div className={classes.tocTitle}>
+      <div className={classes.tocTitle}>
         {title?.trim()}
-      </div> */}
+      </div>
     </TableOfContentsRow>
   );
   
@@ -394,13 +385,20 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   if (!tocSections || !hasLoaded)
     return <div/>
   return <div className={classNames(classes.root, { [classes.hover]: hover})}>
-    {titleRow}
     <div className={classes.belowTitle}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
         <div className={classes.progressBar} />
         <div className={classes.unfilledProgressBar}/>
       </div>
       <div className={classes.nonTitleRows}>
+        {/* <div className={classes.rowWrapper} key={"#"}>
+          <div className={classes.rowDotContainer}>
+            <div className={classes.rowDot}>•</div>
+            <span className={classes.rowOpacity}>
+              {titleRow}
+            </span>
+          </div>
+        </div> */}
         {rows}
       </div>
     </div>

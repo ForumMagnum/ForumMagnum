@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
@@ -86,19 +87,19 @@ const styles = (theme: ThemeType) => ({
   },
   level2: {
     fontSize:"1.1rem",
-    paddingLeft: 16,
+    paddingLeft: isLWorAF ? 12 : 16,
     ...sectionOffsetStyling,
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: 32,
+    paddingLeft: isLWorAF ? 24 : 32,
     ...sectionOffsetStyling,
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: 48,
+    paddingLeft: isLWorAF ? 36 : 48,
     ...sectionOffsetStyling,
   },
   titleContainer: {

@@ -29,10 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: 20,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
-    fontWeight: isFriendlyUI ? 450 : undefined,
     color: theme.palette.text.dim3,
-    paddingBottom: isFriendlyUI ? 12 : undefined,
-    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined,
+    marginTop: 12
   },
   authorInfo: {
     maxWidth: "calc(100% - 150px)",

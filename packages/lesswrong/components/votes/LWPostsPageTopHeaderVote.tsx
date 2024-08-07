@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
+import { isAF, isLW } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
@@ -18,14 +18,14 @@ const styles = (theme: ThemeType) => ({
   },
   upvoteHorizontal: {
     fontSize: 18,
-    marginBottom: -1,
+    marginBottom: isLW ? -1 : -3, // -1 for LW, -3 for AF
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
     fontSize: 18,
-    marginTop: -4,
+    marginTop: isLW ? -4 : -3, // -4 for LW, -3 for AF
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },

@@ -12,6 +12,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginLeft: 0,
   marginBottom: isFriendlyUI ? 12 : 0,
   color: theme.palette.text.primary,
+  textWrap: "balance",
   [theme.breakpoints.down('sm')]: isFriendlyUI
     ? {
       fontSize: '2.3rem',
@@ -27,7 +28,6 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
     : {
       fontSize: '4.5rem',
       lineHeight: '1.1',
-      fontFamily: 'warnock-pro'
   }),
   [theme.breakpoints.down('xs')]: isFriendlyUI
     ? {
