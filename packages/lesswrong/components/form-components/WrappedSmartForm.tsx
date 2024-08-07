@@ -31,7 +31,7 @@ function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFor
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
             // Ensure that we have data. We check for data field presence but
             // not truthiness, because the empty string is falsy.
-            (typeof originalContents==="object" && "data" in originalContents)
+            (originalContents && typeof originalContents==="object" && "data" in originalContents)
               // If so, constrain it to correct shape
               ? { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions }
               // If not, set field to undefined
