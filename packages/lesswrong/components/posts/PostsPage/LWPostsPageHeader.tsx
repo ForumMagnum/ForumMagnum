@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -7,9 +7,6 @@ import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
-
-const SECONDARY_SPACING = 20;
-
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   authorAndSecondaryInfo: {
     display: 'flex',
     alignItems: 'center',
-    columnGap: SECONDARY_SPACING,
+    columnGap: 20,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
     fontWeight: isFriendlyUI ? 450 : undefined,
@@ -44,29 +41,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: theme.typography.body2.fontSize,
     },
   },
-  secondaryInfoLink: {
-    fontWeight: isFriendlyUI ? 450 : undefined,
-    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
-    "@media print": { display: "none" },
-  },
-  actions: {
-    color: isFriendlyUI ? undefined : theme.palette.grey[500],
-    "&:hover": {
-      opacity: 0.5,
-    },
-    '& svg': {
-      color: 'inherit' // this is needed for the EAF version of the icon
-    },
-    "@media print": { display: "none" },
-  },
-
   feedName: {
     fontSize: theme.typography.body2.fontSize,
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
   },
-
   topRight: {
     position: 'absolute',
     right: 8, 
@@ -90,21 +70,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       top: 8,
       right: 8
     }
-  },
-  commentsCount: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    display: 'flex', 
-    alignItems: 'center',
-    margin: '0px 8px 0px 3px'
-  },
-  rightButtons: {
-    position: "absolute",
-    display: "flex",
-    flexDirection: "column",
-    right: 0,
-    top: '50%',
-    transform: 'translateY(-50%)'
   },
   sequenceNav: {
     marginBottom: 8,

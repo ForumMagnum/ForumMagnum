@@ -140,6 +140,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
         <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} onMouseEnter={() => setLeftHover(true)} onMouseLeave={() => setLeftHover(false)}>
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
+              {/* This allows the ToC to appear when the user hovers over either of the two left-columns */}
               {React.cloneElement(segment.toc as React.ReactElement, { hover: leftHover })}
             </div>
           </div>

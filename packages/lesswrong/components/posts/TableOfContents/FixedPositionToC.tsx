@@ -393,7 +393,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
 
   if (!tocSections || !hasLoaded)
     return <div/>
-  console.log(hover)
   return <div className={classNames(classes.root, { [classes.hover]: hover})}>
     {titleRow}
     <div className={classes.belowTitle}>
