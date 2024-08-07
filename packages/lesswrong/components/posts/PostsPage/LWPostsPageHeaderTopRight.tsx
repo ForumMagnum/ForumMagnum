@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
   tagList: {
     marginTop: 12,
     marginBottom: 12,
-    opacity: 0.6,
+    opacity: 0.5,
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }

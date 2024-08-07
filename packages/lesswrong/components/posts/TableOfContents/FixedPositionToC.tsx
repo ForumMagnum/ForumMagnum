@@ -404,7 +404,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     </div>
     {commentsRow && <CommentsLink anchor="#comments" className={classes.comments}>
       <CommentsIcon className={classes.commentsIcon} />  {commentsRow?.title?.split(" ")[0]}
-     
     </CommentsLink>}
   </div>
 }

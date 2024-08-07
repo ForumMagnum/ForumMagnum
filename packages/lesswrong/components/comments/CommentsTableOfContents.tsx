@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
     fontSize: "1.3rem",
-    marginBottom: 8,
+    marginBottom: -6,
     display: 'block'
   },
   tocPostedAt: {
