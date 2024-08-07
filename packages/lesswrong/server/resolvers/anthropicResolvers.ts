@@ -57,11 +57,11 @@ ${markdown}`
     Using the search results provided, please answer the following query.
     <query>${query}</query>
     - Not all results may be relevant. Ignore relevant results and use only those that seem relevant to you, if any.
-    - You may use answer independent from results to answer the query, but prioritize knowledge from the search results. Do not mention the search results in your answer.
+    - You may use answer independent from results to answer the query, but prioritize knowledge from the search results. Refer to the search results as "results I found from a quick search".
     - Limit the use of lists and bullet points in your answer, prefer to answer with paragraphs. 
     - Cite the results you use with the following format: [Post Title](https//lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the displayName of the author.
     - When citing results, give at least one word-for-word exact quote from the post.
-    - Format your answer using Markdown syntax.
+    - The context loaded to you is formatted in Markdown. Please format your answer using Markdown syntax.
     - If you are not confident in your answer, e.g. what something means or if you unsure, it is better to say so than to guess.
     `
 

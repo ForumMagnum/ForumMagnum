@@ -15,7 +15,7 @@ import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from 
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { userCanDo } from '../lib/vulcan-users/permissions';
+import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
 import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
@@ -31,9 +31,7 @@ import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotificatio
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import moment from 'moment';
 
-import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 
@@ -286,6 +284,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
+  languageModelLauncher: {
+    position: 'absolute',
+    // width: '57vw',
+    // maxWidth: '1000px',
+    top: '-57px',
+    right: '-334px',
+    [theme.breakpoints.down('lg')]: {
+      display: 'none',
+    }
+  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
@@ -456,6 +464,7 @@ const Layout = ({currentUser, children, classes}: {
       ForumEventBanner,
       GlobalHotkeys,
       EASurveyBanner,
+      LanguageModelLauncherButton
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -466,6 +475,8 @@ const Layout = ({currentUser, children, classes}: {
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
+      // TODO: Don't render when on standalone llm page
+      renderLanguageModelChatLauncher: userIsAdmin(currentUser),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
@@ -474,6 +485,7 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -605,6 +617,11 @@ const Layout = ({currentUser, children, classes}: {
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <DeferRender ssr={false}>
                     <SunshineSidebar/>
+                  </DeferRender>
+                </div>}
+                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                  <DeferRender ssr={false}>
+                    <LanguageModelLauncherButton/>
                   </DeferRender>
                 </div>}
               </div>

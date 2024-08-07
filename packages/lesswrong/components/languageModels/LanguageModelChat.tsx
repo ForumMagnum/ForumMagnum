@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
@@ -14,14 +14,11 @@ import { useMessages } from '../common/withMessages';
 const styles = (theme: ThemeType) => ({
   root: {
   },
-  mainColumn: {
-    width: 600
-  },
   chatInterfaceRoot: {
 
   },
   submission: {
-    width: "100%",
+    margin: 10,
     display: "flex",
     ...theme.typography.commentStyle,
   },
@@ -40,10 +37,15 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[300],
   },
   assistantMessage: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.grey[100],
+  },
+  messages: {
+    maxHeight: "50vh",
+    overflowY: "scroll",
   },
   options: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    marginLeft: 10
   },
   checkbox: {
     padding: 8
@@ -81,10 +83,18 @@ export const ChatInterface = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { Loading } = Components
 
+
   // useEffect to scroll to bottom of page
   useEffect(() => {
-    window.scrollTo(0, document.body.scrollHeight);
+    //TODO: this scrolling to the bottom is if this on standalone page, not in a popup
+    // window.scrollTo(0, document.body.scrollHeight);
+
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
   }, []);
+
+  const messagesRef = useRef<HTMLDivElement>(null)
 
   const [sendClaudeMessage] = useMutation(gql`
     mutation sendClaudeMessageMutation($messages: [ClaudeMessage!]!, $useRag: Boolean) {
@@ -104,12 +114,13 @@ export const ChatInterface = ({classes}: {
   const [currentMessage, setCurrentMessage] = useState('')
   const [conversationHistory, setConversationHistory] = useState<ClaudeMessage[]>(initialConversationHistory)
 
-  const messages = <div>
+  const messages = <div className={classes.messages} ref={messagesRef}>
     {conversationHistory.map((message, index) => (
       <LLMChatMessage key={index} message={message} classes={classes} />
     ))}
   </div>
 
+// TODO: Ensure code is sanitized against injection attacks
   const messageSubmit = async () => {
     let newMessage = { role: "user", content: currentMessage }
 
@@ -199,9 +210,7 @@ export const LanguageModelChat = ({classes}: {
 
   return <DeferRender ssr={false}>
     <div className={classes.root}>
-      <SingleColumnSection className={classes.mainColumn}>
-        <ChatInterface classes={classes} />
-      </SingleColumnSection>
+      <ChatInterface classes={classes} />
     </div>
   </DeferRender>
 }

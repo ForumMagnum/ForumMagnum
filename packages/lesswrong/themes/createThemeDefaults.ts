@@ -49,6 +49,7 @@ export const zIndexes = {
   reactionsFooter: 1001,
   intercomButton: 1030,
   sideCommentBox: 1040,
+  languageModelChat: 1041,
   postItemMenu: 1050,
   searchResults: 1100,
   tabNavigation: 1101,

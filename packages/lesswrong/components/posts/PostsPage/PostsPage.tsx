@@ -592,7 +592,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName:"ReplyCommentDialog",
+      componentName:"PopupLanguageModelChatDialog",
       componentProps: {
         post, initialHtml: html
       },
