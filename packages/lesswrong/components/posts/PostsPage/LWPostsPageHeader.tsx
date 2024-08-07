@@ -1,43 +1,48 @@
 import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import moment from 'moment';
-import { isLWorAF } from '../../../lib/instanceSettings';
-import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
-import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const SECONDARY_SPACING = 20;
 
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 100,
-    marginBottom: 96
+    paddingTop: 120,
+    marginBottom: 108,
+    display: 'flex',
+    flexDirection: 'column',
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 16,
+      marginBottom: 16,
+      flexDirection: 'column-reverse'
+    },
   },
   eventHeader: {
     marginBottom: 0,
   },
   authorAndSecondaryInfo: {
     display: 'flex',
-    alignItems: 'baseline',
+    alignItems: 'center',
     columnGap: SECONDARY_SPACING,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
     fontWeight: isFriendlyUI ? 450 : undefined,
     color: theme.palette.text.dim3,
     paddingBottom: isFriendlyUI ? 12 : undefined,
-    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined
+    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined,
   },
   authorInfo: {
-    maxWidth: "calc(100% - 150px)"
+    maxWidth: "calc(100% - 150px)",
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: "calc(100% - 60px)",
+      fontSize: theme.typography.body2.fontSize,
+    },
   },
   secondaryInfoLink: {
     fontWeight: isFriendlyUI ? 450 : undefined,
@@ -68,6 +73,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: -48,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
+      top: -16,
+      marginTop: 8,
+      marginBottom: 8
+    },
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  audioPlayerWrapper: {
+    position: 'absolute',
+    right: 8, 
+    top: 15,
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
       top: 8,
       right: 8
     }
@@ -93,8 +112,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   eventData: {
     marginTop: 48
+  },
+  title: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  mobileHeaderVote: {
+    textAlign: 'center',
+    fontSize: 42,
+    [theme.breakpoints.up("sm")]: {
+      display: 'none'
+    }
+  },
+  date: {
+    marginTop: 8,
+    marginBottom: 8
+  },
+  mobileButtons: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.up('sm')]: {
+      display: 'none'
+    }
   }
-});
+}); 
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
 // On the client, we instead create an <a> tag, set its href, and extract
@@ -137,7 +179,7 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper } = Components;
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton } = Components;
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
@@ -152,34 +194,51 @@ const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbe
   // us as a draft, display a notice and a link to the collaborative editor.
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
-    {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
-    <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
-        <PostsTopSequencesNav post={post} />
-      </div>}
-    </AnalyticsContext>
-    {!post.shortform && <span className={classes.topRight}>
-      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
-    </span>}
-    {post && <span><PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/></span>}
-    <PostsPageTitle post={post} />
-    <div className={classes.authorAndSecondaryInfo}>
-      <div className={classes.authorInfo}>
-        <PostsAuthors post={post} pageSectionContext="post_header" />
+      {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
+      <AnalyticsContext pageSectionContext="topSequenceNavigation">
+        {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
+          <PostsTopSequencesNav post={post} />
+        </div>}
+      </AnalyticsContext>
+      <div>
+        {!post.shortform && <span className={classes.topRight}>
+          <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer}/>
+        </span>}
+        {post && <span className={classes.audioPlayerWrapper}>
+          <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
+        </span>}
       </div>
-      {crosspostNode}
-      <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-      {rssFeedSource && rssFeedSource.user &&
-        <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
-          <a href={feedLink}>{rssFeedSource.nickname}</a>
-        </LWTooltip>
-      }
-      {post.isEvent && <GroupLinks document={post} noMargin />}
-      <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
-    </div>
-    {post.isEvent && <div className={classes.eventData}>
-      <PostsPageEventData post={post}/>
-    </div>}
+      <div className={classes.title}>
+        <div>
+          <PostsPageTitle post={post} />
+          <div className={classes.authorAndSecondaryInfo}>
+            <div className={classes.authorInfo}>
+              <PostsAuthors post={post} pageSectionContext="post_header" />
+            </div>
+            {crosspostNode}
+            <div className={classes.date}>
+              <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+            </div>
+            {rssFeedSource && rssFeedSource.user &&
+              <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
+                <a href={feedLink}>{rssFeedSource.nickname}</a>
+              </LWTooltip>
+            }
+            {post.isEvent && <GroupLinks document={post} noMargin />}
+            <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
+            <div className={classes.mobileButtons}>
+              <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+              <PostActionsButton post={post} className={classes.postActionsButton} flip />
+            </div>
+          </div>
+        </div>
+        <div className={classes.mobileHeaderVote}>
+          <PostsVote post={post} />
+        </div>
+      </div>
+      {post.isEvent && <div className={classes.eventData}>
+        <PostsPageEventData post={post}/>
+      </div>}
   </div>
 }
 
@@ -192,3 +251,4 @@ declare global {
     LWPostsPageHeader: typeof LWPostsPageHeaderComponent,
   }
 }
+

@@ -4,7 +4,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 
-
 const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -19,19 +18,28 @@ const styles = (theme: ThemeType) => ({
   vote: {
     display: 'flex',
     flexDirection: 'row-reverse',
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
   postActionsButton: {
     display: 'flex',
     alignItems: 'center',
     opacity: 0.3
   },
+  tagList: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, hideVoteOnMobile}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
-  showEmbeddedPlayer?: boolean
+  showEmbeddedPlayer?: boolean,
+  hideVoteOnMobile?: boolean
 }) => {
   const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
 
@@ -39,7 +47,9 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
 
   return <div className={classes.root}>
       {<AnalyticsContext pageSectionContext="tagHeader">
-        <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground />
+        <div className={classes.tagList}>
+          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground />
+        </div>
       </AnalyticsContext>}
       <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       <div className={classes.vote}>

@@ -89,8 +89,8 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
-  gap1: { gridArea: 'gap1'},
-  gap2: { gridArea: 'gap2'},
+  gap1: { gridArea: 'gap1' },
+  gap2: { gridArea: 'gap2' },
   gap3: { gridArea: 'gap3' },
   rhs: {},
   hideTocButton: {
@@ -129,6 +129,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
 }) => {
+  const [leftHover, setLeftHover] = React.useState(false);
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
@@ -136,15 +137,15 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} >
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} onMouseEnter={() => setLeftHover(true)} onMouseLeave={() => setLeftHover(false)}>
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
-              {segment.toc}
+              {React.cloneElement(segment.toc as React.ReactElement, { hover: leftHover })}
             </div>
           </div>
         </div>
       </>}
-      <div className={classes.gap1}/>
+      <div className={classes.gap1} onMouseEnter={() => setLeftHover(true)} onMouseLeave={() => setLeftHover(false)}/>
       <div className={classes.content} style={{ "gridArea": `content${i}` }} >
         {segment.centralColumn}
       </div>

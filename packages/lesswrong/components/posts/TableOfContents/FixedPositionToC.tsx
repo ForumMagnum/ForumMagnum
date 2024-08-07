@@ -103,6 +103,11 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  hover: {
+    '& $rowOpacity': {
+      opacity: 1,
+    },
+  },
   rowWrapper: {
     position: "relative",
     zIndex: 1,
@@ -129,8 +134,6 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     transform: 'translateX(-50px)',
     transitionDelay: '0s',
-  },
-  fadeIn: {
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
@@ -210,13 +213,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
+const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
   postedAt?: Date,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
+  hover?: boolean,
 }) => {
   const { TableOfContentsRow, AnswerTocRow, FormatDate } = Components;
 
@@ -341,17 +345,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     >
       {/* <div className={classes.tocTitle}>
         {title?.trim()}
-      </div>
-      {postedAt && <div className={classes.tocPostedAt}>
-        <FormatDate date={postedAt} format={"Do MMM YYYY"} />
-    </div> */}
+      </div> */}
     </TableOfContentsRow>
   );
   
   const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
 
   const rows = renderedSections.map((section, index) => {
-    console.log(section.title, section.offset)
     const offsetStyling = section.offset !== undefined ? { flex: section.offset } : undefined;
 
     const tocRow = (
@@ -393,8 +393,8 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
 
   if (!tocSections || !hasLoaded)
     return <div/>
-
-  return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
+  console.log(hover)
+  return <div className={classNames(classes.root, { [classes.hover]: hover})}>
     {titleRow}
     <div className={classes.belowTitle}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>

@@ -17,7 +17,7 @@ export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigation
 }
 
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
   classes: ClassesType<typeof styles>,
 }) => {

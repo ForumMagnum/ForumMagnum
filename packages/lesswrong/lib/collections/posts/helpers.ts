@@ -1,4 +1,4 @@
-import { PublicInstanceSetting, aboutPostIdSetting, isAF, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, aboutPostIdSetting, isAF, isLWorAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
@@ -188,7 +188,11 @@ export const postGetCommentCount = (post: PostWithCommentCounts): number => {
 export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
-    return "No comments";
+    if (isLWorAF) {
+      return "0 comments";
+    } else {
+      return "No comments";
+    }
   } else if (count === 1) {
     return "1 comment";
   } else {

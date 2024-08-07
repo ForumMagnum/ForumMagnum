@@ -63,6 +63,9 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: theme.palette.border.faint,
     fontSize: isFriendlyUI ? "1em" : undefined,
+    '&:hover': {
+      opacity: "unset"
+    }
   },
   level0: {
     display:"block",
@@ -129,7 +132,7 @@ const levelToClassName = (level: number, classes: ClassesType<typeof styles>) =>
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset, fullHeight, commentToC
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset, fullHeight, commentToC, isPostTitle
 }: {
   indentLevel?: number,
   highlighted?: boolean,
@@ -147,6 +150,7 @@ const TableOfContentsRow = ({
   offset?: number,
   fullHeight?: boolean,
   commentToC?: boolean,
+  isPostTitle?: boolean,
 }) => {
   const [isPinned, setIsPinned] = useState(true);
   const rowRef = useRef<HTMLDivElement>(null);
@@ -188,7 +192,7 @@ const TableOfContentsRow = ({
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,
       [classes.highlightDot]: !answer,
-      [classes.dense]: dense,
+      [classes.dense]: dense
     })}>
       {children}
     </a>

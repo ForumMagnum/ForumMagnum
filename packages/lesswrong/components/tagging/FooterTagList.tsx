@@ -299,7 +299,7 @@ const FooterTagList = ({
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
+            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
           </MaybeLink>
         : null
       )

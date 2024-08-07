@@ -129,14 +129,14 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: '7vh',
     transition: 'transform .75s ease-in-out',
     [theme.breakpoints.down('xs')]: {
-      paddingBottom: '1vh'
+      paddingBottom: '7vh'
     }
   },
   top: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginRight: 8
+    marginRight: 8,
   },
   leftSection: {
     display: 'flex',
@@ -194,13 +194,13 @@ const styles = (theme: ThemeType) => ({
     }
   },
   audioPlayerContainer: {
-    [theme.breakpoints.up('sm')]: {
-      width: '480px',
-    }
+    display: "flex",
+    justifyContent: "flex-end"
   },
   audioPlayer: {
     padding: 8,
     marginLeft: 6,
+    width: 480
   },
   togglePodcastContainer: {
     marginTop: 6,
@@ -235,7 +235,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: '75vw',
     textWrap: 'balance',
     [theme.breakpoints.down('xs')]: {
-      fontSize: '2.5rem',
+      fontSize: '4rem',
       maxWidth: '90vw'
     },
   },
