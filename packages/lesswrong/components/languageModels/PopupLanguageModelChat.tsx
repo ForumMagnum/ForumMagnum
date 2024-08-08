@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
@@ -38,7 +38,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[100],
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 14,
+    // TODO: If we change this to 8 here, should change it the other popup editor
+    paddingTop: 8,
     paddingBottom: 8,
     position: "relative"
   },
@@ -67,7 +68,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
 }) => {
   const { LanguageModelChat } = Components;
 
-  const title = "Chat with Shoggo (Claude + LessWrong)"
+  const [title, setTitle] = useState("");
 
   return <Paper className={classes.root}>
     <div className={classes.header}>
@@ -77,7 +78,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
       <CloseIcon className={classes.close} onClick={onClose}/>
     </div>
     <div className={classes.editor}>
-      <LanguageModelChat/>
+      <LanguageModelChat setTitle={setTitle} />
       {/* <CommentsNewForm
         enableGuidelines={false}
         padding={false}

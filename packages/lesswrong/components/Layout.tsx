@@ -476,7 +476,7 @@ const Layout = ({currentUser, children, classes}: {
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       // TODO: Don't render when on standalone llm page
-      renderLanguageModelChatLauncher: userIsAdmin(currentUser),
+      renderLanguageModelChatLauncher: userIsAdmin(currentUser) && currentRoute?.path !== '/llm',
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }

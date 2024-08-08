@@ -1655,9 +1655,11 @@ addRoute(
   {
     name: 'languageModelChat',
     path: '/llm',
-    componentName: 'LanguageModelChat',
+    componentName: 'LanguageModelChatPage',
     title: "Language Model Chat",
     isAdmin: true,
+    background: "white",
+    noFooter: true,
   }
 );
 
