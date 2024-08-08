@@ -873,7 +873,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
-            {centralColumn: header},
+            {},
             {
               toc: tableOfContents,
               centralColumn: postBodySection,

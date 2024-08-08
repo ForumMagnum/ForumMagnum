@@ -118,7 +118,7 @@ const styles = (theme: ThemeType) => ({
 
 export type ToCLayoutSegment = {
   toc?: React.ReactNode,
-  centralColumn: React.ReactNode,
+  centralColumn?: React.ReactNode,
   rightColumn?: React.ReactNode,
   isCommentToC?: boolean,
 };
