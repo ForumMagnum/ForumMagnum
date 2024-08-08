@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -22,6 +24,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 4,
+  },
+  expandIcon: {
+    height: 20,
+    position: "absolute",
+    right: 32,
+    top: 10,
+    cursor: "pointer",
+    color: theme.palette.grey[400],
+    '&:hover': {
+      color: theme.palette.grey[600],
+    }
   },
   close: {
     position: "absolute",
@@ -68,6 +81,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
 }) => {
   const { LanguageModelChat } = Components;
 
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
 
   return <Paper className={classes.root}>
@@ -75,6 +89,13 @@ const PopupLanguageModelChat = ({onClose, classes}: {
       <div className={classes.title}>
         {title}
       </div>
+      <FullscreenIcon 
+        onClick={()=> {
+          onClose();
+          navigate("/llm");
+        }}
+        className={classes.expandIcon} 
+      />
       <CloseIcon className={classes.close} onClick={onClose}/>
     </div>
     <div className={classes.editor}>
