@@ -110,7 +110,8 @@ defineMutation({
     const titleGenerationPrompt = `A user has started a new converation with you, Claude. 
 Please generate a short title for this converation based on the first messate. The first message is as follows: ${firstQuery.content}
 The tile should be a short phrase of 2-4 words that captures the essence of the conversation.
-Do not include the word "title" or similar in your response.`
+Do not include the word "title" or similar in your response.
+Do not wrap your answer in quotes or brackets.`
 
     // TODO: This can probably be done in parallel with the rest of the conversation 
     const titleResult = await client.messages.create({
