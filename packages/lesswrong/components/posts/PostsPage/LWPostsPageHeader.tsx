@@ -12,12 +12,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 120,
     marginBottom: 108,
-    display: 'flex',
-    flexDirection: 'column',
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
-      marginBottom: 16,
-      flexDirection: 'column-reverse'
+      marginBottom: 16
     },
   },
   eventHeader: {
