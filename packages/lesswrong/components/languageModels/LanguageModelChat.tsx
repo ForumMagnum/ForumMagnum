@@ -99,6 +99,8 @@ interface ClaudeConversation {
   lastUpdated: Date
 }
 
+type ClaudeConversationWithOptionalTitle = Omit<ClaudeConversation, 'title'> & { title?: string }
+
 type LlmConversations = Record<string, ClaudeConversation>
 
 const LLMChatMessage = ({message, classes}: {
@@ -202,15 +204,14 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     let newMessage = { role: "user", content: message }
 
     const messagesWithNewUserQuery = [...currentConversation?.messages ?? [], newMessage]
-    const conversationWithNewUserQuery: ClaudeConversation = { 
-      title: PLACEHOLDER_TITLE,
+    const conversationWithNewUserQuery: ClaudeConversationWithOptionalTitle = { 
       createdAt: new Date(),
       ...currentConversation, // will preserve title and createdAt if they exist
       messages: messagesWithNewUserQuery,
       lastUpdated: new Date()
     }
     setLoading(true)
-    setCurrentConversation(conversationWithNewUserQuery)
+    setCurrentConversation({...conversationWithNewUserQuery, title: currentConversation?.title ?? PLACEHOLDER_TITLE})
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
