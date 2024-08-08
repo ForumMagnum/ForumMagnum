@@ -98,8 +98,8 @@ const globalStyle = (theme: ThemeType): JssStyles => ({
   // license (GPL) even if we didn't have a separate commercial license, and we
   // do credit Ck in the editor-type dropdown if you have that enabled, just not
   // quite as prominently.
-  ".ck-powered-by": {
-    display: "none",
+  ".ck-powered-by, .ck-powered-by-balloon": {
+    display: "none !important",
   },
 });
 

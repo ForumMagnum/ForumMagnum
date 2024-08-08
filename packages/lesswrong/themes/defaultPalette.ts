@@ -575,12 +575,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
   },
-  dialogueMatching: {
-    checkedNotMatched: "#ADD8E6",
-    checkedMatched: "#00000038",
-    optIn: "#9a9a9a",
-    warning: "yellow",
-  },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",
   },
