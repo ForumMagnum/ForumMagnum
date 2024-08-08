@@ -1,5 +1,5 @@
 // TODO: Import component in components.ts
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { gql, useMutation } from '@apollo/client';
@@ -12,8 +12,12 @@ import Button from '@material-ui/core/Button';
 import { useMessages } from '../common/withMessages';
 import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
+import { hideScrollBars } from '../../themes/styleUtils';
+import CloseIcon from '@material-ui/icons/Close';
 
 const LLM_STORAGE_KEY = 'llmConversations'
+const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
+    
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,21 +28,24 @@ const styles = (theme: ThemeType) => ({
   submission: {
     margin: 10,
     display: "flex",
+    padding: 20,
     ...theme.typography.commentStyle,
   },
   inputTextbox: {
+    padding: 20,
     width: "100%",
     minHeight: 100,
     maxHeight: 200,
+    // '& .textarea': {
+    //   ...hideScrollBars
+    // }
   },
   chatMessage: {
-    ...commentBodyStyles(theme),
-    padding: 20,
+    padding: 16,
     margin: 10,
     borderRadius: 10
   },
   chatMessageContent: {
-    fontSize: 10
   },
   userMessage: {
     backgroundColor: theme.palette.grey[300],
@@ -47,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[100],
   },
   messages: {
-    maxHeight: "50vh",
+    maxHeight: "75vh",
     overflowY: "scroll",
   },
   messagesFullPage: {
@@ -66,7 +73,16 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 250,
   },
   menuItem: {
-    zIndex: theme.zIndexes.commentBoxPopup + 10
+    zIndex: theme.zIndexes.commentBoxPopup + 10,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center"
+  },
+  deleteConvoIcon: {
+    marginLeft: 10,
+    cursor: "pointer",
+    opacity: 0.8,
+    width: 16
   }
 });
 
@@ -94,12 +110,38 @@ const LLMChatMessage = ({message, classes}: {
 
   const { role, content, displayContent } = message
 
-  return <ContentStyles contentType="tag" className={classes.chatMessageContent}>
+  return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
     <ContentItemBody
       className={classNames(classes.chatMessage, {[classes.userMessage]: role==='user', [classes.assistantMessage]: role==='assistant'})}
       dangerouslySetInnerHTML={{__html: displayContent ?? content}}
     />
 </ContentStyles>
+}
+
+const LLMInputTextbox = ({onSubmit, classes}: {
+  onSubmit: (message: string) => void,
+  classes: ClassesType<typeof styles>,
+}) => {
+  const [currentMessage, setCurrentMessage] = useState('')
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
+      event.stopPropagation();
+      event.preventDefault();
+      void onSubmit(currentMessage);
+      setCurrentMessage('')
+    }
+  }
+
+  return <Input
+    value={currentMessage}
+    onChange={(event) => setCurrentMessage(event.target.value)}
+    onKeyDown={handleKeyDown}
+    className={classes.inputTextbox}
+    placeholder='Type here. Ctrl-Enter to send.'
+    multiline
+    disableUnderline
+  />
 }
 
 export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
@@ -126,16 +168,17 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
 
   const ls = getBrowserLocalStorage();
   const storedLlmConversations = ls?.getItem(LLM_STORAGE_KEY);
-  const llmConversations: LlmConversations = storedLlmConversations ? JSON.parse(storedLlmConversations) : {}
+  const llmConversations: LlmConversations = useMemo(
+    () => storedLlmConversations ? JSON.parse(storedLlmConversations) : {},
+    [storedLlmConversations]
+  );
 
   // TODO: if using lastUpdated to select converation, this could override thet last selected
   console.log({llmConversations: Object.values(llmConversations).map(({title, lastUpdated}: {title: string, lastUpdated: Date}) => ({title, lastUpdated}))})
   const mostRecentConversationTitle = Object.values(llmConversations).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())[0]?.title
 
-  const [currentMessage, setCurrentMessage] = useState('')
-    
   const [currentConversation, setCurrentConversation] = useState<ClaudeConversation|null>(llmConversations[`llmChatHistory:${mostRecentConversationTitle}`])
-  setWindowTitle?.(currentConversation?.title ?? "LLM Chat: New Conversation")
+  setWindowTitle?.(currentConversation?.title ?? PLACEHOLDER_TITLE)
 
   // useEffect to scroll to bottom of chat history (or page on full-window llm but that needs fixing)
   useEffect(() => {
@@ -155,25 +198,35 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
   </div>
 
 // TODO: Ensure code is sanitized against injection attacks
-  const messageSubmit = async () => {
-    let newMessage = { role: "user", content: currentMessage }
+  const messageSubmit = useCallback(async (message: string) => {
+    let newMessage = { role: "user", content: message }
 
-    const updatedConversationHistory = [...currentConversation?.messages ?? [], newMessage]
-    setCurrentMessage("")
+    const messagesWithNewUserQuery = [...currentConversation?.messages ?? [], newMessage]
+    const conversationWithNewUserQuery: ClaudeConversation = { 
+      title: PLACEHOLDER_TITLE,
+      createdAt: new Date(),
+      ...currentConversation, // will preserve title and createdAt if they exist
+      messages: messagesWithNewUserQuery,
+      lastUpdated: new Date()
+    }
     setLoading(true)
-  
+    setCurrentConversation(conversationWithNewUserQuery)
+    if (messagesRef.current) {
+      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    }
+
     setTimeout(async () => {
       const result = await sendClaudeMessage({
         variables: {
-          messages: updatedConversationHistory,
+          messages: messagesWithNewUserQuery,
           useRag,
-          title: currentConversation?.title
+          title: conversationWithNewUserQuery?.title
         }
       })
 
       const conversationResponse: ClaudeConversation = result.data.sendClaudeMessage
       const { messages: conversationHistoryWithNewResponse, title: newTitle } = conversationResponse
-      
+
       const conversationWithNewResponse = {
         messages: conversationHistoryWithNewResponse,
         title: conversationResponse.title,
@@ -181,6 +234,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
         lastUpdated: new Date()
       }
       setLoading(false)
+      console.log({conversationWithNewUserQuery, conversationWithNewResponse})
       setCurrentConversation(conversationWithNewResponse)
       setWindowTitle?.(newTitle)
 
@@ -189,44 +243,14 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
     }, 0)
 
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      event.stopPropagation();
-      event.preventDefault();
-      void messageSubmit();
-    }
-  }
+  }, [currentConversation, useRag, sendClaudeMessage, setLoading, setCurrentConversation, setWindowTitle, llmConversations, ls]);
 
   const clearChatHistory = () => {
     // ls?.removeItem('llmChatHistory')
-    setWindowTitle?.("LLM Chat: New Conversation")
+    setWindowTitle?.(PLACEHOLDER_TITLE)
     setCurrentConversation(null)
   }
   
-  const input = (
-    <div className={classes.submission}>
-      <Input
-        value={currentMessage}
-        onChange={(event) => setCurrentMessage(event.target.value)}
-        onKeyDown={handleKeyDown}
-        className={classes.inputTextbox}
-        placeholder='Type here. Ctrl-Enter to send.'
-        multiline
-        disableUnderline
-      />
-      {/* <textarea 
-        value={currentMessage} 
-        onChange={(event) => setCurrentMessage(event.target.value)} 
-        onKeyDown={handleKeyDown} 
-        className={classes.inputTextbox} 
-        draggable={false}
-        placeholder='Cmd-Enter to send'
-      /> */}
-    </div>
-  )
-
   const exportHistoryToClipboard = () => {
     // use role and content from each chat message to format the chat history
     if (!currentConversation) return
@@ -242,7 +266,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     const newSelection = event.target.value
 
     if (newSelection === "New Conversation") {
-      setWindowTitle?.("LLM Chat: New Conversation")
+      setWindowTitle?.(PLACEHOLDER_TITLE)
       setCurrentConversation(null)
     } else {
       // TODO: have a separate field for last viewed
@@ -251,7 +275,21 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       const updatedConversations = {...llmConversations, [storageTitle]: newlySelectedConversation}
       ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
       setCurrentConversation(newlySelectedConversation)
-      setWindowTitle?.(newlySelectedConversation?.title ?? "LLM Chat: New Conversation")
+      setWindowTitle?.(newlySelectedConversation?.title ?? PLACEHOLDER_TITLE)
+    }
+  }
+
+  // TODO: Make this work
+  const deleteConversation = (title: string) => {
+    console.log('before', {llmConversations})
+    const updatedConversations = Object.keys(llmConversations).filter(key => key !== `llmChatHistory:${title}`)
+      .reduce((acc, key) => ({...acc, [key]: llmConversations[key]}), {})
+    console.log('after', {updatedConversations})
+
+    ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
+    if (currentConversation?.title === title) {
+      setWindowTitle?.(PLACEHOLDER_TITLE)
+      setCurrentConversation(null)
     }
   }
   
@@ -265,10 +303,12 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       <MenuItem value="New Conversation" className={classes.menuItem}>
         New Conversation
       </MenuItem>
-      {Object.values(llmConversations).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())
+      {Object.values(llmConversations).sort((a, b) => new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime())
         .map(({ title }, index) => (
           <MenuItem key={index} value={title} className={classes.menuItem}>
             {title}
+            {/* TODO: reenable once the delete functionalty works */}
+            {/* <CloseIcon onClick={(ev) => deleteConversation(title)} className={classes.deleteConvoIcon} /> */}
           </MenuItem>
       ))}
     </Select>;
@@ -290,7 +330,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
   return <div className={classes.chatInterfaceRoot}>
     {messages}
     {loading && <Loading/>}
-    {input}
+    <LLMInputTextbox onSubmit={messageSubmit} classes={classes} />
     {options}
   </div>
 }
