@@ -20,6 +20,11 @@ import {
 } from "../../../lib/collectionIndexUtils";
 import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
+import { afterCreateRevisionCallback, buildRevision } from "@/server/editor/make_editable_callbacks";
+import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
+import { createMutator } from "@/server/vulcan-lib";
+import Revisions from "@/lib/collections/revisions/collection";
+import chunk from "lodash/chunk";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -219,6 +224,45 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
   `);
   if (!columnInfo) {
     return;
+  }
+
+  // Find any documents where the latest revision id is null and create a
+  // new revision for them
+  const latestFieldName = `${fieldName}_latest`;
+  const documents = await collection.find({
+    [latestFieldName]: {$exists: false},
+  }).fetch();
+  for (const batch of chunk(documents, 10)) {
+    const currentUser = await getAdminTeamAccount();
+    if (!currentUser) {
+      throw new Error("Can't find admin user account");
+    }
+    await Promise.all(batch.map(async (document) => {
+      const editableField: EditableFieldUpdate | undefined = (document as AnyBecauseHard)[fieldName];
+      if (!editableField) {
+        return;
+      }
+
+      const dataWithDiscardedSuggestions = editableField?.dataWithDiscardedSuggestions;
+      delete editableField?.dataWithDiscardedSuggestions;
+
+      const revisionData = await buildRevision({
+        originalContents: editableField.originalContents,
+        dataWithDiscardedSuggestions,
+        currentUser,
+      });
+      const revision = await createMutator({
+        collection: Revisions,
+        document: revisionData,
+        validate: false,
+      });
+      await afterCreateRevisionCallback.runCallbacksAsync([{
+        revisionID: revision.data._id,
+      }]);
+      await collection.rawUpdateOne({_id: document._id}, {
+        $set: {[latestFieldName]: revision.data._id},
+      });
+    }));
   }
 
   // Check for data integrity issues and update any revisions that have diverged
