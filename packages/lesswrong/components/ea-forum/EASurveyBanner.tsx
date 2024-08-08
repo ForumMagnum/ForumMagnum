@@ -26,6 +26,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 450,
     color: theme.palette.text.alwaysWhite,
     [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
       flexDirection: "column",
       gap: "12px",
       padding: "12px 48px",
@@ -38,7 +39,6 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
     borderRadius: theme.borderRadius.default,
-    fontSize: 15,
     fontWeight: 500,
     padding: "8px 12px",
     cursor: "pointer",
