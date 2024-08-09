@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { getHostname, getProtocol } from './PostsPagePostHeader';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -103,46 +104,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 }); 
 
-// On the server, use the 'url' library for parsing hostname out of feed URLs.
-// On the client, we instead create an <a> tag, set its href, and extract
-// properties from that. (There is a URL class which theoretically would work,
-// but it doesn't have the hostname field on IE11 and it's missing entirely on
-// Opera Mini.)
-const URLClass = getUrlClass()
-
-function getProtocol(url: string): string {
-  if (isServer)
-    return new URLClass(url).protocol;
-
-  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-  var parser = document.createElement('a');
-  parser.href = url;
-  return parser.protocol;
-}
-
-function getHostname(url: string): string {
-  if (isServer)
-    return new URLClass(url).hostname;
-
-  // From https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
-  var parser = document.createElement('a');
-  parser.href = url;
-  return parser.hostname;
-}
-
-
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
-  answers?: CommentsList[],
-  dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
-  hideMenu?: boolean,
-  hideTags?: boolean,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton } = Components;
   // eslint-disable-next-line react-hooks/exhaustive-deps

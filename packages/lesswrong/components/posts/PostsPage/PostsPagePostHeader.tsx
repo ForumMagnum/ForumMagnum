@@ -154,7 +154,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 // Opera Mini.)
 const URLClass = getUrlClass()
 
-function getProtocol(url: string): string {
+export function getProtocol(url: string): string {
   if (isServer)
     return new URLClass(url).protocol;
 
@@ -164,7 +164,7 @@ function getProtocol(url: string): string {
   return parser.protocol;
 }
 
-function getHostname(url: string): string {
+export function getHostname(url: string): string {
   if (isServer)
     return new URLClass(url).hostname;
 
@@ -210,10 +210,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
+  const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
-    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, AudioToggle} = Components;
+    PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
+    ForumIcon, GroupLinks, SharePostButton, AudioToggle } = Components;
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
@@ -312,18 +312,11 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
-
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
       {('sequence' in post) && <PostsTopSequencesNav post={post} />}
     </AnalyticsContext>
-    {!post.shortform && !post.isEvent && !hideTags && <div className={classes.tagSection}>
-      <AnalyticsContext pageSectionContext="tagHeader">
-        <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} align="right" />
-      </AnalyticsContext>
-    </div>}
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
         <PostsPageTitle post={post} />
@@ -344,6 +337,14 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       {!post.shortform && <div className={classes.headerVote}>
         <PostsVote post={post} />
       </div>}
+    </div>
+    <div className={classes.headerFooter}>
+      <div className={classes.tagSection}>
+        {!post.shortform && !post.isEvent && !hideTags && 
+        <AnalyticsContext pageSectionContext="tagHeader">
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
+        </AnalyticsContext>}
+      </div>
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>

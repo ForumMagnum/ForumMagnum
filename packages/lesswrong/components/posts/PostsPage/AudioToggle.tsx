@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, { useEffect, useMemo } from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';

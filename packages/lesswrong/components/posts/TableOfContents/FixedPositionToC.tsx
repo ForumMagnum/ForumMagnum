@@ -15,7 +15,6 @@ import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
-import { z } from 'zod';
 import CommentsIcon from '@material-ui/icons/ModeComment';
 
 
@@ -208,10 +207,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover}: {
   tocSections: ToCSection[],
   title: string|null,
-  postedAt?: Date,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,

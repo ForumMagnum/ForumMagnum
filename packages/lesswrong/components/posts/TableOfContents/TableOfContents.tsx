@@ -39,7 +39,6 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
       <Components.FixedPositionToC
         tocSections={displayToc.sectionData.sections}
         title={title}
-        postedAt={postedAt}
         onClickSection={onClickSection}
         displayOptions={displayOptions}
         hover={hover}

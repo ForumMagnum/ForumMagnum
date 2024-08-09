@@ -137,7 +137,11 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} onMouseEnter={() => setLeftHover(true)} onMouseLeave={() => setLeftHover(false)}>
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} 
+          style={{ "gridArea": `toc${i}` }} 
+          onMouseEnter={() => setLeftHover(true)} 
+          onMouseLeave={() => setLeftHover(false)}
+        >
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
               {/* This allows the ToC to appear when the user hovers over either of the two left-columns */}
