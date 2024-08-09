@@ -28,7 +28,6 @@ const styles = (theme: ThemeType) => ({
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     alignItems: "center",
-    textWrap: "balance",
     ...theme.typography.postsItemTitle,
     [theme.breakpoints.down('xs')]: {
       whiteSpace: "unset",
