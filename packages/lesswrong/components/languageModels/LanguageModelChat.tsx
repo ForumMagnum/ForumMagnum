@@ -14,6 +14,7 @@ import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
 import { hideScrollBars } from '../../themes/styleUtils';
 import CloseIcon from '@material-ui/icons/Close';
+import { useLocation } from "../../lib/routeUtil";
 
 const LLM_STORAGE_KEY = 'llmConversations'
 const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
@@ -99,6 +100,14 @@ interface ClaudeConversation {
   lastUpdated: Date
 }
 
+interface PromptContextOptions {
+  query: string
+  postId?: string,
+  useRag?: boolean
+  includeComments?: boolean
+  // editorContents: 
+}
+
 type ClaudeConversationWithOptionalTitle = Omit<ClaudeConversation, 'title'> & { title?: string }
 
 type LlmConversations = Record<string, ClaudeConversation>
@@ -156,16 +165,19 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
 
   const { flash } = useMessages()
 
+  const { location } = useLocation();
+  const { pathname } = location;
+  const postId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1]
 
   const messagesRef = useRef<HTMLDivElement>(null)
 
   const [sendClaudeMessage] = useMutation(gql`
-    mutation sendClaudeMessageMutation($messages: [ClaudeMessage!]!, $useRag: Boolean, $title: String) {
-      sendClaudeMessage(messages: $messages, useRag: $useRag, title: $title)
+    mutation sendClaudeMessageMutation($messages: [ClaudeMessage!]!, $promptContextOptions: PromptContextOptions!, $title: String) {
+      sendClaudeMessage(messages: $messages, promptContextOptions: $promptContextOptions, title: $title)
     }
   `)
 
-  const [useRag, setUseRag] = useState(true)
+  const [useRag, setUseRag] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const ls = getBrowserLocalStorage();
@@ -216,11 +228,17 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
 
+    const promptContextOptions: PromptContextOptions = {
+      query: message, // not super reliably after first message, but should work for first message for now
+      useRag,
+      postId
+    }
+
     setTimeout(async () => {
       const result = await sendClaudeMessage({
         variables: {
           messages: messagesWithNewUserQuery,
-          useRag,
+          promptContextOptions,
           title: conversationWithNewUserQuery?.title
         }
       })
@@ -244,9 +262,9 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
     }, 0)
 
-  }, [currentConversation, useRag, sendClaudeMessage, setLoading, setCurrentConversation, setWindowTitle, llmConversations, ls]);
+  }, [currentConversation, useRag, sendClaudeMessage, setLoading, setCurrentConversation, setWindowTitle, llmConversations, ls, postId]);
 
-  const clearChatHistory = () => {
+  const newChat = () => {
     // ls?.removeItem('llmChatHistory')
     setWindowTitle?.(PLACEHOLDER_TITLE)
     setCurrentConversation(null)
@@ -317,7 +335,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
 
   const options = <div className={classes.options}>
     Use RAG <Checkbox checked={useRag} onChange={() => setUseRag(!useRag)} className={classes.checkbox} />
-    <Button onClick={clearChatHistory}>
+    <Button onClick={newChat}>
       New Chat
     </Button>
     <Button onClick={exportHistoryToClipboard}>
