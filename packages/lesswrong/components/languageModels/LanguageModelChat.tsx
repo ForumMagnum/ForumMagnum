@@ -231,7 +231,8 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     const promptContextOptions: PromptContextOptions = {
       query: message, // not super reliably after first message, but should work for first message for now
       useRag,
-      postId
+      postId,
+      includeComments: true //TODO: not always true?
     }
 
     setTimeout(async () => {
@@ -275,7 +276,9 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     if (!currentConversation) return
     const conversationHistory = currentConversation.messages
     const firstMessage = conversationHistory[0]
-    const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.displayContent ?? firstMessage.content}\n\n\n`
+    // TODO: revert this change
+    // const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.displayContent ?? firstMessage.content}\n\n\n`
+    const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.content}\n\n\n`
     const formattedChatHistory = conversationHistory.slice(1).map(({role, content}) => `**${role}**: ${content}`).join("\n\n\n")
     void navigator.clipboard.writeText(firstMessageFormatted + formattedChatHistory)
     flash('Chat history copied to clipboard')

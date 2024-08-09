@@ -40,6 +40,10 @@ interface PromptContextOptions {
   // editorContents: 
 }
 
+interface DocumentWithContents {
+  contents: EditableFieldContents | null
+}
+
 const claudeMessageSchema = z.object({
   role: z.union([z.literal('user'), z.literal('assistant')]),
   content: z.string(),
@@ -48,17 +52,76 @@ const claudeMessageSchema = z.object({
 
 const claudeMessagesSchema = z.array(claudeMessageSchema)
 
-const postToMarkdown = (post: DbPost) => {
-  const originalContents = post.contents?.originalContents
+const documentToMarkdown = (document: DocumentWithContents) => {
+  const originalContents = document.contents?.originalContents
   if (!originalContents) {
     return undefined
   }
   return dataToMarkdown(originalContents.data, originalContents.type)
 }
 
-const createPromptWithContext = async (options: PromptContextOptions, context: ResolverContext) => {
+interface NestedComment {
+  commentId: string;
+  postId: string;
+  author: string;
+  contents: string;
+  children?: NestedComment[];
+  karmaScore: number;
+  published: Date;
+  // ... other properties you want to keep
+}
 
-  console.log("Creating prompt with context", options)
+
+const createCommentTree = (comments: DbComment[]): NestedComment[] => {
+    // Create a map of all comments
+    const commentMap = new Map(
+      comments.map(comment => [
+        comment._id,
+        {
+          commentId: comment._id,
+          postId: comment.postId,
+          author: comment.author,
+          // ... copy other properties you want to keep
+          karmaScore: comment.baseScore,
+          published: comment.postedAt,
+          contents: documentToMarkdown(comment),
+          children: [] as NestedComment[],
+        } as NestedComment
+      ])
+    );
+  
+    // Function to get children for a comment
+    const getChildren = (parentId: string): NestedComment[] =>
+      comments
+        .filter(comment => comment.parentCommentId === parentId)
+        .map(comment => {
+          const nestedComment = commentMap.get(comment._id);
+          if (!nestedComment) {
+            throw new Error(`Comment with id ${comment._id} not found in map`);
+          }
+          return {
+            ...nestedComment,
+            children: getChildren(comment._id)
+          };
+        });
+  
+    // Get root comments and their children
+    return comments
+      .filter(comment => !comment.parentCommentId)
+      .map(comment => {
+        const nestedComment = commentMap.get(comment._id);
+        if (!nestedComment) {
+          throw new Error(`Comment with id ${comment._id} not found in map`);
+        }
+        return {
+          ...nestedComment,
+          children: getChildren(comment._id)
+        };
+      });
+  }
+
+
+const createPromptWithContext = async (options: PromptContextOptions, context: ResolverContext) => {
   const { query, postId, post: providedPost, useRag, includeComments } = options
 
   if (!query && !postId && !providedPost) {
@@ -81,22 +144,41 @@ const createPromptWithContext = async (options: PromptContextOptions, context: R
     } else {
       const author = await context.loaders.Users.load(post.userId)
       const authorName = author.displayName ?? author.username // TODO: If using on AF, use full name
-      const markdown = postToMarkdown(post)
+      const markdown = documentToMarkdown(post)
       const formattedCurrentPost = `
-  postId: ${post._id}
-  Title: ${post.title}
-  Author: ${authorName}
-  Publish Date: ${post.postedAt}
-  Score: ${post.baseScore} 
-  Content:
-  ${markdown}
+postId: ${post._id}
+Title: ${post.title}
+Author: ${authorName}
+Publish Date: ${post.postedAt}
+Score: ${post.baseScore} 
+Content:
+${markdown}
   `
-    postContextPrompt = `The user is currently viewing the following post. 
-    <UsersCurrentPost>${formattedCurrentPost}</UsersCurrentPost>
-    - Its contents might be extremely relevant to the question or not at all. Use your judgment for whether or not to draw upon.
-    - If citing the the post, do so with the following format: [Post Title](https//lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the displayName of the author.
-    \n`
+
+
+      const justThePostContextPrompt = `
+The user is currently viewing the following post. 
+<UsersCurrentPost>${formattedCurrentPost}</UsersCurrentPost>
+- Its contents might be extremely relevant to the question or not at all. Use your judgment for whether or not to draw upon.
+- If citing the the post, do so with the following format: [Post Title](https://lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the displayName of the author.
+\n`
+
+    let commentsContextPrompt = ""
+    if (includeComments) {
+      const comments = await context.Comments.find({postId: post._id}).fetch()
+      if (comments.length > 0) {
+        const nestedComments = createCommentTree(comments)
+        const formattedComments = JSON.stringify(nestedComments, null, 2);
+
+      commentsContextPrompt = `Further, here are the comments on the user's current post: <UsersCurrentPostComments>${formattedComments}</UsersCurrentPostComments>
+- These may be relevant to the user's query. They are more likely relevant if the user asks about the comments explicitly, or about disagreements and criticism.
+- When citing comments, refer to them as "comments on the post" and cite them with the following format: [<reference to comment>](https://lesswrong.com/posts/<postId>?commentId=<commentId>) 
+The commentId is given in the search results. Ensure you also give the displayName of the author.\n\n`
+      }
     }
+
+  postContextPrompt = justThePostContextPrompt + commentsContextPrompt
+  }
   }
 
   let nearestPosts: DbPost[] = []
@@ -106,7 +188,7 @@ const createPromptWithContext = async (options: PromptContextOptions, context: R
     nearestPosts = await context.repos.postEmbeddings.getNearestPostsWeightedByQuality(embeddings)
 
     const formattedPostsFromQueryMatch: string[] = nearestPosts.map((post, index) => {
-      const markdown = postToMarkdown(post)
+      const markdown = documentToMarkdown(post)
       return `
   Search Result #${index}
   postId: ${post._id}
@@ -150,6 +232,7 @@ const compiledPrompt = `${promptIntro}\n${postContextPrompt}${searchResultsConte
 
   return { queryWithContext: compiledPrompt, postsLoadedIntoContext: nearestPosts }    
 }
+
 
 defineMutation({
   name: 'sendClaudeMessage',
@@ -196,6 +279,7 @@ Do not include the word "title" or similar in your response.
 Do not wrap your answer in quotes or brackets.
 ${currentPost ? `The user is currently viewing the following post ${currentPost.title}. Reference it if relevant` : ""}
 `
+    console.log("titleGenerationPrompt", titleGenerationPrompt)
 
     // TODO: This can probably be done in parallel with the rest of the conversation 
     const titleResult = await client.messages.create({

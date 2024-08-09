@@ -60,7 +60,7 @@ export const zIndexes = {
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   afNonMemberPopup: 9999,
   lwPopper: 10000,
-  lwPopperTooltip: 10001,
+  lwPopperTooltip: 10000010002, //10001, TODO: properly figure out zIndexes for all the things
   loginDialog: 10002,
   searchBar: 100000,
   commentBoxPopup: 10000000001, // has to be higher than Intercom,
