@@ -342,7 +342,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       Export
     </Button>
     {/* only show selector if there are more than two conversations in llmConversations */}
-    {Object.keys(llmConversations).length > 1 && conversationSelect}
+    {conversationSelect}
   </div>
 
 
