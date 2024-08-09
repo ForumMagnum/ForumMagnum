@@ -8,7 +8,7 @@ import type { ToCDisplayOptions } from './TableOfContentsList';
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayOptions, classes, fixedPositionToc = false, hover}: {
+const TableOfContents = ({sectionData, title, onClickSection, displayOptions, fixedPositionToc = false, hover, commentCount, answerCount}: {
   sectionData: ToCData,
   title: string,
   postedAt?: Date,
@@ -16,7 +16,9 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
   fixedPositionToc?: boolean,
-  hover?: boolean
+  hover?: boolean,
+  commentCount?: number,
+  answerCount?: number,
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const {setToC, toc} = useContext(SidebarsContext)!;
@@ -42,6 +44,8 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
         onClickSection={onClickSection}
         displayOptions={displayOptions}
         hover={hover}
+        commentCount={commentCount}
+        answerCount={answerCount}
       />
     );
   }

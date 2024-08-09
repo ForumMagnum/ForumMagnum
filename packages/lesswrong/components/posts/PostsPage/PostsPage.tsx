@@ -603,15 +603,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
-  // Hide the table of contents on questions that are foreign crossposts
-  // as we read ToC data from the foreign site and it includes answers
-  // which don't exists locally. TODO: Remove this gating when we finally
-  // rewrite crossposting.
-  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
-  const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc={isLWorAF} />
-    : null;
-
   const noIndex = fullPost?.noIndex || post.rejected;
 
   const marketInfo = getMarketInfo(post)
@@ -630,6 +621,16 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
+
+  // Hide the table of contents on questions that are foreign crossposts
+  // as we read ToC data from the foreign site and it includes answers
+  // which don't exists locally. TODO: Remove this gating when we finally
+  // rewrite crossposting.
+  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
+  const tableOfContents = hasTableOfContents
+    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answersTree.length} />
+    : null;
+
 
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment

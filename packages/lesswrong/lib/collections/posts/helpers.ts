@@ -188,11 +188,7 @@ export const postGetCommentCount = (post: PostWithCommentCounts): number => {
 export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
-    if (isLWorAF) {
-      return "0 comments";
-    } else {
-      return "No comments";
-    }
+    return "No comments";
   } else if (count === 1) {
     return "1 comment";
   } else {

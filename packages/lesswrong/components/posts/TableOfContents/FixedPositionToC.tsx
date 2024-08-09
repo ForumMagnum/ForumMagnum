@@ -137,7 +137,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.smallCaps,
     fontSize: "1.3rem",
   },
-  belowTitle: {
+  wrapper: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -178,7 +178,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8
     },
   },
-  nonTitleRows: {
+  rows: {
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
@@ -190,32 +190,49 @@ const styles = (theme: ThemeType) => ({
     },
   },
   comments: {
-    paddingBottom: 18,
+    paddingBottom: 20,
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.link.tocLink,
     display: "flex",
-    alignItems: "center"
+    alignItems: "center",
+    marginRight: 20,
   },
   commentsIcon: {
     fontSize: 20,
-    marginRight: 4,
+    marginRight: 6,
+    color: theme.palette.grey[400]
+  },
+  '@font-face': {
+    fontFamily: "ETBookBold",
+    src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1504470690/et-book-bold-line-figures_piiabg.woff') format('woff')",  
+  },
+  answerIcon: {
+    fontSize: 24,
+    fontFamily: "ETBookBold",
+    fontWeight: 900,
+    marginRight: 6,
     color: theme.palette.grey[400]
   },
   commentsLabel: {
-    marginLeft: 5,
+    marginLeft: 6
+  },
+  wideClickTarget: {
+    width: '100%',
   }
 });
 
-const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover}: {
+const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover, commentCount, answerCount}: {
   tocSections: ToCSection[],
   title: string|null,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
   hover?: boolean,
+  commentCount?: number,
+  answerCount?: number,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow, FormatDate } = Components;
+  const { TableOfContentsRow, AnswerTocRow, Row } = Components;
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -320,26 +337,27 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }, [filteredSections, normalizedSections, hasLoaded]);
 
   const titleRow = (
-    <TableOfContentsRow
-      indentLevel={0}
-      key="postTitle"
-      href="#"
-      offset={0}
-      onClick={ev => {
-        if (isRegularClick(ev)) {
-          void handleClick(ev, () => {
-            navigate("#");
-            jumpToY(0)
-          });
-        }
-      }}
-      title
-      fullHeight
-    >
-      <div className={classes.tocTitle}>
-        {title?.trim()}
+    <div className={classes.rowWrapper} key={"#"}>
+      <div className={classes.rowDotContainer}>
+        <div className={classes.rowDot}>•</div>
+        <span className={classes.rowOpacity}>
+          <TableOfContentsRow indentLevel={1} key="postTitle" href="#" offset={0} fullHeight
+            onClick={ev => {
+              if (isRegularClick(ev)) {
+              void handleClick(ev, () => {
+                navigate("#");
+                jumpToY(0)
+              });
+              }
+            }}
+          >
+            <div className={classes.tocTitle}>
+              {title?.trim()}
+            </div>
+          </TableOfContentsRow>
+        </span>
       </div>
-    </TableOfContentsRow>
+    </div>
   );
   
   const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
@@ -382,32 +400,32 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     )
   });
 
-  const commentsRow = normalizedSections.slice(-1)?.[0]
-
   if (!tocSections || !hasLoaded)
     return <div/>
+
+
   return <div className={classNames(classes.root, { [classes.hover]: hover})}>
-    <div className={classes.belowTitle}>
+    <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
         <div className={classes.progressBar} />
         <div className={classes.unfilledProgressBar}/>
       </div>
-      <div className={classes.nonTitleRows}>
-        <div className={classes.rowWrapper} key={"#"}>
-          <div className={classes.rowDotContainer}>
-            <div className={classes.rowDot}>•</div>
-            <span className={classes.rowOpacity}>
-              {titleRow}
-            </span>
-          </div>
-        </div>
+      <div className={classes.rows}>
+        {titleRow}
         {rows}
       </div>
     </div>
-    {commentsRow && <CommentsLink anchor="#comments" className={classes.comments}>
-      <CommentsIcon className={classes.commentsIcon} />  {commentsRow?.title?.split(" ")[0]}
-      <span className={classNames(classes.rowOpacity, classes.commentsLabel)}>comments</span>
-    </CommentsLink>}
+    <Row justifyContent="flex-start">
+      {!!answerCount && <CommentsLink anchor="#answers" className={classes.comments}>
+        <div className={classes.answerIcon}>A</div>
+        {answerCount}
+      </CommentsLink>}
+      <CommentsLink anchor="#comments" className={classNames(classes.comments, classes.wideClickTarget)}>
+        <CommentsIcon className={classes.commentsIcon} />  
+        {commentCount}
+        {!answerCount && <span className={classNames(classes.commentsLabel, classes.rowOpacity)}>Comments</span>}
+      </CommentsLink>
+    </Row>
   </div>
 }
 
