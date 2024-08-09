@@ -756,6 +756,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
         {post.title}
       </h1>}
       {/* Body */}
+      {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
