@@ -87,19 +87,19 @@ const styles = (theme: ThemeType) => ({
   },
   level2: {
     fontSize:"1.1rem",
-    paddingLeft: isLWorAF ? 12 : 16,
+    paddingLeft: isFriendlyUI ? 16 : 12,
     ...sectionOffsetStyling,
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: isLWorAF ? 24 : 32,
+    paddingLeft: isFriendlyUI ? 32 : 24,
     ...sectionOffsetStyling,
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: isLWorAF ? 36 : 48,
+    paddingLeft: isFriendlyUI ? 48 : 36,
     ...sectionOffsetStyling,
   },
   titleContainer: {
