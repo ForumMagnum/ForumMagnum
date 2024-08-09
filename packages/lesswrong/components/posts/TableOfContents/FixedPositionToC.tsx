@@ -200,8 +200,10 @@ const styles = (theme: ThemeType) => ({
   },
   commentsIcon: {
     fontSize: 20,
-    marginRight: 6,
-    color: theme.palette.grey[400]
+    marginRight: 8,
+    color: theme.palette.grey[400],
+    position: 'relative',
+    top: 1
   },
   '@font-face': {
     fontFamily: "ETBookBold",
@@ -211,7 +213,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 24,
     fontFamily: "ETBookBold",
     fontWeight: 900,
-    marginRight: 6,
+    marginRight: 7,
     color: theme.palette.grey[400]
   },
   commentsLabel: {
@@ -237,7 +239,6 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  const { tocVisible } = useContext(SidebarsContext)!;
 
   const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
@@ -416,14 +417,14 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       </div>
     </div>
     <Row justifyContent="flex-start">
-      {!!answerCount && <CommentsLink anchor="#answers" className={classes.comments}>
+      {typeof answerCount === 'number' && <CommentsLink anchor="#answers" className={classes.comments}>
         <div className={classes.answerIcon}>A</div>
         {answerCount}
       </CommentsLink>}
       <CommentsLink anchor="#comments" className={classNames(classes.comments, classes.wideClickTarget)}>
         <CommentsIcon className={classes.commentsIcon} />  
         {commentCount}
-        {!answerCount && <span className={classNames(classes.commentsLabel, classes.rowOpacity)}>Comments</span>}
+        {typeof answerCount !== 'number'  && <span className={classNames(classes.commentsLabel, classes.rowOpacity)}>Comments</span>}
       </CommentsLink>
     </Row>
   </div>

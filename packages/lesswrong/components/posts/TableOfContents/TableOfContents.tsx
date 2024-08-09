@@ -11,7 +11,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TableOfContents = ({sectionData, title, onClickSection, displayOptions, fixedPositionToc = false, hover, commentCount, answerCount}: {
   sectionData: ToCData,
   title: string,
-  postedAt?: Date,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
@@ -20,7 +19,6 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, fi
   commentCount?: number,
   answerCount?: number,
 }) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
   const {setToC, toc} = useContext(SidebarsContext)!;
 
   useEffect(() => {

@@ -621,6 +621,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
+  const answerCount = post.question ? answersTree.length : undefined;
 
   // Hide the table of contents on questions that are foreign crossposts
   // as we read ToC data from the foreign site and it includes answers
@@ -628,7 +629,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answersTree.length} />
+    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answerCount} />
     : null;
 
 
