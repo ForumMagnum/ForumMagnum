@@ -291,7 +291,7 @@ const FooterTagList = ({
         </div>
       </HoverOver>
     );
-  }, [classes, smallText, noBackground, neverCoreStyling]);
+  }, [classes, smallText, noBackground]);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't

@@ -42,8 +42,6 @@ function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToC
   // If we have any section headers, assign offsets to them
   if (parentContainer) {
     const containerHeight = parentContainer.getBoundingClientRect().height;
-    console.log("containerHeight", containerHeight)
-    console.log(parentContainer)
 
     const anchorOffsets = sectionHeaders.map(sectionHeader => ({
       anchorHref: sectionHeader.getAttribute('id'),
@@ -57,10 +55,6 @@ function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToC
         offset: anchorOffset?.offset,
       };
     });
-    sectionHeaders.forEach(sectionHeader => {
-      console.log(sectionHeader.getAttribute('id'), (sectionHeader as HTMLElement).offsetTop)
-    })
-    console.log({sectionsWithOffsets})
   } else {
     // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
     sectionsWithOffsets = filteredSections;
