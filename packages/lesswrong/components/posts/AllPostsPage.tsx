@@ -10,6 +10,7 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 
 import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -78,6 +79,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
       <HeadTags description={description} />
       <AnalyticsContext pageContext="allPostsPage">
         <SingleColumnSection>
+        <DeferRender ssr={false}>
           <Tooltip
             title={`${showSettings ? "Hide": "Show"} options for sorting and filtering`}
             placement="top-end"
@@ -114,6 +116,7 @@ const AllPostsPage = ({classes}: {classes: ClassesType}) => {
               showSettings,
             }}
           />
+        </DeferRender>
         </SingleColumnSection>
       </AnalyticsContext>
     </>
