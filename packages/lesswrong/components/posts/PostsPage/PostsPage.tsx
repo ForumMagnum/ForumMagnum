@@ -652,8 +652,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     }
   }, [fullPost, hashCommentId, isDebateResponseLink, queryCommentId, showHashCommentFallback])
 
-  const showPostTitle = query.showPostTitle;
-
   const header = <>
     {fullPost && !queryCommentId && <>
       <HeadTags
@@ -685,13 +683,10 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && (showPostTitle !== "false") && <LWPostsPageHeader
+          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
             post={post}
-            answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>}
+            toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}

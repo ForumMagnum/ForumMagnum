@@ -48,11 +48,11 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
-      {<AnalyticsContext pageSectionContext="tagHeader">
+      <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classes.tagList}>
           <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground neverCoreStyling />
         </div>
-      </AnalyticsContext>}
+      </AnalyticsContext>
       <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 

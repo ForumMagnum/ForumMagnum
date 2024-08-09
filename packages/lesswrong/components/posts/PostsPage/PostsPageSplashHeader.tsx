@@ -127,10 +127,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: '7vh',
-    transition: 'transform .75s ease-in-out',
-    [theme.breakpoints.down('xs')]: {
-      paddingBottom: '7vh'
-    }
+    transition: 'transform .75s ease-in-out'
   },
   top: {
     display: 'flex',
