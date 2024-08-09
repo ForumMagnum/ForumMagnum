@@ -76,17 +76,17 @@ const CommentsLink: FC<{
 }> = ({anchor, children, className}) => {
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const elem = document.querySelector(anchor);
+    const elem = document.querySelector("#comments");
     if (elem) {
       // Match the scroll behaviour from TableOfContentsList
       window.scrollTo({
-        top: elem.getBoundingClientRect().y - (window.innerHeight / 3) + 1,
+        top: window.scrollY + elem.getBoundingClientRect().top,
         behavior: "smooth",
       });
-    }
+    } 
   }
   return (
-    <a className={className} href={anchor}>
+    <a className={className} href={anchor} onClick={onClick}>
       {children}
     </a>
   );
@@ -208,6 +208,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 20,
     marginRight: 4,
     color: theme.palette.grey[400]
+  },
+  commentsLabel: {
+    marginLeft: 5,
   }
 });
 
@@ -411,6 +414,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     </div>
     {commentsRow && <CommentsLink anchor="#comments" className={classes.comments}>
       <CommentsIcon className={classes.commentsIcon} />  {commentsRow?.title?.split(" ")[0]}
+      <span className={classNames(classes.rowOpacity, classes.commentsLabel)}>comments</span>
     </CommentsLink>}
   </div>
 }

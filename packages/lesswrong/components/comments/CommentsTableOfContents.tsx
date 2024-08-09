@@ -46,10 +46,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   postTitle: {
     minHeight: 24,
     paddingTop: 16,
+    ...theme.typography.body2,
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
+    cursor: "pointer",
     fontSize: "1.3rem",
-    marginBottom: -6,
+    marginBottom: 12,
     display: 'block'
   },
   tocPostedAt: {
@@ -85,23 +87,12 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   }
   
   return <div className={classes.root}>
-    <TableOfContentsRow key="postTitle"
-      href="#"
-      onClick={ev => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-      }}
-      highlighted={highlightedLandmarkName==="above"}
-      title
-      fullHeight
-      commentToC
-    >
-      <span className={classes.postTitle}>
+      <a id="comments" href="#" className={classes.postTitle} onClick={ev => {
+        ev.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }}>
         {post.title?.trim()}
-      </span>
-    </TableOfContentsRow>
+      </a>
 
     {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
@@ -163,7 +154,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
           // that otherwise cause us to wind up just above the comment such that the ToC
           // highlights the wrong one.
           const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
-          window.scrollTo({ top: y });
+          window.scrollTo({ top: y, behavior: "smooth" });
         }
 
         delete query.commentId;
