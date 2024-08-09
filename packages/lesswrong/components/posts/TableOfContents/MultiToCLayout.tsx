@@ -144,7 +144,15 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
         >
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
-              {/* This allows the ToC to appear when the user hovers over either of the two left-columns */}
+              {/* 
+                This allows the ToC to appear when the user hovers over either of the two left-columns. 
+                
+                It's important that the ToC appears when you hover over the middle gap column, not just directly over the ToC, 
+                because otherwise mousing over the ToC feels too effortful.
+
+                We need to handle it in this component because that's where the middle gap column is defined. But, the toc is defined in the parent component.
+                So, we need to establish the hover-state in this component and pass it into the already-defined toc.
+              */}
               {React.cloneElement(segment.toc as React.ReactElement, { hover: leftHover })}
             </div>
           </div>

@@ -20,6 +20,7 @@ import { useCurrentTime } from '../../../lib/utils/timeUtil';
 const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
     display: 'flex',
+    ...theme.typography.postStyle,
     justifyContent: 'space-between',
     marginTop: theme.spacing.unit*2,
     color: theme.palette.text.dim,
