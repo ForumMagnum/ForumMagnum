@@ -30,8 +30,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   alignRight: {
-    justifyContent: 'flex-end',
-    
+    justifyContent: 'flex-end'
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
@@ -312,7 +311,7 @@ const FooterTagList = ({
       )
     )
 
-  let eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
+  const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
     <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody}/>
   </MaybeLink> : null
 
