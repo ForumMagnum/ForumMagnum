@@ -2,6 +2,7 @@ import * as _ from 'underscore';
 // eslint-disable-next-line no-restricted-imports
 import {matchPath} from 'react-router'
 import type { Request, Response } from 'express';
+import { noSsrRoutesSetting } from '../publicSettings';
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -137,4 +138,9 @@ export const userCanAccessRoute = (user?: UsersCurrent | DbUser | null, route?: 
   if (user?.isAdmin) return true
 
   return !route.isAdmin
+}
+
+export const skipSsrForRoute = (route: Route | null) => {
+  const noSsrRoutes = noSsrRoutesSetting.get();
+  return !!route && noSsrRoutes.includes(route.path);
 }
