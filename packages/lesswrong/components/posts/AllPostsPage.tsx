@@ -134,3 +134,4 @@ declare global {
     AllPostsPage: typeof AllPostsPageComponent
   }
 }
+
