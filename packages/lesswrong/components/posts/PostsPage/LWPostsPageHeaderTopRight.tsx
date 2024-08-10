@@ -33,10 +33,14 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
+  },
+  audioToggle: {
+    opacity: 0.55,
+    display: 'flex',
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, hideVoteOnMobile}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
@@ -53,7 +57,9 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
           <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground neverCoreStyling />
         </div>
       </AnalyticsContext>
-      <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+      <div className={classes.audioToggle}>
+        <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+      </div>
       <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>

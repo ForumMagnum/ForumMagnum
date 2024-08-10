@@ -2,11 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
-import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { isServer } from '../../../lib/executionEnvironment';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -15,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 108,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
-      marginBottom: 16
+      marginBottom: 38
     },
   },
   eventHeader: {
@@ -101,6 +97,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('sm')]: {
       display: 'none'
     }
+  },
+  audioToggle: {
+    marginRight: 10,
+    display: "flex",
+    opacity: 0.75
   }
 }); 
 
@@ -160,7 +161,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
             {post.isEvent && <GroupLinks document={post} noMargin />}
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
             <div className={classes.mobileButtons}>
-              <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+              <div className={classes.audioToggle}>
+                <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
+              </div>
               <PostActionsButton post={post} className={classes.postActionsButton} flip />
             </div>
           </div>

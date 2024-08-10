@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useContext, useEffect, useState } from 'react';
+import React, { FC, MouseEvent, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -12,7 +12,6 @@ import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } fr
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
-import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import CommentsIcon from '@material-ui/icons/ModeComment';
@@ -129,7 +128,11 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     marginLeft: 2,
     marginRight: 8,
-    zIndex: 1
+    zIndex: 1,
+    color: theme.palette.grey[700]
+  },
+  tocWrapper: {
+    marginLeft: 13,
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
@@ -340,8 +343,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   const titleRow = (
     <div className={classes.rowWrapper} key={"#"}>
       <div className={classes.rowDotContainer}>
-        <div className={classes.rowDot}>•</div>
-        <span className={classes.rowOpacity}>
+        <span className={classNames(classes.rowOpacity, classes.tocWrapper)}>
           <TableOfContentsRow indentLevel={1} key="postTitle" href="#" offset={0} fullHeight
             onClick={ev => {
               if (isRegularClick(ev)) {
