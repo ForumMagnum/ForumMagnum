@@ -237,7 +237,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   commentCount?: number,
   answerCount?: number,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow, Row } = Components;
+  const { TableOfContentsRow, AnswerTocRow, Row, ForumIcon } = Components;
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -424,7 +424,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         {answerCount}
       </CommentsLink>}
       <CommentsLink anchor="#comments" className={classNames(classes.comments, classes.wideClickTarget)}>
-        <CommentsIcon className={classes.commentsIcon} />  
+        <ForumIcon icon="Comment" className={classes.commentsIcon} />
         {commentCount}
         {typeof answerCount !== 'number'  && <span className={classNames(classes.commentsLabel, classes.rowOpacity)}>Comments</span>}
       </CommentsLink>

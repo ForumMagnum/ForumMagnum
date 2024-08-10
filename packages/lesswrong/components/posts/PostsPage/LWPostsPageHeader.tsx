@@ -7,8 +7,8 @@ import { getHostname, getProtocol } from './PostsPagePostHeader';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 120,
-    marginBottom: 108,
+    paddingTop: 110,
+    marginBottom: 96,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       marginBottom: 38
@@ -99,7 +99,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   audioToggle: {
-    marginRight: 10,
+    marginRight: 12,
     display: "flex",
     opacity: 0.75
   }
