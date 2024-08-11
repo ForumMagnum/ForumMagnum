@@ -9,11 +9,8 @@ import { SideItemContentContext } from '../contents/SideItems';
 import { truncate } from '@/lib/editor/ellipsize';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
-import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/PostsPage';
+import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-
-export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
-  theme.breakpoints.down('md')
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
