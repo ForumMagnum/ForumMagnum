@@ -409,7 +409,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
 
 
 
-  return <div className={classNames(classes.root, { [classes.hover]: hover})}>
+  return <div className={classNames(classes.root, { [classes.hover]: hover })}>
     <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
         <div className={classes.progressBar} />
