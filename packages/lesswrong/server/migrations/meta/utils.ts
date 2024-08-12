@@ -20,7 +20,7 @@ import {
 } from "../../../lib/collectionIndexUtils";
 import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
-import { afterCreateRevisionCallback, buildRevision } from "@/server/editor/make_editable_callbacks";
+import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
 import { createMutator } from "@/server/vulcan-lib";
 import Revisions from "@/lib/collections/revisions/collection";
@@ -232,13 +232,21 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
   const documents = await collection.find({
     [latestFieldName]: {$exists: false},
   }).fetch();
-  for (const batch of chunk(documents, 10)) {
+  const documentBatches = chunk(documents, 10);
+  for (let i = 0; i < documentBatches.length; i++) {
+    // eslint-disable-next-line no-console
+    console.log(`Backfilling missing revisions for batch ${i} of ${documentBatches.length}...`);
+
+    const batch = documentBatches[i];
+
     const currentUser = await getAdminTeamAccount();
     if (!currentUser) {
       throw new Error("Can't find admin user account");
     }
+
     await Promise.all(batch.map(async (document) => {
-      const editableField: EditableFieldUpdate | undefined = (document as AnyBecauseHard)[fieldName];
+      const editableField: (EditableFieldContents & EditableFieldUpdate) | undefined =
+        (document as AnyBecauseHard)[fieldName];
       if (!editableField) {
         return;
       }
@@ -246,27 +254,48 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
       const dataWithDiscardedSuggestions = editableField?.dataWithDiscardedSuggestions;
       delete editableField?.dataWithDiscardedSuggestions;
 
-      const revisionData = await buildRevision({
-        originalContents: editableField.originalContents,
-        dataWithDiscardedSuggestions,
-        currentUser,
-      });
+      const userId = (document as AnyBecauseHard).userId || currentUser._id;
+
+      const revisionData = editableField.originalContents
+        ? await buildRevision({
+          originalContents: editableField.originalContents,
+          dataWithDiscardedSuggestions,
+          currentUser,
+        })
+        : {
+          html: "",
+          wordCount: 0,
+          originalContents: {type: "ckEditorMarkup", data: ""},
+          editedAt: new Date(),
+          userId,
+        };
+
       const revision = await createMutator({
         collection: Revisions,
-        document: revisionData,
+        document: {
+          version: editableField.version || getInitialVersion(document),
+          changeMetrics: {added: 0, removed: 0},
+          ...revisionData,
+          userId,
+        },
         validate: false,
       });
-      await afterCreateRevisionCallback.runCallbacksAsync([{
-        revisionID: revision.data._id,
-      }]);
-      await collection.rawUpdateOne({_id: document._id}, {
-        $set: {[latestFieldName]: revision.data._id},
-      });
+
+      await Promise.all([
+        afterCreateRevisionCallback.runCallbacksAsync([{
+          revisionID: revision.data._id,
+        }]),
+        collection.rawUpdateOne({_id: document._id}, {
+          $set: {[latestFieldName]: revision.data._id},
+        }),
+      ]);
     }));
   }
 
   // Check for data integrity issues and update any revisions that have diverged
   // from the current denormalized value
+  // eslint-disable-next-line no-console
+  console.log("Updating out-of-sync revisions...");
   await db.none(`
     UPDATE "Revisions" AS r
     SET
@@ -286,6 +315,9 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}_latest" = r."_id"
       AND p."${fieldName}"->>'html' <> r."html"
   `);
+
+  // eslint-disable-next-line no-console
+  console.log("Dropping denormalized field...");
   await dropRemovedField(db, collection, fieldName);
 }
 

@@ -29,7 +29,7 @@ interface AfterCreateRevisionCallbackContext {
 }
 export const afterCreateRevisionCallback = new CallbackHook<[AfterCreateRevisionCallbackContext]>("revisions.afterRevisionCreated");
 
-function getInitialVersion(document: DbPost|DbObject) {
+export function getInitialVersion(document: DbPost|DbObject) {
   if ((document as DbPost).draft) {
     return '0.1.0'
   } else {
