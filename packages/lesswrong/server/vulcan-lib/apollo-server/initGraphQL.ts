@@ -27,7 +27,7 @@ import {
   deleteMutationTemplate,
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName, typeNameToCollectionName } from '../../../lib/vulcan-lib';
+import { pluralize, camelCaseify, camelToSpaces, getCollectionByTypeName } from '../../../lib/vulcan-lib';
 import { accessFilterMultiple, accessFilterSingle } from '../../../lib/utils/schemaUtils';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
@@ -35,7 +35,6 @@ import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
 import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
-import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
   `type Query {
@@ -216,7 +215,6 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
     orderBy: [],
   };
   const addedResolvers: Array<any> = [];
-  const collectionName = typeNameToCollectionName(typeName);
 
   Object.keys(schema).forEach(fieldName => {
     const field = schema[fieldName];
@@ -258,10 +256,6 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
         const resolver = {
           [typeName]: {
             [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
-              if (document._id==='bBq9NdMjideHsyzdD' && fieldName === 'contents') {
-                //debugger;
-              }
-              
               // Check that current user has permission to access the original
               // non-resolved field.
               if (!userCanReadField(context.currentUser, field, document)) {
@@ -276,13 +270,7 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
               if (field.resolveAs!.sqlResolver) {
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
                 let existingValue = document[typedName];
-                // HACK If we have normalized editable fields but not deleted them
-                // from the original objects, we don't want to go into this branch,
-                // but existingValue will be filled. Check if this field is a
-                // normalized edititable with `editableFieldIsNormalized` and
-                // special case that.
-                const isNormalizedEditableField = editableFieldIsNormalized(collectionName, fieldName);
-                if (existingValue !== undefined && !isNormalizedEditableField) {
+                if (existingValue !== undefined) {
                   const {sqlPostProcess} = field.resolveAs!;
                   if (sqlPostProcess) {
                     existingValue = sqlPostProcess(existingValue, document, context);
@@ -296,7 +284,7 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
                       permissionData.collection,
                       existingValue,
                       context,
-                    )
+                    );
                   }
                   return existingValue;
                 }
