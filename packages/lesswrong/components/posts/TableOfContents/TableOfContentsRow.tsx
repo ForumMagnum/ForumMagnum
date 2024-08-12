@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
-import { isLWorAF } from '@/lib/instanceSettings';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
