@@ -173,8 +173,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
 
   const canUseSharing = userCanUseSharing(currentUser)
 
-  return isFriendlyUI ? (
-    <LWTooltip title={canUseSharing ? undefined : noSharePermissionTooltip}>
+  return <LWTooltip title={canUseSharing ? undefined : noSharePermissionTooltip}>
       <EAButton
         className={classes.friendlyButton}
         onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
@@ -184,14 +183,6 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         Share {document.draft ? " this draft" : ""}
       </EAButton>
     </LWTooltip>
-  ) : (
-    <LWTooltip title={canUseSharing ? shareTooltip : noSharePermissionTooltip}>
-      <PostSharingIcon
-        className={classNames(classes.buttonIcon, { [classes.disabledIcon]: !canUseSharing })}
-        onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
-      />
-    </LWTooltip>
-  );
 }
 
 (PostSharingSettings as any).contextTypes = {

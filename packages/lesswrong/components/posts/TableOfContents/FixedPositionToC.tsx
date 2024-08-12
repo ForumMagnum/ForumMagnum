@@ -14,7 +14,6 @@ import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
-import CommentsIcon from '@material-ui/icons/ModeComment';
 
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
@@ -57,7 +56,6 @@ function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToC
     // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
     sectionsWithOffsets = filteredSections;
   }
-  
   return sectionsWithOffsets;
 }
 
@@ -345,6 +343,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       <div className={classes.rowDotContainer}>
         <span className={classNames(classes.rowOpacity, classes.tocWrapper)}>
           <TableOfContentsRow indentLevel={1} key="postTitle" href="#" offset={0} fullHeight
+            highlighted={currentSection === "above"}
             onClick={ev => {
               if (isRegularClick(ev)) {
               void handleClick(ev, () => {
@@ -374,6 +373,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         divider={section.divider}
         href={"#"+section.anchor}
         offset={section.offset}
+        highlighted={section.anchor === currentSection}
         onClick={(ev) => {
           if (isRegularClick(ev)) {
             void handleClick(ev, () => {
@@ -405,6 +405,8 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
 
   if (!tocSections || !hasLoaded)
     return <div/>
+
+
 
 
   return <div className={classNames(classes.root, { [classes.hover]: hover})}>

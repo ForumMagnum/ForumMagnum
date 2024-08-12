@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
+import { isEAForum } from '@/lib/instanceSettings';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
-      content: `"•"`,
+      content: isBookUI ? null : `"•"`,
       marginLeft: 3,
       position: 'relative',
       top: 1

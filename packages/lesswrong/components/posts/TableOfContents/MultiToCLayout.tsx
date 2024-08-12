@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
@@ -64,6 +64,7 @@ const styles = (theme: ThemeType) => ({
     position: "sticky",
     fontSize: 12,
     top: 0,
+    transition: 'top 0.3s ease-in-out',
     lineHeight: 1.0,
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
@@ -134,6 +135,42 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
     .join('\n')
+
+  function getToCWithHover(toc: React.ReactNode, hover: boolean) {
+    // This allows the ToC to appear when the user hovers over either of the two left-columns. 
+  
+    // It's important that the ToC appears when you hover over the middle gap column, not just directly over the ToC, 
+    // because otherwise mousing over the ToC feels too effortful.
+
+    // We need to handle it in this component because that's where the middle gap column is defined. But, the toc is defined in the parent component.
+    // So, we need to establish the hover-state in this component and pass it into the already-defined toc.
+    
+    return React.cloneElement(toc as React.ReactElement, { hover });
+  }
+
+  const [scrollDirection, setScrollDirection] = React.useState('down');
+  const [lastScrollY, setLastScrollY] = React.useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY) {
+        setScrollDirection('down');
+      } else {
+        setScrollDirection('up');
+      }
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
+  const stickyBlockScrollerStyle = React.useMemo(() => ({
+    top: scrollDirection === 'up' ? 64 : 0,
+  }), [scrollDirection]); 
+
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
@@ -142,18 +179,9 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
           onMouseEnter={() => setLeftHover(true)} 
           onMouseLeave={() => setLeftHover(false)}
         >
-          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
+          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })} style={stickyBlockScrollerStyle}>
             <div className={classes.stickyBlock}>
-              {/* 
-                This allows the ToC to appear when the user hovers over either of the two left-columns. 
-                
-                It's important that the ToC appears when you hover over the middle gap column, not just directly over the ToC, 
-                because otherwise mousing over the ToC feels too effortful.
-
-                We need to handle it in this component because that's where the middle gap column is defined. But, the toc is defined in the parent component.
-                So, we need to establish the hover-state in this component and pass it into the already-defined toc.
-              */}
-              {React.cloneElement(segment.toc as React.ReactElement, { hover: leftHover })}
+              {getToCWithHover(segment.toc, leftHover)}
             </div>
           </div>
         </div>

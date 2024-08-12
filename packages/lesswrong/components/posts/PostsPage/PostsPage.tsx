@@ -752,6 +752,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {showSplashPageHeader && !permalinkedCommentId && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
+      {isBookUI && header}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
@@ -873,7 +874,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
-            {centralColumn: header},
             {
               toc: tableOfContents,
               centralColumn: postBodySection,
@@ -886,7 +886,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               isCommentToC: true
             },
           ]}
-          tocRowMap={[1, 1, 1, 3]}
+          tocRowMap={[0, 0, 0, 3]}
           showSplashPageHeader={showSplashPageHeader}
         />
       : <ToCColumn
