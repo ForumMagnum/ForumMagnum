@@ -4,6 +4,7 @@ import { answerTocExcerptFromHTML, truncate } from "./editor/ellipsize";
 import { htmlToTextDefault } from "./htmlToText";
 import type { WindowType } from "./domParser";
 import { PostWithCommentCounts, postGetCommentCountStr } from "./collections/posts/helpers";
+import { isLWorAF } from "./instanceSettings";
 
 export interface ToCAnswer {
   baseScore: number,
@@ -221,8 +222,9 @@ export function shouldShowTableOfContents({
   sections: ToCSection[];
   post?: { question: boolean } | null;
 }): boolean {
-  // With the new full-height ToC we always show the ToC
-  return true; 
+  
+  if (isLWorAF) return true;
+  return sections.length > MIN_HEADINGS_FOR_TOC || (post?.question ?? false);
 }
 
 /**
