@@ -63,6 +63,7 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
     
     const displayedScrollWindowPercent = clampPct(currentScrollPct / windowBodyPercent);
     const displayedWindowScrollHeight = absoluteScrollWindowHeight * displayedScrollWindowPercent;
+    
     return { displayedWindowScrollHeight };
   }
 
