@@ -337,7 +337,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
 
 
   const options = <div className={classes.options}>
-    Use RAG <Checkbox checked={useRag} onChange={() => setUseRag(!useRag)} className={classes.checkbox} />
+    {/* Use RAG <Checkbox checked={useRag} onChange={() => setUseRag(!useRag)} className={classes.checkbox} /> */}
     <Button onClick={newChat}>
       New Chat
     </Button>

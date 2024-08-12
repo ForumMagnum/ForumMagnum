@@ -120,32 +120,79 @@ const createCommentTree = (comments: DbComment[]): NestedComment[] => {
       });
   }
 
+// a type for kind of context to use that's a value of "query-based", "post-based", or "both"
+type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
+
+const selectAdditionalContext = async (query: string, currentPost?: DbPost): Promise<RagContextType> => {
+
+  const contextTypeMapping: Record<string, RagContextType> = {
+    "(1)": "query-based",
+    "(2)": "current-post-based",
+    "(3)": "both",
+    "(4)": "none"
+  }
+
+  const client = getAnthropicClientOrThrow()
+
+  const postTitle = currentPost?.title
+  const postFirst2000Characters = currentPost ? documentToMarkdown(currentPost).slice(0, 2000) : ""
+  const contextSelectionPrompt = `
+  You are interfacing with a user via chat window on LessWrong.com. The user has asked a question: "${query}".
+  ${currentPost ? `The user is currently viewing the following post: ${postTitle}. The first two thousand characters are: ${postFirst2000Characters}` : "The user is not currently viewing a specific post."}
+  Based on the question and post the user might be reading, you must choose the most relevant context to load in. Your options are:
+  (1) "query-based" – Load in context only on the query (question), ignore the post the user is reading. This is correct choice if the question seems unrelated to the post the user is currently viewing.
+  (2) "current-post-based" – Load in context based only on the post the user is reading, ignore the query. This is the correct choice if the question seems to be about the post the user is currently viewing and itself does not contain much info, e.g. "what are some disagreements?", "explain to me <topic in the post>", "provide a summary of this post", and similar.
+  (3) "both" – Load in context based on both the query and the post the user is reading. This is the correct choice if the question seems to be about the post the user is currently viewing and itself does contain relevant keywords, e.g. "explain to me what monosemanticity is in transformers?", "what are some other views about <topic in the post>?", "what are some disagreements about <topic in the post>?", and similar.
+  (4) "none" - No further context seems necessary to answer the user's question because Claude already knows the answer, for example "What is Jacobian of a matrix?" or "Proof the following text."
+
+  Please respond with the number of the option you choose followed by why you chose it. Your choice should start with one of the following: "(1)", "(2)", "(3)", or "(4)". Only after giving your reason should you provide the rest of your response. For example, "(1) I chose this option because...." You do not need to answer the question.
+`
+  const response = await client.messages.create({
+    model: "claude-3-haiku-20240307",
+    max_tokens: 512,
+    messages: [{role: "user", content: contextSelectionPrompt}]
+  })
+
+  const result = response.content[0]
+  if (result.type === 'tool_use') {
+    throw new Error("response is tool use which is not a proper response in this context")
+  }
+
+  console.log({result, contextSelectionPrompt})
+
+  //check if result is one of the expected values
+  if (!["(1)", "(2)", "(3)", "(4)"].includes(result.text.slice(0, 3))) {
+    return "error" as RagContextType
+  }
+  else {
+    return contextTypeMapping[result.text.slice(0, 3)]
+  }
+}
+
 
 const createPromptWithContext = async (options: PromptContextOptions, context: ResolverContext) => {
   const { query, postId, post: providedPost, useRag, includeComments } = options
 
-  if (!query && !postId && !providedPost) {
-    throw new Error("Either query or postId must be provided")
+  const post = providedPost ?? (postId ? await context.loaders.Posts.load(postId) : undefined)
+  if ((postId || providedPost) && !post) {
+    // eslint-disable-next-line no-console
+    console.error("Post not found based on provided post or postId", postId)
   }
-    
-  let post
+
+  const contextSelectionCode = await selectAdditionalContext(query, providedPost)
+
+  // const useQueryContext = ['query-based', 'both'].includes(contextSelectionCode)
+  const useQueryRelatedPostsContext = ['query-based', 'both'].includes(contextSelectionCode)
+  const useCurrentPostAndRelatedContext = ['current-post-based', 'both'].includes(contextSelectionCode)
+
+
+  // Load in Current Posts as Context
   let postContextPrompt = ""
-  if (postId || providedPost ) {
-    if (providedPost) {
-      post = providedPost
-    } else if (postId) {
-      post = await context.loaders.Posts.load(postId)
-    }
-
-    if (!post) {
-      // eslint-disable-next-line no-console
-      console.error("Post not found based on provided post or postId", postId)
-
-    } else {
-      const author = await context.loaders.Users.load(post.userId)
-      const authorName = author.displayName ?? author.username // TODO: If using on AF, use full name
-      const markdown = documentToMarkdown(post)
-      const formattedCurrentPost = `
+  if ( useCurrentPostAndRelatedContext && post ) {
+    const author = await context.loaders.Users.load(post.userId)
+    const authorName = author.displayName ?? author.username // TODO: If using on AF, use full name
+    const markdown = documentToMarkdown(post)
+    const formattedCurrentPost = `
 postId: ${post._id}
 Title: ${post.title}
 Author: ${authorName}
@@ -154,7 +201,6 @@ Score: ${post.baseScore}
 Content:
 ${markdown}
   `
-
 
       const justThePostContextPrompt = `
 The user is currently viewing the following post. 
@@ -179,34 +225,37 @@ The commentId is given in the search results. Ensure you also give the displayNa
 
   postContextPrompt = justThePostContextPrompt + commentsContextPrompt
   }
-  }
 
-  let nearestPosts: DbPost[] = []
-  let searchResultsContextPrompt = ""
-  if (query && useRag) {
-    const { embeddings } = await getEmbeddingsFromApi(query)
-    nearestPosts = await context.repos.postEmbeddings.getNearestPostsWeightedByQuality(embeddings)
+  // Load in Related Posts as Context (based on closeness to query or current post)
+  const actualPostId = post?._id ?? postId
 
-    const formattedPostsFromQueryMatch: string[] = nearestPosts.map((post, index) => {
-      const markdown = documentToMarkdown(post)
-      return `
-  Search Result #${index}
-  postId: ${post._id}
-  Title: ${post.title}
-  Author: ${post.author}
-  Publish Date: ${post.postedAt}
-  Score: ${post.baseScore}
-  Content:
-  ${markdown}`
-    })
+  const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query)
+  const nearestPostsBasedOnQuery = useQueryRelatedPostsContext ? await context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 5 : 3) : []
+  const nearestPostsBasedOnPostId = useCurrentPostAndRelatedContext && actualPostId ? await context.repos.postEmbeddings.getNearestPostsWeightedByQualityByPostId(actualPostId) : []
 
-    searchResultsContextPrompt = `The following search results were found user's query.
+  const nearestPostsPossiblyDuplicated = [...nearestPostsBasedOnQuery, ...nearestPostsBasedOnPostId]  
+  const nearestPosts = Array.from(new Set(nearestPostsPossiblyDuplicated.map(post => post._id))).map(postId => nearestPostsPossiblyDuplicated.find(post => post._id === postId) as DbPost)
+  console.log({nearestPostsBasedOnQueryTitles: nearestPostsBasedOnQuery.map(post => post.title), nearestPostsBasenOnPostIdTitles: nearestPostsBasedOnPostId.map(post => post.title)})
+
+  const formattedPostsFromQueryMatch: string[] = nearestPosts.map((post, index) => {
+    const markdown = documentToMarkdown(post)
+    return `
+Search Result #${index}
+postId: ${post._id}
+Title: ${post.title}
+Author: ${post.author}
+Publish Date: ${post.postedAt}
+Score: ${post.baseScore}
+Content:
+${markdown}`
+  })
+
+  const searchResultsContextPrompt =  formattedPostsFromQueryMatch && `The following search results were found user's query.
 <PossiblyRelevantPosts>${formattedPostsFromQueryMatch.join('\n')}</PossiblyRelevantPosts>
 - Not all results may be relevant. Ignore relevant results and use only those that seem relevant to you, if any.
 - Refer to the search results as "possible relevant posts".
 - Cite the results you use with the following format: [Post Title](https//lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the displayName of the author.
 `
-  }
   
   const promptIntro = `<SystemInstruction>A reader of LessWrong.com is asking you a question. The following context is provided to help you answer it.\n`
   const promptQueryAndInstructions = `In responding to the user query, please follow these instructions:
@@ -227,8 +276,9 @@ const compiledPrompt = `${promptIntro}\n${postContextPrompt}${searchResultsConte
 
   console.log("Number of posts returned and their titles", nearestPosts.length, nearestPosts.map(post => post.title))
   //print to the console the first 1000 characters and last 1000 characters of the prompt
-  console.log(compiledPrompt.slice(0, 1000))
-  console.log(compiledPrompt.slice(-2000))
+  console.log({useQueryRelatedPostsContext, useCurrentPostAndRelatedContext, contextSelectionCode})
+  console.log(compiledPrompt.slice(0, 500))
+  console.log(compiledPrompt.slice(-1000))
 
   return { queryWithContext: compiledPrompt, postsLoadedIntoContext: nearestPosts }    
 }
@@ -301,11 +351,7 @@ ${currentPost ? `The user is currently viewing the following post ${currentPost.
     newTitle = `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
   }
 
-
-    // Determine whether to use RAG or not
-    const isRagFirstMessage = isFirstMessage
-
-    if  (isRagFirstMessage){
+    if  (isFirstMessage){
       const { queryWithContext, postsLoadedIntoContext } = await createPromptWithContext({...promptContextOptions, post: currentPost}, context)
       //TODO: also mention loading current post context
       const prefix = `*Based on your query, the following posts were loaded into the LLM's context window*:`
@@ -313,10 +359,8 @@ ${currentPost ? `The user is currently viewing the following post ${currentPost.
       // TODO: is this okay? freaking underscore and lodash weren't working for me
       const uniquePosts: DbPost[] = Array.from(new Set(allLoadedPosts.map(post => post._id))).map(postId => allLoadedPosts.find(post => post._id === postId) as DbPost)
       const listOfPosts = uniquePosts.map(post => `- *[${post.title}](${postGetPageUrl(post)}) by ${post.author}*`).join("\n")
-      const displayContent = await markdownToHtml(`${prefix}\n${listOfPosts}\n\n\n*You asked:*\n\n${firstQuery.content}`) 
+      const displayContent = postsLoadedIntoContext.length ? await markdownToHtml(`${prefix}\n${listOfPosts}\n\n\n*You asked:*\n\n${firstQuery.content}`) : undefined
 
-      console.log({displayContent})
-      
       firstQuery.displayContent || firstQuery.content
 
       // replace the first message in validateMessages with queryWithContext
