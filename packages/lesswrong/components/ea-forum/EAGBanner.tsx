@@ -116,6 +116,7 @@ const EAGBanner = ({classes}: {classes: ClassesType}) => {
   const hideBanner = useCallback(() => {
     setCookie(HIDE_EAG_BANNER_COOKIE, "true", {
       expires: moment().add(1, "months").toDate(),
+      path: "/",
     });
   }, [setCookie]);
 

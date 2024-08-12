@@ -28,7 +28,6 @@ import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
 import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
-import DialogueChecks from '../lib/collections/dialogueChecks/collection';
 import Sequences from '../lib/collections/sequences/collection';
 
 interface ServerNotificationType {
