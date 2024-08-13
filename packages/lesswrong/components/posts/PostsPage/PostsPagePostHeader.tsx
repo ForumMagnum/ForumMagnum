@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { getResponseCounts, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -6,10 +6,6 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
-import moment from 'moment';
-import { isLWorAF } from '../../../lib/instanceSettings';
-import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 

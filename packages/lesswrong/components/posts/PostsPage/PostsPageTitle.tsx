@@ -2,7 +2,7 @@ import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
 export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
@@ -12,7 +12,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginLeft: 0,
   marginBottom: isFriendlyUI ? 12 : 0,
   color: theme.palette.text.primary,
-  textWrap: "balance",
+  textWrap: isBookUI ? "balance" : undefined,
   [theme.breakpoints.down('sm')]: isFriendlyUI
     ? {
       fontSize: '2.3rem',
