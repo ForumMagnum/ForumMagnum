@@ -15,10 +15,20 @@ const TOC_OFFSET_BOTTOM = 64
 const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
 const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
+export const HOVER_CLASSNAME = 'ToCRowHover'
+
 const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "grid",
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 12,
+    },
+    [`&:has($gap1:hover) .${HOVER_CLASSNAME}`]: {
+      opacity: 1
+    }
+  },
+  withFullHeightToCColumns: {
     gridTemplateColumns: `
       ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
@@ -40,6 +50,9 @@ const styles = (theme: ThemeType) => ({
     left: -DEFAULT_TOC_MARGIN,
     marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
+    [`&:hover .${HOVER_CLASSNAME}`]: {
+      opacity: 1
+    },
 
     [theme.breakpoints.down('sm')]:{
       display: "none",
@@ -81,7 +94,7 @@ const styles = (theme: ThemeType) => ({
 
     [theme.breakpoints.down('sm')]:{
       display:'none'
-    }
+    },
   },
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
@@ -91,7 +104,9 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
-  gap1: { gridArea: 'gap1' },
+  gap1: { 
+    gridArea: 'gap1'
+  },
   gap2: { gridArea: 'gap2' },
   gap3: { gridArea: 'gap3' },
   rhs: {},
@@ -178,17 +193,15 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
       {segment.toc && tocVisible && <>
         <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} 
           style={{ "gridArea": `toc${i}` }} 
-          onMouseEnter={() => setLeftHover(true)} 
-          onMouseLeave={() => setLeftHover(false)}
         >
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })} style={stickyBlockScrollerStyle}>
             <div className={classes.stickyBlock}>
-              {getToCWithHover(segment.toc, leftHover)}
+              {segment.toc}
             </div>
           </div>
         </div>
       </>}
-      <div className={classes.gap1} onMouseEnter={() => setLeftHover(true)} onMouseLeave={() => setLeftHover(false)}/>
+      
       <div className={classes.content} style={{ "gridArea": `content${i}` }} >
         {segment.centralColumn}
       </div>

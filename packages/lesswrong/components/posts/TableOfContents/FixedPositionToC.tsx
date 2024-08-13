@@ -14,6 +14,7 @@ import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
+import { HOVER_CLASSNAME } from './MultiToCLayout';
 
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
@@ -341,7 +342,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   const titleRow = (
     <div className={classes.rowWrapper} key={"#"}>
       <div className={classes.rowDotContainer}>
-        <span className={classNames(classes.rowOpacity, classes.tocWrapper)}>
+        <span className={classNames(HOVER_CLASSNAME, classes.rowOpacity, classes.tocWrapper)}>
           <TableOfContentsRow indentLevel={1} key="postTitle" href="#" offset={0} fullHeight
             highlighted={currentSection === "above"}
             onClick={ev => {
@@ -395,7 +396,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       <div className={classes.rowWrapper} style={offsetStyling} key={section.anchor}>
         <div className={classes.rowDotContainer}>
           <div className={classes.rowDot}>•</div>
-          <span className={classes.rowOpacity}>
+          <span className={classNames(classes.rowOpacity, HOVER_CLASSNAME)}>
             {tocRow}
           </span>
         </div>
