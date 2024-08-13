@@ -708,5 +708,10 @@
     "acceptsSchemaHash": "a2faca5a61a921ed5828a0be4fb26461",
     "acceptedByMigration": "20240704T135716.add_permanentDeletionRequestedAt.ts",
     "timestamp": "2024-07-04T13:57:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a930ad918f310c7a443ceb43525dfdd1",
+    "acceptedByMigration": "20240801T070411.addDisableSidenotesFlag.ts",
+    "timestamp": "2024-08-01T07:04:11.000Z"
   }
 ]

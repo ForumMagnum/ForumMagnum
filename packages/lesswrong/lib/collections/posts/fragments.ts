@@ -300,6 +300,8 @@ registerFragment(`
     totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
+    hasFootnotes
+    disableSidenotes
   }
 `);
 

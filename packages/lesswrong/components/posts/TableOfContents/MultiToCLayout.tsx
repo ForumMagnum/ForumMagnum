@@ -5,39 +5,59 @@ import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
 
-const FULL_HEIGHT_TOC_LEFT_MARGIN = '1fr'
-const DEFAULT_TOC_MARGIN = '1.5fr'
-const MAX_TOC_WIDTH = 270
-const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
-const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
-const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
 const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "grid",
+    [theme.breakpoints.down('sm')]: {
+      paddingTop: 12,
+    },
+  },
+  withFullHeightToCColumns: {
     gridTemplateColumns: `
-      ${LEFT_COLUMN_WIDTH}
-      minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-      minmax(50px, ${FULL_HEIGHT_TOC_LEFT_MARGIN})
+      0px
+      minmax(200px, 270px)
+      minmax(35px, 0.5fr)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(300px, ${DEFAULT_TOC_MARGIN})
-      minmax(min-content, 300px)
-      10px
-      ${RIGHT_COLUMN_WIDTH}
+      minmax(10px,30px)
+      min-content
+      minmax(0px, 0.5fr)
     `,
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
-      paddingTop: 12
+      gridTemplateColumns: `
+        0px
+        0px
+        1fr
+        minmax(0,${MAX_COLUMN_WIDTH}px)
+        minmax(5px,1fr)
+        min-content
+        0px
+      `
+    },
+  },
+  withoutFullHeightToCColumns: {
+    gridTemplateColumns: `
+      1fr
+      minmax(200px, 270px)
+      minmax(0px, 1fr)
+      minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+      10px
+      min-content
+      minmax(1.5frpx, 3fr)
+    `,
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns:
+        // lm   toc  gap1  content  gap2  rhs          rm
+           "5px 0px  0px   1fr      10px  min-content  5px",
     },
   },
   toc: {
     position: 'unset',
     width: 'unset',
-    left: -DEFAULT_TOC_MARGIN,
     marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
@@ -134,7 +154,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   const [leftHover, setLeftHover] = React.useState(false);
   const tocVisible = true;
   const gridTemplateAreas = segments
-    .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
+    .map((_segment,i) => `". toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} ."`)
     .join('\n')
 
   function getToCWithHover(toc: React.ReactNode, hover: boolean) {
@@ -173,15 +193,30 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
     height: `calc(100vh - ${HEADER_HEIGHT}px)`
   } : undefined), [scrollDirection]); 
 
-  return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
+  return <div className={classNames(classes.root,
+      fullHeightToCEnabled && classes.withFullHeightToCColumns,
+      !fullHeightToCEnabled && classes.withoutFullHeightToCColumns,
+    )}
+    style={{ gridTemplateAreas }}
+    onMouseEnter={() => setLeftHover(true)} 
+    onMouseLeave={() => setLeftHover(false)}
+    >
     {segments.map((segment,i) => <React.Fragment key={i}>
+      <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })} style={stickyBlockScrollerStyle}>
       {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} 
-          style={{ "gridArea": `toc${i}` }} 
-          onMouseEnter={() => setLeftHover(true)} 
-          onMouseLeave={() => setLeftHover(false)}
+        <div
+          style={{ "gridArea": `toc${i}` }}
+          className={classNames(
+            classes.toc,
+            segment.isCommentToC && classes.commentToCMargin,
+            showSplashPageHeader && classes.splashPageHeaderToc,
+            !showSplashPageHeader && classes.normalHeaderToc,
+          )}
         >
-          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })} style={stickyBlockScrollerStyle}>
+          <div className={classNames(
+            classes.stickyBlockScroller,
+            segment.isCommentToC && classes.commentToCIntersection
+          )}>
             <div className={classes.stickyBlock}>
               {getToCWithHover(segment.toc, leftHover)}
             </div>
@@ -192,12 +227,14 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
       <div className={classes.content} style={{ "gridArea": `content${i}` }} >
         {segment.centralColumn}
       </div>
-      <div className={classes.gap2}/>
-      {segment.rightColumn && <div className={classes.rhs} style={{ "gridArea": `rhs${i}` }}>
+      {segment.rightColumn && <div
+        className={classes.rhs}
+        style={{ "gridArea": `rhs${i}` }}
+      >
         {segment.rightColumn}
       </div>}
-      <div className={classes.gap3}/>
     </React.Fragment>)}
+  </div>
   </div>
 }
 

@@ -53,7 +53,7 @@ const PostsPageRecommendationsList = ({
   forceLoggedOutView?: boolean,
   classes: ClassesType,
 }) => {
-  const post = usePostsPageContext();
+  const post = usePostsPageContext()?.fullPost;
   if (!post) {
     return null;
   }

@@ -34,7 +34,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments } from '../../betas';
+import { hasSideComments, hasSidenotes } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
@@ -2567,6 +2567,36 @@ const schema: SchemaType<"Posts"> = {
         ];
       }
     },
+  },
+  
+  /**
+   * Whether this post has footnotes. We need this as a field because it
+   * determines column-widths on the post page (if there are footnotes we try
+   * to have a wider right margin to display sidenotes)
+   *
+   */
+  hasFootnotes: {
+    type: Boolean,
+    optional: true,
+    hidden: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+  
+  /**
+   * Author-controlled option to disable sidenotes (display of footnotes in the
+   * right margin).
+   */
+  disableSidenotes: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.advancedOptions,
+    canRead: ['guests'],
+    // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
+    canCreate: ['sunshineRegiment'],
+    canUpdate: ['members'],
+    hidden: !hasSidenotes,
+    ...schemaDefaultValue(false),
   },
 
   moderationStyle: {
