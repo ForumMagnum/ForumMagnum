@@ -888,6 +888,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
           ]}
           tocRowMap={[0, 0, 0, 3]}
           showSplashPageHeader={showSplashPageHeader}
+          answerCount={answerCount}
+          commentCount={commentCount}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}

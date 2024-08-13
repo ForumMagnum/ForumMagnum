@@ -16,17 +16,23 @@ const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
 const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
 export const HOVER_CLASSNAME = 'ToCRowHover'
+export const FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
+
+const STICKY_BLOCK_SCROLLER_CLASS_NAME = 'MultiToCLayoutStickyBlockScroller';
 
 const styles = (theme: ThemeType) => ({
   root: {
+    [`&:has($gap1:hover) .${HOVER_CLASSNAME}, &:has($toc:hover) .${HOVER_CLASSNAME}, &:has($commentCount:hover) .${HOVER_CLASSNAME}`]: {
+      opacity: 1
+    },
+  },
+  tableOfContents: {
     position: "relative",
     display: "grid",
     [theme.breakpoints.down('sm')]: {
       paddingTop: 12,
     },
-    [`&:has($gap1:hover) .${HOVER_CLASSNAME}`]: {
-      opacity: 1
-    },
+
     gridTemplateColumns: `
       ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
@@ -48,10 +54,6 @@ const styles = (theme: ThemeType) => ({
     left: -DEFAULT_TOC_MARGIN,
     marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
-    [`&:hover .${HOVER_CLASSNAME}`]: {
-      opacity: 1
-    },
-
     [theme.breakpoints.down('sm')]:{
       display: "none",
       marginTop: 0,
@@ -81,8 +83,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    maxHeight: "100vh",
-    height: fullHeightToCEnabled ? "100vh" : undefined,
+    maxHeight: `calc(100vh - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`,
+    height: fullHeightToCEnabled ? `calc(100vh - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)` : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -93,6 +95,13 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]:{
       display:'none'
     },
+  },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
+      top: HEADER_HEIGHT,
+      height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+    }
   },
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
@@ -129,6 +138,7 @@ const styles = (theme: ThemeType) => ({
   hideTocButtonHidden: {
     display: "none",
   },
+  commentCount: {}
 });
 
 export type ToCLayoutSegment = {
@@ -138,77 +148,51 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false, answerCount, commentCount}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
+  answerCount?: number,
+  commentCount?: number,
 }) => {
-  const [leftHover, setLeftHover] = React.useState(false);
+  const { FixedTableOfContentsCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
     .join('\n')
 
-  function getToCWithHover(toc: React.ReactNode, hover: boolean) {
-    // This allows the ToC to appear when the user hovers over either of the two left-columns. 
-  
-    // It's important that the ToC appears when you hover over the middle gap column, not just directly over the ToC, 
-    // because otherwise mousing over the ToC feels too effortful.
-
-    // We need to handle it in this component because that's where the middle gap column is defined. But, the toc is defined in the parent component.
-    // So, we need to establish the hover-state in this component and pass it into the already-defined toc.
-    
-    return React.cloneElement(toc as React.ReactElement, { hover });
-  }
-
-  const [scrollDirection, setScrollDirection] = React.useState('down');
-  const [lastScrollY, setLastScrollY] = React.useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY) {
-        setScrollDirection('down');
-      } else {
-        setScrollDirection('up');
-      }
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [lastScrollY]);
-
-  const stickyBlockScrollerStyle = React.useMemo(() => ( scrollDirection === 'up' ? {
-    top: HEADER_HEIGHT,
-    height: `calc(100vh - ${HEADER_HEIGHT}px)`
-  } : undefined), [scrollDirection]); 
-
-  return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
-    {segments.map((segment,i) => <React.Fragment key={i}>
-      {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} 
-          style={{ "gridArea": `toc${i}` }} 
-        >
-          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })} style={stickyBlockScrollerStyle}>
-            <div className={classes.stickyBlock}>
-              {segment.toc}
+  return <div className={classes.root}>
+    <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas }}>
+      {segments.map((segment,i) => <React.Fragment key={i}>
+        {segment.toc && tocVisible && <>
+          <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} 
+            style={{ "gridArea": `toc${i}` }} 
+          >
+            <div className={classNames(classes.stickyBlockScroller, STICKY_BLOCK_SCROLLER_CLASS_NAME, { [classes.commentToCIntersection]: segment.isCommentToC })}>
+              <div className={classes.stickyBlock}>
+                {segment.toc}
+              </div>
             </div>
           </div>
+        </>}
+        <div className={classes.gap1}/>
+        <div className={classes.content} style={{ "gridArea": `content${i}` }} >
+          {segment.centralColumn}
         </div>
-      </>}
-      <div className={classes.gap1}/>
-      <div className={classes.content} style={{ "gridArea": `content${i}` }} >
-        {segment.centralColumn}
-      </div>
-      <div className={classes.gap2}/>
-      {segment.rightColumn && <div className={classes.rhs} style={{ "gridArea": `rhs${i}` }}>
-        {segment.rightColumn}
-      </div>}
-      <div className={classes.gap3}/>
-    </React.Fragment>)}
+        <div className={classes.gap2}/>
+        {segment.rightColumn && <div className={classes.rhs} style={{ "gridArea": `rhs${i}` }}>
+          {segment.rightColumn}
+        </div>}
+        <div className={classes.gap3}/>
+      </React.Fragment>)}
+    </div>
+    <div className={classes.commentCount}>
+      <FixedTableOfContentsCommentCount
+        answerCount={answerCount}
+        commentCount={commentCount}
+      />
+    </div>
   </div>
 }
 

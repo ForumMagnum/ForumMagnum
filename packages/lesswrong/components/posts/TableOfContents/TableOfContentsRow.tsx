@@ -11,8 +11,6 @@ const sectionOffsetStyling = (fullHeightToCEnabled ? {
 } : {});
 
 const TITLE_CONTAINER_CLASS_NAME = 'ToCTitleContainer';
-const FIXED_POSITION_TOC_CLASS_NAME = 'FixedPositionToC-root';
-const FIXED_POSITION_NON_SPLASH_PAGE_TOC_CLASS_NAME = 'MultiToCLayout-normalHeaderToc';
 
 const styles = (theme: ThemeType) => ({
   root: {

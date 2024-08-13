@@ -10,6 +10,8 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 
+const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.dim,
@@ -44,15 +46,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(-90deg)",
   },
   postTitle: {
-    minHeight: 24,
+    minHeight: 64,
     paddingTop: 16,
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
     cursor: "pointer",
     fontSize: "1.3rem",
-    marginBottom: 12,
-    display: 'block'
+    paddingBottom: 16,
+    display: 'flex',
+    alignItems: 'center',
   },
   tocPostedAt: {
     color: theme.palette.link.tocLink
@@ -61,6 +64,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 4,
     marginLeft: -7,
     borderLeft: `solid 3px ${theme.palette.secondary.main}`
+  },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${COMMENTS_TITLE_CLASS_NAME}, body:has(.headroom--unfixed) .${COMMENTS_TITLE_CLASS_NAME}`]: {
+      opacity: 0,
+    }
   },
 })
 
@@ -87,7 +96,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   }
   
   return <div className={classes.root}>
-      <a id="comments" href="#" className={classes.postTitle} onClick={ev => {
+      <a id="comments" href="#" className={classNames(classes.postTitle, COMMENTS_TITLE_CLASS_NAME)} onClick={ev => {
         ev.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });
       }}>

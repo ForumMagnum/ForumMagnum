@@ -60,29 +60,6 @@ function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToC
   return sectionsWithOffsets;
 }
 
-const CommentsLink: FC<{
-  anchor: string,
-  children: React.ReactNode,
-  className?: string,
-}> = ({anchor, children, className}) => {
-  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const elem = document.querySelector("#comments");
-    if (elem) {
-      // Match the scroll behaviour from TableOfContentsList
-      window.scrollTo({
-        top: window.scrollY + elem.getBoundingClientRect().top,
-        behavior: "smooth",
-      });
-    } 
-  }
-  return (
-    <a className={className} href={anchor} onClick={onClick}>
-      {children}
-    </a>
-  );
-}
-
 const styles = (theme: ThemeType) => ({
   root: {
     left: 0,
@@ -191,39 +168,6 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
-  comments: {
-    paddingBottom: 20,
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.link.tocLink,
-    display: "flex",
-    alignItems: "center",
-    marginRight: 20,
-  },
-  commentsIcon: {
-    fontSize: 20,
-    marginRight: 8,
-    color: theme.palette.grey[400],
-    position: 'relative',
-    top: 1
-  },
-  '@font-face': {
-    fontFamily: "ETBookBold",
-    src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1504470690/et-book-bold-line-figures_piiabg.woff') format('woff')",  
-  },
-  answerIcon: {
-    fontSize: 24,
-    fontFamily: "ETBookBold",
-    fontWeight: 900,
-    marginRight: 7,
-    color: theme.palette.grey[400]
-  },
-  commentsLabel: {
-    marginLeft: 6
-  },
-  wideClickTarget: {
-    width: '100%',
-  }
 });
 
 const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover, commentCount, answerCount}: {
@@ -236,7 +180,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   commentCount?: number,
   answerCount?: number,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow, Row, ForumIcon } = Components;
+  const { TableOfContentsRow, AnswerTocRow } = Components;
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -407,9 +351,6 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   if (!tocSections || !hasLoaded)
     return <div/>
 
-
-
-
   return <div className={classNames(classes.root, { [classes.hover]: hover })}>
     <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
@@ -421,17 +362,6 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
         {rows}
       </div>
     </div>
-    <Row justifyContent="flex-start">
-      {typeof answerCount === 'number' && <CommentsLink anchor="#answers" className={classes.comments}>
-        <div className={classes.answerIcon}>A</div>
-        {answerCount}
-      </CommentsLink>}
-      <CommentsLink anchor="#comments" className={classNames(classes.comments, classes.wideClickTarget)}>
-        <ForumIcon icon="Comment" className={classes.commentsIcon} />
-        {commentCount}
-        {typeof answerCount !== 'number'  && <span className={classNames(classes.commentsLabel, classes.rowOpacity)}>Comments</span>}
-      </CommentsLink>
-    </Row>
   </div>
 }
 
