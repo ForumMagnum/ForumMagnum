@@ -114,9 +114,6 @@ const styles = (theme: ThemeType) => ({
     [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       opacity: 0,
       height: 84,
-    },
-    [`body:has(.headroom--unfixed) .${FIXED_POSITION_NON_SPLASH_PAGE_TOC_CLASS_NAME} .${FIXED_POSITION_TOC_CLASS_NAME}`]: {
-      maxHeight: 'calc(100vh - 64px)',
     }
   }
 });
