@@ -29,6 +29,10 @@ const styles = (theme: ThemeType) => ({
   audioIconOn: {
     background: theme.palette.icon.dim05,
     borderRadius: theme.borderRadius.small
+  },
+  audioIconDisabled: {
+    opacity: 0.5,
+    cursor: 'not-allowed'
   }
 });
 
@@ -54,13 +58,10 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   }, [])
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer, [classes.audioIconDisabled]: !toggleEmbeddedPlayer})} />
     </a>
   </LWTooltip>
 
-  if (!toggleEmbeddedPlayer) {
-    return null
-  }
   if (cachedTooltipSeen || isLWorAF) {
     return audioIcon
   }
