@@ -26,9 +26,7 @@ const styles = (theme: ThemeType) => ({
     },
     [`&:has($gap1:hover) .${HOVER_CLASSNAME}`]: {
       opacity: 1
-    }
-  },
-  withFullHeightToCColumns: {
+    },
     gridTemplateColumns: `
       ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
@@ -201,7 +199,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
           </div>
         </div>
       </>}
-      
+      <div className={classes.gap1}/>
       <div className={classes.content} style={{ "gridArea": `content${i}` }} >
         {segment.centralColumn}
       </div>
