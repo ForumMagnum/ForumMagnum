@@ -203,8 +203,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
     >
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div
-          style={{ "gridArea": `toc${i}`, ...stickyBlockScrollerStyle }}
+        <div style={{ "gridArea": `toc${i}`}}
           className={classNames(classes.stickyBlockScroller, classes.toc, { [classes.commentToCIntersection]: segment.isCommentToC }),
             segment.isCommentToC && classes.commentToCMargin,
             showSplashPageHeader && classes.splashPageHeaderToc,
@@ -214,7 +213,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
           <div className={classNames(
             classes.stickyBlockScroller,
             segment.isCommentToC && classes.commentToCIntersection
-          )}>
+          )} style={stickyBlockScrollerStyle}>
             <div className={classes.stickyBlock}>
               {getToCWithHover(segment.toc, leftHover)}
             </div>
