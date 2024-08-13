@@ -312,6 +312,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     const updatedConversations: LlmConversations = Object.keys(llmConversations).filter(key => key !== `llmChatHistory:${title}`).reduce((acc, key) => ({...acc, [key]: llmConversations[key]}), {})
     console.log('deleting convo', {beforeLength: Object.keys(llmConversations).length, afterLength: Object.keys(updatedConversations).length,before: llmConversations, after: updatedConversations})
 
+    // TODO: it is possible to overwrite a conversation if another is generated with the same title
     ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
     setLlmConversations(updatedConversations)
     if (currentConversation?.title === title) {
