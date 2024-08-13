@@ -140,10 +140,12 @@ const selectAdditionalContext = async (query: string, currentPost?: DbPost): Pro
   You are interfacing with a user via chat window on LessWrong.com. The user has asked a question: "${query}".
   ${currentPost ? `The user is currently viewing the following post: ${postTitle}. The first two thousand characters are: ${postFirst2000Characters}` : "The user is not currently viewing a specific post."}
   Based on the question and post the user might be reading, you must choose the most relevant context to load in. Your options are:
-  (1) "query-based" – Load in context only on the query (question), ignore the post the user is reading. This is correct choice if the question seems unrelated to the post the user is currently viewing.
+  (1) "query-based" – Load in context only on the query (question), ignore the post the user is reading. This is correct choice if the question seems unrelated to the post the user is currently viewing and it seems likely that there are LessWrong posts concerning the topic (if it is a very general question, the correct choice might be (4) "none").
   (2) "current-post-based" – Load in context based only on the post the user is reading, ignore the query. This is the correct choice if the question seems to be about the post the user is currently viewing and itself does not contain much info, e.g. "what are some disagreements?", "explain to me <topic in the post>", "provide a summary of this post", and similar.
   (3) "both" – Load in context based on both the query and the post the user is reading. This is the correct choice if the question seems to be about the post the user is currently viewing and itself does contain relevant keywords, e.g. "explain to me what monosemanticity is in transformers?", "what are some other views about <topic in the post>?", "what are some disagreements about <topic in the post>?", and similar.
-  (4) "none" - No further context seems necessary to answer the user's question because Claude already knows the answer, for example "What is Jacobian of a matrix?" or "Proof the following text."
+  (4) "none" - No further context seems necessary to answer the user's question because Claude already knows the answer, for example "What is Jacobian of a matrix?" or "Proof read the following text." Alternatively, the answer might be (4) none because it seems unlikely for their to be relevant context to the question in the LessWrong corpus of posts.
+
+  If the user explicitly requests context be loaded in, weight that heavily in your choice.
 
   Please respond with the number of the option you choose followed by why you chose it. Your choice should start with one of the following: "(1)", "(2)", "(3)", or "(4)". Only after giving your reason should you provide the rest of your response. For example, "(1) I chose this option because...." You do not need to answer the question.
 `

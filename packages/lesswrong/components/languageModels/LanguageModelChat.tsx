@@ -182,10 +182,12 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
 
   const ls = getBrowserLocalStorage();
   const storedLlmConversations = ls?.getItem(LLM_STORAGE_KEY);
-  const llmConversations: LlmConversations = useMemo(
-    () => storedLlmConversations ? JSON.parse(storedLlmConversations) : {},
-    [storedLlmConversations]
-  );
+  const [llmConversations, setLlmConversations] = useState<LlmConversations>(storedLlmConversations ? JSON.parse(storedLlmConversations) : {})
+  // const llmConversations: LlmConversations = useMemo(
+  //   () => storedLlmConversations ? JSON.parse(storedLlmConversations) : {},
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [storedLlmConversations]
+  // );
 
   // TODO: if using lastUpdated to select converation, this could override thet last selected
   console.log({llmConversations: Object.values(llmConversations).map(({title, lastUpdated}: {title: string, lastUpdated: Date}) => ({title, lastUpdated}))})
@@ -202,7 +204,7 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
-  }, [currentConversation?.title]);
+  }, [currentConversation?.messages.length]);
 
 
   const messages = <div className={classNames(classes.messages, {[classes.messagesFullPage]: fullPage})} ref={messagesRef}>
@@ -260,13 +262,14 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
 
       const storageTitle = `llmChatHistory:${conversationResponse.title}`
       const updatedConversations = {...llmConversations, [storageTitle]: conversationWithNewResponse}
+      console.log("should be updating storage", {LLM_STORAGE_KEY, updatedConversations})
       ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
+      setLlmConversations(updatedConversations)
     }, 0)
 
   }, [currentConversation, useRag, sendClaudeMessage, setLoading, setCurrentConversation, setWindowTitle, llmConversations, ls, postId]);
 
   const newChat = () => {
-    // ls?.removeItem('llmChatHistory')
     setWindowTitle?.(PLACEHOLDER_TITLE)
     setCurrentConversation(null)
   }
@@ -296,19 +299,21 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
       const storageTitle = `llmChatHistory:${newlySelectedConversation.title}`
       const updatedConversations = {...llmConversations, [storageTitle]: newlySelectedConversation}
       ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
+      setLlmConversations(updatedConversations)
       setCurrentConversation(newlySelectedConversation)
       setWindowTitle?.(newlySelectedConversation?.title ?? PLACEHOLDER_TITLE)
     }
   }
 
   // TODO: Make this work
-  const deleteConversation = (title: string) => {
-    console.log('before', {llmConversations})
-    const updatedConversations = Object.keys(llmConversations).filter(key => key !== `llmChatHistory:${title}`)
-      .reduce((acc, key) => ({...acc, [key]: llmConversations[key]}), {})
-    console.log('after', {updatedConversations})
+  const deleteConversation = (ev: React.MouseEvent, title: string) => {
+    ev.preventDefault()
+    ev.stopPropagation()
+    const updatedConversations: LlmConversations = Object.keys(llmConversations).filter(key => key !== `llmChatHistory:${title}`).reduce((acc, key) => ({...acc, [key]: llmConversations[key]}), {})
+    console.log('deleting convo', {beforeLength: Object.keys(llmConversations).length, afterLength: Object.keys(updatedConversations).length,before: llmConversations, after: updatedConversations})
 
     ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
+    setLlmConversations(updatedConversations)
     if (currentConversation?.title === title) {
       setWindowTitle?.(PLACEHOLDER_TITLE)
       setCurrentConversation(null)
@@ -321,18 +326,20 @@ export const ChatInterface = ({fullPage, setWindowTitle, classes}: {
     disableUnderline
     className={classes.select}
     MenuProps={{style: {zIndex: 10000000002}}}
+    // renderValue={(title: string) =>  <MenuItem value={title} className={classes.menuItem}>{title}</MenuItem>}
+    renderValue={(title: string) =>title}
     >
-      <MenuItem value="New Conversation" className={classes.menuItem}>
-        New Conversation
-      </MenuItem>
       {Object.values(llmConversations).sort((a, b) => new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime())
         .map(({ title }, index) => (
           <MenuItem key={index} value={title} className={classes.menuItem}>
             {title}
             {/* TODO: reenable once the delete functionalty works */}
-            {/* <CloseIcon onClick={(ev) => deleteConversation(title)} className={classes.deleteConvoIcon} /> */}
+            <CloseIcon onClick={(ev) => deleteConversation(ev, title)} className={classes.deleteConvoIcon} />
           </MenuItem>
       ))}
+      <MenuItem value="New Conversation" className={classes.menuItem}>
+        New Conversation
+      </MenuItem>
     </Select>;
 
 
