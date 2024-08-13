@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
+import { HEADER_HEIGHT } from '@/components/common/Header';
 
 const FULL_HEIGHT_TOC_LEFT_MARGIN = '1fr'
 const DEFAULT_TOC_MARGIN = '1.5fr'
@@ -64,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     position: "sticky",
     fontSize: 12,
     top: 0,
-    transition: 'top 0.3s ease-in-out',
+    transition: 'top 0.2s ease-in-out',
     lineHeight: 1.0,
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
@@ -167,9 +168,10 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
     return () => window.removeEventListener('scroll', handleScroll);
   }, [lastScrollY]);
 
-  const stickyBlockScrollerStyle = React.useMemo(() => ({
-    top: scrollDirection === 'up' ? 64 : 0,
-  }), [scrollDirection]); 
+  const stickyBlockScrollerStyle = React.useMemo(() => ( scrollDirection === 'up' ? {
+    top: HEADER_HEIGHT,
+    height: `calc(100vh - ${HEADER_HEIGHT}px)`
+  } : undefined), [scrollDirection]); 
 
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
