@@ -65,13 +65,13 @@ const styles = (theme: ThemeType) => ({
     position: "sticky",
     fontSize: 12,
     top: 0,
-    transition: 'top 0.2s ease-in-out',
+    transition: 'top 0.2s ease-in-out, height 0.2s ease-in-out',
     lineHeight: 1.0,
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
     maxHeight: "100vh",
-    height: fullHeightToCEnabled ? "100%" : undefined,
+    height: fullHeightToCEnabled ? "100vh" : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
