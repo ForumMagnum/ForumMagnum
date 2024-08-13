@@ -116,7 +116,7 @@ const SideItemsContainer = ({classes, children}: {
     const contentsDiv = contentsRef.current;
     if (contentsDiv) {
       const resizeObserver = new ResizeObserver((_entries) => {
-        //rerender();
+        rerender();
       });
       resizeObserver.observe(contentsDiv);
       
@@ -184,6 +184,7 @@ const SideItemsSidebar = ({classes}: {
     for (let i=0; i<sortedSideItems.length; i++) {
       const sideItem = sortedSideItems[i];
       let newTop = Math.max(top, sideItem.anchorTop!);
+      // TODO: Also set z-index
       sideItem.container.setAttribute("style", `top:${newTop}px;`);
       top = newTop + sideItem.sideItemHeight!;
     }

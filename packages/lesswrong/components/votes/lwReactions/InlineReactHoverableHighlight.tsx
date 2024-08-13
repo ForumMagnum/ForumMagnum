@@ -29,12 +29,11 @@ const styles = (theme: ThemeType) => ({
   // Keeping this empty class around is necessary for the following @global style to work properly
   highlight: {},
 
-  // Comment or post hovered
+  // Comment hovered (post uses side-icons instead)
   "@global": {
     [
       ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight"
       +", .Answer-answer:hover .InlineReactHoverableHighlight-highlight"
-      +", .PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight"
     ]: {
       textDecorationLine: 'underline',
       textDecorationStyle: 'dashed',

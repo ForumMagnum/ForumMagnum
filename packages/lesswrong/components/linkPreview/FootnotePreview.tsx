@@ -183,6 +183,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
           )}
         >
           <SidenoteDisplay
+            footnoteHref={href}
             footnoteHTML={footnoteHTML}
             classes={classes}
           />
@@ -203,7 +204,8 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   );
 }
 
-const SidenoteDisplay = ({footnoteHTML, classes}: {
+const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
+  footnoteHref: string,
   footnoteHTML: string,
   classes: ClassesType,
 }) => {
@@ -211,35 +213,24 @@ const SidenoteDisplay = ({footnoteHTML, classes}: {
   const sideItemContext = useContext(SideItemContentContext);
   const [isTruncated,setIsTruncated] = useState(true);
   
-  const maybeTruncatedHTML = isTruncated
+  /*const maybeTruncatedHTML = isTruncated
     ? truncate(footnoteHTML, 20, "words", "")
     : footnoteHTML;
-  const isActuallyTruncated = (maybeTruncatedHTML !== footnoteHTML);
+  const isActuallyTruncated = (maybeTruncatedHTML !== footnoteHTML);*/
   
   function expand() {
     setIsTruncated(false);
     sideItemContext?.resizeItem();
   }
   
-  // Parse the footnote for its data-footnote-id, use that to find the footnote
-  // reference (which is a span that wraps around the part of the footnote that
-  // got hover-preview-ified), and take the data-footnote-index from that to
-  // display.
-  const { document: parsedFootnote } = parseDocumentFromString(footnoteHTML);
-  const footnoteId = parsedFootnote
-    .getElementsByClassName("footnote-back-link")
-    ?.[0]
-    ?.getAttribute("data-footnote-id")
-  const footnoteIndex = footnoteId
-    ? (document.getElementById("fnref"+footnoteId)
-        ?.getAttribute("data-footnote-index"))
-    : undefined;
+  const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
     <ContentStyles contentType="postHighlight">
       <span className={classes.sidenoteWithIndex} onClick={ev => expand()}>
-        <span className={classes.sidenoteIndex}>{footnoteIndex}{"."}</span>
-        {/*<div className={classes.sidenoteContent} dangerouslySetInnerHTML={{__html: maybeTruncatedHTML}} />*/}
+        {footnoteIndex !== null && <span className={classes.sidenoteIndex}>
+          {footnoteIndex}{"."}
+        </span>}
         <div className={classes.sidenoteContent}>
           <div dangerouslySetInnerHTML={{__html: footnoteHTML}} />
           <div className={classes.overflowFade} />
@@ -247,6 +238,57 @@ const SidenoteDisplay = ({footnoteHTML, classes}: {
       </span>
     </ContentStyles>
   );
+}
+
+function getFootnoteId(href: string, html: string): string|null {
+  if (href.match(/^#fn.*/)) {
+    return href.substring(3);
+  } else {
+    const { document: parsedFootnote } = parseDocumentFromString(html);
+    const footnoteId = parsedFootnote
+      .getElementsByClassName("footnote-back-link")
+      ?.[0]
+      ?.getAttribute("data-footnote-id")
+    return footnoteId;
+  }
+}
+
+/**
+ * Given a footnote link (in the form of a link-anchor, and inner HTML for the
+ * footnote reference), return a footnote-number (or null if we can't find one).
+ * Because of different versions of the CkEditor footnote plugin, imported
+ * posts, etc, we have several different strategies for doing this:
+ *  - Find the footnote reference, and use the data-footnote-index prop
+ *  - Find the footnote in the post footer, and if it's inside an <ol> tag, use
+ *    its position within that tag's list of children
+ */
+function getFootnoteIndex(href: string, html: string): string|null {
+  // Parse the footnote for its data-footnote-id, use that to find the footnote
+  // reference (which is a span that wraps around the part of the footnote that
+  // got hover-preview-ified), and take the data-footnote-index from that to
+  // display.
+  const footnoteId = getFootnoteId(href, html);
+  if (!footnoteId) return null;
+
+  const fromFootnoteIndexAttribute = document.getElementById("fnref"+footnoteId)
+    ?.getAttribute("data-footnote-index");
+  if (fromFootnoteIndexAttribute)
+    return fromFootnoteIndexAttribute;
+  
+  const footnoteElement = document.getElementById("fn"+footnoteId);
+  if (footnoteElement) {
+    const parentElement = footnoteElement.parentElement;
+    if (parentElement && parentElement.tagName === 'OL') {
+      for (let i=0; i<parentElement.children.length; i++) {
+        if (parentElement.children.item(i) === footnoteElement) {
+          return ""+(i+1);
+        }
+      }
+    }
+  }
+  
+
+  return null;
 }
 
 const FootnotePreviewComponent = registerComponent('FootnotePreview', FootnotePreview, {
