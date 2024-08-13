@@ -48,6 +48,7 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     
     "& .footnote-content": {
       width: "auto !important",
+      maxWidth: "100%",
     },
   },
 
@@ -75,8 +76,9 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     verticalAlign: "top",
     fontSize: 15,
     lineHeight: "19px",
+    maxWidth: "100%",
     maxHeight: 200,
-    overflowY: "hidden",
+    overflow: "hidden",
 
     color: theme.palette.greyAlpha(0.65),
     "$sidenoteHover &": {
@@ -94,11 +96,9 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
   
   sidenoteHover: {
     background: theme.palette.greyAlpha(0.1),
-    //background: theme.palette.background.pageActiveAreaBackground,
     
     "& $sidenoteContent": {
       maxHeight: "unset",
-      overflowY: "visible",
     },
     "& $overflowFade": {
       display: "none",
@@ -220,7 +220,6 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   
   function expand() {
     setIsTruncated(false);
-    sideItemContext?.resizeItem();
   }
   
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);

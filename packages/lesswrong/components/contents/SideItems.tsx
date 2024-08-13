@@ -40,7 +40,6 @@ const SideItemsPlacementContext = createContext<SideItemsPlacementContextType|nu
 const SideItemsDisplayContext = createContext<SideItemsDisplayContextType|null>(null);
 
 export type SideItemContentContextType = {
-  resizeItem: () => void
 };
 export const SideItemContentContext = createContext<SideItemContentContextType|null>(null);
 
@@ -140,6 +139,7 @@ const SideItemsContainer = ({classes, children}: {
 const SideItemsSidebar = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const placementContext = useContext(SideItemsPlacementContext);
   const displayContext = useContext(SideItemsDisplayContext);
   const sideItemColumnRef = useRef<HTMLDivElement>(null);
 
@@ -184,10 +184,24 @@ const SideItemsSidebar = ({classes}: {
     for (let i=0; i<sortedSideItems.length; i++) {
       const sideItem = sortedSideItems[i];
       let newTop = Math.max(top, sideItem.anchorTop!);
-      // TODO: Also set z-index
       sideItem.container.setAttribute("style", `top:${newTop}px;`);
       top = newTop + sideItem.sideItemHeight!;
     }
+    
+    // Use a ResizeObserver to watch for size-changes of side-item containers
+    const resizeObserver = new ResizeObserver((entries) => {
+      if (placementContext) {
+        for (let entry of entries) {
+          placementContext.resizeItem(entry.target as HTMLElement);
+        }
+      }
+    });
+    for (const sideItem of displayContext.sideItems) {
+      resizeObserver.observe(sideItem.container);
+    }
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, [displayContext]);
 
   return useMemo(() => <div
@@ -217,13 +231,6 @@ const SideItem = ({options, children}: {
   const [portalContainer, setPortalContainer] = useState<HTMLDivElement|null>(null);
   const mergedOptions: SideItemOptions = {...defaultSideItemOptions, ...options};
   
-  const resizeItem = useCallback(() => {
-    if (anchorRef.current) {
-      placementContext?.resizeItem(anchorRef.current);
-    }
-  }, [placementContext]);
-  const contentContext = useMemo(() => ({resizeItem}), [resizeItem]);
-
   useEffect(() => {
     if (placementContext && anchorRef.current) {
       const anchor = anchorRef.current;
@@ -242,9 +249,7 @@ const SideItem = ({options, children}: {
   }
 
   return <span ref={anchorRef}>
-    <SideItemContentContext.Provider value={contentContext}>
-      {portalContainer && createPortal(children, portalContainer)}
-    </SideItemContentContext.Provider>
+    {portalContainer && createPortal(children, portalContainer)}
   </span>
 }
 
