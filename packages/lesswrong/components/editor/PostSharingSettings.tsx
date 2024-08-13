@@ -14,7 +14,6 @@ import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
 import { ckEditorName } from './Editor';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   linkSharingPreview: {

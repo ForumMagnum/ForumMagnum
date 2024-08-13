@@ -40,6 +40,7 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
     fontSize: '1rem',
+    fontVariantNumeric: 'lining-nums'
   },
   tooltip: {
     color: theme.palette.grey[500],
