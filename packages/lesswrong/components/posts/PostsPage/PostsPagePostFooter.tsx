@@ -8,7 +8,7 @@ import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-export const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   footerSection: {

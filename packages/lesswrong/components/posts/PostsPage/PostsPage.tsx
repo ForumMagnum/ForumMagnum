@@ -40,8 +40,8 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
-import { HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT } from './PostsPagePostFooter';
 
+const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
