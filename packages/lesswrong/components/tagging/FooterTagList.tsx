@@ -353,7 +353,7 @@ const FooterTagList = ({
       )}
       {currentUser && !hideAddTag && (
         <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, {[classes.noBackground]: noBackground})}>+</span>}
+          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
         </AddTagButton>
       )}
       {isAwaiting && <Loading />}
