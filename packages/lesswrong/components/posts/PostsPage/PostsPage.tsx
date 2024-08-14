@@ -41,7 +41,7 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 
-const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
+const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
@@ -877,7 +877,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       ? <Components.MultiToCLayout
           segments={[
             {
-              toc: (post.contents?.wordCount || 0) > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT && tableOfContents,
+              toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
               centralColumn: postBodySection,
               rightColumn: rightColumnChildren
             },
