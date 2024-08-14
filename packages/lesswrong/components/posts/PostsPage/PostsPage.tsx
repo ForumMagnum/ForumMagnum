@@ -40,6 +40,7 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
+import { HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT } from './PostsPagePostFooter';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -876,7 +877,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       ? <Components.MultiToCLayout
           segments={[
             {
-              toc: tableOfContents,
+              toc: (post.contents?.wordCount || 0) > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT && tableOfContents,
               centralColumn: postBodySection,
               rightColumn: rightColumnChildren
             },

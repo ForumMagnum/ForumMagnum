@@ -4,11 +4,11 @@ import { userHasPingbacks } from '../../../lib/betas';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useCurrentUser } from '../../common/withUser';
 import { MAX_COLUMN_WIDTH } from './PostsPage';
-import { isLWorAF } from '../../../lib/instanceSettings';
+import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
+export const HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT = 300
 
 const styles = (theme: ThemeType): JssStyles => ({
   footerSection: {
@@ -82,14 +82,14 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
-    {isLWorAF && !post.shortform && !post.isEvent && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT) &&
+    {isLWorAF && !post.shortform && !post.isEvent &&
       <AnalyticsContext pageSectionContext="tagFooter">
         <div className={classes.footerTagList}>
           <FooterTagList post={post}/>
         </div>
       </AnalyticsContext>
     }
-    {!post.shortform && (wordCount > HIDE_POST_BOTTOM_VOTE_WORDCOUNT_LIMIT || isEAEmojis) &&
+    {!post.shortform && (isLW || isEAEmojis) &&
       <>
         <div className={classes.footerSection}>
           <div className={classes.voteBottom}>
