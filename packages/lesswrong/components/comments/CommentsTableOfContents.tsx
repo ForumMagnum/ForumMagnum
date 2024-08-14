@@ -114,7 +114,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   }
 
   return <div className={classes.root}>
-      <a id="comments" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
+      <a id="comments-table-of-contents" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
       onClick={ev => {
         ev.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });

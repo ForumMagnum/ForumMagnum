@@ -56,7 +56,8 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
   },
   rowOpacity: {
-    opacity: 0
+    opacity: 0,
+    transition: 'opacity 0.3s ease-in-out',
   }
 });
 
