@@ -159,7 +159,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   const { FixedTableOfContentsCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
-    .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
+    .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
     .join('\n')
 
   return <div className={classes.root}>

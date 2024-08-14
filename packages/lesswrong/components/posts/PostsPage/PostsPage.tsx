@@ -888,7 +888,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               isCommentToC: true
             },
           ]}
-          tocRowMap={[0, 0, 0, 3]}
+          tocRowMap={[0, 0, 2]}
           showSplashPageHeader={showSplashPageHeader}
           answerCount={answerCount}
           commentCount={commentCount}
