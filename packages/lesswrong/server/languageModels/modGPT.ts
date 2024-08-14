@@ -21,6 +21,7 @@ import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { createAdminContext } from "../vulcan-lib/query";
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
+import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
 
 
 export const modGPTPrompt = `
@@ -105,7 +106,7 @@ export const sanitizeHtmlOptions = {
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-async function checkModGPT(comment: DbComment, post: DbPost): Promise<void> {
+async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -285,7 +286,13 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
   if (noChange) return
 
   // only have ModGPT check comments on posts tagged with "Community"
-  const post = await Posts.findOne(newDocument.postId)
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsOriginalContents",
+    currentUser: null,
+    skipFiltering: true,
+    selector: {_id: newDocument.postId},
+  });
   if (!post) return
   
   const postTags = post.tagRelevance
@@ -314,7 +321,13 @@ getCollectionHooks("Comments").createAsync.add(async ({document}) => {
   }
   
   // only have ModGPT check comments on posts tagged with "Community"
-  const post = await Posts.findOne(document.postId)
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsOriginalContents",
+    currentUser: null,
+    skipFiltering: true,
+    selector: {_id: document.postId},
+  });
   if (!post) return
   
   const postTags = post.tagRelevance

@@ -698,6 +698,30 @@ interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
   readonly version: number,
 }
 
+interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly editedAt: Date,
+  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly version: string,
+  readonly commitMessage: string,
+  readonly userId: string,
+  readonly draft: boolean,
+  readonly originalContents: any /*ContentType*/,
+  readonly html: string,
+  readonly markdown: string|null,
+  readonly draftJS: any /*JSON*/,
+  readonly ckEditorMarkup: string|null,
+  readonly wordCount: number | null,
+  readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
+  readonly plaintextDescription: string,
+  readonly plaintextMainText: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
   readonly postId: string,
   readonly postHash: string,
@@ -1651,6 +1675,31 @@ interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
   readonly spotifyPodcastLink: string | null,
 }
 
+interface PostsRSSFeed extends PostsPage { // fragment on Posts
+  readonly scoreExceeded2Date: Date | null,
+  readonly scoreExceeded30Date: Date | null,
+  readonly scoreExceeded45Date: Date | null,
+  readonly scoreExceeded75Date: Date | null,
+  readonly scoreExceeded125Date: Date | null,
+  readonly scoreExceeded200Date: Date | null,
+  readonly metaDate: Date,
+}
+
+interface PostsOriginalContents { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsOriginalContents_contents|null,
+}
+
+interface PostsOriginalContents_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly originalContents: any,
+}
+
+interface PostsHTML { // fragment on Posts
+  readonly _id: string,
+  readonly contents: RevisionHTML|null,
+}
+
 interface CommentsList { // fragment on Comments
   readonly _id: string,
   readonly postId: string,
@@ -1820,6 +1869,11 @@ interface RevisionDisplay { // fragment on Revisions
   readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+}
+
+interface RevisionHTML { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface RevisionEdit { // fragment on Revisions
@@ -2825,30 +2879,6 @@ interface PodcastEpisodeFull { // fragment on PodcastEpisodes
   readonly title: string,
   readonly episodeLink: string,
   readonly externalEpisodeId: string,
-}
-
-interface RevisionsDefaultFragment { // fragment on Revisions
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
-  readonly version: string,
-  readonly commitMessage: string,
-  readonly userId: string,
-  readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
-  readonly html: string,
-  readonly markdown: string|null,
-  readonly draftJS: any /*JSON*/,
-  readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
-  readonly htmlHighlight: string,
-  readonly htmlHighlightStartingAtHash: string,
-  readonly plaintextDescription: string,
-  readonly plaintextMainText: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersMinimumInfo { // fragment on Users
@@ -4004,6 +4034,7 @@ interface FragmentTypes {
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
+  RevisionsDefaultFragment: RevisionsDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
@@ -4060,6 +4091,9 @@ interface FragmentTypes {
   PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
+  PostsRSSFeed: PostsRSSFeed
+  PostsOriginalContents: PostsOriginalContents
+  PostsHTML: PostsHTML
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
@@ -4073,6 +4107,7 @@ interface FragmentTypes {
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
   RevisionDisplay: RevisionDisplay
+  RevisionHTML: RevisionHTML
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
@@ -4174,7 +4209,6 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastEpisodeFull: PodcastEpisodeFull
-  RevisionsDefaultFragment: RevisionsDefaultFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -4269,9 +4303,10 @@ interface FragmentTypesByCollection {
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"SuggestAlignmentPost"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
@@ -4284,7 +4319,6 @@ interface FragmentTypesByCollection {
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
-  Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
@@ -4340,6 +4374,7 @@ interface CollectionNamesByFragmentName {
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
   SideCommentCachesDefaultFragment: "SideCommentCaches"
+  RevisionsDefaultFragment: "Revisions"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostsDefaultFragment: "Posts"
@@ -4396,6 +4431,9 @@ interface CollectionNamesByFragmentName {
   PostWithGeneratedSummary: "Posts"
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
+  PostsRSSFeed: "Posts"
+  PostsOriginalContents: "Posts"
+  PostsHTML: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
@@ -4409,6 +4447,7 @@ interface CollectionNamesByFragmentName {
   CommentsListWithModerationMetadata: "Comments"
   CommentsListWithModGPTAnalysis: "Comments"
   RevisionDisplay: "Revisions"
+  RevisionHTML: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"
   RevisionMetadataWithChangeMetrics: "Revisions"
@@ -4510,7 +4549,6 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastEpisodeFull: "PodcastEpisodes"
-  RevisionsDefaultFragment: "Revisions"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"

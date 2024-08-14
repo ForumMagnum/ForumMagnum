@@ -38,6 +38,7 @@ import { hasSideComments } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
+import { getLatestContentsRevision } from '../revisions/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -554,38 +555,57 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost): number =>
-      Math.max(
-        1,
-        Math.round(typeof readTimeMinutesOverride === "number"
-          ? readTimeMinutesOverride
-          : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
-      ),
-    sqlResolver: ({field}) => `GREATEST(1, ROUND(COALESCE(
-      ${field("readTimeMinutesOverride")},
-      (${field("contents")}->'wordCount')::INTEGER
-    ) / ${READ_WORDS_PER_MINUTE}))`,
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const normalizeValue = (value: number): number =>
+        Math.max(1, Math.round(value));
+      if (typeof post.readTimeMinutesOverride === "number") {
+        return normalizeValue(post.readTimeMinutesOverride);
+      }
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.wordCount
+        ? normalizeValue(revision.wordCount / READ_WORDS_PER_MINUTE)
+        : 1;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => `GREATEST(1, ROUND(COALESCE(
+        ${field("readTimeMinutesOverride")},
+        ${revisionsField("wordCount")}
+      ) / ${READ_WORDS_PER_MINUTE}))`,
+    }),
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return 0;
-      return contents.wordCount;
-    }
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.wordCount ?? 0;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => revisionsField("wordCount"),
+    }),
   }),
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
     canRead: [documentIsNotDeleted],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return "";
-      return contents.html;
-    }
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.html;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => revisionsField("html"),
+    }),
   }),
 
   submitToFrontpage: {
