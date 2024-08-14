@@ -23,6 +23,7 @@ import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
 import { createMutator } from "@/server/vulcan-lib";
+import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
 
@@ -275,6 +276,7 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
         document: {
           version: editableField.version || getInitialVersion(document),
           changeMetrics: {added: 0, removed: 0},
+          collectionName,
           ...revisionData,
           userId,
         },
@@ -307,18 +309,24 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
       "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
       "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
       "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents")
+      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents"),
+      "draft" = COALESCE(p."draft", FALSE),
+      "collectionName" = $1
     FROM "${collectionName}" AS p
     WHERE
-      r."collectionName" = '${collectionName}'
+      r."collectionName" = $1
       AND r."fieldName" = '${fieldName}'
       AND p."${fieldName}_latest" = r."_id"
       AND p."${fieldName}"->>'html' <> r."html"
-  `);
+  `, [collectionName]);
 
   // eslint-disable-next-line no-console
   console.log("Dropping denormalized field...");
   await dropRemovedField(db, collection, fieldName);
+
+  // eslint-disable-next-line no-console
+  console.log("Undrafting most recent revisions for published posts...");
+  await undraftPublicPostRevisions(db);
 }
 
 export const denormalizeEditableField = async <N extends CollectionNameString>(
