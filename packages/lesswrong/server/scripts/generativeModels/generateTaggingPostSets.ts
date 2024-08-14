@@ -1,9 +1,7 @@
 import { Globals } from '../../../lib/vulcan-lib/config';
 import { Posts } from '../../../lib/collections/posts/collection';
 import { Tags } from '../../../lib/collections/tags/collection';
-import { truncate } from '../../../lib/editor/ellipsize';
 import { postStatuses } from '../../../lib/collections/posts/constants';
-import { dataToMarkdown, htmlToMarkdown } from '../../editor/conversionUtils';
 import { getOpenAI, wikiSlugToTemplate } from '../../languageModels/languageModelIntegration';
 import { postToPrompt, checkTags, getAutoAppliedTags, generatePostBodyCache, PostBodyCache } from '../../languageModels/autoTagCallbacks';
 import shuffle from 'lodash/shuffle';
@@ -14,6 +12,7 @@ import keyBy from 'lodash/keyBy';
 import filter from 'lodash/filter';
 import fs from 'fs';
 import { getSiteUrl } from '../../vulcan-lib';
+import { FetchedFragment, fetchFragment } from '../../fetchFragment';
 
 const postEndMarker  = "===TAGS===";
 
@@ -83,7 +82,7 @@ const frontpagePrompt = "Is this post of broad relevance, timeless, apolitical, 
 
 async function generateClassifierTuningFile({description, posts, postBodyCache, outputFilename, promptSuffix, classifyPost}: {
   description: string,
-  posts: DbPost[],
+  posts: FetchedFragment<"PostsHTML">[],
   outputFilename: string,
   promptSuffix: string,
   classifyPost: (post: DbPost) => boolean,
@@ -123,10 +122,22 @@ Globals.generateTagClassifierData = async (args: {
   const {tagSlug, trainingSetFilename="ml/tagClassificationPostIds.train.json", testSetFilename="ml/tagClassificationPostIds.test.json"} = args||{};
   const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
-  
-  const trainingSet: DbPost[] = await Posts.find({_id: {$in: trainingSetPostIds}}).fetch();
-  const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
-  
+
+  const trainingSet = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: {$in: trainingSetPostIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
+  const testSet = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: {$in: testSetPostIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
+
   const singleTag = tagSlug ? await Tags.findOne({slug: tagSlug}) : null;
   if (tagSlug && !singleTag) throw new Error(`Missing tag: ${tagSlug}`);
   
@@ -179,10 +190,22 @@ Globals.generateIsFrontpageClassifierData = async () => {
   
   const trainingSetPostIds = JSON.parse(fs.readFileSync(trainingSetFilename, 'utf-8'));
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetFilename, 'utf-8'));
-  
-  const trainingSet: DbPost[] = await Posts.find({_id: {$in: trainingSetPostIds}}).fetch();
-  const testSet: DbPost[] = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
-  
+
+  const trainingSet = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: {$in: trainingSetPostIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
+  const testSet = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: {$in: testSetPostIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
+
   await generateClassifierTuningFile({
     description: `Train is-front-page`,
     posts: trainingSet,
@@ -205,7 +228,13 @@ Globals.generateIsFrontpageClassifierData = async () => {
 
 Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
-  const posts = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
+  const posts = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: {$in: testSetPostIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
   const tags = await getAutoAppliedTags();
   const openAIApi = await getOpenAI();
   if (!openAIApi) throw new Error("OpenAI API not configured");
@@ -241,7 +270,13 @@ Globals.evaluateTagModels = async (testSetPostIdsFilename: string, outputFilenam
 Globals.evaluateFrontPageClassifier = async (testSetPostIdsFilename: string, outputFilename: string) => {
   const testSetPostIds = JSON.parse(fs.readFileSync(testSetPostIdsFilename, 'utf-8'));
   const template = await wikiSlugToTemplate("lm-config-autotag");
-  const posts = await Posts.find({_id: {$in: testSetPostIds}}).fetch();
+  const posts = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: {$in: testSetPostIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
   const postsById = keyBy(posts, post=>post._id);
   const openAIApi = await getOpenAI();
   if (!openAIApi) throw new Error("OpenAI API not configured");

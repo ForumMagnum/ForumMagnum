@@ -53,7 +53,7 @@ const NewDialogueDialog = ({onClose, classes}: {
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>([]);
-  const {create: createPost, loading, error} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
+  const {create: createPost, loading} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
   const navigate = useNavigate();
 
   async function createDialogue() {
@@ -73,12 +73,16 @@ const NewDialogueDialog = ({onClose, classes}: {
           anyoneWithLinkCan: "none",
           explicitlySharedUsersCan: "edit",
         },
-        contents: {
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: ""
-          }
-        } as AnyBecauseHard
+        // Contents is a resolver only field, but there is handling for it
+        // in `createMutator`/`updateMutator`
+        ...({
+          contents: {
+            originalContents: {
+              type: "ckEditorMarkup",
+              data: ""
+            }
+          },
+        }) as AnyBecauseHard,
       },
     });
     if (createResult?.data?.createPost?.data) {
