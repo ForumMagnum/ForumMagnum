@@ -21,11 +21,11 @@ const styles = (theme: ThemeType) => ({
   audioIcon: {
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: `translateY(-${PODCAST_ICON_PADDING}px)`,
-    padding: PODCAST_ICON_PADDING
+    padding: PODCAST_ICON_PADDING,
+    transform: isFriendlyUI ? undefined : `translateY(-${PODCAST_ICON_PADDING}px)`,
   },
   audioNewFeaturePulse: {
-    top: PODCAST_ICON_PADDING * 1.5
+    top: 9
   },
   audioIconOn: {
     background: theme.palette.icon.dim05,
