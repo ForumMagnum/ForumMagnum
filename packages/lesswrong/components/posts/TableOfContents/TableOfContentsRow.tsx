@@ -1,16 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
-import { isEAForum } from '@/lib/instanceSettings';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
   flexDirection: 'column-reverse',
 } : {});
-
-const TITLE_CONTAINER_CLASS_NAME = 'ToCTitleContainer';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -48,6 +45,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: fullHeightToCEnabled ? "1em" : "1.2em",
     '&:hover':{
       color: theme.palette.link.tocLinkHighlighted,
+      opacity: isFriendlyUI ? 1 : undefined
     },
     ...(isFriendlyUI && {
       lineHeight: "1.1rem",
@@ -106,13 +104,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column-reverse',
     transition: 'opacity 0.4s ease-in-out, height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
-  },
-  '@global': isFriendlyUI ? {} : {
-    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
-    [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
-      opacity: 0,
-      height: 84,
-    }
   }
 });
 
@@ -145,29 +136,10 @@ const TableOfContentsRow = ({
   offset?: number,
   fullHeight?: boolean,
   commentToC?: boolean
-}) => {
-  const [isPinned, setIsPinned] = useState(true);
-  const rowRef = useRef<HTMLDivElement>(null);
-  
+}) => {  
   const fullHeightTitle = !!(title && fullHeight);
-  const hideTitleContainer = !commentToC ? fullHeightTitle : fullHeightTitle && isPinned;
 
   const offsetStyling = offset !== undefined ? { flex: offset } : undefined;
-
-  useEffect(() => {
-    const target = rowRef.current;
-    if (target) {
-      // To prevent the comment ToC title from being hidden when scrolling up
-      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
-      const observer = new IntersectionObserver(([e]) => {
-        const newIsPinned = e.intersectionRatio < 1;
-        setIsPinned(newIsPinned);
-      }, { threshold: [1] });
-  
-      observer.observe(target);
-      return () => observer.unobserve(target);
-    }
-  }, []);
 
   if (divider) {
     return <Components.TableOfContentsDivider offsetStyling={offsetStyling} />
@@ -177,11 +149,10 @@ const TableOfContentsRow = ({
     className={classNames(
       classes.root,
       levelToClassName(indentLevel, classes),
-      { [classes.titleContainer]: fullHeightTitle, [TITLE_CONTAINER_CLASS_NAME]: hideTitleContainer },
+      { [classes.titleContainer]: fullHeightTitle },
       { [classes.highlighted]: highlighted },
     )}
     style={offsetStyling}
-    ref={rowRef}
   >
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,

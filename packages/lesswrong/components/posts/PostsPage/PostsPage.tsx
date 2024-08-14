@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -365,13 +365,14 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
-  const toggleEmbeddedPlayer = fullPost && postHasAudioPlayer(fullPost) ? () => {
+  const toggleEmbeddedPlayer = post && postHasAudioPlayer(post) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
       newCookieValue, {
+
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);

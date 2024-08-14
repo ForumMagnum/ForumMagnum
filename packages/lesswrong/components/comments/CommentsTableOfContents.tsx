@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(-90deg)",
   },
   postTitle: {
-    minHeight: 64,
+    minHeight: 76,
     paddingTop: 16,
     ...theme.typography.body2,
     ...theme.typography.postStyle,
@@ -70,7 +70,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [`body:has(.headroom--pinned) .${COMMENTS_TITLE_CLASS_NAME}, body:has(.headroom--unfixed) .${COMMENTS_TITLE_CLASS_NAME}`]: {
       opacity: 0,
     }
-  },
+  }
 })
 
 const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
@@ -80,7 +80,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow, FormatDate } = Components;
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -89,17 +88,37 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
 
+  const [isPinned, setIsPinned] = useState(true);
+  const titleRef = useRef<HTMLAnchorElement|null>(null);
+  const hideTitleContainer = isPinned;
+
+  useEffect(() => {
+    const target = titleRef.current;
+    if (target) {
+      // To prevent the comment ToC title from being hidden when scrolling up
+      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
+      const observer = new IntersectionObserver(([e]) => {
+        const newIsPinned = e.intersectionRatio < 1;
+        setIsPinned(newIsPinned);
+      }, { threshold: [1] });
+  
+      observer.observe(target);
+      return () => observer.unobserve(target);
+    }
+  }, []);
+
   if (flattenedComments.length === 0) return null;
   
   if (!commentsTableOfContentsEnabled) {
     return null;
   }
-  
+
   return <div className={classes.root}>
-      <a id="comments" href="#" className={classNames(classes.postTitle, COMMENTS_TITLE_CLASS_NAME)} onClick={ev => {
+      <a id="comments" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
+      onClick={ev => {
         ev.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }}>
+      }} ref={titleRef}>
         {post.title?.trim()}
       </a>
 

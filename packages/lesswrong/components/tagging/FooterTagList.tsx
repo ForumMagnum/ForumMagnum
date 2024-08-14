@@ -297,22 +297,22 @@ const FooterTagList = ({
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
-        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling/>
+        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling={neverCoreStyling}/>
       </Link>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling/>
+          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling}/>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
-            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling/>
+            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling={neverCoreStyling}/>
           </MaybeLink>
         : null
       )
     )
 
   const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
-    <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody}/>
+    <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
   </MaybeLink> : null
 
   const sortedTagInfo = results

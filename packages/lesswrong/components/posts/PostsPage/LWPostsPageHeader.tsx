@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 12
   },
   authorInfo: {
-    maxWidth: "calc(100% - 150px)",
+    maxWidth: "calc(100% - 60px)",
     [theme.breakpoints.down('sm')]: {
       maxWidth: "calc(100% - 60px)",
       fontSize: theme.typography.body2.fontSize,

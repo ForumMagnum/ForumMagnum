@@ -6,6 +6,7 @@ import { PODCAST_TOOLTIP_SEEN_COOKIE } from '@/lib/cookies/cookies';
 import classNames from 'classnames';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { isFriendlyUI } from '@/themes/forumTheme';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
@@ -61,6 +62,10 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
       <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer, [classes.audioIconDisabled]: !toggleEmbeddedPlayer})} />
     </a>
   </LWTooltip>
+
+  if (!postHasAudioPlayer(post)) {
+    return null;
+  }
 
   if (cachedTooltipSeen || isLWorAF) {
     return audioIcon
