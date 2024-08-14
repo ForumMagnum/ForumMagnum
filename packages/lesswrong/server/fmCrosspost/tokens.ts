@@ -2,7 +2,7 @@ import jwt, { VerifyErrors } from "jsonwebtoken";
 import { DatabaseServerSetting } from "../databaseSettings";
 import { InvalidPayloadError, MissingSecretError } from "./errors";
 
-const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
+export const crosspostSigningKeySetting = new DatabaseServerSetting<string|null>("fmCrosspostSigningKey", null);
 
 const getSecret = () => {
   const secret = crosspostSigningKeySetting.get();
