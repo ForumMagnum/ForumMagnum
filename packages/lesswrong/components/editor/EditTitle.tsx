@@ -12,15 +12,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    ...(isFriendlyUI && {
+    ...(isFriendlyUI ? {
       fontWeight: 700,
       fontSize: "3rem",
       marginBottom: 12,
+      marginTop: 0,
+    }: {
+      fontSize: "4.5rem",
+      marginTop: 34,
+      marginBottom: 64,
     }),
     width: "100%",
     resize: "none",
     textAlign: "left",
-    marginTop: 0,
     "& textarea": {
       overflowY: "hidden",
     },

@@ -571,15 +571,6 @@ interface CurationEmailsDefaultFragment { // fragment on CurationEmails
   readonly postId: string,
 }
 
-interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
-  readonly userId: string,
-  readonly targetUserId: string,
-  readonly checked: boolean,
-  readonly checkedAt: Date,
-  readonly match: boolean,
-  readonly hideInRecommendations: boolean,
-}
-
 interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly electionName: string,
   readonly name: string,
@@ -1238,6 +1229,22 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
+  readonly podcastEpisode: PostsListWithVotes_podcastEpisode|null,
+}
+
+interface PostsListWithVotes_podcastEpisode { // fragment on PodcastEpisodes
+  readonly _id: string,
+  readonly title: string,
+  readonly podcast: PostsListWithVotes_podcastEpisode_podcast,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PostsListWithVotes_podcastEpisode_podcast { // fragment on Podcasts
+  readonly _id: string,
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
@@ -3804,13 +3811,20 @@ interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuesti
   readonly binaryQuestionId: string,
 }
 
+interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
+  readonly userId: string,
+  readonly targetUserId: string,
+  readonly checked: boolean,
+  readonly checkedAt: Date,
+  readonly hideInRecommendations: boolean,
+}
+
 interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly _id: string,
   readonly userId: string,
   readonly targetUserId: string,
   readonly checked: boolean,
   readonly checkedAt: Date,
-  readonly match: boolean,
   readonly hideInRecommendations: boolean,
   readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
   readonly reciprocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
@@ -4023,7 +4037,6 @@ interface FragmentTypes {
   TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   CurationEmailsDefaultFragment: CurationEmailsDefaultFragment
-  DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
@@ -4260,6 +4273,7 @@ interface FragmentTypes {
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
+  DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
@@ -4292,7 +4306,6 @@ interface FragmentTypesByCollection {
   Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
-  DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
   ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
   ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
@@ -4345,6 +4358,7 @@ interface FragmentTypesByCollection {
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
+  DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
@@ -4363,7 +4377,6 @@ interface CollectionNamesByFragmentName {
   TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
   CurationEmailsDefaultFragment: "CurationEmails"
-  DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
   ForumEventsDefaultFragment: "ForumEvents"
@@ -4600,6 +4613,7 @@ interface CollectionNamesByFragmentName {
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
+  DialogueChecksDefaultFragment: "DialogueChecks"
   DialogueCheckInfo: "DialogueChecks"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"

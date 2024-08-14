@@ -2431,7 +2431,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: isFriendlyUI ? formGroups.category : formGroups.title,
+    group: formGroups.category,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
