@@ -59,7 +59,7 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   }, [])
   const audioIcon = <LWTooltip title={'Listen to this post'} className={classes.togglePodcastContainer}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer, [classes.audioIconDisabled]: !toggleEmbeddedPlayer})} />
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
     </a>
   </LWTooltip>
 
