@@ -225,7 +225,6 @@ export const createNewPost = async (): Promise<PlaywrightPost> => {
       "author",
       "title",
       "slug",
-      "contents",
       "contents_latest",
       "status",
       "isFuture",
@@ -233,7 +232,7 @@ export const createNewPost = async (): Promise<PlaywrightPost> => {
       "wasEverUndrafted",
       "maxBaseScore",
       "postedAt"
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, 2, FALSE, FALSE, TRUE, 0, NOW())
+    ) VALUES ($1, $2, $3, $4, $5, $6, 2, FALSE, FALSE, TRUE, 0, NOW())
   `, [_id, author._id, author.username, title, slug, contents, contents._id]);
 
   return {

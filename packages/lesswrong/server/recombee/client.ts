@@ -15,6 +15,7 @@ import { getParentTraceId, openPerfMetric, wrapWithPerfMetric } from '../perfMet
 import { performQueryFromViewParameters } from '../resolvers/defaultResolvers';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../lib/random';
+import { fetchFragmentSingle } from '../fetchFragment';
 import { createAdminContext } from '../vulcan-lib/query';
 import Globals from '@/lib/vulcan-lib/config';
 import util from 'util';
@@ -86,7 +87,6 @@ interface PostFieldDependencies {
   author: 'author',
   authorId: 'userId',
   karma: 'baseScore',
-  body: 'contents',
   postedAt: 'postedAt',
   curated: 'curatedDate',
   frontpage: 'frontpageDate',
@@ -96,7 +96,9 @@ interface PostFieldDependencies {
 }
 
 interface UpsertPostData<FieldMask extends PostFieldDependencies[keyof PostFieldDependencies] = PostFieldDependencies[keyof PostFieldDependencies]> {
-  post: Pick<DbPost, FieldMask | '_id'>,
+  post: Pick<DbPost, FieldMask | '_id'> & {
+    contents: Pick<DbRevision, 'html'> | null,
+  },
   tags: Pick<DbTag, 'name' | 'core'>[],
 }
 
@@ -716,12 +718,23 @@ const recombeeApi = {
 
   async upsertPost(post: DbPost, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
-    const { Tags } = context;
+
+    const contents = await fetchFragmentSingle({
+      collectionName: "Revisions",
+      fragmentName: "RevisionHTML",
+      selector: {_id: post.contents_latest},
+      currentUser: context.currentUser,
+      context,
+      skipFiltering: true,
+    });
 
     const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId);
     const tags = filterNonnull(await loadByIds(context, 'Tags', tagIds));
 
-    const request = helpers.createUpsertPostRequest({ post, tags });
+    const request = helpers.createUpsertPostRequest({
+      post: {...post, contents},
+      tags,
+    });
 
     await client.send(request);
   },
