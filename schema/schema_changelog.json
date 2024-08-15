@@ -710,8 +710,8 @@
     "timestamp": "2024-07-04T13:57:16.000Z"
   },
   {
-    "acceptsSchemaHash": "a930ad918f310c7a443ceb43525dfdd1",
-    "acceptedByMigration": "20240801T070411.addDisableSidenotesFlag.ts",
-    "timestamp": "2024-08-01T07:04:11.000Z"
+    "acceptsSchemaHash": "d2ff8b556fc6f740b2bb57ddf5347f64",
+    "acceptedByMigration": "20240729T183041.normalize_post_contents.ts",
+    "timestamp": "2024-07-29T18:30:41.000Z"
   }
 ]

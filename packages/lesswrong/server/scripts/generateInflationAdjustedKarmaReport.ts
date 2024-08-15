@@ -26,6 +26,9 @@ const generateInflationAdjustedKarmaReport = async ({threshold = 100, relativeTo
         slug: 1,
         baseScore: 1,
         postedAt: 1,
+        // TODO: This is probably broken after normalizing word count - seems not
+        // worth the effort to fix right now since this is a very rarely used
+        // script
         wordCount: "$contents.wordCount",
       }
     }

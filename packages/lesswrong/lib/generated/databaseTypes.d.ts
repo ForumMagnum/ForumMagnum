@@ -953,7 +953,6 @@ interface DbPost extends DbObject {
   swrCachingEnabled: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines_latest: string | null
