@@ -22,10 +22,13 @@ import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
 import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
 import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
-import { createMutator } from "@/server/vulcan-lib";
+import { createMutator, getCollection } from "@/server/vulcan-lib";
 import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
 import Revisions from "@/lib/collections/revisions/collection";
 import chunk from "lodash/chunk";
+import { getLatestRev } from "@/server/editor/utils";
+import { Globals } from '@/lib/vulcan-lib/config';
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -204,12 +207,14 @@ export const updateView = async (db: SqlClientOrTx, name: string) => {
   }
 }
 
-export const normalizeEditableField = async <N extends CollectionNameString>(
-  db: SqlClientOrTx,
-  collection: CollectionBase<N>,
+export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
+  db?: SqlClientOrTx,
+  collectionName: CollectionNameString,
   fieldName: string,
-) => {
-  const {collectionName} = collection;
+  dropField: boolean
+}) => {
+  const db = maybeDb ?? getSqlClientOrThrow();
+  const collection = getCollection(collectionName);
 
   // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
@@ -233,17 +238,19 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
   const documents = await collection.find({
     [latestFieldName]: {$exists: false},
   }).fetch();
-  const documentBatches = chunk(documents, 10);
+  const documentBatches = chunk(documents, 20);
+  let existingRevUsed = 0;
+  let revCreated = 0;
+  const currentUser = await getAdminTeamAccount();
+  if (!currentUser) {
+    throw new Error("Can't find admin user account");
+  }
+
   for (let i = 0; i < documentBatches.length; i++) {
     // eslint-disable-next-line no-console
-    console.log(`Backfilling missing revisions for batch ${i} of ${documentBatches.length}...`);
+    console.log(`Backfilling missing revisions for batch ${i} of ${documentBatches.length}... (${existingRevUsed} reused, ${revCreated} created)`);
 
     const batch = documentBatches[i];
-
-    const currentUser = await getAdminTeamAccount();
-    if (!currentUser) {
-      throw new Error("Can't find admin user account");
-    }
 
     await Promise.all(batch.map(async (document) => {
       const editableField: (EditableFieldContents & EditableFieldUpdate) | undefined =
@@ -252,45 +259,65 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
         return;
       }
 
-      const dataWithDiscardedSuggestions = editableField?.dataWithDiscardedSuggestions;
-      delete editableField?.dataWithDiscardedSuggestions;
-
-      const userId = (document as AnyBecauseHard).userId || currentUser._id;
-
-      const revisionData = editableField.originalContents
-        ? await buildRevision({
-          originalContents: editableField.originalContents,
-          dataWithDiscardedSuggestions,
-          currentUser,
-        })
-        : {
-          html: "",
-          wordCount: 0,
-          originalContents: {type: "ckEditorMarkup", data: ""},
-          editedAt: new Date(),
-          userId,
-        };
-
-      const revision = await createMutator({
-        collection: Revisions,
-        document: {
-          version: editableField.version || getInitialVersion(document),
-          changeMetrics: {added: 0, removed: 0},
-          collectionName,
-          ...revisionData,
-          userId,
-        },
-        validate: false,
-      });
-
-      await Promise.all([
-        afterCreateRevisionCallback.runCallbacksAsync([{
-          revisionID: revision.data._id,
-        }]),
-        collection.rawUpdateOne({_id: document._id}, {
-          $set: {[latestFieldName]: revision.data._id},
-        }),
-      ]);
+      try {
+        const existingLatestRev = await getLatestRev(document._id, "contents");
+        if (
+          existingLatestRev
+          && existingLatestRev?.html === editableField?.html
+          && !existingLatestRev.draft
+        ) {
+          existingRevUsed++;
+          await collection.rawUpdateOne({_id: document._id}, {
+            $set: {[latestFieldName]: existingLatestRev._id},
+          })
+        } else {
+          const dataWithDiscardedSuggestions = editableField?.dataWithDiscardedSuggestions;
+          delete editableField?.dataWithDiscardedSuggestions;
+    
+          const userId = (document as AnyBecauseHard).userId || currentUser._id;
+    
+          const revisionData = editableField.originalContents
+            ? await buildRevision({
+              originalContents: editableField.originalContents,
+              dataWithDiscardedSuggestions,
+              currentUser,
+            })
+            : {
+              html: "",
+              wordCount: 0,
+              originalContents: {type: "ckEditorMarkup", data: ""},
+              editedAt: new Date(),
+              userId,
+            };
+    
+          revCreated++;
+          const revision = await createMutator({
+            collection: Revisions,
+            document: {
+              version: editableField.version || getInitialVersion(document),
+              changeMetrics: {added: 0, removed: 0},
+              collectionName,
+              ...revisionData,
+              userId,
+            },
+            validate: false,
+          });
+    
+          await Promise.all([
+            afterCreateRevisionCallback.runCallbacksAsync([{
+              revisionID: revision.data._id,
+            }]),
+            collection.rawUpdateOne({_id: document._id}, {
+              $set: {[latestFieldName]: revision.data._id},
+            }),
+          ]);
+        }
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.log(`Failed on post with ID ${document._id}`);
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
     }));
   }
 
@@ -320,14 +347,17 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}"->>'html' <> r."html"
   `, [collectionName]);
 
-  // eslint-disable-next-line no-console
-  console.log("Dropping denormalized field...");
-  await dropRemovedField(db, collection, fieldName);
+  if (dropField) {
+    // eslint-disable-next-line no-console
+    console.log("Dropping denormalized field...");
+    await dropRemovedField(db, collection, fieldName);
+  }
 
   // eslint-disable-next-line no-console
   console.log("Undrafting most recent revisions for published posts...");
   await undraftPublicPostRevisions(db);
 }
+
 
 export const denormalizeEditableField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
@@ -355,3 +385,6 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}_latest" = r."_id"
   `);
 }
+
+Globals.normalizeEditableField = normalizeEditableField
+Globals.denormalizeEditableField = denormalizeEditableField
