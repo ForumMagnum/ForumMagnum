@@ -23,6 +23,7 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
     limit: 3,
     itemsPerPage: 5,
   });
+  console.log(results);
 
   const {LoadMore, FriendlyPopularComment, LWPopularComment} = Components;
 

@@ -263,8 +263,8 @@ async getPopularDiscussion({
         SELECT 
           parent._id AS parent_id,
           child._id AS child_id,
-          parent."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - parent."postedAt") + $(recencyBias)) / -$(recencyFactor)) AS parent_score,
-          child."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - child."postedAt") + $(recencyBias)) / -$(recencyFactor)) AS child_score
+          parent."baseScore" AS parent_score,
+          child."baseScore" AS child_score
         FROM eligible_comments parent
         JOIN eligible_comments child ON child."parentCommentId" = parent._id
       ), ranked_pairs AS (
