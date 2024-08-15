@@ -19,7 +19,7 @@ import {
 } from './instanceSettings'
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
-import { recombeeEnabledSetting } from './publicSettings';
+import { recombeeEnabledSetting, userIdsWithAccessToLlmChat } from './publicSettings';
 import { useLocation } from './routeUtil';
 import { isAnyTest } from './executionEnvironment';
 
@@ -72,6 +72,13 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   const manualOptIn = currentUser && query.recExperiment === 'true';
 
   return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
+}
+
+export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null):boolean => {
+  if (!currentUser) return false;
+  const userIdsWithAccess = userIdsWithAccessToLlmChat.get();
+
+  return isLW && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser?._id));
 }
 
 export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;

@@ -15,7 +15,7 @@ import { DatabasePublicSetting, blackBarTitle, googleTagManagerIdSetting } from 
 import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
-import { userCanDo, userIsAdmin } from '../lib/vulcan-users/permissions';
+import { userCanDo } from '../lib/vulcan-users/permissions';
 import { Helmet } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
@@ -34,6 +34,7 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
+import { userHasLlmChat } from '@/lib/betas';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -475,8 +476,7 @@ const Layout = ({currentUser, children, classes}: {
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      // TODO: Don't render when on standalone llm page
-      renderLanguageModelChatLauncher: userIsAdmin(currentUser) && currentRoute?.path !== '/llm',
+      renderLanguageModelChatLauncher: userHasLlmChat(currentUser),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }

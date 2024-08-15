@@ -1,4 +1,3 @@
-import { userIsAdmin } from "@/lib/vulcan-users";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
 import { z } from 'zod'
@@ -8,6 +7,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { generateContextSelectionPrompt, generatePromptWithContext, generateSystemPrompt, generateTitleGenerationPrompt } from "../languageModels/promptUtils";
 import uniqBy from "lodash/uniqBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
+import { userHasLlmChat } from "@/lib/betas";
 
 const ClaudeMessage = `input ClaudeMessage {
   role: String!
@@ -103,7 +103,7 @@ const createPromptWithContext = async (options: PromptContextOptionsWithFulLPost
   const useCurrentPostAndRelatedContext = ['current-post-based', 'both'].includes(contextSelectionCode)
 
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query)
-  const nearestPostsBasedOnQuery = useQueryRelatedPostsContext ? await context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 5 : 3) : []
+  const nearestPostsBasedOnQuery = useQueryRelatedPostsContext ? await context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3) : []
   const nearestPostsBasedOnCurrentPost: DbPost[] = useCurrentPostAndRelatedContext && currentPost ? await context.repos.postEmbeddings.getNearestPostsWeightedByQualityByPostId(currentPost._id) : []
 
   const nearestPostsPossiblyDuplicated = [...nearestPostsBasedOnQuery, ...nearestPostsBasedOnCurrentPost]  
@@ -166,8 +166,9 @@ defineMutation({
   fn: async (_, {messages, promptContextOptions, title }: {messages: ClaudeMessage[], promptContextOptions: PromptContextOptions, title: string|null}, context): Promise<ClaudeConversation> => {
     const { currentUser } = context;
     const { postId: currentPostId } = promptContextOptions
-    if (!userIsAdmin(currentUser)) {
-      throw new Error("only admins can use Claude chat at present")
+
+    if (!userHasLlmChat(currentUser)) {
+      throw new Error("only admins and authorized users can use Claude chat at present")
     }
 
     // Check that conversation history past in conforms to schema
