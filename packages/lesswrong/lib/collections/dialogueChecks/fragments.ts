@@ -7,6 +7,7 @@ registerFragment(`
     targetUserId
     checked
     checkedAt
+    match
     hideInRecommendations
     matchPreference {
       ...DialogueMatchPreferencesDefaultFragment

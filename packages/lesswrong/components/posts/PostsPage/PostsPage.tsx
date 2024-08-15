@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -41,7 +41,6 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 
-const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
@@ -366,14 +365,13 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
-  const toggleEmbeddedPlayer = post && postHasAudioPlayer(post) ? () => {
+  const toggleEmbeddedPlayer = fullPost && postHasAudioPlayer(fullPost) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
       newCookieValue, {
-
       path: "/"
     });
     setShowEmbeddedPlayer(!showEmbeddedPlayer);
@@ -495,7 +493,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     skip: !post.debate || !fullPost
   });
 
-  const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
+  const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
@@ -605,6 +603,15 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     post.fmCrosspost?.isCrosspost &&
     !post.fmCrosspost?.hostedHere;
 
+  // Hide the table of contents on questions that are foreign crossposts
+  // as we read ToC data from the foreign site and it includes answers
+  // which don't exists locally. TODO: Remove this gating when we finally
+  // rewrite crossposting.
+  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
+  const tableOfContents = hasTableOfContents
+    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc={isLWorAF} />
+    : null;
+
   const noIndex = fullPost?.noIndex || post.rejected;
 
   const marketInfo = getMarketInfo(post)
@@ -623,17 +630,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const commentCount = results?.length ?? 0;
   const commentTree = unflattenComments(results ?? []);
   const answersTree = unflattenComments(answersAndReplies ?? []);
-  const answerCount = post.question ? answersTree.length : undefined;
-
-  // Hide the table of contents on questions that are foreign crossposts
-  // as we read ToC data from the foreign site and it includes answers
-  // which don't exists locally. TODO: Remove this gating when we finally
-  // rewrite crossposting.
-  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
-  const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={isLWorAF} commentCount={commentCount} answerCount={answerCount} />
-    : null;
-
 
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
   // If the comment reference in the hash doesn't appear in the page, try and load it separately as a permalinked comment
@@ -687,11 +683,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
-            post={post}
-            showEmbeddedPlayer={showEmbeddedPlayer}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>}
-          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
+          {!showSplashPageHeader && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
@@ -754,9 +746,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       {showSplashPageHeader && !permalinkedCommentId && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
-      {isBookUI && header}
       {/* Body */}
-      {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
+      {fullPost && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
@@ -876,8 +867,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
+            {centralColumn: header},
             {
-              toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
+              toc: tableOfContents,
               centralColumn: postBodySection,
               rightColumn: rightColumnChildren
             },
@@ -888,10 +880,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
               isCommentToC: true
             },
           ]}
-          tocRowMap={[0, 0, 2]}
+          tocRowMap={[1, 1, 1, 3]}
           showSplashPageHeader={showSplashPageHeader}
-          answerCount={answerCount}
-          commentCount={commentCount}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}

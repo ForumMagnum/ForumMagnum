@@ -14,8 +14,8 @@ import { styles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingI
 import FormLabel from '@material-ui/core/FormLabel';
 import {checkEditorValid} from './validation'
 
-const postEditorHeight = isEAForum ? 250 : 400;
-const questionEditorHeight = isEAForum ? 150 : 400;
+const postEditorHeight = isEAForum ? 250 : 500;
+const questionEditorHeight = 150;
 const commentEditorHeight = 100;
 const quickTakesEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;

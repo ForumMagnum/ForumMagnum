@@ -564,7 +564,7 @@ importComponent("UsersWhoReacted", () => require('../components/votes/lwReaction
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("PostsVoteDefault", () => require('../components/votes/PostsVoteDefault'));
-importComponent("LWPostsPageTopHeaderVote", () => require('../components/votes/LWPostsPageTopHeaderVote'));
+importComponent("PostsSplashPageHeaderVote", () => require('../components/votes/PostsSplashPageHeaderVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
 // Events

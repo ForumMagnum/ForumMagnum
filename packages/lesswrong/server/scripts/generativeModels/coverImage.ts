@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
+import Posts from '../../../lib/collections/posts/collection.ts';
 import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
@@ -8,7 +9,6 @@ import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
-import { fetchFragment } from '../../fetchFragment.ts';
 
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 
@@ -71,22 +71,16 @@ const getEssays = async (): Promise<Essay[]> => {
 
   const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
 
-  const essays = await fetchFragment({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: {_id: {$in: postsToFind.map(p => p.postId)}},
-    currentUser: null,
-    skipFiltering: true,
-  });
+  const es = await Posts.find({ _id: { $in: postsToFind.map(p => p.postId) } }).fetch();
 
-  const toGenerate = (p: PostsPage) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
+  const toGenerate = (p: DbPost) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
 
-  return essays.map(e => {
+  return es.map(e => {
     return {post: e, title: e.title, content: e.contents?.html ?? "", toGenerate: toGenerate(e) }
   })
 }
 
-type Essay = {post: PostsPage, title: string, content: string, toGenerate: number}
+type Essay = {post: DbPost, title: string, content: string, toGenerate: number}
 type MyMidjourneyResponse = {messageId: "string", uri?: string, progress: number, error?: string}
 
 const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {

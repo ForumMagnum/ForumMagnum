@@ -14,7 +14,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
-import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostHTML } from "../posts/utils";
+import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
 import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
@@ -29,11 +29,28 @@ import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-import { GoogleDocMetadata, getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { RecommendedPost, recombeeApi, recombeeRequestHelpers } from '../recombee/client';
 import { HybridRecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
+
+/**
+ * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
+ * Do not use this for anyone who doesn't have privileged access to document since it can return unpublished edits
+*/
+const getDialogueMessageContents = async (post: DbPost, messageId: string): Promise<string|null> => {
+  if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue!")
+
+  // fetch remote document from storage / fetch latest revision / post latest contents
+  const latestRevision = await getLatestRev(post._id, "contents")
+  const html = latestRevision?.html ?? post.contents?.html ?? ""
+
+  const $ = cheerioParse(html)
+  const message = $(`[message-id="${messageId}"]`);
+  return message.html();
+}
+
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -94,10 +111,9 @@ augmentFieldsDict(Posts, {
   totalDialogueResponseCount: {
     resolveAs: {
       type: 'Int!', 
-      resolver: async (post, _, context) => {
+      resolver: (post, _, context) => {
         if (!post.debate) return 0;
-        const responseIds = await getDialogueResponseIds(post, context);
-        return responseIds.length;
+        return getDialogueResponseIds(post).length
       }
     }
   },
@@ -110,7 +126,7 @@ augmentFieldsDict(Posts, {
         const lastReadStatus = await getLastReadStatus(post, context);
         if (!lastReadStatus) return 0;
 
-        const messageTimestamps = await getDialogueMessageTimestamps(post, context);
+        const messageTimestamps = getDialogueMessageTimestamps(post)
         const newMessageTimestamps = messageTimestamps.filter(ts => ts > lastReadStatus.lastUpdated)
 
         return newMessageTimestamps.length ?? 0
@@ -119,9 +135,9 @@ augmentFieldsDict(Posts, {
   },
   mostRecentPublishedDialogueResponseDate: {
     ...denormalizedField({
-      getValue: async (post: DbPost, context: ResolverContext) => {
+      getValue: (post: DbPost) => {
         if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
-        const messageTimestamps = await getDialogueMessageTimestamps(post, context);
+        const messageTimestamps = getDialogueMessageTimestamps(post)
         if (messageTimestamps.length === 0) { return null } 
         const lastTimestamp = messageTimestamps[messageTimestamps.length - 1]
         return lastTimestamp
@@ -150,7 +166,7 @@ augmentFieldsDict(Posts, {
             : sqlFetchedPost.sideCommentsCache;
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
-        const editedAt = new Date(post.modifiedAt ?? 0);
+        const editedAt = new Date(post.contents?.editedAt ?? 0);
 
         const cacheIsValid = cache
           && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt)
@@ -190,7 +206,7 @@ augmentFieldsDict(Posts, {
           };
         } else {
           const toc = await getToCforPost({document: post, version: null, context});
-          const html = toc?.html || await getPostHTML(post, context);
+          const html = toc?.html || post?.contents?.html
           const sideCommentMatches = matchSideComments({
             html: html ?? "",
             comments: comments.map(comment => ({
@@ -277,13 +293,7 @@ augmentFieldsDict(Posts, {
         const isParticipant = isDialogueParticipant(currentUser._id, post)
         if (!isParticipant) return null;
 
-        const html = (await getLatestRev(post._id, "contents"))?.html ??
-          (await getLatestContentsRevision(post, context))?.html ??
-          "";
-
-        const $ = cheerioParse(html)
-        const message = $(`[message-id="${dialogueMessageId}"]`);
-        return message.html();
+        return getDialogueMessageContents(post, dialogueMessageId)
       }
     }
   },
@@ -333,8 +343,7 @@ augmentFieldsDict(Posts, {
           "https://youtube.com",
           "https://youtu.be",
         ];
-        const html = await getPostHTML(post, context);
-        const $ = cheerioParse(html);
+        const $ = cheerioParse(post.contents?.html ?? "");
         const iframes = $("iframe").toArray();
         for (const iframe of iframes) {
           if ("attribs" in iframe) {
@@ -541,17 +550,13 @@ addGraphQLResolvers({
             _id: finalPostId,
             userId: currentUser._id,
             title: docMetadata.name,
-            ...({
-              // Contents is a resolver only field, but there is handling for it
-              // in `createMutator`/`updateMutator`
-              contents: {
-                originalContents,
-                commitMessage,
-                googleDocMetadata: docMetadata
-              },
-            }),
+            contents: {
+              originalContents,
+              commitMessage,
+              googleDocMetadata: docMetadata
+            },
             draft: true,
-            ...afField,
+            ...afField
           },
           currentUser,
           validate: false,

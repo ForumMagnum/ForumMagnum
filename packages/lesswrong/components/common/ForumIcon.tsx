@@ -263,7 +263,7 @@ export type ForumIconName =
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
-    VolumeUp: SpeakerWaveIcon,
+    VolumeUp: MuiVolumeUpIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,

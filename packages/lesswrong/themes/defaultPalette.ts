@@ -259,7 +259,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dim4: shades.grey[500],
     dim5: shades.greyAlpha(.3),
     dim6: shades.greyAlpha(.2),
-    dim05: shades.greyAlpha(.08),
     dim55: shades.greyAlpha(.55),
     dim600: shades.grey[600],
     dim700: shades.grey[700],

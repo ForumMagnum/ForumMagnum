@@ -10,7 +10,6 @@ import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
-import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
@@ -182,13 +181,7 @@ type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
 const getEmbeddingsForPost = async (
   postId: string,
 ): Promise<EmbeddingsWithHash> => {
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: {_id: postId},
-    currentUser: null,
-    skipFiltering: true,
-  });
+  const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
   }
@@ -199,7 +192,7 @@ const getEmbeddingsForPost = async (
 }
 
 const getEmbeddingsForPosts = async (
-  posts: PostsPage[],
+  posts: DbPost[],
 ): Promise<Record<string, EmbeddingsWithHash>> => {
   const textMappings = Object.fromEntries(posts.map((post) => [post._id, htmlToTextDefault(post.contents?.html ?? "")] as const));
   const hashMappings = mapValues(textMappings, (postText: string) => md5(postText));
@@ -221,15 +214,8 @@ export const updatePostEmbeddings = async (postId: string) => {
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
 }
 
-const batchUpdatePostEmbeddings = async (postIds: string[]) => {
+export const batchUpdatePostEmbeddings = async (posts: DbPost[]) => {
   const repo = new PostEmbeddingsRepo();
-  const posts = await fetchFragment({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: {_id: {$in: postIds}},
-    currentUser: null,
-    skipFiltering: true,
-  });
   const postEmbeddings = await getEmbeddingsForPosts(posts);
   const updates = Object.entries(postEmbeddings).map(([postId, { hash, model, embeddings }]) => repo.setPostEmbeddings(postId, hash, model, embeddings));
   await Promise.all(updates);
@@ -244,7 +230,7 @@ const updateAllPostEmbeddings = async () => {
       console.log("Processing next batch")
       try {
         if (embeddingsSettings.supportsBatchUpdate) {
-          await batchUpdatePostEmbeddings(posts.map(({_id}) => _id));
+          await batchUpdatePostEmbeddings(posts);
         } else {
           await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
         }
@@ -262,7 +248,8 @@ export const updateMissingPostEmbeddings = async () => {
   if (embeddingsSettings.supportsBatchUpdate) {
     for (const idBatch of chunk(ids, 50)) {
       try {
-        await batchUpdatePostEmbeddings(idBatch);
+        const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
+        await batchUpdatePostEmbeddings(posts);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });

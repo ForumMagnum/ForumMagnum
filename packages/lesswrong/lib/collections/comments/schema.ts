@@ -307,12 +307,16 @@ const schema: SchemaType<"Comments"> = {
   },
 
   // The semver-style version of the post that this comment was made against
-  // This gets automatically created in a callback on creation, which is defined
-  // in server/resolvers/commentResolvers.ts
+  // This gets automatically created in a callback on creation
   postVersion: {
     type: String,
     optional: true,
     canRead: ['guests'],
+    onCreate: async ({newDocument}) => {
+      if (!newDocument.postId) return "1.0.0";
+      const post = await mongoFindOne("Posts", {_id: newDocument.postId})
+      return (post && post.contents && post.contents.version) || "1.0.0"
+    }
   },
 
   promoted: {

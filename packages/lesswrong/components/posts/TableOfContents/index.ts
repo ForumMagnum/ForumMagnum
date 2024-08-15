@@ -9,4 +9,3 @@ importComponent("AnswerTocRow", () => require('./AnswerTocRow'));
 importComponent("ToCColumn", () => require('./ToCColumn'));
 importComponent("MultiToCLayout", () => require('./MultiToCLayout'));
 importComponent("DynamicTableOfContents", () => require('./DynamicTableOfContents'));
-importComponent("FixedTableOfContentsCommentCount", () => require('./FixedTableOfContentsCommentCount'));

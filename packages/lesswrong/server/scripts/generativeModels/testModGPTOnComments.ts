@@ -1,13 +1,16 @@
 /* eslint-disable no-console */
 import sanitizeHtml from 'sanitize-html';
 import { Comments } from '../../../lib/collections/comments';
+import { sanitizeAllowedTags } from '../../../lib/vulcan-lib/utils';
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { Vulcan } from '../../vulcan-lib';
 import { wrapVulcanAsyncScript } from '../utils';
 import * as _ from 'underscore';
+import { htmlToText } from 'html-to-text';
 import { modGPTPrompt, sanitizeHtmlOptions } from '../../languageModels/modGPT';
+import Posts from '../../../lib/collections/posts/collection';
+import difference from 'lodash/difference';
 import { truncatise } from '../../../lib/truncatise';
-import { fetchFragmentSingle } from '../../fetchFragment';
 
 /**
  * This was written for the EA Forum to test out having GPT-4o help moderate comments.
@@ -27,13 +30,7 @@ Vulcan.testModGPT = wrapVulcanAsyncScript(
     }).fetch()
   
     for (const comment of comments) {
-      const post = await fetchFragmentSingle({
-        collectionName: "Posts",
-        fragmentName: "PostsPage",
-        selector: {_id: comment.postId},
-        currentUser: null,
-        skipFiltering: true,
-      });
+      const post = await Posts.findOne(comment.postId)
       if (!post) continue
       
       const commentText = sanitizeHtml(comment.contents?.html ?? "", sanitizeHtmlOptions)

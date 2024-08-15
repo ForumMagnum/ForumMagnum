@@ -51,7 +51,7 @@ const SequencesNavigationLink = ({ post, direction, classes }: {
       </Link>
     )
     if (post.title) {
-      return <Tooltip title={post.title} placement="top">{button}</Tooltip>
+      return <Tooltip title={post.title}>{button}</Tooltip>
     } else {
       return button;
     }

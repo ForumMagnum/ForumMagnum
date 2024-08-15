@@ -17,7 +17,7 @@ const sansSerifStack = [
   'sans-serif'
 ].join(',')
 
-const serifStackBody = [
+const serifStack = [
   'warnock-pro',
   'Palatino',
   '"Palatino Linotype"',
@@ -25,10 +25,7 @@ const serifStackBody = [
   '"Book Antiqua"',
   'Georgia',
   'serif'
-]
-
-const serifStack = serifStackBody.join(',')
-const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
+].join(',')
 
 export const lessWrongTheme: SiteThemeSpecification = {
   shadePalette: {
@@ -62,7 +59,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontFamily: serifStack,
       },
       headerStyle: {
-        fontFamily: headerStack,
+        fontFamily: serifStack,
       },
       caption: {
         // captions should be relative to their surrounding content, so they are unopinionated about fontFamily and use ems instead of rems

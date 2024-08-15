@@ -7,8 +7,6 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 
-type DbPostWithContents = DbPost & {contents?: DbRevision | null};
-
 type MeanPostKarma = {
   _id: number,
   meanKarma: number,
@@ -303,11 +301,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getPostIdsWithoutEmbeddings
       SELECT p."_id"
       FROM "Posts" p
-      LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "PostEmbeddings" pe ON p."_id" = pe."postId"
       WHERE
         pe."embeddings" IS NULL AND
-        COALESCE((r."wordCount")::INTEGER, 0) > 0
+        COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
   }
@@ -429,10 +426,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
-        revision."html" AS "body",
+        p."contents"->>'html' AS "body",
         NOW() AS "exportedAt"
       FROM "Posts" p
-      LEFT JOIN "Revisions" revision ON p."contents_latest" = revision."_id"
       LEFT JOIN "Users" author ON p."userId" = author."_id"
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
     `;
@@ -479,13 +475,12 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [userId, targetUserId, limit]);
   }
 
-  async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
-    return await this.getRawDb().any(`
+  async getPostsWithElicitData(): Promise<DbPost[]> {
+    return await this.any(`
       -- PostsRepo.getPostsWithElicitData
-      SELECT p.*, ROW_TO_JSON(r.*) "contents"
-      FROM "Posts" p
-      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
-      WHERE r."html" LIKE '%elicit-binary-prediction%'
+      SELECT *
+      FROM "Posts"
+      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
 
@@ -899,23 +894,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, {
       userId,
       maxAgeDays: `${maxAgeDays} days`,
-    });
-  }
-  
-  async ensurePostHasNonDraftContents(postId: string) {
-    await this.none(`
-      UPDATE "Revisions" AS r
-      SET
-        "draft" = FALSE,
-        "version" = CASE WHEN LEFT("version", 1) = '0' THEN '1.0.0' ELSE "version" END
-      FROM "Posts" AS p
-      WHERE
-        p._id = $(postId)
-        AND p."contents_latest" = r."_id"
-        AND p."draft" IS NOT TRUE
-        AND r."draft" IS TRUE
-    `, {
-      postId
     });
   }
 }

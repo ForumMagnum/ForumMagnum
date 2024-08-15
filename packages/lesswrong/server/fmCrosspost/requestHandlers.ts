@@ -10,7 +10,6 @@ import { InvalidUserError, UnauthorizedError } from "./errors";
 import { validateCrosspostingKarmaThreshold } from "./helpers";
 import type { GetRouteOf, PostRouteOf } from "./routes";
 import { signToken, verifyToken } from "./tokens";
-import { getAllRepos } from "@/server/repos";
 import {
   ConnectCrossposterPayload, ConnectCrossposterPayloadValidator, CrosspostPayloadValidator, UnlinkCrossposterPayloadValidator, UpdateCrosspostPayloadValidator
 } from "./types";
@@ -88,7 +87,6 @@ export const onCrosspostRequest: PostRouteOf<'crosspost'> = async (req) => {
       currentUser: user,
       isFMCrosspostRequest: true,
       Users,
-      repos: getAllRepos(),
     } as Partial<ResolverContext> as  ResolverContext,
   });
 

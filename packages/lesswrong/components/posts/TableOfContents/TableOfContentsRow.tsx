@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
   flexDirection: 'column-reverse',
 } : {});
+
+const TITLE_CONTAINER_CLASS_NAME = 'ToCTitleContainer';
+const FIXED_POSITION_TOC_CLASS_NAME = 'FixedPositionToC-root';
+const FIXED_POSITION_NON_SPLASH_PAGE_TOC_CLASS_NAME = 'MultiToCLayout-normalHeaderToc';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -23,7 +27,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
-      content: isBookUI ? null : `"•"`,
+      content: `"•"`,
       marginLeft: 3,
       position: 'relative',
       top: 1
@@ -44,8 +48,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.link.tocLink,
     lineHeight: fullHeightToCEnabled ? "1em" : "1.2em",
     '&:hover':{
+      opacity:1,
       color: theme.palette.link.tocLinkHighlighted,
-      opacity: isFriendlyUI ? 1 : undefined
     },
     ...(isFriendlyUI && {
       lineHeight: "1.1rem",
@@ -59,9 +63,6 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: theme.spacing.unit*1.5,
     borderBottom: theme.palette.border.faint,
     fontSize: isFriendlyUI ? "1em" : undefined,
-    '&:hover': {
-      opacity: "unset"
-    }
   },
   level0: {
     display:"block",
@@ -83,19 +84,19 @@ const styles = (theme: ThemeType) => ({
   },
   level2: {
     fontSize:"1.1rem",
-    paddingLeft: isFriendlyUI ? 16 : 12,
+    paddingLeft: 16,
     ...sectionOffsetStyling,
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: isFriendlyUI ? 32 : 24,
+    paddingLeft: 32,
     ...sectionOffsetStyling,
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: isFriendlyUI ? 48 : 36,
+    paddingLeft: 48,
     ...sectionOffsetStyling,
   },
   titleContainer: {
@@ -104,6 +105,16 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column-reverse',
     transition: 'opacity 0.4s ease-in-out, height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
+  },
+  '@global': isFriendlyUI ? {} : {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
+      opacity: 0,
+      height: 84,
+    },
+    [`body:has(.headroom--unfixed) .${FIXED_POSITION_NON_SPLASH_PAGE_TOC_CLASS_NAME} .${FIXED_POSITION_TOC_CLASS_NAME}`]: {
+      maxHeight: 'calc(100vh - 64px)',
+    }
   }
 });
 
@@ -135,11 +146,30 @@ const TableOfContentsRow = ({
    */
   offset?: number,
   fullHeight?: boolean,
-  commentToC?: boolean
-}) => {  
+  commentToC?: boolean,
+}) => {
+  const [isPinned, setIsPinned] = useState(true);
+  const rowRef = useRef<HTMLDivElement>(null);
+  
   const fullHeightTitle = !!(title && fullHeight);
+  const hideTitleContainer = !commentToC ? fullHeightTitle : fullHeightTitle && isPinned;
 
   const offsetStyling = offset !== undefined ? { flex: offset } : undefined;
+
+  useEffect(() => {
+    const target = rowRef.current;
+    if (target) {
+      // To prevent the comment ToC title from being hidden when scrolling up
+      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
+      const observer = new IntersectionObserver(([e]) => {
+        const newIsPinned = e.intersectionRatio < 1;
+        setIsPinned(newIsPinned);
+      }, { threshold: [1] });
+  
+      observer.observe(target);
+      return () => observer.unobserve(target);
+    }
+  }, []);
 
   if (divider) {
     return <Components.TableOfContentsDivider offsetStyling={offsetStyling} />
@@ -149,15 +179,16 @@ const TableOfContentsRow = ({
     className={classNames(
       classes.root,
       levelToClassName(indentLevel, classes),
-      { [classes.titleContainer]: fullHeightTitle },
+      { [classes.titleContainer]: fullHeightTitle, [TITLE_CONTAINER_CLASS_NAME]: hideTitleContainer },
       { [classes.highlighted]: highlighted },
     )}
     style={offsetStyling}
+    ref={rowRef}
   >
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,
       [classes.highlightDot]: !answer,
-      [classes.dense]: dense
+      [classes.dense]: dense,
     })}>
       {children}
     </a>

@@ -163,23 +163,15 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     return this.isAggregate;
   }
 
-  private prefixedAbsoluteField(
-    prefix: string,
-    name: string,
-    jsonifyStarSelector = true,
-  ) {
+  absoluteField(name: string, jsonifyStarSelector = true) {
     let absoluteName: string = name;
     if (absoluteName !== "*") {
       absoluteName = `"${name}"`;
     }
-    const absoluteField = `"${prefix}".${absoluteName}`;
+    const absoluteField = `"${this.primaryPrefix}".${absoluteName}`;
     return name.indexOf("*") > -1 && jsonifyStarSelector
       ? `ROW_TO_JSON(${absoluteField})`
       : absoluteField;
-  }
-
-  absoluteField(name: string, jsonifyStarSelector = true) {
-    return this.prefixedAbsoluteField(this.primaryPrefix, name, jsonifyStarSelector);
   }
 
   field(name: string, jsonifyStarSelector = true) {
@@ -234,7 +226,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     resolver,
     ...joinBase
   }: SqlResolverJoin<J> | SqlNonCollectionJoin) {
-    const spec = this.getJoinSpec<J>(joinBase);
+    const spec = this.getJoinSpec(joinBase);
     const subField = (name: FieldName<J>) => `"${spec.prefix}"."${name}"`;
     return resolver(subField);
   }
@@ -305,12 +297,8 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
 
   private compileJoin({table, type = "inner", on, prefix}: SqlJoinSpec): string {
     const selectors: string[] = [];
-    if (typeof on === "function") {
-      selectors.push(on(this.prefixedAbsoluteField.bind(this, prefix)));
-    } else {
-      for (const field in on) {
-        selectors.push(`"${prefix}"."${field}" = ${on[(field as keyof typeof on)]}`);
-      }
+    for (const field in on) {
+      selectors.push(`"${prefix}"."${field}" = ${on[(field as keyof typeof on)]}`);
     }
     const selector = selectors.join(" AND ");
     return `${type.toUpperCase()} JOIN "${table}" "${prefix}" ON ${selector}`;

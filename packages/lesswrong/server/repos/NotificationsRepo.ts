@@ -26,20 +26,9 @@ const buildNotificationLocalgroup = (prefix: string) =>
     'name', ${prefix}."name"
   ) END`;
 
-const buildNotificationRevision = (prefix: string) =>
-  `JSONB_BUILD_OBJECT(
-    'html', ${prefix}."html",
-    'wordCount', ${prefix}."wordCount",
-    'originalContents', ${prefix}."originalContents",
-    'editedAt', ${prefix}."editedAt",
-    'userId', ${prefix}."userId",
-    'version', ${prefix}."version"
-  )`;
-
 // This should return an object of type `NotificationDisplayPost`
 const buildNotificationPost = (
   prefix: string,
-  revisionPrefix: string,
   userPrefix: string,
   localgroupPrefix: string,
 ) =>
@@ -58,11 +47,11 @@ const buildNotificationPost = (
     'collabEditorDialogue', ${prefix}."collabEditorDialogue",
     'readTimeMinutes', COALESCE(
       ${prefix}."readTimeMinutesOverride",
-      (${revisionPrefix}."wordCount")::INTEGER / ${READ_WORDS_PER_MINUTE}
+      (${prefix}."contents"->'wordCount')::INTEGER / ${READ_WORDS_PER_MINUTE}
     ),
     'socialPreviewData', ${getSocialPreviewSql(prefix)},
     'customHighlight', ${prefix}."customHighlight",
-    'contents', ${buildNotificationRevision(revisionPrefix)},
+    'contents', ${prefix}."contents",
     'rsvps', ${prefix}."rsvps",
     'user', ${buildNotificationUser(userPrefix)},
     'group', ${buildNotificationLocalgroup(localgroupPrefix)}
@@ -73,14 +62,13 @@ const buildNotificationComment = (
   prefix: string,
   userPrefix: string,
   postPrefix: string,
-  postRevisionPrefix: string,
   postUserPrefix: string,
   postLocalgroupPrefix: string,
 ) =>
   `CASE WHEN ${prefix}."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
     '_id', ${prefix}."_id",
     'user', ${buildNotificationUser(userPrefix)},
-    'post', ${buildNotificationPost(postPrefix, postRevisionPrefix, postUserPrefix, postLocalgroupPrefix)}
+    'post', ${buildNotificationPost(postPrefix, postUserPrefix, postLocalgroupPrefix)}
   ) END`;
 
 // This should return an object of type `NotificationDisplayTag`
@@ -126,10 +114,10 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."createdAt",
         tr."_id" "tagRelId",
         COALESCE(
-          ${buildNotificationPost("p", "pr", "pu", "pl")},
-          ${buildNotificationPost("trp", "trpr", "trpu", "trpl")}
+          ${buildNotificationPost("p", "pu", "pl")},
+          ${buildNotificationPost("trp", "trpu", "trpl")}
         ) "post",
-        ${buildNotificationComment("c", "cu", "cp", "cpr", "cpu", "cpl")} "comment",
+        ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
         ${buildNotificationTag("t")} "tag",
         ${buildNotificationSequence("s")} "sequence",
         COALESCE(
@@ -141,8 +129,6 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
       LEFT JOIN "Posts" p ON
         n."documentType" = 'post' AND
         n."documentId" = p."_id"
-      LEFT JOIN "Revisions" pr ON
-        pr."_id" = p."contents_latest"
       LEFT JOIN "Users" pu ON
         p."userId" = pu."_id"
       LEFT JOIN "Localgroups" pl ON
@@ -154,8 +140,6 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         c."userId" = cu."_id"
       LEFT JOIN "Posts" cp ON
         c."postId" = cp."_id"
-      LEFT JOIN "Revisions" cpr ON
-        cpr."_id" = cp."contents_latest"
       LEFT JOIN "Users" cpu ON
         cp."userId" = cpu."_id"
       LEFT JOIN "Localgroups" cpl ON
@@ -167,8 +151,6 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         t."_id" = tr."tagId"
       LEFT JOIN "Posts" trp ON
         trp."_id" = tr."postId"
-      LEFT JOIN "Revisions" trpr ON
-        trpr."_id" = trp."contents_latest"
       LEFT JOIN "Users" trpu ON
         trpu."_id" = trp."userId"
       LEFT JOIN "Sequences" s ON

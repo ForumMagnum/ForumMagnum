@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-import { getLatestContentsRevision } from "@/lib/collections/revisions/helpers";
 import { getPostDescription } from "../../components/posts/PostsPage/PostsPage";
 import { Posts } from "../../lib/collections/posts";
 import Revisions from "../../lib/collections/revisions/collection";
@@ -12,20 +11,14 @@ const run = async () => {
   console.log("running");
   console.log('plaintextResolver', plaintextResolver);
   if (!plaintextResolver) throw new Error('no plaintextResolver');
-  const posts: DbPost[] = await Posts.aggregate([
+  const posts = await Posts.aggregate([
     {$match: { baseScore: { $gte: 1 } }},
     {$sample: {size: 20}}
   ]).toArray();
 
-  const revisions = await Promise.all(
-    posts.map((post) => getLatestContentsRevision(post)),
-  );
-
-  for (let i = 0; i < posts.length; i++) {
-    const post = posts[i];
-    const rev = revisions[i];
-    if (!rev) continue;
-    const plaintextDescription = plaintextResolver(rev, {}, {} as any)
+  for (const post of posts) {
+    if (!post.contents) continue;
+    const plaintextDescription = plaintextResolver(post.contents, {}, {} as any)
     const fakeDoc = {
       contents: {
         plaintextDescription

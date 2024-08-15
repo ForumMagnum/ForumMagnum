@@ -708,10 +708,5 @@
     "acceptsSchemaHash": "a2faca5a61a921ed5828a0be4fb26461",
     "acceptedByMigration": "20240704T135716.add_permanentDeletionRequestedAt.ts",
     "timestamp": "2024-07-04T13:57:16.000Z"
-  },
-  {
-    "acceptsSchemaHash": "d2ff8b556fc6f740b2bb57ddf5347f64",
-    "acceptedByMigration": "20240729T183041.normalize_post_contents.ts",
-    "timestamp": "2024-07-29T18:30:41.000Z"
   }
 ]

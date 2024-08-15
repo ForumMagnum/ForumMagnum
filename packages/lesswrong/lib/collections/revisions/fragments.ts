@@ -15,12 +15,7 @@ registerFragment(`
   }
 `)
 
-registerFragment(`
-  fragment RevisionHTML on Revision {
-    _id
-    html
-  }
-`)
+
 
 registerFragment(`
   fragment RevisionEdit on Revision {

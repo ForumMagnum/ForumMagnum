@@ -279,7 +279,7 @@ export default class Headroom extends Component<HeadroomProps, AnyBecauseTodo> {
         this.lastKnownScrollY,
         this.currentScrollY,
         this.props,
-        this.state 
+        this.state
       )
 
       if (action === 'pin') {

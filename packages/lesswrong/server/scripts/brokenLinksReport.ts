@@ -1,11 +1,11 @@
 import { Vulcan } from '../../lib/vulcan-lib';
+import { Posts } from '../../lib/collections/posts'
 import Users from '../../lib/collections/users/collection';
 import { urlIsBroken } from './utils'
 import htmlparser2 from 'htmlparser2';
 import { URL } from 'url';
 import fs from 'fs';
 import * as _ from 'underscore';
-import { fetchFragment } from '../fetchFragment';
 
 const whitelistedImageHosts = [
   "lesswrong.com",
@@ -64,7 +64,7 @@ function imageIsOffsite(imageUrl: string)
   return true;
 }
 
-const describePost = async (post: PostsPage) =>
+const describePost = async (post: DbPost) =>
 {
   const author = await Users.findOne({_id: post.userId});
   if(!author) throw Error(`Can't get author for post: ${post._id}`)
@@ -77,7 +77,7 @@ const describePost = async (post: PostsPage) =>
 // (nothing broken), returns the empty string; otherwise the result (which is
 // meant to be handled by a person) includes the title/author/karma of the
 // post and a list of broken things within it.
-const checkPost = async (post: PostsPage) => {
+const checkPost = async (post: DbPost) => {
   const { html = "" } = post.contents || {}
   const images = getImagesInHtml(html);
   const links = getLinksInHtml(html);
@@ -145,14 +145,8 @@ Vulcan.findBrokenLinks = async (
       $lte: endDate
     }};
   }
-  const postsToCheck = await fetchFragment({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: filter,
-    currentUser: null,
-    skipFiltering: true,
-  });
-
+  const postsToCheck = await Posts.find(filter).fetch();
+  
   write("Checking "+postsToCheck.length+" post for broken links and images.\n");
   for(let i=0; i<postsToCheck.length; i++)
   {

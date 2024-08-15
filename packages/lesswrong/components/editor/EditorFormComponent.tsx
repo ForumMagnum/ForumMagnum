@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -20,7 +20,6 @@ import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicT
 import isEqual from 'lodash/isEqual';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
-import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds

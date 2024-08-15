@@ -1,18 +1,5 @@
 import Localgroups from '../../lib/collections/localgroups/collection';
 import { cheerioParse } from "../utils/htmlUtil";
-import type { FetchedFragment } from '../fetchFragment';
-import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
-
-export const getPostHTML = async (
-  post: DbPost|FetchedFragment<"PostsHTML">,
-  context?: ResolverContext,
-): Promise<string> => {
-  if ("contents" in post && post.contents) {
-    return post.contents?.html ?? "";
-  }
-  const revision = await getLatestContentsRevision(post, context);
-  return revision?.html ?? "";
-}
 
 export async function getDefaultPostLocationFields(post: DbPost) {
   if (post.isEvent && post.groupId && !post.location) {
@@ -24,11 +11,8 @@ export async function getDefaultPostLocationFields(post: DbPost) {
   return {}
 }
 
-export const getDialogueResponseIds = async (
-  post: DbPost,
-  context?: ResolverContext,
-): Promise<string[]> => {
-  const html = await getPostHTML(post, context);
+export const getDialogueResponseIds = (post: DbPost) => {
+  const html = post.contents?.originalContents?.data
   if (!html) return [];
 
   const $ = cheerioParse(html);
@@ -42,11 +26,8 @@ export const getDialogueResponseIds = async (
   return messageIds;
 }
 
-export const getDialogueMessageTimestamps = async (
-  post: DbPost,
-  context?: ResolverContext,
-): Promise<Date[]> => {
-  const html = await getPostHTML(post, context);
+export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
+  const html = post.contents?.originalContents?.data
   if (!html) return [];
   const $ = cheerioParse(html);
     

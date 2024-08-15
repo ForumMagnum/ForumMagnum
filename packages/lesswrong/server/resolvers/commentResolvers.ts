@@ -1,7 +1,7 @@
-import {addGraphQLMutation, addGraphQLResolvers} from '../../lib/vulcan-lib';
+import {addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema} from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
-import { accessFilterMultiple, accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
@@ -11,7 +11,7 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import uniqBy from 'lodash/uniqBy';
 import sampleSize from 'lodash/sampleSize';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { fetchFragmentSingle } from '../fetchFragment';
+
 
 const specificResolvers = {
   Mutation: {
@@ -174,22 +174,5 @@ defineQuery({
 
     const comments = await repos.comments.getUsersRecommendedCommentsOfTargetUser(userId, targetUserId, limit)
     return await accessFilterMultiple(currentUser, Comments, comments, context)
-  },
-});
-
-augmentFieldsDict(Comments, {
-  postVersion: {
-    onCreate: async ({newDocument}) => {
-      if (!newDocument.postId) {
-        return "1.0.0";
-      }
-      const post = await fetchFragmentSingle({
-        collectionName: "Posts",
-        fragmentName: "PostsRevision",
-        currentUser: null,
-        selector: {_id: newDocument.postId},
-      });
-      return (post && post.contents && post.contents.version) || "1.0.0";
-    },
   },
 });

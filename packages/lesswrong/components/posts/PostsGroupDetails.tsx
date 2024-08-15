@@ -25,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily
   },
   root: {
-    marginBottom: isFriendlyUI ? 5 : 12, 
+    marginBottom: 5, 
     marginTop: 10
   }
 })

@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   alignRight: {
-    justifyContent: 'flex-end'
+    justifyContent: 'flex-end',
   },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
@@ -66,15 +66,6 @@ const styles = (theme: ThemeType) => ({
       }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
-  },
-  neverCoreStyling: {
-    color: theme.palette.tag.text,
-  },
-  noBackground: {
-    '&&&': {
-      backgroundColor: 'transparent',
-      border: 'none',
-    }
   },
   card: {
     padding: 16,
@@ -130,9 +121,7 @@ const FooterTagList = ({
   appendElement,
   annualReviewMarketInfo,
   classes,
-  align = "left",
-  noBackground = false,
-  neverCoreStyling = false
+  align = "left"
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -141,7 +130,7 @@ const FooterTagList = ({
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
-  link?: boolean,
+  link?: boolean
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
   overrideMargins?: boolean,
@@ -149,8 +138,6 @@ const FooterTagList = ({
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
-  noBackground?: boolean,
-  neverCoreStyling?: boolean
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -264,10 +251,9 @@ const FooterTagList = ({
 
   const contentTypeInfo = forumSelect(contentTypes);
 
-  const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling}: {
+  const PostTypeTag = useCallback(({tooltipBody, label}: {
     tooltipBody: ReactNode,
     label: string,
-    neverCoreStyling?: boolean
   }) => {
     const {HoverOver, ContentStyles} = Components;
     return (
@@ -283,37 +269,31 @@ const FooterTagList = ({
       >
         <div className={classNames(classes.frontpageOrPersonal, {
           [classes.smallText]: smallText,
-          [classes.noBackground]: noBackground,
-          [classes.neverCoreStyling]: neverCoreStyling,
         })}>
           {label}
         </div>
       </HoverOver>
     );
-  }, [classes, smallText, noBackground]);
+  }, [classes, smallText]);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
   // have reviewedByUserId set to anything.
   let postType = post.curatedDate
     ? <Link to={contentTypeInfo.curated.linkTarget} className={classes.postTypeLink}>
-        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody} neverCoreStyling={neverCoreStyling}/>
+        <PostTypeTag label="Curated" tooltipBody={contentTypeInfo.curated.tooltipBody}/>
       </Link>
     : (post.frontpageDate
       ? <MaybeLink to={contentTypeInfo.frontpage.linkTarget} className={classes.postTypeLink}>
-          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody} neverCoreStyling={neverCoreStyling}/>
+          <PostTypeTag label="Frontpage" tooltipBody={contentTypeInfo.frontpage.tooltipBody}/>
         </MaybeLink>
       : (post.reviewedByUserId
         ? <MaybeLink to={contentTypeInfo.personal.linkTarget} className={classes.postTypeLink}>
-            <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody} neverCoreStyling={neverCoreStyling}/>
+          <PostTypeTag label="Personal Blog" tooltipBody={contentTypeInfo.personal.tooltipBody}/>
           </MaybeLink>
         : null
       )
     )
-
-  const eventTag = contentTypeInfo.event && post.isEvent ? <MaybeLink to={contentTypeInfo.event.linkTarget} className={classes.postTypeLink}>
-    <PostTypeTag label="Event" tooltipBody={contentTypeInfo.event.tooltipBody} neverCoreStyling={neverCoreStyling}/>
-  </MaybeLink> : null
 
   const sortedTagInfo = results
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
@@ -341,19 +321,16 @@ const FooterTagList = ({
               smallText={smallText}
               highlightAsAutoApplied={highlightAutoApplied && tagRel?.autoApplied}
               link={link}
-              noBackground={noBackground}
-              neverCoreStyling={neverCoreStyling}
             />
           )
       )}
       {!hidePostTypeTag && postType}
-      {eventTag}
       {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
       {currentUser && !hideAddTag && (
         <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
+          {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
         </AddTagButton>
       )}
       {isAwaiting && <Loading />}

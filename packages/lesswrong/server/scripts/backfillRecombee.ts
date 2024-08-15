@@ -99,7 +99,6 @@ const postBatchQuery = `
   )
   SELECT
     p.*,
-    ROW_TO_JSON(r.*) AS "contents"
     CASE WHEN COUNT(t.*) = 0
       THEN '{}'::JSONB[]
       ELSE ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core))
@@ -107,8 +106,6 @@ const postBatchQuery = `
   FROM selected_posts
   INNER JOIN "Posts" AS p
   USING(_id)
-  JOIN "Revisions" AS r
-  ON p."contents_latest" = r."_id"
   LEFT JOIN "TagRels" AS tr
   ON selected_posts._id = tr."postId"
   LEFT JOIN "Tags" AS t
@@ -117,15 +114,10 @@ const postBatchQuery = `
   ORDER BY p."createdAt" ASC
 `;
 
-type BackfillPost = DbPost & {
-  contents: DbRevision | null,
-  tags: [tagId: string, tagName: string, core: boolean][],
-}
-
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
   const limit = 1000;
-  return db.any<BackfillPost>(postBatchQuery, [offsetDate, limit]);
+  return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][] }>(postBatchQuery, [offsetDate, limit]);
 }
 
 async function backfillPosts(offsetDate?: Date) {

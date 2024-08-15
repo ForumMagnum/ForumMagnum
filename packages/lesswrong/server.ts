@@ -34,6 +34,7 @@ import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
 import './server/scripts/bestOfLessWrongTagUpdate';
 import './server/scripts/convertImagesToCloudinary';
+import './server/scripts/fixBodyField';
 import './server/scripts/fixKarmaField';
 import './server/scripts/fixEmailField';
 import './server/scripts/fixFrontpageCount';
@@ -220,5 +221,3 @@ import './server/search/facetFieldSearch';
 import './server/analytics/analyticsCron';
 import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
-
-import './server/migrations/meta/utils';

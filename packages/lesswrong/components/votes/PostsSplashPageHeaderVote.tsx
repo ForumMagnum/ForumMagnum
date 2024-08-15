@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useVote } from './withVote';
-import { isAF, isLW } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
@@ -10,22 +10,21 @@ import { VotingSystem } from '../../lib/voting/votingSystems';
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row-reverse',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    background: theme.palette.panelBackground.default,
     opacity: .76,
     borderRadius: 4,
   },
   upvoteHorizontal: {
-    fontSize: 18,
-    marginBottom: isLW ? -1 : -3, // -1 for LW, -3 for AF
+    paddingRight: 6,
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
   },
   downvoteHorizontal: {
-    fontSize: 18,
-    marginTop: isLW ? -4 : -3, // -4 for LW, -3 for AF
+    paddingLeft: 6,
     '& .VoteArrowIcon-root': {
       color: theme.palette.grey[800]
     },
@@ -39,8 +38,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: '1rem',
-    fontVariantNumeric: 'lining-nums'
+    fontSize: '0.9rem',
   },
   tooltip: {
     color: theme.palette.grey[500],
@@ -51,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const LWPostsPageTopHeaderVote = ({
+const PostsSplashPageHeaderVote = ({
   post,
   votingSystem,
   classes,
@@ -130,13 +128,13 @@ const LWPostsPageTopHeaderVote = ({
 }
 
 const PostsSplashPageHeaderVoteComponent = registerComponent(
-  "LWPostsPageTopHeaderVote",
-  LWPostsPageTopHeaderVote,
+  "PostsSplashPageHeaderVote",
+  PostsSplashPageHeaderVote,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    LWPostsPageTopHeaderVote: typeof PostsSplashPageHeaderVoteComponent
+    PostsSplashPageHeaderVote: typeof PostsSplashPageHeaderVoteComponent
   }
 }
