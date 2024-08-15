@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
-import FullscreenIcon from '@material-ui/icons/Fullscreen';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -51,7 +49,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[100],
     paddingLeft: 20,
     paddingRight: 20,
-    // TODO: If we change this to 8 here, should change it the other popup editor
     paddingTop: 8,
     paddingBottom: 8,
     position: "relative"
@@ -62,54 +59,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-//TODO: fix up comment for this different component
-/**
- * PopupLanguageModel: Modeled after PopupLanguageModelChat. A floating window for LLM chat. Designed to be minimizable.
- * 
- * title: Shown in a title-bar above the comment editor
- * guidelines: (Optional) Shown above the comment editor, below the titlebar,
- *   styled as part of the window content.
- * commentFormProps: Passed through to CommentsNewForm. Used for things like
- *   specifying what post the comment is on, and prefilling props.
- * onClose: Called when the window is closed.
- */
-
-
 const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType
 }) => {
   const { LanguageModelChat } = Components;
 
-  const navigate = useNavigate();
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(""); // placeholder title handled from within LanguageModelChat.tsx, so use empty string here
 
   return <Paper className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>
         {title}
       </div>
-      <FullscreenIcon 
-        onClick={()=> {
-          onClose();
-          navigate("/llm");
-        }}
-        className={classes.expandIcon} 
-      />
       <CloseIcon className={classes.close} onClick={onClose}/>
     </div>
     <div className={classes.editor}>
       <LanguageModelChat setTitle={setTitle} />
-      {/* <CommentsNewForm
-        enableGuidelines={false}
-        padding={false}
-        successCallback={onClose}
-        type="comment"
-        formProps={{
-          maxHeight: true
-        }}
-        {...llmFormProps}
-      /> */}
     </div>
   </Paper>
 }

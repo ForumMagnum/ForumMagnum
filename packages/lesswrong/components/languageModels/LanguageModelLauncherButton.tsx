@@ -42,9 +42,7 @@ export const LanguageModelLauncherButton = ({classes}: {
   const onClickLanguageModelLauncher = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
     openDialog({
-      componentName:"PopupLanguageModelChatDialog",
-      // componentProps: {
-      //   post, initialHtml: html
+      componentName:"PopupLanguageModelChat",
       }
     )},[openDialog, captureEvent]);
 

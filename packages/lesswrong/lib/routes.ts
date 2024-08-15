@@ -1651,15 +1651,6 @@ addRoute(
     componentName: 'ReviewAdminDashboard',
     title: "Review Admin Dashboard",
     isAdmin: true,
-  },
-  {
-    name: 'languageModelChat',
-    path: '/llm',
-    componentName: 'LanguageModelChatPage',
-    title: "Language Model Chat",
-    isAdmin: true,
-    background: "white",
-    noFooter: true,
   }
 );
 
