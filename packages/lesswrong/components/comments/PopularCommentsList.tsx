@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
 const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
   const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
-    resolverName: "PopularComments",
+    resolverName: "PopularDiscussion",
     limit: 3,
     itemsPerPage: 5,
   });

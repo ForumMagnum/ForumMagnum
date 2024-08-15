@@ -209,6 +209,87 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     });
   }
 
+async getPopularDiscussion({
+    minScore = 15,
+    offset = 0,
+    limit = 3,
+    recencyFactor = 250000,
+    recencyBias = 60 * 60 * 2,
+  }: {
+    offset?: number,
+    limit?: number,
+    minScore?: number,
+    // The factor to divide age by for the recency bonus
+    recencyFactor?: number,
+    // The minimum age that a post will be considered as having, to avoid
+    // over selecting brand new comments - defaults to 2 hours
+    recencyBias?: number,
+  }): Promise<DbComment[]> {
+    const excludedTagId = forumSelect({
+      EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
+      default: null
+    });
+
+    const excludeTagId = !!excludedTagId;
+    const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};
+    const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$(excludedTagId))::INTEGER, 0) < 1' : '';
+
+    const lookbackPeriod = isAF ? '1 month' : '1 week';
+    const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
+    
+      // CURRENT_TIMESTAMP - "postedAt" < $(lookbackPeriod)::INTERVAL AND
+    const filter = `
+      "shortform" IS NOT TRUE AND
+      "baseScore" >= $(minScore) AND
+      "retracted" IS NOT TRUE AND
+      "deleted" IS NOT TRUE AND
+      "deletedPublic" IS NOT TRUE AND
+      "needsReview" IS NOT TRUE
+    `
+    
+    return this.any(`
+      -- CommentsRepo.getPopularComments
+      WITH eligible_comments AS (
+        SELECT c.*
+        FROM "Comments" c
+        JOIN "Posts" p ON c."postId" = p."_id"
+        WHERE
+          ${filter}
+          ${afCommentsFilter}
+          AND p."hideFromPopularComments" IS NOT TRUE
+          AND ${getViewablePostsSelector('p')}
+          ${excludedTagIdCondition}
+      ), parent_child_pairs AS (
+        SELECT 
+          parent._id AS parent_id,
+          child._id AS child_id,
+          parent."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - parent."postedAt") + $(recencyBias)) / -$(recencyFactor)) AS parent_score,
+          child."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - child."postedAt") + $(recencyBias)) / -$(recencyFactor)) AS child_score
+        FROM eligible_comments parent
+        JOIN eligible_comments child ON child."parentCommentId" = parent._id
+      ), ranked_pairs AS (
+        SELECT *, ROW_NUMBER() OVER (ORDER BY (parent_score + child_score) DESC) AS pair_rank
+        FROM parent_child_pairs
+      )
+      SELECT c.*
+      FROM ranked_pairs rp
+      JOIN eligible_comments c ON c._id IN (rp.parent_id, rp.child_id)
+      WHERE rp.pair_rank <= $(limit)
+      ORDER BY 
+        CASE WHEN c._id = rp.parent_id THEN rp.pair_rank * 2 - 1
+             ELSE rp.pair_rank * 2 END
+      LIMIT ($(limit) * 2)
+    `, {
+      minScore,
+      offset,
+      limit,
+      recencyFactor,
+      recencyBias,
+      lookbackPeriod,
+      ...excludedTagIdParam,
+    });
+  }
+
   private getSearchDocumentQuery(): string {
     return `
       -- CommentsRepo.getSearchDocumentQuery

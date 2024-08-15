@@ -86,6 +86,19 @@ createPaginatedResolver({
   cacheMaxAgeMs: 300000, // 5 mins
 });
 
+createPaginatedResolver({
+  name: "PopularDiscussion",
+  graphQLType: "Comment",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbComment[]> => {
+    const recencyFactor = isLWorAF ? 175_000 : 250_000;
+    return context.repos.comments.getPopularDiscussion({limit, recencyFactor});
+  },
+  cacheMaxAgeMs: 300000, // 5 mins
+});
+
 type TopicRecommendation = {
   comment: DbComment,
   yourVote?: string,
