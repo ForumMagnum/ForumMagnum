@@ -5,14 +5,17 @@ import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { DEFAULT_TIMEZONE, EnvironmentOverrideContext } from '../../lib/utils/timeUtil';
 
 export const TimezoneContext = React.createContext<string|null>(null);
 
 export const useTimezone = (): WithTimezoneProps => {
+  const { timezone: overrideTimezone } = React.useContext(EnvironmentOverrideContext);
   const timezone = React.useContext(TimezoneContext);
+
   return {
-    timezone: timezone ? timezone : "GMT",
-    timezoneIsKnown: !!timezone,
+    timezone: overrideTimezone ?? timezone ?? DEFAULT_TIMEZONE,
+    timezoneIsKnown: !!(overrideTimezone ?? timezone),
   };
 }
 
@@ -39,7 +42,7 @@ export const TimezoneWrapper = ({children}: {
   
   useEffect(() => {
     const newTimezone = moment.tz.guess();
-    if(timezone !== newTimezone || (currentUser?.lastUsedTimezone !== newTimezone)) {
+    if(timezone !== newTimezone || (currentUser && currentUser.lastUsedTimezone !== newTimezone)) {
       setCookie(TIMEZONE_COOKIE, newTimezone, {path: "/"});
       if (currentUser) {
         void updateUser({ lastUsedTimezone: newTimezone, })

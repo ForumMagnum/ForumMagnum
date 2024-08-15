@@ -66,6 +66,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
       },
+      headerStyle: {
+        fontFamily: sansSerifStack,
+      },
       commentStyle: {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
@@ -95,7 +98,7 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       },
       MuiTooltip: {
         tooltip: {
-          fontSize: "1rem"
+          fontSize: 13
         }
       },
       PostsVoteDefault: {

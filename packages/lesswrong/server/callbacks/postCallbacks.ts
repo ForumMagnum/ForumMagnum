@@ -25,7 +25,6 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
@@ -34,11 +33,10 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
-
-const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
-const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
 
 if (isEAForum) {
   const checkTosAccepted = <T extends Partial<DbPost>>(currentUser: DbUser | null, post: T): T => {
@@ -65,7 +63,7 @@ if (isEAForum) {
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
-    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
@@ -376,14 +374,19 @@ async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
+  const contents = await getLatestContentsRevision(post);
+  if (!contents) {
+    return post;
+  }
+
   let socialPreviewImageAutoUrl = ''
-  if (post.contents?.html) {
-    const $ = cheerioParse(post.contents?.html)
+  if (contents?.html) {
+    const $ = cheerioParse(contents?.html)
     const firstImg = $('img').first()
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {
       try {
-        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+        socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
       } catch (e) {
         captureException(e);
         socialPreviewImageAutoUrl = firstImgSrc
@@ -605,7 +608,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 /* Recombee callbacks */
 
 postPublishedCallback.add((post, context) => {
-  if (post.shortform || post.unlisted) return;
+  if (!isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -625,7 +628,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -641,7 +644,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
 });
 
 voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(newDocument as DbPost, context)

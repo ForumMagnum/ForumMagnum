@@ -1,5 +1,6 @@
 import type { FetchResult } from '@apollo/client';
 import { RouterLocation } from '../../lib/vulcan-lib';
+import { ReactElement } from 'react';
 
 declare global {
 
@@ -21,7 +22,7 @@ interface WithStylesProps {
   classes: ClassesType,
 }
 
-type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string, type?: string, action?: any};
+type WithMessagesMessage = string|{id?: string, properties?: any, messageString?: string|ReactElement, type?: string, action?: any};
 
 interface WithMessagesProps {
   messages: Array<WithMessagesMessage>,

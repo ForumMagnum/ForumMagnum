@@ -3,12 +3,11 @@ import { updateMutator } from '../server/vulcan-lib/mutators';
 import { recalculateScore } from '../lib/scoring';
 import { performVoteServer } from '../server/voteServer';
 import { batchUpdateScore } from '../server/updateScores';
-import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes } from './utils'
+import { createDummyUser, createDummyPost, createDummyComment, createManyDummyVotes, waitUntilCallbacksFinished } from './utils'
 import { Users } from '../lib/collections/users/collection'
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
-import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
 import { sleep } from "../lib/utils/asyncUtils";
 import omitBy from "lodash/omitBy";

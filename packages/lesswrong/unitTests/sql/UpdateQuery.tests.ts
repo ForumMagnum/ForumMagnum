@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import UpdateQuery from "../../lib/sql/UpdateQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import UpdateQuery from "@/server/sql/UpdateQuery";
 
 describe("UpdateQuery", () => {
   runTestCases([

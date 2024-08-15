@@ -67,6 +67,7 @@ export const useDigestAd = () => {
           subscribedToDigest: true
         })
       } catch(e) {
+        setSubscribeClicked(false)
         flash('There was a problem subscribing you to the digest. Please try again later.')
       }
     }

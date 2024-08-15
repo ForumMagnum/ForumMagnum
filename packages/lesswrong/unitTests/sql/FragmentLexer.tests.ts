@@ -1,4 +1,4 @@
-import FragmentLexer from "../../lib/sql/FragmentLexer";
+import FragmentLexer from "@/server/sql/FragmentLexer";
 
 describe("FragmentLexer", () => {
   it("can lex GraphQL fragments", () => {

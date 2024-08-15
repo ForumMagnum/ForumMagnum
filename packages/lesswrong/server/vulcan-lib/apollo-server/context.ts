@@ -158,13 +158,13 @@ export function configureSentryScope(context: ResolverContext) {
   }
 }
 
-export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {
+export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
   return req.user
   // return getUser(getAuthToken(req));
 }
 
 export async function getContextFromReqAndRes(req: Request, res: Response): Promise<ResolverContext> {
-  const user = await getUserFromReq(req);
+  const user = getUserFromReq(req);
   const context = await computeContextFromUser(user, req, res);
   return context;
 }

@@ -1,5 +1,5 @@
 import { htmlToTextDefault } from "../../lib/htmlToText";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import { Globals } from "../vulcan-lib";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
@@ -9,7 +9,7 @@ import { googleVertexApi, helpers as googleVertexHelpers } from "../google-verte
 import type { ReadStatusWithPostId } from "../google-vertex/types";
 
 interface CreateAEPostRecordArgs {
-  post: DbPost;
+  post: DbPost & {contents: EditableFieldContents | null};
   tags: {
     _id: string;
     name: string;
@@ -72,6 +72,7 @@ const postBatchQuery = `
   ))
   SELECT
     p.*,
+    r.* AS "contents",
     CASE WHEN COUNT(t.*) = 0
       THEN '{}'::JSONB[]
       ELSE ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core))
@@ -86,6 +87,8 @@ const postBatchQuery = `
   ON authorships._id = tr."postId"
   LEFT JOIN "Tags" AS t
   ON tr."tagId" = t._id
+  LEFT JOIN "Revisions" AS r
+  ON p."contents_latest" = r."_id"
   GROUP BY p._id
   ORDER BY p."createdAt" ASC
 `;
@@ -93,7 +96,13 @@ const postBatchQuery = `
 function getPostBatch(offsetDate: Date) {
   const db = getSqlClientOrThrow();
   const limit = 5000;
-  return db.any<DbPost & { tags: [tagId: string, tagName: string, core: boolean][], authors: string[], authorIds: string[], upvoteCount: number }>(postBatchQuery, [offsetDate, limit]);
+  return db.any<DbPost & {
+    tags: [tagId: string, tagName: string, core: boolean][],
+    authors: string[],
+    authorIds: string[],
+    upvoteCount: number,
+    contents: EditableFieldContents | null,
+  }>(postBatchQuery, [offsetDate, limit]);
 }
 
 function createAEPostRecord({ post, tags, authors, upvoteCount }: CreateAEPostRecordArgs) {

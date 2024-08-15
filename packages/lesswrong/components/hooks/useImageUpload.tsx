@@ -35,6 +35,10 @@ const cloudinaryUploadPresetSpotlightSplashSetting = new DatabasePublicSetting<s
   "cloudinary.uploadPresetSpotlightSplash",
   "yjgxmsio",
 );
+const cloudinaryUploadPresetDigestSetting = new DatabasePublicSetting<string | null>(
+  "cloudinary.uploadPresetDigest",
+  null,
+);
 
 type CloudinaryImageUploadError = {
   statusText: string,
@@ -188,6 +192,12 @@ const cloudinaryArgsByImageType = {
     minImageWidth: 1000,
     cropping: false,
     uploadPreset: cloudinaryUploadPresetSpotlightSplashSetting.get()
+  },
+  onsiteDigestImageId: {
+    minImageHeight: 300,
+    minImageWidth: 200,
+    cropping: false,
+    uploadPreset: cloudinaryUploadPresetDigestSetting.get()
   },
 } as const;
 

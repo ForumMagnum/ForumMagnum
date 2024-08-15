@@ -1,17 +1,18 @@
 import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { TypeformPopupEmbed } from "../common/TypeformEmbeds";
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import moment from "moment";
-import ForumNoSSR from "../common/ForumNoSSR";
+import DeferRender from "../common/DeferRender";
+import { Link } from "@/lib/reactRouterWrapper";
+import { HIDE_EA_FORUM_SURVEY_BANNER_COOKIE } from "@/lib/cookies/cookies";
 
 const styles = (theme: ThemeType) => ({
   root: {
     position: "sticky",
     top: 0,
-    zIndex: 10000, // The typeform popup has z-index 10001
+    zIndex: 10, // The typeform popup has z-index 10001
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -21,19 +22,23 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.buttons.alwaysPrimary,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 15,
+    lineHeight: '21px',
     fontWeight: 450,
     color: theme.palette.text.alwaysWhite,
     [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
       flexDirection: "column",
       gap: "12px",
-      paddingRight: 60,
+      padding: "12px 48px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      paddingTop: 20,
     },
   },
   button: {
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
     borderRadius: theme.borderRadius.default,
-    fontSize: 15,
     fontWeight: 500,
     padding: "8px 12px",
     cursor: "pointer",
@@ -47,6 +52,13 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     "&:hover": {
       opacity: 0.75,
+    },
+    [theme.breakpoints.down("sm")]: {
+      right: 12,
+      top: 12,
+    },
+    [theme.breakpoints.down("xs")]: {
+      top: 20,
     },
   },
 });
@@ -73,16 +85,16 @@ const styles = (theme: ThemeType) => ({
  *      });
  */
 const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
-  const cookieName = ""; // TODO: Insert new cookie name
-  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);
   const {captureEvent} = useTracking();
   const currentUser = useCurrentUser();
 
   const hideBanner = useCallback(() => {
-    setCookie(cookieName, "true", {
+    setCookie(HIDE_EA_FORUM_SURVEY_BANNER_COOKIE, "true", {
       expires: moment().add(3, "months").toDate(),
+      path: "/",
     });
-  }, [cookieName, setCookie]);
+  }, [setCookie]);
 
   const onDismissBanner = useCallback(() => {
     hideBanner();
@@ -94,30 +106,31 @@ const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
     captureEvent("ea_forum_survey_closed");
   }, [hideBanner, captureEvent]);
 
-  if (cookies[cookieName] === "true") {
+  if (cookies[HIDE_EA_FORUM_SURVEY_BANNER_COOKIE] === "true") {
     return null;
   }
 
   const {ForumIcon} = Components;
   return (
-    <ForumNoSSR if={!currentUser}>
+    <DeferRender ssr={!!currentUser}>
       <div className={classes.root}>
-        Take the 4 minute EA Forum Survey to help inform our strategy and funding decisions
-        <TypeformPopupEmbed
-          widgetId="Z1wH4v8v"
-          domain="cea-core.typeform.com"
-          title="EA Forum survey"
-          label="Take the survey"
-          onSubmit={onSubmitSurvey}
+        Take the 2024 EA Forum Survey to help inform our strategy and priorities
+        <Link
+          to="https://forms.cea.community/forum-survey-2024?utm_source=ea_forum&utm_medium=banner"
+          target="_blank"
+          rel="noopener"
+          onClick={onSubmitSurvey}
           className={classes.button}
-        />
+        >
+          Take the survey
+        </Link>
         <ForumIcon
           icon="Close"
           onClick={onDismissBanner}
           className={classes.close}
         />
       </div>
-    </ForumNoSSR>
+    </DeferRender>
   );
 }
 

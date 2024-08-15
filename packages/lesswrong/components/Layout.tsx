@@ -29,13 +29,13 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
-import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 import moment from 'moment';
 
 import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
+import DeferRender from './common/DeferRender';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -70,6 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+    },
     [theme.breakpoints.down('sm')]: {
       paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
@@ -172,11 +175,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       zIndex: theme.zIndexes.styledMapPopup
     },
     // Font fallback to ensure that all greek letters just directly render as Arial
-    '@font-face': {
-      fontFamily: "GreekFallback",
-      src: "local('Arial')",
-      unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    },
+    '@font-face': [{
+        fontFamily: "GreekFallback",
+        src: "local('Arial')",
+        unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
+      },
+      {
+        fontFamily: "ETBookRoman",
+        src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
+      },
+    ],
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
@@ -330,6 +338,7 @@ const Layout = ({currentUser, children, classes}: {
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
+      EASurveyBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -396,9 +405,9 @@ const Layout = ({currentUser, children, classes}: {
               <NavigationEventSender/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
-              <ForumNoSSR>
+              <DeferRender ssr={false}>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              </ForumNoSSR>
+              </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -416,6 +425,7 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
+              {isEAForum && <EASurveyBanner />}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -432,11 +442,13 @@ const Layout = ({currentUser, children, classes}: {
                     headerAtTop={headerAtTop}
                     classes={classes}
                   >
-                    <NavigationStandalone
-                      sidebarHidden={hideNavigationSidebar}
-                      unspacedGridLayout={unspacedGridLayout}
-                      noTopMargin={friendlyHomeLayout}
-                    />
+                    <DeferRender ssr={true} clientTiming='mobile-aware'>
+                      <NavigationStandalone
+                        sidebarHidden={hideNavigationSidebar}
+                        unspacedGridLayout={unspacedGridLayout}
+                        noTopMargin={friendlyHomeLayout}
+                      />
+                    </DeferRender>
                   </StickyWrapper>
                 }
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
@@ -463,13 +475,15 @@ const Layout = ({currentUser, children, classes}: {
                     headerAtTop={headerAtTop}
                     classes={classes}
                   >
-                    <EAHomeRightHandSide />
+                    <DeferRender ssr={true} clientTiming='mobile-aware'>
+                      <EAHomeRightHandSide />
+                    </DeferRender>
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <ForumNoSSR>
+                  <DeferRender ssr={false}>
                     <SunshineSidebar/>
-                  </ForumNoSSR>
+                  </DeferRender>
                 </div>}
               </div>
             </CommentBoxManager>

@@ -1,25 +1,31 @@
-import AddFieldQuery from "../../../lib/sql/AddFieldQuery";
-import UpdateDefaultValueQuery from "../../../lib/sql/UpdateDefaultValueQuery";
-import DropDefaultValueQuery from "../../../lib/sql/DropDefaultValueQuery";
-import UpdateFieldTypeQuery from "../../../lib/sql/UpdateFieldTypeQuery";
-import TableIndex from "../../../lib/sql/TableIndex";
-import DropIndexQuery from "../../../lib/sql/DropIndexQuery";
-import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
-import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
-import DropTableQuery from "../../../lib/sql/DropTableQuery";
-import DropFieldQuery from "../../../lib/sql/DropFieldQuery";
-import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
+import AddFieldQuery from "@/server/sql/AddFieldQuery";
+import UpdateDefaultValueQuery from "@/server/sql/UpdateDefaultValueQuery";
+import DropDefaultValueQuery from "@/server/sql/DropDefaultValueQuery";
+import UpdateFieldTypeQuery from "@/server/sql/UpdateFieldTypeQuery";
+import TableIndex from "@/server/sql/TableIndex";
+import DropIndexQuery from "@/server/sql/DropIndexQuery";
+import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
+import CreateTableQuery from "@/server/sql/CreateTableQuery";
+import DropTableQuery from "@/server/sql/DropTableQuery";
+import DropFieldQuery from "@/server/sql/DropFieldQuery";
+import CreateExtensionQuery from "@/server/sql/CreateExtensionQuery";
 import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
-import { JsonType, Type } from "../../../lib/sql/Type";
-import LogTableQuery from "../../../lib/sql/LogTableQuery";
+import { JsonType, Type } from "@/server/sql/Type";
+import LogTableQuery from "@/server/sql/LogTableQuery";
 import {
   expectedIndexes,
   expectedCustomPgIndexes,
 } from "../../../lib/collectionIndexUtils";
 import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
+import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
+import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
+import { createMutator } from "@/server/vulcan-lib";
+import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
+import Revisions from "@/lib/collections/revisions/collection";
+import chunk from "lodash/chunk";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -113,8 +119,9 @@ export const createIndex = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
   index: TableIndex<ObjectsByCollectionName[N]>,
   ifNotExists = true,
+  allowConcurrent = true,
 ): Promise<void> => {
-  const {sql, args} = new CreateIndexQuery(collection.getTable(), index, ifNotExists).compile();
+  const {sql, args} = new CreateIndexQuery({ table: collection.getTable(), index, ifNotExists, allowConcurrent }).compile();
   await db.none(sql, args);
 }
 
@@ -174,7 +181,7 @@ export const updateIndexes = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
   for (const index of expectedIndexes[collection.collectionName] ?? []) {
-    collection._ensureIndex(index.key, index);
+    await collection._ensureIndex(index.key, index);
     await sleep(100);
   }
 }
@@ -220,8 +227,77 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
     return;
   }
 
+  // Find any documents where the latest revision id is null and create a
+  // new revision for them
+  const latestFieldName = `${fieldName}_latest`;
+  const documents = await collection.find({
+    [latestFieldName]: {$exists: false},
+  }).fetch();
+  const documentBatches = chunk(documents, 10);
+  for (let i = 0; i < documentBatches.length; i++) {
+    // eslint-disable-next-line no-console
+    console.log(`Backfilling missing revisions for batch ${i} of ${documentBatches.length}...`);
+
+    const batch = documentBatches[i];
+
+    const currentUser = await getAdminTeamAccount();
+    if (!currentUser) {
+      throw new Error("Can't find admin user account");
+    }
+
+    await Promise.all(batch.map(async (document) => {
+      const editableField: (EditableFieldContents & EditableFieldUpdate) | undefined =
+        (document as AnyBecauseHard)[fieldName];
+      if (!editableField) {
+        return;
+      }
+
+      const dataWithDiscardedSuggestions = editableField?.dataWithDiscardedSuggestions;
+      delete editableField?.dataWithDiscardedSuggestions;
+
+      const userId = (document as AnyBecauseHard).userId || currentUser._id;
+
+      const revisionData = editableField.originalContents
+        ? await buildRevision({
+          originalContents: editableField.originalContents,
+          dataWithDiscardedSuggestions,
+          currentUser,
+        })
+        : {
+          html: "",
+          wordCount: 0,
+          originalContents: {type: "ckEditorMarkup", data: ""},
+          editedAt: new Date(),
+          userId,
+        };
+
+      const revision = await createMutator({
+        collection: Revisions,
+        document: {
+          version: editableField.version || getInitialVersion(document),
+          changeMetrics: {added: 0, removed: 0},
+          collectionName,
+          ...revisionData,
+          userId,
+        },
+        validate: false,
+      });
+
+      await Promise.all([
+        afterCreateRevisionCallback.runCallbacksAsync([{
+          revisionID: revision.data._id,
+        }]),
+        collection.rawUpdateOne({_id: document._id}, {
+          $set: {[latestFieldName]: revision.data._id},
+        }),
+      ]);
+    }));
+  }
+
   // Check for data integrity issues and update any revisions that have diverged
   // from the current denormalized value
+  // eslint-disable-next-line no-console
+  console.log("Updating out-of-sync revisions...");
   await db.none(`
     UPDATE "Revisions" AS r
     SET
@@ -233,15 +309,24 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
       "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
       "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
       "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents")
+      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents"),
+      "draft" = COALESCE(p."draft", FALSE),
+      "collectionName" = $1
     FROM "${collectionName}" AS p
     WHERE
-      r."collectionName" = '${collectionName}'
+      r."collectionName" = $1
       AND r."fieldName" = '${fieldName}'
       AND p."${fieldName}_latest" = r."_id"
       AND p."${fieldName}"->>'html' <> r."html"
-  `);
+  `, [collectionName]);
+
+  // eslint-disable-next-line no-console
+  console.log("Dropping denormalized field...");
   await dropRemovedField(db, collection, fieldName);
+
+  // eslint-disable-next-line no-console
+  console.log("Undrafting most recent revisions for published posts...");
+  await undraftPublicPostRevisions(db);
 }
 
 export const denormalizeEditableField = async <N extends CollectionNameString>(

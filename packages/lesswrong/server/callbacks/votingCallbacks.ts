@@ -19,8 +19,14 @@ import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
+import { captureException } from '@sentry/core';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
+
+function votesCanTriggerReview(content: DbPost | DbComment) {
+  const sixMonthsAgo = moment().subtract(6, 'months');
+  return moment(content.postedAt).isAfter(sixMonthsAgo);
+}
 
 /**
  * @summary Update the karma of the item's owner
@@ -47,7 +53,8 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
     }
   }
 
-  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
+  
+  if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName) && votesCanTriggerReview(newDocument as DbPost | DbComment)) {
     void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
@@ -225,11 +232,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
 const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
 
-  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top fifty?</p><figure class="media"><div data-oembed-url="${marketUrl}">
-        <div class="manifold-preview">
-          <iframe src=${marketUrl}>
-        </iframe></div>
-      </div></figure>
+  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year.</p><p>Hopefully, the review is better than karma at judging enduring value. If we have accurate prediction markets on the review results, maybe we can have better incentives on LessWrong today. <a href="${marketUrl}">Will this post make the top fifty?</a></p>
   `
 
   const result = await createMutator({
@@ -259,32 +262,41 @@ voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, 
 
   const { userId } = newDocument;
 
-  const [longtermDownvoteScore, previousAlert] = await Promise.all([
-    context.repos.votes.getLongtermDownvoteScore(userId),
-    context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
-  ]);
-
-  // If the user has already been flagged with this moderator action in the last month, no need to apply it again
-  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
-    return;
-  }
-
-  const {
-    commentCount,
-    longtermScore,
-    longtermSeniorDownvoterCount
-  } = longtermDownvoteScore;
-
-  if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
-    void createMutator({
-      collection: context.ModeratorActions,
-      document: {
-        type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
-        userId: userId,
-        endedAt: new Date()
-      },
-      context: adminContext,
-      currentUser: adminContext.currentUser,
-    });
+  try {
+    const [longtermDownvoteScore, previousAlert] = await Promise.all([
+      context.repos.votes.getLongtermDownvoteScore(userId),
+      context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
+    ]);
+  
+    // This seems to happen for new users or users who haven't been voted on at all by longterm senior users
+    if (!longtermDownvoteScore) {
+      return;
+    }
+  
+    // If the user has already been flagged with this moderator action in the last month, no need to apply it again
+    if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
+      return;
+    }
+  
+    const {
+      commentCount,
+      longtermScore,
+      longtermSeniorDownvoterCount
+    } = longtermDownvoteScore;
+  
+    if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
+      void createMutator({
+        collection: context.ModeratorActions,
+        document: {
+          type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
+          userId: userId,
+          endedAt: new Date()
+        },
+        context: adminContext,
+        currentUser: adminContext.currentUser,
+      });
+    }
+  } catch (err) {
+    captureException(err);
   }
 });

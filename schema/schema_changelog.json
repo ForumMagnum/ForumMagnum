@@ -663,5 +663,60 @@
     "acceptsSchemaHash": "80ff63223032d7a466bbfbfa292b48b4",
     "acceptedByMigration": "20240513T115214.normalize_posts_moderationGuidelines.ts",
     "timestamp": "2024-05-13T11:52:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "aa1eac5798b9679483aaff7b85ba1e8e",
+    "acceptedByMigration": "20240513T135549.set_not_null_clientId.ts",
+    "timestamp": "2024-05-13T13:55:49.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a1206bafcc5c4d63fca651ad906d213",
+    "acceptedByMigration": "20240517T093146.add_swrCachingEnabled.ts",
+    "timestamp": "2024-05-17T09:31:46.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6fc595baf02ccdf4ffdf8777a5981d32",
+    "acceptedByMigration": "20240526T111308.set_not_null_clientId_2.ts",
+    "timestamp": "2024-05-26T11:13:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6916cc5096e4eeee5bc92639da67e9fa",
+    "acceptedByMigration": "20240611T182502.add_Posts_userId_postedAt_idx.ts",
+    "timestamp": "2024-06-11T18:25:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "c1dd7ed968b6af5a78625296b5e5fec0",
+    "acceptedByMigration": "20240612T173525.add_onsite_digest_background_fields.ts",
+    "timestamp": "2024-06-12T17:35:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b1f9f6080e26c6425541b770717f7c98",
+    "acceptedByMigration": "20240617T090120.add_vibes_check_tables.ts",
+    "timestamp": "2024-06-17T09:01:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "af39464b13d09507b438054d15aba060",
+    "acceptedByMigration": "20240627T173906.add_poll_fields_to_ForumEvents.ts",
+    "timestamp": "2024-06-27T17:39:06.000Z"
+  },
+  {
+    "acceptsSchemaHash": "94df20dba53ef11f79930cbb2c17442c",
+    "acceptedByMigration": "20240702T104451.add_Images_identifier_fields.ts",
+    "timestamp": "2024-07-02T10:44:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a43d70aa333497e5911f91e0e60c2115",
+    "acceptedByMigration": "20240702T120844.create_Tweets.ts",
+    "timestamp": "2024-07-02T12:08:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a2faca5a61a921ed5828a0be4fb26461",
+    "acceptedByMigration": "20240704T135716.add_permanentDeletionRequestedAt.ts",
+    "timestamp": "2024-07-04T13:57:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d2ff8b556fc6f740b2bb57ddf5347f64",
+    "acceptedByMigration": "20240729T183041.normalize_post_contents.ts",
+    "timestamp": "2024-07-29T18:30:41.000Z"
   }
 ]

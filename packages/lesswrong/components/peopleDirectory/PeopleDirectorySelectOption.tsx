@@ -14,6 +14,11 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    padding: "6px 8px",
+    borderRadius: theme.borderRadius.default,
+    "&:hover": {
+      background: theme.palette.grey[100],
+    },
   },
   check: {
     display: "inline",
@@ -23,17 +28,19 @@ const styles = (theme: ThemeType) => ({
     height: 16,
   },
   selected: {
-    background: theme.palette.primary.main,
-    color: theme.palette.text.alwaysWhite,
+    border: "none",
+    marginLeft: 1,
+    marginRight: -1,
   },
   icon: {
     width: 16,
     height: 16,
     marginLeft: -1,
+    color: theme.palette.primary.main,
   },
 });
 
-export const PeopleDirectorySelectOption = ({state, className, classes}: {
+const PeopleDirectorySelectOption = ({state, className, classes}: {
   state: MultiSelectState,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -58,7 +65,7 @@ export const PeopleDirectorySelectOption = ({state, className, classes}: {
   return (
     <div onClick={onClick} className={classNames(classes.root, className)}>
       <div className={classNames(classes.check, {[classes.selected]: selected})}>
-        {selected && <ForumIcon icon="Check" className={classes.icon} />}
+        {selected && <ForumIcon icon="CheckSmall" className={classes.icon} />}
       </div>
       {label}
     </div>

@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& h1, & h2, & h3': {
       fontSize: isFriendlyUI ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
-      marginBlickStart: "0 !important",
+      marginBlockStart: "0 !important",
     },
   },
   commentBody: {

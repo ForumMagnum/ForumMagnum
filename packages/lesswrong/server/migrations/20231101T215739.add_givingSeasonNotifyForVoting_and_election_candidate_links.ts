@@ -31,7 +31,7 @@ export const acceptsSchemaHash = "0cc5ac04b5c4340a894f1bef511f22a9";
 
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
 import Users from "../../lib/collections/users/collection";
-import { BoolType } from "../../lib/sql/Type";
+import { BoolType } from "@/server/sql/Type";
 import { addField, addRemovedField, dropField, dropRemovedField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {

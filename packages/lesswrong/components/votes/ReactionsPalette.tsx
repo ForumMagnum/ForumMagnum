@@ -215,7 +215,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const gridSectionC = [
-    'empathy', 'insightful', 'taboo',  'offtopic',  'elaborate',  'timecost',  'typo', 'scholarship', 'why'
+    'heart', 'insightful', 'taboo',  'offtopic',  'elaborate',  'timecost',  'typo', 'scholarship', 'why'
   ].map(r => getReactionFromName(r)).filter(r => r);
 
   const likelihoods = [
@@ -224,7 +224,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
 
   const listViewSectionB = [
     'changemind',   'insightful',
-    'thanks',       'empathy',
+    'thanks',       'heart',
     'typo',         'why', 
     'offtopic',     'elaborate',
   ].map(r => getReactionFromName(r)).filter(r => r);

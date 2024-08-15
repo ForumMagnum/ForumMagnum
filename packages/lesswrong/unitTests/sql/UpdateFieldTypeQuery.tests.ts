@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import UpdateFieldTypeQuery from "../../lib/sql/UpdateFieldTypeQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import UpdateFieldTypeQuery from "@/server/sql/UpdateFieldTypeQuery";
 
 describe("UpdateFieldTypeQuery", () => {
   runTestCases([

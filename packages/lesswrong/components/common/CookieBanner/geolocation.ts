@@ -67,7 +67,7 @@ function setCountryCodeToLocalStorage(countryCode: string) {
   ls.setItem('countryCodeTimestamp', timestamp.toString());
 }
 
-function getCachedUserCountryCode() {
+export function getCachedUserCountryCode() {
   if (isServer) return null;
 
   const cachedCountryCode = getCountryCodeFromLocalStorage();

@@ -1,8 +1,8 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { useContext } from 'react';
 import moment from 'moment';
 import { useTimezone } from '../common/withTimezone';
-import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
@@ -28,13 +28,23 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
 }) => {
   const now = useCurrentTime();
   const { timezone } = useTimezone();
+  const { cacheFriendly=false } = useContext(EnvironmentOverrideContext);
   const dateToRender = date||now;
   const dateTimeAttr = granularity === "datetime" ? dateToRender : moment(dateToRender).tz(timezone).format("YYYY-MM-DD")
   const { LWTooltip, TimeTag } = Components
 
+  let displayFormat = format;
+  if (cacheFriendly && !format) {
+    displayFormat = "MMM D YYYY"
+    // hide the year if it's this year
+    if (moment(now).isSame(moment(date), 'year')) {
+      displayFormat = "MMM D"
+    }
+  }
+
   const formatted = (
     <TimeTag dateTime={dateTimeAttr} className={className}>
-      {format ? moment(dateToRender).tz(timezone).format(format) : formatRelative(dateToRender, now, includeAgo)}
+      {displayFormat ? moment(dateToRender).tz(timezone).format(displayFormat) : formatRelative(dateToRender, now, includeAgo)}
     </TimeTag>
   );
 

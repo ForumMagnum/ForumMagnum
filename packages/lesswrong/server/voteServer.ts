@@ -25,6 +25,7 @@ import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
 import { isLWorAF } from '../lib/instanceSettings';
+import { swrInvalidatePostRoute } from './cache/swr';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -77,6 +78,9 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
   );
   if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
     void elasticSyncDocument(collection.collectionName, newDocument._id);
+  }
+  if (collection.collectionName === "Posts") {
+    void swrInvalidatePostRoute(newDocument._id)
   }
   return {newDocument, vote};
 }
@@ -394,18 +398,15 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         consequences: ["warningPopup"],
         message: null,
       },
-    ];
-
-    if (isLWorAF) {
-      rateLimits.push({
+      {
         voteCount: 10,
         periodInMinutes: 60,
         types: "onlyStrong",
         users: "allUsers",
         consequences: ["denyThisVote"],
         message: "too many strong-votes in one hour",
-      });
-      rateLimits.push({
+      },
+      {
         voteCount: (postCommentCount: number|null) => 5 + Math.round((postCommentCount??0) * .05),
         periodInMinutes: null,
         allOnSamePost: true,
@@ -413,8 +414,8 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         users: "allUsers",
         consequences: ["denyThisVote"],
         message: "You can only strong-vote on up to (5+5%) of the comments on a post",
-      });
-    }
+      },
+    ];
 
     return rateLimits;
   }

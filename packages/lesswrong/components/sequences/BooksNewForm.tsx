@@ -1,6 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import React from 'react';
-import Books from '../../lib/collections/books/collection';
 
 const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
   successCallback?: () => void,

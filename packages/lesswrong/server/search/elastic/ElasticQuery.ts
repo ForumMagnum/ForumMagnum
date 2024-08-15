@@ -31,7 +31,7 @@ export type QueryFilter = {
   field: string,
 } & ({
   type: "facet",
-  value: boolean | string,
+  value: boolean | string | null,
   negated: boolean,
 } | {
   type: "numeric",
@@ -108,34 +108,57 @@ class ElasticQuery {
     return expr;
   }
 
-  private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
-    switch (filter.type) {
-    case "facet":
-      const term: QueryDslQueryContainer =
-        isFullTextField(this.collectionName, filter.field)
-          ? {
-            match: {
-              [`${filter.field}.exact`]: {
-                query: filter.value,
-                analyzer: "fm_exact_analyzer",
-                operator: "AND",
-                fuzziness: 0,
-              },
-            },
-          }
-          : {
-            term: {
-              [filter.field]: filter.value,
-            },
-          };
-      return filter.negated
-        ? {
+  private compileFacet(
+    field: string,
+    value: boolean | string | null,
+    negated: boolean,
+  ): QueryDslQueryContainer {
+    if (value === null) {
+      const term: QueryDslQueryContainer = {
+        exists: {
+          field,
+        },
+      };
+      return negated
+        ? term
+        : {
           bool: {
             should: [],
             must_not: [term],
           },
-        }
-        : term;
+        };
+    }
+
+    const term: QueryDslQueryContainer = isFullTextField(this.collectionName, field)
+      ? {
+        match: {
+          [`${field}.exact`]: {
+            query: value,
+            analyzer: "fm_exact_analyzer",
+            operator: "AND",
+            fuzziness: 0,
+          },
+        },
+      }
+      : {
+        term: {
+          [field]: value,
+        },
+      };
+    return negated
+      ? {
+        bool: {
+          should: [],
+          must_not: [term],
+        },
+      }
+      : term;
+  }
+
+  private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
+    switch (filter.type) {
+    case "facet":
+      return this.compileFacet(filter.field, filter.value, filter.negated);
 
     case "numeric":
       return {

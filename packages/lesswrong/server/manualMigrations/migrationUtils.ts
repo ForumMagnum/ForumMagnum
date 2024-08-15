@@ -3,7 +3,7 @@ import { Vulcan } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 import { getSchema } from '../../lib/utils/getSchema';
 import { sleep, timedFunc } from '../../lib/helpers';
-import { getSqlClient } from '../../lib/sql/sqlClient';
+import { getSqlClient } from '../../server/sql/sqlClient';
 
 // When running migrations with split batches, the fraction of time spent
 // running those batches (as opposed to sleeping). Used to limit database

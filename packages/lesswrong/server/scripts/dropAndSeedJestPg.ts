@@ -1,6 +1,6 @@
 import { Vulcan } from "../vulcan-lib";
 import { createTestingSqlClient, killAllConnections } from "../testingSqlClient";
-import { closeSqlClient } from "../../lib/sql/sqlClient";
+import { closeSqlClient } from "../sql/sqlClient";
 
 Vulcan.dropAndSeedJestPg = async () => {
   const id = "jest_template";

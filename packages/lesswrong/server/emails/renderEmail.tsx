@@ -12,7 +12,7 @@ import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
 import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
-import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
+import { forumTitleSetting, isLWorAF } from '../../lib/instanceSettings';
 import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
@@ -22,6 +22,7 @@ import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
 import { captureException } from '@sentry/core';
+import { isE2E } from '../../lib/executionEnvironment';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -209,7 +210,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     user,
     to,
     from: fromAddress,
-    subject: taggedSubject,
+    subject: isLWorAF ? taggedSubject : subject,
     html: emailDoctype + inlinedHTML,
     text: plaintext,
   }
@@ -238,6 +239,9 @@ export const wrapAndSendEmail = async ({user, force = false, to, from, subject, 
   subject: string,
   body: React.ReactNode}
 ): Promise<boolean> => {
+  if (isE2E) {
+    return true;
+  }
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
   const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");

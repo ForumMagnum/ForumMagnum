@@ -1,6 +1,6 @@
-import React, { useContext, useState, useCallback, useEffect } from 'react';
+import React, { useContext, useState, useCallback, useEffect, CSSProperties } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,6 +15,9 @@ import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
 import { useLocation } from '../../lib/routeUtil';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { makeCloudinaryImageUrl } from './CloudinaryImage2';
+import { hasForumEvents } from '@/lib/betas';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -22,9 +25,6 @@ export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSe
 export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
-export const EMOJIS_HEADER_HEIGHT = 196;
-
-const emojisInfoLink = "/posts/HhCxpbfT3wXGyvspt/tobytrem-s-quick-takes?commentId=rzakXXrfWkBuJGiYX";
 
 export const styles = (theme: ThemeType) => ({
   appBar: {
@@ -80,6 +80,9 @@ export const styles = (theme: ThemeType) => ({
       color: theme.palette.text.alwaysWhite,
     },
     "& .NotificationsMenuButton-buttonClosed": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .MessagesMenuButton-buttonClosed": {
       color: theme.palette.text.alwaysWhite,
     },
     "& .UsersMenu-arrowIcon": {
@@ -215,62 +218,6 @@ export const styles = (theme: ThemeType) => ({
       position: "fixed !important",
     },
   },
-  emojisRoot: {
-    marginBottom: EMOJIS_HEADER_HEIGHT - 70,
-    [theme.breakpoints.down("sm")]: {
-      marginBottom: 0,
-    },
-  },
-  emojisAppBar: {
-    [theme.breakpoints.up("md")]: {
-      boxShadow: "none",
-      color: theme.palette.emojiHeader.foreground,
-      backgroundColor: theme.palette.emojiHeader.background,
-      height: EMOJIS_HEADER_HEIGHT,
-      "& .MuiToolbar-root > *": {
-        zIndex: 2,
-      },
-      "& .EAButton-greyContained": {
-        backgroundColor: `${theme.palette.grey[320]} !important`,
-        "&:hover": {
-          backgroundColor: `${theme.palette.grey[340]} !important`,
-        }
-      },
-      "& .Header-titleLink": {
-        color: theme.palette.emojiHeader.foreground,
-      },
-      "& .ForumIcon-root": {
-        color: theme.palette.emojiHeader.foreground,
-      },
-    },
-  },
-  emojisContent: {
-    zIndex: 2,
-    maxWidth: 300,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 13,
-    fontWeight: 500,
-    lineHeight: "140%",
-    marginLeft: 46,
-    "& a": {
-      textDecoration: "underline",
-      "&:hover": {
-        textDecoration: "none",
-        opacity: 1,
-      },
-    },
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-  },
-  emojisTitle: {
-    fontSize: 30,
-    fontWeight: 700,
-    lineHeight: "120%",
-    letterSpacing: "-0.3px",
-    marginBottom: 10,
-    marginTop: 2,
-  },
 });
 
 const Header = ({
@@ -297,21 +244,16 @@ const Header = ({
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
-  const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash } = useLocation();
-
-  const showEmojisHeader =
-    isEAForum &&
-    pathname === "/" &&
-    !currentUser?.usernameUnset;
+  const { currentRoute, pathname, hash } = useLocation();
+  const {currentForumEvent} = useCurrentForumEvent();
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton, EAEmojisHeader,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
   } = Components;
 
   useEffect(() => {
@@ -323,7 +265,7 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPage = isFriendlyUI;
+  const hasNotificationsPopover = isFriendlyUI;
   const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
   const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
@@ -347,12 +289,10 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    if (hasNotificationsPage) {
+    if (hasNotificationsPopover) {
       captureEvent("notificationsIconToggle", {
-        navigate: true,
         previousCheck: lastNotificationsCheck,
       });
-      navigate("/notifications");
     } else {
       captureEvent("notificationsIconToggle", {
         open: !notificationOpen,
@@ -471,7 +411,7 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = currentUser && !hasNotificationsPage
+  const headerNotificationsMenu = currentUser && !hasNotificationsPopover
     && (
       <NotificationsMenu
         open={notificationOpen}
@@ -480,9 +420,31 @@ const Header = ({
       />
     );
 
+  const headerStyle: CSSProperties = {}
+  const bannerImageId = currentForumEvent?.bannerImageId
+  // If we're explicitly given a backgroundColor, that overrides any event header
+  if (backgroundColor) {
+    headerStyle.backgroundColor = backgroundColor
+  }
+  // On EAF, forum events with polls also update the home page header background
+  else if (currentRoute?.name === 'home' && bannerImageId && currentForumEvent.includesPoll && hasForumEvents) {
+    const darkColor = currentForumEvent?.darkColor
+    const background = `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "north",
+    })})${darkColor ? `, ${darkColor}` : ''}`
+    headerStyle.background = background
+  }
+  
+  // Make all the text and icons white when we have some sort of color in the header background
+  const useWhiteText = Object.keys(headerStyle).length > 0
+
   return (
     <AnalyticsContext pageSectionContext="header">
-      <div className={classNames(classes.root, showEmojisHeader && classes.emojisRoot)}>
+      <div className={classes.root}>
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
@@ -492,15 +454,14 @@ const Header = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
-          disable={stayAtTop || showEmojisHeader}
+          disable={stayAtTop}
         >
           <header
             className={classNames(
               classes.appBar,
-              showEmojisHeader && classes.emojisAppBar,
-              !!backgroundColor && classes.appBarDarkBackground,
+              useWhiteText && classes.appBarDarkBackground,
             )}
-            style={backgroundColor ? {backgroundColor} : {}}
+            style={headerStyle}
           >
             <Toolbar disableGutters={isFriendlyUI}>
               {navigationMenuButton}
@@ -508,7 +469,7 @@ const Header = ({
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -516,29 +477,14 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={useWhiteText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>
               </Typography>
-              {showEmojisHeader && <div style={{flexGrow: 2}} />}
               {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
-            {showEmojisHeader &&
-              <>
-                <div className={classes.emojisContent}>
-                  <div className={classes.emojisTitle}>
-                    Ways the world is getting better
-                  </div>
-                  <div>
-                    Click the banner to add a piece of{" "}
-                    <Link to={emojisInfoLink}>good news</Link>
-                  </div>
-                </div>
-                <EAEmojisHeader />
-              </>
-            }
           </header>
           {headerNavigationDrawer}
         </Headroom>

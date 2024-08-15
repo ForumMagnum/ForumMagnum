@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
 import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
-import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
+import { EnvironmentOverride, EnvironmentOverrideContext } from '../../lib/utils/timeUtil';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation, withRouter } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
@@ -25,10 +25,10 @@ export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', '
 interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
-  timeOverride: TimeOverride,
+  envOverride: EnvironmentOverride,
 }
 
-const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
+const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
   history: History
 }) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
@@ -106,7 +106,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
     <NavigationContext.Provider value={navigationContext.current}>
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
-    <TimeContext.Provider value={timeOverride}>
+    <EnvironmentOverrideContext.Provider value={envOverride}>
     <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
       <MessageContextProvider>
         <Components.HeadTags image={siteImageSetting.get()} />
@@ -116,7 +116,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
         </Components.Layout>
       </MessageContextProvider>
     </RefetchCurrentUserContext.Provider>
-    </TimeContext.Provider>
+    </EnvironmentOverrideContext.Provider>
     </ServerRequestStatusContext.Provider>
     </SubscribeLocationContext.Provider>
     </NavigationContext.Provider>

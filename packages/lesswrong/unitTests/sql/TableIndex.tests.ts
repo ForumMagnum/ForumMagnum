@@ -1,5 +1,5 @@
-import TableIndex from "../../lib/sql/TableIndex";
-import { DbTestObject } from "../../lib/sql/tests/testHelpers";
+import TableIndex from "@/server/sql/TableIndex";
+import { DbTestObject } from "@/server/sql/tests/testHelpers";
 
 describe("TableIndex", () => {
   it("can create table index with given fields", () => {

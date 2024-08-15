@@ -1,5 +1,5 @@
-import { DbTestObject, testTable, runTestCases } from "../../lib/sql/tests/testHelpers";
-import InsertQuery from "../../lib/sql/InsertQuery";
+import { DbTestObject, testTable, runTestCases } from "@/server/sql/tests/testHelpers";
+import InsertQuery from "@/server/sql/InsertQuery";
 
 jest.mock('../../lib/random', () => ({
   randomId: () => "some-random-id",

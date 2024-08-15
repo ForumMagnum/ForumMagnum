@@ -307,16 +307,12 @@ const schema: SchemaType<"Comments"> = {
   },
 
   // The semver-style version of the post that this comment was made against
-  // This gets automatically created in a callback on creation
+  // This gets automatically created in a callback on creation, which is defined
+  // in server/resolvers/commentResolvers.ts
   postVersion: {
     type: String,
     optional: true,
     canRead: ['guests'],
-    onCreate: async ({newDocument}) => {
-      if (!newDocument.postId) return "1.0.0";
-      const post = await mongoFindOne("Posts", {_id: newDocument.postId})
-      return (post && post.contents && post.contents.version) || "1.0.0"
-    }
   },
 
   promoted: {
@@ -712,7 +708,7 @@ const schema: SchemaType<"Comments"> = {
     ...schemaDefaultValue(false),
   },
   
-  // How well does ModGPT (GPT-4) think this comment adheres to forum norms and rules? (currently EAF only)
+  // How well does ModGPT (GPT-4o) think this comment adheres to forum norms and rules? (currently EAF only)
   modGPTAnalysis: {
     type: String,
     optional: true,

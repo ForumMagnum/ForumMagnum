@@ -7,6 +7,8 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 
+type DbPostWithContents = DbPost & {contents?: DbRevision | null};
+
 type MeanPostKarma = {
   _id: number,
   meanKarma: number,
@@ -30,11 +32,14 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
-type PostAndCommentsResultRow = {
+export type PostAndCommentsResultRow = {
   postId: string
   commentIds: string[]|null
+  fullCommentTreeIds: string[]|null
   subscribedPosts: boolean|null
   subscribedComments: boolean|null
+  postedAt: Date|null
+  last_commented: Date|null
 };
 
 class PostsRepo extends AbstractRepo<"Posts"> {
@@ -145,6 +150,21 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ORDER BY p."baseScore" desc
       LIMIT 200
     `, [digestId, startDate, end], "getEligiblePostsForDigest");
+  }
+  
+  async getPostsForOnsiteDigest(num: number): Promise<Array<DbPost>> {
+    return this.manyOrNone(`
+      -- PostsRepo.getPostsForOnsiteDigest
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."onsiteDigestStatus" = 'yes'
+      JOIN "Digests" d ON d.num = $1 AND dp."digestId" = d._id
+      WHERE
+        p."draft" is not true AND
+        p."deletedDraft" is not true
+      ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
+      LIMIT 50
+    `, [num]);
   }
 
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
@@ -283,10 +303,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getPostIdsWithoutEmbeddings
       SELECT p."_id"
       FROM "Posts" p
+      LEFT JOIN "Revisions" r ON r."_id" = p."contents_latest"
       LEFT JOIN "PostEmbeddings" pe ON p."_id" = pe."postId"
       WHERE
         pe."embeddings" IS NULL AND
-        COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
+        COALESCE((r."wordCount")::INTEGER, 0) > 0
     `);
     return results.map(({_id}) => _id);
   }
@@ -408,9 +429,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         END AS "authorFullName",
         rss."nickname" AS "feedName",
         p."feedLink",
-        p."contents"->>'html' AS "body",
+        revision."html" AS "body",
         NOW() AS "exportedAt"
       FROM "Posts" p
+      LEFT JOIN "Revisions" revision ON p."contents_latest" = revision."_id"
       LEFT JOIN "Users" author ON p."userId" = author."_id"
       LEFT JOIN "RSSFeeds" rss ON p."feedId" = rss."_id"
     `;
@@ -457,12 +479,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [userId, targetUserId, limit]);
   }
 
-  async getPostsWithElicitData(): Promise<DbPost[]> {
-    return await this.any(`
+  async getPostsWithElicitData(): Promise<DbPostWithContents[]> {
+    return await this.getRawDb().any(`
       -- PostsRepo.getPostsWithElicitData
-      SELECT *
-      FROM "Posts"
-      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+      SELECT p.*, ROW_TO_JSON(r.*) "contents"
+      FROM "Posts" p
+      INNER JOIN "Revisions" r ON p."contents_latest" = r."_id"
+      WHERE r."html" LIKE '%elicit-binary-prediction%'
     `);
   }
 
@@ -787,53 +810,81 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     [userId, limit]);
   }
   
-  async getPostsAndCommentsFromSubscriptions(userId: string, numDays: number): Promise<Array<PostAndCommentsResultRow >> {
+  async getPostsAndCommentsFromSubscriptions(userId: string, maxAgeDays: number): Promise<Array<PostAndCommentsResultRow >> {
     return await this.getRawDb().manyOrNone<PostAndCommentsResultRow>(`
-      WITH user_subscriptions AS (
-      SELECT DISTINCT "displayName", type, "documentId" AS "userId"
-      FROM "Subscriptions" s
-               LEFT JOIN "Users" u ON u._id = s."documentId"
-      WHERE state = 'subscribed'
-        AND s.deleted IS NOT TRUE
-        AND "collectionName" = 'Users'
-        AND "type" = 'newActivityForFeed'
-        AND "userId" = $1
+      WITH RECURSIVE user_subscriptions AS (
+        SELECT DISTINCT type, "documentId" AS "userId"
+        FROM "Subscriptions" s
+        WHERE state = 'subscribed'
+          AND s.deleted IS NOT TRUE
+          AND "collectionName" = 'Users'
+          AND "type" = 'newActivityForFeed'
+          AND "userId" = $(userId)
       ),
       posts_by_subscribees AS (
-           SELECT
-              p._id AS "postId",
-              "postedAt",
-              TRUE as "subscribedPosts"
-           FROM "Posts" p
-                    JOIN user_subscriptions us USING ("userId")
-           WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
-           ORDER BY p."postedAt" DESC
-       ),
-      posts_with_comments_from_subscribees AS (
-          SELECT
-             "postId",
-             ARRAY_AGG(c._id ORDER BY c."postedAt" DESC) AS "commentIds",
-             MAX(c."postedAt") AS last_updated,
-            TRUE as "subscribedComments"
-          FROM "Comments" c
-               JOIN user_subscriptions us USING ("userId")
-          WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $2
-          AND (c."baseScore" >= 5 OR (c.contents->>'wordCount')::numeric >= 200)
+        SELECT
+          p._id AS "postId",
+          "postedAt",
+          TRUE as "subscribedPosts"
+        FROM "Posts" p
+        JOIN user_subscriptions us
+        USING ("userId")
+        WHERE p."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
+        ORDER BY p."postedAt" DESC
+      ),
+      comments_from_subscribees AS (
+        SELECT
+          "postId",
+          (ARRAY_AGG(c._id ORDER BY c."postedAt" DESC))[1:5] AS "commentIds",
+          MAX(c."postedAt") AS last_commented
+        FROM "Comments" c
+        JOIN user_subscriptions us
+        USING ("userId")
+        WHERE c."postedAt" > CURRENT_TIMESTAMP - INTERVAL $(maxAgeDays)
+          AND c."postId" IS NOT NULL
           AND c.deleted IS NOT TRUE
           AND c."authorIsUnreviewed" IS NOT TRUE
           AND c.retracted IS NOT TRUE
-          GROUP BY "postId"
+        GROUP BY "postId"
+      ),
+      posts_with_comments_from_subscribees AS (
+        SELECT
+          c."postId",
+          ARRAY_AGG(c._id) AS "commentIds",
+          MAX(c."postedAt") AS last_commented,
+          TRUE as "subscribedComments"
+        FROM "Comments" c
+        JOIN (SELECT UNNEST("commentIds") AS _id, "postId", last_commented FROM comments_from_subscribees) un
+        ON c._id = un._id AND c."postId" = un."postId" AND c."postedAt" > un.last_commented - INTERVAL '1 week'
+        GROUP BY c."postId"
+      ),
+      parent_comments AS (
+        SELECT
+          c._id,
+          c."postId",
+          c."parentCommentId",
+          c."postedAt"
+        FROM "Comments" c
+        WHERE c._id IN (SELECT UNNEST("commentIds") FROM posts_with_comments_from_subscribees)
+        UNION
+        SELECT
+          c._id,
+          c."postId",
+          c."parentCommentId",
+          c."postedAt"
+        FROM "Comments" c
+        JOIN parent_comments pc ON pc."parentCommentId" = c._id
       ),
       combined AS (
-          SELECT
-              *
-          FROM
-              posts_by_subscribees
-          FULL JOIN posts_with_comments_from_subscribees USING ("postId")
+        SELECT
+          *
+        FROM posts_by_subscribees
+        FULL JOIN posts_with_comments_from_subscribees USING ("postId")
       )
-      SELECT combined.*
+      SELECT combined.*, ARRAY_AGG(DISTINCT parent_comments._id) AS "fullCommentTreeIds"
       FROM combined
       JOIN "Posts" p ON combined."postId" = p._id
+      LEFT JOIN parent_comments ON parent_comments."postId" = combined."postId"
       WHERE
         p.draft IS NOT TRUE
         AND p.status = 2
@@ -842,11 +893,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         AND p."hiddenRelatedQuestion" IS NOT TRUE
         AND p.unlisted IS NOT TRUE
         AND p."isFuture" IS NOT TRUE
-      ORDER BY GREATEST(last_updated, combined."postedAt") DESC;
-    `, [
+        AND p."isEvent" IS NOT TRUE
+      GROUP BY combined."postId", combined."postedAt", last_commented, combined."subscribedPosts", combined."subscribedComments", combined."commentIds"
+      ORDER BY GREATEST(last_commented, combined."postedAt") DESC;    
+    `, {
       userId,
-      `${numDays} days`
-    ]);
+      maxAgeDays: `${maxAgeDays} days`,
+    });
   }
 }
 

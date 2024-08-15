@@ -620,8 +620,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [userId, postId, excludedDocumentId]);
   }
 
-  getLongtermDownvoteScore(userId: string): Promise<LongtermScoreResult> {
-    return this.getRawDb().one(`
+  getLongtermDownvoteScore(userId: string): Promise<LongtermScoreResult | null> {
+    return this.getRawDb().oneOrNone(`
       SELECT
         COUNT(DISTINCT senior_downvoter) AS "longtermSeniorDownvoterCount",
         COUNT(c."userId") as "commentCount",

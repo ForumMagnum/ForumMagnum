@@ -145,6 +145,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       panelBackground: {
         default: shadePalette.grey[20],
         modalBackground: "#292929",
+        mapboxTooltip: "rgba(75,75,75,.94)",
         loginInput: "#3d3d3d",
         loginInputHovered: "#3f3f3f",
         onboardingSection: "#424242",
@@ -250,6 +251,9 @@ export const darkModeTheme: UserThemeSpecification = {
       mentionsBaloon: shadePalette.grey[100],
       eaButtonGreyOutline: "#5F5F5F",
     },
+    boxShadow: {
+      graphTooltip: "none",
+    },
     buttons: {
       mentions: {
         hover: shadePalette.grey[100],
@@ -291,18 +295,13 @@ export const darkModeTheme: UserThemeSpecification = {
       panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
       postScoreArrow: '#BCBCBC',
     },
-    emojiHeader: {
-      background: "#024c59",
-      foreground: "#FFF",
-      tooltipShadow: "none",
-    },
     tab: {
       inactive: {
         text: shadePalette.grey[600]
       },
     },
   }, forumComponentPalette(shadePalette)),
-  make: (palette: ThemePalette): PartialDeep<ThemeType> => ({
+  make: (palette: ThemePalette): PartialDeep<NativeThemeType> => ({
     postImageStyles: {
       // Override image background color to white (so that transparent isn't
       // black). Necessary because there are a handful of posts with images that
