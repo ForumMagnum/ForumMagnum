@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Components, registerComponent, combineUrls } from "../../lib/vulcan-lib";
 import {
   fmCrosspostSiteNameSetting,
@@ -13,6 +13,7 @@ import LoginIcon from "@material-ui/icons/LockOpen"
 import UnlinkIcon from "@material-ui/icons/RemoveCircle";
 import { gql, useMutation } from "@apollo/client";
 import { useOnFocusTab } from "../hooks/useOnFocusTab";
+import { generateTokenRoute } from "@/lib/fmCrosspost/routes";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -157,18 +158,15 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
 
   const onClickLogin = async () => {
     try {
-      const result = await fetch("/api/crosspostToken");
-      const {token, error} = await result.json();
+      const {token} = await generateTokenRoute.makeRequest({});
       if (token) {
         const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
         window.open(url, "_blank")?.focus();
-      } else if (typeof error === 'string') {
-        setError(error);
       } else {
         setError("Couldn't create login token");
       }
-    } catch {
-      setError("Couldn't create login token");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't create login token");
     }
   }
 
