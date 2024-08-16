@@ -31,3 +31,4 @@ importComponent("RSVPForm", () => require('./RSVPForm'));
 importComponent("WelcomeBox", () => require('./WelcomeBox'));
 importComponent("CrosspostHeaderIcon", () => require('./CrosspostHeaderIcon'));
 importComponent("CollapsedFootnotes", () => require('./CollapsedFootnotes'));
+importComponent("ReadTime", () => require('./ReadTime'));
