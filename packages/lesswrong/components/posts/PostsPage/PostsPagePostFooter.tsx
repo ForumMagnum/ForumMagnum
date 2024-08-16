@@ -7,6 +7,7 @@ import { MAX_COLUMN_WIDTH } from './PostsPage';
 import { isLW, isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import classNames from 'classnames';
 
 
 
@@ -62,10 +63,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: MAX_COLUMN_WIDTH
     }
   },
-  footerTagList: {
-    marginTop: 16,
-    marginBottom: 66,
-  },
+  lwVote: {
+    marginTop: 66,
+    marginBottom: 70,
+  }
 });
 
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
@@ -82,17 +83,10 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
-    {isLWorAF && !post.shortform && !post.isEvent &&
-      <AnalyticsContext pageSectionContext="tagFooter">
-        <div className={classes.footerTagList}>
-          <FooterTagList post={post}/>
-        </div>
-      </AnalyticsContext>
-    }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
         <div className={classes.footerSection}>
-          <div className={classes.voteBottom}>
+          <div className={classNames(classes.voteBottom, isLWorAF && classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
               <PostsVote post={post} useHorizontalLayout={isFriendlyUI} isFooter />
             </AnalyticsContext>

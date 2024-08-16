@@ -323,8 +323,13 @@ const FooterTagList = ({
 
   const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+    {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
+  </AddTagButton>
+
   const innerContent = (
     <>
+      {!isFriendlyUI && currentUser && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -351,11 +356,7 @@ const FooterTagList = ({
       {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {currentUser && !hideAddTag && (
-        <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
-        </AddTagButton>
-      )}
+      {isFriendlyUI && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );
