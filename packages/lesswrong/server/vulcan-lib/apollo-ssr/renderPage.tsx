@@ -19,7 +19,7 @@ import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
-import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
+import { getCookieFromReq, getPathFromReq, trySetResponseStatus } from '../../utils/httpUtil';
 import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
 import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
@@ -27,7 +27,7 @@ import type { Request, Response } from 'express';
 import { DEFAULT_TIMEZONE } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
-import { maxRenderQueueSize } from '../../../lib/publicSettings';
+import { maxRenderQueueSize, queuedRequestTimeoutSecondsSetting } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
@@ -35,6 +35,7 @@ import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
 import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 import { responseIsCacheable } from '../../cacheControlMiddleware';
+import moment from 'moment';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -257,6 +258,15 @@ function maybeStartQueuedRequests() {
     let requestToStartRendering = requestPriorityQueue.dequeue();
     if (requestToStartRendering.request) {
       const { preOpPriority, request } = requestToStartRendering;
+      const { startTime, res } = request.renderRequestParams;
+      
+      const queuedRequestTimeoutSeconds = queuedRequestTimeoutSecondsSetting.get();
+      const maxRequestAge = moment().subtract(queuedRequestTimeoutSeconds, 'seconds').toDate();
+      if (maxRequestAge > startTime) {
+        trySetResponseStatus({ response: res, status: 429 });
+        res.end();
+        continue;
+      }
 
       // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
       setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {

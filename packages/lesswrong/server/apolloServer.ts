@@ -56,7 +56,7 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
-import { getCookieFromReq } from './utils/httpUtil';
+import { getCookieFromReq, trySetResponseStatus } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 
 /**
@@ -77,25 +77,6 @@ const ssrInteractionDisable = isE2E
     </style>
   `
   : "";
-
-/**
- * Try to set the response status, but log an error if the headers have already been sent.
- */
-const trySetResponseStatus = ({ response, status }: { response: express.Response, status: number; }) => {
-  if (!response.headersSent) {
-    response.status(status);
-  } else if (response.statusCode !== status) {
-    const message = `Tried to set status to ${status} but headers have already been sent with status ${response.statusCode}. This may be due to enableResourcePrefetch wrongly being set to true.`;
-    if (isProduction) {
-      // eslint-disable-next-line no-console
-      console.error(message);
-    } else {
-      throw new Error(message);
-    }
-  }
-
-  return response;
-}
 
 /**
  * If allowed, write the prefetchPrefix to the response so the client can start downloading resources
