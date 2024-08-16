@@ -6,6 +6,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -16,6 +17,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI && {
       marginRight: 2,
     }),
+    ...(isLWorAF && {
+      marginLeft: 2
+    })
   },
   authorAnswer: {
     ...theme.typography.body2,

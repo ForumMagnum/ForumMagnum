@@ -9,6 +9,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import type { VoteColor } from './voteColors';
+import { TickReactionIcon } from "../../components/icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../../components/icons/reactions/CrossReactionIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -165,7 +167,7 @@ const VoteAgreementIcon = ({
   const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
-  const PrimaryIcon =  (upOrDown === "Downvote") ? ClearIcon : CheckIcon
+  const PrimaryIcon =  (upOrDown === "Downvote") ? CrossReactionIcon : TickReactionIcon
   const primaryIconStyling = (upOrDown === "Downvote") ? classes.clear : classes.check
   
   const BigVoteAccentIcon = (upOrDown === "Downvote") ? UpArrowIcon: CheckIcon
@@ -192,7 +194,7 @@ const VoteAgreementIcon = ({
         <PrimaryIcon
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
           style={{color: voted || alwaysColored ? mainColor : "inherit"}}
-          viewBox='6 6 12 12'
+          // viewBox='6 6 12 12'
         />
         <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
           {(state) => (
@@ -200,7 +202,7 @@ const VoteAgreementIcon = ({
               <BigVoteAccentIcon
                 className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
                 style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
-                viewBox='6 6 12 12'
+                // viewBox='6 6 12 12'
               />
               <PrimaryIcon
                 style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
@@ -209,7 +211,7 @@ const VoteAgreementIcon = ({
                   // [classes.bigCheckCompleted]: bigVoteCompleted,
                   [classes.bigCheckSolid]: solidArrow
                 }, classes[state])}
-                viewBox='6 6 12 12'
+                // viewBox='6 6 12 12'
               />
             </>)}
         </Transition>

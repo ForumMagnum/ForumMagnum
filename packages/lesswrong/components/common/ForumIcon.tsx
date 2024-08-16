@@ -144,6 +144,8 @@ import { CardViewIcon } from "../icons/CardViewIcon";
 import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
+import { TickReactionIcon } from "../icons/reactions/TickReactionIcon";
+import { CrossReactionIcon } from "../icons/reactions/CrossReactionIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -258,7 +260,9 @@ export type ForumIconName =
   "AddReaction" |
   "LabBeaker" |
   "Sparkle" |
-  "NotInterested"
+  "NotInterested" |
+  "Tick" |
+  "Cross"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -370,6 +374,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
     NotInterested: MuiNotInterestedIcon,
+    Tick: TickReactionIcon,
+    Cross: CrossReactionIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -479,6 +485,8 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
     NotInterested: MuiNotInterestedIcon,
+    Tick: TickReactionIcon,
+    Cross: CrossReactionIcon
   },
 };
 

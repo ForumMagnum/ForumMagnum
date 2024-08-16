@@ -28,6 +28,7 @@ import { isMobile } from '../../../lib/utils/isMobile';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     whiteSpace: "nowrap",
+    marginRight: 'auto'
   },
   footerReactions: {
     display: "inline-block",

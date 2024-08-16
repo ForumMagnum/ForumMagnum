@@ -8,6 +8,7 @@ import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import type { VoteColor } from './voteColors';
 import { isEAForum } from '../../lib/instanceSettings';
+import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,18 +25,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: 'not-allowed',
   },
   smallArrow: {
-    fontSize: '50%',
+    fontSize: '60%',
     opacity: isEAForum ? 0.7 : 0.6
   },
   up: {},
   right: {
-    transform: 'rotate(-270deg)',
+    transform: 'rotate(-180deg)',
   },
   down: {
     transform: 'rotate(-180deg)',
   },
   left: {
-    transform: 'rotate(-90deg)',
+    // transform: 'rotate(-90deg)',
   },
   bigArrow: {
     position: 'absolute',
@@ -99,7 +100,7 @@ const VoteArrowIcon = ({
 }: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
-  const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
+  const Icon = SoftUpArrowIcon
 
   if (!enabled) {
     eventHandlers = {};

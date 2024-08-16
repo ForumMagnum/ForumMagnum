@@ -14,8 +14,8 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   bottom: {
-    paddingBottom: isFriendlyUI ? 12 : 5,
-    paddingTop: isFriendlyUI ? 4 : undefined,
+    paddingBottom: isFriendlyUI ? 12 : 8,
+    paddingTop: 4,
     minHeight: 12,
     ...(isFriendlyUI ? {} : {fontSize: 12}),
   },
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
+const CommentBottom = ({comment, post, treeOptions, votingSystem, voteProps, commentBodyRef, replyButton, classes}: {
   comment: CommentsList,
   post: PostsMinimumInfo|undefined,
   treeOptions: CommentTreeOptions,
@@ -40,7 +40,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   replyButton: React.ReactNode,
   classes: ClassesType,
 }) => {
-  const { CommentBottomCaveats } = Components
+  const { CommentBottomCaveats, SmallSideVote } = Components
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const isMinimalist = treeOptions.formStyle === "minimalist"
@@ -72,14 +72,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
     )}>
       <CommentBottomCaveats comment={comment} />
       {showReplyButton && replyButton}
-      {VoteBottomComponent && <VoteBottomComponent
-        document={comment}
-        hideKarma={treeOptions.post?.hideCommentKarma}
-        collectionName="Comments"
-        votingSystem={votingSystem}
-        commentBodyRef={commentBodyRef}
-        voteProps={voteProps}
-      />}
+     
     </div>
   );
 }

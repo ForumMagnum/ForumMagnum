@@ -10,6 +10,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
+import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -120,6 +121,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 1,
   },
+  karma: {
+    color: theme.palette.grey[600],
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    "& svg": {
+      width: 9,
+    },
+  },
   menu: isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
@@ -145,6 +155,8 @@ export const CommentsItemMeta = ({
   setShowEdit,
   rightSectionElements,
   classes,
+  commentBodyRef,
+  voteProps
 }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList|CommentsListWithParentMetadata,
@@ -161,6 +173,8 @@ export const CommentsItemMeta = ({
   setShowEdit: () => void,
   rightSectionElements?: React.ReactNode,
   classes: ClassesType<typeof styles>,
+  commentBodyRef: any,
+  voteProps: any
 }) => {
   const currentUser = useCurrentUser();
 
@@ -181,6 +195,19 @@ export const CommentsItemMeta = ({
     scrollOnClick: postPage && !isParentComment,
   };
   const CommentLinkWrapper = useCommentLink(commentLinkProps);
+
+  const votingSystemName = comment.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
+
+  {VoteBottomComponent && <VoteBottomComponent
+    document={comment}
+    hideKarma={treeOptions.post?.hideCommentKarma}
+    collectionName="Comments"
+    votingSystem={votingSystem}
+    commentBodyRef={commentBodyRef}
+    voteProps={voteProps}
+  />}
 
   /**
    * Show the moderator comment annotation if:
@@ -223,7 +250,7 @@ export const CommentsItemMeta = ({
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
-    ForumIcon, CommentsMenu, UserCommentMarkers
+    ForumIcon, CommentsMenu, UserCommentMarkers, KarmaDisplay
   } = Components;
 
   return (
@@ -251,7 +278,7 @@ export const CommentsItemMeta = ({
           onClick={toggleShowParent}
         />
       }
-      {(showCollapseButtons || collapsed) &&
+      {/* {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
           {isFriendlyUI
             ? <ForumIcon icon="ThickChevronRight" className={classNames(
@@ -260,12 +287,20 @@ export const CommentsItemMeta = ({
             : <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
           }
         </a>
-      }
-      {singleLineCollapse && <a className={classes.collapse} onClick={() =>
+      } */}
+      {/* {singleLineCollapse && <a className={classes.collapse} onClick={() =>
         setSingleLine && setSingleLine(true)
       }>
         [<span>{collapsed ? "+" : "-"}</span>]
-      </a>}
+      </a>} */}
+      {/* <div className={classes.karma}>
+        <KarmaDisplay document={comment} />
+        <ForumIcon icon="SoftUpArrow" />
+      </div>
+      <div className={classes.karma}>
+        <KarmaDisplay document={comment} dimension={"agreement"} />
+        <ForumIcon icon="Tick" />
+      </div> */}
       <CommentUserName
         comment={comment}
         className={classes.username}
@@ -275,17 +310,31 @@ export const CommentsItemMeta = ({
         isPostAuthor={authorIsPostAuthor && !commentIsTopLevelShortform}
         className={classes.userMarkers}
       />
+      {!comment.debateResponse && !comment.rejected && <SmallSideVote
+        document={comment}
+        collectionName="Comments"
+        hideKarma={post?.hideCommentKarma}
+      />}
+       {VoteBottomComponent && <VoteBottomComponent
+        document={comment}
+        hideKarma={treeOptions.post?.hideCommentKarma}
+        collectionName="Comments"
+        votingSystem={votingSystem}
+        commentBodyRef={commentBodyRef}
+        voteProps={voteProps}
+      />}
       <CommentsItemDate {...commentLinkProps} />
       {showModeratorCommentAnnotation &&
         <span className={classes.moderatorHat}>
           {moderatorCommentAnnotation}
         </span>
       }
-      {!comment.debateResponse && !comment.rejected && <SmallSideVote
+
+      {/* {!comment.debateResponse && !comment.rejected && <SmallSideVote
         document={comment}
         collectionName="Comments"
         hideKarma={post?.hideCommentKarma}
-      />}
+      />} */}
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 

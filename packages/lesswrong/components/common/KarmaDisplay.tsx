@@ -3,15 +3,16 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 
-const KarmaDisplay = ({document, placement="left", linkItem}: {
+const KarmaDisplay = ({document, placement="left", linkItem, dimension = "approval"}: {
   document: VoteableType,
   placement?: PopperPlacementType,
   linkItem?: React.ReactNode,
+  dimension?: "approval" | "agreement"
 }) => {
-  const baseScore = forumTypeSetting.get() === "AlignmentForum"
+  const score = dimension === "agreement" ? (document?.extendedScore?.agreement || 0) : forumTypeSetting.get() === "AlignmentForum"
     ? document.afBaseScore
     : document.baseScore;
-  const afBaseScore = forumTypeSetting.get() !== "AlignmentForum" && document.af
+  const afScore = forumTypeSetting.get() !== "AlignmentForum" && document.af
     ? document.afBaseScore
     : null;
   const {LWTooltip} = Components;
@@ -22,16 +23,16 @@ const KarmaDisplay = ({document, placement="left", linkItem}: {
       clickable={!!linkItem}
       title={
         <div>
-          <div>{baseScore ?? 0} karma</div>
+          <div>{score ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>
           {linkItem}
-          {afBaseScore &&
-            <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>
+          {afScore &&
+            <div><em>({afScore} karma on AlignmentForum.org)</em></div>
           }
         </div>
       }
     >
-      {baseScore ?? 0}
+      {score ?? 0}
     </LWTooltip>
   );
 };

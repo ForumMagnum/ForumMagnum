@@ -377,6 +377,8 @@ export const CommentsItem = ({
               collapsed,
               toggleCollapse,
               setShowEdit,
+              commentBodyRef,
+              voteProps
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>

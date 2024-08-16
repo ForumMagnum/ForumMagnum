@@ -12,12 +12,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   agreementSection: {
     display: "inline-block",
     fontSize: 25,
-    marginLeft: 10,
     lineHeight: 0.6,
     height: 24,
-    minWidth: 60,
-    paddingTop: 2,
-    outline: theme.palette.border.commentBorder,
     borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
