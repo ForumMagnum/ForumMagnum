@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { FC, MouseEvent, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -12,9 +12,10 @@ import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } fr
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
-import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
+import { HOVER_CLASSNAME } from './MultiToCLayout';
+
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
   if (sections.length === 0) {
@@ -42,7 +43,7 @@ function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToC
 
     const anchorOffsets = sectionHeaders.map(sectionHeader => ({
       anchorHref: sectionHeader.getAttribute('id'),
-      offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
+      offset: ((sectionHeader as HTMLElement).offsetTop - parentContainer.offsetTop)  / containerHeight
     }));
 
     sectionsWithOffsets = filteredSections.map((section) => {
@@ -67,32 +68,55 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    paddingTop: 22,
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
     wordBreak: 'break-word',
-    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
+    transition: 'opacity .25s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
   },
-  fadeOut: {
+  hover: {
+    '& $rowOpacity': {
+      opacity: 1,
+    },
+    '& $tocTitle': {
+      opacity: 1,
+    }
+  },
+  rowWrapper: {
+    position: "relative",
+    zIndex: 1,
+    display: "flex",
+    flexDirection: "column-reverse",
+  },
+  rowOpacity: {
+    transition: '.25s',
     opacity: 0,
-    transform: 'translateX(-50px)',
-    transitionDelay: '0s',
   },
-  fadeIn: {
+  rowDotContainer: {
+    display: "flex",
+    alignItems: "center"
+  },
+  rowDot: {
+    fontSize: 9,
+    height: 9,
+    background: theme.palette.background.pageActiveAreaBackground,
+    marginLeft: 2,
+    marginRight: 8,
+    zIndex: 1,
+    color: theme.palette.grey[700]
+  },
+  tocWrapper: {
+    marginLeft: 13,
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
     fontSize: "1.3rem",
-    marginTop: 16,
-    marginBottom: 8,
   },
-  tocPostedAt: {
-    color: theme.palette.link.tocLink
-  },
-  belowTitle: {
+  wrapper: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -133,10 +157,9 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8
     },
   },
-  nonTitleRows: {
+  rows: {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
     flexGrow: 1,
     '& .TableOfContentsRow-link': {
       background: theme.palette.panelBackground.default
@@ -147,26 +170,27 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
+const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes, hover, commentCount, answerCount}: {
   tocSections: ToCSection[],
   title: string|null,
-  postedAt?: Date,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
+  hover?: boolean,
+  commentCount?: number,
+  answerCount?: number,
 }) => {
-  const { TableOfContentsRow, AnswerTocRow, FormatDate } = Components;
+  const { TableOfContentsRow, AnswerTocRow } = Components;
 
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
-  const { tocVisible } = useContext(SidebarsContext)!;
 
   const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext();
-  const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
+  const disableProgressBar = (!postContext || isServer || postContext.shortform);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
@@ -260,40 +284,41 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   }, [filteredSections, normalizedSections, hasLoaded]);
 
   const titleRow = (
-    <TableOfContentsRow
-      key="postTitle"
-      href="#"
-      offset={0}
-      onClick={ev => {
-        if (isRegularClick(ev)) {
-          void handleClick(ev, () => {
-            navigate("#");
-            jumpToY(0)
-          });
-        }
-      }}
-      highlighted={currentSection === "above"}
-      title
-      fullHeight
-    >
-      <div className={classes.tocTitle}>
-        {title?.trim()}
+    <div className={classes.rowWrapper} key={"#"}>
+      <div className={classes.rowDotContainer}>
+        <span className={classNames(HOVER_CLASSNAME, classes.rowOpacity, classes.tocWrapper)}>
+          <TableOfContentsRow indentLevel={1} key="postTitle" href="#" offset={0} fullHeight
+            highlighted={currentSection === "above"}
+            onClick={ev => {
+              if (isRegularClick(ev)) {
+              void handleClick(ev, () => {
+                navigate("#");
+                jumpToY(0)
+              });
+              }
+            }}
+          >
+            <div className={classes.tocTitle}>
+              {title?.trim()}
+            </div>
+          </TableOfContentsRow>
+        </span>
       </div>
-      {postedAt && <div className={classes.tocPostedAt}>
-        <FormatDate date={postedAt} format={"Do MMM YYYY"} />
-      </div>}
-    </TableOfContentsRow>
+    </div>
   );
+  
+  const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
 
-  const rows = normalizedSections.map((section, index) => {
-    return (
+  const rows = renderedSections.map((section, index) => {
+    const offsetStyling = section.offset !== undefined ? { flex: section.offset } : undefined;
+
+    const tocRow = (
       <TableOfContentsRow
-        key={section.anchor}
         indentLevel={section.level}
         divider={section.divider}
-        highlighted={section.anchor === currentSection}
         href={"#"+section.anchor}
         offset={section.offset}
+        highlighted={section.anchor === currentSection}
         onClick={(ev) => {
           if (isRegularClick(ev)) {
             void handleClick(ev, () => {
@@ -310,25 +335,33 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         }
       </TableOfContentsRow>
     )
-  });
 
-  const commentsRow = normalizedSections.slice(-1)?.[0]?.anchor === 'comments' ? rows.pop() : undefined;
+    return (
+      <div className={classes.rowWrapper} style={offsetStyling} key={section.anchor}>
+        <div className={classes.rowDotContainer}>
+          <div className={classes.rowDot}>•</div>
+          <span className={classNames(classes.rowOpacity, HOVER_CLASSNAME)}>
+            {tocRow}
+          </span>
+        </div>
+      </div>
+    )
+  });
 
   if (!tocSections || !hasLoaded)
     return <div/>
 
-  return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
-    {titleRow}
-    <div className={classes.belowTitle}>
+  return <div className={classNames(classes.root, { [classes.hover]: hover })}>
+    <div className={classes.wrapper}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
         <div className={classes.progressBar} />
         <div className={classes.unfilledProgressBar}/>
       </div>
-      <div className={classes.nonTitleRows}>
+      <div className={classes.rows}>
+        {titleRow}
         {rows}
       </div>
     </div>
-    {commentsRow}
   </div>
 }
 

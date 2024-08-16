@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
-import Badge from '@material-ui/core/Badge';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import IconButton from '@material-ui/core/IconButton';
-import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import IconButton from '@material-ui/core/IconButton';
+import Badge from '@material-ui/core/Badge';
+import classNames from 'classnames';
+import DeferRender from '../common/DeferRender';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 /**
  * These same styles are also used by `MessagesMenuButton`, so changes here
@@ -90,6 +92,11 @@ export const styles = (theme: ThemeType) => ({
     left: 1,
     top: 1,
   },
+  tooltip: {
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
+    padding: "5px 13px",
+    transform: "translateY(5px)",
+  },
 });
 
 type NotificationsMenuButtonProps = {
@@ -152,8 +159,11 @@ const FriendlyNotificationsMenuButton = ({
   classes,
 }: NotificationsMenuButtonProps) => {
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotifications} = useUnreadNotifications();
+  const {unreadNotifications, notificationsOpened} = useUnreadNotifications();
+  const [open, setOpen] = useState(false);
+  const anchorEl = useRef<HTMLDivElement>(null);
   const {document: karmaChanges, refetch} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -169,46 +179,87 @@ const FriendlyNotificationsMenuButton = ({
     void refetch();
   }, [refetch, currentUser?.karmaChangeLastOpened]);
 
-  const {NotificationsTooltip, ForumIcon} = Components;
+  const markAllAsRead = useCallback(() => {
+    const now = new Date();
+    void updateCurrentUser({
+      karmaChangeLastOpened: now,
+      karmaChangeBatchStart: now,
+    });
+    void notificationsOpened();
+  }, [updateCurrentUser, notificationsOpened]);
+
+  const closePopover = useCallback(() => setOpen(false), []);
+
+  const onClick = useCallback(() => {
+    setOpen((open) => !open);
+    toggle();
+  }, [toggle]);
+
+  const {
+    LWTooltip, LWPopper, LWClickAwayListener, ForumIcon, NotificationsPopover,
+  } = Components;
   return (
-    <NotificationsTooltip
-      unreadNotifications={unreadNotifications}
-      karmaChanges={karmaChanges?.karmaChanges}
-    >
-      <Badge
-        classes={{
-          root: classNames(classes.badgeContainer, className),
-          badge: classNames(classes.badge, {
-            [classes.badgeBackground]: hasBadge,
-            [classes.badge1Char]: badgeText.length === 1,
-            [classes.badge2Chars]: badgeText.length === 2,
-          })
-        }}
-        badgeContent={
-          <>
-            {badgeText}
-            {showKarmaStar &&
-              <ForumIcon
-                icon="Star"
-                className={classNames(classes.karmaStar, {
-                  [classes.karmaStarWithBadge]: hasBadge,
-                  [classes.karmaStarWithoutBadge]: !hasBadge,
-                })}
-              />
-            }
-          </>
-        }
+    <div ref={anchorEl}>
+      <LWTooltip
+        title="Notifications"
+        placement="bottom"
+        popperClassName={classes.tooltip}
       >
-        <IconButton
-          classes={{root: classNames(classes.buttonClosed, {
-            [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
-          })}}
-          onClick={toggle}
+        <Badge
+          classes={{
+            root: classNames(classes.badgeContainer, className),
+            badge: classNames(classes.badge, {
+              [classes.badgeBackground]: hasBadge,
+              [classes.badge1Char]: badgeText.length === 1,
+              [classes.badge2Chars]: badgeText.length === 2,
+            })
+          }}
+          badgeContent={
+            <>
+              {badgeText}
+              {showKarmaStar &&
+                <ForumIcon
+                  icon="Star"
+                  className={classNames(classes.karmaStar, {
+                    [classes.karmaStarWithBadge]: hasBadge,
+                    [classes.karmaStarWithoutBadge]: !hasBadge,
+                  })}
+                />
+              }
+            </>
+          }
         >
-          <ForumIcon icon="BellBorder" />
-        </IconButton>
-      </Badge>
-    </NotificationsTooltip>
+          <IconButton
+            classes={{root: classNames(classes.buttonClosed, {
+              [classes.buttonActive]: pathname.indexOf("/notifications") === 0,
+            })}}
+            onClick={onClick}
+          >
+            <ForumIcon icon="BellBorder" />
+          </IconButton>
+        </Badge>
+      </LWTooltip>
+      <DeferRender ssr={false}>
+        <LWPopper
+          open={open}
+          anchorEl={anchorEl.current}
+          placement="bottom"
+          tooltip={false}
+          overflowPadding={16}
+          clickable
+        >
+          {open &&
+            <LWClickAwayListener onClickAway={() => setOpen(false)}>
+                <NotificationsPopover
+                  karmaChanges={showKarmaStar ? karmaChanges?.karmaChanges : undefined}
+                  markAllAsRead={markAllAsRead}
+                  closePopover={closePopover}
+                />
+            </LWClickAwayListener>
+          }
+        </LWPopper>
+      </DeferRender>
+    </div>
   );
 }
 

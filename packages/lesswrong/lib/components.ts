@@ -215,7 +215,9 @@ importComponent("NotificationsPageItem", () => require('../components/notificati
 importComponent("NotificationsPageNotification", () => require('../components/notifications/NotificationsPage/NotificationsPageNotification'));
 importComponent("NotificationsPageKarmaChange", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChange'));
 importComponent("NotificationsPageKarmaChangeList", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChangeList'));
-importComponent("NotificationsTooltip", () => require('../components/notifications/NotificationsPage/NotificationsTooltip'));
+importComponent("NotificationsPopover", () => require('../components/notifications/NotificationsPopover'));
+importComponent("NoNotificationsPlaceholder", () => require('../components/notifications/NoNotificationsPlaceholder'));
+importComponent("NotificationsPopoverNotification", () => require('../components/notifications/NotificationsPopoverNotification'));
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
@@ -562,7 +564,7 @@ importComponent("UsersWhoReacted", () => require('../components/votes/lwReaction
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("PostsVoteDefault", () => require('../components/votes/PostsVoteDefault'));
-importComponent("PostsSplashPageHeaderVote", () => require('../components/votes/PostsSplashPageHeaderVote'));
+importComponent("LWPostsPageTopHeaderVote", () => require('../components/votes/LWPostsPageTopHeaderVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
 // Events
@@ -837,6 +839,7 @@ importComponent("FooterTag", () => require('../components/tagging/FooterTag'));
 importComponent("TruncatedTagsList", () => require('../components/tagging/TruncatedTagsList'));
 importComponent("CoreTagIcon", () => require('../components/tagging/CoreTagIcon'));
 importComponent("NewTagPage", () => require('../components/tagging/NewTagPage'));
+importComponent("NewTagInfoBox", () => require('../components/tagging/NewTagInfoBox'));
 importComponent("RandomTagPage", () => require('../components/tagging/RandomTagPage'));
 importComponent("EditTagPage", () => require('../components/tagging/EditTagPage'));
 importComponent("EditTagsDialog", () => require('../components/tagging/EditTagsDialog'));

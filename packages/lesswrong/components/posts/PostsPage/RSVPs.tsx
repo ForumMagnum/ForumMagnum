@@ -16,7 +16,7 @@ import mapValues from "lodash/mapValues";
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
-    marginBottom: 12
+    marginBottom: 48
   },
   rsvpItem: {
     width:  isFriendlyUI ? "33%" : "25%",

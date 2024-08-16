@@ -1,4 +1,4 @@
-import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { DatabaseServerSetting } from "./databaseSettings";
 import { Globals } from "@/lib/vulcan-lib";
 import { Posts } from "@/lib/collections/posts";
@@ -59,7 +59,9 @@ const regenerateType3AudioForPostId = async (postId: string) => {
   if (!post) {
     throw new Error("Post not found");
   }
-  await regenerateType3Audio(post);
+  if (isPostAllowedType3Audio(post)) {
+    await regenerateType3Audio(post);
+  }
 }
 
 export const deleteType3Audio = async (post: PostWithAudio) => {

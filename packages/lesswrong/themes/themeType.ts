@@ -206,6 +206,7 @@ declare global {
       dim4: ColorString,
       dim5: ColorString,
       dim6: ColorString,
+      dim05: ColorString,
       dim600: ColorString,
       dim700: ColorString,
       dim55: ColorString,
