@@ -3,7 +3,7 @@ import { dataToMarkdown } from "../editor/conversionUtils";
 import { unflattenComments } from "@/lib/utils/unflatten";
 
 interface DocumentWithContents {
-  contents: EditableFieldContents | null
+  contents: RevisionDisplay | EditableFieldContents | null
 }
 
 interface NestedComment {
@@ -19,11 +19,11 @@ interface NestedComment {
 
 
 export const documentToMarkdown = (document: DocumentWithContents) => {
-  const originalContents = document.contents?.originalContents
-  if (!originalContents) {
+  const html = document.contents?.html
+  if (!html) {
     return undefined
   }
-  return dataToMarkdown(originalContents.data, originalContents.type)
+  return dataToMarkdown(html, 'html')
 }
 
 
@@ -76,7 +76,7 @@ const createCommentTree = (comments: DbComment[]): NestedComment[] => {
     });
 }
 
-const formatCommentsForPost = async (post: DbPost, context: ResolverContext): Promise<string> => {
+const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverContext): Promise<string> => {
     const comments = await context.Comments.find({postId: post._id}).fetch()
     if (!comments.length) {
       return ""
@@ -93,7 +93,7 @@ const formatCommentsForPost = async (post: DbPost, context: ResolverContext): Pr
     ].join('\n')
   }
 
-const formatPostForPrompt = async (post: DbPost, context: ResolverContext): Promise<string> => {
+const formatPostForPrompt = async (post: PostsPage, context: ResolverContext): Promise<string> => {
   const author = await context.loaders.Users.load(post.userId)
   const authorName = userGetDisplayName(author)
   const markdown = documentToMarkdown(post)
@@ -108,12 +108,22 @@ const formatPostForPrompt = async (post: DbPost, context: ResolverContext): Prom
   ].join('\n')
 }
 
-const formatAdditionalPostsForPrompt = async (posts: DbPost[], context: ResolverContext): Promise<string> => {
+const formatAdditionalPostsForPrompt = async (posts: PostsPage[], context: ResolverContext): Promise<string> => {
   const formattedPosts = await Promise.all(posts.map(post => formatPostForPrompt(post, context)))
   return formattedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
 }
 
-export const generateTitleGenerationPrompt = (query: string, currentPost?: DbPost): string => {
+export const generateLoadingMessagePrompt = (query: string, postTitle?: string): string => {
+  return [
+    'I need you to generate some humorous "loading messages" to display to users of the LessWrong.com Claude chat integration since it can take 10-30 seconds to load new responses',
+    'Your responses may make general humorous reference to LessWrong, but it is even better if they are tailored to the specific query or post the user is viewing.',
+    `The user has asked the following question: "${query}"`,
+    postTitle ? `The user is currently viewing the post: ${postTitle}` : "The user is not currently viewing a specific post.",
+    'Please generate 5 humorous loading messages that could be displayed to the user while they wait for a response.',
+  ].join('\n')
+}
+
+export const generateTitleGenerationPrompt = (query: string, currentPost?: PostsPage): string => {
   return [
     'A user has started a new converation with you, Claude.',
     `Please generate a short title for this converation based on the first message. The first message is as follows: ${query}`,
@@ -124,7 +134,7 @@ export const generateTitleGenerationPrompt = (query: string, currentPost?: DbPos
   ].filter(item => typeof item === "string").join('\n')
 }
 
-export const generateContextSelectionPrompt = (query: string, currentPost?: DbPost): string => {
+export const generateContextSelectionPrompt = (query: string, currentPost?: PostsPage): string => {
   const postTitle = currentPost?.title
   const postFirstNCharacters = (n: number) => currentPost ? documentToMarkdown(currentPost).slice(0, n) : ""
 
@@ -164,7 +174,7 @@ export const generateSystemPrompt = () => {
   ].join('\n')
 }
 
-export const generatePromptWithContext = async (query: string, context: ResolverContext, currentPost?: DbPost, additionalPosts?: DbPost[], includeComments?: boolean, ): Promise<string> => {
+export const generatePromptWithContext = async (query: string, context: ResolverContext, currentPost?: PostsPage, additionalPosts?: PostsPage[], includeComments?: boolean, ): Promise<string> => {
   const contextIsProvided = currentPost || additionalPosts?.length
 
   return [

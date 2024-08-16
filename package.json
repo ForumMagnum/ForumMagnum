@@ -74,7 +74,7 @@
     "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.25.0",
+    "@anthropic-ai/sdk": "^0.26.0",
     "@apollo/client": "^3.2.0",
     "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.12.1",

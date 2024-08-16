@@ -40,7 +40,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   getNearestPostsWeightedByQuality(
     inputEmbedding: number[],
     limit = 5,
-  ): Promise<DbPost[]> {
+  ): Promise<PostsPage[]> {
       return this.getRawDb().any(`
         -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
         WITH embedding_distances AS (
@@ -53,11 +53,13 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
         )
         SELECT
           p.*,
+          r.* AS contents,
           COALESCE(u."displayName", u."username") AS author
         FROM embedding_distances ed
         LEFT JOIN "Posts" p ON p._id = ed."postId"
+        LEFT JOIN "Revisions" r ON p."contents_latest" = r."_id"
         JOIN "Users" u ON p."userId" = u._id AND u."deleted" IS NOT TRUE AND p."hideAuthor" IS NOT TRUE
-        WHERE draft IS FALSE
+        WHERE p.draft IS FALSE
         AND p."baseScore" > 0
         ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
         LIMIT $(limit)
@@ -67,7 +69,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   getNearestPostsWeightedByQualityByPostId(
     postId: string,
     limit = 5
-  ): Promise<DbPost[]> {
+  ): Promise<PostsPage[]> {
     return this.getRawDb().any(`
       -- PostEmbeddingsRepo.getNearestPostsWeightedByQualityByPostId
       WITH source_embedding AS (
@@ -86,11 +88,13 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
       )
       SELECT
         p.*,
+        r.* AS contents,
         COALESCE(u."displayName", u."username") AS author
       FROM embedding_distances ed
       LEFT JOIN "Posts" p ON p._id = ed."postId"
+      LEFT JOIN "Revisions" r ON p."contents_latest" = r."_id"
       JOIN "Users" u ON p."userId" = u._id AND u."deleted" IS NOT TRUE AND p."hideAuthor" IS NOT TRUE
-      WHERE draft IS FALSE
+      WHERE p.draft IS FALSE
       AND p."baseScore" > 0
       ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
       LIMIT $(limit)
