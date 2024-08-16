@@ -220,3 +220,5 @@ import './server/search/facetFieldSearch';
 import './server/analytics/analyticsCron';
 import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
+
+import './server/migrations/meta/utils';
