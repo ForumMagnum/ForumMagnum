@@ -29,6 +29,8 @@ type GoogleServiceAccountSessionsViewName = never
 type ImagesViewName = never
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers"|"postEverPublished";
 type LegacyDataViewName = never
+type LlmConversationsViewName = never
+type LlmMessagesViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
 type ManifoldProbabilitiesCachesViewName = never
 type MessagesViewName = "messagesConversation"|"conversationPreview";
@@ -110,6 +112,8 @@ interface ViewTermsByCollectionName {
   Images: ViewTermsBase
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
+  LlmConversations: ViewTermsBase
+  LlmMessages: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
   ManifoldProbabilitiesCaches: ViewTermsBase
   Messages: MessagesViewTerms

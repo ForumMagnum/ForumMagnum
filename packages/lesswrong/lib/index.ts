@@ -340,6 +340,10 @@ import "./collections/surveySchedules/collection";
 import "./collections/surveySchedules/fragments";
 import "./collections/surveySchedules/views";
 
+// LLM Conversations
+import "./collections/llmConversations/collection";
+import "./collections/llmMessages/collection";
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
