@@ -14,6 +14,8 @@ import Select from '@material-ui/core/Select';
 import { hideScrollBars } from '../../themes/styleUtils';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
+import { LlmStreamMessage, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
+import { useCurrentUser } from '../common/withUser';
 
 const LLM_STORAGE_KEY = 'llmConversations'
 const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
@@ -159,13 +161,15 @@ export const ChatInterface = ({setWindowTitle, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //TODO: appropriate tracking? 
-  const { Loading, MenuItem } = Components
+  const { Loading, MenuItem } = Components;
 
-  const { flash } = useMessages()
+  const { flash } = useMessages();
+  const currentUser = useCurrentUser();
 
+  // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
   const { location } = useLocation();
   const { pathname } = location;
-  const postId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1]
+  const postId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
 
   const messagesRef = useRef<HTMLDivElement>(null)
 
@@ -192,7 +196,6 @@ export const ChatInterface = ({setWindowTitle, classes}: {
   const mostRecentConversationTitle = Object.values(llmConversations).sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime())[0]?.title
 
   const [currentConversation, setCurrentConversation] = useState<ClaudeConversation|null>(llmConversations[`llmChatHistory:${mostRecentConversationTitle}`])
-  setWindowTitle?.(currentConversation?.title ?? PLACEHOLDER_TITLE)
 
   // useEffect to scroll to bottom of chat history after new message is added
   useEffect(() => {
@@ -231,42 +234,15 @@ export const ChatInterface = ({setWindowTitle, classes}: {
       includeComments: true //TODO: not always true?
     }
 
-    setTimeout(async () => {
-      const result0 = await getClaudeLoadingMessages({
-        variables: {
-          messages: messagesWithNewUserQuery,
-          postId
-        }
-      })      
-
-
-      const result = await sendClaudeMessage({
+    setTimeout(() => {
+      void sendClaudeMessage({
         variables: {
           messages: messagesWithNewUserQuery,
           promptContextOptions,
           title: conversationWithNewUserQuery?.title
         }
-      })
-
-      const conversationResponse: ClaudeConversation = result.data.sendClaudeMessage
-      const { messages: conversationHistoryWithNewResponse, title: newTitle } = conversationResponse
-
-      const conversationWithNewResponse = {
-        messages: conversationHistoryWithNewResponse,
-        title: conversationResponse.title,
-        createdAt: currentConversation?.createdAt ?? new Date(),
-        lastUpdated: new Date()
-      }
-      setLoading(false)
-      setCurrentConversation(conversationWithNewResponse)
-      setWindowTitle?.(newTitle)
-
-      const storageTitle = `llmChatHistory:${conversationResponse.title}`
-      const updatedConversations = {...llmConversations, [storageTitle]: conversationWithNewResponse}
-      ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
-      setLlmConversations(updatedConversations)
-    }, 0)
-
+      });
+    }, 0);
   }, [currentConversation, sendClaudeMessage, getClaudeLoadingMessages, setLoading, setCurrentConversation, setWindowTitle, llmConversations, ls, postId]);
 
   const newChat = () => {
@@ -317,6 +293,35 @@ export const ChatInterface = ({setWindowTitle, classes}: {
       setCurrentConversation(null)
     }
   }
+
+  const appendLatestMessage = useCallback((message: LlmStreamMessage) => {
+    console.log(`Got message from stream!  ${message.data.content}`);
+    const storageTitle = `llmChatHistory:${message.data.title}`;
+    const previousConversation = llmConversations[storageTitle];
+    const conversationWithNewResponse: ClaudeConversation = {
+      ...previousConversation,
+      messages: [...previousConversation.messages, { ...message.data, role: 'assistant' }]
+    };
+    setCurrentConversation(conversationWithNewResponse)
+
+    const updatedConversations = {...llmConversations, [storageTitle]: conversationWithNewResponse}
+    ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
+    setLlmConversations(updatedConversations)
+  }, [llmConversations]);
+
+  useOnServerSentEvent('llmStream', currentUser, (message) => {
+    appendLatestMessage(message);
+    setLoading(false);
+  });
+
+  useOnServerSentEvent('llmSetTitle', currentUser, (message) => {
+    console.log(`Got title from stream!  ${message.title}`, { setWindowTitleExists: !!setWindowTitle });
+    setWindowTitle?.(message.title);
+    const storageTitle = `llmChatHistory:${message.title}`;
+    const updatedConversations: LlmConversations = {...llmConversations, [storageTitle]: { createdAt: new Date(), lastUpdated: new Date(), messages: currentConversation?.messages ?? [], title: message.title }};
+    ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations));
+    setLlmConversations(updatedConversations);
+  });
   
   const conversationSelect = <Select 
     onChange={onSelect} 

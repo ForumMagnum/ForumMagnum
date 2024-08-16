@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
@@ -67,6 +67,8 @@ const PopupLanguageModelChat = ({onClose, classes}: {
 
   const [title, setTitle] = useState(""); // placeholder title handled from within LanguageModelChat.tsx, so use empty string here
 
+  const setTitleCallback = useCallback(setTitle, []);
+
   return <Paper className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>
@@ -75,7 +77,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
       <CloseIcon className={classes.close} onClick={onClose}/>
     </div>
     <div className={classes.editor}>
-      <LanguageModelChat setTitle={setTitle} />
+      <LanguageModelChat setTitle={setTitleCallback} />
     </div>
   </Paper>
 }

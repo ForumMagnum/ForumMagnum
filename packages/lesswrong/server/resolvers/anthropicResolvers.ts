@@ -13,6 +13,8 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { Tool } from "@anthropic-ai/sdk/resources/messages";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { sendSseMessageToUser } from "../serverSentEvents";
+import { LlmSetTitleMessage, LlmStreamMessage } from "@/components/hooks/useUnreadNotifications";
 
 const ClaudeMessage = `input ClaudeMessage {
   role: String!
@@ -68,7 +70,6 @@ type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "
 
 // TODO: convert this to tool use for reliability
 const selectAdditionalContext = async (query: string, currentPost?: PostsPage): Promise<RagContextType> => {
-
   const contextSelectionPrompt = generateContextSelectionPrompt(query, currentPost)
   const contextTypeMapping: Record<string, RagContextType> = {
     "(1)": "query-based",
@@ -93,7 +94,7 @@ const selectAdditionalContext = async (query: string, currentPost?: PostsPage): 
 
   //check if result is one of the expected values
   if (!["(1)", "(2)", "(3)", "(4)"].includes(result.text.slice(0, 3))) {
-    return "error" as RagContextType
+    return "error";
   }
   else {
     return contextTypeMapping[result.text.slice(0, 3)]
@@ -128,24 +129,31 @@ const createPromptWithContext = async (options: PromptContextOptionsWithFulLPost
   return { queryWithContext: prompt, postsLoadedIntoContext: nearestPosts }    
 }
 
-const getConversationTitle = async (query: string, currentPost?: PostsPage) => {
-    const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
-    console.log("titleGenerationPrompt", titleGenerationPrompt)
+const getConversationTitle = async (query: string, currentUser: DbUser, currentPost?: PostsPage) => {
+  const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
+  console.log("titleGenerationPrompt", titleGenerationPrompt)
 
-    const client = getAnthropicClientOrThrow()
-    const titleResult = await client.messages.create({
-      model: "claude-3-haiku-20240307",
-      max_tokens: 50,
-      messages: [{role: "user", content: titleGenerationPrompt}]
-    })
+  const client = getAnthropicClientOrThrow()
+  const titleResult = await client.messages.create({
+    model: "claude-3-haiku-20240307",
+    max_tokens: 50,
+    messages: [{role: "user", content: titleGenerationPrompt}]
+  })
 
-    const titleResponse = titleResult.content[0]
-    if (titleResponse.type === 'tool_use') {
-      throw new Error("response is tool use which is not a proper response in this context")
-    }
-
-    return titleResponse.text
+  const titleResponse = titleResult.content[0]
+  if (titleResponse.type === 'tool_use') {
+    throw new Error("response is tool use which is not a proper response in this context")
   }
+
+  const message: LlmSetTitleMessage = {
+    eventType: 'llmSetTitle',
+    title: titleResponse.text,
+  };
+
+  sendSseMessageToUser(currentUser._id, message);
+
+  return titleResponse.text
+}
 
 const generateModifiedFirstMessagePrompt = async (query: string, currentPost?: PostsPage, postsLoadedIntoContext?: PostsPage[]): Promise<string> => {
   // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
@@ -178,10 +186,11 @@ const prepareMessageForClaude = (message: ClaudeMessage): PromptCachingBetaMessa
   }
 }
 
-const initializeConversation = async ({ query, currentPostId, promptContextOptions, context }: { 
+const initializeConversation = async ({ query, currentPostId, promptContextOptions, currentUser, context }: { 
   query: string, 
   currentPostId?: string,
   promptContextOptions: PromptContextOptions,
+  currentUser: DbUser,
   context: ResolverContext
 }) => {
   const currentPost = await fetchFragmentSingle({
@@ -192,10 +201,10 @@ const initializeConversation = async ({ query, currentPostId, promptContextOptio
     context,
   }) ?? undefined
 
-  const [{queryWithContext, postsLoadedIntoContext}, newTitle]  = await Promise.all(
+  const [{queryWithContext, postsLoadedIntoContext}, newTitle] = await Promise.all(
     [
       createPromptWithContext({...promptContextOptions, post: currentPost}, context),
-      getConversationTitle(query, currentPost)
+      getConversationTitle(query, currentUser, currentPost)
     ]
   )
   
@@ -220,7 +229,7 @@ defineMutation({
     const { currentUser } = context;
     const { postId: currentPostId } = promptContextOptions
 
-    if (!userHasLlmChat(currentUser)) {
+    if (!currentUser || !userHasLlmChat(currentUser)) {
       throw new Error("only admins and authorized users can use Claude chat at present")
     }
 
@@ -240,7 +249,7 @@ defineMutation({
     const messagesForClient: ClaudeMessage[] = validatedMessages
     const startOfNewConversation = validatedMessages.filter(message => message.role === 'user').length === 1
     if  (startOfNewConversation) {
-      const { modifiedFirstMessage, newTitle } = await initializeConversation({ query: firstQuery.content, currentPostId, promptContextOptions, context })
+      const { modifiedFirstMessage, newTitle } = await initializeConversation({ query: firstQuery.content, currentPostId, promptContextOptions, currentUser, context })
       updatedTitle ??= newTitle
       messagesForClient[0] = modifiedFirstMessage
     }
@@ -252,21 +261,22 @@ defineMutation({
     
     const client = getAnthropicClientOrThrow()
     const promptCaching = new Anthropic.Beta.PromptCaching(client)
-    const result = await promptCaching.messages.create({
+    const stream = promptCaching.messages.stream({
       model: "claude-3-5-sonnet-20240620",
       system: generateSystemPrompt(),
       max_tokens: 4096,
       messages: messagesForClaude,
-    })
+    });
 
+    const finalMessage = await stream.finalMessage();
     const endTime = new Date().getTime()
 
-    const response = result.content[0]
+    const response = finalMessage.content[0]
     if (response.type === 'tool_use') {
       throw new Error("response is tool use which is not a proper response in this context")
     }
 
-    const resultUsageField = result.usage
+    const resultUsageField = finalMessage.usage
     console.log("Time to get response from Claude", endTime - startTime)
     console.log({resultUsageField})
 
@@ -274,6 +284,18 @@ defineMutation({
 
     messagesForClient.push({ role: "assistant", content: response.text, displayContent: responseHtml })
 
+    const message: LlmStreamMessage = {
+      eventType: 'llmStream',
+      data: {
+        content: response.text,
+        displayContent: responseHtml,
+        title: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
+      }
+    };
+
+    sendSseMessageToUser(currentUser._id, message);
+
+    // TODO: clean this up if we're returning via SSE
     return {
       messages: messagesForClient,
       title: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`

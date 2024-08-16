@@ -126,10 +126,10 @@ export const generateLoadingMessagePrompt = (query: string, postTitle?: string):
 export const generateTitleGenerationPrompt = (query: string, currentPost?: PostsPage): string => {
   return [
     'A user has started a new converation with you, Claude.',
-    `Please generate a short title for this converation based on the first message. The first message is as follows: ${query}`,
+    `Please generate a short title for this converation based on the first message. The first message is as follows: <message>${query}</message>`,
     'The title should be a short phrase of 2-4 words that captures the essence of the conversation.',
     'Do not wrap your answer in quotes or brackets. Do not include the word "title" or similar in your response.',
-    currentPost && `The user is currently viewing the following post ${currentPost.title}. Reference it if relevant.`,
+    currentPost && `The user is currently viewing a post titled "${currentPost.title}". Reference it if relevant.`,
     'Avoid generic titles like "Request for Table of Contents" or "Post Summary". Prefer to reference the specific post or topic being discussed.',
   ].filter(item => typeof item === "string").join('\n')
 }

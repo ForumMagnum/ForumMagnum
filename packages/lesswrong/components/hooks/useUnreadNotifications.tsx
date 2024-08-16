@@ -57,7 +57,24 @@ export type NotificationCheckMessage = {
   newestNotificationTime?: string //stringified date
 }
 
-export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage;
+type LlmStreamTextChunk = {
+  title: string;
+  content: string;
+  displayContent: string;
+};
+
+// TODO: change this to a "create new conversation" message, which should include the title
+export type LlmSetTitleMessage = {
+  eventType: 'llmSetTitle';
+  title: string;
+}
+
+export type LlmStreamMessage = {
+  eventType: 'llmStream',
+  data: LlmStreamTextChunk
+};
+
+export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamMessage | LlmSetTitleMessage;
 
 type EventType = ServerSentEventsMessage['eventType'];
 type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
@@ -268,6 +285,8 @@ let notificationEventListenersByType = {
   notificationCheck: [] as NotificationEventListener<'notificationCheck'>[],
   activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
   typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
+  llmSetTitle: [] as NotificationEventListener<'llmSetTitle'>[],
+  llmStream: [] as NotificationEventListener<'llmStream'>[],
 };
 
 function getEventListenersOfType<T extends EventType>(eventType: T): NotificationEventListener<T>[] {
@@ -291,6 +310,12 @@ export function onServerSentNotificationEvent(message: ServerSentEventsMessage) 
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
     case 'typingIndicator':
+      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
+      break;
+    case 'llmSetTitle':
+      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
+      break;
+    case 'llmStream':
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
   }

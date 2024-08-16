@@ -481,7 +481,7 @@ const Layout = ({currentUser, children, classes}: {
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
-      renderLanguageModelChatLauncher: userHasLlmChat(currentUser),
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
