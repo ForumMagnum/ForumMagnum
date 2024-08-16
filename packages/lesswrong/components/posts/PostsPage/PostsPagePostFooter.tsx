@@ -90,15 +90,15 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   const isEAEmojis = votingSystemName === "eaEmojis";
 
   return <>
+    {isLWorAF && !post.shortform && !post.isEvent &&
+      <AnalyticsContext pageSectionContext="tagFooter">
+        <div className={classes.footerTagList}>
+          <FooterTagList post={post}/>
+        </div>
+      </AnalyticsContext>
+    }
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
-        {isLWorAF && !post.shortform && !post.isEvent &&
-          <AnalyticsContext pageSectionContext="tagFooter">
-            <div className={classes.footerTagList}>
-              <FooterTagList post={post}/>
-            </div>
-          </AnalyticsContext>
-        }
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF && classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
