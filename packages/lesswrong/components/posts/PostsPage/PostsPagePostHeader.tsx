@@ -77,6 +77,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
+  wordCount: {
+    fontWeight: isFriendlyUI ? 450 : undefined,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default',
+    "@media print": { display: "none" },
+  },
   actions: {
     color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
@@ -164,7 +170,7 @@ export function getHostname(url: string): string {
   return parser.hostname;
 }
 
-export const CommentsLink: FC<{
+const CommentsLink: FC<{
   anchor: string,
   children: React.ReactNode,
   className?: string,
@@ -203,7 +209,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton, 
-    ForumIcon, GroupLinks, SharePostButton, AudioToggle, ReadTime } = Components;
+    ForumIcon, GroupLinks, SharePostButton, AudioToggle } = Components;
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
@@ -213,12 +219,44 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
 
+  const wordCount = useMemo(() => {
+    if (!post.debate || dialogueResponses.length === 0) {
+      return post.contents?.wordCount || 0;
+    }
+
+    return dialogueResponses.reduce((wordCount, response) => {
+      wordCount += response.contents?.wordCount ?? 0;
+      return wordCount;
+    }, 0);
+  }, [post, dialogueResponses]);
+
+  /**
+   * It doesn't make a ton of sense to fetch all the debate response comments in the resolver field, since we:
+   * 1. already have them here
+   * 2. need them to compute the word count in the debate case as well
+   */
+  const readTime = useMemo(() => {
+    if (!post.debate || dialogueResponses.length === 0) {
+      return post.readTimeMinutes ?? 1;
+    }
+
+    return Math.max(1, Math.round(wordCount / 250));
+  }, [post, dialogueResponses, wordCount]);
+
   const {
     answerCount,
     commentCount,
   } = useMemo(() => getResponseCounts({ post, answers }), [post, answers]);
 
   const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
+
+  const readingTimeNode = minimalSecondaryInfo
+    ? null
+    : (
+      <LWTooltip title={`${wordCount} words`}>
+        <span className={classes.wordCount}>{readTime} min read</span>
+      </LWTooltip>
+    );
 
   const answersNode = !post.question || minimalSecondaryInfo
     ? null
@@ -246,7 +284,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {minimalSecondaryInfo && <ReadTime post={post} dialogueResponses={dialogueResponses} />}
+        {readingTimeNode}
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}

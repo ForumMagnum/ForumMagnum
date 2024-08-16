@@ -138,24 +138,7 @@ const styles = (theme: ThemeType) => ({
   hideTocButtonHidden: {
     display: "none",
   },
-  commentCount: {
-    position: 'fixed',
-    paddingLeft: 12,
-    paddingTop: 12,
-    paddingBottom: 20,
-    height: FIXED_TOC_COMMENT_COUNT_HEIGHT,
-    bottom: 0,
-    left: 0,
-    width: 240,
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    zIndex: 1000,
-    [theme.breakpoints.down('sm')]: {
-      display: 'none',
-    },
-    '&:hover $commentsLabel': {
-      opacity: 1
-    }
-  }
+  commentCount: {}
 });
 
 export type ToCLayoutSegment = {
@@ -173,7 +156,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   answerCount?: number,
   commentCount?: number,
 }) => {
-  const { LWCommentCount } = Components;
+  const { FixedTableOfContentsCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
     .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
@@ -205,7 +188,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
       </React.Fragment>)}
     </div>
     <div className={classes.commentCount}>
-      <LWCommentCount
+      <FixedTableOfContentsCommentCount
         answerCount={answerCount}
         commentCount={commentCount}
       />

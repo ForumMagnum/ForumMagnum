@@ -461,7 +461,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
   // we're leaving it for now to keep supporting the few debates that were made with it, but
   // may want to migrate them at some point.
-  const { results: debateResponses=[], refetch: refetchDebateResponses } = useMulti({
+  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
       postId: post._id,
@@ -495,7 +495,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     skip: !post.debate || !fullPost
   });
 
-const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
+  const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPagePostFooter, PostBodyPrefix,
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
     PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
@@ -690,8 +690,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
-            dialogueResponses={debateResponses}
-            answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
