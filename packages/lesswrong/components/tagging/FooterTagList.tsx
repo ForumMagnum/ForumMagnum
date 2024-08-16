@@ -132,7 +132,8 @@ const FooterTagList = ({
   classes,
   align = "left",
   noBackground = false,
-  neverCoreStyling = false
+  neverCoreStyling = false,
+  tagRight = true,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -150,7 +151,8 @@ const FooterTagList = ({
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
   noBackground?: boolean,
-  neverCoreStyling?: boolean
+  neverCoreStyling?: boolean,
+  tagRight?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -329,7 +331,7 @@ const FooterTagList = ({
 
   const innerContent = (
     <>
-      {!isFriendlyUI && currentUser && !hideAddTag && addTagButton}
+      {!tagRight && currentUser && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -356,7 +358,7 @@ const FooterTagList = ({
       {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {isFriendlyUI && currentUser && !hideAddTag && addTagButton}
+      {tagRight && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );

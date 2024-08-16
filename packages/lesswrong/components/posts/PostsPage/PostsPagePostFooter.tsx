@@ -66,6 +66,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   lwVote: {
     marginTop: 66,
     marginBottom: 70,
+  },
+  footerTagList: {
+    marginTop: 16,
+    marginBottom: 66,
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    }
   }
 });
 
@@ -85,6 +92,13 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
   return <>
     {!post.shortform && (isLW || isEAEmojis) &&
       <>
+        {isLWorAF && !post.shortform && !post.isEvent &&
+          <AnalyticsContext pageSectionContext="tagFooter">
+            <div className={classes.footerTagList}>
+              <FooterTagList post={post}/>
+            </div>
+          </AnalyticsContext>
+        }
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF && classes.lwVote)}>
             <AnalyticsContext pageSectionContext="lowerVoteButton">
