@@ -188,22 +188,9 @@ export async function mergeFeedQueries<SortKeyType extends number | Date>({limit
   // is applied), and get its sortKey to use as the page cutoff
   const nonNumericallyPositionedResults = _.filter(withLimitApplied, r => !_.some(numericallyPositionedResults, r2=>r===r2)) as Sortable<SortKeyType>[];
   const nextCutoff = (nonNumericallyPositionedResults.length>0) ? nonNumericallyPositionedResults[nonNumericallyPositionedResults.length-1].sortKey : null;
-
-
-  // Temporary hack to get around issues before we drop the contents field after denormalization
-  // TODO: remove after dropping the field
-  const munged = withLimitApplied.map((item) => {
-    const dbObject = (item as any)[(item as any).type];
-    if (isLWorAF && 'postedAt' in dbObject) {
-      const { contents, ...remainder } = (item as any)[(item as any).type];
-      return { ...item, [(item as any).type]: remainder };  
-    } else {
-      return item;
-    }
-  });
   
   return {
-    results: munged,
+    results: withLimitApplied,
     cutoff: nextCutoff,
     endOffset: (offset||0)+withLimitApplied.length
   };
