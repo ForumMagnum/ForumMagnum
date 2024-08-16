@@ -15,7 +15,7 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 
 export const highlightSelectorClassName = "highlighted-substring";
@@ -295,7 +295,7 @@ export const CommentsItem = ({
   const {
     CommentDiscussionIcon, LWTooltip, PostsTooltip, ReviewVotingWidget,
     LWHelpIcon, CoreTagIcon, CommentsItemMeta, RejectedReasonDisplay,
-    HoveredReactionContextProvider, CommentBottom,
+    HoveredReactionContextProvider, CommentBottom, LWCommentsItemMeta
   } = Components;
 
   const votingSystemName = comment.votingSystem || "default";
@@ -362,23 +362,42 @@ export const CommentsItem = ({
             />}
             {comment.title}
           </div>}
-          <CommentsItemMeta
-            {...{
-              treeOptions,
-              comment,
-              showCommentTitle,
-              isParentComment,
-              parentCommentId,
-              showParentState,
-              toggleShowParent,
-              scrollIntoView,
-              parentAnswerId,
-              setSingleLine,
-              collapsed,
-              toggleCollapse,
-              setShowEdit,
-            }}
-          />
+          {isBookUI ? 
+            <LWCommentsItemMeta
+              {...{
+                treeOptions,
+                comment,
+                showCommentTitle,
+                isParentComment,
+                parentCommentId,
+                showParentState,
+                toggleShowParent,
+                scrollIntoView,
+                parentAnswerId,
+                setSingleLine,
+                collapsed,
+                toggleCollapse,
+                setShowEdit,
+              }}
+            />
+            : <CommentsItemMeta
+              {...{
+                treeOptions,
+                comment,
+                showCommentTitle,
+                isParentComment,
+                parentCommentId,
+                showParentState,
+                toggleShowParent,
+                scrollIntoView,
+                parentAnswerId,
+                setSingleLine,
+                collapsed,
+                toggleCollapse,
+                setShowEdit,
+              }}
+            />}
+          
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
             Pinned by {comment.promotedByUser.displayName}
           </div>}
