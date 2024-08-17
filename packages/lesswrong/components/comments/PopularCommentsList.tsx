@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { unflattenComments } from "@/lib/utils/unflatten";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,23 +21,24 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
   const {loadMoreProps, results} = usePaginatedResolver({
     fragmentName: "CommentsListWithParentMetadata",
     resolverName: "PopularDiscussion",
-    limit: 3,
+    limit: 6,
     itemsPerPage: 5,
   });
-  console.log(results);
-
-  const {LoadMore, FriendlyPopularComment, LWPopularComment} = Components;
+  const commentTree = unflattenComments(results ?? []);
+  const {LoadMore, FriendlyPopularComment, LWPopularComment, CommentsList} = Components;
 
   const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
-        {results?.map((comment) =>
-          <CommentComponent
-            key={comment._id}
-            comment={comment}
-          />
-        )}
+      <CommentsList
+        treeOptions={{
+          showCollapseButtons: true
+        }}
+        comments={commentTree}
+        startThreadTruncated={true}
+        loading={loadMoreProps.loading}
+      />
         <LoadMore {...loadMoreProps} />
       </div>
     </AnalyticsContext>

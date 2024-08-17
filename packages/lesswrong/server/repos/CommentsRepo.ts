@@ -210,7 +210,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
 async getPopularDiscussion({
-    minScore = 15,
+    minScore = 10,
     offset = 0,
     limit = 3,
     recencyFactor = 250000,
@@ -237,18 +237,19 @@ async getPopularDiscussion({
     const lookbackPeriod = isAF ? '1 month' : '1 week';
     const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
     
-      // CURRENT_TIMESTAMP - "postedAt" < $(lookbackPeriod)::INTERVAL AND
+
     const filter = `
-      "shortform" IS NOT TRUE AND
-      "baseScore" >= $(minScore) AND
-      "retracted" IS NOT TRUE AND
-      "deleted" IS NOT TRUE AND
-      "deletedPublic" IS NOT TRUE AND
-      "needsReview" IS NOT TRUE
+      CURRENT_TIMESTAMP - c."postedAt" < $(lookbackPeriod)::INTERVAL AND
+      p."shortform" IS NOT TRUE AND
+      c."baseScore" >= $(minScore) AND
+      c."retracted" IS NOT TRUE AND
+      c."deleted" IS NOT TRUE AND
+      c."deletedPublic" IS NOT TRUE AND
+      c."needsReview" IS NOT TRUE
     `
     
     return this.any(`
-      -- CommentsRepo.getPopularComments
+      -- CommentsRepo.getPopularDiscussion
       WITH eligible_comments AS (
         SELECT c.*
         FROM "Comments" c
@@ -258,6 +259,7 @@ async getPopularDiscussion({
           ${afCommentsFilter}
           AND p."hideFromPopularComments" IS NOT TRUE
           AND ${getViewablePostsSelector('p')}
+          AND p."frontpageDate" IS NOT NULL
           ${excludedTagIdCondition}
       ), parent_child_pairs AS (
         SELECT 
@@ -270,15 +272,19 @@ async getPopularDiscussion({
       ), ranked_pairs AS (
         SELECT *, ROW_NUMBER() OVER (ORDER BY (parent_score + child_score) DESC) AS pair_rank
         FROM parent_child_pairs
+      ), unique_comments AS (
+        SELECT DISTINCT ON (c._id) c.*,
+          CASE WHEN c._id = rp.parent_id THEN rp.pair_rank * 2 - 1
+               ELSE rp.pair_rank * 2 END AS sort_order
+        FROM ranked_pairs rp
+        JOIN eligible_comments c ON c._id IN (rp.parent_id, rp.child_id)
+        WHERE rp.pair_rank <= $(limit)
+        ORDER BY c._id, sort_order
       )
-      SELECT c.*
-      FROM ranked_pairs rp
-      JOIN eligible_comments c ON c._id IN (rp.parent_id, rp.child_id)
-      WHERE rp.pair_rank <= $(limit)
-      ORDER BY 
-        CASE WHEN c._id = rp.parent_id THEN rp.pair_rank * 2 - 1
-             ELSE rp.pair_rank * 2 END
-      LIMIT ($(limit) * 2)
+      SELECT *
+      FROM unique_comments
+      ORDER BY sort_order
+      LIMIT $(limit)
     `, {
       minScore,
       offset,
