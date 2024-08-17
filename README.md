@@ -241,7 +241,7 @@ merged into `ea-deploy` and `lw-deploy`.
 Some integrations we use include:
 
 * Elasticsearch (handling the search bar and search page)
-* Mailgun (handling all emails to users, including curated-post emails, notifications, registrations and password resets)
+* Any SMTP server service, eg Mailgun, Postmark (handling all emails to users, including curated-post emails, notifications, registrations and password resets)
 * Cloudinary (handling image hosting and mirroring, including all images in posts and comments)
 * ckEditor (primary post editor, although you only need to set it up if you're using the collaborative editing features)
 * Mapbox (used for the community/events page)
