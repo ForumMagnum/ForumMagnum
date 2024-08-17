@@ -8,7 +8,7 @@ import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers'
 import type { VotingProps } from './votingProps';
 import type { OverallVoteButtonProps } from './OverallVoteButton';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   overallSection: {
@@ -18,13 +18,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   overallSectionBox: {
     marginLeft: 8,
-    outline: theme.palette.border.commentBorder,
+    outline: isFriendlyUI ? theme.palette.border.commentBorder : 'none',
     borderRadius: isFriendlyUI ? theme.borderRadius.small : 2,
     textAlign: 'center',
     minWidth: 60
   },
   vote: {
-    fontSize: 25,
+    fontSize: 30,
     lineHeight: 0.6,
     whiteSpace: "nowrap",
     display: "inline-block"
@@ -146,10 +146,38 @@ const OverallVoteAxis = ({
 
   const buttonProps: Partial<OverallVoteButtonProps<VoteableTypeClient>> = {};
   // TODO: In the fullness of time
-  const verticalArrows = false;
+  const verticalArrows = isBookUI;
   if (verticalArrows) {
     buttonProps.solidArrow = true;
   }
+
+  const upvoteButton = <TooltipIfEnabled
+    title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+    placement={tooltipPlacement}
+  >
+    <OverallVoteButton
+      orientation={verticalArrows ? "up" : "right"}
+      color="secondary"
+      upOrDown="Upvote"
+      enabled={canVote}
+      {...voteProps}
+      {...buttonProps}
+    />
+  </TooltipIfEnabled>
+
+  const downvoteButton = <TooltipIfEnabled
+    title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
+    placement={tooltipPlacement}
+  >
+    <OverallVoteButton
+      orientation={verticalArrows ? "down" : "left"}
+      color="error"
+      upOrDown="Downvote"
+      enabled={canVote}
+      {...voteProps}
+      {...buttonProps}
+    />
+  </TooltipIfEnabled>
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
@@ -187,19 +215,7 @@ const OverallVoteAxis = ({
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,
         })}>
-          <TooltipIfEnabled
-            title={<div><b>Overall Karma: Downvote</b><br />How much do you like this overall?<br /><em>For strong downvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement={tooltipPlacement}
-          >
-            <OverallVoteButton
-              orientation={verticalArrows ? "down" : "left"}
-              color="error"
-              upOrDown="Downvote"
-              enabled={canVote}
-              {...voteProps}
-              {...buttonProps}
-            />
-          </TooltipIfEnabled>
+          {isBookUI ? upvoteButton : downvoteButton}
           <TooltipIfEnabled title={karmaTooltipTitle} placement={tooltipPlacement}>
             {hideKarma
               ? <span>{' '}</span>
@@ -208,19 +224,7 @@ const OverallVoteAxis = ({
                 </span>
             }
           </TooltipIfEnabled>
-          <TooltipIfEnabled
-            title={<div><b>Overall Karma: Upvote</b><br />How much do you like this overall?<br /><em>For strong upvote, click-and-hold<br />(Click twice on mobile)</em></div>}
-            placement={tooltipPlacement}
-          >
-            <OverallVoteButton
-              orientation={verticalArrows ? "up" : "right"}
-              color="secondary"
-              upOrDown="Upvote"
-              enabled={canVote}
-              {...voteProps}
-              {...buttonProps}
-            />
-          </TooltipIfEnabled>
+          {isBookUI ? downvoteButton : upvoteButton}
         </span>
       }
     </span>
