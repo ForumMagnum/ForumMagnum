@@ -548,7 +548,7 @@ interface DbLlmMessage extends DbObject {
   __collectionName?: "LlmMessages"
   userId: string
   conversationId: string
-  role: string
+  role: "user" | "assistant"
   type: string
   content: any /*{"definitions":[{}]}*/
   createdAt: Date

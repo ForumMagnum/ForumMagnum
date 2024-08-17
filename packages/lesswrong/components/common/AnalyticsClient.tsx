@@ -7,6 +7,7 @@ import { ABTestGroupsUsedContext } from '../../lib/abTestImpl';
 import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { useDialog } from './withDialog';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
@@ -44,6 +45,17 @@ export const AnalyticsClient = () => {
       AnalyticsUtil.clientWriteEvents = null;
     }
   }, [flushEvents, currentUserId, clientId, currentUser, abTestGroupsUsed]);
+
+
+  const { openDialog } = useDialog();
+
+
+  // TODO: delete before shipping
+  //useEffect to open LLM chat model upon load
+  useEffect(() => {
+    openDialog({
+      componentName:"PopupLanguageModelChat",
+    })}, []);
   
   return <div/>;
 }

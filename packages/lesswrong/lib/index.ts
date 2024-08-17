@@ -342,7 +342,10 @@ import "./collections/surveySchedules/views";
 
 // LLM Conversations
 import "./collections/llmConversations/collection";
+import "./collections/llmConversations/fragments";
+import "./collections/llmConversations/views";
 import "./collections/llmMessages/collection";
+import "./collections/llmMessages/fragments";
 
 // Alignment Forum
 import './alignment-forum/permissions';

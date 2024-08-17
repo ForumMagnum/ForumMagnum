@@ -4014,12 +4014,34 @@ interface LlmConversationsDefaultFragment { // fragment on LlmConversations
   readonly systemPrompt: any /*{"definitions":[{}]}*/,
 }
 
+interface LlmConversationsFragment { // fragment on LlmConversations
+  readonly _id: string,
+  readonly userId: string,
+  readonly title: string,
+  readonly model: string,
+  readonly systemPrompt: any /*{"definitions":[{}]}*/,
+  readonly createdAt: Date,
+  readonly lastUpdatedAt: Date|null,
+}
+
+interface LlmConversationsWithMessagesFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly messages: Array<LlmMessagesFragment>,
+}
+
 interface LlmMessagesDefaultFragment { // fragment on LlmMessages
   readonly userId: string,
   readonly conversationId: string,
-  readonly role: string,
+  readonly role: "user" | "assistant",
   readonly type: string,
   readonly content: any /*{"definitions":[{}]}*/,
+}
+
+interface LlmMessagesFragment { // fragment on LlmMessages
+  readonly _id: string,
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly content: any /*{"definitions":[{}]}*/,
+  readonly createdAt: Date,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -4308,7 +4330,10 @@ interface FragmentTypes {
   SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
   SurveyScheduleEdit: SurveyScheduleEdit
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
+  LlmConversationsFragment: LlmConversationsFragment
+  LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
+  LlmMessagesFragment: LlmMessagesFragment
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
@@ -4380,8 +4405,8 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
-  LlmConversations: "LlmConversationsDefaultFragment"
-  LlmMessages: "LlmMessagesDefaultFragment"
+  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithMessagesFragment"
+  LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4652,7 +4677,10 @@ interface CollectionNamesByFragmentName {
   SurveyScheduleMinimumInfo: "SurveySchedules"
   SurveyScheduleEdit: "SurveySchedules"
   LlmConversationsDefaultFragment: "LlmConversations"
+  LlmConversationsFragment: "LlmConversations"
+  LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
+  LlmMessagesFragment: "LlmMessages"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
 }

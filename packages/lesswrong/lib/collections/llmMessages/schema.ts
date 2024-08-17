@@ -21,6 +21,7 @@ const schema: SchemaType<"LlmMessages"> = {
     type: String,
     optional: false,
     nullable: false,
+    allowedValues: ["user", "assistant"],
     canRead: [userOwns, "admins"],
     canCreate: ["admins"],
     canUpdate: ["admins"],
