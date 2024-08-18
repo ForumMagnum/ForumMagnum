@@ -129,7 +129,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // us as a draft, display a notice and a link to the collaborative editor.
 
   const linkpostDomain = post.url && new URL(post.url).hostname;
-  const linkpostTooltip = <div>This is a linkpost<br/>{post.url}</div>;
+  const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
   const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>{linkpostDomain}</LWTooltip> : null;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
