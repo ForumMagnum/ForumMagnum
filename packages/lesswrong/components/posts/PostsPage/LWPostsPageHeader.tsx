@@ -113,12 +113,13 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton } = Components;
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink } = Components;
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
   const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
+  const feedDomain = feedLink && new URL(feedLink).hostname;
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
@@ -126,6 +127,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
+
+  const linkpostDomain = post.url && new URL(post.url).hostname;
+  const linkpostTooltip = <div>This is a linkpost<br/>{post.url}</div>;
+  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>{linkpostDomain}</LWTooltip> : null;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
@@ -158,6 +163,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
+            <AlignmentCrosspostLink post={post} />
+            {linkpostNode}
             {post.isEvent && <GroupLinks document={post} noMargin />}
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
             <div className={classes.mobileButtons}>

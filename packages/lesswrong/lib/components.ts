@@ -416,6 +416,7 @@ importComponent("PostsHighlight", () => require('../components/posts/PostsHighli
 importComponent("FeedPostsHighlight", () => require('../components/posts/FeedPostsHighlight'));
 importComponent("PostsListPlaceholder", () => require('../components/posts/PostsListPlaceholder'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage'));
+importComponent("AlignmentCrosspostLink", () => require('../components/posts/AlignmentCrosspostLink'));
 importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage'));
 importComponent("PostsSingle", () => require('../components/posts/PostsSingle'));
