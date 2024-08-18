@@ -59,7 +59,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   return <div className={classes.root}>
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classes.tagList}>
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={true} align="right" noBackground neverCoreStyling />
+          <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} />
         </div>
       </AnalyticsContext>}
       {!post.shortform && <div className={classes.audioToggle}>
