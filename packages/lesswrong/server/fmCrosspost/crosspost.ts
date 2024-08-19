@@ -2,14 +2,19 @@ import pick from 'lodash/pick'
 import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
-import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
-import { signToken } from "./tokens";
-import type { Crosspost, UpdateCrosspostPayload } from "./types";
-import { DenormalizedCrosspostData } from "./types";
-import { createCrosspostToken } from '../crossposting/tokens';
-// import { createCrosspostRoute } from "@/lib/fmCrosspost/routes";
+import type { UpdateCallbackProperties } from "../mutationCallbacks";
+import type { Crosspost } from "./types";
+import type { DenormalizedCrosspostData } from "./types";
+import {
+  createCrosspostToken,
+  updateCrosspostToken,
+} from "@/server/crossposting/tokens";
+// import {
+//   createCrosspostRoute,
+//   updateCrosspostRoute,
+// } from "@/lib/fmCrosspost/routes";
 // import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
 export async function performCrosspost<T extends Crosspost>(post: T): Promise<T> {
@@ -70,7 +75,7 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
 }
 
 const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
-  const token = await signToken<UpdateCrosspostPayload>({
+  const token = await updateCrosspostToken.create({
     ...denormalizedData,
     postId,
   });
@@ -79,6 +84,12 @@ const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCro
     { token },
     "Failed to update crosspost draft status",
   );
+  // TODO: Switch to this when V2 is deployed to both sites
+  // await makeV2CrossSiteRequest(
+  //   updateCrosspostRoute,
+  //   {token},
+  //   "Failed to update crosspost",
+  // );
 }
 /**
  * TODO-HACK: We will kick the can down the road on actually removing the

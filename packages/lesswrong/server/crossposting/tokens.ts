@@ -56,19 +56,26 @@ class CrosspostingToken<
   }
 }
 
-/** Token used for connecting and unlinking crosspost accounts */
+/** Token used for both connecting and unlinking crosspost accounts */
 export const connectCrossposterToken = new CrosspostingToken(z.object({
   userId: z.string().nonempty(),
 }));
 
-export const createCrosspostToken = new CrosspostingToken(z.object({
-  localUserId: z.string().nonempty(),
-  foreignUserId: z.string().nonempty(),
-  postId: z.string().nonempty(),
+const denormalizedPostSchema = z.object({
   draft: z.boolean(),
   deletedDraft: z.boolean(),
   title: z.string().nonempty(),
   isEvent: z.boolean(),
   question: z.boolean(),
   url: z.optional(z.string().nullable()),
-}));
+});
+
+export const createCrosspostToken = new CrosspostingToken(z.object({
+  localUserId: z.string().nonempty(),
+  foreignUserId: z.string().nonempty(),
+  postId: z.string().nonempty(),
+}).and(denormalizedPostSchema));
+
+export const updateCrosspostToken = new CrosspostingToken(z.object({
+  postId: z.string().nonempty(),
+}).and(denormalizedPostSchema));

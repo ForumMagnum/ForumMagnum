@@ -66,3 +66,24 @@ export const unlinkCrossposterRoute = new FMCrosspostRoute({
     status: z.enum(["unlinked"]),
   }),
 });
+
+export const createCrosspostRoute = new FMCrosspostRoute({
+  routeName: "crosspost",
+  requestSchema: z.object({
+    token: z.string().nonempty(),
+  }),
+  responseSchema: z.object({
+    postId: z.string().nonempty(),
+    status: z.enum(["posted"]),
+  }),
+});
+
+export const updateCrosspostRoute = new FMCrosspostRoute({
+  routeName: "updateCrosspost",
+  requestSchema: z.object({
+    token: z.string().nonempty(),
+  }),
+  responseSchema: z.object({
+    status: z.enum(["updated"]),
+  }),
+});

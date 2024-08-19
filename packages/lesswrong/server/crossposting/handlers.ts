@@ -11,6 +11,7 @@ import {
 import {
   connectCrossposterToken,
   createCrosspostToken,
+  updateCrosspostToken,
 } from "@/server/crossposting/tokens";
 import {
   FMCrosspostRoute,
@@ -18,6 +19,7 @@ import {
   connectCrossposterRoute,
   unlinkCrossposterRoute,
   createCrosspostRoute,
+  updateCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
 
 const onRequestError = (
@@ -133,12 +135,12 @@ export const addV2CrosspostHandlers = (app: Application) => {
   addHandler(
     app,
     createCrosspostRoute,
-    async function createCrosspostCrosspostHandler(context, {token}) {
+    async function createCrosspostHandler(context, {token}) {
       const {
         localUserId,
         foreignUserId,
         postId,
-        ...denormalizedData
+        ...postData
       } = await createCrosspostToken.verify(token);
 
       const user = await context.Users.findOne({_id: foreignUserId});
@@ -154,7 +156,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
             hostedHere: false,
             foreignPostId: postId,
           },
-          ...denormalizedData,
+          ...postData,
         },
         collection: context.Posts,
         validate: false,
@@ -169,6 +171,16 @@ export const addV2CrosspostHandlers = (app: Application) => {
         status: "posted" as const,
         postId: post._id,
       };
+    },
+  );
+
+  addHandler(
+    app,
+    updateCrosspostRoute,
+    async function updateCrosspostHandler(context, {token}) {
+      const {postId, ...postData} = await updateCrosspostToken.verify(token);
+      await context.Posts.rawUpdateOne({_id: postId}, {$set: postData});
+      return {status: "updated" as const};
     },
   );
 }
