@@ -60,3 +60,15 @@ class CrosspostingToken<
 export const connectCrossposterToken = new CrosspostingToken(z.object({
   userId: z.string().nonempty(),
 }));
+
+export const createCrosspostToken = new CrosspostingToken(z.object({
+  localUserId: z.string().nonempty(),
+  foreignUserId: z.string().nonempty(),
+  postId: z.string().nonempty(),
+  draft: z.boolean(),
+  deletedDraft: z.boolean(),
+  title: z.string().nonempty(),
+  isEvent: z.boolean(),
+  question: z.boolean(),
+  url: z.optional(z.string().nullable()),
+}));

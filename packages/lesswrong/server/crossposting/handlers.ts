@@ -1,14 +1,23 @@
 import { Application, Request, Response, json } from "express";
 import { ZodType, z } from "zod";
-import { ApiError, UnauthorizedError } from "@/server/fmCrosspost/errors";
+import { Utils } from "@/lib/vulcan-lib";
+import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { validateCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
-import { connectCrossposterToken } from "@/server/crossposting/tokens";
-import Users from "@/lib/collections/users/collection";
+import {
+  ApiError,
+  InvalidUserError,
+  UnauthorizedError,
+} from "@/server/fmCrosspost/errors";
+import {
+  connectCrossposterToken,
+  createCrosspostToken,
+} from "@/server/crossposting/tokens";
 import {
   FMCrosspostRoute,
   generateTokenRoute,
   connectCrossposterRoute,
   unlinkCrossposterRoute,
+  createCrosspostRoute,
 } from "@/lib/fmCrosspost/routes";
 
 const onRequestError = (
@@ -28,7 +37,7 @@ const onRequestError = (
     errorCode,
     error,
   });
-  return res.status(status).send({ error: message, errorCode });
+  return res.status(status).send({error: message, errorCode});
 }
 
 const addHandler = <
@@ -40,15 +49,13 @@ const addHandler = <
   app: Application,
   route: FMCrosspostRoute<RequestSchema, ResponseSchema, RequestData, ResponseData>,
   requestHandler: (
-    currentUser: DbUser | null,
+    context: ResolverContext,
     requestData: RequestData,
   ) => Promise<ResponseData>,
 ) => {
   const path = route.getPath();
   app.use(path, json({ limit: "1mb" }));
   app.post(path, async (req: Request, res: Response) => {
-    const user = req.user ?? null;
-
     const parsedResult = route.getRequestSchema().safeParse(req.body);
     if (!parsedResult.success) {
       return onRequestError(req, res, path, 400, "Invalid cross-site request body");
@@ -56,7 +63,8 @@ const addHandler = <
 
     let response: ResponseData;
     try {
-      response = await requestHandler(user, parsedResult.data);
+      const context = await getContextFromReqAndRes(req, res);
+      response = await requestHandler(context, parsedResult.data);
     } catch (error) {
       const message = error.message ?? "Invalid cross-site request body";
       // Return a 200 to avoid this triggering a health check failure,
@@ -79,7 +87,7 @@ export const addV2CrosspostHandlers = (app: Application) => {
   addHandler(
     app,
     generateTokenRoute,
-    async function generateTokenCrosspostHandler(currentUser, _payload) {
+    async function generateTokenCrosspostHandler({currentUser}, _payload) {
       if (!currentUser) {
         throw new UnauthorizedError();
       }
@@ -94,12 +102,12 @@ export const addV2CrosspostHandlers = (app: Application) => {
   addHandler(
     app,
     connectCrossposterRoute,
-    async function connectCrossposterCrosspostHandler(_currentUser, {
+    async function connectCrossposterCrosspostHandler(context, {
       token,
       localUserId,
     }) {
       const {userId: foreignUserId} = await connectCrossposterToken.verify(token);
-      await Users.rawUpdateOne({_id: foreignUserId}, {
+      await context.Users.rawUpdateOne({_id: foreignUserId}, {
         $set: {fmCrosspostUserId: localUserId},
       });
       return {
@@ -113,12 +121,54 @@ export const addV2CrosspostHandlers = (app: Application) => {
   addHandler(
     app,
     unlinkCrossposterRoute,
-    async function unlinkCrossposterCrosspostHandler(_currentUser, {token}) {
+    async function unlinkCrossposterCrosspostHandler(context, {token}) {
       const {userId} = await connectCrossposterToken.verify(token);
-      await Users.rawUpdateOne({_id: userId}, {
+      await context.Users.rawUpdateOne({_id: userId}, {
         $unset: {fmCrosspostUserId: ""},
       });
       return {status: "unlinked" as const};
+    },
+  );
+
+  addHandler(
+    app,
+    createCrosspostRoute,
+    async function createCrosspostCrosspostHandler(context, {token}) {
+      const {
+        localUserId,
+        foreignUserId,
+        postId,
+        ...denormalizedData
+      } = await createCrosspostToken.verify(token);
+
+      const user = await context.Users.findOne({_id: foreignUserId});
+      if (!user || user.fmCrosspostUserId !== localUserId) {
+        throw new InvalidUserError();
+      }
+
+      const {data: post} = await Utils.createMutator({
+        document: {
+          userId: user._id,
+          fmCrosspost: {
+            isCrosspost: true,
+            hostedHere: false,
+            foreignPostId: postId,
+          },
+          ...denormalizedData,
+        },
+        collection: context.Posts,
+        validate: false,
+        currentUser: user,
+        context: {
+          ...context,
+          isFMCrosspostRequest: true,
+        },
+      });
+
+      return {
+        status: "posted" as const,
+        postId: post._id,
+      };
     },
   );
 }

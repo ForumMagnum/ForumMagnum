@@ -6,8 +6,11 @@ import { UpdateCallbackProperties } from "../mutationCallbacks";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
 import { signToken } from "./tokens";
-import type { Crosspost, CrosspostPayload, UpdateCrosspostPayload } from "./types";
+import type { Crosspost, UpdateCrosspostPayload } from "./types";
 import { DenormalizedCrosspostData } from "./types";
+import { createCrosspostToken } from '../crossposting/tokens';
+// import { createCrosspostRoute } from "@/lib/fmCrosspost/routes";
+// import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
 export async function performCrosspost<T extends Crosspost>(post: T): Promise<T> {
   const logger = loggerConstructor('callbacks-posts')
@@ -42,7 +45,7 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
     post._id = randomId();
   }
 
-  const token = await signToken<CrosspostPayload>({
+  const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
     postId: post._id,
@@ -54,6 +57,12 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
     { token },
     'Failed to create crosspost'
   );
+  // TODO: Switch to this when V2 is deployed to both sites
+  // const {postId} = await makeV2CrossSiteRequest(
+  //   createCrosspostRoute,
+  //   {token},
+  //   "Failed to create crosspost",
+  // );
 
   logger('crosspost successful, setting foreignPostId:', postId)
   post.fmCrosspost.foreignPostId = postId;
