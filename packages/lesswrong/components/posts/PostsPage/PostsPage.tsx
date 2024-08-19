@@ -705,6 +705,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </AnalyticsContext>
   </>;
 
+
+// The new post page made the UI look broken. It only gets ~20 clicks per day, so we commented it out until after the sidenotes branch is merged in. (—Ben & Ray)
   const welcomeBox = (
     <DeferRender ssr={false}>
       <WelcomeBox />
@@ -712,7 +714,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   );
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
-    {welcomeBox}
+    {/* {welcomeBox} */}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
   </>;
 
