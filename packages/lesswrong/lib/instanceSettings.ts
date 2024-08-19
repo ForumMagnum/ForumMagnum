@@ -208,6 +208,17 @@ const disableElastic = new PublicInstanceSetting<boolean>(
 export const isElasticEnabled = !isAnyTest && !isE2E && !disableElastic.get();
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const eaFrontpageDateDefault = (
+  isEvent?: boolean,
+  submitToFrontpage?: boolean,
+  draft?: boolean,
+) => {
+  if (isEvent || !submitToFrontpage || draft) {
+    return null;
+  }
+  return new Date();
+}
+
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
 

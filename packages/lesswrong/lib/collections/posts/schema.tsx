@@ -13,6 +13,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import {
+  eaFrontpageDateDefault,
   fmCrosspostBaseUrlSetting,
   fmCrosspostSiteNameSetting,
   forumTypeSetting,
@@ -130,17 +131,6 @@ export async function getLastReadStatus(post: DbPost, context: ResolverContext) 
   );
   if (!readStatus.length) return null;
   return readStatus[0];
-}
-
-const eaFrontpageDateDefault = (
-  isEvent?: boolean,
-  submitToFrontpage?: boolean,
-  draft?: boolean,
-) => {
-  if (isEvent || !submitToFrontpage || draft) {
-    return null;
-  }
-  return new Date();
 }
 
 export const sideCommentCacheVersion = 1;
@@ -1483,6 +1473,17 @@ const schema: SchemaType<"Posts"> = {
         return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
+  },
+
+  autoFrontpage: {
+    type: String,
+    allowedValues: ["show", "hide"],
+    canRead: ['sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    hidden: true,
+    optional: true,
+    nullable: true,
   },
 
   collectionTitle: {

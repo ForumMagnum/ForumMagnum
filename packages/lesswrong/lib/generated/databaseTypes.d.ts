@@ -856,6 +856,7 @@ interface DbPost extends DbObject {
   metaDate: Date | null
   suggestForCuratedUserIds: Array<string> | null
   frontpageDate: Date | null
+  autoFrontpage: "show" | "hide" | null
   collectionTitle: string | null
   coauthorStatuses: Array<{
     userId: string,

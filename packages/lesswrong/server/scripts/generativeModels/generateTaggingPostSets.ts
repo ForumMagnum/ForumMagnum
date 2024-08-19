@@ -56,7 +56,7 @@ async function generateCandidateSetsForTagClassification(): Promise<void> {
     draft: false, status: postStatuses.STATUS_APPROVED,
     isFuture: false, unlisted: false, shortform: false, authorIsUnreviewed: false,
     question: false, isEvent: false,
-    contents: {$ne: null},
+    // contents: {$ne: null},
     baseScore: {$gte: 10},
     tagRelevance: {$exists: true},
     postedAt: {$gte: startDate, $lte: endDate},
