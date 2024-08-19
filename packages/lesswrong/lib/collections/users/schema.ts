@@ -3051,8 +3051,18 @@ const schema: SchemaType<"Users"> = {
     ...schemaDefaultValue(false),
   },
   
-  // EA Forum emails the user a survey if they haven't read a post in 3 months
+  // EA Forum emails the user a survey if they haven't read a post in 4 months
   inactiveSurveyEmailSentAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: ['admins'],
+    canUpdate: ['admins'],
+  },
+  // Used by EAF to track when we last emailed the user about the annual user survey
+  userSurveyEmailSentAt: {
     type: Date,
     optional: true,
     nullable: true,
