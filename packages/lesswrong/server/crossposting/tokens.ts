@@ -56,6 +56,7 @@ class CrosspostingToken<
   }
 }
 
+/** Token used for connecting and unlinking crosspost accounts */
 export const connectCrossposterToken = new CrosspostingToken(z.object({
   userId: z.string().nonempty(),
 }));

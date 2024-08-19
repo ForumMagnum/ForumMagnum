@@ -43,3 +43,26 @@ export const generateTokenRoute = new FMCrosspostRoute({
   requestSchema: z.any(),
   responseSchema: z.object({ token: z.string().nonempty() }),
 });
+
+export const connectCrossposterRoute = new FMCrosspostRoute({
+  routeName: "connectCrossposter",
+  requestSchema: z.object({
+    token: z.string().nonempty(),
+    localUserId: z.string().nonempty(),
+  }),
+  responseSchema: z.object({
+    foreignUserId: z.string().nonempty(),
+    localUserId: z.string().nonempty(),
+    status: z.enum(["connected"]),
+  }),
+});
+
+export const unlinkCrossposterRoute = new FMCrosspostRoute({
+  routeName: "unlinkCrossposter",
+  requestSchema: z.object({
+    token: z.string().nonempty(),
+  }),
+  responseSchema: z.object({
+    status: z.enum(["unlinked"]),
+  }),
+});
