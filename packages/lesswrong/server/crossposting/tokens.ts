@@ -68,6 +68,11 @@ const denormalizedPostSchema = z.object({
   isEvent: z.boolean(),
   question: z.boolean(),
   url: z.optional(z.string().nullable()),
+  // TODO: Make non-nullable once old clients are all gone
+  originalContents: z.optional(z.object({
+    type: z.string().nonempty(),
+    data: z.string(),
+  }).nullable()),
 });
 
 export const createCrosspostToken = new CrosspostingToken(z.object({
