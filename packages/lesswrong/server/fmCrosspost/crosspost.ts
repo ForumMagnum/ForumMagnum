@@ -5,8 +5,7 @@ import { loggerConstructor } from "../../lib/utils/logging";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
 import { makeCrossSiteRequest } from "./resolvers";
 import type { UpdateCallbackProperties } from "../mutationCallbacks";
-import type { Crosspost } from "./types";
-import type { DenormalizedCrosspostData } from "./types";
+import type { Crosspost, DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
