@@ -59,6 +59,7 @@ import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { getCookieFromReq } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { getSqlClientOrThrow } from './sql/sqlClient';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -364,6 +365,18 @@ export function startWebserver() {
     // disruptive. So instead just serve a minimal 404.
     res.status(404);
     res.end("");
+  });
+
+  app.get('/api/health', async (request, response) => {
+    try {
+      const db = getSqlClientOrThrow();
+      await db.one('SELECT 1');
+      response.status(200);
+      response.end("");
+    } catch (err) {
+      response.status(500);
+      response.end("");
+    }
   });
 
   app.get('*', async (request, response) => {

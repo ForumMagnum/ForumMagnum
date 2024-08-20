@@ -242,11 +242,15 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </AnalyticsContext>
     </span>
 
-    // EA Forum splits the info into two sections, plus has the info in a different order
+  // EA Forum splits the info into two sections, plus has the info in a different order
   const secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
-        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-        {minimalSecondaryInfo && <ReadTime post={post} dialogueResponses={dialogueResponses} />}
+        {!minimalSecondaryInfo &&
+          <>
+            <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
+            <ReadTime post={post} dialogueResponses={dialogueResponses} />
+          </>
+        }
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
         {post.isEvent && <GroupLinks document={post} noMargin />}
         {answersNode}
