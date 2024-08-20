@@ -123,7 +123,7 @@ const SideItemsContainer = ({classes, children}: {
         resizeObserver.disconnect();
       };
     }
-  }, []);
+  }, [rerender]);
   
   return (
     <SideItemsPlacementContext.Provider value={sideItemsPlacementContext}>
