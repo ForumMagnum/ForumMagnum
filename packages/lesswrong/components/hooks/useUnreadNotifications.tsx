@@ -58,15 +58,19 @@ export type NotificationCheckMessage = {
 }
 
 type LlmStreamTextChunk = {
-  title: string;
+  conversationId: string;
   content: string;
   displayContent: string;
 };
 
 // TODO: change this to a "create new conversation" message, which should include the title
-export type LlmSetTitleMessage = {
-  eventType: 'llmSetTitle';
+export type LlmCreateConversationMessage = {
+  eventType: 'llmCreateConversation';
   title: string;
+  conversationId: string;
+  /** Stringified date */
+  createdAt: string;
+  channelId: string;
 }
 
 export type LlmStreamMessage = {
@@ -74,7 +78,7 @@ export type LlmStreamMessage = {
   data: LlmStreamTextChunk
 };
 
-export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamMessage | LlmSetTitleMessage;
+export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamMessage | LlmCreateConversationMessage;
 
 type EventType = ServerSentEventsMessage['eventType'];
 type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
@@ -285,7 +289,7 @@ let notificationEventListenersByType = {
   notificationCheck: [] as NotificationEventListener<'notificationCheck'>[],
   activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
   typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
-  llmSetTitle: [] as NotificationEventListener<'llmSetTitle'>[],
+  llmCreateConversation: [] as NotificationEventListener<'llmCreateConversation'>[],
   llmStream: [] as NotificationEventListener<'llmStream'>[],
 };
 
@@ -312,7 +316,7 @@ export function onServerSentNotificationEvent(message: ServerSentEventsMessage) 
     case 'typingIndicator':
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
-    case 'llmSetTitle':
+    case 'llmCreateConversation':
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
     case 'llmStream':

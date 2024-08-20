@@ -9,7 +9,10 @@ augmentFieldsDict(LlmConversations, {
       resolver: async (document, args, context): Promise<DbLlmMessage[]> => {
         const { LlmMessages } = context;
         const messages = await LlmMessages.find({conversationId: document._id}).fetch();
-        const messagesHtml = await Promise.all(messages.map( async (message) => ({...message, content: await markdownToHtml(message.content)})))
+        const messagesHtml = await Promise.all(messages.map(async (message) => ({
+          ...message, content: await markdownToHtml(message.content)
+        })));
+
         return messagesHtml
       },
     }

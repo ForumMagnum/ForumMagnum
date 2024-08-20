@@ -1,27 +1,32 @@
+import LlmConversations from "@/lib/collections/llmConversations/collection";
+import LlmMessages from "@/lib/collections/llmMessages/collection";
+import { createTable, updateIndexes, dropTable } from "./meta/utils";
+
 /**
- * Generated on 2024-08-16T20:30:46.359Z by `yarn makemigrations`
+ * Generated on 2024-08-20T22:37:44.882Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
- * diff --git a/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/accepted_schema.sql b/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/schema_to_accept.sql
- * index 5dff046abe..e144776252 100644
- * --- a/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/accepted_schema.sql
- * +++ b/Users/rbloom/git/lesswrongSuite/LessWrong2/schema/schema_to_accept.sql
+ * diff --git a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
+ * index 5dff046abe..0bf42b4bce 100644
+ * --- a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql
+ * +++ b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
  * --- Overall schema hash: d2ff8b556fc6f740b2bb57ddf5347f64
  * -
  * --- Accepted on 2024-07-29T18:30:41.000Z by 20240729T183041.normalize_post_contents.ts
- * +-- Overall schema hash: e805a83c2ba5d229c3383afa6fee8be2
+ * +-- Overall schema hash: c6020749c5f6d763f55d80fdee76e131
  *  
- * @@ -1011,2 +1009,33 @@ CREATE INDEX IF NOT EXISTS "idx_LegacyData_objectId" ON "LegacyData" USING btree
+ * @@ -1011,2 +1009,38 @@ CREATE INDEX IF NOT EXISTS "idx_LegacyData_objectId" ON "LegacyData" USING btree
  *  
- * +-- Table "LlmConversations", hash d2fd93aac4831add71544502ba6e8b02
+ * +-- Table "LlmConversations", hash 49ad4e83777890bde1310b0ad82b8ac7
  * +CREATE TABLE "LlmConversations" (
  * +  _id VARCHAR(27) PRIMARY KEY,
  * +  "userId" TEXT NOT NULL,
  * +  "title" TEXT NOT NULL,
  * +  "model" TEXT NOT NULL,
- * +  "systemPrompt" JSONB,
+ * +  "systemPrompt" TEXT,
+ * +  "deleted" BOOL NOT NULL DEFAULT FALSE,
  * +  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
  * +  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
  * +  "legacyData" JSONB
@@ -30,14 +35,18 @@
  * +-- Index "idx_LlmConversations_schemaVersion", hash 3b96d13224f2893a7442d33803f642f7
  * +CREATE INDEX IF NOT EXISTS "idx_LlmConversations_schemaVersion" ON "LlmConversations" USING btree ("schemaVersion");
  * +
- * +-- Table "LlmMessages", hash 9474b99dd572c20887b20e07d134fa1c
+ * +-- Index "idx_LlmConversations_userId", hash 7de7b156c25d9b982133f645c39b52d6
+ * +CREATE INDEX IF NOT EXISTS "idx_LlmConversations_userId" ON "LlmConversations" USING btree ("userId");
+ * +
+ * +-- Table "LlmMessages", hash d2044e40c1769dd539e1d852657cd5b0
  * +CREATE TABLE "LlmMessages" (
  * +  _id VARCHAR(27) PRIMARY KEY,
  * +  "userId" TEXT NOT NULL,
  * +  "conversationId" TEXT NOT NULL,
  * +  "role" TEXT NOT NULL,
  * +  "type" TEXT NOT NULL,
- * +  "content" JSONB,
+ * +  "content" TEXT NOT NULL,
+ * +  "modifiedContent" TEXT,
  * +  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
  * +  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
  * +  "legacyData" JSONB
@@ -56,12 +65,16 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "e805a83c2ba5d229c3383afa6fee8be2";
+export const acceptsSchemaHash = "c6020749c5f6d763f55d80fdee76e131";
 
 export const up = async ({db}: MigrationContext) => {
-  // TODO
+  await createTable(db, LlmConversations);
+  await createTable(db, LlmMessages);
+  await updateIndexes(LlmConversations);
+  await updateIndexes(LlmMessages);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await dropTable(db, LlmMessages);
+  await dropTable(db, LlmConversations);
 }

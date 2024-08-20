@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
+import { useLlmChat } from './LlmChatWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -59,15 +60,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
+
 const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType
 }) => {
   const { LanguageModelChat } = Components;
 
-  const [title, setTitle] = useState(""); // placeholder title handled from within LanguageModelChat.tsx, so use empty string here
+  const { currentConversation } = useLlmChat();
 
-  const setTitleCallback = useCallback(setTitle, []);
+  const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 
   return <Paper className={classes.root}>
     <div className={classes.header}>
@@ -77,7 +80,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
       <CloseIcon className={classes.close} onClick={onClose}/>
     </div>
     <div className={classes.editor}>
-      <LanguageModelChat setTitle={setTitleCallback} />
+      <LanguageModelChat />
     </div>
   </Paper>
 }

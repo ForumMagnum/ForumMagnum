@@ -4011,8 +4011,8 @@ interface LlmConversationsDefaultFragment { // fragment on LlmConversations
   readonly userId: string,
   readonly title: string,
   readonly model: string,
-  readonly systemPrompt: any /*{"definitions":[{}]}*/,
-  readonly messages: Array<any /*{"definitions":[{}]}*/> | null,
+  readonly systemPrompt: string | null,
+  readonly messages: Array<LlmMessage|null>,
   readonly deleted: boolean,
 }
 
@@ -4021,7 +4021,7 @@ interface LlmConversationsFragment { // fragment on LlmConversations
   readonly userId: string,
   readonly title: string,
   readonly model: string,
-  readonly systemPrompt: any /*{"definitions":[{}]}*/,
+  readonly systemPrompt: string | null,
   readonly createdAt: Date,
   readonly lastUpdatedAt: Date|null,
   readonly deleted: boolean,
@@ -4036,7 +4036,8 @@ interface LlmMessagesDefaultFragment { // fragment on LlmMessages
   readonly conversationId: string,
   readonly role: "user" | "assistant",
   readonly type: string,
-  readonly content: any /*{"definitions":[{}]}*/,
+  readonly content: string,
+  readonly modifiedContent: string | null,
 }
 
 interface LlmMessagesFragment { // fragment on LlmMessages
@@ -4044,7 +4045,7 @@ interface LlmMessagesFragment { // fragment on LlmMessages
   readonly userId: string,
   readonly conversationId: string,
   readonly role: "user" | "assistant",
-  readonly content: any /*{"definitions":[{}]}*/,
+  readonly content: string,
   readonly createdAt: Date,
 }
 

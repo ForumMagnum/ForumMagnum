@@ -1,26 +1,18 @@
 // TODO: Import component in components.ts
-import React, { useEffect, useRef, useState, useCallback, useMemo, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useMutation } from '@apollo/client';
 import classNames from 'classnames';
-import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import DeferRender from '../common/DeferRender';
-import Checkbox from "@material-ui/core/Checkbox";
 import Button from '@material-ui/core/Button';
 import { useMessages } from '../common/withMessages';
 import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
-import { hideScrollBars } from '../../themes/styleUtils';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { LlmStreamMessage, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
+import { useOnServerSentEvent } from '../hooks/useUnreadNotifications';
 import { useCurrentUser } from '../common/withUser';
 import { LlmChatContext } from './LlmChatWrapper';
-
-const LLM_STORAGE_KEY = 'llmConversations'
-const PLACEHOLDER_TITLE = "LLM Chat: New Conversation"
-    
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -101,16 +93,7 @@ interface ClaudeConversation {
   lastUpdated: Date
 }
 
-interface PromptContextOptions {
-  query: string
-  postId?: string,
-  useRag?: boolean
-  includeComments?: boolean
-}
-
-type ClaudeConversationWithOptionalTitle = Omit<ClaudeConversation, 'title'> & { title?: string }
-
-type LlmConversations = Record<string, ClaudeConversation>
+const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
 const LLMChatMessage = ({message, classes}: {
   message: ClaudeMessage,
@@ -157,14 +140,13 @@ const LLMInputTextbox = ({onSubmit, classes}: {
 }
 
 
-export const ChatInterface = ({setWindowTitle, classes}: {
-  setWindowTitle?: (title: string|undefined) => void,
+export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const { captureEvent } = useTracking(); //TODO: appropriate tracking? 
   const { Loading, MenuItem } = Components;
 
-  const { currentConversationId, conversations, switchConversation, archiveConversation, loading, setLoading }  = useContext(LlmChatContext)!
+  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, loading, setLoading }  = useContext(LlmChatContext)!;
 
   const { flash } = useMessages();
   const currentUser = useCurrentUser();
@@ -173,11 +155,6 @@ export const ChatInterface = ({setWindowTitle, classes}: {
   const { location } = useLocation();
   const { pathname } = location;
   const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
-
-  const sortedConversations = useMemo(() => {
-    return Object.values(conversations).sort((a, b) => b.lastUpdated.getTime() - a.lastUpdated.getTime())
-  }
-  const currentConversation = currentConversationId ? conversations[currentConversationId] : undefined;
 
   const messagesRef = useRef<HTMLDivElement>(null)
   // useEffect to scroll to bottom of chat history after new message is added
@@ -195,97 +172,74 @@ export const ChatInterface = ({setWindowTitle, classes}: {
   </div>
 
 
-  // const exportHistoryToClipboard = () => {
-  //   if (!currentConversation) return
-  //   const conversationHistory = currentConversation.messages
-  //   const firstMessage = conversationHistory[0]
-  //   // TODO: revert this change
-  //   // const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.displayContent ?? firstMessage.content}\n\n\n`
-  //   const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.content}\n\n\n`
-  //   const formattedChatHistory = conversationHistory.slice(1).map(({role, content}) => `**${role}**: ${content}`).join("\n\n\n")
-  //   void navigator.clipboard.writeText(firstMessageFormatted + formattedChatHistory)
-  //   flash('Chat history copied to clipboard')
-  // }
+  const exportHistoryToClipboard = () => {
+    if (!currentConversation) return
+    const conversationHistory = currentConversation.messages
+    const firstMessage = conversationHistory[0]
+    // TODO: revert this change
+    // const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.displayContent ?? firstMessage.content}\n\n\n`
+    const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.content}\n\n\n`
+    const formattedChatHistory = conversationHistory.slice(1).map(({role, content}) => `**${role}**: ${content}`).join("\n\n\n")
+    void navigator.clipboard.writeText(firstMessageFormatted + formattedChatHistory)
+    flash('Chat history copied to clipboard')
+  }
 
   const onSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSelection = event.target.value
+    const newSelection = event.target.value;
+    const newSelectionId = newSelection === "New Conversation"
+      ? undefined
+      : newSelection;
 
-    if (newSelection === "New Conversation") {
-      switchConversation(undefined)
-    } else {
-      // TODO: have a separate field for last viewed
-      switchConversation(newSelection)
-    }
+    setCurrentConversation(newSelectionId);
   }
 
   const deleteConversation = (ev: React.MouseEvent, conversationId: string) => {
-    ev.preventDefault()
-    ev.stopPropagation()
-    const updatedConversations: LlmConversations = Object.keys(llmConversations).filter(key => key !== `llmChatHistory:${title}`).reduce((acc, key) => ({...acc, [key]: llmConversations[key]}), {})
+    // TODO: figure out if we need both of these or just one (i.e. to prevent selection of the menu item)
+    ev.preventDefault();
+    ev.stopPropagation();
+    archiveConversation(conversationId);
+  };
 
-    // TODO: it is possible to overwrite a conversation if another is generated with the same title
-    ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
-    setLlmConversations(updatedConversations)
-    if (currentConversation?.title === title) {
-      setWindowTitle?.(PLACEHOLDER_TITLE)
-      setCurrentConversation(null)
-    }
-  }
+  // const appendLatestMessage = useCallback((message: LlmStreamMessage) => {
+  //   console.log(`Got message from stream!  ${message.data.content}`);
+  //   const storageTitle = `llmChatHistory:${message.data.title}`;
+  //   const previousConversation = llmConversations[storageTitle];
+  //   const conversationWithNewResponse: ClaudeConversation = {
+  //     ...previousConversation,
+  //     messages: [...previousConversation.messages, { ...message.data, role: 'assistant' }]
+  //   };
+  //   setCurrentConversation(conversationWithNewResponse)
 
-  const appendLatestMessage = useCallback((message: LlmStreamMessage) => {
-    console.log(`Got message from stream!  ${message.data.content}`);
-    const storageTitle = `llmChatHistory:${message.data.title}`;
-    const previousConversation = llmConversations[storageTitle];
-    const conversationWithNewResponse: ClaudeConversation = {
-      ...previousConversation,
-      messages: [...previousConversation.messages, { ...message.data, role: 'assistant' }]
-    };
-    setCurrentConversation(conversationWithNewResponse)
+  //   const updatedConversations = {...llmConversations, [storageTitle]: conversationWithNewResponse}
+  //   ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
+  //   setLlmConversations(updatedConversations)
+  // }, [llmConversations]);
 
-    const updatedConversations = {...llmConversations, [storageTitle]: conversationWithNewResponse}
-    ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
-    setLlmConversations(updatedConversations)
-  }, [llmConversations]);
-
-  useOnServerSentEvent('llmStream', currentUser, (message) => {
-    appendLatestMessage(message);
-    setLoading(false);
-  });
-
-  useOnServerSentEvent('llmSetTitle', currentUser, (message) => {
-    console.log(`Got title from stream!  ${message.title}`, { setWindowTitleExists: !!setWindowTitle });
-    setWindowTitle?.(message.title);
-    const storageTitle = `llmChatHistory:${message.title}`;
-    const updatedConversations: LlmConversations = {...llmConversations, [storageTitle]: { createdAt: new Date(), lastUpdated: new Date(), messages: currentConversation?.messages ?? [], title: message.title }};
-    ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations));
-    setLlmConversations(updatedConversations);
-  });
-
-
+  // TODO: move to context wrapper
   
   const conversationSelect = <Select 
     onChange={onSelect} 
-    value={currentConversation?.title ?? "New Conversation"}
+    value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
     disableUnderline
     className={classes.select}
     MenuProps={{style: {zIndex: 10000000002}}} // TODO: figure out sensible z-index stuff
-    renderValue={(title: string) =>title}
+    renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
     >
       {
-        .map(({ title, _id }, index) => (
+        orderedConversations.map(({ title, _id }, index) => (
           <MenuItem key={index} value={_id} className={classes.menuItem}>
             {title}
             <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
           </MenuItem>
       ))}
-      <MenuItem value="New Conversation" className={classes.menuItem}>
+      <MenuItem value={NEW_CONVERSATION_MENU_ITEM} className={classes.menuItem}>
         New Conversation
       </MenuItem>
     </Select>;
 
 
   const options = <div className={classes.options}>
-    <Button onClick={resetConversation}>
+    <Button onClick={() => setCurrentConversation()}>
       New Chat
     </Button>
     <Button onClick={exportHistoryToClipboard} disabled={!currentConversation}>
@@ -297,21 +251,21 @@ export const ChatInterface = ({setWindowTitle, classes}: {
   return <div className={classes.chatInterfaceRoot}>
     {messagesForDisplay}
     {loading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={messageSubmit} classes={classes} />
+    <LLMInputTextbox onSubmit={(message) => submitMessage(message, currentPostId)} classes={classes} />
     {options}
   </div>
 }
 
 
 // Wrapper component needed so we can use deferRender
-export const LanguageModelChat = ({setTitle, classes}: {
-  setTitle?: (title: string) => void,
+export const LanguageModelChat = ({classes}: {
+  // setTitle?: (title: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
 
   return <DeferRender ssr={false}>
     <div className={classes.root}>
-      <ChatInterface setWindowTitle={setTitle} classes={classes} />
+      <ChatInterface classes={classes} />
     </div>
   </DeferRender>
 }

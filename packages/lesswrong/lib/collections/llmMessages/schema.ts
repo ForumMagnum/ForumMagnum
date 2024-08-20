@@ -35,7 +35,15 @@ const schema: SchemaType<"LlmMessages"> = {
     canUpdate: ["admins"],
   },
   content: {
-    type: Object,
+    type: String,
+    optional: false,
+    nullable: false,
+    canRead: [userOwns, "admins"],
+    canCreate: ["admins"],
+    canUpdate: ["admins"],
+  },
+  modifiedContent: {
+    type: String,
     optional: true,
     nullable: true,
     canRead: [userOwns, "admins"],

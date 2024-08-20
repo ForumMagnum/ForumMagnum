@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { getEmbeddingsFromApi } from "../embeddings";
 import { markdownToHtml } from "../editor/conversionUtils";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, generateLoadingMessagePrompt, generatePromptWithContext, generateSystemPrompt, generateTitleGenerationPrompt } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, generateLoadingMessagePrompt, generatePromptWithContext, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt } from "../languageModels/promptUtils";
 import uniqBy from "lodash/uniqBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
@@ -14,7 +14,8 @@ import { Tool } from "@anthropic-ai/sdk/resources/messages";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
-import { LlmSetTitleMessage, LlmStreamMessage } from "@/components/hooks/useUnreadNotifications";
+import { LlmCreateConversationMessage, LlmStreamMessage } from "@/components/hooks/useUnreadNotifications";
+import { createMutator } from "../vulcan-lib";
 
 const ClaudeMessage = `input ClaudeMessage {
   conversationId: String
@@ -25,7 +26,6 @@ const ClaudeMessage = `input ClaudeMessage {
 }`
 
 const PromptContextOptions = `input PromptContextOptions {
-  query: String!
   postId: String
   useRag: Boolean
   includeComments: Boolean
@@ -44,23 +44,17 @@ interface ClaudeConversation {
 
 // If present, use to construct context
 interface PromptContextOptions {
-  query: string
   postId?: string
-  useRag?: boolean // TODO: deprecate?
   includeComments?: boolean
-  // editorContents: 
 }
-interface PromptContextOptionsWithFulLPost {
-  query: string
+interface PromptContextOptionsWithFullPost {
   post?: PostsPage
-  useRag?: boolean
   includeComments?: boolean
-  // editorContents: 
 }
 
 
 const claudeMessageSchema = z.object({
-  role: z.union([z.literal('user'), z.literal('assistant')]),
+  // role: z.union([z.literal('user'), z.literal('assistant')]),
   content: z.string(),
   displayContent: z.optional(z.string())
 })
@@ -103,8 +97,8 @@ const selectAdditionalContext = async (query: string, currentPost?: PostsPage): 
   }
 }
 
-const createPromptWithContext = async (options: PromptContextOptionsWithFulLPost, context: ResolverContext) => {
-  const { query, post: currentPost, includeComments } = options
+const createPromptWithContext = async (query: string, options: PromptContextOptionsWithFullPost, context: ResolverContext) => {
+  const { post: currentPost, includeComments } = options
 
   const contextSelectionCode = await selectAdditionalContext(query, currentPost)
   const useQueryRelatedPostsContext = ['query-based', 'both'].includes(contextSelectionCode)
@@ -131,7 +125,17 @@ const createPromptWithContext = async (options: PromptContextOptionsWithFulLPost
   return { queryWithContext: prompt, postsLoadedIntoContext: nearestPosts }    
 }
 
-const getConversationTitle = async (query: string, currentUser: DbUser, currentPost?: PostsPage) => {
+interface CreateNewConversationArgs {
+  query: string;
+  systemPrompt: string;
+  model: string;
+  newConversationChannelId: string;
+  currentUser: DbUser;
+  context: ResolverContext;
+  currentPost?: PostsPage;
+}
+
+const getConversationTitle = async ({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) => {
   const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
   console.log("titleGenerationPrompt", titleGenerationPrompt)
 
@@ -147,15 +151,43 @@ const getConversationTitle = async (query: string, currentUser: DbUser, currentP
     throw new Error("response is tool use which is not a proper response in this context")
   }
 
-  const message: LlmSetTitleMessage = {
-    eventType: 'llmSetTitle',
-    title: titleResponse.text,
-  };
-
-  sendSseMessageToUser(currentUser._id, message);
-
   return titleResponse.text
 }
+
+const wrapSystemPrompt = (systemPrompt: string): PromptCachingBetaTextBlockParam => ({
+  type: 'text',
+  text: systemPrompt,
+});
+
+const createNewConversation = async ({ query, systemPrompt, model, newConversationChannelId, currentUser, context, currentPost }: CreateNewConversationArgs) => {
+  const title = await getConversationTitle({ query, currentPost });
+
+  const newConversation = await createMutator({
+    collection: context.LlmConversations,
+    document: {
+      title,
+      systemPrompt,
+      model,
+      userId: currentUser._id,
+    },
+    context,
+    currentUser,
+  });
+
+  const { data: { _id: conversationId, createdAt } } = newConversation;
+
+  const message: LlmCreateConversationMessage = {
+    eventType: 'llmCreateConversation',
+    title,
+    conversationId,
+    createdAt: createdAt.toISOString(),
+    channelId: newConversationChannelId,
+  };
+
+  sendSseMessageToUser(currentUser._id, message);  
+  
+  return title;
+};
 
 const generateModifiedFirstMessagePrompt = async (query: string, currentPost?: PostsPage, postsLoadedIntoContext?: PostsPage[]): Promise<string> => {
   // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
@@ -188,8 +220,11 @@ const prepareMessageForClaude = (message: ClaudeMessage): PromptCachingBetaMessa
   }
 }
 
-const initializeConversation = async ({ query, currentPostId, promptContextOptions, currentUser, context }: { 
-  query: string, 
+const initializeConversation = async ({ query, systemPrompt, model, newConversationChannelId, currentPostId, promptContextOptions, currentUser, context }: { 
+  query: string,
+  systemPrompt: string,
+  model: string,
+  newConversationChannelId: string,
   currentPostId?: string,
   promptContextOptions: PromptContextOptions,
   currentUser: DbUser,
@@ -203,12 +238,10 @@ const initializeConversation = async ({ query, currentPostId, promptContextOptio
     context,
   }) ?? undefined
 
-  const [{queryWithContext, postsLoadedIntoContext}, newTitle] = await Promise.all(
-    [
-      createPromptWithContext({...promptContextOptions, post: currentPost}, context),
-      getConversationTitle(query, currentUser, currentPost)
-    ]
-  )
+  const [{queryWithContext, postsLoadedIntoContext}, newTitle] = await Promise.all([
+    createPromptWithContext(query, {...promptContextOptions, post: currentPost}, context),
+    createNewConversation({ query, systemPrompt, model, newConversationChannelId, currentUser, context, currentPost })
+  ])
   
   const displayContent = postsLoadedIntoContext.length ? await generateModifiedFirstMessagePrompt(query, currentPost, postsLoadedIntoContext) : undefined
 
@@ -225,9 +258,14 @@ const initializeConversation = async ({ query, currentPostId, promptContextOptio
 defineMutation({
   name: 'sendClaudeMessage',
   schema: `${ClaudeMessage}\n${PromptContextOptions}`,
-  argTypes: '(messages: [ClaudeMessage!]!, promptContextOptions: PromptContextOptions!, title: String)',
+  argTypes: '(newMessage: ClaudeMessage!, promptContextOptions: PromptContextOptions!, title: String, newConversationChannelId: String)',
   resultType: 'JSON',
-  fn: async (_, {messages, promptContextOptions, title: existingTitle }: {messages: ClaudeMessage[], promptContextOptions: PromptContextOptions, title: string|null}, context): Promise<ClaudeConversation> => {
+  fn: async (_, { newMessage, promptContextOptions, title: existingTitle, newConversationChannelId }: {
+    newMessage: ClaudeMessage,
+    promptContextOptions: PromptContextOptions,
+    title: string|null,
+    newConversationChannelId: string | null
+  }, context): Promise<ClaudeConversation> => {
     const { currentUser } = context;
     const { postId: currentPostId } = promptContextOptions
 
@@ -236,24 +274,37 @@ defineMutation({
     }
 
     // Check that conversation history past in conforms to schema
-    const parsedMessagesWrapper = claudeMessagesSchema.safeParse(messages)
+    const parsedMessagesWrapper = claudeMessageSchema.safeParse(newMessage)
 
     if (!parsedMessagesWrapper.success) {
       throw new Error("role must be either user or assistant")
     }
 
-    const validatedMessages = parsedMessagesWrapper.data
-    const firstQuery = validatedMessages.filter(message => message.role === 'user')[0]
+    const validatedMessage = parsedMessagesWrapper.data;
+    const firstQuery = validatedMessage;
 
     // Start of Converation Actions (first message from user)
     let updatedTitle = existingTitle
-    // const messagesForClaude: PromptCachingBetaMessageParam[] = validatedMessages.map(({role, content}) => ({role, content}))
-    const messagesForClient: ClaudeMessage[] = validatedMessages
-    const startOfNewConversation = validatedMessages.filter(message => message.role === 'user').length === 1
-    if  (startOfNewConversation) {
-      const { modifiedFirstMessage, newTitle } = await initializeConversation({ query: firstQuery.content, currentPostId, promptContextOptions, currentUser, context })
-      updatedTitle ??= newTitle
-      messagesForClient[0] = modifiedFirstMessage
+    const messagesForClient: ClaudeMessage[] = [{ ...validatedMessage, role: 'user' }];
+
+    // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
+    const startOfNewConversation = !!newConversationChannelId; // validatedMessages.filter(message => message.role === 'user').length === 1
+    // TODO: if we allow user-configured system prompts, this is where we'll change it
+    const usedSystemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
+    const usedModel = 'claude-3-5-sonnet-20240620';
+    if (startOfNewConversation) {
+      const { modifiedFirstMessage, newTitle } = await initializeConversation({
+        query: firstQuery.content,
+        systemPrompt: usedSystemPrompt,
+        model: usedModel,
+        newConversationChannelId,
+        currentPostId,
+        promptContextOptions,
+        currentUser,
+        context
+      });
+      updatedTitle ??= newTitle;
+      messagesForClient[0] = modifiedFirstMessage;
     }
 
     const messagesForClaude = [prepareMessageForClaude(messagesForClient[0]), ...messagesForClient.slice(1).map(({role, content}) => ({role, content}))]
@@ -264,8 +315,8 @@ defineMutation({
     const client = getAnthropicClientOrThrow()
     const promptCaching = new Anthropic.Beta.PromptCaching(client)
     const stream = promptCaching.messages.stream({
-      model: "claude-3-5-sonnet-20240620",
-      system: generateSystemPrompt(),
+      model: usedModel,
+      system: CLAUDE_CHAT_SYSTEM_PROMPT,
       max_tokens: 4096,
       messages: messagesForClaude,
     });
@@ -291,7 +342,7 @@ defineMutation({
       data: {
         content: response.text,
         displayContent: responseHtml,
-        title: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
+        conversationId: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
       }
     };
 

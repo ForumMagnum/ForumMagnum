@@ -1,6 +1,6 @@
-import { addUniversalFields } from "@/lib/collectionUtils";
+import { addUniversalFields, getDefaultResolvers } from "@/lib/collectionUtils";
 import { createCollection } from "@/lib/vulcan-lib";
-import schema from "../llmConversations/schema";
+import schema from "./schema";
 
 
 const LlmConversations: LlmConversationsCollection = createCollection({
@@ -8,6 +8,7 @@ const LlmConversations: LlmConversationsCollection = createCollection({
   typeName: "LlmConversation",
   schema,
   logChanges: true,
+  resolvers: getDefaultResolvers('LlmConversations')
 });
 
 addUniversalFields({

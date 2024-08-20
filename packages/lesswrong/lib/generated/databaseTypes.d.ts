@@ -537,8 +537,7 @@ interface DbLlmConversation extends DbObject {
   userId: string
   title: string
   model: string
-  systemPrompt: any /*{"definitions":[{}]}*/
-  messages: Array<any /*{"definitions":[{}]}*/> | null
+  systemPrompt: string | null
   deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -552,7 +551,8 @@ interface DbLlmMessage extends DbObject {
   conversationId: string
   role: "user" | "assistant"
   type: string
-  content: any /*{"definitions":[{}]}*/
+  content: string
+  modifiedContent: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
