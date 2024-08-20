@@ -468,6 +468,7 @@ declare global {
       transparent: ColorString,
       imageOverlay: ColorString,
       digestAdBannerInput: ColorString,
+      sidenoteBackground: ColorString,
     },
     header: {
       text: ColorString,

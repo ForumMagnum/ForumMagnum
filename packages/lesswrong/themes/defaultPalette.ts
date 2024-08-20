@@ -341,6 +341,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    sidenoteBackground: "rgba(200,120,100,0.1)",
   },
   panelBackground: {
     default: shades.grey[0],
