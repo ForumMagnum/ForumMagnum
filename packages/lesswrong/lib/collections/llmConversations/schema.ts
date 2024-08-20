@@ -54,27 +54,25 @@ const schema: SchemaType<"LlmConversations"> = {
       resolver: (messagesField) => `COALESCE(MAX(${messagesField("createdAt")}), ${field("createdAt")})`
     })
   }),
-  messages: resolverOnlyField({
+  messages: {
     type: Array,
-    graphQLtype: "[LlmMessage]",
-    canRead: [userOwns, "admins"],
-    resolver: async (document, args, context) => {
-      const { LlmMessages } = context;
-      return LlmMessages.find({conversationId: document._id});
-    },
-    sqlResolver: ({field, join}) => join({
-      table: "LlmMessages",
-      type: "left",
-      on: {
-        conversationId: field("_id")
-      },
-      resolver: (messagesField) => messagesField("*")
-    })
-  }),
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, 'admins'],
+  },
   'messages.$': {
     type: Object,
-    foreignKey: "LlmMessages",
+    foreignKey: "LlmMessages"
   },
+  deleted: {
+    type: Boolean,
+    optional: false,
+    nullable: false,
+    defaultValue: false,
+    canRead: [userOwns, "admins"],
+    canCreate: ["admins"],
+    canUpdate: [userOwns, "admins"], 
+  }
 }
 
 export default schema;

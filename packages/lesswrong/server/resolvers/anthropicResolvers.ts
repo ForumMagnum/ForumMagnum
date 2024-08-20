@@ -17,6 +17,8 @@ import { sendSseMessageToUser } from "../serverSentEvents";
 import { LlmSetTitleMessage, LlmStreamMessage } from "@/components/hooks/useUnreadNotifications";
 
 const ClaudeMessage = `input ClaudeMessage {
+  conversationId: String
+  userId: String!
   role: String!
   content: String!
   displayContent: String

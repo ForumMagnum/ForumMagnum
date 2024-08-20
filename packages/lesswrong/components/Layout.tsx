@@ -470,7 +470,8 @@ const Layout = ({currentUser, children, classes}: {
       ForumEventBanner,
       GlobalHotkeys,
       EASurveyBanner,
-      LanguageModelLauncherButton
+      LanguageModelLauncherButton,
+      LlmChatWrapper
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -516,6 +517,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
@@ -636,6 +638,7 @@ const Layout = ({currentUser, children, classes}: {
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
+      </LlmChatWrapper>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>

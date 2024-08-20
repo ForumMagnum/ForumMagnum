@@ -538,6 +538,8 @@ interface DbLlmConversation extends DbObject {
   title: string
   model: string
   systemPrompt: any /*{"definitions":[{}]}*/
+  messages: Array<any /*{"definitions":[{}]}*/> | null
+  deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

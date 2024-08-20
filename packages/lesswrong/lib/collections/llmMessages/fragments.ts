@@ -5,6 +5,7 @@ registerFragment(`
     _id
     userId
     conversationId
+    role
     content
     createdAt
   }

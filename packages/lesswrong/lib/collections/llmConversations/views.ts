@@ -11,7 +11,8 @@ declare global {
 LLMConversations.addView("llmConversationsWithUser", function (terms: LlmConversationsViewTerms) {
   return {
     selector: {
-      userId: terms.userId
+      userId: terms.userId,
+      deleted: false
     }
   };
 });

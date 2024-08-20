@@ -9,6 +9,7 @@ registerFragment(`
     systemPrompt
     createdAt
     lastUpdatedAt
+    deleted
   }
 `);
 
