@@ -3,20 +3,19 @@ import Users from "../../lib/collections/users/collection";
 import { randomId } from "../../lib/random";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { denormalizedFieldKeys, extractDenormalizedData } from "./denormalizedFields";
-import { makeCrossSiteRequest } from "./resolvers";
 import type { UpdateCallbackProperties } from "../mutationCallbacks";
 import type { Crosspost, DenormalizedCrosspostData } from "./types";
 import {
   createCrosspostToken,
   updateCrosspostToken,
 } from "@/server/crossposting/tokens";
-// import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
-// import { fetchFragmentSingle } from '../fetchFragment';
-// import {
-//   createCrosspostRoute,
-//   updateCrosspostRoute,
-// } from "@/lib/fmCrosspost/routes";
-// import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
+import { getLatestContentsRevision } from '@/lib/collections/revisions/helpers';
+import { fetchFragmentSingle } from '../fetchFragment';
+import {
+  createCrosspostRoute,
+  updateCrosspostRoute,
+} from "@/lib/fmCrosspost/routes";
+import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 
 export async function performCrosspost(post: DbPost): Promise<DbPost> {
   const logger = loggerConstructor('callbacks-posts')
@@ -56,29 +55,21 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
   }
 
   // Grab the normalized contents from the revision
-  // TODO: Enable to this when V2 is deployed to both sites
-  // const revision = await getLatestContentsRevision(post);
+  const revision = await getLatestContentsRevision(post);
 
   const token = await createCrosspostToken.create({
     localUserId: post.userId,
     foreignUserId: user.fmCrosspostUserId,
     postId: post._id,
     ...extractDenormalizedData(post),
-    // TODO: Enable to this when V2 is deployed to both sites
-    // originalContents: revision?.originalContents,
+    originalContents: revision?.originalContents,
   });
 
-  const { postId } = await makeCrossSiteRequest(
-    'crosspost',
-    { token },
-    'Failed to create crosspost'
+  const {postId} = await makeV2CrossSiteRequest(
+    createCrosspostRoute,
+    {token},
+    "Failed to create crosspost",
   );
-  // TODO: Switch to this when V2 is deployed to both sites
-  // const {postId} = await makeV2CrossSiteRequest(
-  //   createCrosspostRoute,
-  //   {token},
-  //   "Failed to create crosspost",
-  // );
 
   logger('crosspost successful, setting foreignPostId:', postId)
   post.fmCrosspost.foreignPostId = postId;
@@ -86,32 +77,24 @@ export async function performCrosspost(post: DbPost): Promise<DbPost> {
 }
 
 const updateCrosspost = async (postId: string, denormalizedData: DenormalizedCrosspostData) => {
-  // TODO: Enable to this when V2 is deployed to both sites
-  // const postOriginalContents = await fetchFragmentSingle({
-  //   collectionName: "Posts",
-  //   fragmentName: "PostsOriginalContents",
-  //   currentUser: null,
-  //   selector: postId,
-  //   skipFiltering: true,
-  // })
+  const postOriginalContents = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsOriginalContents",
+    currentUser: null,
+    selector: postId,
+    skipFiltering: true,
+  });
 
   const token = await updateCrosspostToken.create({
     ...denormalizedData,
     postId,
-    // TODO: Enable to this when V2 is deployed to both sites
-    // originalContents: postOriginalContents?.contents?.originalContents,
+    originalContents: postOriginalContents?.contents?.originalContents,
   });
-  await makeCrossSiteRequest(
-    'updateCrosspost',
-    { token },
-    "Failed to update crosspost draft status",
+  await makeV2CrossSiteRequest(
+    updateCrosspostRoute,
+    {token},
+    "Failed to update crosspost",
   );
-  // TODO: Switch to this when V2 is deployed to both sites
-  // await makeV2CrossSiteRequest(
-  //   updateCrosspostRoute,
-  //   {token},
-  //   "Failed to update crosspost",
-  // );
 }
 
 /**
