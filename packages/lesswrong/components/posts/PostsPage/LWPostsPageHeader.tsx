@@ -108,7 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   readTime: {
     marginRight: 20,
-  }
+  },
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
