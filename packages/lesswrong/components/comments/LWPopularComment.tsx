@@ -11,6 +11,8 @@ import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import SubdirectoryArrowLeft from "@material-ui/icons/SubdirectoryArrowLeft";
 import { commentGetPageUrlFromIds } from "../../lib/collections/comments/helpers";
+import { useVote } from "../votes/withVote";
+import { getVotingSystemByName } from "@/lib/voting/votingSystems";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -90,6 +92,13 @@ const styles = (theme: ThemeType) => ({
     fontSize: 12,
     transform: "rotate(90deg)"
   },
+  votingRow: {
+    display: "flex",
+    alignItems: "center",
+    ...theme.typography.commentStyle,
+    justifyContent: "space-between",
+    padding: "8px 0",
+  }
 });
 
 const useParentCommentLinkAndTooltip = ({ comment, classes }: {
@@ -176,7 +185,7 @@ const LWPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, CommentsItemDate, SmallSideVote, CommentBody } = Components;
+  const { UsersName, CommentsItemDate, SmallSideVote, CommentBody, Row } = Components;
   
   const { captureEvent } = useTracking();
 
@@ -216,11 +225,28 @@ const LWPopularComment = ({comment, classes}: {
       classes={classes}
     />
   );
+
+  const votingSystemName = comment.votingSystem || "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const voteProps = useVote(comment, "Comments", votingSystem);
+
+  const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
   
   const commentBody = (
     <div onClick={onClickCommentBody} className={classNames(classes.bodyWrapper, { [classes.bodyCursor]: !expanded })}>
       {expanded
-        ? <CommentBody comment={comment} className={classes.body} />
+        ? <div>
+            <CommentBody comment={comment} className={classes.body} />
+            <div className={classes.votingRow}>
+              {votingElement}
+              {VoteBottomComponent && <VoteBottomComponent
+                document={comment}
+                collectionName="Comments"
+                votingSystem={votingSystem}
+                voteProps={voteProps}
+              />}
+            </div>
+          </div>
         : <div className={classNames(classes.body, classes.bodyCollapsed)}>
             {htmlToTextDefault(comment.contents?.html)}
           </div>}
@@ -238,7 +264,6 @@ const LWPopularComment = ({comment, classes}: {
           {parentCommentLink}
           {username}
           {commentDate}
-          {votingElement}
           {postLink}
         </div>
         {commentBody}

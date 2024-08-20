@@ -315,8 +315,8 @@ Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
 
 Comments.addView("recentComments", (terms: CommentsViewTerms) => {
   return {
-    selector: { score:{$gt:0}, deletedPublic: false},
-    options: {sort: {postedAt: -1}, limit: terms.limit || 5},
+    selector: {shortform: false, deletedPublic: false, postedAt: {$gt: new Date("2024-08-17")}},
+    options: {sort: {baseScore: -1}, limit: terms.limit || 5},
   };
 });
 ensureIndex(Comments, augmentForDefaultView({ postedAt: -1 }));
