@@ -122,10 +122,11 @@ const styles = (theme: ThemeType) => ({
     }
   },
   enrichedTagFilterNotice: {
-    ...theme.typography.italic,
     ...theme.typography.commentStyle,
     color: theme.palette.text.slightlyDim2,
-    marginBottom: 5,
+    marginBottom: 10,
+    marginTop: 10,
+    marginLeft: 3,
   },
 });
 
@@ -529,6 +530,8 @@ const LWHomePosts = ({ children, classes }: {
     [classes.hideOnMobile]: !mobileSettingsVisible,
   });
 
+  const hasSetAnyFilters = filterSettings.tags.length !== 6 || filterSettings.tags.some(setting => setting.filterMode !== "Default")
+
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
       <div className={settingsVisibileClassName}>
@@ -539,9 +542,10 @@ const LWHomePosts = ({ children, classes }: {
           removeTagFilter={removeTagFilter} 
           flexWrapEndGrow={false}
         />
-        {selectedTab === 'recombee-hybrid' && <div className={classes.enrichedTagFilterNotice}>
-          Your settings only affect the "latest" posts on the Enriched tab.
+        {selectedTab === 'recombee-hybrid' && hasSetAnyFilters && <div className={classes.enrichedTagFilterNotice}>
+          In the Enriched tab, filters apply only to "Latest" posts, not "Recommended" posts.
         </div>}
+  
       </div>
     </AnalyticsContext>
   );
