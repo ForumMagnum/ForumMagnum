@@ -495,6 +495,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
    * flagged or purged or removed from queue users,
    * users who unsubscribed from all site emails,
    * users who were banned any time over the past 6 month period,
+   * users who have less than -10 karma,
    * users who haven't been to the site in the past 2 years,
    * and users who have already been sent this email.
    */
@@ -525,6 +526,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
           OR u."sunshineNotes" IS NULL
           OR u."sunshineNotes" = ''
         )
+        AND u.karma >= -10
         AND (
           (
             rs.max_last_updated IS NULL
