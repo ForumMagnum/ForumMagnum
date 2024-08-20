@@ -1843,6 +1843,7 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
+  userSurveyEmailSentAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null
