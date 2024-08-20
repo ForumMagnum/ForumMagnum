@@ -24,15 +24,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 60
   },
   vote: {
-    fontSize: 30,
+    fontSize: isFriendlyUI ? 30 : 27,
     lineHeight: 0.6,
     whiteSpace: "nowrap",
     display: "inline-block"
   },
   voteScore: {
     fontSize: '1.1rem',
-    marginLeft: 4,
-    marginRight: 4,
+    marginLeft: isFriendlyUI ? 4 : 8,
+    marginRight: isFriendlyUI ? 4 : 8,
     lineHeight: 1,
   },
   secondarySymbol: {
