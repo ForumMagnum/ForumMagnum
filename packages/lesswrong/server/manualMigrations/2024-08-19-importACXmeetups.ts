@@ -122,7 +122,7 @@ registerMigration({
           contents: {
             originalContents: {
               type: 'ckEditorMarkup',
-              data: `<p>This year's Spring ACX Meetup everywhere in ${row["City"]}.</p>
+              data: `<p>This year's Fall ACX Meetup everywhere in ${row["City"]}.</p>
                 <p>Location: ${row["Location description"]} – <a href="https://plus.codes/${row["Plus.Code Coordinates"]}">${row["Plus.Code Coordinates"]}</a></p>
                 ${row["Group Link"] ? `<p>Group Link: ${row["Group Link"]}</p>` : ""}
                 ${row["Notes"] ? `<p>${row["Notes"]}</p>` : ""}
