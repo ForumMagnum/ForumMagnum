@@ -315,6 +315,7 @@ registerFragment(`
       plaintextDescription
       wordCount
       version
+      hasFootnotes
     }
     fmCrosspost
   }
@@ -463,6 +464,7 @@ registerFragment(`
     version
     contents(version: $version) {
       ...RevisionDisplay
+      hasFootnotes
     }
     revisions {
       ...RevisionMetadata
@@ -550,6 +552,7 @@ registerFragment(`
     version
     contents {
       ...RevisionDisplay
+      hasFootnotes
     }
     customHighlight {
       ...RevisionDisplay

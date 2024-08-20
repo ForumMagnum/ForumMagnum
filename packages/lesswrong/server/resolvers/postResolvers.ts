@@ -264,17 +264,6 @@ augmentFieldsDict(Posts, {
       }
     },
   },
-  hasFootnotes: {
-    resolveAs: {
-      type: 'Boolean',
-      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        const html = post.contents?.html;
-        if (!html) return false;
-        
-        return htmlContainsFootnotes(html);
-      }
-    }
-  },
   dialogueMessageContents: {
     resolveAs: {
       type: 'String',

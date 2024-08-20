@@ -729,7 +729,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </DeferRender>
   );
   
-  const showSidenotes = post.hasFootnotes && !post.disableSidenotes;
+  const showSidenotes = post.contents?.hasFootnotes && !post.disableSidenotes;
 
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}

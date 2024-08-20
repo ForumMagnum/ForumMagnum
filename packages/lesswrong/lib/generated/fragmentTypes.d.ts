@@ -710,6 +710,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
+  readonly hasFootnotes: boolean|null,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -888,7 +889,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tableOfContentsRevision: any,
   readonly sideComments: any,
   readonly sideCommentVisibility: string,
-  readonly hasFootnotes: boolean|null,
+  readonly hasFootnotes: boolean,
   readonly disableSidenotes: boolean,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
@@ -1307,7 +1308,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
-  readonly hasFootnotes: boolean|null,
+  readonly hasFootnotes: boolean,
   readonly disableSidenotes: boolean,
 }
 
@@ -1338,6 +1339,7 @@ interface PostsList_contents { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly wordCount: number | null,
   readonly version: string,
+  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
@@ -1456,8 +1458,12 @@ interface PostsPlaintextDescription_contents { // fragment on Revisions
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string|null,
-  readonly contents: RevisionDisplay|null,
+  readonly contents: PostsRevision_contents|null,
   readonly revisions: Array<RevisionMetadata>,
+}
+
+interface PostsRevision_contents extends RevisionDisplay { // fragment on Revisions
+  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
@@ -1513,9 +1519,13 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string|null,
-  readonly contents: RevisionDisplay|null,
+  readonly contents: PostsPage_contents|null,
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
+}
+
+interface PostsPage_contents extends RevisionDisplay { // fragment on Revisions
+  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Posts
