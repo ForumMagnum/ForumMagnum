@@ -123,7 +123,7 @@ const SideItemsContainer = ({classes, children}: {
         resizeObserver.disconnect();
       };
     }
-  }, []);
+  }, [rerender]);
   
   return (
     <SideItemsPlacementContext.Provider value={sideItemsPlacementContext}>
@@ -202,7 +202,7 @@ const SideItemsSidebar = ({classes}: {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [displayContext]);
+  }, [displayContext, placementContext]);
 
   return useMemo(() => <div
     className={classes.sidebar}

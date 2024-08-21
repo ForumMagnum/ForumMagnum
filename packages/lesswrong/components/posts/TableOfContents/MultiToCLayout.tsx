@@ -63,6 +63,7 @@ const styles = (theme: ThemeType) => ({
            "5px 0px  0px   1fr      10px  min-content  5px",
     },
   },
+  gap1: {},
   toc: {
     position: 'unset',
     width: 'unset',
@@ -212,6 +213,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
             </div>
           </div>
         </>}
+        <div className={classes.gap1}/>
         <div className={classes.content} style={{ "gridArea": `content${i}` }} >
           {segment.centralColumn}
         </div>

@@ -13,7 +13,6 @@ import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType) => ({
   sideCommentIconWrapper: {
-    textAlign: "right",
     color: theme.palette.icon.dim6,
     
     "@media print": {
