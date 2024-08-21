@@ -437,6 +437,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
+  readonly userSurveyEmailSentAt: Date | null,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments

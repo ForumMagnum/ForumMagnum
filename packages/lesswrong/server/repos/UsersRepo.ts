@@ -486,6 +486,61 @@ class UsersRepo extends AbstractRepo<"Users"> {
       LIMIT $1;
     `, [limit])
   }
+  
+   /**
+   * Returns a list of users to whom we want to send an email
+   * asking them to fill in the annual EA Forum user survey.
+   *
+   * This excludes deleted/deactivated users,
+   * flagged or purged or removed from queue users,
+   * users who unsubscribed from all site emails,
+   * users who were banned any time over the past 6 month period,
+   * users who have less than -10 karma,
+   * users who haven't been to the site in the past 2 years,
+   * and users who have already been sent this email.
+   */
+   async getUsersForUserSurveyEmail(limit: number): Promise<DbUser[]> {
+    return this.manyOrNone(`
+      -- UsersRepo.getUsersForUserSurveyEmail
+      SELECT
+        u.*
+      FROM public."Users" AS u
+      LEFT JOIN (
+        SELECT "userId", MAX("lastUpdated") AS max_last_updated
+        FROM "ReadStatuses"
+        WHERE "isRead" IS TRUE
+        GROUP BY "userId"
+      ) AS rs ON u._id = rs."userId"
+      WHERE
+        u."userSurveyEmailSentAt" IS NULL
+        AND u."unsubscribeFromAll" IS NOT TRUE
+        AND u.deleted IS NOT TRUE
+        AND u."deleteContent" IS NOT TRUE
+        AND u."sunshineFlagged" IS NOT TRUE
+        AND (
+          u.banned IS NULL
+          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '6 months'
+        )
+        AND (
+          u."reviewedByUserId" IS NOT NULL
+          OR u."sunshineNotes" IS NULL
+          OR u."sunshineNotes" = ''
+        )
+        AND u.karma >= -10
+        AND (
+          (
+            rs.max_last_updated IS NULL
+            AND u."createdAt" > CURRENT_TIMESTAMP - INTERVAL '2 years'
+          )
+          OR (
+            rs.max_last_updated IS NOT NULL
+            AND rs.max_last_updated > CURRENT_TIMESTAMP - INTERVAL '2 years'
+          )
+        )
+      ORDER BY u."createdAt" desc
+      LIMIT $1;
+    `, [limit])
+  }
 
   async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
     const {name, pgField} = getFacetField(facetFieldName);
