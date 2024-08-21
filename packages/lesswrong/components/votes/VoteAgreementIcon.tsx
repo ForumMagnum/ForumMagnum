@@ -9,6 +9,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
 import { useVoteColors } from './useVoteColors';
 import type { VoteColor } from './voteColors';
+import { TickReactionIcon } from '../icons/reactions/TickReactionIcon';
+import { CrossReactionIcon } from '../icons/reactions/CrossReactionIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,7 +33,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   left: {
     transform: 'rotate(-90deg)',
   },
-  bigCheck: {
+  bigTick: {
     position: 'absolute',
     top: -3,
     left: 2,
@@ -40,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
     height: 23
   },
-  bigCheckSolid: {
+  bigTickSolid: {
     fontSize: '65%',
     top: "-45%"
   },
@@ -49,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // top: '-75%',
     // left: 0
   },
-  bigClear: {
+  bigCross: {
     position: 'absolute',
     top: 1,
     left: 5,
@@ -57,12 +59,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0,
     transition: `opacity ${theme.voting.strongVoteDelay}ms cubic-bezier(0.74, -0.01, 1, 1) 0ms`,
   },
-  bigClearSolid: {
+  bigCrossSolid: {
     fontSize: '65%',
     position: 'relative',
     top: "-45%"
   },
-  bigClearCompleted: {
+  bigCrossCompleted: {
     fontSize: '80%',
     position: 'absolute',
     left: 4,
@@ -71,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   hideIcon: {
     display: 'none'
   },
-  check: {
+  tick: {
     fontSize: '50%',
     opacity: 0.6,
     height: 15,
@@ -79,14 +81,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 2,
     left: 3
   },
-  clear: {
+  cross: {
     fontSize: '45%',
     opacity: 0.6,
     position: 'absolute',
     top: 5,
-    left: 11
+    left: 11,
+    '& path': {
+      stroke: 'currentcolor'
+    }
   },
-  smallCheckBigVoted: {
+  smallTickBigVoted: {
     fontSize: '50%',
     opacity: 0.6,
     position: 'absolute',
@@ -165,13 +170,13 @@ const VoteAgreementIcon = ({
   const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
-  const PrimaryIcon =  (upOrDown === "Downvote") ? ClearIcon : CheckIcon
-  const primaryIconStyling = (upOrDown === "Downvote") ? classes.clear : classes.check
+  const PrimaryIcon =  (upOrDown === "Downvote") ? CrossReactionIcon : TickReactionIcon
+  const primaryIconStyling = (upOrDown === "Downvote") ? classes.cross : classes.tick
   
-  const BigVoteAccentIcon = (upOrDown === "Downvote") ? UpArrowIcon: CheckIcon
-  const bigVoteAccentStyling = (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted
-  const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted
-  const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck
+  const BigVoteAccentIcon = (upOrDown === "Downvote") ? CrossReactionIcon: TickReactionIcon
+  const bigVoteAccentStyling = (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallTickBigVoted
+  const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigCrossCompleted : classes.bigTickCompleted
+  const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigCross : classes.bigTick
 
   if (!enabled) {
     eventHandlers = {};
