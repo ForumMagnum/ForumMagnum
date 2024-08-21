@@ -710,7 +710,8 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}/>}
+            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            />}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
@@ -775,10 +776,10 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       classes.postBody,
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
-      {showSplashPageHeader && !permalinkedCommentId && <h1 className={classes.secondSplashPageHeader}>
+      {isBookUI && header}
+      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
         {post.title}
       </h1>}
-      {isBookUI && header}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
