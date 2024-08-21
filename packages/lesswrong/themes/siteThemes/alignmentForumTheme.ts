@@ -58,7 +58,7 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       text: "#ffffff",
       background: "#3f51b5",
     },
-    links: {
+    link: {
       visited: "#8c4298",
     }
   }),

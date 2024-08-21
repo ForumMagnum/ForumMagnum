@@ -232,6 +232,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
 
   },
   link: {
+    color: shades.greyAlpha(.87),
     unmarked: shades.greyAlpha(.87),
     dim: shades.greyAlpha(.5),
     dim2: shades.grey[600],
