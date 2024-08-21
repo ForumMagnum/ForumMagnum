@@ -44,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
   },
   darkerOpacity: {
-    opacity: 0.8
+    opacity: 0.7
   }
 });
 
