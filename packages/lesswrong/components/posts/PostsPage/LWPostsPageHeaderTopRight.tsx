@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import classNames from 'classnames';
+import { CommentsLink } from './PostsPagePostHeader';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -42,7 +43,12 @@ const styles = (theme: ThemeType) => ({
   audioToggle: {
     opacity: 0.55,
     display: 'flex',
-  }
+  },
+  commentsIcon: {
+    position: "relative",
+    top: -2,
+    marginRight: 2,
+  },
 });
 
 export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
@@ -52,7 +58,7 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   showEmbeddedPlayer?: boolean,
   hideVoteOnMobile?: boolean
 }) => {
-  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
+  const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton, PostsItemComments } = Components;
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
@@ -68,6 +74,14 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
       {!post.shortform && <div className={classes.vote}>
         <LWPostsPageTopHeaderVote post={post} votingSystem={votingSystem} /> 
       </div>}
+      <div className={classes.commentsIcon}>
+        <CommentsLink anchor="#comments">
+          <PostsItemComments
+            commentCount={post.commentCount}
+            small={true} unreadComments={false} newPromotedComments={false}
+          />
+        </CommentsLink>
+      </div>
       <PostActionsButton post={post} className={classNames(classes.postActionsButton, post.shortform && classes.postActionsButtonShortform)} flip />
   </div>;
 }
