@@ -32,14 +32,11 @@ const PromptContextOptions = `input PromptContextOptions {
 }`
 
 interface ClaudeMessage {
+  conversationId: string
+  userId: string
   role: 'user'|'assistant'
   content: string
-  displayContent?: string
-}
-
-interface ClaudeConversation {
-  messages: ClaudeMessage[]
-  title: string
+  modifiedContent?: string
 }
 
 // If present, use to construct context
@@ -53,10 +50,21 @@ interface PromptContextOptionsWithFullPost {
 }
 
 
+interface CreateNewConversationArgs {
+  query: string;
+  systemPrompt: string;
+  model: string;
+  currentUser: DbUser;
+  context: ResolverContext;
+  currentPost?: PostsPage;
+  newConversationChannelId: string;
+}
+
 const claudeMessageSchema = z.object({
   // role: z.union([z.literal('user'), z.literal('assistant')]),
   content: z.string(),
-  displayContent: z.optional(z.string())
+  displayContent: z.optional(z.string()),
+  conversationId: z.optional(z.string())
 })
 
 const claudeMessagesSchema = z.array(claudeMessageSchema)
@@ -125,16 +133,6 @@ const createPromptWithContext = async (query: string, options: PromptContextOpti
   return { queryWithContext: prompt, postsLoadedIntoContext: nearestPosts }    
 }
 
-interface CreateNewConversationArgs {
-  query: string;
-  systemPrompt: string;
-  model: string;
-  newConversationChannelId: string;
-  currentUser: DbUser;
-  context: ResolverContext;
-  currentPost?: PostsPage;
-}
-
 const getConversationTitle = async ({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) => {
   const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
   console.log("titleGenerationPrompt", titleGenerationPrompt)
@@ -159,7 +157,8 @@ const wrapSystemPrompt = (systemPrompt: string): PromptCachingBetaTextBlockParam
   text: systemPrompt,
 });
 
-const createNewConversation = async ({ query, systemPrompt, model, newConversationChannelId, currentUser, context, currentPost }: CreateNewConversationArgs) => {
+const createNewConversation = async ({ query, systemPrompt, model, currentUser, context, currentPost, newConversationChannelId }: 
+  CreateNewConversationArgs): Promise<DbLlmConversation> => {
   const title = await getConversationTitle({ query, currentPost });
 
   const newConversation = await createMutator({
@@ -173,7 +172,7 @@ const createNewConversation = async ({ query, systemPrompt, model, newConversati
     context,
     currentUser,
   });
-
+  
   const { data: { _id: conversationId, createdAt } } = newConversation;
 
   const message: LlmCreateConversationMessage = {
@@ -185,8 +184,8 @@ const createNewConversation = async ({ query, systemPrompt, model, newConversati
   };
 
   sendSseMessageToUser(currentUser._id, message);  
-  
-  return title;
+
+  return newConversation.data;
 };
 
 const generateModifiedFirstMessagePrompt = async (query: string, currentPost?: PostsPage, postsLoadedIntoContext?: PostsPage[]): Promise<string> => {
@@ -204,14 +203,14 @@ const generateModifiedFirstMessagePrompt = async (query: string, currentPost?: P
     query
   ].join("\n")
 
-  return markdownToHtml(message)
+  return message
 }
 
-const prepareMessageForClaude = (message: ClaudeMessage): PromptCachingBetaMessageParam => {
+const prepareMessageForClaude = (message: DbLlmMessage, cache?: boolean): PromptCachingBetaMessageParam => {
   const modifiedContent: Array<PromptCachingBetaTextBlockParam> = [{
     type: 'text',
-    text: message.content,
-    // cache_control: {type: "ephemeral"}
+    text: message.modifiedContent ?? message.content,
+    ...(cache ? {cache_control: {type: "ephemeral"}} : undefined)
   }]
 
   return {
@@ -238,22 +237,35 @@ const initializeConversation = async ({ query, systemPrompt, model, newConversat
     context,
   }) ?? undefined
 
-  const [{queryWithContext, postsLoadedIntoContext}, newTitle] = await Promise.all([
+  const [{queryWithContext, postsLoadedIntoContext}, newConversation] = await Promise.all([
     createPromptWithContext(query, {...promptContextOptions, post: currentPost}, context),
-    createNewConversation({ query, systemPrompt, model, newConversationChannelId, currentUser, context, currentPost })
-  ])
+    createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost, newConversationChannelId })
+  ])  
   
-  const displayContent = postsLoadedIntoContext.length ? await generateModifiedFirstMessagePrompt(query, currentPost, postsLoadedIntoContext) : undefined
+  
+  const modifiedMessageContentForClient = postsLoadedIntoContext.length
+    ? await generateModifiedFirstMessagePrompt(query, currentPost, postsLoadedIntoContext) 
+    : query
 
-  const modifiedFirstMessage = {
+  const modifiedFirstMessage: ClaudeMessage = {
+    conversationId: newConversation._id,
+    userId: currentUser._id,
     role: "user" as const,
-    content: queryWithContext,
-    displayContent
+    content: modifiedMessageContentForClient,
+    modifiedContent: queryWithContext
   }
 
-  return { modifiedFirstMessage, newTitle }
+  return { modifiedFirstMessage, newConversation }
 }
 
+const createMessageObjectForDb = (message: ClaudeMessage): 
+Omit<DbLlmMessage,'_id'|'legacyData'|'schemaVersion'|'createdAt'> => {
+  return {
+    ...message,
+    modifiedContent: message.modifiedContent ?? null,
+    type: "text",
+  }
+}
 
 defineMutation({
   name: 'sendClaudeMessage',
@@ -265,7 +277,7 @@ defineMutation({
     promptContextOptions: PromptContextOptions,
     title: string|null,
     newConversationChannelId: string | null
-  }, context): Promise<ClaudeConversation> => {
+  }, context) => {
     const { currentUser } = context;
     const { postId: currentPostId } = promptContextOptions
 
@@ -281,20 +293,21 @@ defineMutation({
     }
 
     const validatedMessage = parsedMessagesWrapper.data;
-    const firstQuery = validatedMessage;
 
     // Start of Converation Actions (first message from user)
-    let updatedTitle = existingTitle
-    const messagesForClient: ClaudeMessage[] = [{ ...validatedMessage, role: 'user' }];
 
-    // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
-    const startOfNewConversation = !!newConversationChannelId; // validatedMessages.filter(message => message.role === 'user').length === 1
     // TODO: if we allow user-configured system prompts, this is where we'll change it
     const usedSystemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
     const usedModel = 'claude-3-5-sonnet-20240620';
+
+    // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
+
+    let conversation: DbLlmConversation;
+    let newMessageForDb = newMessage
+    const startOfNewConversation = !!newConversationChannelId
     if (startOfNewConversation) {
-      const { modifiedFirstMessage, newTitle } = await initializeConversation({
-        query: firstQuery.content,
+      const { modifiedFirstMessage, newConversation } = await initializeConversation({
+        query: validatedMessage.content,
         systemPrompt: usedSystemPrompt,
         model: usedModel,
         newConversationChannelId,
@@ -303,11 +316,28 @@ defineMutation({
         currentUser,
         context
       });
-      updatedTitle ??= newTitle;
-      messagesForClient[0] = modifiedFirstMessage;
+      conversation = newConversation
+      newMessageForDb = modifiedFirstMessage
+
+    } else {
+      if (!validatedMessage.conversationId) {
+        throw new Error("conversationId must be provided for non-initial messages")
+      }
+      conversation = await context.loaders.LlmConversations.load(validatedMessage.conversationId)
+      if (!conversation) {
+        throw new Error("Conversation not found")
+      }
     }
 
-    const messagesForClaude = [prepareMessageForClaude(messagesForClient[0]), ...messagesForClient.slice(1).map(({role, content}) => ({role, content}))]
+    await createMutator({
+      collection: context.LlmMessages,
+      document: createMessageObjectForDb(newMessageForDb),
+      context,
+      currentUser,
+    });
+
+    const messages = await context.LlmMessages.find({conversationId: newMessage.conversationId}).fetch()
+    const messagesForClaude = messages.map((message, index) => prepareMessageForClaude(message, index===0))
 
     // time this
     const startTime = new Date().getTime()
@@ -333,26 +363,37 @@ defineMutation({
     console.log("Time to get response from Claude", endTime - startTime)
     console.log({resultUsageField})
 
-    const responseHtml = await markdownToHtml(response.text)
+    const newResponse = {
+      conversationId: newMessage.conversationId,
+      userId: currentUser._id,
+      role: "assistant" as const,
+      content: response.text,
+    }
 
-    messagesForClient.push({ role: "assistant", content: response.text, displayContent: responseHtml })
+    await createMutator({
+      collection: context.LlmMessages,
+      document: createMessageObjectForDb(newResponse),
+      context,
+      currentUser,
+    });
 
-    const message: LlmStreamMessage = {
-      eventType: 'llmStream',
-      data: {
-        content: response.text,
-        displayContent: responseHtml,
-        conversationId: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
-      }
-    };
 
-    sendSseMessageToUser(currentUser._id, message);
+    // const message: LlmStreamMessage = {
+    //   eventType: 'llmStream',
+    //   data: {
+    //     content: response.text,
+    //     displayContent: responseHtml,
+    //     conversationId: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
+    //   }
+    // };
+
+    // sendSseMessageToUser(currentUser._id, message);
 
     // TODO: clean this up if we're returning via SSE
-    return {
-      messages: messagesForClient,
-      title: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
-    }
+    // return {
+    //   messages: messagesForClient,
+    //   title: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
+    // }
   }
 })
 
