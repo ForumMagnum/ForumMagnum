@@ -10,7 +10,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
+import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -44,6 +44,13 @@ import DeferRender from '@/components/common/DeferRender';
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
+
+export const RIGHT_COLUMN_WIDTH_WITH_SIDENOTES = 300;
+export const RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES = 50;
+export const RIGHT_COLUMN_WIDTH_XS = 5;
+export const sidenotesHiddenBreakpoint = (theme: ThemeType) =>
+  theme.breakpoints.down('md')
+
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 export const RECOMBEE_RECOMM_ID_QUERY_PARAM = 'recombeeRecommId';
@@ -183,7 +190,7 @@ const getStructuredData = ({
 
 
 // Also used in PostsCompareRevisions
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   readingProgressBar: {
     position: 'fixed',
     top: 0,
@@ -209,17 +216,22 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   centralColumn: {
-    maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      // This can only be used when display: "block" is applied, otherwise the 100% confuses the
-      // grid layout into adding loads of left margin
-      maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
-    }
+    
+    ...(isFriendlyUI && {
+      maxWidth: CENTRAL_COLUMN_WIDTH,
+      [theme.breakpoints.down('sm')]: {
+        // This can only be used when display: "block" is applied, otherwise the 100% confuses the
+        // grid layout into adding loads of left margin
+        maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
+      }
+    }),
   },
   postBody: {
-    width: "max-content",
+    ...(isFriendlyUI && {
+      width: "max-content",
+    }),
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
@@ -315,7 +327,25 @@ export const styles = (theme: ThemeType): JssStyles => ({
     lineHeight: 1,
     textWrap: 'balance',
     fontWeight: '600'
-  }
+  },
+  reserveSpaceForSidenotes: {
+    width: RIGHT_COLUMN_WIDTH_WITH_SIDENOTES,
+    [sidenotesHiddenBreakpoint(theme)]: {
+      width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      [theme.breakpoints.down('xs')]: {
+        width: RIGHT_COLUMN_WIDTH_XS,
+      },
+    },
+  },
+  reserveSpaceForIcons: {
+    width: 0,
+    [theme.breakpoints.up('xs')]: {
+      width: RIGHT_COLUMN_WIDTH_XS,
+      [theme.breakpoints.up('sm')]: {
+        width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
+      },
+    },
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -338,7 +368,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 } & (
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
@@ -711,10 +741,14 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       <WelcomeBox />
     </DeferRender>
   );
-
-  const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
+  
+  const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
+    {hasSidenotes && <>
+      <div className={classes.reserveSpaceForSidenotes}/>
+      <Components.SideItemsSidebar/>
+    </>}
   </>;
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
@@ -864,8 +898,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     : undefined
 
   return <AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={fullPost ?? null}>
+    <PostsPageContext.Provider value={{fullPost: fullPost ?? null, postPreload: postPreload ?? null}}>
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
+    <Components.SideItemsContainer>
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -916,6 +951,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </ImageProvider>
+    </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
     </PostsPageContext.Provider>
   </AnalyticsContext>
