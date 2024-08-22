@@ -80,14 +80,14 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-interface ClaudeMessage {
+interface LlmConversationMessage {
   role: string
   content: string
   displayContent?: string
 }
 
 interface ClaudeConversation {
-  messages: ClaudeMessage[]
+  messages: LlmConversationMessage[]
   title: string
   createdAt: Date,
   lastUpdated: Date
@@ -96,7 +96,7 @@ interface ClaudeConversation {
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
 const LLMChatMessage = ({message, classes}: {
-  message: ClaudeMessage,
+  message: LlmConversationMessage,
   classes: ClassesType<typeof styles>,
 }) => {
 
@@ -146,7 +146,7 @@ export const ChatInterface = ({classes}: {
   const { captureEvent } = useTracking(); //TODO: appropriate tracking? 
   const { Loading, MenuItem } = Components;
 
-  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, loading, setLoading }  = useContext(LlmChatContext)!;
+  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, loading }  = useContext(LlmChatContext)!;
 
   const { flash } = useMessages();
   const currentUser = useCurrentUser();

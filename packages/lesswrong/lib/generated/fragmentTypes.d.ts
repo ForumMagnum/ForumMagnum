@@ -4020,8 +4020,6 @@ interface LlmConversationsFragment { // fragment on LlmConversations
   readonly _id: string,
   readonly userId: string,
   readonly title: string,
-  readonly model: string,
-  readonly systemPrompt: string | null,
   readonly createdAt: Date,
   readonly lastUpdatedAt: Date|null,
   readonly deleted: boolean,
@@ -4034,17 +4032,15 @@ interface LlmConversationsWithMessagesFragment extends LlmConversationsFragment 
 interface LlmMessagesDefaultFragment { // fragment on LlmMessages
   readonly userId: string,
   readonly conversationId: string,
-  readonly role: "user" | "assistant",
-  readonly type: string,
+  readonly role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant",
   readonly content: string,
-  readonly modifiedContent: string | null,
 }
 
 interface LlmMessagesFragment { // fragment on LlmMessages
   readonly _id: string,
   readonly userId: string,
   readonly conversationId: string,
-  readonly role: "user" | "assistant",
+  readonly role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant",
   readonly content: string,
   readonly createdAt: Date,
 }

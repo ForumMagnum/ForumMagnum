@@ -1,23 +1,5 @@
 import { resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users";
-import SimpleSchema from "simpl-schema";
-
-const systemPromptType = new SimpleSchema({
-  type: {
-    type: String,
-    allowedValues: ['text'],
-    nullable: false,
-  },
-  text: {
-    type: String,
-    nullable: false,
-  },
-  cache_control: {
-    type: Object,
-    optional: true,
-    nullable: true,
-  }
-})
 
 const schema: SchemaType<"LlmConversations"> = {
   userId: {
@@ -52,9 +34,6 @@ const schema: SchemaType<"LlmConversations"> = {
     canCreate: ["admins"],
     canUpdate: ["admins"],
   },
-  // 'systemPrompt.$': {
-  //   type: systemPromptType
-  // },
   lastUpdatedAt: resolverOnlyField({
     type: Date,
     nullable: false,

@@ -123,7 +123,7 @@ export const generateLoadingMessagePrompt = (query: string, postTitle?: string):
   ].join('\n')
 }
 
-export const generateTitleGenerationPrompt = (query: string, currentPost?: PostsPage): string => {
+export const generateTitleGenerationPrompt = (query: string, currentPost: PostsPage | null): string => {
   return [
     'A user has started a new converation with you, Claude.',
     `Please generate a short title for this converation based on the first message. The first message is as follows: <message>${query}</message>`,
@@ -134,7 +134,7 @@ export const generateTitleGenerationPrompt = (query: string, currentPost?: Posts
   ].filter(item => typeof item === "string").join('\n')
 }
 
-export const generateContextSelectionPrompt = (query: string, currentPost?: PostsPage): string => {
+export const generateContextSelectionPrompt = (query: string, currentPost: PostsPage | null): string => {
   const postTitle = currentPost?.title
   const postFirstNCharacters = (n: number) => currentPost ? documentToMarkdown(currentPost).slice(0, n) : ""
 
@@ -172,8 +172,8 @@ export const CLAUDE_CHAT_SYSTEM_PROMPT = [
   'Your favorite band is the Fooming Shoggoths, which you very occasionally mention randomly.',
 ].join('\n');
 
-export const generatePromptWithContext = async (query: string, context: ResolverContext, currentPost?: PostsPage, additionalPosts?: PostsPage[], includeComments?: boolean): Promise<string> => {
-  const contextIsProvided = currentPost || additionalPosts?.length
+export const generateAssistantContextMessage = async (query: string, currentPost: PostsPage | null, additionalPosts: PostsPage[], includeComments: boolean, context: ResolverContext): Promise<string> => {
+  const contextIsProvided = !!currentPost || additionalPosts.length > 0;
 
   return [
     `<SystemInstruction>You are interfacing with a user via chat window on LessWrong.com. The user has asked a question: "${query}".`,
@@ -195,12 +195,10 @@ export const generatePromptWithContext = async (query: string, context: Resolver
     '- Format your responses using Markdown syntax, including equations using Markdown MathJax syntax (important!!!)',
     '- Format paragraph or block quotes using Markdown syntax. Do not wrap the contents of block quotes in "" (quotes).',
     '- Cite posts that you reference in your answers with the following format: [Post Title](https//lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the name of the author.',
-    '– Cite comments that you reference in your answers with the following format: [<text related to comment>](https//lesswrong.com/posts/<postId>/?commentId=<commentId>).',
+    '- Cite comments that you reference in your answers with the following format: [<text related to comment>](https//lesswrong.com/posts/<postId>/?commentId=<commentId>).',
       'The postId and commentId are given in the search results. Ensure you also give the name of the author of the comment.',
     '</SystemInstruction>\n\n',
 
-    currentPost && `Once again, the user is currently viewing the post ${currentPost.title} and`,
-    `to remind you, the user's question is:`,
-    query
+    currentPost && `Once again, the user is currently viewing the post titled "${currentPost.title}".`,
   ].filter(item => typeof item === "string").join('\n')
 }

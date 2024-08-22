@@ -8,7 +8,8 @@ import { gql, useMutation } from '@apollo/client';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
-import { useOnServerSentEvent } from '../hooks/useUnreadNotifications';
+import { LlmCreateConversationMessage, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
+import isEqual from 'lodash/isEqual';
 
 interface PromptContextOptions {
   postId?: string,
@@ -16,22 +17,20 @@ interface PromptContextOptions {
   includeComments?: boolean
 }
 
-
-type NewLlmMessage = Pick<LlmMessagesFragment,'userId'|'role'|'content'> & { conversationId?: string }
-type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment,'userId'> & { _id: string, title?: string, messages: NewLlmMessage[]}
-type LlmConversationWithPartialMessages = LlmConversationsFragment & { messages: Array<LlmMessagesFragment|NewLlmMessage> }
-type LlmConversation = NewLlmConversation|LlmConversationWithPartialMessages;
+type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string };
+type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
+type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId'> & { _id: string, title?: string, messages: NewLlmMessage[] };
+type LlmConversationWithPartialMessages = LlmConversationsFragment & { messages: Array<LlmMessagesFragment | NewLlmMessage> };
+type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
 interface LlmChatContextType {
   orderedConversations: LlmConversationsFragment[]
   currentConversation?: LlmConversation
   submitMessage: ( query: string, currentPostId?: string) => void
-  // resetConversation: () => void,
   setCurrentConversation: (conversationId?: string) => void
   archiveConversation: (conversationId: string) => void
   loading: boolean
-  setLoading: (loading: boolean) => void
 }
 
 export const LlmChatContext = React.createContext<LlmChatContextType|null>(null);
@@ -52,13 +51,13 @@ const LlmChatWrapper = ({children}: {
   const currentUser = useCurrentUser();
 
   const [sendClaudeMessage] = useMutation(gql`
-    mutation sendClaudeMessageMutation($newMessage: ClaudeMessage!, $promptContextOptions: PromptContextOptions!, $newConversationChannelId: String) {
+    mutation sendClaudeMessageMutation($newMessage: ClientLlmMessage!, $promptContextOptions: PromptContextOptions!, $newConversationChannelId: String) {
       sendClaudeMessage(newMessage: $newMessage, promptContextOptions: $promptContextOptions, newConversationChannelId: $newConversationChannelId)
     }
   `)
 
   const [getClaudeLoadingMessages] = useMutation(gql`
-    mutation getClaudeLoadingMessagesMutation($messages: [ClaudeMessage!]!, $postId: String) {
+    mutation getClaudeLoadingMessagesMutation($messages: [ClientLlmMessage!]!, $postId: String) {
       getClaudeLoadingMessages(messages: $messages, postId: $postId)
     }
   `)
@@ -97,17 +96,42 @@ const LlmChatWrapper = ({children}: {
   })
 
   const updateConversations = useCallback((newConversation: LlmConversation|LlmConversationsWithMessagesFragment) => {
+    console.log('updateConversations', { newConversation,  });
     setConversations({
       ...conversations,
       [newConversation._id]: newConversation
     })
-  }, [conversations, setConversations])
+  }, [conversations, setConversations]);
+
+  const hydrateNewConversation = useCallback((newConversationEvent: LlmCreateConversationMessage) => {
+    const { title, conversationId, createdAt, userId, channelId } = newConversationEvent;
+    console.log({ conversationId, channelId, conversations });
+    const { [channelId]: { messages }, ...rest } = conversations;
+
+    const hydratedConversation: LlmConversationWithPartialMessages = {
+      _id: conversationId,
+      title,
+      messages,
+      createdAt: new Date(createdAt),
+      deleted: false,
+      lastUpdatedAt: new Date(createdAt),
+      userId
+    };
+
+    const updatedConversations = {
+      [conversationId]: hydratedConversation,
+      ...rest,
+    };
+
+    setCurrentConversationId(conversationId);
+    setConversations(updatedConversations);
+  }, [conversations]);
 
   useEffect(() => {
-    if (currentConversationWithMessages) {
-      updateConversations(currentConversationWithMessages)
+    if (currentConversationWithMessages && !isEqual(currentConversationWithMessages, conversations[currentConversationWithMessages._id])) {
+      updateConversations(currentConversationWithMessages);
     }
-  },[currentConversationWithMessages, updateConversations]);
+  }, [currentConversationWithMessages, updateConversations]);
 
   const [ loading, setLoading ] = useState(false)
 
@@ -128,22 +152,28 @@ const LlmChatWrapper = ({children}: {
         createdAt: new Date()
       }
 
-    const newMessage: NewLlmMessage = { 
-      conversationId: currentConversation?._id,
+    // Sent to the server to create a new message
+    const preSaveMessage: PreSaveLlmMessage = {
+      conversationId: currentConversationId,
       userId: currentUser._id,
-      role: "user", 
       content: query,
     };
 
-    const conversationWithNewUserMessage: NewLlmConversation|LlmConversationWithPartialMessages = {
+    // We don't send the role to the server
+    const newClientMessage: NewLlmMessage = {
+      ...preSaveMessage,
+      role: 'user',
+    };
+
+    const conversationWithNewUserMessage: LlmConversation = {
       ...currentConversation,
-      messages: [...currentConversation?.messages ?? [], newMessage],
+      messages: [...currentConversation?.messages ?? [], newClientMessage],
     }
 
     // Update Client Display
-    setLoading(true)
-    updateConversations(conversationWithNewUserMessage)
-
+    setLoading(true);
+    updateConversations(conversationWithNewUserMessage);
+    setCurrentConversationId(newConversationChannelId);
 
     // TO-DO: where to cause scrolling??
     // if (messagesRef.current) {
@@ -155,21 +185,16 @@ const LlmChatWrapper = ({children}: {
       includeComments: true //TODO: not always true?
     }
 
-    setTimeout(() => {
-      void sendClaudeMessage({
-        variables: {
-          newMessage,
-          promptContextOptions,
-          ...(currentConversationId ? {} : { newConversationChannelId }),
-        }
-      });
-    }, 0);
-  }, [currentUser, conversations, currentConversationId, updateConversations, sendClaudeMessage])
-
-
-  // const resetConversation = useCallback(async () => {
-  //   setCurrentConversationId(undefined)
-  // }, []);
+    // setTimeout(() => {
+    void sendClaudeMessage({
+      variables: {
+        newMessage: preSaveMessage,
+        promptContextOptions,
+        ...(currentConversationId ? {} : { newConversationChannelId }),
+      }
+    });
+    // }, 0);
+  }, [currentUser, conversations, currentConversationId, sendClaudeMessage, updateConversations])
 
   const setCurrentConversation = useCallback(async (conversationId: string|undefined) => {
     setCurrentConversationId(conversationId)
@@ -190,11 +215,11 @@ const LlmChatWrapper = ({children}: {
         deleted: true
       }
     })
-  }, [currentUser, currentConversationId, updateConversation])
+  }, [currentUser, currentConversationId])
 
   const currentConversation = useMemo(() => (
     currentConversationId ? conversations[currentConversationId] : undefined
-  ), [conversations, currentConversationId]);
+  ), [conversations, currentConversationId, updateConversation]);
 
   useOnServerSentEvent('llmStream', currentUser, (message) => {
     if (!currentUser) {
@@ -222,12 +247,7 @@ const LlmChatWrapper = ({children}: {
   });
 
   useOnServerSentEvent('llmCreateConversation', currentUser, (message) => {
-    const { conversationId, title, createdAt, channelId } = message;
-    // console.log(`Got title from stream!  ${message.title}`, { setWindowTitleExists: !!setWindowTitle });
-    // setWindowTitle?.(message.title);
-    const storageTitle = `llmChatHistory:${message.title}`;
-    // const updatedConversations: LlmConversations = {...llmConversations, [storageTitle]: { createdAt: new Date(), lastUpdated: new Date(), messages: currentConversation?.messages ?? [], title: message.title }};
-    // setLlmConversations(updatedConversations);
+    hydrateNewConversation(message);
   });
 
 
@@ -235,12 +255,10 @@ const LlmChatWrapper = ({children}: {
     currentConversation,
     orderedConversations: sortedConversations,
     submitMessage,
-    // resetConversation,
     setCurrentConversation,
     archiveConversation,
     loading,
-    setLoading
-  }), [submitMessage, conversations, currentConversationId, setCurrentConversation, archiveConversation, loading, setLoading]);
+  }), [submitMessage, setCurrentConversation, archiveConversation, loading, currentConversation, sortedConversations]);
 
 
   // if (!currentUser) {

@@ -22,4 +22,4 @@ LLMConversations.addView("llmConversationsWithUser", function (terms: LlmConvers
   };
 });
 
-ensureIndex(LLMConversations, { userId: 1 })
+ensureIndex(LLMConversations, { userId: 1, deleted: 1, createdAt: 1 });

@@ -70,6 +70,7 @@ export type LlmCreateConversationMessage = {
   conversationId: string;
   /** Stringified date */
   createdAt: string;
+  userId: string;
   channelId: string;
 }
 

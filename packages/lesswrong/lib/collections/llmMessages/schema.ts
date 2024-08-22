@@ -1,4 +1,12 @@
+import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { userOwns } from "@/lib/vulcan-users";
+
+const messageRoles = new TupleSet(["user", "assistant", "user-context", "assistant-context", "lw-assistant"] as const);
+export const llmVisibleMessageRoles = new TupleSet(["user", "assistant", "assistant-context", "lw-assistant"] as const);
+export type LlmVisibleMessageRole = UnionOf<typeof llmVisibleMessageRoles>;
+
+export const userVisibleMessageRoles = new TupleSet(["user", "assistant", "user-context"] as const);
+export type UserVisibleMessageRole = UnionOf<typeof llmVisibleMessageRoles>;
 
 const schema: SchemaType<"LlmMessages"> = {
   userId: {
@@ -11,7 +19,7 @@ const schema: SchemaType<"LlmMessages"> = {
   },
   conversationId: {
     type: String,
-    optional: false,
+    optional: true,
     nullable: false,
     canRead: [userOwns, "admins"],
     canCreate: ["admins"],
@@ -21,15 +29,7 @@ const schema: SchemaType<"LlmMessages"> = {
     type: String,
     optional: false,
     nullable: false,
-    allowedValues: ["user", "assistant"],
-    canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
-    canUpdate: ["admins"],
-  },
-  type: {
-    type: String,
-    optional: false,
-    nullable: false,
+    allowedValues: [...messageRoles],
     canRead: [userOwns, "admins"],
     canCreate: ["admins"],
     canUpdate: ["admins"],
@@ -38,14 +38,6 @@ const schema: SchemaType<"LlmMessages"> = {
     type: String,
     optional: false,
     nullable: false,
-    canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
-    canUpdate: ["admins"],
-  },
-  modifiedContent: {
-    type: String,
-    optional: true,
-    nullable: true,
     canRead: [userOwns, "admins"],
     canCreate: ["admins"],
     canUpdate: ["admins"],

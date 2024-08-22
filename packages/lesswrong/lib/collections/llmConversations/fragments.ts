@@ -5,8 +5,6 @@ registerFragment(`
     _id
     userId
     title
-    model
-    systemPrompt
     createdAt
     lastUpdatedAt
     deleted

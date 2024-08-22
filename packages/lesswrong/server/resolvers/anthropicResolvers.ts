@@ -1,28 +1,24 @@
 import { defineMutation } from "../utils/serverGraphqlUtil";
 import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
-import { z } from 'zod'
 import { getEmbeddingsFromApi } from "../embeddings";
-import { markdownToHtml } from "../editor/conversionUtils";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, generateLoadingMessagePrompt, generatePromptWithContext, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage } from "../languageModels/promptUtils";
 import uniqBy from "lodash/uniqBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import Anthropic from "@anthropic-ai/sdk";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { Tool } from "@anthropic-ai/sdk/resources/messages";
 import { fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
-import { LlmCreateConversationMessage, LlmStreamMessage } from "@/components/hooks/useUnreadNotifications";
+import { LlmCreateConversationMessage } from "@/components/hooks/useUnreadNotifications";
 import { createMutator } from "../vulcan-lib";
+import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 
-const ClaudeMessage = `input ClaudeMessage {
+const ClientMessage = `input ClientLlmMessage {
   conversationId: String
   userId: String!
-  role: String!
   content: String!
-  displayContent: String
 }`
 
 const PromptContextOptions = `input PromptContextOptions {
@@ -31,12 +27,10 @@ const PromptContextOptions = `input PromptContextOptions {
   includeComments: Boolean
 }`
 
-interface ClaudeMessage {
-  conversationId: string
+interface ClientMessage {
+  conversationId: string | null
   userId: string
-  role: 'user'|'assistant'
   content: string
-  modifiedContent?: string
 }
 
 // If present, use to construct context
@@ -44,11 +38,15 @@ interface PromptContextOptions {
   postId?: string
   includeComments?: boolean
 }
-interface PromptContextOptionsWithFullPost {
-  post?: PostsPage
-  includeComments?: boolean
-}
 
+interface InitializeConversationArgs {
+  newMessage: ClientMessage;
+  systemPrompt: string;
+  model: string;
+  currentUser: DbUser;
+  context: ResolverContext;
+  currentPostId?: string;
+}
 
 interface CreateNewConversationArgs {
   query: string;
@@ -56,24 +54,44 @@ interface CreateNewConversationArgs {
   model: string;
   currentUser: DbUser;
   context: ResolverContext;
-  currentPost?: PostsPage;
-  newConversationChannelId: string;
+  currentPost: PostsPage | null;
 }
 
-const claudeMessageSchema = z.object({
-  // role: z.union([z.literal('user'), z.literal('assistant')]),
-  content: z.string(),
-  displayContent: z.optional(z.string()),
-  conversationId: z.optional(z.string())
-})
+type ConversationContext = {
+  newConversationChannelId: string;
+  type: 'new';
+} | {
+  conversationId: string;
+  type: 'existing';
+};
 
-const claudeMessagesSchema = z.array(claudeMessageSchema)
+interface ClaudeAllowableMessage {
+  content: string;
+  role: LlmVisibleMessageRole;
+}
+
+interface SendMessageToClaudeArgs {
+  context: ResolverContext;
+  conversationId: string;
+  model: string;
+  currentUser: DbUser;
+}
 
 // a type for kind of context to use that's a value of "query-based", "post-based", or "both"
 type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
 
+function getConversationContext(newConversationChannelId: string | null, newMessage: ClientMessage): ConversationContext {
+  return newConversationChannelId ? {
+    newConversationChannelId,
+    type: 'new',
+  } : {
+    conversationId: newMessage.conversationId!,
+    type: 'existing',
+  };
+}
+
 // TODO: convert this to tool use for reliability
-const selectAdditionalContext = async (query: string, currentPost?: PostsPage): Promise<RagContextType> => {
+async function getQueryContextDecision(query: string, currentPost: PostsPage | null): Promise<RagContextType> {
   const contextSelectionPrompt = generateContextSelectionPrompt(query, currentPost)
   const contextTypeMapping: Record<string, RagContextType> = {
     "(1)": "query-based",
@@ -105,35 +123,33 @@ const selectAdditionalContext = async (query: string, currentPost?: PostsPage): 
   }
 }
 
-const createPromptWithContext = async (query: string, options: PromptContextOptionsWithFullPost, context: ResolverContext) => {
-  const { post: currentPost, includeComments } = options
+async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext) {
+  const contextSelectionCode = await getQueryContextDecision(query, currentPost);
+  const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
+  const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
 
-  const contextSelectionCode = await selectAdditionalContext(query, currentPost)
-  const useQueryRelatedPostsContext = ['query-based', 'both'].includes(contextSelectionCode)
-  const useCurrentPostAndRelatedContext = ['current-post-based', 'both'].includes(contextSelectionCode)
+  const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
-  const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query)
-  const nearestPostsBasedOnQuery = useQueryRelatedPostsContext ? await context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3) : []
-  const nearestPostsBasedOnCurrentPost: PostsPage[] = useCurrentPostAndRelatedContext && currentPost ? await context.repos.postEmbeddings.getNearestPostsWeightedByQualityByPostId(currentPost._id) : []
+  const querySearchPromise = useQueryEmbeddings
+    ? context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
+    : Promise.resolve([]);
 
-  const nearestPostsPossiblyDuplicated = [...nearestPostsBasedOnQuery, ...nearestPostsBasedOnCurrentPost]  
-  const nearestPosts = Array.from(new Set(nearestPostsPossiblyDuplicated.map(post => post._id))).map(postId => nearestPostsPossiblyDuplicated.find(post => post._id === postId) as PostsPage)
+  const currentPostSearchPromise = useCurrentPostEmbeddings && currentPost
+    ? context.repos.postEmbeddings.getNearestPostsWeightedByQualityByPostId(currentPost._id)
+    : Promise.resolve([]);
 
-  const prompt = await generatePromptWithContext(query, context, currentPost, nearestPosts, includeComments)
+  const [querySearchResults, currentPostSearchResults] = await Promise.all([
+    querySearchPromise,
+    currentPostSearchPromise,
+  ]);
 
-  console.log({
-    contextSelectionCode,
-    useQueryRelatedPostsContext,
-    useCurrentPostAndRelatedContext, 
-    nearestPostsBasedOnQueryTitles: nearestPostsBasedOnQuery.map(post => post.title), 
-    nearestPostsBasenOnPostIdTitles: nearestPostsBasedOnCurrentPost.map(post => post.title),
-    compiledPrompt: prompt.slice(0, 500) + '....' + prompt.slice(-1000)
-  })
+  const rawSearchResults = [...querySearchResults, ...currentPostSearchResults];
+  const deduplicatedSearchResults = uniqBy(rawSearchResults, (post) => post._id);
 
-  return { queryWithContext: prompt, postsLoadedIntoContext: nearestPosts }    
-}
+  return deduplicatedSearchResults;
+};
 
-const getConversationTitle = async ({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) => {
+async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
   const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
   console.log("titleGenerationPrompt", titleGenerationPrompt)
 
@@ -152,13 +168,7 @@ const getConversationTitle = async ({ query, currentPost }: Pick<CreateNewConver
   return titleResponse.text
 }
 
-const wrapSystemPrompt = (systemPrompt: string): PromptCachingBetaTextBlockParam => ({
-  type: 'text',
-  text: systemPrompt,
-});
-
-const createNewConversation = async ({ query, systemPrompt, model, currentUser, context, currentPost, newConversationChannelId }: 
-  CreateNewConversationArgs): Promise<DbLlmConversation> => {
+async function createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
 
   const newConversation = await createMutator({
@@ -172,110 +182,212 @@ const createNewConversation = async ({ query, systemPrompt, model, currentUser, 
     context,
     currentUser,
   });
-  
-  const { data: { _id: conversationId, createdAt } } = newConversation;
-
-  const message: LlmCreateConversationMessage = {
-    eventType: 'llmCreateConversation',
-    title,
-    conversationId,
-    createdAt: createdAt.toISOString(),
-    channelId: newConversationChannelId,
-  };
-
-  sendSseMessageToUser(currentUser._id, message);  
 
   return newConversation.data;
 };
 
-const generateModifiedFirstMessagePrompt = async (query: string, currentPost?: PostsPage, postsLoadedIntoContext?: PostsPage[]): Promise<string> => {
+function getPostContextMessage(query: string, postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
   // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
-  const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []])
-  const deduplicatedPosts = uniqBy(allLoadedPosts, post => post._id)
+  const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []]);
+  // Current post might be one of the posts returned from the query-based embedding search
+  const deduplicatedPosts = uniqBy(allLoadedPosts, post => post._id);
 
-  const message =  [
-    '*Based on your query, the following posts were loaded into the LLM\'s context window*:',
-    deduplicatedPosts.map((post) => {
-      const author = userGetDisplayName(post.user)
-      return  `- *[${post?.title}](${postGetPageUrl(post)}) by ${author}*`}
-    ).join("\n"),
+  const deduplicatedPostsList = deduplicatedPosts.map((post) => {
+    const author = userGetDisplayName(post.user)
+    return  `- *[${post?.title}](${postGetPageUrl(post)}) by ${author}*`}
+  ).join("\n");
+
+  const message = [
+    `*Based on your query, the following posts were loaded into the LLM's context window*:`,
+    deduplicatedPostsList,
     `\n\n*You asked:*\n\n`,
     query
-  ].join("\n")
+  ].join("\n");
 
-  return message
+  return message;
 }
 
-const prepareMessageForClaude = (message: DbLlmMessage, cache?: boolean): PromptCachingBetaMessageParam => {
-  const modifiedContent: Array<PromptCachingBetaTextBlockParam> = [{
-    type: 'text',
-    text: message.modifiedContent ?? message.content,
-    ...(cache ? {cache_control: {type: "ephemeral"}} : undefined)
-  }]
+function sendNewConversationEvent(conversationContext: ConversationContext, conversation: DbLlmConversation, currentUser: DbUser) {
+  if (conversationContext.type === 'new') {
+    const newConversationEvent: LlmCreateConversationMessage = {
+      eventType: 'llmCreateConversation',
+      title: conversation.title,
+      conversationId: conversation._id,
+      createdAt: conversation.createdAt.toISOString(),
+      userId: currentUser._id,
+      channelId: conversationContext.newConversationChannelId,
+    };
 
-  return {
-    role: message.role,
-    content: modifiedContent,
+    sendSseMessageToUser(currentUser._id, newConversationEvent);
   }
 }
 
-const initializeConversation = async ({ query, systemPrompt, model, newConversationChannelId, currentPostId, promptContextOptions, currentUser, context }: { 
-  query: string,
-  systemPrompt: string,
-  model: string,
-  newConversationChannelId: string,
-  currentPostId?: string,
-  promptContextOptions: PromptContextOptions,
-  currentUser: DbUser,
-  context: ResolverContext
-}) => {
-  const currentPost = await fetchFragmentSingle({
+function convertMessageRoleForClaude(role: LlmVisibleMessageRole) {
+  switch (role) {
+    case 'user':
+    case 'assistant-context':
+      return 'user';
+
+    case 'assistant':
+    case 'lw-assistant':
+      return 'assistant';
+  }
+}
+
+function createClaudeMessage(message: ClaudeAllowableMessage, cache?: boolean): PromptCachingBetaMessageParam {
+  const content: Array<PromptCachingBetaTextBlockParam> = [{
+    type: 'text',
+    text: message.content,
+    ...(cache ? {cache_control: {type: "ephemeral"}} : undefined)
+  }];
+
+  return {
+    role: convertMessageRoleForClaude(message.role),
+    content,
+  }
+}
+
+function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], content: string }>(message: T): message is T & ClaudeAllowableMessage {
+  return llmVisibleMessageRoles.has(message.role);
+}
+
+async function sendMessagesToClaude({ conversationId, model, currentUser, context }: SendMessageToClaudeArgs) {
+  const client = getAnthropicClientOrThrow();
+  const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
+
+  const previousMessages = await context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] } }, { sort: { createdAt: -1 } }).fetch();
+  const messagesForClaude = previousMessages.filter(isClaudeAllowableMessage);
+  const preparedMessages = messagesForClaude.map((message, idx) => createClaudeMessage(message, idx === 0));
+
+  // time this
+  // const startTime = new Date().getTime();
+
+  const stream = promptCachingClient.messages.stream({
+    model,
+    system: CLAUDE_CHAT_SYSTEM_PROMPT,
+    max_tokens: 4096,
+    messages: preparedMessages,
+  });
+
+  const finalMessage = await stream.finalMessage();
+  // const endTime = new Date().getTime();
+
+  const response = finalMessage.content[0];
+  if (response.type === 'tool_use') {
+    throw new Error("response is tool use which is not a proper response in this context");
+  }
+
+  // const resultUsageField = finalMessage.usage;
+  // console.log("Time to get response from Claude", endTime - startTime);
+  // console.log({ resultUsageField });
+
+  const newResponse = {
+    conversationId,
+    userId: currentUser._id,
+    role: "assistant" as const,
+    content: response.text,
+  };
+
+  return newResponse;
+}
+
+function getPostWithContents(postId: string, context: ResolverContext) {
+  return fetchFragmentSingle({
     collectionName: "Posts",
     fragmentName: "PostsPage",
-    selector: {_id: currentPostId},
+    selector: { _id: postId },
     currentUser: context.currentUser,
     context,
-  }) ?? undefined
-
-  const [{queryWithContext, postsLoadedIntoContext}, newConversation] = await Promise.all([
-    createPromptWithContext(query, {...promptContextOptions, post: currentPost}, context),
-    createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost, newConversationChannelId })
-  ])  
-  
-  
-  const modifiedMessageContentForClient = postsLoadedIntoContext.length
-    ? await generateModifiedFirstMessagePrompt(query, currentPost, postsLoadedIntoContext) 
-    : query
-
-  const modifiedFirstMessage: ClaudeMessage = {
-    conversationId: newConversation._id,
-    userId: currentUser._id,
-    role: "user" as const,
-    content: modifiedMessageContentForClient,
-    modifiedContent: queryWithContext
-  }
-
-  return { modifiedFirstMessage, newConversation }
+  });
 }
 
-const createMessageObjectForDb = (message: ClaudeMessage): 
-Omit<DbLlmMessage,'_id'|'legacyData'|'schemaVersion'|'createdAt'> => {
+async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
+  const { content, userId } = newMessage;
+
+  const currentPost = await (currentPostId
+    ? getPostWithContents(currentPostId, context)
+    : Promise.resolve(null)
+  );
+
+  const conversation = await createNewConversation({
+    query: content,
+    systemPrompt,
+    model,
+    currentUser,
+    context,
+    currentPost,
+  });      
+
+  const contextualPosts = await getContextualPosts(content, currentPost, context);
+  const userContextMessage = getPostContextMessage(content, contextualPosts, currentPost);
+  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+
+  const conversationId = conversation._id;
+
+  const newUserContextMessageRecord = {
+    userId,
+    content: userContextMessage,
+    role: 'user-context',
+    conversationId,
+  } as const;
+
+  const newAssistantContextMessageRecord = {
+    userId,
+    content: assistantContextMessage,
+    role: 'assistant-context',
+    conversationId,
+  } as const;
+
+  // The `assistant-context` message above gets converted to a `user` role message and sent to Claude.
+  // However, we can't send multiple `user` messages in a row, so we need to insert an `assistant` message in between the context and the actual user query.
+  const newAssistantAckMessageRecord = {
+    userId,
+    // TODO: fix up content here, maybe
+    content: 'Acknowledged.',
+    role: 'lw-assistant',
+    conversationId,
+  } as const;
+
+  const newUserMessageRecord = {
+    userId,
+    content,
+    role: 'user',
+    conversationId,
+  } as const;
+
   return {
-    ...message,
-    modifiedContent: message.modifiedContent ?? null,
-    type: "text",
+    conversation,
+    messages: [newUserContextMessageRecord, newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord],
+  };
+}
+
+async function prepareMessagesForConversation({ newMessage, conversationId, context }: {
+  newMessage: ClientMessage;
+  conversationId: string;
+  context: ResolverContext;
+}) {
+  const conversation = await context.loaders.LlmConversations.load(conversationId);
+  if (!conversation) {
+    throw new Error(`Couldn't find a conversation with id ${conversationId}`);
   }
+
+  const newUserMessageRecord = { ...newMessage, role: 'user', conversationId } as const;
+
+  return {
+    conversation,
+    messages: [newUserMessageRecord],
+  };
 }
 
 defineMutation({
   name: 'sendClaudeMessage',
-  schema: `${ClaudeMessage}\n${PromptContextOptions}`,
-  argTypes: '(newMessage: ClaudeMessage!, promptContextOptions: PromptContextOptions!, title: String, newConversationChannelId: String)',
+  schema: `${ClientMessage}\n${PromptContextOptions}`,
+  argTypes: '(newMessage: ClientLlmMessage!, promptContextOptions: PromptContextOptions!, newConversationChannelId: String)',
   resultType: 'JSON',
-  fn: async (_, { newMessage, promptContextOptions, title: existingTitle, newConversationChannelId }: {
-    newMessage: ClaudeMessage,
+  fn: async (_, { newMessage, promptContextOptions, newConversationChannelId }: {
+    newMessage: ClientMessage,
     promptContextOptions: PromptContextOptions,
-    title: string|null,
+    title: string | null,
     newConversationChannelId: string | null
   }, context) => {
     const { currentUser } = context;
@@ -285,179 +397,122 @@ defineMutation({
       throw new Error("only admins and authorized users can use Claude chat at present")
     }
 
-    // Check that conversation history past in conforms to schema
-    const parsedMessagesWrapper = claudeMessageSchema.safeParse(newMessage)
-
-    if (!parsedMessagesWrapper.success) {
-      throw new Error("role must be either user or assistant")
+    if (!newConversationChannelId && !newMessage.conversationId) {
+      throw new Error('Message must either be part of an existing conversation, or a new conversation channel id needs to be provided');
     }
 
-    const validatedMessage = parsedMessagesWrapper.data;
+    if (newConversationChannelId && newMessage.conversationId) {
+      throw new Error('Cannot create a new conversation for a message sent for an existing conversationId');
+    }
 
-    // Start of Converation Actions (first message from user)
+    const conversationContext = getConversationContext(newConversationChannelId, newMessage);
+
+    if (conversationContext.type === 'existing') {
+      const conversation = await context.loaders.LlmConversations.load(conversationContext.conversationId);
+      if (conversation?.userId !== currentUser._id) {
+        throw new Error(`Conversation does not belong to current user!`);
+      }
+    }
 
     // TODO: if we allow user-configured system prompts, this is where we'll change it
-    const usedSystemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
-    const usedModel = 'claude-3-5-sonnet-20240620';
+    const systemPrompt = CLAUDE_CHAT_SYSTEM_PROMPT;
+    const model = 'claude-3-5-sonnet-20240620';
 
     // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
 
-    let conversation: DbLlmConversation;
-    let newMessageForDb = newMessage
-    const startOfNewConversation = !!newConversationChannelId
-    if (startOfNewConversation) {
-      const { modifiedFirstMessage, newConversation } = await initializeConversation({
-        query: validatedMessage.content,
-        systemPrompt: usedSystemPrompt,
-        model: usedModel,
-        newConversationChannelId,
-        currentPostId,
-        promptContextOptions,
+    const { conversation, messages } = conversationContext.type === 'new'
+      ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context })
+      : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
+
+    for (const message of messages) {
+      await createMutator({
+        collection: context.LlmMessages,
+        document: message,
+        context,
         currentUser,
-        context
       });
-      conversation = newConversation
-      newMessageForDb = modifiedFirstMessage
-
-    } else {
-      if (!validatedMessage.conversationId) {
-        throw new Error("conversationId must be provided for non-initial messages")
-      }
-      conversation = await context.loaders.LlmConversations.load(validatedMessage.conversationId)
-      if (!conversation) {
-        throw new Error("Conversation not found")
-      }
     }
 
-    await createMutator({
-      collection: context.LlmMessages,
-      document: createMessageObjectForDb(newMessageForDb),
-      context,
-      currentUser,
-    });
-
-    const messages = await context.LlmMessages.find({conversationId: newMessage.conversationId}).fetch()
-    const messagesForClaude = messages.map((message, index) => prepareMessageForClaude(message, index===0))
-
-    // time this
-    const startTime = new Date().getTime()
+    sendNewConversationEvent(conversationContext, conversation, currentUser)
     
-    const client = getAnthropicClientOrThrow()
-    const promptCaching = new Anthropic.Beta.PromptCaching(client)
-    const stream = promptCaching.messages.stream({
-      model: usedModel,
-      system: CLAUDE_CHAT_SYSTEM_PROMPT,
-      max_tokens: 4096,
-      messages: messagesForClaude,
+    const claudeResponse = await sendMessagesToClaude({
+      conversationId: conversation._id,
+      model,
+      currentUser,
+      context,
     });
-
-    const finalMessage = await stream.finalMessage();
-    const endTime = new Date().getTime()
-
-    const response = finalMessage.content[0]
-    if (response.type === 'tool_use') {
-      throw new Error("response is tool use which is not a proper response in this context")
-    }
-
-    const resultUsageField = finalMessage.usage
-    console.log("Time to get response from Claude", endTime - startTime)
-    console.log({resultUsageField})
-
-    const newResponse = {
-      conversationId: newMessage.conversationId,
-      userId: currentUser._id,
-      role: "assistant" as const,
-      content: response.text,
-    }
 
     await createMutator({
       collection: context.LlmMessages,
-      document: createMessageObjectForDb(newResponse),
+      document: claudeResponse,
       context,
       currentUser,
     });
-
-
-    // const message: LlmStreamMessage = {
-    //   eventType: 'llmStream',
-    //   data: {
-    //     content: response.text,
-    //     displayContent: responseHtml,
-    //     conversationId: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
-    //   }
-    // };
-
-    // sendSseMessageToUser(currentUser._id, message);
-
-    // TODO: clean this up if we're returning via SSE
-    // return {
-    //   messages: messagesForClient,
-    //   title: updatedTitle ?? `Conversation with Claude ${new Date().toISOString().slice(0, 10)}`
-    // }
   }
 })
 
 
-defineMutation({
-  name: 'getClaudeLoadingMessages',
-  // schema: `${ClaudeMessage}`,
-  argTypes: '(messages: [ClaudeMessage!]!, postId: String)',
-  resultType: '[String]',
-  fn: async (_, {messages, postId }: {messages: ClaudeMessage[], postId: string}, context): Promise<string[]> => {
+// defineMutation({
+//   name: 'getClaudeLoadingMessages',
+//   // schema: `${ClaudeMessage}`,
+//   argTypes: '(messages: [ClaudeMessage!]!, postId: String)',
+//   resultType: '[String]',
+//   fn: async (_, {messages, postId }: {messages: ClientMessage[], postId: string}, context): Promise<string[]> => {
 
-    const post = await fetchFragmentSingle({
-      collectionName: "Posts",
-      fragmentName: "PostsOriginalContents",
-      selector: {_id: postId},
-      currentUser: context.currentUser,
-      context,
-    }) ?? undefined
+//     const post = await fetchFragmentSingle({
+//       collectionName: "Posts",
+//       fragmentName: "PostsOriginalContents",
+//       selector: {_id: postId},
+//       currentUser: context.currentUser,
+//       context,
+//     }) ?? undefined
 
-    const firstQuery = messages.filter(message => message.role === 'user')[0]
+//     const firstQuery = messages.filter(message => message.role === 'user')[0]
 
-    const loadingMessagePrompt = generateLoadingMessagePrompt(firstQuery.content, post?.title)
-    console.log({loadingMessagePrompt})
+//     const loadingMessagePrompt = generateLoadingMessagePrompt(firstQuery.content, post?.title)
+//     console.log({loadingMessagePrompt})
 
-    const client = getAnthropicClientOrThrow()
+//     const client = getAnthropicClientOrThrow()
 
-    const tools: Tool[] = [{
-      name: "humorous_loading_messages",
-      description: "Humurous loading messages to display to a user while their query is being processed",
-      "input_schema": {
-        "type": "object",
-        "properties": {
-          "messages": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "A list of messages to display to the user while their query is being processed"
-          },
-        },
-        "required": ["messages"],
-      }
-    }]
+//     const tools: Tool[] = [{
+//       name: "humorous_loading_messages",
+//       description: "Humurous loading messages to display to a user while their query is being processed",
+//       "input_schema": {
+//         "type": "object",
+//         "properties": {
+//           "messages": {
+//             "type": "array",
+//             "items": {
+//               "type": "string"
+//             },
+//             "description": "A list of messages to display to the user while their query is being processed"
+//           },
+//         },
+//         "required": ["messages"],
+//       }
+//     }]
 
 
 
-      // messages: [{role: "user", content: loadingMessagePrompt}]
+//       // messages: [{role: "user", content: loadingMessagePrompt}]
 
-    const loadingMessagesResult = await client.messages.create({
-      model: "claude-3-5-sonnet-20240620",
-      max_tokens: 200,
-      tools,
-      tool_choice: {type: "tool", name: "humorous_loading_messages"},
-      messages: [{role: "user", content: loadingMessagePrompt}]
-    })
+//     const loadingMessagesResult = await client.messages.create({
+//       model: "claude-3-5-sonnet-20240620",
+//       max_tokens: 200,
+//       tools,
+//       tool_choice: {type: "tool", name: "humorous_loading_messages"},
+//       messages: [{role: "user", content: loadingMessagePrompt}]
+//     })
 
-    const loadingMessagesResponse = loadingMessagesResult.content[0]
-    // if (titleResponse.type === 'tool_use') {
-    //   throw new Error("response is tool use which is not a proper response in this context")
-    // }
+//     const loadingMessagesResponse = loadingMessagesResult.content[0]
+//     // if (titleResponse.type === 'tool_use') {
+//     //   throw new Error("response is tool use which is not a proper response in this context")
+//     // }
 
-    console.log(JSON.stringify(loadingMessagesResponse, null, 2))
+//     console.log(JSON.stringify(loadingMessagesResponse, null, 2))
 
-    return []
-  }
-})
+//     return []
+//   }
+// })
+
 
