@@ -844,6 +844,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: "All Dialogues",
     },
     {
+      name:'llmAutocompleteSettings',
+      path:'/autocompleteSettings',
+      componentName: 'AutocompleteModelSettings',
+      title: "LLM Autocomplete Model Settings",
+    },
+    {
       name: 'about',
       path: '/about',
       componentName: 'PostsSingleRoute',

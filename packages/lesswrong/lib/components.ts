@@ -1194,3 +1194,4 @@ importComponent("BasicOnboardingFlow", () => require('../components/onboarding/B
 importComponent("LanguageModelChat", () => require('../components/languageModels/LanguageModelChat'));
 importComponent("PopupLanguageModelChat", () => require('../components/languageModels/PopupLanguageModelChat'));
 importComponent("LanguageModelLauncherButton", () => require('../components/languageModels/LanguageModelLauncherButton'));
+importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));

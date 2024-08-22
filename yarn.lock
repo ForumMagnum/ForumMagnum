@@ -116,10 +116,10 @@
     "@algolia/logger-common" "4.8.2"
     "@algolia/requester-common" "4.8.2"
 
-"@anthropic-ai/sdk@^0.26.0":
-  version "0.26.0"
-  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.26.0.tgz#efdd305c08977efb0fa84eb24dbe1d7e389edf58"
-  integrity sha512-vNbZ2rnnMfk8Bf4OdeVy6GA4EXao8tGC0tLEoSAl1NZrip9oOxnEGUkXl3FsPQgeBM5hmpGE1tSLuu9HEVJiHg==
+"@anthropic-ai/sdk@^0.27.0":
+  version "0.27.0"
+  resolved "https://registry.yarnpkg.com/@anthropic-ai/sdk/-/sdk-0.27.0.tgz#e7f54da0973ef058e02275fea70f4138a041b748"
+  integrity sha512-DuksaCaCb0ENDAc1UHef341SRK6LQmPvey10+Q662Eo4rc8H2i/MKK/n6q/dJagqVkqJBoEEirrlMBLqIIhupw==
   dependencies:
     "@types/node" "^18.11.18"
     "@types/node-fetch" "^2.6.4"

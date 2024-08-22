@@ -173,6 +173,7 @@ export const postEditorConfig = {
 			'math',
 			'ctaButtonToolbarItem',
 			'footnote',
+			'autocompleteButton'
 		],
 		shouldNotGroupWhenFull: true,
 	},

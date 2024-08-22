@@ -301,7 +301,7 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
 Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
-    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {baseScore: -1, isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
 ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))

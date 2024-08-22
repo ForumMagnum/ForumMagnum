@@ -58,6 +58,7 @@ import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { getCookieFromReq } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { addAutocompleteEndpoint } from './autocompleteEndpoint';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -354,6 +355,7 @@ export function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
+  addAutocompleteEndpoint(app);
 
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the

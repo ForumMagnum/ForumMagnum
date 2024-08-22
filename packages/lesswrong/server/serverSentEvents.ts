@@ -84,6 +84,7 @@ export function addServerSentEventsEndpoint(app: Express) {
 }
 
 export function sendSseMessageToUser(userId: string, message: ServerSentEventsMessage) {
+  console.log(`Sending SSE message to user id ${userId}`, message);
   const userConnections = openConnections[userId];
   if (!userConnections) {
     // TODO: do we want to log an error here?  Probably not, it'll be happening reasonably often for innocous reasons

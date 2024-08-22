@@ -1,4 +1,4 @@
-import { defineMutation } from "../utils/serverGraphqlUtil";
+import { defineMutation, defineQuery } from "../utils/serverGraphqlUtil";
 import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -14,6 +14,7 @@ import { sendSseMessageToUser } from "../serverSentEvents";
 import { LlmCreateConversationMessage } from "@/components/hooks/useUnreadNotifications";
 import { createMutator } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { userIsAdmin } from "@/lib/vulcan-users";
 
 const ClientMessage = `input ClientLlmMessage {
   conversationId: String
@@ -514,5 +515,3 @@ defineMutation({
 //     return []
 //   }
 // })
-
-
