@@ -8,7 +8,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import Anthropic from "@anthropic-ai/sdk";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { fetchFragmentSingle } from "../fetchFragment";
+import { fetchFragment, fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
 import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
@@ -16,6 +16,7 @@ import { createMutator } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncForeachSequential, asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml } from "../editor/conversionUtils";
+import uniq from "lodash/uniq";
 
 const ClientMessage = `input ClientLlmMessage {
   conversationId: String
@@ -127,7 +128,7 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
   }
 }
 
-async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext) {
+async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
   const contextSelectionCode = await getQueryContextDecision(query, currentPost);
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
   const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
@@ -135,22 +136,22 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
   const querySearchPromise = useQueryEmbeddings
-    ? context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
     : Promise.resolve([]);
 
   const currentPostSearchPromise = useCurrentPostEmbeddings && currentPost
-    ? context.repos.postEmbeddings.getNearestPostsWeightedByQualityByPostId(currentPost._id)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id)
     : Promise.resolve([]);
 
-  const [querySearchResults, currentPostSearchResults] = await Promise.all([
+  const [querySearchIds, currentPostSearchIds] = await Promise.all([
     querySearchPromise,
     currentPostSearchPromise,
   ]);
 
-  const rawSearchResults = [...querySearchResults, ...currentPostSearchResults];
-  const deduplicatedSearchResults = uniqBy(rawSearchResults, (post) => post._id);
+  const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
 
-  return deduplicatedSearchResults;
+  const posts = await getPostsWithContents(deduplicatedSearchResultIds, context);
+  return posts
 };
 
 async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
@@ -202,9 +203,7 @@ function getPostContextMessage(query: string, postsLoadedIntoContext: PostsPage[
 
   const message = [
     `*Based on your query, the following posts were loaded into the LLM's context window*:`,
-    deduplicatedPostsList,
-    `\n\n*You asked:*\n\n`,
-    query
+    deduplicatedPostsList
   ].join("\n");
 
   return message;
@@ -362,6 +361,17 @@ function getPostWithContents(postId: string, context: ResolverContext) {
     context,
   });
 }
+
+function getPostsWithContents(postIds: string[], context: ResolverContext) {
+  return fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    selector: {_id: {$in: postIds}},
+    currentUser: context.currentUser,
+    context,
+  });
+}
+
 
 async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
   const { content, userId } = newMessage;

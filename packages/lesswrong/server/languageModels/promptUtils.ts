@@ -94,8 +94,7 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverCo
   }
 
 const formatPostForPrompt = async (post: PostsPage, context: ResolverContext): Promise<string> => {
-  const author = await context.loaders.Users.load(post.userId)
-  const authorName = userGetDisplayName(author)
+  const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
   return [

@@ -92,7 +92,6 @@ export function sendSseMessageToUser(userId: string, message: ServerSentEventsMe
   }
 
   for (let userConnection of userConnections) {
-    console.log(`SSE for user id ${userId}`, message);
     userConnection.res.write(`data: ${JSON.stringify(message)}\n\n`);
   }
 }

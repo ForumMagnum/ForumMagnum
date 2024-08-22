@@ -37,40 +37,42 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     `, [randomId(), postId, postHash, now, JSON.stringify(embeddings), model]);
   }
 
-  getNearestPostsWeightedByQuality(
+  private postIdsByEmbeddingDistanceSelector = `
+    SELECT
+      p._id
+    FROM embedding_distances ed
+    LEFT JOIN "Posts" p ON p._id = ed."postId"
+    WHERE p.draft IS FALSE
+    AND p."baseScore" > 0
+    ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
+    LIMIT $(limit)
+  `;
+
+  async getNearestPostIdsWeightedByQuality(
     inputEmbedding: number[],
     limit = 5,
-  ): Promise<PostsPage[]> {
-      return this.getRawDb().any(`
-        -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
-        WITH embedding_distances AS (
-          SELECT
-            pe."postId", 
-            pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
-          FROM public."PostEmbeddings" pe
-          ORDER BY distance
-          LIMIT 200 
-        )
+  ): Promise<string[]> {
+    const results = await this.getRawDb().any<{_id: string}>(`
+      -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
+      WITH embedding_distances AS (
         SELECT
-          p.*,
-          r.* AS contents,
-          COALESCE(u."displayName", u."username") AS author
-        FROM embedding_distances ed
-        LEFT JOIN "Posts" p ON p._id = ed."postId"
-        LEFT JOIN "Revisions" r ON p."contents_latest" = r."_id"
-        JOIN "Users" u ON p."userId" = u._id AND u."deleted" IS NOT TRUE AND p."hideAuthor" IS NOT TRUE
-        WHERE p.draft IS FALSE
-        AND p."baseScore" > 0
-        ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
-        LIMIT $(limit)
-      `, { inputEmbedding, limit });
+          pe."postId", 
+          pe.embeddings <#> $(inputEmbedding)::VECTOR(1536) AS distance
+        FROM public."PostEmbeddings" pe
+        ORDER BY distance
+        LIMIT 200 
+      )
+      ${this.postIdsByEmbeddingDistanceSelector}
+    `, { inputEmbedding, limit });
+
+    return results.map(({ _id }) => _id);
   }
 
-  getNearestPostsWeightedByQualityByPostId(
+  async getNearestPostIdsWeightedByQualityByPostId(
     postId: string,
     limit = 5
-  ): Promise<PostsPage[]> {
-    return this.getRawDb().any(`
+  ): Promise<string[]> {
+    const results = await this.getRawDb().any<{_id: string}>(`
       -- PostEmbeddingsRepo.getNearestPostsWeightedByQualityByPostId
       WITH source_embedding AS (
         SELECT embeddings
@@ -86,24 +88,12 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
         ORDER BY distance
         LIMIT 200 
       )
-      SELECT
-        p.*,
-        r.* AS contents,
-        COALESCE(u."displayName", u."username") AS author
-      FROM embedding_distances ed
-      LEFT JOIN "Posts" p ON p._id = ed."postId"
-      LEFT JOIN "Revisions" r ON p."contents_latest" = r."_id"
-      JOIN "Users" u ON p."userId" = u._id AND u."deleted" IS NOT TRUE AND p."hideAuthor" IS NOT TRUE
-      WHERE p.draft IS FALSE
-      AND p."baseScore" > 0
-      ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
-      LIMIT $(limit)
+      ${this.postIdsByEmbeddingDistanceSelector}
     `, { postId, limit });
+
+    return results.map(({ _id }) => _id);
   }
-
 }
-
-
 
 recordPerfMetrics(PostEmbeddingsRepo);
 
