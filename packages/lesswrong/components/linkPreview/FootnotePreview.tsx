@@ -1,12 +1,10 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback } from 'react';
 import Card from '@material-ui/core/Card';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { EXPAND_FOOTNOTES_EVENT } from '../posts/PostsPage/CollapsedFootnotes';
 import { hasCollapsedFootnotes, hasSidenotes } from '@/lib/betas';
 import classNames from 'classnames';
-import { SideItemContentContext } from '../contents/SideItems';
-import { truncate } from '@/lib/editor/ellipsize';
 import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
@@ -210,23 +208,11 @@ const SidenoteDisplay = ({footnoteHref, footnoteHTML, classes}: {
   classes: ClassesType,
 }) => {
   const { ContentStyles } = Components;
-  const sideItemContext = useContext(SideItemContentContext);
-  const [isTruncated,setIsTruncated] = useState(true);
-  
-  /*const maybeTruncatedHTML = isTruncated
-    ? truncate(footnoteHTML, 20, "words", "")
-    : footnoteHTML;
-  const isActuallyTruncated = (maybeTruncatedHTML !== footnoteHTML);*/
-  
-  function expand() {
-    setIsTruncated(false);
-  }
-  
   const footnoteIndex = getFootnoteIndex(footnoteHref, footnoteHTML);
 
   return (
     <ContentStyles contentType="postHighlight">
-      <span className={classes.sidenoteWithIndex} onClick={ev => expand()}>
+      <span className={classes.sidenoteWithIndex}>
         {footnoteIndex !== null && <span className={classes.sidenoteIndex}>
           {footnoteIndex}{"."}
         </span>}

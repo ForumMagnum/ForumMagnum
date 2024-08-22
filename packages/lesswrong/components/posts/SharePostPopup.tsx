@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useCallback, useState } from "react";
 import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import { useForceRerender } from "../hooks/useFirstRender";
+import { useRerenderOnce } from "../hooks/useFirstRender";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
@@ -214,7 +214,7 @@ const SharePostPopup = ({
   const urlHostname = new URL(getSiteUrl()).hostname;
 
   // Force rerender because the element we are anchoring to is created after the first render
-  useForceRerender();
+  useRerenderOnce();
 
   useEffect(() => {
     // Create a fixed position element at the bottom right corner of the screen
