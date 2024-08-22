@@ -307,9 +307,7 @@ export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSel
 
 Comments.addView("profileComments", (terms: CommentsViewTerms) => {
   const sortBy = terms.sortBy ?? "new"
-
-    const help = {selector: {deletedPublic: false},
-    options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},}
+  
   return {
     selector: {deletedPublic: false},
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
