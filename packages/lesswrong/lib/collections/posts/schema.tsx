@@ -2590,20 +2590,6 @@ const schema: SchemaType<"Posts"> = {
   },
   
   /**
-   * Whether this post has footnotes. We need this as a field because it
-   * determines column-widths on the post page (if there are footnotes we try
-   * to have a wider right margin to display sidenotes)
-   *
-   */
-  hasFootnotes: {
-    type: Boolean,
-    optional: true,
-    hidden: true,
-    canRead: ['guests'],
-    // Implementation in postResolvers.ts
-  },
-  
-  /**
    * Author-controlled option to disable sidenotes (display of footnotes in the
    * right margin).
    */
