@@ -718,5 +718,10 @@
     "acceptsSchemaHash": "5525ab08d75613c64270cbb15da2ae94",
     "acceptedByMigration": "20240819T092536.add_userSurveyEmailSentAt_to_Users.ts",
     "timestamp": "2024-08-19T09:25:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dc66ac034a766a7dd21afb2e072073a3",
+    "acceptedByMigration": "20240820T183233.sidenotesFlag.ts",
+    "timestamp": "2024-08-20T18:32:33.000Z"
   }
 ]

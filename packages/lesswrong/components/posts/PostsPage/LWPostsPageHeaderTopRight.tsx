@@ -42,15 +42,18 @@ const styles = (theme: ThemeType) => ({
   audioToggle: {
     opacity: 0.55,
     display: 'flex',
+  },
+  darkerOpacity: {
+    opacity: 0.7
   }
 });
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
+export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast}: {
   classes: ClassesType<typeof styles>,
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
-  hideVoteOnMobile?: boolean
+  higherContrast?: boolean
 }) => {
   const { FooterTagList, LWPostsPageTopHeaderVote, AudioToggle, PostActionsButton } = Components;
 
@@ -58,11 +61,11 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
 
   return <div className={classes.root}>
       {!post.shortform && <AnalyticsContext pageSectionContext="tagHeader">
-        <div className={classes.tagList}>
+        <div className={classNames(classes.tagList, higherContrast && classes.darkerOpacity)}>
           <FooterTagList post={post} hideScore useAltAddTagButton align="right" noBackground neverCoreStyling tagRight={false} />
         </div>
       </AnalyticsContext>}
-      {!post.shortform && <div className={classes.audioToggle}>
+      {!post.shortform && <div className={classNames(classes.audioToggle, higherContrast && classes.darkerOpacity)}>
         <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
       </div>}
       {!post.shortform && <div className={classes.vote}>
