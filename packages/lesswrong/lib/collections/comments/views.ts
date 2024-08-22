@@ -78,16 +78,23 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
       ]}
     )
   );
+
+  const user = context?.currentUser;
+  const isAdminOrMod = user?.isAdmin || user?.groups?.includes('sunshineRegiment');
+
+  const curationDraftFilter = isAdminOrMod
+  ? {}
+  : { curationDraft: { $ne: true  }};
+
   
   return ({
     selector: {
-      ...(shouldHideNewUnreviewedAuthorComments
-        ? {$and: [
-            hideNewUnreviewedAuthorComments,
-            notDeletedOrDeletionIsPublic
-          ]}
-        : notDeletedOrDeletionIsPublic
-      ),
+      $and: [
+        ...(shouldHideNewUnreviewedAuthorComments ? [hideNewUnreviewedAuthorComments] : []),
+        notDeletedOrDeletionIsPublic,
+        curationDraftFilter
+      ]
+      ,
       hideAuthor: terms.userId ? false : undefined,
       ...alignmentForum,
       ...validFields,

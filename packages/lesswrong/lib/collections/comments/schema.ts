@@ -642,6 +642,16 @@ const schema: SchemaType<"Comments"> = {
     hidden: true,
     ...schemaDefaultValue(false),
   },
+
+  curationDraft: {
+    type: Boolean,
+    optional: true,
+    hidden: false,
+    canRead: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
   
   title: {
     type: String,
