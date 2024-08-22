@@ -121,7 +121,7 @@ const MultiSelect = ({
     } = Components;
     return (
       <div>
-        {label && <SectionTitle title={label} className={classes.sectionTitle} />}
+        {label && <SectionTitle title={label} titleClassName={classes.sectionTitle} />}
         <PeopleDirectoryFilterDropdown
           title={<span>{renderValue(value)}</span>}
           rootClassName={classes.greyDropdownRoot}
