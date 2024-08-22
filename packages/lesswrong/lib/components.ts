@@ -1192,6 +1192,7 @@ importComponent("OnboardingFlow", () => require('../components/onboarding/Onboar
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
 
 importComponent("LanguageModelChat", () => require('../components/languageModels/LanguageModelChat'));
+importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
 importComponent("PopupLanguageModelChat", () => require('../components/languageModels/PopupLanguageModelChat'));
 importComponent("LanguageModelLauncherButton", () => require('../components/languageModels/LanguageModelLauncherButton'));
 importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
