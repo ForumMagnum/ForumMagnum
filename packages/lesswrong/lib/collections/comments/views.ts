@@ -298,10 +298,23 @@ Comments.addView("postLWComments", (terms: CommentsViewTerms) => {
   };
 })
 
-Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
+  "new" :  { isPinnedOnProfile: -1, postedAt: -1},
+  "top" : { baseScore: -1},
+  "old": {postedAt: 1},
+  "recentComments": { lastSubthreadActivity: -1 },
+} as const;
+
+Comments.addView("profileComments", (terms: CommentsViewTerms) => {
+  const sortBy = terms.sortBy ?? "new"
+
+    console.log(sortBy)
+    const help = {selector: {deletedPublic: false},
+    options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},}
+    console.log(help)
   return {
     selector: {deletedPublic: false},
-    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
 })
 ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))

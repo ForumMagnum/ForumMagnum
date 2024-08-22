@@ -196,7 +196,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -237,6 +237,9 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // maintain backward compatibility with bookmarks
     const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
+    const commentQueryName = "commentSortBy"
+    const currentCommentSortBy = (query[commentQueryName]) as CommentSortingMode
+    console.log({currentCommentSortBy})
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
@@ -392,8 +395,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Link to={`${userGetProfileUrl(user)}/replies`}>
                 <SectionTitle title={"Comments"} />
               </Link>
+              <AnalyticsContext pageElementContext='userProfileCommentSort'>
+                Sorted by <CommentsSortBySelector />
+              </AnalyticsContext>
               <Components.RecentComments
-                terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile
               />
             </SingleColumnSection>
