@@ -17,8 +17,8 @@ export const CommentsSortBySelector = ({setRestoreScrollPos}: {
     const {InlineSelect} = Components
 
     const sortByOptions = [
-        {value: "new", label: "Newest"},
         {value: "top", label: "Top"},
+        {value: "new", label: "Newest"},
         {value: "old", label: "Oldest"},
         {value: "recentComments", label: "Recent Replies"}
     ]

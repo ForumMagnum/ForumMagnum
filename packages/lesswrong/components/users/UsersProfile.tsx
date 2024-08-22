@@ -98,6 +98,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subscribeButton: {
     display: "flex",
+  },
+  commentSorting: {
+    marginRight: 30,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 0,
+    },
   }
 })
 
@@ -237,7 +243,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // maintain backward compatibility with bookmarks
     const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
-    const commentQueryName = "commentSortBy"
+    const commentQueryName = "commentsSortBy"
     const currentCommentSortBy = (query[commentQueryName]) as CommentSortingMode
     console.log({currentCommentSortBy})
     const ownPage = currentUser?._id === user._id
@@ -392,12 +398,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
             </SingleColumnSection>}
             <SingleColumnSection>
-              <Link to={`${userGetProfileUrl(user)}/replies`}>
-                <SectionTitle title={"Comments"} />
-              </Link>
-              <AnalyticsContext pageElementContext='userProfileCommentSort'>
-                Sorted by <CommentsSortBySelector />
-              </AnalyticsContext>
+                <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
+                  <AnalyticsContext pageElementContext='userProfileCommentSort'>
+                    Sorted by <CommentsSortBySelector />
+                  </AnalyticsContext>
+                </SectionTitle>
               <Components.RecentComments
                 terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile
