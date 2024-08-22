@@ -310,7 +310,6 @@ const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, closeDialog
   //   eslint-disable-next-line react-hooks/exhaustive-deps
   }, [commentId, hoveredBlockquoteId, rootDivRef.current]);
   
-  // if (loading) return <Loading/>
   if (!optimisticComment) return null;
   
   return <div ref={rootDivRef}>
