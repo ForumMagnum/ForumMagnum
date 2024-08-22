@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[100],
   },
   messages: {
-    maxHeight: "75vh",
+    height: "75vh",
     overflowY: "scroll",
   },
   options: {

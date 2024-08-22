@@ -23,18 +23,32 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 4,
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    rowGap: 5,
+    columnGap: 10,
+    marginRight: 5
   },
-  expandIcon: {
-    height: 20,
-    position: "absolute",
-    right: 32,
-    top: 10,
-    cursor: "pointer",
-    color: theme.palette.grey[400],
-    '&:hover': {
-      color: theme.palette.grey[600],
-    }
+  privacyWarning: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.error.main,
+    fontStyle: "italic",
+    fontWeight: 350,
+    fontSize: "0.9em"
   },
+  // expandIcon: {
+  //   height: 20,
+  //   position: "absolute",
+  //   right: 32,
+  //   top: 10,
+  //   cursor: "pointer",
+  //   color: theme.palette.grey[400],
+  //   '&:hover': {
+  //     color: theme.palette.grey[600],
+  //   }
+  // },
   close: {
     position: "absolute",
     right: 8,
@@ -66,7 +80,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType
 }) => {
-  const { LanguageModelChat } = Components;
+  const { LanguageModelChat, LWTooltip } = Components;
 
   const { currentConversation } = useLlmChat();
 
@@ -76,6 +90,11 @@ const PopupLanguageModelChat = ({onClose, classes}: {
     <div className={classes.header}>
       <div className={classes.title}>
         {title}
+        <LWTooltip title="LLM chat is under development. Reviewing user conversations helps with product decisions.">
+          <div className={classes.privacyWarning}>
+            Warning! Conversation may be viewed by the LW dev team
+          </div>
+        </LWTooltip>
       </div>
       <CloseIcon className={classes.close} onClick={onClose}/>
     </div>
