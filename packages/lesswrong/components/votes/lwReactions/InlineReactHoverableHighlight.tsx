@@ -10,7 +10,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
-    backgroundColor: theme.palette.grey[200],
+    backgroundColor: theme.palette.greyAlpha(0.1),
   },
 
   sidebarInlineReactIcons: {
