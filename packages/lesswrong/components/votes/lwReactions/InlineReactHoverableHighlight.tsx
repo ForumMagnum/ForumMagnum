@@ -16,6 +16,8 @@ const styles = (theme: ThemeType) => ({
   sidebarInlineReactIcons: {
     display: "none",
     width: "100%",
+    opacity: 0.5,
+    paddingLeft: 8,
     
     [theme.breakpoints.up('sm')]: {
       display: "block",
