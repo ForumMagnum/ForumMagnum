@@ -218,8 +218,20 @@ export const styles = (theme: ThemeType) => ({
   centralColumn: {
     marginLeft: 'auto',
     marginRight: 'auto',
+    
+    ...(isFriendlyUI && {
+      maxWidth: CENTRAL_COLUMN_WIDTH,
+      [theme.breakpoints.down('sm')]: {
+        // This can only be used when display: "block" is applied, otherwise the 100% confuses the
+        // grid layout into adding loads of left margin
+        maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
+      }
+    }),
   },
   postBody: {
+    ...(isFriendlyUI && {
+      width: "max-content",
+    }),
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
