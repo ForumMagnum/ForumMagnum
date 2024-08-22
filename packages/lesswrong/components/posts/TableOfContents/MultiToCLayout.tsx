@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
       minmax(35px, 0.5fr)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
       minmax(10px,30px)
-      minmax(min-content,300px)
+      50px
       minmax(0px, 0.5fr)
     `,
     [theme.breakpoints.up('lg')]: {
