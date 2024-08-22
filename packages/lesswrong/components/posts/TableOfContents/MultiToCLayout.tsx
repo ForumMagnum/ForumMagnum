@@ -26,15 +26,27 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       paddingTop: 12,
     },
+    
     gridTemplateColumns: `
       0px
       minmax(200px, 270px)
       minmax(35px, 0.5fr)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
       minmax(10px,30px)
-      min-content
+      minmax(min-content,300px)
       minmax(0px, 0.5fr)
     `,
+    [theme.breakpoints.up('lg')]: {
+      gridTemplateColumns: `
+        0px
+        minmax(200px, 270px)
+        minmax(35px, 0.5fr)
+        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+        minmax(10px,30px)
+        min-content
+        minmax(0px, 0.5fr)
+      `,
+    },
     [theme.breakpoints.down('sm')]: {
       gridTemplateColumns: `
         0px
@@ -45,22 +57,6 @@ const styles = (theme: ThemeType) => ({
         min-content
         0px
       `
-    },
-  },
-  withoutFullHeightToCColumns: {
-    gridTemplateColumns: `
-      1fr
-      minmax(200px, 270px)
-      minmax(0px, 1fr)
-      minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      10px
-      min-content
-      minmax(1.5frpx, 3fr)
-    `,
-    [theme.breakpoints.down('sm')]: {
-      gridTemplateColumns:
-        // lm   toc  gap1  content  gap2  rhs          rm
-           "5px 0px  0px   1fr      10px  min-content  5px",
     },
   },
   gap1: {},
