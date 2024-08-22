@@ -478,8 +478,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     },
   },
   sideItemIndicator: {
-    sideComment: "#0a0",
-    inlineReaction: "#88f",
+    sideComment: '#5f9b65',
+    inlineReaction: 'lch(68 34.48 85.39 / 76%)',
   },
   tag: {
     text: shades.greyAlpha(.9),
