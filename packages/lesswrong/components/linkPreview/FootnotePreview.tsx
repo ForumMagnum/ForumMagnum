@@ -264,9 +264,12 @@ function getFootnoteIndex(href: string, html: string): string|null {
   if (footnoteElement) {
     const parentElement = footnoteElement.parentElement;
     if (parentElement && parentElement.tagName === 'OL') {
+      const olStartAttr = parentElement.getAttribute("start");
+      const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
+
       for (let i=0; i<parentElement.children.length; i++) {
         if (parentElement.children.item(i) === footnoteElement) {
-          return ""+(i+1);
+          return ""+(i+olStart);
         }
       }
     }
