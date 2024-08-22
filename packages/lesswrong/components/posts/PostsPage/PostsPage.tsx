@@ -747,8 +747,10 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    {<div className={showSidenotes ? classes.reserveSpaceForSidenotes : classes.reserveSpaceForIcons}/>}
-    <Components.SideItemsSidebar/>
+    {hasSidenotes && <>
+      <div className={showSidenotes ? classes.reserveSpaceForSidenotes : classes.reserveSpaceForIcons}/>
+      <Components.SideItemsSidebar/>
+    </>}
   </>;
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
