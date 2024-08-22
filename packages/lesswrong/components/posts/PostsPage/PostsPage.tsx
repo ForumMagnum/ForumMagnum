@@ -742,13 +742,11 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     </DeferRender>
   );
   
-  const showSidenotes = post.contents?.hasFootnotes && !post.disableSidenotes;
-
   const rightColumnChildren = (welcomeBox || hasSidenotes || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
     {hasSidenotes && <>
-      <div className={showSidenotes ? classes.reserveSpaceForSidenotes : classes.reserveSpaceForIcons}/>
+      <div className={classes.reserveSpaceForSidenotes}/>
       <Components.SideItemsSidebar/>
     </>}
   </>;

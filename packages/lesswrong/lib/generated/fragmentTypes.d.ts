@@ -1308,7 +1308,6 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
-  readonly hasFootnotes: boolean,
   readonly disableSidenotes: boolean,
 }
 
@@ -1339,7 +1338,6 @@ interface PostsList_contents { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly wordCount: number | null,
   readonly version: string,
-  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsListTag extends PostsList { // fragment on Posts
@@ -1458,12 +1456,8 @@ interface PostsPlaintextDescription_contents { // fragment on Revisions
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
   readonly version: string|null,
-  readonly contents: PostsRevision_contents|null,
+  readonly contents: RevisionDisplay|null,
   readonly revisions: Array<RevisionMetadata>,
-}
-
-interface PostsRevision_contents extends RevisionDisplay { // fragment on Revisions
-  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
@@ -1519,13 +1513,9 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 
 interface PostsPage extends PostsDetails { // fragment on Posts
   readonly version: string|null,
-  readonly contents: PostsPage_contents|null,
+  readonly contents: RevisionDisplay|null,
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
-}
-
-interface PostsPage_contents extends RevisionDisplay { // fragment on Revisions
-  readonly hasFootnotes: boolean|null,
 }
 
 interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Posts
