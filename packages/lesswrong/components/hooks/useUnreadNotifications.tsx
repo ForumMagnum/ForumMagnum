@@ -54,13 +54,24 @@ export type TypingIndicatorMessage = {
 export type NotificationCheckMessage = {
   eventType: 'notificationCheck',
   stop?: boolean,
-  newestNotificationTime?: string //stringified date
+  newestNotificationTime?: string // stringified date
 }
 
-type LlmStreamTextChunk = {
+type LlmStreamContent = {
   conversationId: string;
   content: string;
-  displayContent: string;
+  previousUserMessage?: {
+    _id: string;
+    content: string;
+    userId: string;
+    role: 'user';
+    /** Stringified date */
+    createdAt: string;
+  };
+};
+
+type LlmStreamEnd = {
+  conversationId: string;
 };
 
 // TODO: change this to a "create new conversation" message, which should include the title
@@ -74,12 +85,17 @@ export type LlmCreateConversationMessage = {
   channelId: string;
 }
 
-export type LlmStreamMessage = {
-  eventType: 'llmStream',
-  data: LlmStreamTextChunk
+export type LlmStreamContentMessage = {
+  eventType: 'llmStreamContent',
+  data: LlmStreamContent
 };
 
-export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamMessage | LlmCreateConversationMessage;
+export type LlmStreamEndMessage = {
+  eventType: 'llmStreamEnd',
+  data: LlmStreamEnd
+};
+
+export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamContentMessage | LlmCreateConversationMessage | LlmStreamEndMessage;
 
 type EventType = ServerSentEventsMessage['eventType'];
 type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
@@ -291,7 +307,8 @@ let notificationEventListenersByType = {
   activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
   typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
   llmCreateConversation: [] as NotificationEventListener<'llmCreateConversation'>[],
-  llmStream: [] as NotificationEventListener<'llmStream'>[],
+  llmStreamContent: [] as NotificationEventListener<'llmStreamContent'>[],
+  llmStreamEnd: [] as NotificationEventListener<'llmStreamEnd'>[],
 };
 
 function getEventListenersOfType<T extends EventType>(eventType: T): NotificationEventListener<T>[] {
@@ -320,7 +337,10 @@ export function onServerSentNotificationEvent(message: ServerSentEventsMessage) 
     case 'llmCreateConversation':
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
-    case 'llmStream':
+    case 'llmStreamContent':
+      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
+      break;
+    case 'llmStreamEnd':
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
   }

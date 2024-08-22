@@ -11,9 +11,11 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
-import { LlmCreateConversationMessage } from "@/components/hooks/useUnreadNotifications";
+import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
 import { createMutator } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { asyncForeachSequential, asyncMapSequential } from "@/lib/utils/asyncUtils";
+import { markdownToHtml } from "../editor/conversionUtils";
 
 const ClientMessage = `input ClientLlmMessage {
   conversationId: String
@@ -70,7 +72,9 @@ interface ClaudeAllowableMessage {
   role: LlmVisibleMessageRole;
 }
 
-interface SendMessageToClaudeArgs {
+interface SendMessagesToClaudeArgs {
+  newMessages: DbLlmMessage[];
+  previousMessages: DbLlmMessage[];
   context: ResolverContext;
   conversationId: string;
   model: string;
@@ -112,7 +116,7 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
     throw new Error("response is tool use which is not a proper response in this context")
   }
 
-  console.log({result, contextSelectionPrompt: contextSelectionPrompt.slice(0, 500) + '....' + contextSelectionPrompt.slice(-1000)})
+  // console.log({result, contextSelectionPrompt: contextSelectionPrompt.slice(0, 500) + '....' + contextSelectionPrompt.slice(-1000)})
 
   //check if result is one of the expected values
   if (!["(1)", "(2)", "(3)", "(4)"].includes(result.text.slice(0, 3))) {
@@ -151,7 +155,6 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
 
 async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
   const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
-  console.log("titleGenerationPrompt", titleGenerationPrompt)
 
   const client = getAnthropicClientOrThrow()
   const titleResult = await client.messages.create({
@@ -222,6 +225,51 @@ function sendNewConversationEvent(conversationContext: ConversationContext, conv
   }
 }
 
+async function getPreviousUserMessageData(message?: DbLlmMessage): Promise<LlmStreamContentMessage['data']['previousUserMessage']> {
+  if (!message || message.role !== 'user') {
+    return undefined;
+  }
+
+  const { _id, content, role, userId, createdAt } = message;
+
+  const parsedContent = await markdownToHtml(content);
+
+  return {
+    _id,
+    content: parsedContent,
+    role,
+    userId,
+    createdAt: createdAt.toISOString()
+  };
+}
+
+async function sendStreamContentEvent(conversationId: string, messageBuffer: string, currentUser: DbUser, lastUserMessage?: DbLlmMessage) {
+  const [previousUserMessage, parsedMessageBuffer] = await Promise.all([
+    getPreviousUserMessageData(lastUserMessage),
+    markdownToHtml(messageBuffer)
+  ]);
+
+  const streamContentEvent: LlmStreamContentMessage = {
+    eventType: 'llmStreamContent',
+    data: {
+      content: parsedMessageBuffer,
+      previousUserMessage,
+      conversationId,
+    },
+  };
+
+  sendSseMessageToUser(currentUser._id, streamContentEvent);
+}
+
+function sendStreamEndEvent(conversationId: string, currentUser: DbUser) {
+  const streamEndEvent: LlmStreamEndMessage = {
+    eventType: 'llmStreamEnd',
+    data: { conversationId },
+  };
+
+  sendSseMessageToUser(currentUser._id, streamEndEvent);
+}
+
 function convertMessageRoleForClaude(role: LlmVisibleMessageRole) {
   switch (role) {
     case 'user':
@@ -251,12 +299,12 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
   return llmVisibleMessageRoles.has(message.role);
 }
 
-async function sendMessagesToClaude({ conversationId, model, currentUser, context }: SendMessageToClaudeArgs) {
+async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser }: SendMessagesToClaudeArgs) {
   const client = getAnthropicClientOrThrow();
   const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
 
-  const previousMessages = await context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] } }, { sort: { createdAt: -1 } }).fetch();
-  const messagesForClaude = previousMessages.filter(isClaudeAllowableMessage);
+  const conversationMessages = [...previousMessages, ...newMessages];
+  const messagesForClaude = conversationMessages.filter(isClaudeAllowableMessage);
   const preparedMessages = messagesForClaude.map((message, idx) => createClaudeMessage(message, idx === 0));
 
   // time this
@@ -267,6 +315,20 @@ async function sendMessagesToClaude({ conversationId, model, currentUser, contex
     system: CLAUDE_CHAT_SYSTEM_PROMPT,
     max_tokens: 4096,
     messages: preparedMessages,
+  });
+
+  let buffer = '';
+  stream.on('text', (text) => {
+    const isFirstChunk = buffer === '';
+    const includePreviousUserMessage = isFirstChunk && previousMessages.length > 0;
+
+    const previousUserMessage = includePreviousUserMessage
+      ? newMessages[0]
+      : undefined;
+
+    buffer += text;
+
+    void sendStreamContentEvent(conversationId, buffer, currentUser, previousUserMessage);
   });
 
   const finalMessage = await stream.finalMessage();
@@ -357,7 +419,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
 
   return {
     conversation,
-    messages: [newUserContextMessageRecord, newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord],
+    newMessageRecords: [newUserContextMessageRecord, newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord],
   };
 }
 
@@ -375,7 +437,7 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
 
   return {
     conversation,
-    messages: [newUserMessageRecord],
+    newMessageRecords: [newUserMessageRecord],
   };
 }
 
@@ -420,23 +482,37 @@ defineMutation({
 
     // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
 
-    const { conversation, messages } = conversationContext.type === 'new'
+    const { conversation, newMessageRecords } = conversationContext.type === 'new'
       ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context })
       : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
 
-    for (const message of messages) {
-      await createMutator({
-        collection: context.LlmMessages,
-        document: message,
-        context,
-        currentUser,
-      });
-    }
+    const conversationId = conversation._id;
 
-    sendNewConversationEvent(conversationContext, conversation, currentUser)
+    const now = new Date();
+
+    const fetchPreviousMessagesPromise = context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] }, createdAt: { $lt: now } }, { sort: { createdAt: 1 } }).fetch();
+    const createNewMessagesSequentiallyPromise = asyncMapSequential(newMessageRecords, async (message) => createMutator({
+      collection: context.LlmMessages,
+      document: message,
+      context,
+      currentUser,
+    }).then(({ data }) => data));
+
+    const [previousMessages, newMessages] = await Promise.all([
+      fetchPreviousMessagesPromise,
+      createNewMessagesSequentiallyPromise,
+    ]);
+
+    // const conversationMessages = [...previousMessages, ...newMessages];
+
+    // TODO: figure out if we can relocate this to be earlier by fixing the thing on the client where we refetch the latest conversation
+    // which will be missing the latest messages, if we haven't actually inserted them into the database (which we do above)
+    sendNewConversationEvent(conversationContext, conversation, currentUser);
     
     const claudeResponse = await sendMessagesToClaude({
-      conversationId: conversation._id,
+      previousMessages,
+      newMessages,
+      conversationId,
       model,
       currentUser,
       context,
@@ -448,6 +524,8 @@ defineMutation({
       context,
       currentUser,
     });
+
+    sendStreamEndEvent(conversationId, currentUser);
   }
 })
 
