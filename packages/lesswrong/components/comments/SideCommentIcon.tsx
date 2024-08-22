@@ -70,7 +70,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   lineColor: {
-    background: "#0a0",
+    background: theme.palette.sideItemIndicator.sideComment,
   },
 });
 

@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   inlineReactSidebarLine: {
-    background: "#88f", //TODO: themeify
+    background: theme.palette.sideItemIndicator.inlineReaction,
   },
   
   // Keeping this empty class around is necessary for the following @global style to work properly

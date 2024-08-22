@@ -477,6 +477,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hoverBackground: shades.grey[800],
     },
   },
+  sideItemIndicator: {
+    sideComment: "#0a0",
+    inlineReaction: "#88f",
+  },
   tag: {
     text: shades.greyAlpha(.9),
     background: shades.grey[200],
