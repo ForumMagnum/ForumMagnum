@@ -126,7 +126,6 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
 
   const handleKeyDown = useCallback((event: KeyboardEvent, editor: Editor) => {
-    console.log('handleKeyDown', event);
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       event.stopPropagation();
       event.preventDefault();
