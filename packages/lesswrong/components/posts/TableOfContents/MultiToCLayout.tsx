@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
       `
     },
   },
-  gap1: {},
+  gap1: {gridArea: "gap1"},
   toc: {
     position: 'unset',
     width: 'unset',
