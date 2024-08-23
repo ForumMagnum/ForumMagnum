@@ -14,7 +14,7 @@ import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMess
 import { createMutator, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
-import { markdownToHtml } from "../editor/conversionUtils";
+import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import uniq from "lodash/uniq";
 
 const ClientMessage = `input ClientLlmMessage {
@@ -478,6 +478,18 @@ defineMutation({
 
     if (newConversationChannelId && newMessage.conversationId) {
       throw new Error('Cannot create a new conversation for a message sent for an existing conversationId');
+    }
+
+    if (newMessage.content.trim().length === 0) {
+      throw new Error('Message must contain non-whitespace content');
+    }
+
+    const markdown = htmlToMarkdown(newMessage.content);
+    newMessage.content = markdown;
+
+    // Check again post-markdown conversion, in case we got a set of html tags that resulted in an empty string
+    if (newMessage.content.trim().length === 0) {
+      throw new Error('Message must contain non-whitespace content');
     }
 
     const conversationContext = getConversationContext(newConversationChannelId, newMessage);
