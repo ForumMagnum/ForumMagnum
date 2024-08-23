@@ -93,7 +93,7 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverCo
     ].join('\n')
   }
 
-const formatPostForPrompt = async (post: PostsPage, context: ResolverContext): Promise<string> => {
+const formatPostForPrompt = (post: PostsPage): string => {
   const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
@@ -107,8 +107,8 @@ const formatPostForPrompt = async (post: PostsPage, context: ResolverContext): P
   ].join('\n')
 }
 
-const formatAdditionalPostsForPrompt = async (posts: PostsPage[], context: ResolverContext): Promise<string> => {
-  const formattedPosts = await Promise.all(posts.map(post => formatPostForPrompt(post, context)))
+const formatAdditionalPostsForPrompt = (posts: PostsPage[]): string => {
+  const formattedPosts = posts.map(post => formatPostForPrompt(post));
   return formattedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
 }
 
@@ -180,10 +180,10 @@ export const generateAssistantContextMessage = async (query: string, currentPost
     contextIsProvided && `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system.<Context>`,
       currentPost && `The user is currently viewing the following post: ${currentPost.title} with postId: ${currentPost._id}`,
 
-      additionalPosts?.length && `The following posts have been provided as possibly relevant context: <AdditionalPosts>${await formatAdditionalPostsForPrompt(additionalPosts, context)}</AdditionalPosts>`,
+      additionalPosts?.length && `The following posts have been provided as possibly relevant context: <AdditionalPosts>${formatAdditionalPostsForPrompt(additionalPosts)}</AdditionalPosts>`,
 
       currentPost &&  `If relevant to the query asked, the most important context is likely to be the post the user is currently viewing. The fulltext of the current post is provied:`,
-      currentPost && `<CurrentPost>\n${await formatPostForPrompt(currentPost, context)}</CurrentPost>`,
+      currentPost && `<CurrentPost>\n${formatPostForPrompt(currentPost)}</CurrentPost>`,
       includeComments && currentPost && `These are the comments on the current post: <CurrentPostComments>${await formatCommentsForPost(currentPost, context)}</CurrentPostComments>`,
     contextIsProvided && 'This concludes the provided context. </Context>',
 
