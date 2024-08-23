@@ -2,7 +2,7 @@ import React, { useState, useRef, RefObject, useContext } from 'react';
 import { Components, registerComponent, slugify } from '../../../lib/vulcan-lib';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
-import { getNamesAttachedReactionsByName, namesAttachedReactionsByName } from '../../../lib/voting/reactions';
+import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
