@@ -13,6 +13,8 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
+import { ckEditorStyles } from '@/themes/stylePiping';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,11 +28,20 @@ const styles = (theme: ThemeType) => ({
     padding: 20,
     ...theme.typography.commentStyle,
   },
+  editor: {
+    minHeight: 100,
+    '& .ck.ck-content': {
+      minHeight: 100,
+    },
+    ...ckEditorStyles(theme),
+  },
   inputTextbox: {
-    padding: 20,
-    width: "100%",
+    padding: 16,
+    margin: 10,
+    borderRadius: 4,
     minHeight: 100,
     maxHeight: 200,
+    backgroundColor: theme.palette.panelBackground.commentNodeEven,
     // '& .textarea': {
     //   ...hideScrollBars
     // }
@@ -49,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[100],
   },
   messages: {
-    height: "75vh",
+    height: "70vh",
     overflowY: "scroll",
   },
   options: {
@@ -109,11 +120,12 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { ContentStyles } = Components;
+  
   const [currentMessage, setCurrentMessage] = useState('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
 
   const handleKeyDown = useCallback((event: KeyboardEvent, editor: Editor) => {
-    console.log('handleKeyDown', event);
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       event.stopPropagation();
       event.preventDefault();
@@ -123,33 +135,44 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     }
   }, [currentMessage]);
 
-  // TODO: styling and debouncing
-  return <CKEditor
-    data={currentMessage}
-    ref={ckEditorRef}
-    editor={getCkCommentEditor(forumTypeSetting.get())}
-    isCollaborative={false}
-    onChange={(_event, editor: Editor) => {
-      // debouncedValidateEditor(editor.model.document)
-      // If transitioning from empty to nonempty or nonempty to empty,
-      // bypass throttling. These cases don't have the performance
-      // implications that motivated having throttling in the first place,
-      // and this prevents a timing bug with form-clearing on submit.
-      setCurrentMessage(editor.getData());
+  // TODO: we probably want to come back to this and enable cloud services for image uploading
+  const editorConfig = {
+    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
+    mention: mentionPluginConfiguration,
+  };
 
-      // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
-      //   throttledSetCkEditor.cancel();
-      //   setCurrentMessage(editor.getData());
-      // } else {
-      //   throttledSetCkEditor(() => editor.getData())
-      // }
-    }}
-    onReady={(editor) => {
-      (ckEditorRef.current as AnyBecauseHard).domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
-        handleKeyDown(event, editor)
-      }, { capture: true });
-    }}
-  />;
+  // TODO: styling and debouncing
+  return <ContentStyles className={classes.inputTextbox} contentType='comment'>
+    <div className={classes.editor}>
+      <CKEditor
+        data={currentMessage}
+        ref={ckEditorRef}
+        editor={getCkCommentEditor(forumTypeSetting.get())}
+        isCollaborative={false}
+        onChange={(_event, editor: Editor) => {
+          // debouncedValidateEditor(editor.model.document)
+          // If transitioning from empty to nonempty or nonempty to empty,
+          // bypass throttling. These cases don't have the performance
+          // implications that motivated having throttling in the first place,
+          // and this prevents a timing bug with form-clearing on submit.
+          setCurrentMessage(editor.getData());
+
+          // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+          //   throttledSetCkEditor.cancel();
+          //   setCurrentMessage(editor.getData());
+          // } else {
+          //   throttledSetCkEditor(() => editor.getData())
+          // }
+        }}
+        onReady={(editor) => {
+          (ckEditorRef.current as AnyBecauseHard).domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+            handleKeyDown(event, editor)
+          }, { capture: true });
+        }}
+        config={editorConfig}
+      />
+    </div>
+  </ContentStyles>
 }
 
 
