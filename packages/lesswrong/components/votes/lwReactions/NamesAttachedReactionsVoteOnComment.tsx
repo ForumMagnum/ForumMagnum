@@ -2,7 +2,7 @@ import React, { useState, useRef, RefObject, useContext } from 'react';
 import { Components, registerComponent, slugify } from '../../../lib/vulcan-lib';
 import { CommentVotingComponentProps, NamesAttachedReactionsCommentBottomProps, } from '../../../lib/voting/votingSystems';
 import { NamesAttachedReactionsList, NamesAttachedReactionsVote, EmojiReactName, UserReactInfo, UserVoteOnSingleReaction, VoteOnReactionType, reactionsListToDisplayedNumbers, getNormalizedReactionsListFromVoteProps, getNormalizedUserVoteFromVoteProps, QuoteLocator } from '../../../lib/voting/namesAttachedReactions';
-import { getNamesAttachedReactionsByName } from '../../../lib/voting/reactions';
+import { getNamesAttachedReactionsByName, namesAttachedReactionsByName } from '../../../lib/voting/reactions';
 import type { VotingProps } from '../votingProps';
 import classNames from 'classnames';
 import { useCurrentUser } from '../../common/withUser';
@@ -437,7 +437,7 @@ const ReactionOverview = ({voteProps, classes}: {
   classes: ClassesType
 }) => {
   const { getCurrentUserReactionVote, setCurrentUserReaction, getAlreadyUsedReactTypesByKarma, getAlreadyUsedReacts } = useNamesAttachedReactionsVoting(voteProps);
-  const { Row, LWTooltip, ReactionIcon } = Components;
+  const { Row, LWTooltip, ReactionIcon, ReactionDescription } = Components;
 
   const alreadyUsedReactionTypesByKarma = getAlreadyUsedReactTypesByKarma();
   const alreadyUsedReactions = getAlreadyUsedReacts();
@@ -449,10 +449,12 @@ const ReactionOverview = ({voteProps, classes}: {
         {alreadyUsedReactionTypesByKarma.map(r => {
           const reactions = alreadyUsedReactions[r]!;
           const netReactionCount = sumBy(reactions, r=>r.reactType==="disagreed"?-1:1);
-          const { description, label } = getNamesAttachedReactionsByName(r)
+          const reactionDetails = getNamesAttachedReactionsByName(r)
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
-              <LWTooltip title={`${label} – ${description}`}>
+              <LWTooltip title={<>{
+                reactionDetails.label}{" – "}<ReactionDescription reaction={reactionDetails}/>
+              </>}>
                 <ReactionIcon react={r}/>
               </LWTooltip>
               <Components.ReactOrAntireactVote
