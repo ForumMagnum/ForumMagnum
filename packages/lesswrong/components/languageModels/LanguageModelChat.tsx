@@ -13,6 +13,7 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -123,6 +124,12 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     }
   }, [currentMessage]);
 
+  // TODO: we probably want to come back to this and enable cloud services for image uploading
+  const editorConfig = {
+    placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
+    mention: mentionPluginConfiguration,
+  };
+
   // TODO: styling and debouncing
   return <CKEditor
     data={currentMessage}
@@ -149,6 +156,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         handleKeyDown(event, editor)
       }, { capture: true });
     }}
+    config={editorConfig}
   />;
 }
 
