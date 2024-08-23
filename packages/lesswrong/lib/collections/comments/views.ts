@@ -7,6 +7,7 @@ import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
+import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
 declare global {
   interface CommentsViewTerms extends ViewTermsBase {
@@ -28,24 +29,24 @@ declare global {
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
-  }
+}
   
-  /**
-   * Comment sorting mode, a string which gets translated into a mongodb sort
-   * order. Not every mode is shown in the UI in every context. Corresponds to
-   * `sortings` (below).
-   *
-   * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
-   * In past versions, different subsets of these depending on whether you were
-   * using an answers view, a subforum view, or something else.
-   */
-  type CommentSortingMode =
-     "top"
-    |"groupByPost"
-    |"new"|"newest"
-    |"old"|"oldest"
-    |"magic"
-    |"recentComments"|"recentDiscussion"
+/**
+ * Comment sorting mode, a string which gets translated into a mongodb sort
+ * order. Not every mode is shown in the UI in every context. Corresponds to
+ * `sortings` (below).
+ *
+ * new/newest, old/oldest, and recentComments/recentDiscussion are synonyms.
+ * In past versions, different subsets of these depending on whether you were
+ * using an answers view, a subforum view, or something else.
+ */
+const COMMENT_SORTING_MODES = new TupleSet([ 
+  "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
+  ] as const);
+export type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
+
+export function isCommentSortingMode(value: string): value is CommentSortingMode {
+  return COMMENT_SORTING_MODES.has(value);
 }
 
 Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {
@@ -110,13 +111,13 @@ const dontHideDeletedAndUnreviewed = {
 
 
 const sortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
-  "top" : { baseScore: -1},
+  "top": { baseScore: -1 },
   "magic": { score: -1 },
-  "groupByPost" : {postId: 1},
-  "new" :  { postedAt: -1},
-  "newest": {postedAt: -1},
-  "old": {postedAt: 1},
-  "oldest": {postedAt: 1},
+  "groupByPost": { postId: 1 },
+  "new": { postedAt: -1 },
+  "newest": { postedAt: -1 },
+  "old": { postedAt: 1 },
+  "oldest": { postedAt: 1 },
   recentComments: { lastSubthreadActivity: -1 },
   /** DEPRECATED */
   recentDiscussion: { lastSubthreadActivity: -1 },
@@ -312,6 +313,14 @@ Comments.addView("profileComments", (terms: CommentsViewTerms) => {
     selector: {deletedPublic: false},
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
+})
+ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
+
+Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+return {
+  selector: {deletedPublic: false},
+  options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+};
 })
 ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 

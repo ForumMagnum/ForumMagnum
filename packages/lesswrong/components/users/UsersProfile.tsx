@@ -243,8 +243,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // maintain backward compatibility with bookmarks
     const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
+    
     const commentQueryName = "commentsSortBy"
-    const currentCommentSortBy = (query[commentQueryName]) as CommentSortingMode
+    const commentQueryMode = query[commentQueryName]
+    const sortingModeIsValid = isCommentSortingMode(commentQueryMode)
+    const currentCommentSortBy = sortingModeIsValid ? (commentQueryMode) as CommentSortingMode : undefined
+
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
