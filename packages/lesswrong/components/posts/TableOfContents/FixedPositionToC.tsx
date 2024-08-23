@@ -255,19 +255,10 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }
 
   useEffect(() => {
-    const postBodyRef = document.getElementById('postBody');
-    if (!postBodyRef) return;
-    //Get all elements with href corresponding to anchors from the table of contents
-    const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
-    function updateImageLoadingState(this: HTMLImageElement) {
-      if (postImages.every(image => image.complete)) setHasLoaded(true)
-      this.removeEventListener('load', updateImageLoadingState);
-    };
-    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
-    if (postImages.every(image => image.complete)) setHasLoaded(true);
-    return () => {
-      postImages.forEach((postImage) => postImage.removeEventListener('load', updateImageLoadingState));
-    }
+    void (async () => {
+      await waitForAllPostImagesToLoad();
+      setHasLoaded(true);
+    })();
   }, [])
 
   useEffect(() => {
@@ -363,6 +354,33 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       </div>
     </div>
   </div>
+}
+
+async function waitForAllPostImagesToLoad() {
+  const postBody = document.getElementById('postBody');
+  if (!postBody) return;
+  const postImages = Array.from(postBody.getElementsByTagName('img'));
+
+  for (const imageTag of postImages) {
+    if (!imageTag.complete) {
+      await waitForImageToLoad(imageTag);
+    }
+  }
+}
+
+function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
+  return new Promise((resolve) => {
+    if (imageTag.complete) {
+      resolve();
+      return;
+    }
+    
+    function onImageLoaded(this: HTMLImageElement) {
+      imageTag.removeEventListener("load", onImageLoaded);
+      resolve();
+    }
+    imageTag.addEventListener("load", onImageLoaded);
+  });
 }
 
 const FixedPositionTocComponent = registerComponent(
