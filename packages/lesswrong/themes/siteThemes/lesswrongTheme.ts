@@ -89,7 +89,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontFamily: serifStack,
       },
       title: {
-        fontFamily: serifStack,
+        fontFamily: headerStack,
         fontWeight: 500,
       },
       uiSecondary: {

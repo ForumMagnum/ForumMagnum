@@ -17,8 +17,8 @@ export const sectionTitleStyle = isFriendlyUI
   })
   : (theme: ThemeType): JssStyles => ({
     margin: 0,
-    ...theme.typography.postStyle,
-    fontSize: "2.2rem",
+    ...theme.typography.headerStyle,
+    fontSize: "2.3rem",
   });
 
 const styles = (theme: ThemeType): JssStyles => ({
