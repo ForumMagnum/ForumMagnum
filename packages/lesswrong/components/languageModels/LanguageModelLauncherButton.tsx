@@ -9,7 +9,7 @@ const styles = (theme: ThemeType) => ({
     position: "fixed",
     bottom: 20,
     right: 80,
-    zIndex: theme.zIndexes.languageModelChat,
+    zIndex: theme.zIndexes.languageModelChatButton,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",

@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 250,
   },
   menuItem: {
-    zIndex: theme.zIndexes.commentBoxPopup + 10,
+    zIndex: theme.zIndexes.languageModelChat + 10,
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center"

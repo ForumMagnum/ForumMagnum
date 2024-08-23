@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "fixed",
     right: theme.spacing.unit,
     bottom: theme.spacing.unit,
-    zIndex: theme.zIndexes.commentBoxPopup,
+    zIndex: theme.zIndexes.languageModelChat,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       right: 0,
