@@ -1,16 +1,18 @@
 // TODO: Import component in components.ts
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import Button from '@material-ui/core/Button';
 import { useMessages } from '../common/withMessages';
-import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { useCurrentUser } from '../common/withUser';
 import { LlmChatContext } from './LlmChatWrapper';
+import type { Editor } from '@ckeditor/ckeditor5-core';
+import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
+import { getCkCommentEditor } from '@/lib/wrapCkEditor';
+import { forumTypeSetting } from '@/lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -107,27 +109,47 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   onSubmit: (message: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const [currentMessage, setCurrentMessage] = useState('')
+  const [currentMessage, setCurrentMessage] = useState('');
+  const ckEditorRef = useRef<CKEditor<any> | null>(null);
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = useCallback((event: KeyboardEvent, editor: Editor) => {
+    console.log('handleKeyDown', event);
     if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
       event.stopPropagation();
       event.preventDefault();
-      void onSubmit(currentMessage);
-      setCurrentMessage('')
+      const currentEditorContent = editor.getData();
+      void onSubmit(currentEditorContent);
+      setCurrentMessage('');
     }
-  }
+  }, [currentMessage]);
 
-  // TODO: replace with something better
-  return <Input
-    value={currentMessage}
-    onChange={(event) => setCurrentMessage(event.target.value)}
-    onKeyDown={handleKeyDown}
-    className={classes.inputTextbox}
-    placeholder='Type here. Ctrl-Enter to send.'
-    multiline
-    disableUnderline
-  />
+  // TODO: styling and debouncing
+  return <CKEditor
+    data={currentMessage}
+    ref={ckEditorRef}
+    editor={getCkCommentEditor(forumTypeSetting.get())}
+    isCollaborative={false}
+    onChange={(_event, editor: Editor) => {
+      // debouncedValidateEditor(editor.model.document)
+      // If transitioning from empty to nonempty or nonempty to empty,
+      // bypass throttling. These cases don't have the performance
+      // implications that motivated having throttling in the first place,
+      // and this prevents a timing bug with form-clearing on submit.
+      setCurrentMessage(editor.getData());
+
+      // if (!editor.data.model.hasContent(editor.model.document.getRoot('main'))) {
+      //   throttledSetCkEditor.cancel();
+      //   setCurrentMessage(editor.getData());
+      // } else {
+      //   throttledSetCkEditor(() => editor.getData())
+      // }
+    }}
+    onReady={(editor) => {
+      (ckEditorRef.current as AnyBecauseHard).domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+        handleKeyDown(event, editor)
+      }, { capture: true });
+    }}
+  />;
 }
 
 
@@ -183,9 +205,6 @@ export const ChatInterface = ({classes}: {
 
   const deleteConversation = (ev: React.MouseEvent, conversationId: string) => {
     // TODO: figure out if we need both of these or just one (i.e. to prevent selection of the menu item)
-
-    console.log('deleting conversation', conversationId)
-
     ev.preventDefault();
     ev.stopPropagation();
     archiveConversation(conversationId);
@@ -235,7 +254,6 @@ export const ChatInterface = ({classes}: {
 
 // Wrapper component needed so we can use deferRender
 export const LanguageModelChat = ({classes}: {
-  // setTitle?: (title: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
 
