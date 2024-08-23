@@ -304,7 +304,7 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   const preparedMessages = messagesForClaude.map((message, idx) => createClaudeMessage(message, idx === 0));
 
   // time this
-  // const startTime = new Date().getTime();
+  const startTime = new Date().getTime();
 
   const stream = promptCachingClient.messages.stream({
     model,
@@ -328,16 +328,16 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   });
 
   const finalMessage = await stream.finalMessage();
-  // const endTime = new Date().getTime();
+  const endTime = new Date().getTime();
 
   const response = finalMessage.content[0];
   if (response.type === 'tool_use') {
     throw new Error("response is tool use which is not a proper response in this context");
   }
 
-  // const resultUsageField = finalMessage.usage;
-  // console.log("Time to get response from Claude", endTime - startTime);
-  // console.log({ resultUsageField });
+  const resultUsageField = finalMessage.usage;
+  console.log("Time to get response from Claude", endTime - startTime);
+  console.log({ resultUsageField });
 
   const newResponse = {
     conversationId,

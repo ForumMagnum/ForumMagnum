@@ -9,6 +9,7 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
 import { LlmCreateConversationMessage, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
+import pull from 'lodash/pull';
 
 interface PromptContextOptions {
   postId?: string,
@@ -18,18 +19,18 @@ interface PromptContextOptions {
 
 type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string };
 type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
-type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId'> & { _id: string, title?: string, messages: NewLlmMessage[] };
+type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId'|'createdAt'|'lastUpdatedAt'> & { _id: string, title?: string, messages: NewLlmMessage[] };
 type LlmConversationWithPartialMessages = LlmConversationsFragment & { messages: Array<LlmMessagesFragment | NewLlmMessage> };
 type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
 interface LlmChatContextType {
-  orderedConversations: LlmConversationsFragment[]
+  orderedConversations: LlmConversation[]
   currentConversation?: LlmConversation
   submitMessage: ( query: string, currentPostId?: string) => void
   setCurrentConversation: (conversationId?: string) => void
   archiveConversation: (conversationId: string) => void
-  loading: boolean
+  loadingConversationIds: string[]
 }
 
 export const LlmChatContext = React.createContext<LlmChatContextType|null>(null);
@@ -77,12 +78,14 @@ const LlmChatWrapper = ({children}: {
     return keyBy(conversationsWithMessagesArray, '_id');
   }, [userLlmConversations]);
 
-  const sortedConversations = useMemo(() => {
-    return sortBy(userLlmConversations, (conversation) => -(conversation.lastUpdatedAt ?? conversation.createdAt));
-  }, [userLlmConversations]);
-
-  const [loading, setLoading] = useState(false);
+  const [loadingConversationIds] = useState<string[]>([]);
   const [conversations, setConversations] = useState<LlmConversationsDict>(userLlmConversationsDict);
+
+  const sortedConversations = useMemo(() => {
+    const llmConversationsList = conversations ? Object.values(conversations) : [];
+    return sortBy(llmConversationsList, (conversation) => -(conversation.lastUpdatedAt ?? conversation.createdAt));
+  }, [conversations]);
+
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(sortedConversations[0]?._id);
 
   const { document: currentConversationWithMessages } = useSingle({
@@ -115,7 +118,8 @@ const LlmChatWrapper = ({children}: {
 
     setCurrentConversationId(conversationId);
     setConversations(updatedConversations);
-  }, [conversations]);
+    loadingConversationIds.push(conversationId);
+  }, [conversations, loadingConversationIds]);
 
   // TODO: Ensure code is sanitized against injection attacks
   const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
@@ -130,7 +134,8 @@ const LlmChatWrapper = ({children}: {
       _id: newConversationChannelId,
       userId: currentUser._id,
       messages: [],
-      createdAt: new Date()
+      createdAt: new Date(),
+      lastUpdatedAt: new Date()
     };
 
     const currentConversation = isExistingConversation
@@ -146,11 +151,13 @@ const LlmChatWrapper = ({children}: {
     const conversationWithNewUserMessage: LlmConversation = { ...currentConversation, messages: updatedMessages };
 
     // Update Client Display
-    setLoading(true);
+    // setLoading(true);
+    loadingConversationIds.push(currentConversation._id);
     updateConversations(conversationWithNewUserMessage);
 
     if (!isExistingConversation) {
       setCurrentConversationId(newConversationChannelId);
+      loadingConversationIds.push(newConversationChannelId);
     }
 
     // TO-DO: where to cause scrolling??
@@ -167,9 +174,10 @@ const LlmChatWrapper = ({children}: {
         ...(currentConversationId ? {} : { newConversationChannelId }),
       }
     });
-  }, [currentUser, conversations, currentConversationId, sendClaudeMessage, updateConversations]);
+  }, [currentUser, conversations, currentConversationId, sendClaudeMessage, updateConversations, loadingConversationIds]);
 
-  const setCurrentConversation = useCallback(setCurrentConversationId, []);
+  // TODO: Why is this needed?
+  const setCurrentConversation = useCallback(setCurrentConversationId, [setCurrentConversationId]);
 
   const archiveConversation = useCallback(async (conversationId: string) => {
     if (!currentUser) {
@@ -180,19 +188,25 @@ const LlmChatWrapper = ({children}: {
       setCurrentConversationId(undefined);
     }
 
-    // TODO: ensure list of available convos is updated
-    // Shouldn't this happen by default if the view we're using is filtering for `deleted: false`?
+    // remove conversation with this id from conversations object
+    const { [conversationId]: _, ...rest } = conversations;
+    setConversations(rest);
+
     void updateConversation({
       selector: { _id: conversationId },
       data: {
         deleted: true
       }
     })
-  }, [currentUser, currentConversationId, updateConversation]);
+  }, [currentUser, conversations, currentConversationId, updateConversation]);
 
   const currentConversation = useMemo(() => (
     currentConversationId ? conversations[currentConversationId] : undefined
   ), [conversations, currentConversationId]);
+
+  useOnServerSentEvent('llmCreateConversation', currentUser, (message) => {
+    hydrateNewConversation(message);
+  });
 
   useOnServerSentEvent('llmStreamContent', currentUser, (message) => {
     if (!currentUser) {
@@ -227,18 +241,13 @@ const LlmChatWrapper = ({children}: {
 
     const updatedConversation = { ...currentConversation, messages: updatedMessages };
     
-    // TODO: per-conversation loading state
-    setLoading(false);
     updateConversations(updatedConversation);
+    pull(loadingConversationIds, conversationId);
   });
 
   useOnServerSentEvent('llmStreamEnd', currentUser, (message) => {
-    // TODO: per-conversation loading state
-    setLoading(false);
-  });
-
-  useOnServerSentEvent('llmCreateConversation', currentUser, (message) => {
-    hydrateNewConversation(message);
+    // TODO: Maybe redundant as already is turning off loading state in streamContent
+    pull(loadingConversationIds, message.data.conversationId);
   });
 
   useEffect(() => {
@@ -256,8 +265,8 @@ const LlmChatWrapper = ({children}: {
     submitMessage,
     setCurrentConversation,
     archiveConversation,
-    loading,
-  }), [submitMessage, setCurrentConversation, archiveConversation, loading, currentConversation, sortedConversations]);
+    loadingConversationIds
+  }), [submitMessage, setCurrentConversation, archiveConversation, loadingConversationIds, currentConversation, sortedConversations]);
 
   return <LlmChatContext.Provider value={llmChatContext}>
     {children}

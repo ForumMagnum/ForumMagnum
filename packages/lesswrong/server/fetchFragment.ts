@@ -78,14 +78,12 @@ export const fetchFragment = async <
   if (skipFiltering) {
     return results;
   }
-  console.log({sql, ...results.map(r => ({user: r.user, postId: r._id}))});
   const filtered = await accessFilterMultiple(
     currentUser,
     getCollection(collectionName),
     results,
     context ?? null,
   );
-  console.log('filtered: ', {...filtered.map(r => ({user: r.user, postId: r._id}))});
   return filtered as FetchedFragment<FragmentName>[];
 }
 
