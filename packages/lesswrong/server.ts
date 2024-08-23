@@ -50,6 +50,7 @@ import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
+import './server/scripts/sendAnnualForumUserSurveyEmails';
 import './server/scripts/sendWrappedNotifications';
 import './server/scripts/triggerWrappedRefresh';
 import './server/scripts/removeRsvp';
@@ -220,3 +221,5 @@ import './server/search/facetFieldSearch';
 import './server/analytics/analyticsCron';
 import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
+
+import './server/migrations/meta/utils';

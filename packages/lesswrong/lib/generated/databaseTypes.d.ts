@@ -929,6 +929,8 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
+  hasFootnotes: boolean | null
+  disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
@@ -1843,6 +1845,7 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
+  userSurveyEmailSentAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null
