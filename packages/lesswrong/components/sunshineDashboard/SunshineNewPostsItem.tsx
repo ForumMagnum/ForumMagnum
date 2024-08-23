@@ -25,7 +25,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   robotIcon: {
     width: 14,
     marginLeft: 4,
-    color: theme.palette.warning.main
   },
   buttonRow: {
     ...theme.typography.commentStyle
