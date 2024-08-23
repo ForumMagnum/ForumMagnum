@@ -78,7 +78,7 @@ const LlmChatWrapper = ({children}: {
     return keyBy(conversationsWithMessagesArray, '_id');
   }, [userLlmConversations]);
 
-  const [loadingConversationIds] = useState<string[]>([]);
+  const [loadingConversationIds, setLoadingConversationIds] = useState<string[]>([]);
   const [conversations, setConversations] = useState<LlmConversationsDict>(userLlmConversationsDict);
 
   const sortedConversations = useMemo(() => {
@@ -157,16 +157,14 @@ const LlmChatWrapper = ({children}: {
 
     if (!isExistingConversation) {
       setCurrentConversationId(newConversationChannelId);
-      loadingConversationIds.push(newConversationChannelId);
-    }
+      const updatingLoadingStates = [...loadingConversationIds, newConversationChannelId];
+      setLoadingConversationIds(updatingLoadingStates);
 
-    // TO-DO: where to cause scrolling??
-    // if (messagesRef.current) {
-    //   messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
-    // }
+    }
 
     const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: not always true? */ };
 
+    console.log('before send:', {currentConversationId, newConversationChannelId, preSaveMessage});
     void sendClaudeMessage({
       variables: {
         newMessage: preSaveMessage,
@@ -176,8 +174,7 @@ const LlmChatWrapper = ({children}: {
     });
   }, [currentUser, conversations, currentConversationId, sendClaudeMessage, updateConversations, loadingConversationIds]);
 
-  // TODO: Why is this needed?
-  const setCurrentConversation = useCallback(setCurrentConversationId, [setCurrentConversationId]);
+  const setCurrentConversation = setCurrentConversationId //useCallback(setCurrentConversationId, [setCurrentConversationId]);
 
   const archiveConversation = useCallback(async (conversationId: string) => {
     if (!currentUser) {
@@ -215,6 +212,7 @@ const LlmChatWrapper = ({children}: {
 
     const { conversationId, content, previousUserMessage } = message.data;
 
+    // TODO: shouldn't shadow
     const currentConversation = conversations[conversationId];
     const updatedMessages = [...currentConversation.messages];
     const lastMessageInConversation = updatedMessages.slice(-1)[0];

@@ -208,6 +208,8 @@ export const ChatInterface = ({classes}: {
     ))}
   </div>
 
+  console.log('in chatinterface', {currentConversation})
+
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
@@ -266,10 +268,16 @@ export const ChatInterface = ({classes}: {
 
   const loading = loadingConversationIds.includes(currentConversation?._id ?? '')
 
+  const handleSubmit = useCallback((message: string) => {
+    submitMessage(message, currentPostId)
+  }, [currentPostId, submitMessage]);
+
   return <div className={classes.chatInterfaceRoot}>
     {messagesForDisplay}
     {loading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox onSubmit={(message) => submitMessage(message, currentPostId)} classes={classes} />
+    <LLMInputTextbox 
+      onSubmit={handleSubmit}
+      classes={classes} />
     {options}
   </div>
 }
