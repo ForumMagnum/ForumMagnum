@@ -1,8 +1,10 @@
 // TODO: Import component in components.ts
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useDialog } from '../common/withDialog';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -41,15 +43,25 @@ export const LanguageModelLauncherButton = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { ForumIcon } = Components;
   const { openDialog } = useDialog();
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_LLM_CHAT_COOKIE])
 
-  const onClickLanguageModelLauncher = useCallback(() => {
+  const openLlmChat = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
     openDialog({
       componentName:"PopupLanguageModelChat",
-      }
-    )},[openDialog, captureEvent]);
+    })
+    setCookie(HIDE_LLM_CHAT_COOKIE, "false");
+  },[openDialog, captureEvent, setCookie]);
 
-  return <div className={classes.root} onClick={onClickLanguageModelLauncher}>
+  useEffect(() => {
+    if (cookies[HIDE_LLM_CHAT_COOKIE]!=="false") {
+      return;
+    }
+    openLlmChat();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return <div className={classes.root} onClick={openLlmChat}>
     <ForumIcon icon="Sparkles" className={classes.icon} />
   </div>;
 }

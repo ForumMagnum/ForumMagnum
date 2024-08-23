@@ -3,6 +3,8 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import { useLlmChat } from './LlmChatWrapper';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -81,8 +83,14 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   const { LanguageModelChat, LWTooltip } = Components;
 
   const { currentConversation } = useLlmChat();
+  const [_, setCookies] = useCookiesWithConsent([HIDE_LLM_CHAT_COOKIE]);
 
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
+
+  const handleClose = () => {
+    setCookies(HIDE_LLM_CHAT_COOKIE, "true");
+    onClose();
+  }
 
   return <Paper className={classes.root}>
     <div className={classes.header}>
@@ -94,7 +102,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
           </div>
         </LWTooltip>
       </div>
-      <CloseIcon className={classes.close} onClick={onClose}/>
+      <CloseIcon className={classes.close} onClick={handleClose} />
     </div>
     <div className={classes.editor}>
       <LanguageModelChat />
