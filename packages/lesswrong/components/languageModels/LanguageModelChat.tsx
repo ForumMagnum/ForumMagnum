@@ -1,7 +1,6 @@
 // TODO: Import component in components.ts
 import React, { useEffect, useRef, useState, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
 import Button from '@material-ui/core/Button';
@@ -10,7 +9,6 @@ import Input from '@material-ui/core/Input';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { useOnServerSentEvent } from '../hooks/useUnreadNotifications';
 import { useCurrentUser } from '../common/withUser';
 import { LlmChatContext } from './LlmChatWrapper';
 
@@ -86,13 +84,6 @@ interface LlmConversationMessage {
   displayContent?: string
 }
 
-interface ClaudeConversation {
-  messages: LlmConversationMessage[]
-  title: string
-  createdAt: Date,
-  lastUpdated: Date
-}
-
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
 const LLMChatMessage = ({message, classes}: {
@@ -143,13 +134,14 @@ const LLMInputTextbox = ({onSubmit, classes}: {
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { captureEvent } = useTracking(); //TODO: appropriate tracking? 
   const { Loading, MenuItem } = Components;
 
-  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, loading }  = useContext(LlmChatContext)!;
+  const { currentConversation, setCurrentConversation, archiveConversation, 
+    orderedConversations, submitMessage, loadingConversationIds }  = useContext(LlmChatContext)!;
+
+  const lengthOfMostRecentMessage = currentConversation?.messages.slice(-1)[0]?.content.length
 
   const { flash } = useMessages();
-  const currentUser = useCurrentUser();
 
   // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
   const { location } = useLocation();
@@ -157,12 +149,12 @@ export const ChatInterface = ({classes}: {
   const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
 
   const messagesRef = useRef<HTMLDivElement>(null)
-  // useEffect to scroll to bottom of chat history after new message is added
+  // useEffect to scroll to bottom of chat history after new message is added or most recent message is updated (because of streaming)
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
-  }, [currentConversation?.messages.length]);
+  }, [currentConversation?.messages.length, lengthOfMostRecentMessage]);
 
 
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
@@ -174,13 +166,9 @@ export const ChatInterface = ({classes}: {
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
-    const conversationHistory = currentConversation.messages
-    const firstMessage = conversationHistory[0]
-    // TODO: revert this change
-    // const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.displayContent ?? firstMessage.content}\n\n\n`
-    const firstMessageFormatted = `**${firstMessage.role}**: ${firstMessage.content}\n\n\n`
-    const formattedChatHistory = conversationHistory.slice(1).map(({role, content}) => `**${role}**: ${content}`).join("\n\n\n")
-    void navigator.clipboard.writeText(firstMessageFormatted + formattedChatHistory)
+    const conversationHistory = currentConversation.messages.filter(({role}) => ['user', 'assistant', 'user-context'].includes(role))
+    const formattedChatHistory = conversationHistory.map(({role, content}) => `${role.toUpperCase()}: ${content}`).join("\n")
+    void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }
 
@@ -195,28 +183,14 @@ export const ChatInterface = ({classes}: {
 
   const deleteConversation = (ev: React.MouseEvent, conversationId: string) => {
     // TODO: figure out if we need both of these or just one (i.e. to prevent selection of the menu item)
+
+    console.log('deleting conversation', conversationId)
+
     ev.preventDefault();
     ev.stopPropagation();
     archiveConversation(conversationId);
   };
 
-  // const appendLatestMessage = useCallback((message: LlmStreamMessage) => {
-  //   console.log(`Got message from stream!  ${message.data.content}`);
-  //   const storageTitle = `llmChatHistory:${message.data.title}`;
-  //   const previousConversation = llmConversations[storageTitle];
-  //   const conversationWithNewResponse: ClaudeConversation = {
-  //     ...previousConversation,
-  //     messages: [...previousConversation.messages, { ...message.data, role: 'assistant' }]
-  //   };
-  //   setCurrentConversation(conversationWithNewResponse)
-
-  //   const updatedConversations = {...llmConversations, [storageTitle]: conversationWithNewResponse}
-  //   ls?.setItem(LLM_STORAGE_KEY, JSON.stringify(updatedConversations))
-  //   setLlmConversations(updatedConversations)
-  // }, [llmConversations]);
-
-  // TODO: move to context wrapper
-  
   const conversationSelect = <Select 
     onChange={onSelect} 
     value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
@@ -226,9 +200,9 @@ export const ChatInterface = ({classes}: {
     renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
     >
       {
-        orderedConversations.map(({ title, _id }, index) => (
+        orderedConversations.reverse().map(({ title, _id }, index) => (
           <MenuItem key={index} value={_id} className={classes.menuItem}>
-            {title}
+            {title ?? "...Title Pending..."}
             <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
           </MenuItem>
       ))}
@@ -247,6 +221,8 @@ export const ChatInterface = ({classes}: {
     </Button>
     {conversationSelect}
   </div>
+
+  const loading = loadingConversationIds.includes(currentConversation?._id ?? '')
 
   return <div className={classes.chatInterfaceRoot}>
     {messagesForDisplay}
