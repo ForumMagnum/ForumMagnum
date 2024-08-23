@@ -8,13 +8,12 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import Anthropic from "@anthropic-ai/sdk";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { fetchFragment, fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
 import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
-import { createMutator } from "../vulcan-lib";
+import { createMutator, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
-import { asyncForeachSequential, asyncMapSequential } from "@/lib/utils/asyncUtils";
+import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml } from "../editor/conversionUtils";
 import uniq from "lodash/uniq";
 
@@ -150,8 +149,7 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
 
   const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
 
-  const posts = await getPostsWithContents(deduplicatedSearchResultIds, context);
-  return posts
+  return getPostsWithContents(deduplicatedSearchResultIds, context);
 };
 
 async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
@@ -174,7 +172,6 @@ async function getConversationTitle({ query, currentPost }: Pick<CreateNewConver
 
 async function createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
-
   const newConversation = await createMutator({
     collection: context.LlmConversations,
     document: {
@@ -352,26 +349,33 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   return newResponse;
 }
 
-function getPostWithContents(postId: string, context: ResolverContext) {
-  return fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: { _id: postId },
-    currentUser: context.currentUser,
+async function getPostWithContents(postId: string, context: ResolverContext): Promise<PostsPage | null> {
+  const [post] = await runFragmentQuery({
+    collectionName: 'Posts',
+    fragmentName: 'PostsPage',
+    terms: { postIds: [postId] },
+    context,
+  });
+
+  return post ?? null;
+}
+
+async function getPostsWithContents(postIds: string[], context: ResolverContext) {
+  return runFragmentQuery({
+    collectionName: 'Posts',
+    fragmentName: 'PostsPage',
+    terms: { postIds },
     context,
   });
 }
 
-function getPostsWithContents(postIds: string[], context: ResolverContext) {
-  return fetchFragment({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: {_id: {$in: postIds}},
-    currentUser: context.currentUser,
-    context,
-  });
-}
+async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
+  const contextualPosts = await getContextualPosts(content, currentPost, context);
+  const userContextMessage = getPostContextMessage(content, contextualPosts, currentPost);
+  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, false, context);
 
+  return { userContextMessage, assistantContextMessage };
+}
 
 async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
   const { content, userId } = newMessage;
@@ -381,18 +385,17 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     : Promise.resolve(null)
   );
 
-  const conversation = await createNewConversation({
-    query: content,
-    systemPrompt,
-    model,
-    currentUser,
-    context,
-    currentPost,
-  });      
-
-  const contextualPosts = await getContextualPosts(content, currentPost, context);
-  const userContextMessage = getPostContextMessage(content, contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+  const [conversation, { userContextMessage, assistantContextMessage }] = await Promise.all([
+    createNewConversation({
+      query: content,
+      systemPrompt,
+      model,
+      currentUser,
+      context,
+      currentPost,
+    }),
+    getContextMessages(content, currentPost, context)
+  ]);
 
   const conversationId = conversation._id;
 
