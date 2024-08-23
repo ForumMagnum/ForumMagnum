@@ -13,9 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     bottom: theme.spacing.unit,
     zIndex: theme.zIndexes.languageModelChat,
     [theme.breakpoints.down('sm')]: {
-      width: "100%",
-      right: 0,
-      bottom: 0,
+      display: "none"
     }
   },
   title: {
