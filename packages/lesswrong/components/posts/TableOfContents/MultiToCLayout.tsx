@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
       `
     },
   },
-  gap1: {},
+  gap1: {gridArea: "gap1"},
   toc: {
     position: 'unset',
     width: 'unset',
@@ -110,8 +110,10 @@ const styles = (theme: ThemeType) => ({
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      top: HEADER_HEIGHT,
-      height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+      '&&': {
+        top: HEADER_HEIGHT,
+        height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+      }
     }
   },
   stickyBlock: {
