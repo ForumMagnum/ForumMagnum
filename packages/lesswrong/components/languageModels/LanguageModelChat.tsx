@@ -8,7 +8,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { LlmChatContext } from './LlmChatWrapper';
+import { useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -118,28 +118,48 @@ const LLMChatMessage = ({message, classes}: {
 
 const LLMInputTextbox = ({onSubmit, classes}: {
   onSubmit: (message: string) => void,
+  // conversationId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const { ContentStyles } = Components;
   
   const [currentMessage, setCurrentMessage] = useState('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
-
-  const handleKeyDown = useCallback((event: KeyboardEvent, editor: Editor) => {
-    if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
-      event.stopPropagation();
-      event.preventDefault();
-      const currentEditorContent = editor.getData();
-      void onSubmit(currentEditorContent);
-      setCurrentMessage('');
-    }
-  }, [currentMessage]);
+  const editorRef = useRef<Editor | null>(null);
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = {
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit.',
     mention: mentionPluginConfiguration,
   };
+
+  // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
+  // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
+  // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
+  useEffect(() => {
+    const options = { capture: true };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
+        event.stopPropagation();
+        event.preventDefault();
+        const currentEditorContent = editorRef.current?.getData();
+        currentEditorContent && void onSubmit(currentEditorContent);
+        setCurrentMessage('');
+      }
+    };
+  
+    const internalEditorRefInstance = (ckEditorRef.current as AnyBecauseHard).domContainer?.current;
+    if (internalEditorRefInstance) {
+      internalEditorRefInstance.addEventListener('keydown', handleKeyDown, options);
+    }
+
+    return () => {
+      const internalEditorRefInstance = (ckEditorRef.current as AnyBecauseHard)?.domContainer?.current;
+      if (internalEditorRefInstance) {
+        internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
+      }
+    }
+  }, [onSubmit]);
 
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
@@ -165,9 +185,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
           // }
         }}
         onReady={(editor) => {
-          (ckEditorRef.current as AnyBecauseHard).domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
-            handleKeyDown(event, editor)
-          }, { capture: true });
+          editorRef.current = editor;
         }}
         config={editorConfig}
       />
@@ -181,8 +199,7 @@ export const ChatInterface = ({classes}: {
 }) => {
   const { Loading, MenuItem } = Components;
 
-  const { currentConversation, setCurrentConversation, archiveConversation, 
-    orderedConversations, submitMessage, loadingConversationIds }  = useContext(LlmChatContext)!;
+  const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
   const lengthOfMostRecentMessage = currentConversation?.messages.slice(-1)[0]?.content.length
 
@@ -207,9 +224,6 @@ export const ChatInterface = ({classes}: {
       <LLMChatMessage key={index} message={message} classes={classes} />
     ))}
   </div>
-
-  console.log('in chatinterface', {currentConversation})
-
 
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
@@ -264,20 +278,20 @@ export const ChatInterface = ({classes}: {
       Export
     </Button>
     {conversationSelect}
-  </div>
-
-  const loading = loadingConversationIds.includes(currentConversation?._id ?? '')
+  </div>  
 
   const handleSubmit = useCallback((message: string) => {
-    submitMessage(message, currentPostId)
+    submitMessage(message, currentPostId);
   }, [currentPostId, submitMessage]);
 
   return <div className={classes.chatInterfaceRoot}>
     {messagesForDisplay}
-    {loading && <Loading className={classes.loadingSpinner}/>}
-    <LLMInputTextbox 
+    {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
+    <LLMInputTextbox
       onSubmit={handleSubmit}
-      classes={classes} />
+      // conversationId={currentConversation?._id}
+      classes={classes}
+    />
     {options}
   </div>
 }
