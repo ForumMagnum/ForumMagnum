@@ -396,6 +396,10 @@ declare global {
         hoverBackground: ColorString,
       },
     },
+    sideItemIndicator: {
+      sideComment: ColorString,
+      inlineReaction: ColorString,
+    },
     tag: {
       text: ColorString,
       background: ColorString,
@@ -469,6 +473,7 @@ declare global {
       transparent: ColorString,
       imageOverlay: ColorString,
       digestAdBannerInput: ColorString,
+      sidenoteBackground: ColorString,
     },
     header: {
       text: ColorString,

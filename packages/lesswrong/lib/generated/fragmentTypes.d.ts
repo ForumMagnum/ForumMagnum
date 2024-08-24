@@ -710,6 +710,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly htmlHighlightStartingAtHash: string,
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
+  readonly hasFootnotes: boolean|null,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
@@ -888,6 +889,8 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tableOfContentsRevision: any,
   readonly sideComments: any,
   readonly sideCommentVisibility: string,
+  readonly hasFootnotes: boolean,
+  readonly disableSidenotes: boolean,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
@@ -1305,6 +1308,7 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
+  readonly disableSidenotes: boolean,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions

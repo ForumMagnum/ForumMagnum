@@ -341,6 +341,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {
     default: shades.grey[0],
@@ -475,6 +476,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.grey[700],
       hoverBackground: shades.grey[800],
     },
+  },
+  sideItemIndicator: {
+    sideComment: '#5f9b65',
+    inlineReaction: 'lch(68 34.48 85.39 / 76%)',
   },
   tag: {
     text: shades.greyAlpha(.9),
