@@ -138,6 +138,8 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
   // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
   useEffect(() => {
+    const currentEditorRefValue = ckEditorRef.current;
+
     const options = { capture: true };
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
@@ -149,13 +151,13 @@ const LLMInputTextbox = ({onSubmit, classes}: {
       }
     };
   
-    const internalEditorRefInstance = (ckEditorRef.current as AnyBecauseHard).domContainer?.current;
+    const internalEditorRefInstance = (currentEditorRefValue as AnyBecauseHard).domContainer?.current;
     if (internalEditorRefInstance) {
       internalEditorRefInstance.addEventListener('keydown', handleKeyDown, options);
     }
 
     return () => {
-      const internalEditorRefInstance = (ckEditorRef.current as AnyBecauseHard)?.domContainer?.current;
+      const internalEditorRefInstance = (currentEditorRefValue as AnyBecauseHard)?.domContainer?.current;
       if (internalEditorRefInstance) {
         internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
       }
