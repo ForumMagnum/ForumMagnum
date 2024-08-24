@@ -190,11 +190,16 @@ registerCookie({
   description: "Whether or not to show particular flags in the main navigation menu",
 });
 
-export const HIDE_LLM_CHAT_COOKIE =
-registerCookie({
-  name: "llm_chat_conversation_hidden",
+export const SHOW_LLM_CHAT_COOKIE = registerCookie({
+  name: "llm_chat_conversation_open",
   type: "functional",
   description: "Whether the LLM chat conversation UI is open",
+});
+
+export const SHOW_LLM_CHAT_GUIDE_COOKIE = registerCookie({
+  name: "llm_chat_guide_open",
+  type: "functional",
+  description: "Whether the LLM chat guide is open",
 });
 
 

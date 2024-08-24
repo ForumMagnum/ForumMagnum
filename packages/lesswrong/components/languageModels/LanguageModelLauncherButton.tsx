@@ -4,7 +4,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useDialog } from '../common/withDialog';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,18 +43,18 @@ export const LanguageModelLauncherButton = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { ForumIcon } = Components;
   const { openDialog } = useDialog();
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_LLM_CHAT_COOKIE])
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE])
 
   const openLlmChat = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
     openDialog({
       componentName:"PopupLanguageModelChat",
     })
-    setCookie(HIDE_LLM_CHAT_COOKIE, "false");
+    setCookie(SHOW_LLM_CHAT_COOKIE, "true");
   },[openDialog, captureEvent, setCookie]);
 
   useEffect(() => {
-    if (cookies[HIDE_LLM_CHAT_COOKIE]!=="false") {
+    if (cookies[SHOW_LLM_CHAT_COOKIE]!=="true") {
       return;
     }
     openLlmChat();

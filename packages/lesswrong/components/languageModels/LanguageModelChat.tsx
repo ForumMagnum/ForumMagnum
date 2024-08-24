@@ -19,9 +19,6 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 const styles = (theme: ThemeType) => ({
   root: {
   },
-  chatInterfaceRoot: {
-
-  },
   submission: {
     margin: 10,
     display: "flex",
@@ -42,9 +39,22 @@ const styles = (theme: ThemeType) => ({
     minHeight: 100,
     maxHeight: 200,
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
-    // '& .textarea': {
-    //   ...hideScrollBars
-    // }
+  },
+  welcomeGuide: {
+    padding: 16,
+    margin: 10,
+    borderRadius: 10,
+    display: "flex",
+    flexDirection: "column",
+  },
+  welcomeGuideText: {
+    padding: "16px 16px 16px 0",
+  },
+  welcomeGuideButton: {
+    cursor: "pointer",
+    opacity: 0.8,
+    alignSelf: "flex-end",
+    fontStyle: "italic",
   },
   chatMessage: {
     padding: 16,
@@ -175,11 +185,12 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   </ContentStyles>
 }
 
+const welcomeGuideHtml = `<h1>Welcome to the LessWrong LLM Chat!</h1><ul><li>The LLM chat interface is currently hooked up to Claude Sonnet 3.5</li><li>While in development, LW is paying for the usage. This will likely change later.</li><li>LaTeX is supported both on input and output</li><li>Images are not yet supported</li><li style="color: #bf360c;">While this feature is under heavy development, the LessWrong team will read conversations to help us with product iteration.</li></ul><h1>Loading Context</h1><p><strong>Currently, context loading only happens with the first message in a conversation</strong></p><p>When you start a new chat, your very first message is analyzed for potentially relevant context based on the text of your query and the post you are currently viewing (if any). The system will decide whether or not to load in posts and comments related to your query, your current post, both, or neither.</p><p>The kinds of requests you can make include but are not limited to:</p><p><i>About the current post</i></p><blockquote><p>"Please give a tl;dr of this post and tell me three surprising things in it."</p><p>&lt;copy-paste section of post&gt; "Please explain this to me including worked examples and explanations of the math notation."</p><p>"What the objections to the OP in the comments and how did the author respond to them?"</p><p>"What are background posts that would help understand this?"</p></blockquote><p><i>Generally</i></p><blockquote><p>"Can you give me an overview of Infrabayesianism?"</p><p>"Please give me an of the Sleeping Beauty problem and its significance?</p></blockquote><p>(our chat is great for asking about niche LessWrong content)</p><p>Feel free to try out other kinds of questions!!</p>`
 
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, MenuItem } = Components;
+  const { Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, 
     orderedConversations, submitMessage, loadingConversationIds }  = useContext(LlmChatContext)!;
@@ -201,8 +212,23 @@ export const ChatInterface = ({classes}: {
     }
   }, [currentConversation?.messages.length, lengthOfMostRecentMessage]);
 
+  const [showGuide, setShowGuide] = useState(true)
+
+  const llmChatGuide = <ContentStyles contentType="llmChat" className={classes.welcomeGuide}>
+    <div 
+      onClick={() => setShowGuide(!showGuide)} 
+      className={classes.welcomeGuideButton}
+    >
+      {showGuide ? "Hide Guide" : "Show LLM Guide"}
+    </div>
+    {showGuide && <ContentItemBody
+      className={classNames(classes.welcomeGuideText)}
+      dangerouslySetInnerHTML={{__html: welcomeGuideHtml}}
+    />}
+  </ContentStyles>
 
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
+    {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
       <LLMChatMessage key={index} message={message} classes={classes} />
     ))}
@@ -266,13 +292,14 @@ export const ChatInterface = ({classes}: {
     {conversationSelect}
   </div>
 
+
   const loading = loadingConversationIds.includes(currentConversation?._id ?? '')
 
   const handleSubmit = useCallback((message: string) => {
     submitMessage(message, currentPostId)
   }, [currentPostId, submitMessage]);
 
-  return <div className={classes.chatInterfaceRoot}>
+  return <div>
     {messagesForDisplay}
     {loading && <Loading className={classes.loadingSpinner}/>}
     <LLMInputTextbox 

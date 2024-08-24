@@ -4,7 +4,7 @@ import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
 import { useLlmChat } from './LlmChatWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -83,12 +83,12 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   const { LanguageModelChat, LWTooltip } = Components;
 
   const { currentConversation } = useLlmChat();
-  const [_, setCookies] = useCookiesWithConsent([HIDE_LLM_CHAT_COOKIE]);
+  const [_, setCookies] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 
   const handleClose = () => {
-    setCookies(HIDE_LLM_CHAT_COOKIE, "true");
+    setCookies(SHOW_LLM_CHAT_COOKIE, "false");
     onClose();
   }
 
