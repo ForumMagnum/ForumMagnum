@@ -42,6 +42,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: 100,
     maxHeight: 200,
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
+    overflow: 'scroll',
     // '& .textarea': {
     //   ...hideScrollBars
     // }
