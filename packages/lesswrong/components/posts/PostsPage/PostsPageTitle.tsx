@@ -26,7 +26,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
       fontSize: '3rem',
     }
     : {
-      fontSize: '4.5rem',
+      fontSize: '3.75rem',
       lineHeight: '1.1',
   }),
   [theme.breakpoints.down('xs')]: isFriendlyUI

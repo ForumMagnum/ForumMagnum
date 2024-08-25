@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
@@ -7,12 +7,18 @@ import { getHostname, getProtocol } from './PostsPagePostHeader';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 110,
-    marginBottom: 96,
+    paddingTop: 86,
+    marginBottom: 64,
+    [theme.breakpoints.down('md')]: {
+      paddingTop: 125
+    },
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
       marginBottom: 38
     },
+  },
+  topRightIsWide: {
+    paddingTop: 125
   },
   eventHeader: {
     marginBottom: 0,
@@ -131,11 +137,21 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
+
+  const topRightRef = useRef<HTMLDivElement>(null);
+  const [topRightWidth, setTopRightWidth] = useState(0);
+  const topRightIsWide = topRightWidth > 500;
+
+  useEffect(() => {
+    if (topRightRef.current) {
+      setTopRightWidth(topRightRef.current.offsetWidth);
+    }
+  }, []);
   
   // TODO: If we are not the primary author of this post, but it was shared with
   // us as a draft, display a notice and a link to the collaborative editor.
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
+  return <div className={classNames(classes.root, post.isEvent && classes.eventHeader, topRightIsWide && classes.topRightIsWide)}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
@@ -143,7 +159,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
         </div>}
       </AnalyticsContext>
       <div>
-        <span className={classes.topRight}>
+        <span className={classes.topRight} ref={topRightRef}>
           <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer}/>
         </span>
         {post && <span className={classes.audioPlayerWrapper}>
