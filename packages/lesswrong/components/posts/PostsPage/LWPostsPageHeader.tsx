@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 86,
     marginBottom: 64,
     [theme.breakpoints.down('md')]: {
-      paddingTop: 125
+      paddingTop: 110
     },
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   topRightIsWide: {
-    paddingTop: 125
+    paddingTop: 110
   },
   eventHeader: {
     marginBottom: 0,
