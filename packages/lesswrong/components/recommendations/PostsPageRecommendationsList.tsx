@@ -80,7 +80,7 @@ const PostsPageRecommendationsList = ({
 
   return (
     <div className={classes.root}>
-      {title && <SectionTitle title={title} className={classes.title} />}
+      {title && <SectionTitle title={title} titleClassName={classes.title} />}
       <DeferRender ssr={false} fallback={loadingFallback}>
         <RecommendationsList
           algorithm={recommendationsAlgorithm}
