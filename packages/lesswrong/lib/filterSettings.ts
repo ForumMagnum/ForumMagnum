@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useCurrentUser } from '../components/common/withUser';
 import { useUpdateCurrentUser } from '../components/hooks/useUpdateCurrentUser';
 import { useMulti } from './crud/withMulti';
