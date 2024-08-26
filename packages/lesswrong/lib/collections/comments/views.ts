@@ -304,6 +304,14 @@ export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSel
   "recentComments": { lastSubthreadActivity: -1 },
 } as const;
 
+// This view is DEPRECATED, use profileComments instead. This is here so that old links still work (plus greaterwrong etc)
+Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
+  return {
+    selector: {deletedPublic: false},
+    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+  };
+})
+
 Comments.addView("profileComments", (terms: CommentsViewTerms) => {
   const sortBy = terms.sortBy ?? "new"
   
@@ -312,14 +320,7 @@ Comments.addView("profileComments", (terms: CommentsViewTerms) => {
     options: {sort: profileCommentsSortings[sortBy], limit: terms.limit || 5},
   };
 })
-ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 
-Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
-return {
-  selector: {deletedPublic: false},
-  options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
-};
-})
 ensureIndex(Comments, augmentForDefaultView({ userId: 1, isPinnedOnProfile: -1, postedAt: -1 }))
 
 Comments.addView("allRecentComments", (terms: CommentsViewTerms) => {
