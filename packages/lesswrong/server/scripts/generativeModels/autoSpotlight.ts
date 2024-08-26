@@ -5,6 +5,9 @@ import { Globals, createAdminContext, createMutator } from "../../vulcan-lib";
 import Anthropic from '@anthropic-ai/sdk';
 import Spotlights from "../../../lib/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
+import ReviewWinners from "@/lib/collections/reviewWinners/collection";
+import { Posts } from "@/lib/collections/posts";
+import Revisions from "@/lib/collections/revisions/collection";
 
 const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
@@ -16,7 +19,7 @@ async function queryClaude(prompt: string) {
   const AI_PROMPT = '\n\nAssistant:'
   async function main() {
     const response = await anthropic.completions.create({
-      model: 'claude-1',
+      model: 'claude-3-5-sonnet-20240620',
       max_tokens_to_sample: 300,
       prompt: `${HUMAN_PROMPT}${prompt}${AI_PROMPT}`,
     });
@@ -29,22 +32,16 @@ async function queryClaude(prompt: string) {
   });
 }
 
-async function createArtDescription(post: PostsPage) {
-  const queryImageRoot = `
-    Describe what would make an effective prompt for Midjourney, an image-generating AI model, to produce an image that corresponds to this post's themes. The image will be small, so it should be simple, such that key elements and themes are easily distinguishable when people see it.
+function createSpotlightDescriptionPrompt(post: PostsPage) {
 
-    After that, please write a one sentence prompt, ending with the phrase 'Minimalist watercolor painting on a white background, diagrammtic drawing --ar 2:1'. The entire prompt should be a single paragraph. It is very important that your answer ends with the prompt, with no additional commentary.
-
-    Write your response as html with paragraph tags.
-
-    Post Title: ${post.title}
+  return `
+    Write a short description of this essay.
   `
-
-  const response = await queryClaude(`${queryImageRoot}${post.contents?.html}`)
-  return `<p><b>Art Prompt:</b></p>${response}`
 }
 
-function createSpotlightDescription(post: PostsPage) {
+function createSpotlightDescription(post: PostsPage, spotlightPosts: PostsPage[], spotlights: DbSpotlight[]) {
+
+
   const queryQuestionRoot = `
     Write two sentences that ask the question that this essay is ultimately answering. (Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
   `
@@ -84,10 +81,67 @@ function createSpotlight (postId: string, summaries: string[]) {
   })
 }
 
+
 async function createSpotlights() {
+  console.log("Creating spotlights for review winners");
+
+  const reviewWinners = await ReviewWinners.find({}).fetch();
+  
+  const postIds = reviewWinners.map(winner => winner.postId);
+  
+  const posts = await Posts.find({ _id: { $in: postIds } }).fetch();
+  const postRevisionContents = await Revisions.find({ documentId: { $in: postIds }, collectionName: "Posts", fieldName: "contents" }).fetch();
+  const spotlights = await Spotlights.find({ documentId: { $in: postIds } }).fetch();
+
+  const postsWithoutSpotlight = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
+
+  let context = ""
+
+  for (const spotlight of spotlights.slice(0, 2)) {
+    const post = posts.find(post => post._id === spotlight.documentId)
+    const postRevision = postRevisionContents.find(revision => revision.documentId === spotlight.documentId)
+    context += `
+      Post: ${post?.title}
+      ---
+      Post Contents: ${postRevision?.originalContents?.data}
+      ---
+      Spotlight: ${spotlight.description?.originalContents?.data}
+      ---
+      ---
+      ---
+    `
+  }
+  const queries = postsWithoutSpotlight.slice(0, 2).map(post => {
+    const query = context += `
+      Post: ${post.title}
+      ---
+      Post Contents: ${postRevisionContents.find(revision => revision.documentId === post._id)?.originalContents?.data}
+      ---
+      What is a short description that would best describe this essay?
+    `
+    return query
+  })
+  const summaries = await Promise.all(queries.map(query => queryClaude(query)))
+
+  console.log(summaries[0])
+
+  // Further processing of posts can be done here
+  // For example, you could call createSpotlightDescription for each post
+}
+
+
+
+
+
+async function createSpotlightsOld() {
+  console.log("Creating spotlights")
   const tag = await Tags.findOne({name: "Best of LessWrong"})
+
+
+
   if (tag) {
-    const spotlightDocIds = (await Spotlights.find({}, {projection:{documentId:1}}).fetch()).map(spotlight => spotlight.documentId)
+    const spotlights = (await Spotlights.find({}, {projection:{documentId:1}}).fetch())
+    const spotlightDocIds = spotlights.map(spotlight => spotlight.documentId)
 
     const posts = await fetchFragment({
       collectionName: "Posts",
@@ -104,12 +158,12 @@ async function createSpotlights() {
     for (const [i, post] of Object.entries(spotlightPosts)) {
       // eslint-disable-next-line no-console
       console.log(i, spotlightPosts.length, post.title)
-      const summaries =  await Promise.all([...createSpotlightDescription(post), createArtDescription(post)])
-      const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
+      const summaries =  await Promise.all([...createSpotlightDescription(post, spotlightPosts, spotlights)])
+      // const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
             
-      // const artResults = await Promise.all(artPrompts.map(prompt => generateSpotlightImage(prompt)))
-      postResults[post._id] = filteredSummaries
-      createSpotlight(post._id, filteredSummaries)
+      // // const artResults = await Promise.all(artPrompts.map(prompt => generateSpotlightImage(prompt)))
+      // postResults[post._id] = filteredSummaries
+      // createSpotlight(post._id, filteredSummaries)
     }
   }
   return "Done"
