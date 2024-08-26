@@ -197,19 +197,19 @@ export const generateAssistantContextMessage = async (query: string, currentPost
   const contextIsProvided = !!currentPost || additionalPosts.length > 0;
 
   return [
-    `<SystemInstruction>You are interfacing with a user via chat window on LessWrong.com. The user has asked a question: "${query}".`,
+    `<SystemInstruction>You are interfacing with a user via chat window on LessWrong.com. The user has sent a query: "${query}".`,
 
-    contextIsProvided && `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system.<Context>`,
-      currentPost && `The user is currently viewing the following post: ${currentPost.title} with postId: ${currentPost._id}`,
+    contextIsProvided && `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system. <Context>`,
+      currentPost && `The user is currently viewing the post titled "${currentPost.title}" with postId "${currentPost._id}".`,
 
       additionalPosts?.length && `The following posts have been provided as possibly relevant context: <AdditionalPosts>${formatAdditionalPostsForPrompt(additionalPosts)}</AdditionalPosts>`,
 
-      currentPost &&  `If relevant to the query asked, the most important context is likely to be the post the user is currently viewing. The fulltext of the current post is provied:`,
+      currentPost &&  `If relevant to the user's query, the most important context is likely to be the post the user is currently viewing. The full text of the current post is provided below:`,
       currentPost && `<CurrentPost>\n${formatPostForPrompt(currentPost)}</CurrentPost>`,
       includeComments && currentPost && `These are the comments on the current post: <CurrentPostComments>${await formatCommentsForPost(currentPost, context)}</CurrentPostComments>`,
-    contextIsProvided && 'This concludes the provided context. </Context>',
+    contextIsProvided && 'This concludes the provided context.</Context>',
 
-    `Please follow the following additional instructions where answering the user's query: ${query}`,
+    `Please follow these additional instructions when responding to the user's query:`,
     contextIsProvided && '- You may use your existing knowledge to answer the query, but prioritize using the provided context.',
     '- Limit the use of lists and bullet points in your answer, prefer to answer with paragraphs.',
     '- When citing results, give at least one word-for-word exact quote from what you are citing.',
