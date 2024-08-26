@@ -67,6 +67,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.8,
     alignSelf: "flex-end",
     fontStyle: "italic",
+    marginBottom: 4
   },
   chatMessage: {
     padding: 20,
