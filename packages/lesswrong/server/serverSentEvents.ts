@@ -87,6 +87,7 @@ export function sendSseMessageToUser(userId: string, message: ServerSentEventsMe
   const userConnections = openConnections[userId];
   if (!userConnections) {
     // TODO: do we want to log an error here?  Probably not, it'll be happening reasonably often for innocous reasons
+    // eslint-disable-next-line no-console
     console.log(`No connections found for user id ${userId}`, message);
     return;
   }

@@ -337,8 +337,9 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   }
 
   const resultUsageField = finalMessage.usage;
-  console.log("Time to get response from Claude", endTime - startTime);
-  console.log({ resultUsageField });
+  // TO-DO: remove this console log when we're more done with development
+  // eslint-disable-next-line no-console
+  console.log({LlmResponseTime: endTime - startTime, resultUsageField});
 
   const newResponse = {
     conversationId,
