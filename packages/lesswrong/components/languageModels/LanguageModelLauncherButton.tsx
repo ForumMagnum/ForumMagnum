@@ -20,10 +20,8 @@ const styles = (theme: ThemeType) => ({
     height: 48,
     padding: 10,
     cursor: "pointer",
-    // TODO: Figure out for dark mode
-    // backgroundColor: theme.palette.grey[100],
+    // TODO: Currently the shadow and animation effects on hover don't show up in darkmode
     boxShadow: "0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16)",
-    // add hover styling
     "&:hover": {
       boxShadow: "0 6px 8px rgba(0, 0, 0, 0.2)"
     },
