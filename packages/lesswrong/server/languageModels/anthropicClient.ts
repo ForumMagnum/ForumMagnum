@@ -23,4 +23,4 @@ export const getAnthropicClientOrThrow = (() => {
 export const getAnthropicPromptCachingClientOrThrow = () => {
   const baseClient = getAnthropicClientOrThrow();
   return new Anthropic.Beta.PromptCaching(baseClient);
-}
+};
