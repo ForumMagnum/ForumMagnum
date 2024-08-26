@@ -32,7 +32,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 // note: if no context is passed, default to running requests with full admin privileges
 export const runQuery = async <T = Record<string, any>>(query: string | DocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
   const executableSchema = getExecutableSchema();
-  const queryContext = context ?? createAdminContext();
+  const queryContext = createAnonymousContext(context);
 
   const stringQuery = typeof query === 'string'
     ? query
