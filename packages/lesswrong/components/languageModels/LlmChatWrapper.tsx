@@ -180,7 +180,7 @@ const LlmChatWrapper = ({children}: {
       setCurrentConversationId(newConversationChannelId);
     }
 
-    const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: not always true? */ };
+    const promptContextOptions: PromptContextOptions = { postId: currentPostId, includeComments: true /* TODO: this currently doesn't do anything; it's hardcoded on the server */ };
 
     void sendClaudeMessage({
       variables: {
@@ -225,7 +225,6 @@ const LlmChatWrapper = ({children}: {
 
     const { conversationId, content, previousUserMessage } = message.data;
 
-    // TODO: shouldn't shadow
     const streamConversation = conversations[conversationId];
     const updatedMessages = [...streamConversation.messages];
     const lastMessageInConversation = updatedMessages.slice(-1)[0];

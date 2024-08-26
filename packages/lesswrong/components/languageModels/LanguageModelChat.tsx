@@ -122,7 +122,6 @@ const styles = (theme: ThemeType) => ({
 interface LlmConversationMessage {
   role: string
   content: string
-  // displayContent?: string
 }
 
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";

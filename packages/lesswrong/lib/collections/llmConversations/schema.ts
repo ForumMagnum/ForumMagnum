@@ -51,6 +51,7 @@ const schema: SchemaType<"LlmConversations"> = {
       GROUP BY lm."conversationId"
     )`
   }),
+  // This is a resolver-only field; logic defined in llmConversationsResolvers.ts
   messages: {
     type: Array,
     optional: true,
