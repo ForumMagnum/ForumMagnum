@@ -513,21 +513,22 @@ defineMutation({
     const conversationId = conversation._id;
 
     const now = new Date();
-
     const fetchPreviousMessagesPromise = context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] }, createdAt: { $lt: now } }, { sort: { createdAt: 1 } }).fetch();
-    const createNewMessagesSequentiallyPromise = asyncMapSequential(newMessageRecords, async (message) => createMutator({
-      collection: context.LlmMessages,
-      document: message,
-      context,
-      currentUser,
-    }).then(({ data }) => data));
+
+    const createNewMessagesSequentiallyPromise = asyncMapSequential(
+      newMessageRecords,
+      (message) => createMutator({
+        collection: context.LlmMessages,
+        document: message,
+        context,
+        currentUser,
+      }).then(({ data }) => data)
+    );
 
     const [previousMessages, newMessages] = await Promise.all([
       fetchPreviousMessagesPromise,
       createNewMessagesSequentiallyPromise,
     ]);
-
-    // const conversationMessages = [...previousMessages, ...newMessages];
 
     // TODO: figure out if we can relocate this to be earlier by fixing the thing on the client where we refetch the latest conversation
     // which will be missing the latest messages, if we haven't actually inserted them into the database (which we do above)
