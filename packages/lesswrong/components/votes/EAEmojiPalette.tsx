@@ -58,7 +58,7 @@ const PaletteSection: FC<{
     <>
       <SectionTitle
         title={title}
-        className={classes.title}
+        titleClassName={classes.title}
         noTopMargin
       />
       <div>

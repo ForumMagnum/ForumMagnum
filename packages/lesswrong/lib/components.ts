@@ -289,6 +289,8 @@ importComponent("WrappedStrawPoll", () => require('../components/common/WrappedS
 importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("TabPicker", () => require('../components/common/TabPicker'));
 importComponent("Sparkline", () => require('../components/common/Sparkline'));
+importComponent(["SideItem","SideItemsSidebar","SideItemsContainer"], () => require('../components/contents/SideItems'));
+importComponent("SideItemLine", () => require('../components/contents/SideItemLine'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -673,6 +675,7 @@ importComponent("CommentsListMeta", () => require('../components/comments/Commen
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
 importComponent("CommentFrame", () => require('../components/comments/CommentFrame'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews'));
+importComponent("CommentsSortBySelector", () => require('../components/comments/CommentsSortBySelector'));
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
 importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));

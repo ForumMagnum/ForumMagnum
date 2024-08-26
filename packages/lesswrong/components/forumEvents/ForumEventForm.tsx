@@ -16,7 +16,7 @@ export const ForumEventForm = ({documentId, classes}: {
   const {SectionTitle, WrappedSmartForm} = Components;
   return (
     <div className={classes.root}>
-      <SectionTitle title={title} className={classes.formTitle} />
+      <SectionTitle title={title} titleClassName={classes.formTitle} />
       <WrappedSmartForm
         documentId={documentId}
         collectionName="ForumEvents"

@@ -300,6 +300,7 @@ registerFragment(`
     totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
+    disableSidenotes
   }
 `);
 
