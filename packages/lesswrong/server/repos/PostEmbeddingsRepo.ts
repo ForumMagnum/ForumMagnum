@@ -2,6 +2,14 @@ import AbstractRepo from "./AbstractRepo";
 import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
 import { randomId } from "../../lib/random";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { getViewablePostsSelector } from "./helpers";
+
+interface PostEmbeddingDistanceInfo {
+  _id: string,
+  title: string,
+  raw_distance: unknown,
+  quality_adjusted_score: unknown
+}
 
 class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   constructor() {
@@ -39,10 +47,13 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
 
   private postIdsByEmbeddingDistanceSelector = `
     SELECT
-      p._id
+      p._id,
+      p.title,
+      ed.distance AS raw_distance,
+      (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) AS quality_adjusted_score
     FROM embedding_distances ed
     LEFT JOIN "Posts" p ON p._id = ed."postId"
-    WHERE p.draft IS FALSE
+    WHERE ${getViewablePostsSelector('p')}
     AND p."baseScore" > 0
     ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
     LIMIT $(limit)
@@ -52,7 +63,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     inputEmbedding: number[],
     limit = 5,
   ): Promise<string[]> {
-    const results = await this.getRawDb().any<{_id: string}>(`
+    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
       -- PostEmbeddingsRepo.getNearestPostsWeightedByQuality
       WITH embedding_distances AS (
         SELECT
@@ -72,7 +83,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     postId: string,
     limit = 5
   ): Promise<string[]> {
-    const results = await this.getRawDb().any<{_id: string}>(`
+    const results = await this.getRawDb().any<PostEmbeddingDistanceInfo>(`
       -- PostEmbeddingsRepo.getNearestPostsWeightedByQualityByPostId
       WITH source_embedding AS (
         SELECT embeddings

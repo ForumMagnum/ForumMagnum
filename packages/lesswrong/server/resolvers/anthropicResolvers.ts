@@ -2,7 +2,7 @@ import { defineMutation } from "../utils/serverGraphqlUtil";
 import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionTool, ContextSelectionParameters } from "../languageModels/promptUtils";
 import uniqBy from "lodash/uniqBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
@@ -11,11 +11,12 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
 import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
-import { createMutator, runFragmentQuery } from "../vulcan-lib";
+import { Globals, createAdminContext, createMutator, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import uniq from "lodash/uniq";
+import { getOpenAI } from "../languageModels/languageModelIntegration";
 
 const ClientMessage = `input ClientLlmMessage {
   conversationId: String
@@ -94,39 +95,35 @@ function getConversationContext(newConversationChannelId: string | null, newMess
   };
 }
 
-// TODO: convert this to tool use for reliability
 async function getQueryContextDecision(query: string, currentPost: PostsPage | null): Promise<RagContextType> {
-  const contextSelectionPrompt = generateContextSelectionPrompt(query, currentPost)
-  const contextTypeMapping: Record<string, RagContextType> = {
-    "(1)": "query-based",
-    "(2)": "current-post-based",
-    "(3)": "both",
-    "(4)": "none"
+  const openai = await getOpenAI();
+  if (!openai) {
+    return 'error';
   }
 
-  const client = getAnthropicClientOrThrow()
-  const response = await client.messages.create({
-    model: "claude-3-haiku-20240307",
-    max_tokens: 512,
-    messages: [{role: "user", content: contextSelectionPrompt}]
-  })
+  // TODO: come back to this when haiku 3.5 is out to replace it, maybe
+  const toolUseResponse = await openai.chat.completions.create({
+    model: 'gpt-4o-mini-2024-07-18',
+    messages: [
+      { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
+      { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
+    ],
+    tools: [contextSelectionTool]
+  });
 
-  const result = response.content[0]
-  if (result.type === 'tool_use') {
-    throw new Error("response is tool use which is not a proper response in this context")
+  const rawArguments = toolUseResponse.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
+  if (!rawArguments) {
+    // eslint-disable-next-line no-console
+    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse });
+    return 'error';
   }
 
-  // console.log({result, contextSelectionPrompt: contextSelectionPrompt.slice(0, 500) + '....' + contextSelectionPrompt.slice(-1000)})
+  const parsedArguments: ContextSelectionParameters = JSON.parse(rawArguments);
 
-  //check if result is one of the expected values
-  if (!["(1)", "(2)", "(3)", "(4)"].includes(result.text.slice(0, 3))) {
-    return "error";
-  }
-  else {
-    return contextTypeMapping[result.text.slice(0, 3)]
-  }
+  return parsedArguments.strategy_choice;
 }
 
+// TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
 async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
   const contextSelectionCode = await getQueryContextDecision(query, currentPost);
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
@@ -374,7 +371,7 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
 async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
   const contextualPosts = await getContextualPosts(content, currentPost, context);
   const userContextMessage = getPostContextMessage(content, contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, false, context);
+  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
 
   return { userContextMessage, assistantContextMessage };
 }
