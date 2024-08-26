@@ -15,9 +15,9 @@ import { getMultiResolverName } from '@/lib/crud/utils';
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
   // eslint-disable-next-line no-console
-  console.error(`runQuery error: ${errors[0].message}`);
+  console.error(`runQuery error: ${errors[0].message}, trace: ${errors[0].stack}`);
   // eslint-disable-next-line no-console
-  console.error(errors);
+  console.error(JSON.stringify(errors, null, 2));
 }
 
 let onGraphQLError = writeGraphQLErrorToStderr;
