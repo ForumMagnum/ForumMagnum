@@ -359,6 +359,7 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
 
 async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
   const contextualPosts = await getContextualPosts(content, currentPost, context);
+  // TODO: refactor this to avoid returning a context message if there were no posts loaded into the context window.  (And make sure it depends on what's actually in the context window, not just on whether the user's on a current post.)
   const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
   const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
 
