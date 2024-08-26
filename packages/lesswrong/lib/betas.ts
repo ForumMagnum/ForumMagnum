@@ -74,7 +74,7 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
 }
 
-export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): boolean => {
+export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
   if (!currentUser) {
     return false
   }

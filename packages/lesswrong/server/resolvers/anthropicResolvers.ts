@@ -456,8 +456,8 @@ defineMutation({
     const { currentUser } = context;
     const { postId: currentPostId } = promptContextOptions
 
-    if (!currentUser || !userHasLlmChat(currentUser)) {
-      throw new Error("only admins and authorized users can use Claude chat at present")
+    if (!userHasLlmChat(currentUser)) {
+      throw new Error('Only admins and authorized users can use Claude chat at present');
     }
 
     if (!newConversationChannelId && !newMessage.conversationId) {
