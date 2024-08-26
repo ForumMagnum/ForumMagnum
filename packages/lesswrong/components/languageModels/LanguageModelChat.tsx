@@ -42,6 +42,7 @@ const styles = (theme: ThemeType) => ({
   inputTextbox: {
     padding: 16,
     margin: 10,
+    marginTop: 20,
     borderRadius: 4,
     minHeight: 100,
     maxHeight: 200,
@@ -82,6 +83,10 @@ const styles = (theme: ThemeType) => ({
   messages: {
     overflowY: "scroll",
     flexGrow: 1,
+    //the last child has margin bottom 0 (doesn't work)
+    "& > *:last-child": {
+      marginBottom: 0
+    }
   },
   options: {
     flexGrow: 0,
