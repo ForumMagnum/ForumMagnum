@@ -531,13 +531,9 @@ const LWHomePosts = ({ children, classes }: {
     [classes.hideOnMobile]: !mobileSettingsVisible,
   });
 
-  // const hasSetAnyFilters = filterSettings.tags.length !== 6 || filterSettings.tags.some(setting => setting.filterMode !== "Default")
-  
+  // TODO: Make this also work for logged out users
   const currentFilterSettings = currentUser?.frontpageFilterSettings
   const hasSetAnyFilters = currentFilterSettings === undefined ? false : true;
-  
-  // If they're different, then the user has made a change
-
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
