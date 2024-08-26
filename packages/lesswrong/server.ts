@@ -81,7 +81,7 @@ import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
 // doesn't pass unit tests but works fine. Leaving commented out for now
-// import './server/scripts/generativeModels/autoSpotlight';
+import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
@@ -223,4 +223,3 @@ import './server/conversationUnreadMessages';
 import './server/userLoginTokens';
 
 import './server/migrations/meta/utils';
-import './server/scripts/generativeModels/autoSpotlight';
