@@ -9,7 +9,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 
-const COMMENT_SORTING_MODES = new TupleSet([ 
+export const COMMENT_SORTING_MODES = new TupleSet([ 
   "top", "groupByPost", "new", "newest", "old", "oldest", "magic", "recentComments", "recentDiscussion"
 ] as const);
 
@@ -44,11 +44,7 @@ declare global {
    * In past versions, different subsets of these depending on whether you were
    * using an answers view, a subforum view, or something else.
    */
-  export type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
-}
-
-export const isCommentSortingMode = (value: string): value is CommentSortingMode => {
-  return COMMENT_SORTING_MODES.has(value);
+  type CommentSortingMode = UnionOf<typeof COMMENT_SORTING_MODES>;
 }
 
 Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext) => {

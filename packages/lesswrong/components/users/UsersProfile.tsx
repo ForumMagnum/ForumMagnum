@@ -26,6 +26,7 @@ import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { allowSubscribeToUserComments } from '../../lib/betas';
+import { COMMENT_SORTING_MODES, isCommentSortingMode } from '@/lib/collections/comments/views';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -246,8 +247,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const commentQueryName = "commentsSortBy"
     const commentQueryMode = query[commentQueryName]
-    const sortingModeIsValid = isCommentSortingMode(commentQueryMode)
-    const currentCommentSortBy = sortingModeIsValid ? (commentQueryMode) as CommentSortingMode : undefined
+    const currentCommentSortBy = COMMENT_SORTING_MODES.has(commentQueryMode) ? commentQueryMode : undefined
 
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
