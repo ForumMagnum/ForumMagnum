@@ -26,7 +26,7 @@ import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { allowSubscribeToUserComments } from '../../lib/betas';
-import { COMMENT_SORTING_MODES, isCommentSortingMode } from '@/lib/collections/comments/views';
+import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
