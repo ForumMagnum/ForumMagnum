@@ -218,9 +218,8 @@ export const styles = (theme: ThemeType) => ({
   centralColumn: {
     marginLeft: 'auto',
     marginRight: 'auto',
-    
+    maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
     ...(isFriendlyUI && {
-      maxWidth: CENTRAL_COLUMN_WIDTH,
       [theme.breakpoints.down('sm')]: {
         // This can only be used when display: "block" is applied, otherwise the 100% confuses the
         // grid layout into adding loads of left margin
