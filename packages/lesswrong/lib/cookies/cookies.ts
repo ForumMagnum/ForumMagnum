@@ -196,7 +196,7 @@ export const SHOW_LLM_CHAT_COOKIE = registerCookie({
   description: "Whether the LLM chat conversation UI is open",
 });
 
-export const SHOW_LLM_CHAT_GUIDE_COOKIE = registerCookie({
+export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
   name: "llm_chat_guide_open",
   type: "functional",
   description: "Whether the LLM chat guide is open",

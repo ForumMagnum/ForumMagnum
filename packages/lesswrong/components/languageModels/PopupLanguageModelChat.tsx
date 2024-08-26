@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.default,
     width: 600,
+    maxHeight: "calc(100vh - 80px)",
     position: "fixed",
     right: theme.spacing.unit,
     bottom: theme.spacing.unit,

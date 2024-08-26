@@ -200,7 +200,8 @@ function getPostContextMessage(query: string, postsLoadedIntoContext: PostsPage[
 
   const message = [
     `*Based on your query, the following posts were loaded into the LLM's context window*:`,
-    deduplicatedPostsList
+    deduplicatedPostsList,
+    `\n*(This message and similar messages are not sent to the LLM.)*`
   ].join("\n");
 
   return message;
@@ -432,7 +433,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
 
   return {
     conversation,
-    newMessageRecords: [newUserContextMessageRecord, newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord],
+    newMessageRecords: [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord, newUserContextMessageRecord],
   };
 }
 

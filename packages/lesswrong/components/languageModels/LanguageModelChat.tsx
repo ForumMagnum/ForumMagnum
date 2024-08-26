@@ -15,9 +15,17 @@ import { getCkCommentEditor } from '@/lib/wrapCkEditor';
 import { forumTypeSetting } from '@/lib/instanceSettings';
 import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
 import { ckEditorStyles } from '@/themes/stylePiping';
+import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 
 const styles = (theme: ThemeType) => ({
   root: {
+    height: "calc(100vh - 160px)"
+  },
+  subRoot: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%"
   },
   submission: {
     margin: 10,
@@ -40,16 +48,19 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 200,
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflow: 'scroll',
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: "auto",
   },
   welcomeGuide: {
-    padding: 16,
     margin: 10,
-    borderRadius: 10,
     display: "flex",
     flexDirection: "column",
   },
   welcomeGuideText: {
-    padding: "16px 16px 16px 0",
+    padding: 20,
+    backgroundColor: theme.palette.grey[100],
+    borderRadius: 10,
   },
   welcomeGuideButton: {
     cursor: "pointer",
@@ -58,23 +69,24 @@ const styles = (theme: ThemeType) => ({
     fontStyle: "italic",
   },
   chatMessage: {
-    padding: 16,
+    padding: 20,
     margin: 10,
-    borderRadius: 10
+    borderRadius: 10,
+    backgroundColor: theme.palette.grey[100],
   },
   chatMessageContent: {
   },
   userMessage: {
     backgroundColor: theme.palette.grey[300],
   },
-  assistantMessage: {
-    backgroundColor: theme.palette.grey[100],
-  },
   messages: {
-    height: "70vh",
     overflowY: "scroll",
+    flexGrow: 1,
   },
   options: {
+    flexGrow: 0,
+    flexShrink: 0,
+    flexBasis: "auto",
     fontFamily: theme.palette.fonts.sansSerifStack,
     marginLeft: 10
   },
@@ -121,7 +133,7 @@ const LLMChatMessage = ({message, classes}: {
 
   return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
     <ContentItemBody
-      className={classNames(classes.chatMessage, {[classes.userMessage]: role==='user', [classes.assistantMessage]: role==='assistant'})}
+      className={classNames(classes.chatMessage, {[classes.userMessage]: role==='user'})}
       dangerouslySetInnerHTML={{__html: displayContent ?? content}}
     />
 </ContentStyles>
@@ -206,7 +218,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
   </ContentStyles>
 }
 
-const welcomeGuideHtml = `<h1>Welcome to the LessWrong LLM Chat!</h1><ul><li>The LLM chat interface is currently hooked up to Claude Sonnet 3.5</li><li>While in development, LW is paying for the usage. This will likely change later.</li><li>LaTeX is supported both on input and output</li><li>Images are not yet supported</li><li style="color: #bf360c;">While this feature is under heavy development, the LessWrong team will read conversations to help us with product iteration.</li></ul><h1>Loading Context</h1><p><strong>Currently, context loading only happens with the first message in a conversation</strong></p><p>When you start a new chat, your very first message is analyzed for potentially relevant context based on the text of your query and the post you are currently viewing (if any). The system will decide whether or not to load in posts and comments related to your query, your current post, both, or neither.</p><p>The kinds of requests you can make include but are not limited to:</p><p><i>About the current post</i></p><blockquote><p>"Please give a tl;dr of this post and tell me three surprising things in it."</p><p>&lt;copy-paste section of post&gt; "Please explain this to me including worked examples and explanations of the math notation."</p><p>"What the objections to the OP in the comments and how did the author respond to them?"</p><p>"What are background posts that would help understand this?"</p></blockquote><p><i>Generally</i></p><blockquote><p>"Can you give me an overview of Infrabayesianism?"</p><p>"Please give me an of the Sleeping Beauty problem and its significance?</p></blockquote><p>(our chat is great for asking about niche LessWrong content)</p><p>Feel free to try out other kinds of questions!!</p>`
+const welcomeGuideHtml = `<h1>Welcome to the LessWrong LLM Chat!</h1><ul><li>Ctrl/Cmd + Enter to submit</li><li>The LLM chat interface is currently hooked up to Claude Sonnet 3.5</li><li>While in development, LW is paying for the usage. This will likely change later.</li><li>LaTeX is supported both on input and output</li><li>Images are not yet supported</li><li style="color: #bf360c;">While this feature is under heavy development, the LessWrong team will read conversations to help us with product iteration.</li></ul><h1>Loading Context</h1><p><strong>Currently, context loading only happens with the first message in a conversation</strong></p><p>When you start a new chat, your very first message is analyzed for potentially relevant context based on the text of your query and the post you are currently viewing (if any). The system will decide whether or not to load in posts and comments related to your query, your current post, both, or neither.</p><p>The kinds of requests you can make include but are not limited to:</p><p><i>About the current post</i></p><blockquote><p>"Please give a tl;dr of this post and tell me three surprising things in it."</p><p>&lt;copy-paste section of post&gt; "Please explain this to me including worked examples and explanations of the math notation."</p><p>"What the objections to the OP in the comments and how did the author respond to them?"</p><p>"What are background posts that would help understand this?"</p></blockquote><p><i>Generally</i></p><blockquote><p>"Can you give me an overview of Infrabayesianism?"</p><p>"Please give me an of the Sleeping Beauty problem and its significance?</p></blockquote><p>(our chat is great for asking about niche LessWrong content)</p><p>Feel free to try out other kinds of questions!!</p><p><em>(This guide can be hidden - see button in top right.)</em></p>`
 
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -232,7 +244,11 @@ export const ChatInterface = ({classes}: {
     }
   }, [currentConversation?.messages.length, lengthOfMostRecentMessage]);
 
-  const [showGuide, setShowGuide] = useState(true)
+  const [cookies, setCookies] = useCookiesWithConsent([HIDE_LLM_CHAT_GUIDE_COOKIE])
+  const showGuide = cookies[HIDE_LLM_CHAT_GUIDE_COOKIE] !== "true";
+  const setShowGuide = (show: boolean) => {
+    setCookies(HIDE_LLM_CHAT_GUIDE_COOKIE, show ? "false" : "true")
+  }
 
   const llmChatGuide = <ContentStyles contentType="llmChat" className={classes.welcomeGuide}>
     <div 
@@ -313,7 +329,7 @@ export const ChatInterface = ({classes}: {
     submitMessage(message, currentPostId);
   }, [currentPostId, submitMessage]);
 
-  return <div>
+  return <div className={classes.subRoot}>
     {messagesForDisplay}
     {currentConversationLoading && <Loading className={classes.loadingSpinner}/>}
     <LLMInputTextbox

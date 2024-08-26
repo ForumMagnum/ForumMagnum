@@ -193,7 +193,7 @@ export const generateAssistantContextMessage = async (query: string, currentPost
     '- When citing results, give at least one word-for-word exact quote from what you are citing.',
     '- Format your responses using Markdown syntax, including equations using Markdown MathJax syntax (important!!!)',
     '- Format paragraph or block quotes using Markdown syntax. Do not wrap the contents of block quotes in "" (quotes).',
-    '- Cite posts that you reference in your answers with the following format: [Post Title](https//lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the name of the author.',
+    '- Cite posts that you reference in your answers with the following format: [Post Title](https://lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the name of the author.',
     '- Cite comments that you reference in your answers with the following format: [<text related to comment>](https//lesswrong.com/posts/<postId>/?commentId=<commentId>).',
       'The postId and commentId are given in the search results. Ensure you also give the name of the author of the comment.',
     '</SystemInstruction>\n\n',
