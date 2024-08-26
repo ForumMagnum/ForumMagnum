@@ -70,7 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative"
   },
   editor: {
-    padding: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingTop: 8,
     paddingBottom: 12,
   },
 });
