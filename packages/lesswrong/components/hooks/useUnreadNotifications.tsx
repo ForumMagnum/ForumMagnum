@@ -74,7 +74,6 @@ type LlmStreamEnd = {
   conversationId: string;
 };
 
-// TODO: change this to a "create new conversation" message, which should include the title
 export type LlmCreateConversationMessage = {
   eventType: 'llmCreateConversation';
   title: string;

@@ -9,7 +9,6 @@ import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
 import { LlmCreateConversationMessage, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
-import pull from 'lodash/pull';
 
 interface PromptContextOptions {
   postId?: string,
@@ -54,11 +53,12 @@ const LlmChatWrapper = ({children}: {
     }
   `)
 
-  const [getClaudeLoadingMessages] = useMutation(gql`
-    mutation getClaudeLoadingMessagesMutation($messages: [ClientLlmMessage!]!, $postId: String) {
-      getClaudeLoadingMessages(messages: $messages, postId: $postId)
-    }
-  `)
+  // TODO: come back to refactor this to use SSEs
+  // const [getClaudeLoadingMessages] = useMutation(gql`
+  //   mutation getClaudeLoadingMessagesMutation($messages: [ClientLlmMessage!]!, $postId: String) {
+  //     getClaudeLoadingMessages(messages: $messages, postId: $postId)
+  //   }
+  // `)
 
   const { mutate: updateConversation } = useUpdate({
     collectionName: "LlmConversations",
@@ -117,7 +117,7 @@ const LlmChatWrapper = ({children}: {
     }
   }, [loadingConversationIds]);
 
-  // TODO: probably break this out into separate update operations
+  // TODO: maybe break this out into separate update operations
   const updateConversationById = useCallback((updatedConversation: LlmConversation | LlmConversationsWithMessagesFragment) => {
     setConversations({ ...conversations, [updatedConversation._id]: updatedConversation });
   }, [conversations, setConversations]);

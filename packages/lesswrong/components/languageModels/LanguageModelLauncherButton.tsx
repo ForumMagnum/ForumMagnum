@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, { useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -49,7 +48,7 @@ export const LanguageModelLauncherButton = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { ForumIcon } = Components;
   const { openDialog } = useDialog();
-  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE])
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const openLlmChat = useCallback(() => {
     captureEvent("languageModelLauncherButtonClicked");
