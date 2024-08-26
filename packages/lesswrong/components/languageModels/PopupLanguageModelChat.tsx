@@ -39,17 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 350,
     fontSize: "0.9em"
   },
-  // expandIcon: {
-  //   height: 20,
-  //   position: "absolute",
-  //   right: 32,
-  //   top: 10,
-  //   cursor: "pointer",
-  //   color: theme.palette.grey[400],
-  //   '&:hover': {
-  //     color: theme.palette.grey[600],
-  //   }
-  // },
   close: {
     position: "absolute",
     right: 8,
