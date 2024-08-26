@@ -27,6 +27,7 @@ import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useSingle } from '@/lib/crud/withSingle';
 import { isServer } from '@/lib/executionEnvironment';
 import isEqual from 'lodash/isEqual';
+import { getDefaultFilterSettings } from '../../lib/filterSettings.ts';
 
 // Key is the algorithm/tab name
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
@@ -530,7 +531,13 @@ const LWHomePosts = ({ children, classes }: {
     [classes.hideOnMobile]: !mobileSettingsVisible,
   });
 
-  const hasSetAnyFilters = filterSettings.tags.length !== 6 || filterSettings.tags.some(setting => setting.filterMode !== "Default")
+  // const hasSetAnyFilters = filterSettings.tags.length !== 6 || filterSettings.tags.some(setting => setting.filterMode !== "Default")
+  
+  const currentFilterSettings = currentUser?.frontpageFilterSettings
+  const hasSetAnyFilters = currentFilterSettings === undefined ? false : true;
+  
+  // If they're different, then the user has made a change
+
 
   const filterSettingsElement = (
     <AnalyticsContext pageSectionContext="tagFilterSettings">
