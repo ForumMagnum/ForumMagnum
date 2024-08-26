@@ -119,7 +119,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const MAX_TOKENS = 180000;
-const TOKENS_PER_WORD = 0.75;
+const TOKENS_PER_WORD = 1.3;
 const MAX_AUTHOR_TOKENS = 50000;
 
 const featuredAuthors = [

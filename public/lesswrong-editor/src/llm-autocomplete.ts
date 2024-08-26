@@ -1,44 +1,43 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import { ButtonView } from '@ckeditor/ckeditor5-ui';
+// import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import TurndownService from 'turndown';
-import markdownIt from 'markdown-it'
 
 
-export default class ClaudePlugin extends Plugin {
+export default class AIAutocomplete extends Plugin {
     static get pluginName() {
-        return 'ClaudePlugin';
+        return 'AIAutocomplete';
     }
 
     init() {
         const editor = this.editor;
 
-        editor.ui.componentFactory.add('autocompleteButton', () => {
-            const button = new ButtonView();
+        // editor.ui.componentFactory.add('autocompleteButton', () => {
+        //     const button = new ButtonView();
 
-            button.set({
-                label: 'AI Autocomplete',
-                tooltip: true,
-                withText: true
-            });
+        //     button.set({
+        //         label: 'AI Autocomplete',
+        //         tooltip: true,
+        //         withText: true
+        //     });
 
-            button.on('execute', () => {
-                this.askClaude();
-            });
+        //     button.on('execute', () => {
+        //         this.autocomplete();
+        //     });
 
-            return button;
-        });
+        //     return button;
+        // });
 
         // Add keyboard shortcut
         editor.editing.view.document.on('keydown', (evt, data) => {            
             // Check for Cmd+E (Mac) or Ctrl+E (Windows/Linux)
             if ((data.ctrlKey || data.metaKey) && data.keyCode === 69) {
                 evt.stop();
-                this.askClaude();
+                this.autocomplete();
             }
         });
     }
 
-    askClaude() {
+    autocomplete() {
         const editor = this.editor;
         const selection = editor.model.document.selection;
 
@@ -56,7 +55,12 @@ by habryka
 ${selectedContent}`;
         }
 
-        getAutocompletion(selectedContent, !titleElement, (message) => {
+        editor.model.change(writer => {
+            const spaceElement = writer.createText(' ');
+            editor.model.insertContent(spaceElement, editor.model.document.selection);
+        })
+
+        getAutocompletion(selectedContent, (message) => {
             const paragraphs = message.split('\n\n');
             paragraphs.forEach((paragraph, index) => {
                 if (index > 0) {
@@ -68,9 +72,11 @@ ${selectedContent}`;
                 const lines = paragraph.split('\n');
                 lines.forEach((line, index) => {
                     editor.model.change(writer => {
+                        const root = editor.model.document.getRoot();
+                        const endPosition = writer.createPositionAt(root, 'end');
 
                         if ((lines[index - 1]?.trim() !== '' && index > 0) || line.trim() === '') {
-                            writer.insertElement('softBreak', selection.getLastPosition());
+                            writer.insertElement('softBreak', endPosition);
                         }
                         writer.insertText(line, selection.getLastPosition());
                     })
@@ -100,7 +106,21 @@ ${selectedContent}`;
     }
 }
 
-async function getAutocompletion(prefix: string, comment: boolean, onCompletion: (completion: string) => void) {
+const getReplyingCommentId = () => {
+    // Get the text field that is currently selected
+    const currentlySelectedTextField = document.activeElement;
+
+    // Then find the closest parent element with the class name 'comment-node'
+    const replyingToCommentNode = currentlySelectedTextField.closest('.comments-node');
+
+    // Get the comment id from the id attribute
+    return replyingToCommentNode?.id;
+}
+
+async function getAutocompletion(prefix: string, onCompletion: (completion: string) => void) {
+    // Get the id of the comment we are replying to from the DOM
+    const replyingCommentId = getReplyingCommentId();
+
     const response = await fetch('/api/autocomplete', {
         method: 'POST',
         headers: {
@@ -110,7 +130,7 @@ async function getAutocompletion(prefix: string, comment: boolean, onCompletion:
             prefix,
             commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
             postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
-            comment
+            replyingCommentId
         }),
     });
 

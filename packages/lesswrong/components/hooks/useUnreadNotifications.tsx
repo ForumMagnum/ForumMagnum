@@ -79,12 +79,7 @@ export type LlmStreamMessage = {
   data: LlmStreamTextChunk
 };
 
-export type LlmAutocompleteStreamMessage = {
-  eventType: 'llmAutocompleteStream',
-  data: string
-}
-
-export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamMessage | LlmCreateConversationMessage | LlmAutocompleteStreamMessage;
+export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamMessage | LlmCreateConversationMessage;
 
 type EventType = ServerSentEventsMessage['eventType'];
 type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
@@ -296,8 +291,7 @@ let notificationEventListenersByType = {
   activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
   typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
   llmCreateConversation: [] as NotificationEventListener<'llmCreateConversation'>[],
-  llmStream: [] as NotificationEventListener<'llmStream'>[],
-  llmAutocompleteStream: [] as NotificationEventListener<'llmAutocompleteStream'>[],
+  llmStream: [] as NotificationEventListener<'llmStream'>[]
 };
 
 function getEventListenersOfType<T extends EventType>(eventType: T): NotificationEventListener<T>[] {
@@ -327,9 +321,6 @@ export function onServerSentNotificationEvent(message: ServerSentEventsMessage) 
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
     case 'llmStream':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
-    case 'llmAutocompleteStream': 
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
   }

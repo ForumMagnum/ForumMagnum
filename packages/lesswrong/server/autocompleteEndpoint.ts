@@ -9,25 +9,77 @@ import { Comments } from "@/lib/collections/comments";
 import Revisions from "@/lib/collections/revisions/collection";
 import { turndownService } from "./editor/conversionUtils";
 import Anthropic from "@anthropic-ai/sdk";
+import { formatRelative } from "@/lib/utils/timeFormat";
+import Users from "@/lib/vulcan-users";
+
+
+const getParentComments = async (comment: DbComment) => {
+  const parentComments : DbComment[] = [];
+  let currentComment : DbComment | null = comment;
+  while (currentComment.parentCommentId && currentComment.parentCommentId !== currentComment._id) {
+    currentComment = await Comments.findOne({ _id: currentComment.parentCommentId });
+    if (currentComment) {
+      parentComments.push(currentComment);
+    } else {
+      break;
+    }
+  }
+
+  return parentComments.reverse();
+}
+
+const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
+  const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? post.contents?.html ?? "<not available/>");
+  const author = authorsMap.get(post.userId)?.displayName;
+  return `${post.title}
+by ${author}
+${post.baseScore}
+${markdownBody}`.trim();
+}
+
+const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
+  const markdownBody = turndownService.turndown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
+  const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
+  const author = authorsMap.get(comment.userId)?.displayName;
+  return `${author} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
+${markdownBody}`.trim();
+}
+
+const getResponseMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
+  const parentComment = parentComments[parentComments.length - 1];
+  return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
+---
+${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap)).join("\n---\n")}
+---
+${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
+---
+${currentUser.displayName} 5m 75 2
+${prefix}`.trim();
+}
 
 async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],
   currentUser: any,
-  comment: boolean
+  replyingCommentId?: string
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
-  // Fetch revisions
-  const revisions = await Revisions.find({ documentId: { $in: [...postIds, ...commentIds] }, fieldName: "contents", version: "1.0.0" }).fetch();
-  const revisionsMap = new Map(revisions.map((revision) => [revision.documentId, revision]));
+  // Make the fetches parallel to save time
+  const [revisions, posts, comments] = await Promise.all([
+    Revisions.find({ documentId: { $in: [...postIds, ...commentIds] }, fieldName: "contents", version: "1.0.0" }).fetch(),
+    Posts.find({ _id: { $in: postIds } }).fetch(),
+    Comments.find({ _id: { $in: commentIds } }).fetch(),
+  ]);
 
-  // Fetch posts
-  const posts = await Posts.find({ _id: { $in: postIds } }).fetch();
+  const authors = await Users.find({ _id: { $in: [...posts.map((post) => post.userId), ...comments.map((comment) => comment.userId)] } }).fetch();
 
-  // Fetch comments
-  const comments = await Comments.find({ _id: { $in: commentIds } }).fetch();
+  const authorsMap = new Map(authors.map((author) => [author._id, author]));
+  const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
+
+  console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
+  console.time("constructPostMessageHistory");
 
   // Add fetched posts and comments to message history
   for (const post of posts) {
@@ -36,27 +88,20 @@ async function constructMessageHistory(
       content: [{ type: "text", text: `<cmd>cat lw/${post._id}.txt</cmd>` }],
     });
 
-
-    const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? post.contents?.html ?? "<not available/>");
-
     messages.push({
       role: "assistant",
       content: [
         {
           type: "text",
-          text: `${post.title}
-by ${post.author}
-${post.baseScore}
-${markdownBody}`,
+          text: getPostBodyFormatted(post, revisionsMap, authorsMap),
         },
       ],
     });
   }
 
+  console.timeEnd("constructPostMessageHistory");
+
   for (const comment of comments) {
-
-    const markdownBody = turndownService.turndown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
-
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${comment._id}.txt</cmd>` }],
@@ -64,7 +109,7 @@ ${markdownBody}`,
 
     messages.push({
       role: "assistant",
-      content: [{ type: "text", text: `${markdownBody}` }],
+      content: [{ type: "text", text: getCommentBodyFormatted(comment, revisionsMap, authorsMap) }],
     });
   }
 
@@ -74,27 +119,46 @@ ${markdownBody}`,
     content: [{ type: "text", text: `<cmd>cat lw/1903.txt</cmd>`, cache_control: {type: "ephemeral"}}]
   });
 
-  messages.push({
-    role: "assistant",
-    content: [
-      {
-        type: "text",
-        text: `${prefix}${
-          comment
-            ? `
----
-${currentUser.displayName}
-5d
-120
-25`
-            : ``
-        }
-`.trim(),
-      },
-    ],
-  },);
+  if (replyingCommentId) {
+    // Fetch the comment we're replying to
+    const replyingToComment = await Comments.findOne({ _id: replyingCommentId });
+    if (!replyingToComment) {
+      throw new Error("Comment not found");
+    }
+    const parentComments = await getParentComments(replyingToComment);
+    const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
+    const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
 
-  console.log({ comment, messages, contents: messages.map(message => message.content[0]?.text?.slice(0, 100)) });
+    const authors = await Users.find({ _id: { $in: [parentPost?.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
+
+    authors.forEach((author) => authorsMap.set(author._id, author));
+    revisionsMap.set(parentPost?._id!, parentPostRevision!);
+    if (!parentPost) {
+      throw new Error("Post not found");
+    }
+
+    const message = getResponseMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
+
+    messages.push({
+      role: "assistant",
+      content: [
+        {
+          type: "text",
+          text: message
+        },
+      ],
+    });
+  } else {
+    messages.push({
+      role: "assistant",
+      content: [
+        {
+          type: "text",
+          text: `${prefix}`
+        }
+      ]
+    });
+  }
 
   return messages;
 }
@@ -115,11 +179,7 @@ export function addAutocompleteEndpoint(app: Express) {
       const client = getAnthropicClientOrThrow();
       const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
 
-      const { prefix, commentIds, postIds, comment } = req.body;
-
-      if (!prefix) {
-        return res.status(400).json({ error: "Prefix is required" });
-      }
+      const { prefix = '', commentIds, postIds, replyingCommentId } = req.body;
 
       // Set headers for streaming response
       res.writeHead(200, {
@@ -130,18 +190,18 @@ export function addAutocompleteEndpoint(app: Express) {
 
       const loadingMessagesStream = promptCachingClient.messages.stream({
         model: "claude-3-5-sonnet-20240620",
-        max_tokens: 2000,
+        max_tokens: 1000,
+        system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
         messages: await constructMessageHistory(
           prefix,
           commentIds,
           postIds,
           currentUser,
-          comment,
+          replyingCommentId
         ),
       });
 
       loadingMessagesStream.on("text", (delta, snapshot) => {
-        console.log("delta", delta);
         res.write(
           `data: ${JSON.stringify({ type: "text", content: delta })}\n\n`,
         );
@@ -153,7 +213,7 @@ export function addAutocompleteEndpoint(app: Express) {
       });
 
       loadingMessagesStream.on("error", (error) => {
-        console.error("Stream error:", error);
+        console.error("Stream error:", JSON.stringify(error));
         res.write(
           `data: ${JSON.stringify({ type: "error", message: "An error occurred" })}\n\n`,
         );
