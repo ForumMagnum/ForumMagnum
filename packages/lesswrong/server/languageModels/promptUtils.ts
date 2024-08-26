@@ -1,19 +1,16 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
+import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
 import { zodFunction } from "openai/helpers/zod";
 
 interface NestedComment {
-  commentId: string;
-  postId: string;
-  author: string;
-  contents: string;
-  children?: NestedComment[];
+  _id: string;
+  postId: string | null;
+  author: string | null;
+  contents?: string;
   karmaScore: number;
-  published: Date;
-  // ... other properties you want to keep
 }
-
 
 export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
   const html = document?.contents?.html;
@@ -25,53 +22,15 @@ export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
 }
 
 
-// TODO: can just replace with comments flatten from unflatten.ts
-const createCommentTree = (comments: DbComment[]): NestedComment[] => {
-  // Create a map of all comments
-  const commentMap = new Map(
-    comments.map(comment => [
-      comment._id,
-      {
-        commentId: comment._id,
-        postId: comment.postId,
-        author: comment.author,
-        // ... copy other properties you want to keep
-        karmaScore: comment.baseScore,
-        published: comment.postedAt,
-        contents: documentToMarkdown(comment),
-        children: [] as NestedComment[],
-      } as NestedComment
-    ])
-  );
-
-  // Function to get children for a comment
-  const getChildren = (parentId: string): NestedComment[] =>
-    comments
-      .filter(comment => comment.parentCommentId === parentId)
-      .map(comment => {
-        const nestedComment = commentMap.get(comment._id);
-        if (!nestedComment) {
-          throw new Error(`Comment with id ${comment._id} not found in map`);
-        }
-        return {
-          ...nestedComment,
-          children: getChildren(comment._id)
-        };
-      });
-
-  // Get root comments and their children
-  return comments
-    .filter(comment => !comment.parentCommentId)
-    .map(comment => {
-      const nestedComment = commentMap.get(comment._id);
-      if (!nestedComment) {
-        throw new Error(`Comment with id ${comment._id} not found in map`);
-      }
-      return {
-        ...nestedComment,
-        children: getChildren(comment._id)
-      };
-    });
+const createCommentTree = (comments: DbComment[]): CommentTreeNode<NestedComment>[] => {
+  return unflattenComments<NestedComment>(comments.map(comment => {
+    const { baseScore, contents, ...rest } = comment;
+    return {
+      ...rest,
+      karmaScore: baseScore,
+      contents: documentToMarkdown(comment)
+    };
+  }));
 }
 
 const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverContext): Promise<string> => {

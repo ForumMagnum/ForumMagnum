@@ -441,8 +441,7 @@ const schema: SchemaType<"Posts"> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
-      nullable: true,
-      autoJoin: true
+      nullable: true
     }),
     optional: true,
     nullable: false,

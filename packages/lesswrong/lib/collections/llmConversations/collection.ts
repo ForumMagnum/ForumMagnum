@@ -2,7 +2,6 @@ import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/
 import { createCollection } from "@/lib/vulcan-lib";
 import schema from "./schema";
 
-
 const LlmConversations: LlmConversationsCollection = createCollection({
   collectionName: "LlmConversations",
   typeName: "LlmConversation",
@@ -22,7 +21,5 @@ const LlmConversations: LlmConversationsCollection = createCollection({
 addUniversalFields({
   collection: LlmConversations,
 });
-
-// TODO: ensure index?
 
 export default LlmConversations;
