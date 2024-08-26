@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     padding: 10,
     cursor: "pointer",
     // TODO: Figure out for dark mode
-    backgroundColor: theme.palette.grey[100],
+    // backgroundColor: theme.palette.grey[100],
     boxShadow: "0 1px 6px 0 rgba(0, 0, 0, 0.06), 0 2px 32px 0 rgba(0, 0, 0, 0.16)",
     // add hover styling
     "&:hover": {
@@ -29,7 +29,13 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('sm')]: {
       display: "none"
-    }
+    },
+    ...(theme.palette.intercom ? {
+      color: theme.palette.text.alwaysBlack,
+      backgroundColor: theme.palette?.intercom?.buttonBackground ?? theme.palette.grey[100],
+    } : {
+      backgroundColor: theme.palette.grey[100],
+    })
   },
   icon: {
     witdh: 24,

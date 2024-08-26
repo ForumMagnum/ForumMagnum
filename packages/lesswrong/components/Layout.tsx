@@ -287,8 +287,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   languageModelLauncher: {
     position: 'absolute',
-    // width: '57vw',
-    // maxWidth: '1000px',
     top: '-57px',
     right: '-334px',
     [theme.breakpoints.down('lg')]: {
