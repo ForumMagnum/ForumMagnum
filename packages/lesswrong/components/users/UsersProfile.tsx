@@ -26,6 +26,7 @@ import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 import { allowSubscribeToUserComments } from '../../lib/betas';
+import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -98,6 +99,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   subscribeButton: {
     display: "flex",
+  },
+  commentSorting: {
+    marginRight: 30,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 0,
+    },
   }
 })
 
@@ -196,7 +203,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip, UserNotifyDropdown, CommentsSortBySelector } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -237,6 +244,11 @@ const UsersProfileFn = ({terms, slug, classes}: {
     // maintain backward compatibility with bookmarks
     const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
+    
+    const commentQueryName = "commentsSortBy"
+    const commentQueryMode = query[commentQueryName]
+    const currentCommentSortBy = COMMENT_SORTING_MODES.has(commentQueryMode) ? commentQueryMode : undefined
+
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
@@ -389,11 +401,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
               <Components.RecentComments terms={{view: 'afSubmissions', authorIsUnreviewed: null, limit: 5, userId: user._id}} />
             </SingleColumnSection>}
             <SingleColumnSection>
-              <Link to={`${userGetProfileUrl(user)}/replies`}>
-                <SectionTitle title={"Comments"} />
-              </Link>
+                <SectionTitle title={<Link to={`${userGetProfileUrl(user)}/replies`}>Comments</Link>} rootClassName={classes.commentSorting}>
+                  <AnalyticsContext pageElementContext='userProfileCommentSort'>
+                    Sorted by <CommentsSortBySelector />
+                  </AnalyticsContext>
+                </SectionTitle>
               <Components.RecentComments
-                terms={{view: 'profileRecentComments', authorIsUnreviewed: null, limit: 10, userId: user._id}}
+                terms={{view: 'profileComments', sortBy: currentCommentSortBy, authorIsUnreviewed: null, limit: 10, userId: user._id}}
                 showPinnedOnProfile
               />
             </SingleColumnSection>
