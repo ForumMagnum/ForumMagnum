@@ -1,21 +1,20 @@
+import uniq from "lodash/uniq";
+import uniqBy from "lodash/uniqBy";
 import { defineMutation } from "../utils/serverGraphqlUtil";
-import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
+import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionTool, ContextSelectionParameters } from "../languageModels/promptUtils";
-import uniqBy from "lodash/uniqBy";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
-import Anthropic from "@anthropic-ai/sdk";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
 import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
-import { Globals, createAdminContext, createMutator, runFragmentQuery } from "../vulcan-lib";
+import { createMutator, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
-import uniq from "lodash/uniq";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 
 const ClientMessage = `input ClientLlmMessage {
@@ -184,7 +183,7 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation.data;
 };
 
-function getPostContextMessage(query: string, postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
+function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
   // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
   const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []]);
   // Current post might be one of the posts returned from the query-based embedding search
@@ -294,15 +293,11 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
 }
 
 async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser }: SendMessagesToClaudeArgs) {
-  const client = getAnthropicClientOrThrow();
-  const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
+  const promptCachingClient = getAnthropicPromptCachingClientOrThrow();
 
   const conversationMessages = [...previousMessages, ...newMessages];
   const messagesForClaude = conversationMessages.filter(isClaudeAllowableMessage);
   const preparedMessages = messagesForClaude.map((message, idx) => createClaudeMessage(message, idx === 0));
-
-  // time this
-  const startTime = new Date().getTime();
 
   const stream = promptCachingClient.messages.stream({
     model,
@@ -326,17 +321,11 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
   });
 
   const finalMessage = await stream.finalMessage();
-  const endTime = new Date().getTime();
 
   const response = finalMessage.content[0];
   if (response.type === 'tool_use') {
     throw new Error("response is tool use which is not a proper response in this context");
   }
-
-  const resultUsageField = finalMessage.usage;
-  // TO-DO: remove this console log when we're more done with development
-  // eslint-disable-next-line no-console
-  console.log({LlmResponseTime: endTime - startTime, resultUsageField});
 
   const newResponse = {
     conversationId,
@@ -370,7 +359,7 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
 
 async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
   const contextualPosts = await getContextualPosts(content, currentPost, context);
-  const userContextMessage = getPostContextMessage(content, contextualPosts, currentPost);
+  const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
   const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
 
   return { userContextMessage, assistantContextMessage };
