@@ -33,7 +33,12 @@ function postHadMajorRevision(comment: CommentsList, post: PostsMinimumInfo|Post
   }
   const { major: origMajorPostVer } = extractVersionsFromSemver(comment.postVersion)
   const { major: currentMajorPostVer } = extractVersionsFromSemver((post as PostWithVersion).contents.version)
-  return origMajorPostVer < currentMajorPostVer
+
+  if (origMajorPostVer === 0) {
+    return currentMajorPostVer > 1;
+  } else {
+    return origMajorPostVer < currentMajorPostVer
+  }
 }
 
 const CommentOutdatedWarning = ({comment, post, classes}: {

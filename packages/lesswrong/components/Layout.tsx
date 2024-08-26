@@ -467,7 +467,6 @@ const Layout = ({currentUser, children, classes}: {
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
-      EASurveyBanner,
       LanguageModelLauncherButton,
       LlmChatWrapper
     } = Components;
@@ -559,7 +558,6 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              {isEAForum && <EASurveyBanner />}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,

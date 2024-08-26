@@ -79,7 +79,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, rend
     return null;
   
   return <div className={classes.subscriptionsListRoot}>
-    <SectionTitle title={title} className={classes.subscriptionListTitle}/>
+    <SectionTitle title={title} titleClassName={classes.subscriptionListTitle}/>
     {subscriptionTypeDescription && <div className={classes.subscriptionTypeDescription}>
       {subscriptionTypeDescription}
     </div>}

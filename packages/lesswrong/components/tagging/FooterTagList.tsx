@@ -132,7 +132,8 @@ const FooterTagList = ({
   classes,
   align = "left",
   noBackground = false,
-  neverCoreStyling = false
+  neverCoreStyling = false,
+  tagRight = true,
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -150,7 +151,8 @@ const FooterTagList = ({
   align?: "left" | "right",
   classes: ClassesType<typeof styles>,
   noBackground?: boolean,
-  neverCoreStyling?: boolean
+  neverCoreStyling?: boolean,
+  tagRight?: boolean,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -323,8 +325,13 @@ const FooterTagList = ({
 
   const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
+  const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+    {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
+  </AddTagButton>
+
   const innerContent = (
     <>
+      {!tagRight && currentUser && !hideAddTag && addTagButton}
       {showCoreTags && (
         <div>
           <CoreTagsChecklist existingTagIds={tagIds} onTagSelected={onTagSelected} />
@@ -351,11 +358,7 @@ const FooterTagList = ({
       {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && (
         <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />
       )}
-      {currentUser && !hideAddTag && (
-        <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
-          {useAltAddTagButton && <span className={classNames(classes.altAddTagButton, noBackground && classes.noBackground)}>+</span>}
-        </AddTagButton>
-      )}
+      {tagRight && currentUser && !hideAddTag && addTagButton}
       {isAwaiting && <Loading />}
     </>
   );

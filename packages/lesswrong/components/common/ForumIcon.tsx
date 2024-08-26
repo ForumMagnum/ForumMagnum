@@ -296,7 +296,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Map: MapIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
-    Comment: MuiCommentIcon,
+    Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     ChatBubbleLeftRightFilled: MuiForumIcon,

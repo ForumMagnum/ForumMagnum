@@ -54,7 +54,7 @@ export const EAOnboardingWorkStage = ({classes}: {
         to help you and ask for your help.
       </div>
       <div>
-        <SectionTitle title="Role" className={classes.title} />
+        <SectionTitle title="Role" titleClassName={classes.title} />
         <EAOnboardingInput
           value={role}
           setValue={setRole}
@@ -62,7 +62,7 @@ export const EAOnboardingWorkStage = ({classes}: {
         />
       </div>
       <div>
-        <SectionTitle title="Organization" className={classes.title} />
+        <SectionTitle title="Organization" titleClassName={classes.title} />
         <EAOnboardingInput
           value={organization}
           setValue={setOrganization}
@@ -70,7 +70,7 @@ export const EAOnboardingWorkStage = ({classes}: {
         />
       </div>
       <div>
-        <SectionTitle title="Career stage" className={classes.title} />
+        <SectionTitle title="Career stage" titleClassName={classes.title} />
         <EAOnboardingSelect
           value={careerStage}
           setValue={setCareerStage}
