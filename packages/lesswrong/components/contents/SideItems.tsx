@@ -4,6 +4,7 @@ import orderBy from 'lodash/orderBy';
 import { createPortal } from 'react-dom';
 import { useHover } from '@/components/common/withHover';
 import { registerComponent } from '@/lib/vulcan-lib';
+import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 type SideItemOptions = {
   format: "block"|"icon"
@@ -208,18 +209,6 @@ const SideItemsSidebar = ({classes}: {
     className={classes.sidebar}
     ref={sideItemColumnRef}
   />, [classes]);
-}
-
-function getOffsetChainTop(element: HTMLElement) {
-  let y=0;
-  let pos: AnyBecauseHard = element;
-  while (pos) {
-    if (pos.offsetTop) {
-      y += pos.offsetTop;
-    }
-    pos = pos.offsetParent;
-  }
-  return y;
 }
 
 const SideItem = ({options, children}: {

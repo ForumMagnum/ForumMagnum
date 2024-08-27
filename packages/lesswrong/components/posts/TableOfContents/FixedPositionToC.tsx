@@ -1,63 +1,90 @@
-import React, { FC, MouseEvent, useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import withErrorBoundary from '../../common/withErrorBoundary'
+import React, { useEffect, useState } from 'react';
+import { Components, registerComponent } from '@/lib/vulcan-lib/components';
+import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation } from '../../../lib/routeUtil';
-import type { ToCSection, ToCSectionWithOffset } from '../../../lib/tableOfContents';
+import type { ToCSection, ToCSectionWithOffset, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
-import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
+import { ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY } from './TableOfContentsList';
 import { HOVER_CLASSNAME } from './MultiToCLayout';
+import { getOffsetChainTop } from '@/lib/utils/domUtil';
 
 
-function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
-  if (sections.length === 0) {
-    return [];
-  }
-  
-  const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
-
-  const remainingSections = sections.slice(1);
-
-  const normalizedSections: ToCSectionWithOffset[] = remainingSections.map((section, idx) => ({
-    ...section,
-    offset: section.divider ? (1 - (sections[idx].offset ?? 0)) : ((section.offset ?? 0) - (sections[idx].offset ?? 0))
-  }));
-
-  return [titleSection, ...normalizedSections];
+function normalizeToCScale({containerPosition, sections}: {
+  sections: ToCSection[]
+  containerPosition?: {top: number, bottom: number},
+}): ToCSectionWithOffsetAndScale[] {
+  return sections.map((section,idx) => {
+    // The vertical scale (flex-grow amount) of a ToC element is proportional
+    // to the offset of the next positioned element minus its own offset.
+    // However, not every element necessarily has an offset; if an element
+    // doesn't have one its vertical scale is 0 (ie it does not grow past its
+    // minimum size), and it's skipped for purposes of deciding what counts as
+    // the "next positioned element". (When we hit the end of the list, we use
+    // containerPosition.bottom in place of the next offset)
+    let nextPositionedIdx = idx+1;
+    while (nextPositionedIdx<sections.length && !sections[nextPositionedIdx].offset)
+      nextPositionedIdx++;
+    
+    const nextSectionOffset = (nextPositionedIdx>=sections.length)
+      ? containerPosition?.bottom ?? 0
+      : sections[nextPositionedIdx].offset ?? 0;
+    return {
+      ...section,
+      offset: section.offset ?? 0,
+      scale: section.divider
+        ? 1
+        : nextSectionOffset - (section.offset ?? 0)
+    };
+  });
 };
 
-function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToCSection[]) {
-  let sectionsWithOffsets;
-  const parentContainer = sectionHeaders[0]?.parentElement;
-  // If we have any section headers, assign offsets to them
-  if (parentContainer) {
-    const containerHeight = parentContainer.getBoundingClientRect().height;
+function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[]): ToCSectionWithOffsetAndScale[] {
+  // Filter out ToC entries which don't correspond to headings inside the post
+  // body. This removes entries for the comment section, answers, and
+  // dividers, which are included in the server-side ToC generation and are
+  // used in the original ToC, but aren't used in the full-height ToC.
+  const postBodyBlocks = Array.from(postContents.querySelectorAll('[id]'));
+  const sectionHeaderIds = new Set<string>();
+  for (const block of postBodyBlocks) {
+    const id = block.getAttribute('id')
+    if (id) {
+      sectionHeaderIds.add(id);
+    }
+  }
+  const filteredSections = sections.filter(section => sectionHeaderIds.has(section.anchor));
 
-    const anchorOffsets = sectionHeaders.map(sectionHeader => ({
-      anchorHref: sectionHeader.getAttribute('id'),
-      offset: ((sectionHeader as HTMLElement).offsetTop - parentContainer.offsetTop)  / containerHeight
-    }));
+  // Measure the post contents container (distinct from the post body container,
+  // in that it doesn't include the title and metadata).
+  const containerTop = getOffsetChainTop(postContents);
+  const containerHeight = postContents.offsetHeight;
 
-    sectionsWithOffsets = filteredSections.map((section) => {
-      const anchorOffset = anchorOffsets.find((anchorOffset) => anchorOffset.anchorHref === section.anchor);
+  // Measure the vertical position of each anchor
+  const sectionsWithOffsets = filteredSections.map((section) => {
+    const anchor = document.getElementById(section.anchor);
+    if (anchor) {
       return {
         ...section,
-        offset: anchorOffset?.offset,
+        offset: getOffsetChainTop(anchor),
       };
-    });
-  } else {
-    // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
-    sectionsWithOffsets = filteredSections;
-  }
-  return sectionsWithOffsets;
+    } else {
+      return section;
+    }
+  });
+  
+  // Using the vertical positions, compute scale factors
+  return normalizeToCScale({
+    sections: sectionsWithOffsets,
+    containerPosition: {top: containerTop, bottom: containerTop+containerHeight},
+  });
 }
 
 const styles = (theme: ThemeType) => ({
@@ -88,7 +115,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     zIndex: 1,
     display: "flex",
-    flexDirection: "column-reverse",
+    flexDirection: "column",
   },
   rowOpacity: {
     transition: '.25s',
@@ -186,7 +213,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   const location = useLocation();
   const { query } = location;
 
-  const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
+  const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffsetAndScale[]>([]);
   const [hasLoaded, setHasLoaded] = useState(false);
 
   const postContext = usePostsPageContext()?.fullPost;
@@ -232,13 +259,11 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       landmarkName: section.anchor,
       elementId: section.anchor,
       position: "centerOfElement",
-      offset: -(getCurrentSectionMark() * 2)
     })),
     {
       landmarkName: "comments",
       elementId: "postBody",
       position: "bottomOfElement",
-      offset: -(getCurrentSectionMark() * 2)
     },
   ]);
 
@@ -262,12 +287,9 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }, [])
 
   useEffect(() => {
-    const postBodyRef = document.getElementById('postBody');
-    if (!postBodyRef) return;
-    const postBodyBlocks = Array.from(postBodyRef.querySelectorAll('[id]'));
-    const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
-    const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
-    const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
+    const postContent = document.getElementById('postContent');
+    if (!postContent) return;
+    const newNormalizedSections = getSectionsWithOffsets(postContent, filteredSections);
 
     if (!isEqual(normalizedSections, newNormalizedSections)) {
       setNormalizedSections(newNormalizedSections);
@@ -278,7 +300,12 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     <div className={classes.rowWrapper} key={"#"}>
       <div className={classes.rowDotContainer}>
         <span className={classNames(HOVER_CLASSNAME, classes.rowOpacity, classes.tocWrapper)}>
-          <TableOfContentsRow indentLevel={1} key="postTitle" href="#" offset={0} fullHeight
+          <TableOfContentsRow
+            indentLevel={1}
+            key="postTitle"
+            href="#"
+            scale={0}
+            fullHeight
             highlighted={currentSection === "above"}
             onClick={ev => {
               if (isRegularClick(ev)) {
@@ -301,14 +328,14 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   const renderedSections = normalizedSections.filter(row => !row.divider && row.anchor !== "comments");
 
   const rows = renderedSections.map((section, index) => {
-    const offsetStyling = section.offset !== undefined ? { flex: section.offset } : undefined;
+    const scaleStyling = section.scale !== undefined ? { flex: section.scale } : undefined;
 
     const tocRow = (
       <TableOfContentsRow
         indentLevel={section.level}
         divider={section.divider}
         href={"#"+section.anchor}
-        offset={section.offset}
+        scale={section.scale}
         highlighted={section.anchor === currentSection}
         onClick={(ev) => {
           if (isRegularClick(ev)) {
@@ -328,7 +355,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     )
 
     return (
-      <div className={classes.rowWrapper} style={offsetStyling} key={section.anchor}>
+      <div className={classes.rowWrapper} style={scaleStyling} key={section.anchor}>
         <div className={classes.rowDotContainer}>
           <div className={classes.rowDot}>•</div>
           <span className={classNames(classes.rowOpacity, HOVER_CLASSNAME)}>
