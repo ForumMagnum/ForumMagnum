@@ -68,7 +68,7 @@ const EAAllTagsPage = ({classes}: {
   return (
     <AnalyticsContext pageContext="allTagsPage">
       <SingleColumnSection>
-        <SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin className={classes.coreTagsTitle} />
+        <SectionTitle title={`Core ${taggingNamePluralSetting.get()}`} noTopMargin titleClassName={classes.coreTagsTitle} />
         <CoreTagsSection />
         <div className={classes.portalSection}>
           <SectionTitle title={portalTitle}>
