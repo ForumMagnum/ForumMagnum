@@ -1,14 +1,13 @@
 import type { Express } from "express";
 import { getUserFromReq } from "./vulcan-lib/apollo-server/context";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { getAnthropicClientOrThrow } from "./languageModels/anthropicClient";
+import { getAnthropicPromptCachingClientOrThrow } from "./languageModels/anthropicClient";
 import express from "express";
 import { PromptCachingBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { Posts } from "@/lib/collections/posts";
 import { Comments } from "@/lib/collections/comments";
 import Revisions from "@/lib/collections/revisions/collection";
 import { turndownService } from "./editor/conversionUtils";
-import Anthropic from "@anthropic-ai/sdk";
 import { formatRelative } from "@/lib/utils/timeFormat";
 import Users from "@/lib/vulcan-users";
 
@@ -183,8 +182,7 @@ export function addAutocompleteEndpoint(app: Express) {
         throw new Error("Claude Completion is for admins only");
       }
 
-      const client = getAnthropicClientOrThrow();
-      const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
+      const client = getAnthropicPromptCachingClientOrThrow();
 
       const { prefix = '', commentIds, postIds, replyingCommentId } = req.body;
 
@@ -195,7 +193,7 @@ export function addAutocompleteEndpoint(app: Express) {
         Connection: "keep-alive",
       });
 
-      const loadingMessagesStream = promptCachingClient.messages.stream({
+      const loadingMessagesStream = client.messages.stream({
         model: "claude-3-5-sonnet-20240620",
         max_tokens: 1000,
         system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",

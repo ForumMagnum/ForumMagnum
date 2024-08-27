@@ -42,19 +42,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: theme.spacing.unit * 2,
   },
   progressBarSection: {
-    // top: 0px;
-    // position: sticky;
-    // z-index: 5;
-    // /* background-color: rgba(255, 255, 255, 1); */
-    // padding: 8px;
-    // backdrop-filter: blur(5px);
-    // mask: linear-gradient(black 75%, transparent);
     position: "sticky",
     top: 0,
     zIndex: 5,
     padding: theme.spacing.unit,
     backdropFilter: "blur(5px)",
-    mask: "linear-gradient(black 75%, transparent)",
+    mask: `linear-gradient(${theme.palette.text.alwaysBlack} 75%, ${theme.palette.background.transparent})`,
   },
   progressBar: {
     marginTop: theme.spacing.unit * 2,
