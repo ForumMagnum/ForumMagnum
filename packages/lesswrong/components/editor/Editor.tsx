@@ -795,7 +795,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
     return <div>
       {label && isGrey &&
-        <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
+        <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
       }
       <ContentStyles className={classNames(classes.editor, className)} contentType={contentType}>
         {label && !isGrey &&

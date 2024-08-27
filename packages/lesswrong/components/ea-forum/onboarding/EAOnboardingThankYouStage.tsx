@@ -161,7 +161,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
         <div className={classes.thanks}>
           Thanks for joining the discussion!
         </div>
-        <SectionTitle title="Other ways to read posts" className={classes.title} />
+        <SectionTitle title="Other ways to read posts" titleClassName={classes.title} />
         <div className={classes.section}>
           <div>
             <div className={classes.heading}>
