@@ -188,3 +188,5 @@ export const vertexEnabledSetting = new DatabasePublicSetting<boolean>('googleVe
 
 /** Whether to show permalinked (?commentId=...) comments at the top of the page, vs scrolling to show them in context */
 export const commentPermalinkStyleSetting = new DatabasePublicSetting<'top' | 'in-context'>('commentPermalinkStyle', isEAForum ? 'in-context' : 'top');
+
+export const userIdsWithAccessToLlmChat = new DatabasePublicSetting<string[]>('llmChat.userIds', []);

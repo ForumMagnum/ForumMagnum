@@ -419,8 +419,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const ls = getBrowserLocalStorage()
   useEffect(() => {
     if (ls && hasDigests) {
-      const postReadCount = ls.getItem('postReadCount') ?? 0
-      ls.setItem('postReadCount', parseInt(postReadCount) + 1)
+      const postReadCount = ls.getItem('postReadCount') ?? '0'
+      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -623,7 +623,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName:"ReplyCommentDialog",
+      componentName: "ReplyCommentDialog",
       componentProps: {
         post, initialHtml: html
       },
