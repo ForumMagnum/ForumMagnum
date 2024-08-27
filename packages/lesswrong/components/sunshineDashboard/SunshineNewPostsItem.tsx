@@ -15,7 +15,6 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import { useCreate } from '../../lib/crud/withCreate';
 import { MANUAL_FLAG_ALERT } from '../../lib/collections/moderatorActions/schema';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { RobotIcon } from '../icons/RobotIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -118,7 +117,20 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     refetch();
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const {
+    MetaInfo,
+    LinkPostMessage,
+    ContentItemBody,
+    SunshineListItem,
+    SidebarHoverOver,
+    SidebarInfo,
+    FormatDate,
+    FooterTagList,
+    Typography,
+    ContentStyles,
+    SmallSideVote,
+    ForumIcon
+  } = Components;
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
@@ -132,10 +144,10 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>
-              <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><RobotIcon/></span>}
+              <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
             </Button>
             {post.submitToFrontpage && <Button onClick={handlePromote}>
-              <HomeIcon className={classes.icon} /> Frontpage {autoFrontpage === "show" && <span className={classes.robotIcon}><RobotIcon/></span>}
+              <HomeIcon className={classes.icon} /> Frontpage {autoFrontpage === "show" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
             </Button>}
             <Button onClick={handleDelete}>
               <ClearIcon className={classes.icon} /> Draft
