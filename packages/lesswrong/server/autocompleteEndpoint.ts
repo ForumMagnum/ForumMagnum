@@ -44,7 +44,14 @@ const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, D
 ${markdownBody}`.trim();
 }
 
-const getResponseMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
+const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string) => {
+  return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
+---
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+${prefix}`.trim();
+}
+
+const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
   const parentComment = parentComments[parentComments.length - 1];
   return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
 ---
@@ -52,7 +59,7 @@ ${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap,
 ---
 ${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
 ---
-${currentUser.displayName} 5m 75 2
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
@@ -61,7 +68,8 @@ async function constructMessageHistory(
   commentIds: string[],
   postIds: string[],
   currentUser: any,
-  replyingCommentId?: string
+  replyingCommentId?: string,
+  postId?: string
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
@@ -118,7 +126,7 @@ async function constructMessageHistory(
   // Add final user message with prefix
   messages.push({
     role: "user",
-    content: [{ type: "text", text: `<cmd>cat lw/1903.txt</cmd>`, cache_control: {type: "ephemeral"}}]
+    content: [{ type: "text", text: `<cmd>cat lw/hsqKp56whpPEQns3Z.txt</cmd>`, cache_control: {type: "ephemeral"}}]
   });
 
   if (replyingCommentId) {
@@ -143,7 +151,7 @@ async function constructMessageHistory(
       throw new Error("Post not found");
     }
 
-    const message = getResponseMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
+    const message = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
 
     messages.push({
       role: "assistant",
@@ -154,7 +162,35 @@ async function constructMessageHistory(
         },
       ],
     });
-  } else {
+  }
+  else if (postId) {
+    const post = await Posts.findOne({ _id: postId });
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    const postRevision = await Revisions.findOne({ documentId: post._id, fieldName: "contents", version: "1.0.0" });
+    if (!postRevision) {
+      throw new Error("Post revision not found");
+    }
+
+    const authors = await Users.find({ _id: post.userId }).fetch();
+    authors.forEach((author) => authorsMap.set(author._id, author));
+    revisionsMap.set(post._id!, postRevision);
+
+    const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix);
+    console.log("Message", message);
+
+    messages.push({
+      role: "assistant",
+      content: [
+        {
+          type: "text",
+          text: getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix)
+        },
+      ],
+    });
+  }
+  else {
     messages.push({
       role: "assistant",
       content: [
@@ -184,7 +220,7 @@ export function addAutocompleteEndpoint(app: Express) {
 
       const client = getAnthropicPromptCachingClientOrThrow();
 
-      const { prefix = '', commentIds, postIds, replyingCommentId } = req.body;
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
 
       // Set headers for streaming response
       res.writeHead(200, {
@@ -202,7 +238,8 @@ export function addAutocompleteEndpoint(app: Express) {
           commentIds,
           postIds,
           currentUser,
-          replyingCommentId
+          replyingCommentId,
+          postId
         ),
       });
 

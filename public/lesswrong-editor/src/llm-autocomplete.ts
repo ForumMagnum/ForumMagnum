@@ -116,9 +116,21 @@ const getReplyingCommentId = () : string | undefined => {
     return replyingToCommentNode?.id;
 }
 
+const getPostId = () : string | undefined => {
+    // The URL for post pages is in the format /posts/:postId/:postSlug
+    const postId = window.location.pathname.split('/')[2];
+    // Check if the postId is the right shape (HbkNAyAoa4gCnuzwa)
+    if (postId && postId.length === 17) {
+        return postId;
+    }
+    return undefined;
+}
+
+
 async function getAutocompletion(prefix: string, onCompletion: (completion: string) => void) {
     // Get the id of the comment we are replying to from the DOM
     const replyingCommentId = getReplyingCommentId();
+    const postId = getPostId();
 
     const response = await fetch('/api/autocomplete', {
         method: 'POST',
@@ -129,7 +141,8 @@ async function getAutocompletion(prefix: string, onCompletion: (completion: stri
             prefix,
             commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
             postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
-            replyingCommentId
+            replyingCommentId,
+            postId
         }),
     });
 
