@@ -53,7 +53,7 @@ ${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap,
 ---
 ${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
 ---
-${currentUser.displayName} 5m 75 2
+${currentUser.displayName} 2d 75 2
 ${prefix}`.trim();
 }
 

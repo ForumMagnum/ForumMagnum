@@ -245,6 +245,10 @@ export const CommentsItem = ({
     setShowParentState(!showParentState);
   }
 
+  const cryptoComment = () => {
+    
+  }
+
   const renderBodyOrEditor = (voteProps: VotingProps<VoteableTypeClient>) => {
     if (showEditState) {
       return <Components.CommentsEditForm
