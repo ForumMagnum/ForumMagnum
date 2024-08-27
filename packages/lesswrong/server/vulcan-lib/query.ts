@@ -15,9 +15,9 @@ import { getMultiResolverName } from '@/lib/crud/utils';
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
   // eslint-disable-next-line no-console
-  console.error(`runQuery error: ${errors[0].message}`);
+  console.error(`runQuery error: ${errors[0].message}, trace: ${errors[0].stack}`);
   // eslint-disable-next-line no-console
-  console.error(errors);
+  console.error(JSON.stringify(errors, null, 2));
 }
 
 let onGraphQLError = writeGraphQLErrorToStderr;
@@ -32,7 +32,7 @@ export function setOnGraphQLError(fn: ((errors: readonly GraphQLError[]) => void
 // note: if no context is passed, default to running requests with full admin privileges
 export const runQuery = async <T = Record<string, any>>(query: string | DocumentNode, variables: any = {}, context?: Partial<ResolverContext>) => {
   const executableSchema = getExecutableSchema();
-  const queryContext = context ?? createAdminContext();
+  const queryContext = createAnonymousContext(context);
 
   const stringQuery = typeof query === 'string'
     ? query
