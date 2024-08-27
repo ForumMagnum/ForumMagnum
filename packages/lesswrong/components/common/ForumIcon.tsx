@@ -144,6 +144,7 @@ import { CardViewIcon } from "../icons/CardViewIcon";
 import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
+import { RobotIcon } from '../icons/RobotIcon';
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -258,7 +259,8 @@ export type ForumIconName =
   "AddReaction" |
   "LabBeaker" |
   "Sparkle" |
-  "NotInterested"
+  "NotInterested" |
+  "Robot"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -370,6 +372,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
     NotInterested: MuiNotInterestedIcon,
+    Robot: RobotIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -479,6 +482,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
     NotInterested: MuiNotInterestedIcon,
+    Robot: RobotIcon
   },
 };
 

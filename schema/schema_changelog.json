@@ -723,5 +723,10 @@
     "acceptsSchemaHash": "dc66ac034a766a7dd21afb2e072073a3",
     "acceptedByMigration": "20240820T183233.sidenotesFlag.ts",
     "timestamp": "2024-08-20T18:32:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "eb768d8bdc708f08c58c7db559625f10",
+    "acceptedByMigration": "20240823T102724.add_autoFrontpage.ts",
+    "timestamp": "2024-08-23T10:27:24.000Z"
   }
 ]
