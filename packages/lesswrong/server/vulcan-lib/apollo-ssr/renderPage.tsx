@@ -29,7 +29,7 @@ import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize } from '../../../lib/publicSettings';
 import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
-import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import { getClientIP } from '@/server/utils/getClientIP';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { isAnyTest, isProduction } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
@@ -119,7 +119,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         op_name: "skipCache",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
+        ip: getClientIP(req),
         user_agent: userAgent,
         user_id: user?._id
       }, startTime);
@@ -165,7 +165,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         op_name: "unknown",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
+        ip: getClientIP(req),
         user_agent: userAgent
       }, startTime);
 
@@ -231,7 +231,7 @@ const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
     requestPriorityQueue.enqueue({
-      ip: getForwardedWhitelist().getClientIP(params.req) ?? "unknown",
+      ip: getClientIP(params.req) ?? "unknown",
       userAgent: params.userAgent ?? 'sus-missing-user-agent',
       userId: params.user?._id,
       callback: async () => {
