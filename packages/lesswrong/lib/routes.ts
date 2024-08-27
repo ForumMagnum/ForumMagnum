@@ -1568,6 +1568,16 @@ addRoute(
     componentName: 'SpotlightsPage',
     title: 'Spotlights Page'
   },
+  {
+    name: 'llmConversationsViewer',
+    path: '/admin/llmConversations',
+    componentName: 'LlmConversationsViewingPage',
+    title: 'LLM Conversations Viewer',
+    subtitle: 'LLM Conversations',
+    noFooter: true,
+    noIndex: true,
+    // background: 'white',
+  }
 );
 
 addRoute(

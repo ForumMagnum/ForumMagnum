@@ -1,11 +1,16 @@
 import { userHasLlmChat } from "@/lib/betas";
-import { resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users";
 
 const schema: SchemaType<"LlmConversations"> = {
   userId: {
-    type: String,
-    optional: false,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
     nullable: false,
     canRead: [userOwns, "admins"],
     canCreate: [userHasLlmChat, "admins"],
@@ -68,7 +73,7 @@ const schema: SchemaType<"LlmConversations"> = {
     canCreate: ["admins"],
     canUpdate: [userOwns, "admins"], 
     ...schemaDefaultValue(false),
-  }
+  },
 }
 
 export default schema;

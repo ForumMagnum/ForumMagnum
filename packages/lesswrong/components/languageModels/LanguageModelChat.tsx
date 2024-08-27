@@ -16,6 +16,7 @@ import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
 import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -362,16 +363,21 @@ export const LanguageModelChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>
-    <div className={classes.root}>
-      <ChatInterface classes={classes} />
-    </div>
+    <AnalyticsContext pageSectionContext='llmChat'>
+      <div className={classes.root}>
+        <ChatInterface classes={classes} />
+      </div>
+    </AnalyticsContext>
   </DeferRender>;
 }
 
 const LanguageModelChatComponent = registerComponent('LanguageModelChat', LanguageModelChat, {styles});
 
+const LlmChatMessageComponent = registerComponent('LlmChatMessage', LLMChatMessage, {styles});
+
 declare global {
   interface ComponentTypes {
     LanguageModelChat: typeof LanguageModelChatComponent
+    LlmChatMessage: typeof LlmChatMessageComponent
   }
 }

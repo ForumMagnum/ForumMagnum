@@ -1195,7 +1195,8 @@ importComponent("PeopleDirectoryPostsCell", () => require('../components/peopleD
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
 
-importComponent("LanguageModelChat", () => require('../components/languageModels/LanguageModelChat'));
+importComponent(["LanguageModelChat", "LlmChatMessage"], () => require('../components/languageModels/LanguageModelChat'));
 importComponent("PopupLanguageModelChat", () => require('../components/languageModels/PopupLanguageModelChat'));
 importComponent("LanguageModelLauncherButton", () => require('../components/languageModels/LanguageModelLauncherButton'));
 importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
+importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));
