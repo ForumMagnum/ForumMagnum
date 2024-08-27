@@ -25,6 +25,19 @@ export const asyncForeachSequential = async <T>(list: Array<T>, fn: (x: T,i: num
     await fn(x, i++);
 }
 
+/// Like Array.map, but with an async function. Runs the function on elements
+/// sequentially (no parallelism).
+export const asyncMapSequential = async <T, O>(list: Array<T>, fn: (x: T,i: number) => Promise<O>): Promise<O[]> => {
+  let i=0;
+  const results: O[] = [];
+  for (let x of list) {
+    const result = await fn(x, i++);
+    results.push(result);
+  }
+
+  return results;
+}
+
 /// Like Array.forEach, but with an async function. Runs the function on elements in parallel.
 export const asyncForeachParallel = async <T>(list: Array<T>, fn: (x: T, i: number) => Promise<void>): Promise<void> => {
   await Promise.all(list.map((x,i) => fn(x,i)));

@@ -801,6 +801,7 @@ importComponent("SunshineGoogleServiceAccount", () => require('../components/sun
 importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
 importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
+importComponent("SidebarsWrapper", () => require('../components/common/SidebarsWrapper'));
 importComponent("SunshineUserMessages", () => require('../components/sunshineDashboard/SunshineUserMessages'));
 importComponent("SunshineSendMessageWithDefaults", () => require('../components/sunshineDashboard/SunshineSendMessageWithDefaults'));
 importComponent("SunshineListTitle", () => require('../components/sunshineDashboard/SunshineListTitle'));
@@ -1193,3 +1194,8 @@ importComponent("PeopleDirectoryPostsCell", () => require('../components/peopleD
 
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
+
+importComponent("LanguageModelChat", () => require('../components/languageModels/LanguageModelChat'));
+importComponent("PopupLanguageModelChat", () => require('../components/languageModels/PopupLanguageModelChat'));
+importComponent("LanguageModelLauncherButton", () => require('../components/languageModels/LanguageModelLauncherButton'));
+importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));

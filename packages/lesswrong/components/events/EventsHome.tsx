@@ -186,7 +186,7 @@ const EventsHome = ({classes}: {
   
   useEffect(() => {
     const ls = getBrowserLocalStorage()
-    const savedDistance = ls?.getItem('eventsDistanceFilter')
+    const savedDistance = parseFloat(ls?.getItem('eventsDistanceFilter') ?? '0')
     if (savedDistance) {
       setDistance(savedDistance)
     }
@@ -307,7 +307,8 @@ const EventsHome = ({classes}: {
     
     // save it in local storage in km
     const ls = getBrowserLocalStorage()
-    ls?.setItem('eventsDistanceFilter', distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance)
+    const distanceKm = `${distanceUnit === 'mi' ? Math.round(distance / 0.621371) : distance}`
+    ls?.setItem('eventsDistanceFilter', distanceKm)
   }
   
   const handleChangeDistanceUnit = (unit: 'km' | 'mi') => {

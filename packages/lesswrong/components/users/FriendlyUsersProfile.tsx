@@ -208,7 +208,8 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     const ls = getBrowserLocalStorage()
     if (currentUser && user && currentUser._id !== user._id && ls) {
       let from = query.from
-      let profiles: any[] = JSON.parse(ls.getItem('lastViewedProfiles')) || []
+      const storedLastViewedProfiles = ls.getItem('lastViewedProfiles')
+      let profiles: any[] = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : []
       // if the profile user is already in the list, then remove them before re-adding them at the end
       const profileUserIndex = profiles?.findIndex(profile => profile.userId === user._id)
       if (profiles && profileUserIndex !== -1) {
