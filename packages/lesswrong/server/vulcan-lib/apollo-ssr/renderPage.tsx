@@ -231,7 +231,7 @@ const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
     requestPriorityQueue.enqueue({
-      ip: getForwardedWhitelist().getClientIP(params.req),
+      ip: getForwardedWhitelist().getClientIP(params.req) ?? "unknown",
       userAgent: params.userAgent ?? 'sus-missing-user-agent',
       userId: params.user?._id,
       callback: async () => {
