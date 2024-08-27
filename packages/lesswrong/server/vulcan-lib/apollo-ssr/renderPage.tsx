@@ -343,7 +343,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   const cacheFriendly = responseIsCacheable(res);
   const timezone = getCookieFromReq(req, "timezone") ?? DEFAULT_TIMEZONE;
 
-  const requestContext = await computeContextFromUser(user, req, res);
+  const requestContext = await computeContextFromUser({user, req, res, isSSR: true});
   if (req.closed) {
     // eslint-disable-next-line no-console
     console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
