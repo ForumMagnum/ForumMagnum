@@ -1,5 +1,5 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
-import { Components, registerComponent } from '../lib/vulcan-lib';
+import { Components, registerComponent, skipSsrForRoute } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
@@ -404,6 +404,8 @@ const Layout = ({currentUser, children, classes}: {
   // <body> is outside the React tree entirely. An alternative way to do this would be to change
   // overflow properties so that `<body>` isn't scrollable but a `<div>` in here is.)
   const useWhiteBackground = currentRoute?.background === "white";
+
+  const skipRouteComponentSsr = skipSsrForRoute(currentRoute);
   
   const { captureEvent } = useTracking();
   
@@ -582,7 +584,10 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {children}
+                    {skipRouteComponentSsr
+                      ? <DeferRender ssr={false}>{children}</DeferRender>
+                      : children
+                    }
                     {!isIncompletePath && isEAForum ? <EAOnboardingFlow/> : <BasicOnboardingFlow/>}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
