@@ -8,71 +8,62 @@ import { fetchFragment } from "../../fetchFragment";
 import ReviewWinners from "@/lib/collections/reviewWinners/collection";
 import { Posts } from "@/lib/collections/posts";
 import Revisions from "@/lib/collections/revisions/collection";
-
+import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
+import fs from 'fs';
+import path from 'path';
 
 async function queryClaude(prompt: string) {
-  const anthropic = new Anthropic({
-    apiKey: anthropicApiKey.get()
-  });
-  const HUMAN_PROMPT = '\n\nHuman: ';
-  const AI_PROMPT = '\n\nAssistant:'
-  async function main() {
-    const response = await anthropic.completions.create({
-      model: 'claude-3-5-sonnet-20240620',
-      max_tokens_to_sample: 300,
-      prompt: `${HUMAN_PROMPT}${prompt}${AI_PROMPT}`,
-    });
-    return response.completion
-  }
-  return await main().catch(err => {
-    // eslint-disable-next-line no-console
-    console.error(err);
-    return undefined;
-  });
+  const client = getAnthropicPromptCachingClientOrThrow()
+  return await client.messages.create({
+    system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
+    model: "claude-3-5-sonnet-20240620",
+    max_tokens: 60,
+    messages: [{
+      role: "user", 
+      content: prompt,
+    }]
+  })
 }
 
-function createSpotlightDescriptionPrompt(post: PostsPage) {
-
-  return `
-    Write a short description of this essay.
-  `
+async function queryClaudeJailbreak(basePrompt: string, spotlightPrompt: string) {
+  const client = getAnthropicPromptCachingClientOrThrow()
+  return await client.messages.create({
+    system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
+    model: "claude-3-5-sonnet-20240620",
+    max_tokens: 75,
+    messages: [
+      {
+        role: "user", 
+        content: [{
+          type: "text",
+          text: basePrompt,
+          cache_control: {type: "ephemeral"}
+        }]
+      },
+      {
+        role: "assistant",
+        content: [{
+          type: "text",
+          text: spotlightPrompt,
+        }]
+      },
+    ]
+  })
 }
 
-function createSpotlightDescription(post: PostsPage, spotlightPosts: PostsPage[], spotlights: DbSpotlight[]) {
-
-
-  const queryQuestionRoot = `
-    Write two sentences that ask the question that this essay is ultimately answering. (Do not start your with any preamble such as "Here are two sentences:", just write the two sentences)
-  `
-  const queryBestParagraphRoot = `
-    Pick the paragraph from this essay that most encapsulate the idea the essay is about.(Do not start your with any preamble such as "Here is a pagraph:", just copy the paragraph itself)
-  `
-  const queryBestQuestionParagraphRoot = `
-    Pick the paragraph from this essay that most encapsulates the question this post is trying to answer.(Do not start your with any preamble such as "Here is a paragraph:", just write the paragraph)
-  `
-  const queryFirstParagraphRoot = `
-    Pick the first paragraph from the essay that isn't some kind of metadata. (Just write paragraph, without any preamble)
-  `
-  return [
-    queryClaude(`${queryQuestionRoot}${post.contents?.html}`),
-    queryClaude(`${queryBestQuestionParagraphRoot}${post.contents?.html}`),
-    queryClaude(`${queryBestParagraphRoot}${post.contents?.html}`),
-    queryClaude(`${queryFirstParagraphRoot}${post.contents?.html}`),
-  ]
-}
-
-function createSpotlight (postId: string, summaries: string[]) {
-  const description = summaries.map(summary => `<p>${summary}</p>`).join("")
+function createSpotlight (post: PostsPage, summary: string) {
   const context = createAdminContext();
+  const postYear = post.postedAt.getFullYear()
   void createMutator({
     collection: Spotlights,
     document: {
-      documentId: postId,
+      documentId: post._id,
       documentType: "Post",
+      customSubtitle: `Best of LessWrong ${postYear}`,
       duration: 1,
       draft: true,
       showAuthor: true,
-      description: { originalContents: { type: 'ckEditorMarkup', data: description } },
+      description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
     },
     currentUser: context.currentUser,
@@ -80,92 +71,105 @@ function createSpotlight (postId: string, summaries: string[]) {
   })
 }
 
+async function getPromptInfo({testing}: {testing: boolean}): Promise<{posts: PostsPage[], spotlights: DbSpotlight[]}> {
+  const reviewWinners = await fetchFragment({
+    collectionName: "ReviewWinners",
+    fragmentName: "ReviewWinnerTopPostsPage",
+    currentUser: createAdminContext().currentUser,
+    selector: { },
+    skipFiltering: true,
+  });
+  const postIds = reviewWinners.map(winner => winner.postId);
+  // Assume these functions exist to fetch data from the database
+  const posts = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    currentUser: null,
+    selector: { _id: { $in: postIds } },
+    skipFiltering: true,
+  });
+  const spotlights = await Spotlights.find({ documentId: { $in: postIds }, draft: false }).fetch();
+  return { posts, spotlights };
+}
+
+// get the posts that have spotlights, sorted by post length, and filter out the ones that are too short
+const getPostsForPrompt = ({posts, spotlights, log=false}: {posts: PostsPage[], spotlights: DbSpotlight[], log?: boolean}) => {
+  const postsWithSpotlights = posts.filter(post => spotlights.find(spotlight => spotlight.documentId === post._id))
+  const postsWithSpotlightsSortedByPostLength = postsWithSpotlights.sort((a, b) => {
+    return (a?.contents?.html?.length ?? 0) - (b?.contents?.html?.length ?? 0)
+  })
+  const filteredPosts = postsWithSpotlightsSortedByPostLength.filter((post) => (post?.contents?.html?.length ?? 0) > 2000).slice(0, 15)
+
+  if (log) { 
+    console.log(filteredPosts.map((post, i) => [i, post.title, post?.contents?.html?.length, spotlights.find(spotlight => spotlight.documentId === post._id)?.description?.originalContents?.data]))
+  }
+  return filteredPosts
+}
+
+const getJailbreakPromptBase = ({posts, spotlights}: {posts: PostsPage[], spotlights: DbSpotlight[]}) => {
+  let prompt = `A series of essays, each followed by a short description of the essay. The style of the short description is slightly casual. They are a single paragraph, 1-3 sentences long. Try to avoid referencing the essay or author (i.e. they don't say "the author" or "in this post" or similar), just talk about the ideas.
+  
+  `
+
+  for (const post of posts) {
+    const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
+    if (!spotlight) {
+      console.log("No spotlight found for post", post.title)
+    }
+    prompt += `
+      Post: ${post.title}
+      ---
+      Post Contents: ${post.contents?.html}
+      ---
+      A short description of the essay, ~2 sentences, no paragraph breaks or bullet points: ${spotlight?.description?.originalContents?.data}
+      ---
+      ---
+      ---
+    `
+  }
+  return prompt
+}
+
+const getSpotlightPrompt = ({post}: {post: PostsPage}) => {
+  return `
+  Post: ${post.title}
+  ---
+  Post Contents: ${post.contents?.html}
+  ---
+  A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
+}
+
+const getAssistantPrompt = ({posts, spotlights}: {posts: PostsPage[], spotlights: DbSpotlight[]}) => {
+
+}
+
+type AnthropicMessageContent = {
+  type: "text"
+  text: string
+}
+
 
 async function createSpotlights() {
   console.log("Creating spotlights for review winners");
 
-  const reviewWinners = await ReviewWinners.find({}).fetch();
-  
-  const postIds = reviewWinners.map(winner => winner.postId);
-  
-  const posts = await Posts.find({ _id: { $in: postIds } }).fetch();
-  const postRevisionContents = await Revisions.find({ documentId: { $in: postIds }, collectionName: "Posts", fieldName: "contents" }).fetch();
-  const spotlights = await Spotlights.find({ documentId: { $in: postIds } }).fetch();
+  const { posts, spotlights } = await getPromptInfo({testing: false})
 
-  const postsWithoutSpotlight = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
+  const postsForPrompt = getPostsForPrompt({posts, spotlights})
 
-  let context = ""
+  const jailbreakPromptBase = getJailbreakPromptBase({posts: postsForPrompt, spotlights})
+  const assistantPrompt = getAssistantPrompt({posts: postsForPrompt, spotlights})
 
-  for (const spotlight of spotlights.slice(0, 2)) {
-    const post = posts.find(post => post._id === spotlight.documentId)
-    const postRevision = postRevisionContents.find(revision => revision.documentId === spotlight.documentId)
-    context += `
-      Post: ${post?.title}
-      ---
-      Post Contents: ${postRevision?.originalContents?.data}
-      ---
-      Spotlight: ${spotlight.description?.originalContents?.data}
-      ---
-      ---
-      ---
-    `
+  const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
+
+
+  for (const post of postsWithoutSpotlights.slice(0, 3)) {
+    console.log(post.postedAt.getFullYear())
+    const jailbreakSummary = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}))
+    const summary = jailbreakSummary.content[0] as AnthropicMessageContent
+    const cleanedSummary = summary.text.replace(/---|\n/g, "")
+    console.log(post.title, summary.text)
+    createSpotlight(post, cleanedSummary)
   }
-  const queries = postsWithoutSpotlight.slice(0, 2).map(post => {
-    const query = context += `
-      Post: ${post.title}
-      ---
-      Post Contents: ${postRevisionContents.find(revision => revision.documentId === post._id)?.originalContents?.data}
-      ---
-      What is a short description that would best describe this essay?
-    `
-    return query
-  })
-  const summaries = await Promise.all(queries.map(query => queryClaude(query)))
-
-  console.log(summaries[0])
-
-  // Further processing of posts can be done here
-  // For example, you could call createSpotlightDescription for each post
-}
-
-
-
-
-
-async function createSpotlightsOld() {
-  console.log("Creating spotlights")
-  const tag = await Tags.findOne({name: "Best of LessWrong"})
-
-
-
-  if (tag) {
-    const spotlights = (await Spotlights.find({}, {projection:{documentId:1}}).fetch())
-    const spotlightDocIds = spotlights.map(spotlight => spotlight.documentId)
-
-    const posts = await fetchFragment({
-      collectionName: "Posts",
-      fragmentName: "PostsPage",
-      currentUser: null,
-      selector: {[`tagRelevance.${tag._id}`]: {$gt: 0}},
-      skipFiltering: true,
-    });
-
-    const spotlightPosts = posts.filter(post => !spotlightDocIds.includes(post._id))
-
-    const postResults: Record<string, string[]> = {};
-
-    for (const [i, post] of Object.entries(spotlightPosts)) {
-      // eslint-disable-next-line no-console
-      console.log(i, spotlightPosts.length, post.title)
-      const summaries =  await Promise.all([...createSpotlightDescription(post, spotlightPosts, spotlights)])
-      // const filteredSummaries = summaries.filter((prompt): prompt is string => !!prompt);
-            
-      // // const artResults = await Promise.all(artPrompts.map(prompt => generateSpotlightImage(prompt)))
-      // postResults[post._id] = filteredSummaries
-      // createSpotlight(post._id, filteredSummaries)
-    }
-  }
-  return "Done"
 }
 
 Globals.createSpotlights = createSpotlights;
