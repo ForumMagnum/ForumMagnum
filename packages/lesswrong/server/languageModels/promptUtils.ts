@@ -132,7 +132,7 @@ export const generateAssistantContextMessage = async (query: string, currentPost
   const contextIsProvided = !!currentPost || additionalPosts.length > 0;
 
   const currentPostLine = currentPost
-    ? 'The user is currently viewing the post titled "${currentPost.title}" with postId "${currentPost._id}".\n\n'
+    ? `The user is currently viewing the post titled "${currentPost.title}" with postId "${currentPost._id}".\n\n`
     : '';
 
   const additionalPostsBlock = additionalPosts.length > 0

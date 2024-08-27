@@ -1,6 +1,7 @@
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "@/lib/collectionUtils";
 import { createCollection } from "@/lib/vulcan-lib";
 import schema from "./schema";
+import { isAdmin, userOwns } from "@/lib/vulcan-users";
 
 const LlmConversations: LlmConversationsCollection = createCollection({
   collectionName: "LlmConversations",
@@ -21,5 +22,9 @@ const LlmConversations: LlmConversationsCollection = createCollection({
 addUniversalFields({
   collection: LlmConversations,
 });
+
+LlmConversations.checkAccess = async (user, llmConversation) => {
+  return isAdmin(user) || userOwns(user, llmConversation);
+};
 
 export default LlmConversations;

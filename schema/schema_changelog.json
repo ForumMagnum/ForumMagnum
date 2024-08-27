@@ -725,8 +725,13 @@
     "timestamp": "2024-08-20T18:32:33.000Z"
   },
   {
-    "acceptsSchemaHash": "1b522f36535bb2cd26ae4018d17687c3",
-    "acceptedByMigration": "20240826T222955.create_LlmConversationsAndMessages_tables.ts",
-    "timestamp": "2024-08-26T22:29:55.000Z"
+    "acceptsSchemaHash": "eb768d8bdc708f08c58c7db559625f10",
+    "acceptedByMigration": "20240823T102724.add_autoFrontpage.ts",
+    "timestamp": "2024-08-23T10:27:24.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e4f656b97627c2f035fdee90d49cb5dc",
+    "acceptedByMigration": "20240827T185218.create_LlmConversationsAndMessages_tables.ts",
+    "timestamp": "2024-08-27T18:52:18.000Z"
   }
 ]
