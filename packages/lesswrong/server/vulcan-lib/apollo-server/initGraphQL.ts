@@ -255,7 +255,7 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
-            [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
+            [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext) => {
               // Check that current user has permission to access the original
               // non-resolved field.
               if (!userCanReadField(context.currentUser, field, document)) {
@@ -282,7 +282,7 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
                     return filter(
                       context.currentUser,
                       permissionData.collection,
-                      existingValue,
+                      existingValue as AnyBecauseHard,
                       context,
                     );
                   }
@@ -292,7 +292,7 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
 
               // If the value wasn't supplied by a SQL resolver then we need
               // to run the code resolver instead.
-              return field.resolveAs!.resolver(document, args, context, info);
+              return field.resolveAs!.resolver(document, args, context);
             },
           },
         };

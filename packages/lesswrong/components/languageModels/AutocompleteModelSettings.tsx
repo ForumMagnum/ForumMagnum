@@ -199,6 +199,39 @@ const calculateTokens = (
   }, 0);
 };
 
+function useGetAuthorContent(authorId: string): {posts: PostsListWithVotes[], comments: CommentsList[]} {
+  const { results: posts } = useMulti({
+    terms: { view: "userPosts", userId: authorId, limit: 100, sortedBy: "top" },
+    collectionName: "Posts",
+    fragmentName: "PostsListWithVotes",
+    enableTotal: true,
+  });
+
+  const { results: comments } = useMulti({
+    terms: { view: "profileComments", userId: authorId, limit: 200, sortBy: "top" },
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+    enableTotal: true,
+  });
+
+  const results = useMemo(() => ({posts: posts ?? [], comments: comments ?? []}), [posts, comments]);
+  return results;
+}
+
+function useGetFeaturedAuthorsContent() {
+  const author1Content = useGetAuthorContent(featuredAuthors[0].userId);
+  const author2Content = useGetAuthorContent(featuredAuthors[1].userId);
+  const author3Content = useGetAuthorContent(featuredAuthors[2].userId);
+
+  const results = useMemo(() => ({
+    [featuredAuthors[0].userId]: author1Content,
+    [featuredAuthors[1].userId]: author2Content,
+    [featuredAuthors[2].userId]: author3Content,
+  }), [author1Content, author2Content, author3Content]);
+
+  return results;
+}
+
 const AuthorSection = ({
   author,
   authorContent,
@@ -353,33 +386,13 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
     results: comments,
     error: commentsError,
     loadMoreProps: commentsLoadMoreProps,
-  } = useMulti({ terms: { view: "profileRecentComments", userId: currentUser?._id, limit: 30, sortBy: "top"},
+  } = useMulti({ terms: { view: "profileComments", userId: currentUser?._id, limit: 30, sortBy: "top"},
     collectionName: "Comments",
     fragmentName: "CommentsList",
     enableTotal: true,
   });
 
-  const authorContent = featuredAuthors.reduce(
-    (acc: Record<string, { posts?: PostsListWithVotes[]; comments?: CommentsList[] }>, author) => {
-      const { results: posts } = useMulti({
-        terms: { view: "userPosts", userId: author.userId, limit: 100, sortedBy: "top" },
-        collectionName: "Posts",
-        fragmentName: "PostsListWithVotes",
-        enableTotal: true,
-      });
-
-      const { results: comments } = useMulti({
-        terms: { view: "profileRecentComments", userId: author.userId, limit: 200, sortBy: "top" },
-        collectionName: "Comments",
-        fragmentName: "CommentsList",
-        enableTotal: true,
-      });
-
-      acc[author.userId] = { posts, comments };
-      return acc;
-    },
-    {},
-  );
+  const authorContent = useGetFeaturedAuthorsContent()
 
   useEffect(() => {
     const allItems = [

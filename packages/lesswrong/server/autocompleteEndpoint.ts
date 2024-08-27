@@ -132,8 +132,8 @@ async function constructMessageHistory(
     const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
     const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
 
-    if (!parentPost || !parentPostRevision) {
-      throw new Error("Parent post or revision not found");
+    if (!parentPost) {
+      throw new Error(`Parent post or revision not found ${replyingToComment.postId}`);
     }
 
     const authors = await Users.find({ _id: { $in: [parentPost.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();

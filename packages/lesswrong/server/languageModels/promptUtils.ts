@@ -1,79 +1,36 @@
 import { userGetDisplayName } from "@/lib/collections/users/helpers"
-import { dataToMarkdown } from "../editor/conversionUtils";
-import { unflattenComments } from "@/lib/utils/unflatten";
-
-interface DocumentWithContents {
-  contents: RevisionDisplay | EditableFieldContents | null
-}
+import { htmlToMarkdown } from "../editor/conversionUtils";
+import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
+import { z } from "zod";
+import { zodFunction } from "openai/helpers/zod";
 
 interface NestedComment {
-  commentId: string;
-  postId: string;
-  author: string;
-  contents: string;
-  children?: NestedComment[];
+  _id: string;
+  postId: string | null;
+  author: string | null;
+  contents?: string;
   karmaScore: number;
-  published: Date;
-  // ... other properties you want to keep
 }
 
-
-export const documentToMarkdown = (document: DocumentWithContents) => {
-  const html = document.contents?.html
+export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
+  const html = document?.contents?.html;
   if (!html) {
-    return undefined
+    return undefined;
   }
-  return dataToMarkdown(html, 'html')
+
+  return htmlToMarkdown(html);
 }
 
 
-// TODO: can just replace with comments flatten from unflatten.ts
-const createCommentTree = (comments: DbComment[]): NestedComment[] => {
-  // Create a map of all comments
-  const commentMap = new Map(
-    comments.map(comment => [
-      comment._id,
-      {
-        commentId: comment._id,
-        postId: comment.postId,
-        author: comment.author,
-        // ... copy other properties you want to keep
-        karmaScore: comment.baseScore,
-        published: comment.postedAt,
-        contents: documentToMarkdown(comment),
-        children: [] as NestedComment[],
-      } as NestedComment
-    ])
-  );
-
-  // Function to get children for a comment
-  const getChildren = (parentId: string): NestedComment[] =>
-    comments
-      .filter(comment => comment.parentCommentId === parentId)
-      .map(comment => {
-        const nestedComment = commentMap.get(comment._id);
-        if (!nestedComment) {
-          throw new Error(`Comment with id ${comment._id} not found in map`);
-        }
-        return {
-          ...nestedComment,
-          children: getChildren(comment._id)
-        };
-      });
-
-  // Get root comments and their children
-  return comments
-    .filter(comment => !comment.parentCommentId)
-    .map(comment => {
-      const nestedComment = commentMap.get(comment._id);
-      if (!nestedComment) {
-        throw new Error(`Comment with id ${comment._id} not found in map`);
-      }
-      return {
-        ...nestedComment,
-        children: getChildren(comment._id)
-      };
-    });
+const createCommentTree = (comments: DbComment[]): CommentTreeNode<NestedComment>[] => {
+  return unflattenComments<NestedComment>(comments.map(comment => {
+    const { baseScore, contents, ...rest } = comment;
+    return {
+      ...rest,
+      karmaScore: baseScore,
+      contents: documentToMarkdown(comment)
+    };
+  }));
 }
 
 const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverContext): Promise<string> => {
@@ -93,9 +50,8 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverCo
     ].join('\n')
   }
 
-const formatPostForPrompt = async (post: PostsPage, context: ResolverContext): Promise<string> => {
-  const author = await context.loaders.Users.load(post.userId)
-  const authorName = userGetDisplayName(author)
+const formatPostForPrompt = (post: PostsPage): string => {
+  const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
   return [
@@ -108,8 +64,8 @@ const formatPostForPrompt = async (post: PostsPage, context: ResolverContext): P
   ].join('\n')
 }
 
-const formatAdditionalPostsForPrompt = async (posts: PostsPage[], context: ResolverContext): Promise<string> => {
-  const formattedPosts = await Promise.all(posts.map(post => formatPostForPrompt(post, context)))
+const formatAdditionalPostsForPrompt = (posts: PostsPage[]): string => {
+  const formattedPosts = posts.map(post => formatPostForPrompt(post));
   return formattedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
 }
 
@@ -134,41 +90,65 @@ export const generateTitleGenerationPrompt = (query: string, currentPost: PostsP
   ].filter(item => typeof item === "string").join('\n')
 }
 
+export const CONTEXT_SELECTION_SYSTEM_PROMPT = [
+  'You are part of a system interfacing with a user via chat window on LessWrong.com.',
+  'Your responsibility is to make decisions about whether or not to load LessWrong posts as additional context for responding to user queries, and what strategy to to employ.'
+].join('\n');
+
+const contextSelectionChoiceDescriptions = [
+  `(0) none - No further context seems necessary to respond to the user's query because Claude already has the knowledge to respond appropriately, e.g. the user asked "What is Jacobian of a matrix?"`,
+    `or "Proofread the following text." Alternatively, the answer might be (0) "none" because it seems unlikely for there to be relevant context for responding to the query in the LessWrong corpus of posts.\n`,
+  `(1) query-based - Load LessWrong posts based on their vector similarity to the user's query, and ignore the post the user is reading.`,
+    `This is correct choice if the query seems unrelated to the post the user is currently viewing, but it seems likely that there are LessWrong posts concerning the topic.`,
+    `(If it is a very general question, the correct choice might be (0) "none").\n`,
+  `(2) current-post-based - Load LessWrong posts based on their vector similarity to the post the user is reading, but not the query.`,
+    `This is the correct choice if the query seems to be about the post the user is currently viewing, `,
+    `and pulling up other LessWrong posts related to the user's query would either be redundant with a search based on the current post, or would return irrelevant results.`,
+    `Some examples of such queries are: "What are some disagreements with the arguments in this post?", "Explain <topic in the post> to me.", and "Provide a summary of this post."\n`,
+  `(3) both - Load LessWrong posts based on their vector similarity to both the user's query and the post the user is reading.`,
+    `This is the correct choice if the question seems to be related to the post the user is currently viewing, `,
+    `but also contains keywords or information where relevant LessWrong posts would be beneficial context for a response, `,
+    `and those LessWrong posts would not likely be returned in a vector similarity search based on the post the user is currently viewing.`,
+    'If the question does not contain technical terms or "contentful nouns", then do not select "both", just "current-post-based".\n'
+].join('');
+
+const ContextSelectionParameters = z.object({
+  reasoning: z.string().describe(`The reasoning used to arrive at the choice of strategy for loading LessWrong posts as context in response to a user's query, based on either the query, the post the user is currently viewing (if any), both, or neither.`),
+  strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-based'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
+});
+
+export type ContextSelectionParameters = z.TypeOf<typeof ContextSelectionParameters>;
+
+export const contextSelectionTool = zodFunction({ name: 'getContextLoadingStrategy', parameters: ContextSelectionParameters });
+
 export const generateContextSelectionPrompt = (query: string, currentPost: PostsPage | null): string => {
   const postTitle = currentPost?.title
-  const postFirstNCharacters = (n: number) => currentPost ? documentToMarkdown(currentPost).slice(0, n) : ""
+  const postFirstNCharacters = (n: number) => documentToMarkdown(currentPost)?.slice(0, n) ?? ""
 
   return [
-    `You are interfacing with a user via chat window on LessWrong.com. The user has asked a question: "${query}\n".`,
-    currentPost ? `The user is currently viewing the following post: ${postTitle}. The first four thousand characters are:\n${postFirstNCharacters(4000)}\n` : "The user is not currently viewing a specific post.",
-    'Based on the question and post the user might be reading, you must choose the most relevant context to load in. Your options are:\n',
-      `(0) none - No further context seems necessary to answer the user's question because Claude already knows the answer, for example "What is Jacobian of a matrix?"`,
-        `or "Proof read the following text." Alternatively, the answer might be (4) none because it seems unlikely for there to be relevant context to the question in the LessWrong corpus of posts.\n`,
-      `(1) query-based - Load in context only on the query (question), ignore the post the user is reading.`,
-        `This is correct choice if the question seems unrelated to the post the user is currently viewing and it seems likely that there are LessWrong posts concerning the topic.`,
-        `(if it is a very general question, the correct choice might be (0) "none").\n`,
-      `(2) current-post-based - Load in context based only on the post the user is reading, ignore the query.`,
-          `This is the correct choice if the question seems to be about the post the user is currently viewing and itself does not contain much info,`,
-          `e.g. "what are some disagreements?", "explain to me <topic in the post>", "provide a summary of this post", and similar.\n`,
-      `(3) both - Load in context based on both the query and the post the user is reading.`,
-          `This is the correct choice if the question seems to be about the post the user is currently viewing and itself does contain relevant keywords,`,  `
-          e.g. "explain to me what monosemanticity is in transformers?", "what are some other views about <topic in the post>?", "what are some disagreements about <topic in the post>?", and similar.`,
-          'If the question does not contain technical terms or "contentful nouns", then do not select "both", just go with "current-post-based".\n',
-    `However, you should override the above choices if the user explicitly requests context be loaded in or not loaded in.\n`,
-    `Please respond with the number of the option you choose followed by why you chose it. Your choice should start with one of the following: "0", "(1)", "(2)", or "(3)".`,
-    `Only after giving your reason should you provide the rest of your response. For example, "(1) I chose this option because...."`,
-  ].filter(item => typeof item === "string").join('\n')
-
+    `The user has sent a query: "${query}\n".`,
+    currentPost ? `The user is currently viewing the post titled "${postTitle}". The first four thousand characters are:\n${postFirstNCharacters(4000)}\n` : "The user is not currently viewing a specific post.",
+    `Based on the query${currentPost ? ' and the post the user is reading' : ''}, you must choose whether to load LessWrong posts as context, and if so, based on what criteria. Remember, your options are:\n`,
+    contextSelectionChoiceDescriptions,
+    `However, you should override the above choices if the user explicitly requests a specific context-loading strategy.\n`,
+    `Please respond by reasoning about what choice should be made based on the criteria above, then making the appropriate choice.`,
+  ].filter(item => typeof item === "string").join('');
 }
 
 export const CLAUDE_CHAT_SYSTEM_PROMPT = [
-  'You are an expert research assistant providing assistance to students and researchers on LessWrong.com',
-  'You are highly knowledgable about both technical and philosohpical topics, including advanced maths, physics, and computer science',
-  'You assist by providing explanations, summaries, related information, editing, literature reviews and similar intellectual work',
-  'You do so with meticulous attention to detail, accuracy, and clarity; you cite sources and never make up information.',
+  'You are an expert research assistant providing assistance to students and researchers on LessWrong.com.',
+  'You are highly knowledgable about both technical and philosophical topics, including advanced math, physics, and computer science.',
+  'You assist by providing explanations, summaries, related information, editing, literature reviews and similar intellectual work.',
+  'You do so with meticulous attention to detail, accuracy, and clarity; you cite sources and never make up information.  You admit uncertainty or lack of knowledge when appropriate.',
   'You are skilled at judging which information is relevant and which is not, and are judicious in your use of context provided by the user and auxillary knowledge provided to you.',
   'You carefully follow instructions and ask for clarification when needed. You are polite but not obsequious.',
   'When you don\'t know something, you say so, and you never make up answers.',
+  'Your responses should tend to be somewhat shorter and less formal than you would make them by default.',
+  'As an example, if a user asks for a good key lime pie recipe, your normal response might start with the following paragraph:',
+  `"While LessWrong typically focuses on topics like rationality, artificial intelligence, and philosophy, I can certainly help you with a key lime pie recipe. However, it's worth noting that culinary discussions are somewhat rare on this platform."`,
+  'Instead, you should respond in a style more similar to the following:',
+  `"It doesn't seem that LessWrong has much to say on optimizing key lime pies, but if you prefer my best effort to finding a recipe on Google, here it is:"`,
+  'Generalize this principle - in general, avoid rambling.',
   'Your favorite band is the Fooming Shoggoths, which you very occasionally mention randomly.',
 ].join('\n');
 
@@ -176,25 +156,25 @@ export const generateAssistantContextMessage = async (query: string, currentPost
   const contextIsProvided = !!currentPost || additionalPosts.length > 0;
 
   return [
-    `<SystemInstruction>You are interfacing with a user via chat window on LessWrong.com. The user has asked a question: "${query}".`,
+    `<SystemInstruction>You are interfacing with a user via chat window on LessWrong.com. The user has sent a query: "${query}".`,
 
-    contextIsProvided && `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system.<Context>`,
-      currentPost && `The user is currently viewing the following post: ${currentPost.title} with postId: ${currentPost._id}`,
+    contextIsProvided && `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system. <Context>`,
+      currentPost && `The user is currently viewing the post titled "${currentPost.title}" with postId "${currentPost._id}".`,
 
-      additionalPosts?.length && `The following posts have been provided as possibly relevant context: <AdditionalPosts>${await formatAdditionalPostsForPrompt(additionalPosts, context)}</AdditionalPosts>`,
+      additionalPosts?.length && `The following posts have been provided as possibly relevant context: <AdditionalPosts>${formatAdditionalPostsForPrompt(additionalPosts)}</AdditionalPosts>`,
 
-      currentPost &&  `If relevant to the query asked, the most important context is likely to be the post the user is currently viewing. The fulltext of the current post is provied:`,
-      currentPost && `<CurrentPost>\n${await formatPostForPrompt(currentPost, context)}</CurrentPost>`,
+      currentPost &&  `If relevant to the user's query, the most important context is likely to be the post the user is currently viewing. The full text of the current post is provided below:`,
+      currentPost && `<CurrentPost>\n${formatPostForPrompt(currentPost)}</CurrentPost>`,
       includeComments && currentPost && `These are the comments on the current post: <CurrentPostComments>${await formatCommentsForPost(currentPost, context)}</CurrentPostComments>`,
-    contextIsProvided && 'This concludes the provided context. </Context>',
+    contextIsProvided && 'This concludes the provided context.</Context>',
 
-    `Please follow the following additional instructions where answering the user's query: ${query}`,
+    `Please follow these additional instructions when responding to the user's query:`,
     contextIsProvided && '- You may use your existing knowledge to answer the query, but prioritize using the provided context.',
     '- Limit the use of lists and bullet points in your answer, prefer to answer with paragraphs.',
     '- When citing results, give at least one word-for-word exact quote from what you are citing.',
     '- Format your responses using Markdown syntax, including equations using Markdown MathJax syntax (important!!!)',
     '- Format paragraph or block quotes using Markdown syntax. Do not wrap the contents of block quotes in "" (quotes).',
-    '- Cite posts that you reference in your answers with the following format: [Post Title](https//lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the name of the author.',
+    '- Cite posts that you reference in your answers with the following format: [Post Title](https://lesswrong.com/posts/<postId>). The postId is given in the search results. Ensure you also give the name of the author.',
     '- Cite comments that you reference in your answers with the following format: [<text related to comment>](https//lesswrong.com/posts/<postId>/?commentId=<commentId>).',
       'The postId and commentId are given in the search results. Ensure you also give the name of the author of the comment.',
     '</SystemInstruction>\n\n',

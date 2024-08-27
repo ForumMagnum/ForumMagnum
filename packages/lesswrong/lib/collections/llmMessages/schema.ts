@@ -1,3 +1,4 @@
+import { userHasLlmChat } from "@/lib/betas";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
 import { userOwns } from "@/lib/vulcan-users";
 
@@ -14,7 +15,7 @@ const schema: SchemaType<"LlmMessages"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   conversationId: {
@@ -22,7 +23,7 @@ const schema: SchemaType<"LlmMessages"> = {
     optional: true,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   role: {
@@ -31,7 +32,7 @@ const schema: SchemaType<"LlmMessages"> = {
     nullable: false,
     allowedValues: [...messageRoles],
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   content: {
@@ -39,7 +40,7 @@ const schema: SchemaType<"LlmMessages"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
 }

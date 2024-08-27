@@ -48,6 +48,7 @@ export const zIndexes = {
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
   intercomButton: 1030,
+  languageModelChatButton: 1030,
   sideCommentBox: 1040,
   languageModelChat: 1041,
   postItemMenu: 1050,
@@ -60,7 +61,7 @@ export const zIndexes = {
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   afNonMemberPopup: 9999,
   lwPopper: 10000,
-  lwPopperTooltip: 10000010002, //10001, TODO: properly figure out zIndexes for all the things
+  lwPopperTooltip: 10001,
   loginDialog: 10002,
   searchBar: 100000,
   commentBoxPopup: 10000000001, // has to be higher than Intercom,

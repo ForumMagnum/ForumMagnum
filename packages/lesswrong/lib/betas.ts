@@ -74,10 +74,13 @@ export const useRecombeeFrontpage = (currentUser: UsersCurrent|DbUser|null) => {
   return isLW && (isAdmin(currentUser) || manualOptIn) && recombeeEnabledSetting.get()
 }
 
-export const userHasLlmChat = (currentUser: UsersCurrent | DbUser):boolean => {
+export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUser is UsersCurrent|DbUser => {
+  if (!currentUser) {
+    return false
+  }
   const userIdsWithAccess = userIdsWithAccessToLlmChat.get();
-
-  return isLW && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser?._id));
+  
+  return isLW && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }
 
 export const userHasDarkModeHotkey = isEAForum ? adminOnly : shippedFeature;
@@ -101,6 +104,7 @@ export const hasForumEvents = isEAForum;
 export const hasSurveys = isFriendlyUI && !isBotSiteSetting.get();
 export const hasCollapsedFootnotes = !isLWorAF;
 export const useCurationEmailsCron = isLW;
+export const hasSidenotes = isLW;
 
 // EA Forum disabled the author's ability to moderate posts. We disregard this
 // check in tests as the tests run in EA Forum mode, but we want to be able to

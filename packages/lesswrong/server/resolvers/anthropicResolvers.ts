@@ -1,20 +1,21 @@
-import { defineMutation, defineQuery } from "../utils/serverGraphqlUtil";
-import { getAnthropicClientOrThrow } from "../languageModels/anthropicClient";
+import uniq from "lodash/uniq";
+import uniqBy from "lodash/uniqBy";
+import { defineMutation } from "../utils/serverGraphqlUtil";
+import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage } from "../languageModels/promptUtils";
-import uniqBy from "lodash/uniqBy";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionTool, ContextSelectionParameters } from "../languageModels/promptUtils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
-import Anthropic from "@anthropic-ai/sdk";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { fetchFragmentSingle } from "../fetchFragment";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { sendSseMessageToUser } from "../serverSentEvents";
-import { LlmCreateConversationMessage } from "@/components/hooks/useUnreadNotifications";
-import { createMutator } from "../vulcan-lib";
+import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
+import { createMutator, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
-import { userIsAdmin } from "@/lib/vulcan-users";
+import { asyncMapSequential } from "@/lib/utils/asyncUtils";
+import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
+import { getOpenAI } from "../languageModels/languageModelIntegration";
 
 const ClientMessage = `input ClientLlmMessage {
   conversationId: String
@@ -71,7 +72,9 @@ interface ClaudeAllowableMessage {
   role: LlmVisibleMessageRole;
 }
 
-interface SendMessageToClaudeArgs {
+interface SendMessagesToClaudeArgs {
+  newMessages: DbLlmMessage[];
+  previousMessages: DbLlmMessage[];
   context: ResolverContext;
   conversationId: string;
   model: string;
@@ -91,40 +94,36 @@ function getConversationContext(newConversationChannelId: string | null, newMess
   };
 }
 
-// TODO: convert this to tool use for reliability
 async function getQueryContextDecision(query: string, currentPost: PostsPage | null): Promise<RagContextType> {
-  const contextSelectionPrompt = generateContextSelectionPrompt(query, currentPost)
-  const contextTypeMapping: Record<string, RagContextType> = {
-    "(1)": "query-based",
-    "(2)": "current-post-based",
-    "(3)": "both",
-    "(4)": "none"
+  const openai = await getOpenAI();
+  if (!openai) {
+    return 'error';
   }
 
-  const client = getAnthropicClientOrThrow()
-  const response = await client.messages.create({
-    model: "claude-3-haiku-20240307",
-    max_tokens: 512,
-    messages: [{role: "user", content: contextSelectionPrompt}]
-  })
+  // TODO: come back to this when haiku 3.5 is out to replace it, maybe
+  const toolUseResponse = await openai.chat.completions.create({
+    model: 'gpt-4o-mini-2024-07-18',
+    messages: [
+      { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
+      { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
+    ],
+    tools: [contextSelectionTool]
+  });
 
-  const result = response.content[0]
-  if (result.type === 'tool_use') {
-    throw new Error("response is tool use which is not a proper response in this context")
+  const rawArguments = toolUseResponse.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
+  if (!rawArguments) {
+    // eslint-disable-next-line no-console
+    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse });
+    return 'error';
   }
 
-  console.log({result, contextSelectionPrompt: contextSelectionPrompt.slice(0, 500) + '....' + contextSelectionPrompt.slice(-1000)})
+  const parsedArguments: ContextSelectionParameters = JSON.parse(rawArguments);
 
-  //check if result is one of the expected values
-  if (!["(1)", "(2)", "(3)", "(4)"].includes(result.text.slice(0, 3))) {
-    return "error";
-  }
-  else {
-    return contextTypeMapping[result.text.slice(0, 3)]
-  }
+  return parsedArguments.strategy_choice;
 }
 
-async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext) {
+// TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
+async function getContextualPosts(query: string, currentPost: PostsPage | null, context: ResolverContext): Promise<PostsPage[]> {
   const contextSelectionCode = await getQueryContextDecision(query, currentPost);
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
   const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
@@ -132,27 +131,25 @@ async function getContextualPosts(query: string, currentPost: PostsPage | null, 
   const { embeddings: queryEmbeddings } = await getEmbeddingsFromApi(query);
 
   const querySearchPromise = useQueryEmbeddings
-    ? context.repos.postEmbeddings.getNearestPostsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQuality(queryEmbeddings, contextSelectionCode==='query-based' ? 10 : 3)
     : Promise.resolve([]);
 
   const currentPostSearchPromise = useCurrentPostEmbeddings && currentPost
-    ? context.repos.postEmbeddings.getNearestPostsWeightedByQualityByPostId(currentPost._id)
+    ? context.repos.postEmbeddings.getNearestPostIdsWeightedByQualityByPostId(currentPost._id)
     : Promise.resolve([]);
 
-  const [querySearchResults, currentPostSearchResults] = await Promise.all([
+  const [querySearchIds, currentPostSearchIds] = await Promise.all([
     querySearchPromise,
     currentPostSearchPromise,
   ]);
 
-  const rawSearchResults = [...querySearchResults, ...currentPostSearchResults];
-  const deduplicatedSearchResults = uniqBy(rawSearchResults, (post) => post._id);
+  const deduplicatedSearchResultIds = uniq([...querySearchIds, ...currentPostSearchIds]);
 
-  return deduplicatedSearchResults;
+  return getPostsWithContents(deduplicatedSearchResultIds, context);
 };
 
 async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
   const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
-  console.log("titleGenerationPrompt", titleGenerationPrompt)
 
   const client = getAnthropicClientOrThrow()
   const titleResult = await client.messages.create({
@@ -171,7 +168,6 @@ async function getConversationTitle({ query, currentPost }: Pick<CreateNewConver
 
 async function createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
-
   const newConversation = await createMutator({
     collection: context.LlmConversations,
     document: {
@@ -187,7 +183,7 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation.data;
 };
 
-function getPostContextMessage(query: string, postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
+function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost: PostsPage | null): string {
   // get the combined list of current post and posts loaded into context that handles the possibility they are empty or null
   const allLoadedPosts = filterNonnull([currentPost, ...postsLoadedIntoContext ?? []]);
   // Current post might be one of the posts returned from the query-based embedding search
@@ -201,8 +197,7 @@ function getPostContextMessage(query: string, postsLoadedIntoContext: PostsPage[
   const message = [
     `*Based on your query, the following posts were loaded into the LLM's context window*:`,
     deduplicatedPostsList,
-    `\n\n*You asked:*\n\n`,
-    query
+    `\n*(This message and similar messages are not sent to the LLM.)*`
   ].join("\n");
 
   return message;
@@ -221,6 +216,51 @@ function sendNewConversationEvent(conversationContext: ConversationContext, conv
 
     sendSseMessageToUser(currentUser._id, newConversationEvent);
   }
+}
+
+async function getPreviousUserMessageData(message?: DbLlmMessage): Promise<LlmStreamContentMessage['data']['previousUserMessage']> {
+  if (!message || message.role !== 'user') {
+    return undefined;
+  }
+
+  const { _id, content, role, userId, createdAt } = message;
+
+  const parsedContent = await markdownToHtml(content);
+
+  return {
+    _id,
+    content: parsedContent,
+    role,
+    userId,
+    createdAt: createdAt.toISOString()
+  };
+}
+
+async function sendStreamContentEvent(conversationId: string, messageBuffer: string, currentUser: DbUser, lastUserMessage?: DbLlmMessage) {
+  const [previousUserMessage, parsedMessageBuffer] = await Promise.all([
+    getPreviousUserMessageData(lastUserMessage),
+    markdownToHtml(messageBuffer)
+  ]);
+
+  const streamContentEvent: LlmStreamContentMessage = {
+    eventType: 'llmStreamContent',
+    data: {
+      content: parsedMessageBuffer,
+      previousUserMessage,
+      conversationId,
+    },
+  };
+
+  sendSseMessageToUser(currentUser._id, streamContentEvent);
+}
+
+function sendStreamEndEvent(conversationId: string, currentUser: DbUser) {
+  const streamEndEvent: LlmStreamEndMessage = {
+    eventType: 'llmStreamEnd',
+    data: { conversationId },
+  };
+
+  sendSseMessageToUser(currentUser._id, streamEndEvent);
 }
 
 function convertMessageRoleForClaude(role: LlmVisibleMessageRole) {
@@ -252,16 +292,12 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
   return llmVisibleMessageRoles.has(message.role);
 }
 
-async function sendMessagesToClaude({ conversationId, model, currentUser, context }: SendMessageToClaudeArgs) {
-  const client = getAnthropicClientOrThrow();
-  const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
+async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser }: SendMessagesToClaudeArgs) {
+  const promptCachingClient = getAnthropicPromptCachingClientOrThrow();
 
-  const previousMessages = await context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] } }, { sort: { createdAt: -1 } }).fetch();
-  const messagesForClaude = previousMessages.filter(isClaudeAllowableMessage);
+  const conversationMessages = [...previousMessages, ...newMessages];
+  const messagesForClaude = conversationMessages.filter(isClaudeAllowableMessage);
   const preparedMessages = messagesForClaude.map((message, idx) => createClaudeMessage(message, idx === 0));
-
-  // time this
-  // const startTime = new Date().getTime();
 
   const stream = promptCachingClient.messages.stream({
     model,
@@ -270,17 +306,26 @@ async function sendMessagesToClaude({ conversationId, model, currentUser, contex
     messages: preparedMessages,
   });
 
+  let buffer = '';
+  stream.on('text', (text) => {
+    const isFirstChunk = buffer === '';
+    const includePreviousUserMessage = isFirstChunk && previousMessages.length > 0;
+
+    const previousUserMessage = includePreviousUserMessage
+      ? newMessages[0]
+      : undefined;
+
+    buffer += text;
+
+    void sendStreamContentEvent(conversationId, buffer, currentUser, previousUserMessage);
+  });
+
   const finalMessage = await stream.finalMessage();
-  // const endTime = new Date().getTime();
 
   const response = finalMessage.content[0];
   if (response.type === 'tool_use') {
     throw new Error("response is tool use which is not a proper response in this context");
   }
-
-  // const resultUsageField = finalMessage.usage;
-  // console.log("Time to get response from Claude", endTime - startTime);
-  // console.log({ resultUsageField });
 
   const newResponse = {
     conversationId,
@@ -292,14 +337,33 @@ async function sendMessagesToClaude({ conversationId, model, currentUser, contex
   return newResponse;
 }
 
-function getPostWithContents(postId: string, context: ResolverContext) {
-  return fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentName: "PostsPage",
-    selector: { _id: postId },
-    currentUser: context.currentUser,
+async function getPostWithContents(postId: string, context: ResolverContext): Promise<PostsPage | null> {
+  const [post] = await runFragmentQuery({
+    collectionName: 'Posts',
+    fragmentName: 'PostsPage',
+    terms: { postIds: [postId] },
     context,
   });
+
+  return post ?? null;
+}
+
+async function getPostsWithContents(postIds: string[], context: ResolverContext) {
+  return runFragmentQuery({
+    collectionName: 'Posts',
+    fragmentName: 'PostsPage',
+    terms: { postIds },
+    context,
+  });
+}
+
+async function getContextMessages(content: string, currentPost: PostsPage | null, context: ResolverContext) {
+  const contextualPosts = await getContextualPosts(content, currentPost, context);
+  // TODO: refactor this to avoid returning a context message if there were no posts loaded into the context window.  (And make sure it depends on what's actually in the context window, not just on whether the user's on a current post.)
+  const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
+  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+
+  return { userContextMessage, assistantContextMessage };
 }
 
 async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
@@ -310,18 +374,17 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     : Promise.resolve(null)
   );
 
-  const conversation = await createNewConversation({
-    query: content,
-    systemPrompt,
-    model,
-    currentUser,
-    context,
-    currentPost,
-  });      
-
-  const contextualPosts = await getContextualPosts(content, currentPost, context);
-  const userContextMessage = getPostContextMessage(content, contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+  const [conversation, { userContextMessage, assistantContextMessage }] = await Promise.all([
+    createNewConversation({
+      query: content,
+      systemPrompt,
+      model,
+      currentUser,
+      context,
+      currentPost,
+    }),
+    getContextMessages(content, currentPost, context)
+  ]);
 
   const conversationId = conversation._id;
 
@@ -358,7 +421,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
 
   return {
     conversation,
-    messages: [newUserContextMessageRecord, newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord],
+    newMessageRecords: [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord, newUserContextMessageRecord],
   };
 }
 
@@ -376,7 +439,7 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
 
   return {
     conversation,
-    messages: [newUserMessageRecord],
+    newMessageRecords: [newUserMessageRecord],
   };
 }
 
@@ -394,8 +457,8 @@ defineMutation({
     const { currentUser } = context;
     const { postId: currentPostId } = promptContextOptions
 
-    if (!currentUser || !userHasLlmChat(currentUser)) {
-      throw new Error("only admins and authorized users can use Claude chat at present")
+    if (!userHasLlmChat(currentUser)) {
+      throw new Error('Only admins and authorized users can use Claude chat at present');
     }
 
     if (!newConversationChannelId && !newMessage.conversationId) {
@@ -404,6 +467,18 @@ defineMutation({
 
     if (newConversationChannelId && newMessage.conversationId) {
       throw new Error('Cannot create a new conversation for a message sent for an existing conversationId');
+    }
+
+    if (newMessage.content.trim().length === 0) {
+      throw new Error('Message must contain non-whitespace content');
+    }
+
+    const markdown = htmlToMarkdown(newMessage.content);
+    newMessage.content = markdown;
+
+    // Check again post-markdown conversion, in case we got a set of html tags that resulted in an empty string
+    if (newMessage.content.trim().length === 0) {
+      throw new Error('Message must contain non-whitespace content');
     }
 
     const conversationContext = getConversationContext(newConversationChannelId, newMessage);
@@ -421,23 +496,38 @@ defineMutation({
 
     // TODO: also figure out if we want prevent users from creating new conversations with multiple pre-filled messages
 
-    const { conversation, messages } = conversationContext.type === 'new'
+    const { conversation, newMessageRecords } = conversationContext.type === 'new'
       ? await createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context })
       : await prepareMessagesForConversation({ newMessage, conversationId: conversationContext.conversationId, context });
 
-    for (const message of messages) {
-      await createMutator({
+    const conversationId = conversation._id;
+
+    const now = new Date();
+    const fetchPreviousMessagesPromise = context.LlmMessages.find({ conversationId, role: { $in: [...llmVisibleMessageRoles] }, createdAt: { $lt: now } }, { sort: { createdAt: 1 } }).fetch();
+
+    const createNewMessagesSequentiallyPromise = asyncMapSequential(
+      newMessageRecords,
+      (message) => createMutator({
         collection: context.LlmMessages,
         document: message,
         context,
         currentUser,
-      });
-    }
+      }).then(({ data }) => data)
+    );
 
-    sendNewConversationEvent(conversationContext, conversation, currentUser)
+    const [previousMessages, newMessages] = await Promise.all([
+      fetchPreviousMessagesPromise,
+      createNewMessagesSequentiallyPromise,
+    ]);
+
+    // TODO: figure out if we can relocate this to be earlier by fixing the thing on the client where we refetch the latest conversation
+    // which will be missing the latest messages, if we haven't actually inserted them into the database (which we do above)
+    sendNewConversationEvent(conversationContext, conversation, currentUser);
     
     const claudeResponse = await sendMessagesToClaude({
-      conversationId: conversation._id,
+      previousMessages,
+      newMessages,
+      conversationId,
       model,
       currentUser,
       context,
@@ -449,6 +539,8 @@ defineMutation({
       context,
       currentUser,
     });
+
+    sendStreamEndEvent(conversationId, currentUser);
   }
 })
 

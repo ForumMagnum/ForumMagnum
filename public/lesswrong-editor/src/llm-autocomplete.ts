@@ -72,11 +72,8 @@ ${selectedContent}`;
                 const lines = paragraph.split('\n');
                 lines.forEach((line, index) => {
                     editor.model.change(writer => {
-                        const root = editor.model.document.getRoot();
-                        const endPosition = writer.createPositionAt(root, 'end');
-
                         if ((lines[index - 1]?.trim() !== '' && index > 0) || line.trim() === '') {
-                            writer.insertElement('softBreak', endPosition);
+                            writer.insertElement('softBreak', selection.getLastPosition());
                         }
                         writer.insertText(line, selection.getLastPosition());
                     })

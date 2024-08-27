@@ -1,3 +1,4 @@
+import { userHasLlmChat } from "@/lib/betas";
 import { resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users";
 
@@ -7,7 +8,7 @@ const schema: SchemaType<"LlmConversations"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   title: {
@@ -15,7 +16,7 @@ const schema: SchemaType<"LlmConversations"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   model: {
@@ -23,7 +24,7 @@ const schema: SchemaType<"LlmConversations"> = {
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   systemPrompt: {
@@ -31,7 +32,7 @@ const schema: SchemaType<"LlmConversations"> = {
     optional: true,
     nullable: true,
     canRead: [userOwns, "admins"],
-    canCreate: ["admins"],
+    canCreate: [userHasLlmChat, "admins"],
     canUpdate: ["admins"],
   },
   lastUpdatedAt: resolverOnlyField({
@@ -50,6 +51,7 @@ const schema: SchemaType<"LlmConversations"> = {
       GROUP BY lm."conversationId"
     )`
   }),
+  // This is a resolver-only field; logic defined in llmConversationsResolvers.ts
   messages: {
     type: Array,
     optional: true,

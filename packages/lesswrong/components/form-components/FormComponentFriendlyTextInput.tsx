@@ -57,7 +57,7 @@ export const FormComponentFriendlyTextInput = ({
       smallBottomMargin && classes.smallBottomMargin,
     )}>
       {label &&
-        <SectionTitle title={label} noTopMargin className={classes.label} />
+        <SectionTitle title={label} noTopMargin titleClassName={classes.label} />
       }
       <TextField
         value={value ?? ""}

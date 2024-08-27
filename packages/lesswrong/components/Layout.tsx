@@ -287,8 +287,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   languageModelLauncher: {
     position: 'absolute',
-    // width: '57vw',
-    // maxWidth: '1000px',
     top: '-57px',
     right: '-334px',
     [theme.breakpoints.down('lg')]: {
@@ -469,7 +467,6 @@ const Layout = ({currentUser, children, classes}: {
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
-      EASurveyBanner,
       LanguageModelLauncherButton,
       LlmChatWrapper
     } = Components;
@@ -561,7 +558,6 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              {isEAForum && <EASurveyBanner />}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
