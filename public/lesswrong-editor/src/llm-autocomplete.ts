@@ -45,13 +45,15 @@ export default class AIAutocomplete extends Plugin {
 
         // Check the current running document and search for the title of the post using the className .form-component-EditTitle
         const titleElement = document.querySelector('.form-component-EditTitle');
+        const userNameElement = document.querySelector('.UsersMenu-userButtonContents');
+
         let title = '';
         if (titleElement) {
             title = titleElement.textContent;
             selectedContent = `# ${title}
-by habryka
-2nd of January 2022
-180
+by ${userNameElement?.textContent}
+${new Date().toDateString()}
+${50 + Math.floor(Math.random() * 100)}
 ${selectedContent}`;
         }
 
@@ -103,7 +105,7 @@ ${selectedContent}`;
     }
 }
 
-const getReplyingCommentId = () => {
+const getReplyingCommentId = () : string | undefined => {
     // Get the text field that is currently selected
     const currentlySelectedTextField = document.activeElement;
 
