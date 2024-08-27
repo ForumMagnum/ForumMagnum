@@ -14,8 +14,8 @@ import Users from "@/lib/vulcan-users";
 
 
 const getParentComments = async (comment: DbComment) => {
-  const parentComments : DbComment[] = [];
-  let currentComment : DbComment | null = comment;
+  const parentComments: DbComment[] = [];
+  let currentComment: DbComment | null = comment;
   while (currentComment.parentCommentId && currentComment.parentCommentId !== currentComment._id) {
     currentComment = await Comments.findOne({ _id: currentComment.parentCommentId });
     if (currentComment) {
@@ -29,7 +29,7 @@ const getParentComments = async (comment: DbComment) => {
 }
 
 const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
-  const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? post.contents?.html ?? "<not available/>");
+  const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? "<not available/>");
   const author = authorsMap.get(post.userId)?.displayName;
   return `${post.title}
 by ${author}
@@ -78,7 +78,9 @@ async function constructMessageHistory(
   const authorsMap = new Map(authors.map((author) => [author._id, author]));
   const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
 
+  // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
+  // eslint-disable-next-line no-console
   console.time("constructPostMessageHistory");
 
   // Add fetched posts and comments to message history
@@ -99,6 +101,7 @@ async function constructMessageHistory(
     });
   }
 
+  // eslint-disable-next-line no-console
   console.timeEnd("constructPostMessageHistory");
 
   for (const comment of comments) {
@@ -129,10 +132,14 @@ async function constructMessageHistory(
     const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
     const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
 
-    const authors = await Users.find({ _id: { $in: [parentPost?.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
+    if (!parentPost || !parentPostRevision) {
+      throw new Error("Parent post or revision not found");
+    }
+
+    const authors = await Users.find({ _id: { $in: [parentPost.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
 
     authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(parentPost?._id!, parentPostRevision!);
+    revisionsMap.set(parentPost._id!, parentPostRevision!);
     if (!parentPost) {
       throw new Error("Post not found");
     }
@@ -213,6 +220,7 @@ export function addAutocompleteEndpoint(app: Express) {
       });
 
       loadingMessagesStream.on("error", (error) => {
+        // eslint-disable-next-line no-console
         console.error("Stream error:", JSON.stringify(error));
         res.write(
           `data: ${JSON.stringify({ type: "error", message: "An error occurred" })}\n\n`,
@@ -220,6 +228,7 @@ export function addAutocompleteEndpoint(app: Express) {
         res.end();
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Autocomplete error:", error);
       res.status(500).json({ error: "An error occurred during autocomplete" });
     }

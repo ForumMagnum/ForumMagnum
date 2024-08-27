@@ -193,7 +193,7 @@ const calculateTokens = (
 ) => {
   return items.reduce((total: number, item) => {
     if (selectedItems[item._id]) {
-      return total + (item.contents?.wordCount || 0) * TOKENS_PER_WORD;
+      return total + ((item.contents?.wordCount || 0) * TOKENS_PER_WORD);
     }
     return total;
   }, 0);
@@ -343,12 +343,7 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
     error: postsError,
     loadMoreProps: postsLoadMoreProps,
   } = useMulti({
-    terms: {
-      view: "userPosts",
-      userId: currentUser?._id,
-      limit: 20,
-      sortedBy: "top",
-    },
+    terms: { view: "userPosts", userId: currentUser?._id, limit: 20, sortedBy: "top" },
     collectionName: "Posts",
     fragmentName: "PostsListWithVotes",
     enableTotal: true,
@@ -358,13 +353,7 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
     results: comments,
     error: commentsError,
     loadMoreProps: commentsLoadMoreProps,
-  } = useMulti({
-    terms: {
-      view: "profileRecentComments",
-      userId: currentUser?._id,
-      limit: 30,
-      sortBy: "top",
-    },
+  } = useMulti({ terms: { view: "profileRecentComments", userId: currentUser?._id, limit: 30, sortBy: "top"},
     collectionName: "Comments",
     fragmentName: "CommentsList",
     enableTotal: true,
@@ -373,24 +362,14 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
   const authorContent = featuredAuthors.reduce(
     (acc: Record<string, { posts?: PostsListWithVotes[]; comments?: CommentsList[] }>, author) => {
       const { results: posts } = useMulti({
-        terms: {
-          view: "userPosts",
-          userId: author.userId,
-          limit: 100,
-          sortedBy: "top",
-        },
+        terms: { view: "userPosts", userId: author.userId, limit: 100, sortedBy: "top" },
         collectionName: "Posts",
         fragmentName: "PostsListWithVotes",
         enableTotal: true,
       });
 
       const { results: comments } = useMulti({
-        terms: {
-          view: "profileRecentComments",
-          userId: author.userId,
-          limit: 200,
-          sortBy: "top",
-        },
+        terms: { view: "profileRecentComments", userId: author.userId, limit: 200, sortBy: "top" },
         collectionName: "Comments",
         fragmentName: "CommentsList",
         enableTotal: true,
