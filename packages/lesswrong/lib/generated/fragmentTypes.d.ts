@@ -890,7 +890,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tableOfContentsRevision: any,
   readonly sideComments: any,
   readonly sideCommentVisibility: string,
-  readonly hasFootnotes: boolean,
   readonly disableSidenotes: boolean,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
