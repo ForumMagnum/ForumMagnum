@@ -4,7 +4,12 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { allowSubscribeToSequencePosts, allowSubscribeToUserComments, userHasSubscribeTabFeed } from '../../lib/betas';
+import {
+  allowSubscribeToSequencePosts,
+  allowSubscribeToUserComments,
+  userHasPeopleDirectory,
+  userHasSubscribeTabFeed,
+} from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
@@ -22,7 +27,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const NoSubscriptionsMessage = ({classes}: {
+const NoSubscriptionsMessage = ({currentUser, classes}: {
+  currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
   const context = useCountItemsContext();
@@ -30,12 +36,16 @@ const NoSubscriptionsMessage = ({classes}: {
   if (itemCount > 0) {
     return null;
   }
+
+  const usersLink = userHasPeopleDirectory(currentUser)
+    ? <Link to="/people-directory">users</Link>
+    : "users";
+
   return (
     <div className={classes.noSubscriptions}>
       You have no active subscriptions. Subscribe to{" "}
       <Link to={`/${taggingNamePluralSetting.get()}`}>{taggingNamePluralSetting.get()}</Link>,{" "}
-      <Link to="/allPosts">posts</Link>, or{" "}
-      <Link to="/community">users</Link>{" "}
+      <Link to="/allPosts">posts</Link>, or {usersLink}{" "}
       to receive notifications for new content.
     </div>
   );
@@ -158,7 +168,7 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
       />}
 
-      <NoSubscriptionsMessage classes={classes} />
+      <NoSubscriptionsMessage currentUser={currentUser} classes={classes} />
     </SingleColumnSection>
   );
 }
