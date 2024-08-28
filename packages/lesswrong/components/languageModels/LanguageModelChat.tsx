@@ -246,7 +246,7 @@ export const ChatInterface = ({classes}: {
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
-  const lengthOfMostRecentMessage = currentConversation?.messages.slice(-1)[0]?.content.length
+  // const lengthOfMostRecentMessage = currentConversation?.messages.slice(-1)[0]?.content.length
 
   const { flash } = useMessages();
 
@@ -261,7 +261,7 @@ export const ChatInterface = ({classes}: {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
-  }, [currentConversation?.messages.length, lengthOfMostRecentMessage]);
+  }, [currentConversation?.messages.length]);
 
   const [cookies, setCookies] = useCookiesWithConsent([HIDE_LLM_CHAT_GUIDE_COOKIE])
   const showGuide = cookies[HIDE_LLM_CHAT_GUIDE_COOKIE] !== "true";
