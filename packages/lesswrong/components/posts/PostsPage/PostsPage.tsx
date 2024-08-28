@@ -810,7 +810,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-            {htmlWithAnchors && <div>
+            {htmlWithAnchors && <>
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
@@ -819,7 +819,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
               />
               {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
               }
-              </div>
+              </>
             }
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
