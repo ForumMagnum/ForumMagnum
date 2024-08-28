@@ -24,8 +24,6 @@ import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { allowSubscribeToUserComments } from '../../lib/betas';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 
 export const sectionFooterLeftStyles = {
