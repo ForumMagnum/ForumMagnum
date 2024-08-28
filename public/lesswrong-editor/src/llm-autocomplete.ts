@@ -134,7 +134,7 @@ ${selectedContent}`;
     }
 }
 
-const getReplyingCommentId = () : string | undefined => {
+const getReplyingCommentId = (): string | undefined => {
     // Get the text field that is currently selected
     const currentlySelectedTextField = document.activeElement;
 
@@ -145,7 +145,7 @@ const getReplyingCommentId = () : string | undefined => {
     return replyingToCommentNode?.id;
 }
 
-const getPostId = () : string | undefined => {
+const getPostId = (): string | undefined => {
     // The URL for post pages is in the format /posts/:postId/:postSlug
     const postId = window.location.pathname.split('/')[2];
     // Check if the postId is the right shape (HbkNAyAoa4gCnuzwa)

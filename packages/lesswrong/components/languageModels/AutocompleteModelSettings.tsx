@@ -186,7 +186,7 @@ const calculateTokens = (
 ) => {
   return items.reduce((total: number, item) => {
     if (selectedItems[item._id]) {
-      return total + ((item.contents?.wordCount || 0) * TOKENS_PER_WORD);
+      return total + ((item.contents?.wordCount ?? 0) * TOKENS_PER_WORD);
     }
     return total;
   }, 0);
@@ -236,22 +236,22 @@ const AuthorSection = ({
   const [expanded, setExpanded] = useState(false);
 
   const postsTokens = useMemo(
-    () => calculateTokens(authorContent[author.userId]?.posts || [], selectedItems),
+    () => calculateTokens(authorContent[author.userId]?.posts ?? [], selectedItems),
     [authorContent, author.userId, selectedItems],
   );
   const commentsTokens = useMemo(
-    () => calculateTokens(authorContent[author.userId]?.comments || [], selectedItems),
+    () => calculateTokens(authorContent[author.userId]?.comments ?? [], selectedItems),
     [authorContent, author.userId, selectedItems],
   );
 
   const handleTokenChange = (contentType: "posts" | "comments", newValue: number) => {
-    const items = authorContent[author.userId]?.[contentType] || [];
+    const items = authorContent[author.userId]?.[contentType] ?? [];
     let tokenCount = 0;
     const newSelectedItems = { ...selectedItems };
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
-      const itemTokens = (item.contents?.wordCount || 0) * TOKENS_PER_WORD;
+      const itemTokens = (item.contents?.wordCount ?? 0) * TOKENS_PER_WORD;
       if (tokenCount + itemTokens > newValue) {
         newSelectedItems[item._id] = false;
       } else {
@@ -300,7 +300,7 @@ const AuthorSection = ({
       {expanded && (
         <div className={classes.authorContent}>
           <SelectableList
-            items={authorContent[author.userId]?.posts || []}
+            items={authorContent[author.userId]?.posts ?? []}
             selectedItems={selectedItems}
             onToggle={onToggle}
             onSelectAll={onSelectAll}
@@ -308,7 +308,7 @@ const AuthorSection = ({
             classes={classes}
           />
           <SelectableList
-            items={authorContent[author.userId]?.comments || []}
+            items={authorContent[author.userId]?.comments ?? []}
             selectedItems={selectedItems}
             onToggle={onToggle}
             onSelectAll={onSelectAll}
@@ -326,21 +326,21 @@ const AuthorSection = ({
   );
 };
 
-const debouncedSaveSelection = debounce((selectedItems, posts, comments, authorContent) => {
+const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>, posts: PostsListWithVotes[], comments: CommentsList[], authorContent: {[x: string]: {posts: PostsListWithVotes[], comments: CommentsList[]}}) => {
   const selectedIds = Object.entries(selectedItems)
     .filter(([, isSelected]) => isSelected)
     .map(([id]) => id);
 
   const selectedPosts = selectedIds.filter(
     (id) =>
-      posts?.some((post: PostsListWithVotes) => post._id === id) ||
+      posts?.some((post: PostsListWithVotes) => post._id === id) ??
       featuredAuthors.some((author) =>
         authorContent[author.userId]?.posts?.some((post: PostsListWithVotes) => post._id === id),
       ),
   );
   const selectedComments = selectedIds.filter(
     (id) =>
-      comments?.some((comment: CommentsList) => comment._id === id) ||
+      comments?.some((comment: CommentsList) => comment._id === id) ??
       featuredAuthors.some((author) =>
         authorContent[author.userId]?.comments?.some((comment: CommentsList) => comment._id === id),
       ),
@@ -354,8 +354,8 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, Loading, PostsItem, LoadMore, CommentsNode } = Components;
   const currentUser = useCurrentUser();
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(() => {
-    const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]");
-    const savedComments = JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]");
+    const savedPosts = JSON.parse(localStorage.getItem("selectedTrainingPosts") ?? "[]");
+    const savedComments = JSON.parse(localStorage.getItem("selectedTrainingComments") ?? "[]");
     const initialSelectedItems: Record<string, boolean> = {};
     [...savedPosts, ...savedComments].forEach((id) => {
       initialSelectedItems[id] = true;
@@ -389,16 +389,16 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
 
   useEffect(() => {
     const allItems = [
-      ...(posts || []),
-      ...(comments || []),
+      ...(posts ?? []),
+      ...(comments ?? []),
       ...featuredAuthors.flatMap((author) => [
-        ...(authorContent[author.userId]?.posts || []),
-        ...(authorContent[author.userId]?.comments || []),
+        ...(authorContent[author.userId]?.posts ?? []),
+        ...(authorContent[author.userId]?.comments ?? []),
       ]),
     ];
     setTokenCount(calculateTokens(allItems, selectedItems));
 
-    debouncedSaveSelection(selectedItems, posts, comments, authorContent);
+    debouncedSaveSelection(selectedItems, posts ?? [], comments ?? [], authorContent);
   }, [selectedItems, posts, comments, authorContent]);
 
   const handleSelectAll = (items: Array<{ _id: string }>, currentIndex: number) => {
@@ -413,8 +413,8 @@ const AutocompleteModelSettings = ({ classes }: { classes: ClassesType }) => {
 
   if (postsError || commentsError) return null;
 
-  const sortedPosts = [...(posts || [])].sort((a, b) => (b.baseScore || 0) - (a.baseScore || 0));
-  const sortedComments = [...(comments || [])].sort((a, b) => (b.baseScore || 0) - (a.baseScore || 0));
+  const sortedPosts = [...(posts ?? [])].sort((a, b) => (b.baseScore ?? 0) - (a.baseScore ?? 0));
+  const sortedComments = [...(comments ?? [])].sort((a, b) => (b.baseScore ?? 0) - (a.baseScore ?? 0));
 
   return (
     <AnalyticsContext pageContext="AutocompleteModelSettingsPage">
