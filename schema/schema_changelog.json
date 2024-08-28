@@ -733,5 +733,10 @@
     "acceptsSchemaHash": "e4f656b97627c2f035fdee90d49cb5dc",
     "acceptedByMigration": "20240827T185218.create_LlmConversationsAndMessages_tables.ts",
     "timestamp": "2024-08-27T18:52:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "53940b0988baa29480c0c5358b9c20cb",
+    "acceptedByMigration": "20240828T011015.add_spotlightSplash.ts",
+    "timestamp": "2024-08-28T01:10:15.000Z"
   }
 ]
