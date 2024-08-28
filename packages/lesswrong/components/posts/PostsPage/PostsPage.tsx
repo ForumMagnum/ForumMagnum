@@ -839,7 +839,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         </div>
       </Row>}
 
-      {post.isEvent && post.group &&
+      {post.isEvent && post.group && isBookUI &&
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Get emails for future events by <div>{post.group?.name}</div></div>} placement='bottom'>
