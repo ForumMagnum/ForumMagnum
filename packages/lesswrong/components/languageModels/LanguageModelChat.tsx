@@ -51,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 20,
     borderRadius: 4,
     minHeight: 100,
-    maxHeight: 200,
+    maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflowY: 'hidden',
     overflowX: 'hidden',
