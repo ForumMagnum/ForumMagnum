@@ -197,6 +197,14 @@ const schema: SchemaType<"Spotlights"> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  deletedDraft: {
+    type: Boolean,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    order: 80,
+    tooltip: "Remove from the spotlights page, but keep in the database.",
+    ...schemaDefaultValue(false),
+  },
   showAuthor: {
     type: Boolean,
     canRead: ['guests'],

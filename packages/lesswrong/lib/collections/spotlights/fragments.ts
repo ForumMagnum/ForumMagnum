@@ -9,6 +9,7 @@ registerFragment(`
     spotlightDarkImageId
     spotlightSplashImageUrl
     draft
+    deletedDraft
     position
     lastPromotedAt
     customTitle

@@ -12,6 +12,7 @@ Spotlights.addView("mostRecentlyPromotedSpotlights", function (terms: Spotlights
   return {
     selector: {
       draft: false,
+      deletedDraft: false,
       lastPromotedAt: { $lt: new Date() },
     },
     options: {
@@ -27,6 +28,9 @@ ensureIndex(Spotlights, { position: -1 });
 Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
   const limit = terms.limit ? { limit: terms.limit } : {};
   return {
+    selector: {
+      deletedDraft: false
+    },
     options: {
       sort: { lastPromotedAt: -1, position: 1 },
       ...limit
@@ -38,7 +42,8 @@ Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
   return {
     selector: {
       documentId: terms.sequenceId,
-      draft: false
+      draft: false,
+      deletedDraft: false
     },
     options: {
       sort: { position: 1 }

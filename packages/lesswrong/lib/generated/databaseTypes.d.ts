@@ -1215,6 +1215,7 @@ interface DbSpotlight extends DbObject {
   headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null
