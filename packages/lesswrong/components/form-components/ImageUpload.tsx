@@ -117,6 +117,10 @@ export const formPreviewSizeByImageType: Record<
     width: 345,
     height: 234
   },
+  spotlightSplashImageId: {
+    width: 1000,
+    height: 1000
+  },
   onsiteDigestImageId: {
     width: 200,
     height: 300

@@ -7,18 +7,21 @@ registerFragment(`
     documentType
     spotlightImageId
     spotlightDarkImageId
+    spotlightSplashImageUrl
     draft
     position
     lastPromotedAt
     customTitle
     customSubtitle
     headerTitle
+    contextInfo
     headerTitleLeftColor
     headerTitleRightColor
     duration
     showAuthor
     imageFade
     imageFadeColor
+    pinned
   }
 `)
 
@@ -39,9 +42,7 @@ registerFragment(`
       title
       slug
       user {
-        _id
-        displayName
-        slug
+        ...UsersMinimumInfo
       }
     }
     sequenceChapters {

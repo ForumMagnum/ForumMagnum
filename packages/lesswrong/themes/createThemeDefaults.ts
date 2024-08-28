@@ -16,7 +16,7 @@ const monoStack = [
 const titleDividerSpacing = 20
 
 export const zIndexes = {
-  splashHeaderImageOptions: 2000,
+  spotlightItemBackground: -1,
   frontpageBooks: 0,
   frontpageSplashImage: 0,
   sequenceBanner: 0,
@@ -58,6 +58,7 @@ export const zIndexes = {
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
+  splashHeaderImageOptions: 2000,
   gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   afNonMemberPopup: 9999,
   lwPopper: 10000,

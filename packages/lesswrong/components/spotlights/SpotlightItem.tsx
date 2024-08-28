@@ -12,6 +12,9 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
+import { useLocation } from '../../lib/routeUtil';
+import CloseIcon from '@material-ui/icons/Close';
+
 
 const TEXT_WIDTH = 350;
 
@@ -294,6 +297,28 @@ const styles = (theme: ThemeType) => ({
     textAlign: "right",
     paddingTop: 6,
     paddingBottom: 12
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    right: "-10%",
+    width: '70%',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 35%, transparent 70%)`,
+    zIndex: -1
+  },
+  backgroundFade: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    // backgroundImage: `linear-gradient(to right, #f8f4ee 50%, transparent 75%)`,
+    backgroundImage: `linear-gradient(to bottom, transparent 0%, #f8f4ee 8%)`,
+    zIndex: 0
+  },
+  closeIcon: {
+    width: 20,
+    height: 20,
   }
 });
 
@@ -338,14 +363,8 @@ export const SpotlightItem = ({
     Typography, LWTooltip, ForumIcon,
   } = Components
   return <AnalyticsTracker eventType="spotlightItem" captureOnMount captureOnClick={false}>
-    <div
-      id={spotlight._id}
-      style={style}
-      className={classNames(classes.root, className)}
-    >
-      <div className={classNames(classes.spotlightItem, {
-        [classes.spotlightFadeBackground]: !!spotlight.imageFadeColor,
-      })}>
+    <div className={classNames(classes.root, className)} id={spotlight._id}>
+      <div className={classes.spotlightItem}>
         <div className={classNames(classes.content, {[classes.postPadding]: spotlight.documentType === "Post"})}>
           <div className={classes.title}>
             <Link to={url}>
@@ -388,30 +407,16 @@ export const SpotlightItem = ({
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
           className={classNames(classes.image, {
-            [classes.imageFade]: spotlight.imageFade && !spotlight.imageFadeColor,
-            [classes.imageFadeCustom]: spotlight.imageFade && spotlight.imageFadeColor,
+            [classes.imageFade]: spotlight.imageFade,
           })}
         />}
-        {hideBanner && (
-          isFriendlyUI
-            ? (
-              <ForumIcon
-                icon="Close"
-                onClick={hideBanner}
-                className={classes.hideButton}
-              />
-            )
-            : (
-              <div className={classes.closeButtonWrapper}>
-                <LWTooltip title="Hide this spotlight" placement="right">
-                  <Button className={classes.closeButton} onClick={hideBanner}>
-                    <ForumIcon icon="Close" />
-                  </Button>
-                </LWTooltip>
-              </div>
-            )
-          )
-        }
+        {hideBanner && <div className={classes.closeButtonWrapper}>
+          <LWTooltip title="Hide this spotlight" placement="right">
+            <Button className={classes.closeButton} onClick={hideBanner}>
+              <CloseIcon className={classes.closeIcon} />
+            </Button>
+          </LWTooltip>
+        </div>}
         <div className={classes.editAllButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>

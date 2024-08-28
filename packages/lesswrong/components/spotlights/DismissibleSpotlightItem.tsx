@@ -5,19 +5,20 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SPOTLIGHT_ITEM_PREFIX } from '../../lib/cookies/cookies';
 import { useCurrentFrontpageSpotlight } from '../hooks/useCurrentFrontpageSpotlight';
+import { FullPageSpotlight } from './FullPageSpotlight';
 
 export const DismissibleSpotlightItem = ({
   current,
   spotlight,
-  standaloneSection,
   className,
+  fullpage,
 }: {
   current?: boolean,
   spotlight?: SpotlightDisplay,
-  standaloneSection?: boolean
-  className?: string,
+  fullpage?: boolean,
+  className?: string
 }) => {
-  const { SpotlightItem, SingleColumnSection } = Components
+  const { SpotlightItem, FullPageSpotlight } = Components
   const { captureEvent } = useTracking()
 
   const currentSpotlight = useCurrentFrontpageSpotlight({
@@ -42,25 +43,24 @@ export const DismissibleSpotlightItem = ({
   }, [setCookie, cookieName, displaySpotlight, captureEvent]);
 
   if (displaySpotlight && !isHidden) {
-    const spotlightElement = (
-      <AnalyticsContext pageElementContext="spotlightItem">
-        <SpotlightItem
+    return <AnalyticsContext pageElementContext="spotlightItem">
+      {fullpage ?
+        <FullPageSpotlight
+          key={displaySpotlight._id}
+          spotlight={displaySpotlight}
+          hideBanner={hideBanner}
+          className={className}
+          showAdminInfo
+        />
+        
+      : <SpotlightItem
           key={displaySpotlight._id}
           spotlight={displaySpotlight}
           hideBanner={hideBanner}
           className={className}
         />
-      </AnalyticsContext>
-    );
-
-    if (standaloneSection) {
-      return (
-        <SingleColumnSection>
-          {spotlightElement}
-        </SingleColumnSection>
-      );
-    }
-    return spotlightElement;
+      }
+    </AnalyticsContext>
   }
   return null
 }

@@ -197,6 +197,15 @@ const schema: SchemaType<"Spotlights"> = {
     order: 80,
     ...schemaDefaultValue(true),
   },
+  contextInfo: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 81,
+    optional: true,
+    nullable: true,
+  },
   showAuthor: {
     type: Boolean,
     canRead: ['guests'],
@@ -251,7 +260,15 @@ const schema: SchemaType<"Spotlights"> = {
     nullable: true,
     order: 100,
   },
-  
+  spotlightSplashImageUrl: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    order: 110,
+  },
   sequenceChapters: resolverOnlyField({
     type: Array,
     graphQLtype: '[Chapter]',
@@ -274,6 +291,14 @@ const schema: SchemaType<"Spotlights"> = {
     type: "Chapter",
     foreignKey: "Chapters",
     optional: true,
+  },
+  pinned: {
+    type: Boolean,
+    canRead: ["guests"],
+    canUpdate: ["admins", "sunshineRegiment"],
+    canCreate: ["admins", "sunshineRegiment"],
+    order: 120,
+    ...schemaDefaultValue(false),
   },
 };
 

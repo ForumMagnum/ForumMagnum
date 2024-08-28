@@ -818,7 +818,7 @@ CREATE TABLE "ElicitQuestions" (
   _id VARCHAR(27) PRIMARY KEY,
   "title" TEXT NOT NULL,
   "notes" TEXT,
-  "resolution" TEXT,
+  "resolution" TEXhttps://github.com/ForumMagnum/ForumMagnum/pull/9299T,
   "resolvesBy" TIMESTAMPTZ NOT NULL,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
