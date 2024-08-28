@@ -41,6 +41,7 @@ const buildFadeMask = (breakpoints: string[]) => {
 
 const styles = (theme: ThemeType) => ({
   root: {
+    overflow: "hidden",
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
@@ -294,6 +295,10 @@ const styles = (theme: ThemeType) => ({
     textAlign: "right",
     paddingTop: 6,
     paddingBottom: 12
+  },
+  splashImage: {
+    transform: "translateX(25%)",
+    filter: "brightness(1.2)",
   }
 });
 
@@ -384,6 +389,7 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
+        {spotlight.spotlightSplashImageUrl && <img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/>}
         {spotlight.spotlightImageId && <CloudinaryImage2
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
