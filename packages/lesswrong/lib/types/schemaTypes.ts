@@ -94,7 +94,7 @@ type CollectionFieldResolveAs<N extends CollectionNameString> = {
   fieldName?: string,
   addOriginalField?: boolean,
   arguments?: string|null,
-  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
+  resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   sqlResolver?: SqlResolver<N>,
   /**
    * `sqlPostProcess` is run on the result of the database call, in addition

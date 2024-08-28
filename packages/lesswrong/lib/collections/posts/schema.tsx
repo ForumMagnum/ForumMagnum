@@ -13,6 +13,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import {
+  eaFrontpageDateDefault,
   fmCrosspostBaseUrlSetting,
   fmCrosspostSiteNameSetting,
   forumTypeSetting,
@@ -34,7 +35,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments } from '../../betas';
+import { hasSideComments, hasSidenotes } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
@@ -130,17 +131,6 @@ export async function getLastReadStatus(post: DbPost, context: ResolverContext) 
   );
   if (!readStatus.length) return null;
   return readStatus[0];
-}
-
-const eaFrontpageDateDefault = (
-  isEvent?: boolean,
-  submitToFrontpage?: boolean,
-  draft?: boolean,
-) => {
-  if (isEvent || !submitToFrontpage || draft) {
-    return null;
-  }
-  return new Date();
 }
 
 export const sideCommentCacheVersion = 1;
@@ -1485,6 +1475,17 @@ const schema: SchemaType<"Posts"> = {
     }),
   },
 
+  autoFrontpage: {
+    type: String,
+    allowedValues: ["show", "hide"],
+    canRead: ['sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    hidden: true,
+    optional: true,
+    nullable: true,
+  },
+
   collectionTitle: {
     type: String,
     optional: true,
@@ -2587,6 +2588,22 @@ const schema: SchemaType<"Posts"> = {
         ];
       }
     },
+  },
+  
+  /**
+   * Author-controlled option to disable sidenotes (display of footnotes in the
+   * right margin).
+   */
+  disableSidenotes: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.advancedOptions,
+    canRead: ['guests'],
+    // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
+    canCreate: ['sunshineRegiment'],
+    canUpdate: ['members'],
+    hidden: !hasSidenotes,
+    ...schemaDefaultValue(false),
   },
 
   moderationStyle: {

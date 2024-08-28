@@ -28,8 +28,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorInfo: {
     maxWidth: "calc(100% - 60px)",
-    [theme.breakpoints.down('sm')]: {
-      maxWidth: "calc(100% - 60px)",
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+      marginBottom: 8,
       fontSize: theme.typography.body2.fontSize,
     },
   },
@@ -83,6 +84,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   mobileHeaderVote: {
     textAlign: 'center',
     fontSize: 42,
+    marginTop: -55,
+    marginLeft: 12,
     [theme.breakpoints.up("sm")]: {
       display: 'none'
     }
@@ -102,18 +105,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 12,
     display: "flex",
     opacity: 0.75
+  },
+  readTime: {
+    marginRight: 20,
   }
 }); 
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
-  classes: ClassesType<typeof styles>
+  classes: ClassesType<typeof styles>,
+  dialogueResponses: CommentsList[],
+  answerCount?: number,
 }) => {
-  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton } = Components;
+  const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, ReadTime, LWCommentCount } = Components;
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const rssFeedSource = ('feed' in post) ? post.feed : null;
@@ -135,9 +143,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
         </div>}
       </AnalyticsContext>
       <div>
-        {!post.shortform && <span className={classes.topRight}>
+        <span className={classes.topRight}>
           <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer}/>
-        </span>}
+        </span>
         {post && <span className={classes.audioPlayerWrapper}>
           <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
         </span>}
@@ -161,6 +169,10 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
             {post.isEvent && <GroupLinks document={post} noMargin />}
             <AddToCalendarButton post={post} label="Add to calendar" hideTooltip />
             <div className={classes.mobileButtons}>
+              <div className={classes.readTime}>
+                <ReadTime post={post} dialogueResponses={dialogueResponses} />
+              </div>
+              <LWCommentCount answerCount={answerCount} commentCount={post.commentCount} label={false} />
               <div className={classes.audioToggle}>
                 <AudioToggle post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} />
               </div>

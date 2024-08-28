@@ -2,6 +2,7 @@ import _ from 'underscore';
 import { addGraphQLResolvers, addGraphQLQuery, addGraphQLSchema } from '../../lib/vulcan-lib/graphql';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { getDefaultViewSelector, mergeSelectors, replaceSpecialFieldSelectors } from '../../lib/utils/viewUtils';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 type FeedSubquery<ResultType extends DbObject, SortKeyType> = {
   type: string,
