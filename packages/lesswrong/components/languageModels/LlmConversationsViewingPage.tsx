@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
@@ -7,6 +7,9 @@ import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users';
+import { useLocation, useNavigate } from '@/lib/routeUtil';
+import { isEmpty } from 'underscore';
+import qs from 'qs';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -117,9 +120,21 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
     limit: 200,
   });
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { query } = location;
+
+  const updateConversationId = useCallback((conversationId: string) => {
+    setCurrentConversationId(conversationId);
+    const currentQuery = isEmpty(query) ? {} : query;
+    const newQuery = { ...currentQuery, conversationId };
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }, [query, location, navigate, setCurrentConversationId]);
+
   useEffect(() => {
     if (results) {
-      setCurrentConversationId(results[0]?._id);
+      const initialConversationId = query.conversationId ?? results[0]?._id;
+      updateConversationId(initialConversationId);
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -138,7 +153,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
         key={idx} 
         conversation={conversation}
         currentConversationId={currentConversationId}
-        setCurrentConversationId={setCurrentConversationId}
+        setCurrentConversationId={updateConversationId}
         classes={classes} />;
     })}
   </div>
