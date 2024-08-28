@@ -83,7 +83,13 @@ export function addServerSentEventsEndpoint(app: Express) {
   }
 }
 
-export function sendSseMessageToUser(userId: string, message: ServerSentEventsMessage) {
+/*
+ * FIXME: This function can't be used in practice because it only works if the
+ * user is connected to the same server as this function is called on, but user
+ * server-sent event connections are sent by the load balancer to a randomly
+ * selected server.
+ */
+function sendSseMessageToUser(userId: string, message: ServerSentEventsMessage) {
   const userConnections = openConnections[userId];
   if (!userConnections) {
     // TODO: do we want to log an error here?  Probably not, it'll be happening reasonably often for innocous reasons
