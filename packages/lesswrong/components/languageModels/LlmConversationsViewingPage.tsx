@@ -161,7 +161,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
 
 
 const LlmConversationViewer = ({conversationId, classes}: {
-  conversationId: string|undefined,
+  conversationId?: string
   classes: ClassesType<typeof styles>,
 }) => {
   const { LlmChatMessage, SectionTitle } = Components
