@@ -44,14 +44,14 @@ const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, D
 ${markdownBody}`.trim();
 }
 
-const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string) => {
+const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string, author?: string) => {
   return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
 ---
-${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+${author ?? currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
-const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
+const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser, author?: string) => {
   const parentComment = parentComments[parentComments.length - 1];
   return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
 ---
@@ -59,7 +59,7 @@ ${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap,
 ---
 ${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
 ---
-${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+${author ?? currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
@@ -69,7 +69,8 @@ async function constructMessageHistory(
   postIds: string[],
   currentUser: any,
   replyingCommentId?: string,
-  postId?: string
+  postId?: string,
+  author?: string
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
@@ -151,7 +152,7 @@ async function constructMessageHistory(
       throw new Error("Post not found");
     }
 
-    const message = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
+    const message = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser, author)
 
     messages.push({
       role: "assistant",
@@ -177,15 +178,15 @@ async function constructMessageHistory(
     authors.forEach((author) => authorsMap.set(author._id, author));
     revisionsMap.set(post._id!, postRevision);
 
-    const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix);
-    console.log("Message", message);
+    const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix, author);
+    // console.log("Message", message);
 
     messages.push({
       role: "assistant",
       content: [
         {
           type: "text",
-          text: getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix)
+          text: getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix, author)
         },
       ],
     });
@@ -220,7 +221,7 @@ export function addAutocompleteEndpoint(app: Express) {
 
       const client = getAnthropicPromptCachingClientOrThrow();
 
-      const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId, author } = req.body;
 
       // Set headers for streaming response
       res.writeHead(200, {
@@ -239,18 +240,18 @@ export function addAutocompleteEndpoint(app: Express) {
           postIds,
           currentUser,
           replyingCommentId,
-          postId
+          postId,
+          author
         ),
+        stop_sequences: ['---'],
       });
 
       loadingMessagesStream.on("text", (delta, snapshot) => {
-        res.write(
-          `data: ${JSON.stringify({ type: "text", content: delta })}\n\n`,
-        );
+        res.write(delta);
       });
 
       loadingMessagesStream.on("end", () => {
-        res.write(`data: ${JSON.stringify({ type: "end" })}\n\n`);
+        // res.write(`data: ${JSON.stringify({ type: "end" })}\n\n`);
         res.end();
       });
 

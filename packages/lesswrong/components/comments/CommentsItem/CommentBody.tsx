@@ -1,6 +1,7 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
+import { Tabs, Tab } from '@material-ui/core';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
@@ -46,6 +47,7 @@ const CommentBody = ({
   voteProps,
   className,
   classes,
+  cryptoComments,
 }: {
   comment: CommentsList,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
@@ -55,8 +57,14 @@ const CommentBody = ({
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
   classes: ClassesType,
+  cryptoComments?: string[]
 }) => {
   const currentUser = useCurrentUser();
+  const potentialCommentBodies = useMemo(() => ([...(cryptoComments ?? []), comment.contents?.html])
+    .map(a => ({val: a, ix: Math.random()}))
+    .sort((a, b) => a.ix - b.ix)
+    .map(a => a.val), [JSON.stringify(cryptoComments), comment.contents?.html])
+  const [activeTab, setActiveTab] = React.useState<0|1|2>(0)
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
 
@@ -87,23 +95,40 @@ const CommentBody = ({
     highlights = votingSystem.getCommentHighlights({comment, voteProps});
   }
 
-  const contentBody = <ContentStyles contentType={contentType} className={classes.root}>
-    <ContentItemBody
-      ref={commentBodyRef ?? undefined}
-      className={bodyClasses}
-      dangerouslySetInnerHTML={{__html: innerHtml }}
-      description={`comment ${comment._id}`}
-      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
-      replacedSubstrings={highlights}
-    />
-  </ContentStyles>
+  const renderContent = (content: string) => (
+    <ContentStyles contentType={contentType} className={classes.root}>
+      <ContentItemBody
+        ref={commentBodyRef ?? undefined}
+        className={bodyClasses}
+        dangerouslySetInnerHTML={{__html: content}}
+        description={`comment ${comment._id}`}
+        nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+        replacedSubstrings={highlights}
+      />
+    </ContentStyles>
+  );
+
+  const tabContent = (
+    <div>
+      <Tabs
+        value={activeTab}
+        onChange={(event, newValue) => setActiveTab(newValue)}
+        className={classes.tabs}
+      >
+        {([0,1,2]).map((tabIndex) => (
+          <Tab key={tabIndex} value={tabIndex} label={`Comment Candidate ${tabIndex + 1}`} />
+        ))}
+      </Tabs>
+      {renderContent(potentialCommentBodies[activeTab] || "")}
+    </div>
+  )
 
   if (votingSystem.name === "namesAttachedReactions" && voteProps) {
     return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
-      {contentBody}
+      {(cryptoComments ?? []).length ? tabContent : renderContent(innerHtml)}
     </InlineReactSelectionWrapper>
   } else {
-    return contentBody
+    return <>{(cryptoComments ?? []).length ? tabContent : renderContent(innerHtml)}</>
   }
 }
 
