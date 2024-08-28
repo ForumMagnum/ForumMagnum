@@ -7,9 +7,6 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import ExpandLessIcon from "@material-ui/icons/ExpandLess";
-import PlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import { CommentTreeOptions } from "../comments/commentTree";
 import debounce from "lodash/debounce";
 
@@ -143,13 +140,14 @@ const SelectableList = ({
   ItemComponent,
   classes,
 }: SelectableListProps<PostsList | CommentsList>) => {
+  const { ForumIcon } = Components
   return (
     <div className={classes.list}>
       {items.map((item, i) => (
         <div key={item._id} className={classes.listItemWrapper}>
           <div className={classes.listItem}>
             <IconButton className={classes.selectAllButton} onClick={() => onSelectAll(items, i)}>
-              <PlaylistAddIcon />
+              <ForumIcon icon="PlaylistAdd" /> 
             </IconButton>
             <Checkbox
               checked={!!selectedItems[item._id]}
@@ -233,6 +231,7 @@ const AuthorSection = ({
   onSelectAll,
   classes,
 }: AuthorSectionProps) => {
+  const { ForumIcon } = Components
   const [expanded, setExpanded] = useState(false);
 
   const postsTokens = useMemo(
@@ -267,7 +266,7 @@ const AuthorSection = ({
     <div className={classes.authorSection}>
       <div className={classes.authorHeader}>
         <div onClick={() => setExpanded(!expanded)}>
-          {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          {expanded ? <ForumIcon icon="ExpandLess" /> : <ForumIcon icon="ExpandMore" />}
           <h4>{author.name}</h4>
         </div>
         <div className={classes.sliderContainer}>
