@@ -33,24 +33,48 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
   editor: {
-    minHeight: 100,
+    minHeight: 120,
     '& .ck.ck-content': {
-      minHeight: 100,
+      minHeight: 120,
     },
     ...ckEditorStyles(theme),
+    overflowY: 'scroll',
+    paddingLeft: 20,
+    paddingTop: 20,
+    fontSize: '1.1rem',
+    '& blockquote, & li': {
+      fontSize: '1.1rem'
+    }
   },
   inputTextbox: {
-    padding: 16,
     margin: 10,
     marginTop: 20,
     borderRadius: 4,
     minHeight: 100,
     maxHeight: 200,
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
-    overflow: 'scroll',
+    overflowY: 'hidden',
+    overflowX: 'hidden',
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: "auto",
+    display: "flex",
+    flexDirection: "column",
+  },
+  submitButton:{
+    width: "fit-content",
+    fontSize: "16px",
+    color: theme.palette.lwTertiary.main,
+    marginLeft: "5px",
+    "&:hover": {
+      opacity: .5,
+      backgroundColor: "none",
+    },
+  },
+  editorButtons: {
+    display: "flex",
+    justifyContent: "flex-end",
+    padding: "10px",
   },
   welcomeGuide: {
     margin: 10,
@@ -116,7 +140,7 @@ const styles = (theme: ThemeType) => ({
   },
   loadingSpinner: {
     marginTop: 10
-  }
+  },
 });
 
 interface LlmConversationMessage {
@@ -188,6 +212,21 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     }
   }, [onSubmit]);
 
+  const submitButton = <div className={classes.editorButtons}>
+    <Button
+      type='submit'
+      id='llm-submit-button'
+      className={classes.submitButton} 
+      onClick={()=> {
+        const currentEditorContent = editorRef.current?.getData();
+        currentEditorContent && void onSubmit(currentEditorContent);
+        setCurrentMessage('');
+      }}
+    >
+      Submit
+    </Button>
+  </div>;
+
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
     <div className={classes.editor}>
@@ -217,6 +256,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         config={editorConfig}
       />
     </div>
+    {submitButton}
   </ContentStyles>
 }
 
