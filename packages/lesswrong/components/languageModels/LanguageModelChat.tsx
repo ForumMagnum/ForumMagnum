@@ -181,6 +181,12 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     mention: mentionPluginConfiguration,
   };
 
+  const submitEditorContentAndClear = useCallback(() => {
+    const currentEditorContent = editorRef.current?.getData();
+    currentEditorContent && void onSubmit(currentEditorContent);
+    setCurrentMessage('');
+  }, [onSubmit]);
+
   // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
   // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
   // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
@@ -192,9 +198,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
         event.stopPropagation();
         event.preventDefault();
-        const currentEditorContent = editorRef.current?.getData();
-        currentEditorContent && void onSubmit(currentEditorContent);
-        setCurrentMessage('');
+        submitEditorContentAndClear();
       }
     };
   
@@ -209,18 +213,14 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
       }
     }
-  }, [onSubmit]);
+  }, [onSubmit, submitEditorContentAndClear]);
 
   const submitButton = <div className={classes.editorButtons}>
     <Button
       type='submit'
       id='llm-submit-button'
       className={classes.submitButton} 
-      onClick={()=> {
-        const currentEditorContent = editorRef.current?.getData();
-        currentEditorContent && void onSubmit(currentEditorContent);
-        setCurrentMessage('');
-      }}
+      onClick={submitEditorContentAndClear}
     >
       Submit
     </Button>
