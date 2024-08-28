@@ -313,8 +313,6 @@ export const ChatInterface = ({classes}: {
     archiveConversation(conversationId);
   };
 
-  console.log({orderedConversationsInfo: orderedConversations.map(({title, lastUpdatedAt, createdAt}) => ({title, lastUpdatedAt, createdAt}))})
-
   const conversationSelect = <Select 
     onChange={onSelect} 
     value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
