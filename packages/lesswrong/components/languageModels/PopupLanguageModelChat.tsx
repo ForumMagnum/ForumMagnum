@@ -5,6 +5,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import { useLlmChat } from './LlmChatWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,20 +86,22 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   }
 
   return <Paper className={classes.root}>
-    <div className={classes.header}>
-      <div className={classes.title}>
-        {title}
-        <LWTooltip title="LLM chat is under development. Reviewing user conversations helps with product decisions.">
-          <div className={classes.privacyWarning}>
-            Warning! Conversation may be viewed by the LW dev team
-          </div>
-        </LWTooltip>
+    <AnalyticsContext pageSectionContext='llmChatPopup'>
+      <div className={classes.header}>
+        <div className={classes.title}>
+          {title}
+          <LWTooltip title="LLM chat is under development. Reviewing user conversations helps with product decisions.">
+            <div className={classes.privacyWarning}>
+              Warning! Conversation may be viewed by the LW dev team
+            </div>
+          </LWTooltip>
+        </div>
+        <CloseIcon className={classes.close} onClick={handleClose} />
       </div>
-      <CloseIcon className={classes.close} onClick={handleClose} />
-    </div>
-    <div className={classes.editor}>
-      <LanguageModelChat />
-    </div>
+      <div className={classes.editor}>
+        <LanguageModelChat />
+      </div>
+    </AnalyticsContext>
   </Paper>
 }
 
