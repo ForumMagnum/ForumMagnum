@@ -243,7 +243,7 @@ const welcomeGuideHtml = [
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
+  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
@@ -286,7 +286,7 @@ export const ChatInterface = ({classes}: {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <Components.LLMChatMessage key={index} message={message} />
+      <LlmChatMessage key={index} message={message} />
     ))}
   </div>
 
