@@ -251,7 +251,15 @@ const schema: SchemaType<"Spotlights"> = {
     nullable: true,
     order: 100,
   },
-  
+  spotlightSplashImageUrl: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    order: 110,
+  },
   sequenceChapters: resolverOnlyField({
     type: Array,
     graphQLtype: '[Chapter]',
