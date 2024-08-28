@@ -182,7 +182,6 @@ async function constructMessageHistory(
     revisionsMap.set(post._id!, postRevision);
 
     const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix);
-    console.log("Message", message);
 
     messages.push({
       role: "assistant",
