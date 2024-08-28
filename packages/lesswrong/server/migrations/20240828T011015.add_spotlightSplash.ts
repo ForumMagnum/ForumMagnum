@@ -31,12 +31,15 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "53940b0988baa29480c0c5358b9c20cb";
+export const acceptsSchemaHash = "53940b0988baa29480c0c5358b9c20cb";
+
+import Spotlights from "../../lib/collections/spotlights/collection"
+import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  // TODO
+  await addField(db, Spotlights, "spotlightSplashImageUrl")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await dropField(db, Spotlights, "spotlightSplashImageUrl");
 }
