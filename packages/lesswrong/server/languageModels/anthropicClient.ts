@@ -1,4 +1,5 @@
 import { anthropicApiKey } from "@/lib/instanceSettings";
+import '@anthropic-ai/sdk/shims/node';
 import Anthropic from "@anthropic-ai/sdk";
 
 export const getAnthropicClientOrThrow = (() => {
