@@ -17,14 +17,6 @@ export interface ClientMessage {
 type LlmStreamContent = {
   conversationId: string;
   content: string;
-  previousUserMessage?: {
-    _id: string;
-    content: string;
-    userId: string;
-    role: 'user';
-    /** Stringified date */
-    createdAt: string;
-  };
 };
 
 type LlmStreamEnd = {
@@ -178,7 +170,7 @@ const LlmChatWrapper = ({children}: {
       return;
     }
 
-    const { conversationId, content, previousUserMessage } = message.data;
+    const { conversationId, content } = message.data;
 
     setConversations((conversations) => {
       const streamConversation = conversations[conversationId];
@@ -194,16 +186,11 @@ const LlmChatWrapper = ({children}: {
         content,
       };
       
-      // previousUserMessage only gets sent with the first stream event for any given message response
-      if (previousUserMessage && lastClientMessageIsAssistant) {
-        updatedMessages.push(previousUserMessage, newMessage);
-      } else {
-        // Since we're sending an aggregate buffer rather than diffs, we need to replace the last message in the conversation each time we get one (after the first time)
-        if (lastClientMessageIsAssistant) {
-          updatedMessages.pop();
-        }
-        updatedMessages.push(newMessage);
+      // Since we're sending an aggregate buffer rather than diffs, we need to replace the last message in the conversation each time we get one (after the first time)
+      if (lastClientMessageIsAssistant) {
+        updatedMessages.pop();
       }
+      updatedMessages.push(newMessage);
   
       const updatedConversation = { ...streamConversation, messages: updatedMessages };
       
