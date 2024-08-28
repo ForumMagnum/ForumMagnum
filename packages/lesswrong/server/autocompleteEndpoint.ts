@@ -333,50 +333,50 @@ export function addAutocompleteEndpoint(app: Express) {
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });
     }
-
-    const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
-    // Set headers for streaming response
-    res.writeHead(200, {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    });
-
-    const url = 'https://api.hyperbolic.xyz/v1/completions';
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${hyperbolicApiKey.get()}`,
-      },
-      body: JSON.stringify({
-        model: 'meta-llama/Meta-Llama-3.1-405B',
-        prompt: await construct405bPrompt(
-          prefix,
-          commentIds,
-          postIds,
-          currentUser,
-          context,
-          replyingCommentId,
-          postId
-        ),
-        max_tokens: 256,
-        temperature: 0.7,
-        top_p: 0.9,
-        stream: true
-      }),
-    });
-
-    if (!response.ok || !response.body) {
-      res.writeHead(response.status, response.statusText);
-      res.end(`Error from API: ${response.statusText}`);
-      return;
-    }
-
+    
     try {
       if (!userIsAdmin(currentUser)) {
         throw new Error("Claude Completion is for admins only");
+      }
+  
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
+      // Set headers for streaming response
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      });
+  
+      const url = 'https://api.hyperbolic.xyz/v1/completions';
+  
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${hyperbolicApiKey.get()}`,
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/Meta-Llama-3.1-405B',
+          prompt: await construct405bPrompt(
+            prefix,
+            commentIds,
+            postIds,
+            currentUser,
+            context,
+            replyingCommentId,
+            postId
+          ),
+          max_tokens: 256,
+          temperature: 0.7,
+          top_p: 0.9,
+          stream: true
+        }),
+      });
+  
+      if (!response.ok || !response.body) {
+        res.writeHead(response.status, response.statusText);
+        res.end(`Error from API: ${response.statusText}`);
+        return;
       }
       const reader = response.body.getReader();
       const readableNodeStream = new Readable({
