@@ -1567,7 +1567,7 @@ addRoute(
     path: '/spotlights',
     componentName: 'SpotlightsPage',
     title: 'Spotlights Page'
-  },
+  }
 );
 
 addRoute(

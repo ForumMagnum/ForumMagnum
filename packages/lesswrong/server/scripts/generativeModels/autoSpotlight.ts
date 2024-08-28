@@ -4,12 +4,12 @@ import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
 
-async function queryClaudeJailbreak(basePrompt: string, spotlightPrompt: string) {
+async function queryClaudeJailbreak(basePrompt: string, spotlightPrompt: string, maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
   return await client.messages.create({
     system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
     model: "claude-3-5-sonnet-20240620",
-    max_tokens: 75,
+    max_tokens: maxTokens,
     messages: [
       {
         role: "user", 
@@ -76,17 +76,12 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlight
 }
 
 // get the posts that have spotlights, sorted by post length, and filter out the ones that are too short
-const getPostsForPrompt = ({posts, spotlights, log=false}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], log?: boolean}) => {
+const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], log?: boolean}) => {
   const postsWithSpotlights = posts.filter(post => spotlights.find(spotlight => spotlight.documentId === post._id))
   const postsWithSpotlightsSortedByPostLength = postsWithSpotlights.sort((a, b) => {
     return (a?.contents?.html?.length ?? 0) - (b?.contents?.html?.length ?? 0)
   })
-  const filteredPosts = postsWithSpotlightsSortedByPostLength.filter((post) => (post?.contents?.html?.length ?? 0) > 2000).slice(0, 15)
-
-  if (log) { 
-    console.log(filteredPosts.map((post, i) => [i, post.title, post?.contents?.html?.length, spotlights.find(spotlight => spotlight.documentId === post._id)?.description?.originalContents?.data]))
-  }
-  return filteredPosts
+  return postsWithSpotlightsSortedByPostLength.filter((post) => (post?.contents?.html?.length ?? 0) > 2000).slice(0, 15)
 }
 
 const getJailbreakPromptBase = ({posts, spotlights}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[]}) => {
@@ -122,6 +117,17 @@ const getSpotlightPrompt = ({post}: {post: PostsWithNavigation}) => {
   A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
 }
 
+const getSpotlightPrompt2 = ({post}: {post: PostsWithNavigation}) => {
+  return `
+  Post: ${post.title}
+  ---
+  Post Contents: ${post.contents?.html}
+  ---
+  First, write out three key points that the author makes.
+  Then, write "==="
+  Then, write a short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
+}
+
 // TODO: figure out what the type from the response is supposed to be and fix it
 // right now it claims "text" isn't a valid type but seems like it should be
 type AnthropicMessageContent = {
@@ -130,6 +136,7 @@ type AnthropicMessageContent = {
 }
 
 async function createSpotlights() {
+  // eslint-disable-next-line no-console
   console.log("Creating spotlights for review winners");
 
   const { posts, spotlights } = await getPromptInfo()
@@ -139,15 +146,37 @@ async function createSpotlights() {
 
   const jailbreakPromptBase = getJailbreakPromptBase({posts: postsForPrompt, spotlights})
 
-  for (const post of postsWithoutSpotlights.slice(3, 6)) {
+  for (const post of postsWithoutSpotlights.slice(0, 2)) {
     const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
-    const jailbreakSummary = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}))
-    const summary = jailbreakSummary.content[0] as AnthropicMessageContent
-    const cleanedSummary = summary.text.replace(/---|\n/g, "") // it tended to generate a bunch of newlines and --- lines that we don't want
-    console.log(post.title, summary.text)
-    createSpotlight(post, reviewWinner, cleanedSummary)
+
+    try {
+      const jailbreakSummary1 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}), 75)
+      console.log({jailbreakSummary1})
+      const summary1 = jailbreakSummary1.content[0] as AnthropicMessageContent
+      console.log(post.title, summary1)
+      const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") 
+      createSpotlight(post, reviewWinner, cleanedSummary1)
+    } catch (e) {
+      console.log(e)
+    }
+    // eslint-disable-next-line no-console
+
+    try{ 
+      const jailbreakSummary2 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt2({post}), 300)
+      console.log({jailbreakSummary2})
+      const summary2 = jailbreakSummary2.content[0] as AnthropicMessageContent
+      console.log(post.title, summary2)
+      const cleanedSummary2 = summary2.text.replace(/---|\n/g, "").split("===")[1]
+      createSpotlight(post, reviewWinner, cleanedSummary2)
+    } catch (e) {
+      console.log(e)
+    }
+
+    // // eslint-disable-next-line no-console
+
   }
 
+  // eslint-disable-next-line no-console
   console.log("Done creating spotlights for review winners");
 }
 

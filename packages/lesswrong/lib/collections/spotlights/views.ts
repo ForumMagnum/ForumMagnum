@@ -38,6 +38,20 @@ Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
   }
 });
 
+Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) {
+  const limit = terms.limit ? { limit: terms.limit } : {};
+  return {
+    selector: {
+      deletedDraft: false,
+      draft: true
+    },
+    options: {
+      sort: { lastPromotedAt: -1, position: 1 },
+      ...limit
+    }
+  }
+});
+
 Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
   return {
     selector: {
