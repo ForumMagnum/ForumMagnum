@@ -1,14 +1,13 @@
 import type { Express } from "express";
 import { getUserFromReq } from "./vulcan-lib/apollo-server/context";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { getAnthropicClientOrThrow } from "./languageModels/anthropicClient";
+import { getAnthropicPromptCachingClientOrThrow } from "./languageModels/anthropicClient";
 import express from "express";
 import { PromptCachingBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { Posts } from "@/lib/collections/posts";
 import { Comments } from "@/lib/collections/comments";
 import Revisions from "@/lib/collections/revisions/collection";
 import { turndownService } from "./editor/conversionUtils";
-import Anthropic from "@anthropic-ai/sdk";
 import { formatRelative } from "@/lib/utils/timeFormat";
 import Users from "@/lib/vulcan-users";
 
@@ -45,7 +44,14 @@ const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, D
 ${markdownBody}`.trim();
 }
 
-const getResponseMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
+const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string) => {
+  return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
+---
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+${prefix}`.trim();
+}
+
+const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
   const parentComment = parentComments[parentComments.length - 1];
   return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
 ---
@@ -53,7 +59,7 @@ ${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap,
 ---
 ${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
 ---
-${currentUser.displayName} 2d 75 2
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
@@ -62,7 +68,8 @@ async function constructMessageHistory(
   commentIds: string[],
   postIds: string[],
   currentUser: any,
-  replyingCommentId?: string
+  replyingCommentId?: string,
+  postId?: string
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
@@ -119,7 +126,7 @@ async function constructMessageHistory(
   // Add final user message with prefix
   messages.push({
     role: "user",
-    content: [{ type: "text", text: `<cmd>cat lw/1903.txt</cmd>`, cache_control: {type: "ephemeral"}}]
+    content: [{ type: "text", text: `<cmd>cat lw/hsqKp56whpPEQns3Z.txt</cmd>`, cache_control: {type: "ephemeral"}}]
   });
 
   if (replyingCommentId) {
@@ -144,7 +151,7 @@ async function constructMessageHistory(
       throw new Error("Post not found");
     }
 
-    const message = getResponseMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
+    const message = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
 
     messages.push({
       role: "assistant",
@@ -155,7 +162,35 @@ async function constructMessageHistory(
         },
       ],
     });
-  } else {
+  }
+  else if (postId) {
+    const post = await Posts.findOne({ _id: postId });
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    const postRevision = await Revisions.findOne({ documentId: post._id, fieldName: "contents", version: "1.0.0" });
+    if (!postRevision) {
+      throw new Error("Post revision not found");
+    }
+
+    const authors = await Users.find({ _id: post.userId }).fetch();
+    authors.forEach((author) => authorsMap.set(author._id, author));
+    revisionsMap.set(post._id!, postRevision);
+
+    const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix);
+    console.log("Message", message);
+
+    messages.push({
+      role: "assistant",
+      content: [
+        {
+          type: "text",
+          text: getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix)
+        },
+      ],
+    });
+  }
+  else {
     messages.push({
       role: "assistant",
       content: [
@@ -183,10 +218,9 @@ export function addAutocompleteEndpoint(app: Express) {
         throw new Error("Claude Completion is for admins only");
       }
 
-      const client = getAnthropicClientOrThrow();
-      const promptCachingClient = new Anthropic.Beta.PromptCaching(client);
+      const client = getAnthropicPromptCachingClientOrThrow();
 
-      const { prefix = '', commentIds, postIds, replyingCommentId } = req.body;
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
 
       // Set headers for streaming response
       res.writeHead(200, {
@@ -195,7 +229,7 @@ export function addAutocompleteEndpoint(app: Express) {
         Connection: "keep-alive",
       });
 
-      const loadingMessagesStream = promptCachingClient.messages.stream({
+      const loadingMessagesStream = client.messages.stream({
         model: "claude-3-5-sonnet-20240620",
         max_tokens: 1000,
         system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
@@ -204,7 +238,8 @@ export function addAutocompleteEndpoint(app: Express) {
           commentIds,
           postIds,
           currentUser,
-          replyingCommentId
+          replyingCommentId,
+          postId
         ),
       });
 
