@@ -19,6 +19,12 @@ type LlmStreamContent = {
   content: string;
 };
 
+type LlmStreamChunk = {
+  conversationId: string;
+  messageId: string;
+  chunk: string;
+};
+
 type LlmStreamEnd = {
   conversationId: string;
 };
@@ -38,12 +44,17 @@ export type LlmStreamContentMessage = {
   data: LlmStreamContent
 };
 
+export type LlmStreamChunkMessage = {
+  eventType: 'llmStreamChunk',
+  data: LlmStreamChunk
+};
+
 export type LlmStreamEndMessage = {
   eventType: 'llmStreamEnd',
   data: LlmStreamEnd
 };
 
-export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamEndMessage;
+export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamEndMessage;
 
 interface PromptContextOptions {
   postId?: string,
@@ -164,6 +175,41 @@ const LlmChatWrapper = ({children}: {
     setCurrentConversationId(conversationId);
     setConversationLoadingState(conversationId, true);
   }, [setConversationLoadingState]);
+
+  const handleLlmStreamChunk = useCallback((message: LlmStreamChunkMessage) => {
+    if (!currentUser) {
+      return;
+    }
+
+    const { conversationId, messageId, chunk } = message.data;
+
+    setConversations((conversations) => {
+      const streamConversation = conversations[conversationId];
+      const updatedMessages = [...streamConversation.messages];
+      const lastMessageInConversation = updatedMessages.slice(-1)[0];
+      const lastClientMessageIsAssistant = lastMessageInConversation?.role === 'assistant';
+  
+      const newMessage: NewLlmMessage = { 
+        conversationId,
+        userId: currentUser._id,
+        // TODO: pass back role through stream, maybe even the whole message object?
+        role: "assistant", 
+        content,
+      };
+      
+      // Since we're sending an aggregate buffer rather than diffs, we need to replace the last message in the conversation each time we get one (after the first time)
+      if (lastClientMessageIsAssistant) {
+        updatedMessages.pop();
+      }
+      updatedMessages.push(newMessage);
+  
+      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      
+      return { ...conversations, [updatedConversation._id]: updatedConversation };
+    });
+
+    setConversationLoadingState(conversationId, false);
+  }, [currentUser, setConversationLoadingState]);
   
   const handleLlmStreamContent = useCallback((message: LlmStreamContentMessage) => {
     if (!currentUser) {
@@ -207,6 +253,9 @@ const LlmChatWrapper = ({children}: {
         break;
       case "llmStreamContent":
         handleLlmStreamContent(message);
+        break;
+      case "llmStreamChunk":
+
         break;
       case "llmStreamEnd":
         setConversationLoadingState(message.data.conversationId, false);
