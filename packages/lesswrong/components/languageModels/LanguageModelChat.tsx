@@ -33,9 +33,9 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
   editor: {
-    minHeight: 120,
+    minHeight: 60,
     '& .ck.ck-content': {
-      minHeight: 120,
+      minHeight: 60,
     },
     ...ckEditorStyles(theme),
     overflowY: 'scroll',
@@ -50,7 +50,6 @@ const styles = (theme: ThemeType) => ({
     margin: 10,
     marginTop: 20,
     borderRadius: 4,
-    minHeight: 100,
     maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
     overflowY: 'hidden',
