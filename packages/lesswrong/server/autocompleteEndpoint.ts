@@ -7,7 +7,7 @@ import { PromptCachingBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/
 import { Posts } from "@/lib/collections/posts";
 import { Comments } from "@/lib/collections/comments";
 import Revisions from "@/lib/collections/revisions/collection";
-import { turndownService } from "./editor/conversionUtils";
+import { htmlToMarkdown } from "./editor/conversionUtils";
 import { formatRelative } from "@/lib/utils/timeFormat";
 import Users from "@/lib/vulcan-users";
 const { Readable } = require('stream');
@@ -32,7 +32,7 @@ const getParentComments = async (comment: DbComment) => {
 }
 
 const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
-  const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? "<not available/>");
+  const markdownBody = htmlToMarkdown(revisionsMap.get(post._id)?.html ?? "<not available/>");
   const author = authorsMap.get(post.userId)?.displayName;
   return `${post.title}
 by ${author}
@@ -41,7 +41,7 @@ ${markdownBody}`.trim();
 }
 
 const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, parentPost: DbPost) => {
-  const markdownBody = turndownService.turndown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
+  const markdownBody = htmlToMarkdown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
   const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
   const author = authorsMap.get(comment.userId)?.displayName;
   return `Comment on ${parentPost.title}

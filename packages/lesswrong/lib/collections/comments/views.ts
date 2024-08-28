@@ -308,7 +308,7 @@ export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSel
 Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
-    options: {sort: { isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
 
