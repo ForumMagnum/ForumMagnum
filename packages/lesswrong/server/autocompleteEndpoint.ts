@@ -365,8 +365,6 @@ export function addAutocompleteEndpoint(app: Express) {
 
     const url = 'https://api.hyperbolic.xyz/v1/completions';
 
-    console.log(`Bearer ${hyperbolicApiKey.get()}`)
-
     const response = await fetch(url, {
       method: 'POST',
       headers: {
