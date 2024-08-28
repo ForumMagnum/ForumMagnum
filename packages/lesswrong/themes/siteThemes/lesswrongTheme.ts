@@ -53,7 +53,11 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     background: {
       default: '#f8f4ee'
-    }
+    },
+    link: {
+      color: "#327E09",
+      visited: "#957950",
+    },
   }),
   make: (palette: ThemePalette) => ({
     typography: {

@@ -190,6 +190,7 @@ declare global {
       tocLink: ColorString,
       tocLinkHighlighted: ColorString,
       primaryDim: ColorString,
+      color?: ColorString,
       visited: ColorString
       visitedHover?: ColorString,
     },

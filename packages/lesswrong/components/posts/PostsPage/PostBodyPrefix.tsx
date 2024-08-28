@@ -73,7 +73,7 @@ const PostBodyPrefix = ({post, query, classes}: {
   query?: any,
   classes: ClassesType,
 }) => {
-  const { AlignmentCrosspostMessage, AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
+  const { AlignmentPendingApprovalMessage, LinkPostMessage, PostsRevisionMessage, LWTooltip, ReviewVotingWidget, ReviewPostButton, ContentItemBody, ContentStyles } = Components;
   const currentUser = useCurrentUser();
 
   return <>
@@ -84,7 +84,6 @@ const PostBodyPrefix = ({post, query, classes}: {
       </LWTooltip>}/>
     </div>}
 
-    <AlignmentCrosspostMessage post={post} />
     <AlignmentPendingApprovalMessage post={post} />
 
     {post.shortform && post.draft && <div className={classes.contentNotice}>
@@ -116,7 +115,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />
+    {isFriendlyUI && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }
