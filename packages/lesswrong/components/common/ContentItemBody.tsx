@@ -394,6 +394,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
           // Do surgery on the DOM
           if (range) {
             const subRanges = splitRangeIntoReplaceableSubRanges(range);
+            let first=true;
             for (let subRange of subRanges) {
               const reducedRange = reduceRangeToText(subRange);
               if (reducedRange) {
@@ -401,13 +402,14 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
                 if (span) {
                   const InlineReactedSpan = rawExtractElementChildrenToReactComponent(span);
                   const replacementNode = (
-                    <ReplacementComponent {...replacementComponentProps}>
+                    <ReplacementComponent {...replacementComponentProps} isSplitContinuation={!first}>
                       <InlineReactedSpan/>
                     </ReplacementComponent>
                   );
                   this.replaceElement(span, replacementNode);
                 }
               }
+              first=false;
             }
           }
         } catch {

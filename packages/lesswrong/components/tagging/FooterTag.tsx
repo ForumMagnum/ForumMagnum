@@ -5,7 +5,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { RobotIcon } from '../icons/RobotIcon';
 import { useCurrentUser } from '../common/withUser';
 import { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
@@ -158,7 +157,7 @@ const FooterTag = ({
     ? tag.shortName || tag.name
     : tag.name;
 
-  const {TagsTooltip, CoreTagIcon} = Components;
+  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
@@ -181,7 +180,7 @@ const FooterTag = ({
         })}>
           {link ? <Link to={tagGetUrl(tag)}>
             {renderedTag}
-            {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
+            {highlightAsAutoApplied && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
           </Link> : renderedTag}
         </span>
       </TagsTooltip>

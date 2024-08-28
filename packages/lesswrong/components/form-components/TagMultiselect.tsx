@@ -127,7 +127,7 @@ const TagMultiselect = ({
 
   const isGrey = variant === "grey";
   const labelNode = isGrey
-    ? <SectionTitle title={label} noTopMargin className={classes.sectionTitle} />
+    ? <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
     : <FormLabel className={classes.label}>{label}</FormLabel>;
 
   return (

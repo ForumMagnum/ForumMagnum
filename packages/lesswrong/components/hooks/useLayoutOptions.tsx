@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 export type LayoutOptions = {
   standaloneNavigation: boolean,
   renderSunshineSidebar: boolean,
+  renderLanguageModelChatLauncher: boolean,
   shouldUseGridLayout: boolean,
   unspacedGridLayout: boolean,
 }

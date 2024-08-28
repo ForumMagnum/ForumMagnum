@@ -47,7 +47,7 @@ export const useDigestAd = () => {
     if (currentUser) {
       void updateCurrentUser({hideSubscribePoke: true})
     } else {
-      ls.setItem('hideHomeDigestAd', true)
+      ls?.setItem('hideHomeDigestAd', 'true')
     }
   }, [setIsHidden, captureEvent, currentUser, updateCurrentUser, ls])
   
@@ -72,7 +72,7 @@ export const useDigestAd = () => {
       }
     }
     if (showForm && emailRef.current?.value) {
-      ls.setItem('hideHomeDigestAd', true)
+      ls?.setItem('hideHomeDigestAd', 'true')
     }
     
     setLoading(false)

@@ -713,5 +713,25 @@
     "acceptsSchemaHash": "d2ff8b556fc6f740b2bb57ddf5347f64",
     "acceptedByMigration": "20240729T183041.normalize_post_contents.ts",
     "timestamp": "2024-07-29T18:30:41.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5525ab08d75613c64270cbb15da2ae94",
+    "acceptedByMigration": "20240819T092536.add_userSurveyEmailSentAt_to_Users.ts",
+    "timestamp": "2024-08-19T09:25:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "dc66ac034a766a7dd21afb2e072073a3",
+    "acceptedByMigration": "20240820T183233.sidenotesFlag.ts",
+    "timestamp": "2024-08-20T18:32:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "eb768d8bdc708f08c58c7db559625f10",
+    "acceptedByMigration": "20240823T102724.add_autoFrontpage.ts",
+    "timestamp": "2024-08-23T10:27:24.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e4f656b97627c2f035fdee90d49cb5dc",
+    "acceptedByMigration": "20240827T185218.create_LlmConversationsAndMessages_tables.ts",
+    "timestamp": "2024-08-27T18:52:18.000Z"
   }
 ]

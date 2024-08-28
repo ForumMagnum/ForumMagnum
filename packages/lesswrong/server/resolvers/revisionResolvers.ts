@@ -19,6 +19,7 @@ import { userOwns } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { parseDocumentFromString } from '../../lib/domParser';
 import { extractTableOfContents } from '../../lib/tableOfContents';
+import { htmlContainsFootnotes } from '../utils/htmlUtil';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({
@@ -128,6 +129,17 @@ augmentFieldsDict(Revisions, {
           .substring(0, PLAINTEXT_DESCRIPTION_LENGTH)
       }
     }
+  },
+  
+  hasFootnotes: {
+    type: Boolean,
+    resolveAs: {
+      type: 'Boolean',
+      resolver: ({html}): boolean => {
+        if (!html) return false;
+        return htmlContainsFootnotes(html);
+      },
+    },
   },
 })
 

@@ -135,8 +135,9 @@ const StickyDigestAd = ({className, classes}: {
   const { showDigestAd, emailRef, showForm, loading, subscribeClicked, handleClose, handleUserSubscribe } = useDigestAd()
   const ls = getBrowserLocalStorage()
   
+  const postReadCount = parseInt(ls?.getItem('postReadCount') ?? '0')
   // We only show this after the client has viewed a few posts.
-  if (!showDigestAd || !ls?.getItem('postReadCount') || ls?.getItem('postReadCount') < 10) return null
+  if (!showDigestAd || postReadCount < 10) return null
   
   const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
   
