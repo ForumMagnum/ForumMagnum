@@ -842,7 +842,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       {post.isEvent && post.group && isBookUI &&
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
-              <LWTooltip title={<div>Get emails for future events by <div>{post.group?.name}</div></div>} placement='bottom'>
+              <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
                 <NotifyMeButton
                     showIcon
                     document={post.group}
