@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[100],
     paddingLeft: 20,
     paddingRight: 20,
-    paddingTop: 14,
+    paddingTop: 8,
     paddingBottom: 8,
     position: "relative"
   },

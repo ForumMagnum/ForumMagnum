@@ -74,7 +74,7 @@
     "brigader-check": "ts-node -r tsconfig-paths/register scripts/brigaderCheck.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.5.4",
+    "@anthropic-ai/sdk": "^0.26.0",
     "@apollo/client": "^3.2.0",
     "@aws-sdk/client-cloudfront": "^3.577.0",
     "@babel/runtime": "^7.12.1",
@@ -251,7 +251,7 @@
     "mz": "^2.7.0",
     "node-abort-controller": "^3.1.1",
     "nodemailer": "^6.9.9",
-    "openai": "^4.29.2",
+    "openai": "^4.56.0",
     "papaparse": "^5.2.0",
     "passport": "^0.5.2",
     "passport-auth0": "^1.4.0",

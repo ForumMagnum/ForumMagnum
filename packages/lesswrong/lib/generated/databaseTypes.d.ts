@@ -530,6 +530,31 @@ interface DbLegacyData extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type LlmConversationsCollection = CollectionBase<"LlmConversations">;
+
+interface DbLlmConversation extends DbObject {
+  __collectionName?: "LlmConversations"
+  userId: string
+  title: string
+  model: string
+  systemPrompt: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type LlmMessagesCollection = CollectionBase<"LlmMessages">;
+
+interface DbLlmMessage extends DbObject {
+  __collectionName?: "LlmMessages"
+  userId: string
+  conversationId: string
+  role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
+  content: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type LocalgroupsCollection = CollectionBase<"Localgroups">;
 
 interface DbLocalgroup extends DbObject {
@@ -1943,6 +1968,8 @@ interface CollectionsByName {
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
+  LlmConversations: LlmConversationsCollection
+  LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
@@ -2025,6 +2052,8 @@ interface ObjectsByCollectionName {
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversations: DbLlmConversation
+  LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
@@ -2107,6 +2136,8 @@ interface ObjectsByTypeName {
   Images: DbImages
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversation: DbLlmConversation
+  LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
