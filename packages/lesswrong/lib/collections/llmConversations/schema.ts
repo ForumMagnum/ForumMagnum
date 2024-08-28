@@ -11,6 +11,7 @@ const schema: SchemaType<"LlmConversations"> = {
       type: "User",
       nullable: true,
     }),
+    optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
     canCreate: [userHasLlmChat, "admins"],
