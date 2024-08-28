@@ -181,6 +181,7 @@ interface DbComment extends DbObject {
   moderatorHat: boolean
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
+  curationDraft: boolean
   title: string | null
   relevantTagIds: Array<string>
   debateResponse: boolean | null

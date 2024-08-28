@@ -1584,6 +1584,16 @@ addRoute(
 
 addRoute(
   {
+    name: 'curationQueue',
+    path:'/curationQueue',
+    componentName: "CurationPage",
+    title: "Curation Queue",
+    noIndex: true,
+  }
+);
+
+addRoute(
+  {
     name: 'allPosts',
     path: '/allPosts',
     componentName: 'AllPostsPage',

@@ -486,6 +486,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly moderatorHat: boolean,
   readonly hideModeratorHat: boolean | null,
   readonly isPinnedOnProfile: boolean,
+  readonly curationDraft: boolean,
   readonly title: string,
   readonly relevantTagIds: Array<string>,
   readonly debateResponse: boolean | null,

@@ -85,7 +85,6 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
   const curationDraftFilter = isAdminOrMod
   ? {}
   : { curationDraft: { $ne: true  }};
-
   
   return ({
     selector: {
@@ -156,6 +155,17 @@ Comments.addView("commentReplies", (terms: CommentsViewTerms) => {
   }
 })
 ensureIndex(Comments, { parentCommentId: "hashed" });
+
+Comments.addView("curationComments", (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      curationDraftFilter
+    },
+    options: {
+      sort: {postedAt: -1}
+    }
+  }
+})
 
 Comments.addView("postCommentsDeleted", (terms: CommentsViewTerms) => {
   return {
