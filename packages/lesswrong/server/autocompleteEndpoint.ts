@@ -40,17 +40,19 @@ ${post.baseScore}
 ${markdownBody}`.trim();
 }
 
-const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
+const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, parentPost: DbPost) => {
   const markdownBody = turndownService.turndown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
   const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
   const author = authorsMap.get(comment.userId)?.displayName;
-  return `${author} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
+  return `Comment on ${parentPost.title}
+${author} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
 ${markdownBody}`.trim();
 }
 
 const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string) => {
   return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
 ---
+Comment on ${post.title}
 ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
@@ -59,10 +61,11 @@ const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbC
   const parentComment = parentComments[parentComments.length - 1];
   return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
 ---
-${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap)).join("\n---\n")}
+${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap, parentPost)).join("\n---\n")}
 ---
-${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
+${getCommentBodyFormatted(comment, revisionsMap, authorsMap, parentPost)}
 ---
+Comment on ${parentPost.title}
 ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
@@ -83,6 +86,8 @@ async function constructMessageHistory(
     Posts.find({ _id: { $in: postIds } }).fetch(),
     Comments.find({ _id: { $in: commentIds } }).fetch(),
   ]);
+
+  const postsOfComments = await Posts.find({ _id: { $in: comments.map((comment) => comment.postId) } }).fetch();
 
   const authors = await Users.find({ _id: { $in: [...posts.map((post) => post.userId), ...comments.map((comment) => comment.userId)] } }).fetch();
 
@@ -116,6 +121,7 @@ async function constructMessageHistory(
   console.timeEnd("constructPostMessageHistory");
 
   for (const comment of comments) {
+    const parentPost = postsOfComments.find((post) => post._id === comment.postId);
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${comment._id}.txt</cmd>` }],
@@ -123,7 +129,7 @@ async function constructMessageHistory(
 
     messages.push({
       role: "assistant",
-      content: [{ type: "text", text: getCommentBodyFormatted(comment, revisionsMap, authorsMap) }],
+      content: [{ type: "text", text: getCommentBodyFormatted(comment, revisionsMap, authorsMap, parentPost!) }],
     });
   }
 
@@ -228,9 +234,12 @@ async function construct405bPrompt(
 
   const authorsMap = new Map(authors.map((author) => [author._id, author]));
   const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
+  
+  const postsOfComments = await Posts.find({ _id: { $in: comments.map((comment) => comment.postId) } }).fetch();
+  const postsOfCommentsMap = new Map(postsOfComments.map((post) => [post._id, post]));
 
   // eslint-disable-next-line no-console
-  console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
+  console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`, postId, replyingCommentId);
 
   let finalSection = ''
 
@@ -277,9 +286,9 @@ async function construct405bPrompt(
 
   return `
 ${posts.map((post) => getPostBodyFormatted(post, revisionsMap, authorsMap)).join("\n---\n")}
----
-${comments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap)).join("\n---\n")}
----
+====
+${comments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap, postsOfCommentsMap.get(comment.postId!)!)).join("\n---\n")}
+====
 ${finalSection}`.trim();
 }
 

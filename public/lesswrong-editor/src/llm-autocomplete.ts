@@ -149,6 +149,7 @@ const getPostId = () : string | undefined => {
     // The URL for post pages is in the format /posts/:postId/:postSlug
     const postId = window.location.pathname.split('/')[2];
     // Check if the postId is the right shape (HbkNAyAoa4gCnuzwa)
+    console.log({postId});
     if (postId && postId.length === 17) {
         return postId;
     }
