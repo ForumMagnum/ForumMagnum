@@ -151,11 +151,6 @@ const LlmChatWrapper = ({children}: {
     });
   }, []);
 
-  // TODO: maybe break this out into separate update operations
-  const updateConversationById = useCallback((updatedConversation: LlmConversation | LlmConversationsWithMessagesFragment) => {
-    setConversations((conversations) => ({ ...conversations, [updatedConversation._id]: updatedConversation }));
-  }, []);
-
   const hydrateNewConversation = useCallback((newConversationEvent: LlmCreateConversationMessage) => {
     const { title, conversationId, createdAt, userId, channelId } = newConversationEvent;
     setConversations((conversations) => {
