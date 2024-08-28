@@ -33,6 +33,8 @@ async function queryClaudeJailbreak(basePrompt: string, spotlightPrompt: string)
 function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerWithPost|undefined, summary: string) {
   const context = createAdminContext();
   const postYear = post.postedAt.getFullYear()
+  const cloudinaryImageUrl = reviewWinner?.reviewWinner.reviewWinnerArt?.splashArtImageUrl
+
   void createMutator({
     collection: Spotlights,
     document: {
@@ -42,6 +44,7 @@ function createSpotlight (post: PostsWithNavigation, reviewWinner: ReviewWinnerW
       duration: 1,
       draft: true,
       showAuthor: true,
+      spotlightSplashImageUrl: cloudinaryImageUrl,
       description: { originalContents: { type: 'ckEditorMarkup', data: summary } },
       lastPromotedAt: new Date(0),
     },
@@ -67,7 +70,6 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlight
     selector: { _id: { $in: postIds } },
     skipFiltering: true,
   });
-  console.log("posts", posts[0])
 
   const spotlights = await Spotlights.find({ documentId: { $in: postIds }, draft: false }).fetch();
   return { posts, spotlights };
@@ -137,7 +139,7 @@ async function createSpotlights() {
 
   const jailbreakPromptBase = getJailbreakPromptBase({posts: postsForPrompt, spotlights})
 
-  for (const post of postsWithoutSpotlights.slice(0, 3)) {
+  for (const post of postsWithoutSpotlights.slice(3, 6)) {
     const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
     const jailbreakSummary = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}))
     const summary = jailbreakSummary.content[0] as AnthropicMessageContent
