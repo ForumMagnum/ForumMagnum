@@ -26,7 +26,7 @@ import { extractTableOfContents } from '../../lib/tableOfContents';
 import Jimp from 'jimp';
 import axios from 'axios';
 
-const turndownService = new TurndownService()
+export const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
 turndownService.addRule('subscript', {
