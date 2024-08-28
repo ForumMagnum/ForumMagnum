@@ -954,7 +954,6 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
-  hasFootnotes: boolean | null
   disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null

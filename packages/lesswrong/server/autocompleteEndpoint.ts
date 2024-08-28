@@ -1,71 +1,62 @@
 import type { Express } from "express";
-import { getUserFromReq } from "./vulcan-lib/apollo-server/context";
+import { getContextFromReqAndRes, getUserFromReq } from "./vulcan-lib/apollo-server/context";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getAnthropicPromptCachingClientOrThrow } from "./languageModels/anthropicClient";
 import express from "express";
 import { PromptCachingBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { Posts } from "@/lib/collections/posts";
-import { Comments } from "@/lib/collections/comments";
-import Revisions from "@/lib/collections/revisions/collection";
-import { htmlToMarkdown } from "./editor/conversionUtils";
 import { formatRelative } from "@/lib/utils/timeFormat";
-import Users from "@/lib/vulcan-users";
-const { Readable } = require('stream');
+import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
+import { runFragmentQuery } from "./vulcan-lib/query";
 
 
 
-const getParentComments = async (comment: DbComment) => {
-  const parentComments: DbComment[] = [];
-  let currentComment: DbComment | null = comment;
-  while (currentComment.parentCommentId && currentComment.parentCommentId !== currentComment._id) {
-    currentComment = await Comments.findOne({ _id: currentComment.parentCommentId });
+const getParentComments = (comment: CommentsForAutocompleteWithParents) => {
+  const parentComments: CommentsForAutocompleteWithParents[] = [];
+  let currentComment: CommentsForAutocompleteWithParents | null = comment;
+  while (currentComment.parentComment && currentComment.parentComment._id !== currentComment._id) {
+    currentComment = currentComment.parentComment as CommentsForAutocompleteWithParents;
     if (currentComment) {
       parentComments.push(currentComment);
     } else {
       break;
     }
   }
-
   return parentComments.reverse();
 }
 
-const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
-  const markdownBody = htmlToMarkdown(revisionsMap.get(post._id)?.html ?? "<not available/>");
-  const author = authorsMap.get(post.userId)?.displayName;
+const getPostBodyFormatted = (post: PostsForAutocomplete) => {
   return `${post.title}
-by ${author}
+by ${post.user?.displayName}
 ${post.baseScore}
-${markdownBody}`.trim();
+${post.contents?.markdown}`.trim();
 }
 
-const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, parentPost: DbPost) => {
-  const markdownBody = htmlToMarkdown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
+const getCommentBodyFormatted = (comment: CommentsForAutocomplete) => {
   const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
-  const author = authorsMap.get(comment.userId)?.displayName;
-  return `Comment on ${parentPost.title}
-${author} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
-${markdownBody}`.trim();
+  return `Comment on ${comment.post?.title}
+${comment.user?.displayName} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
+${comment.contents?.markdown}`.trim();
 }
 
-const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string) => {
-  return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
+const getPostReplyMessageFormatted = (post: PostsForAutocomplete, currentUser: DbUser, prefix: string) => {
+  return `${getPostBodyFormatted(post)}
 ---
 Comment on ${post.title}
 ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
-const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser) => {
-  const parentComment = parentComments[parentComments.length - 1];
-  return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
+const getCommentReplyMessageFormatted = (comment: CommentsForAutocompleteWithParents, prefix: string, currentUser: DbUser) => {
+  const parentComments = getParentComments(comment);
+  return `${getPostBodyFormatted(comment.post!)}
 ---
-${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap, parentPost)).join("\n---\n")}
+${parentComments.map((comment) => getCommentBodyFormatted(comment)).join("\n---\n")}
 ---
-${getCommentBodyFormatted(comment, revisionsMap, authorsMap, parentPost)}
+${getCommentBodyFormatted(comment)}
 ---
-Comment on ${parentPost.title}
+Comment on ${comment.post?.title}
 ${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
@@ -75,29 +66,30 @@ async function constructMessageHistory(
   commentIds: string[],
   postIds: string[],
   currentUser: any,
+  context: ResolverContext,
   replyingCommentId?: string,
   postId?: string
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
   // Make the fetches parallel to save time
-  const [revisions, posts, comments] = await Promise.all([
-    Revisions.find({ documentId: { $in: [...postIds, ...commentIds] }, fieldName: "contents", version: "1.0.0" }).fetch(),
-    Posts.find({ _id: { $in: postIds } }).fetch(),
-    Comments.find({ _id: { $in: commentIds } }).fetch(),
+  const [posts, comments] = await Promise.all([
+    runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds },
+      context,
+    }),
+    runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocomplete",
+      terms: { commentIds },
+      context,
+    }),
   ]);
-
-  const postsOfComments = await Posts.find({ _id: { $in: comments.map((comment) => comment.postId) } }).fetch();
-
-  const authors = await Users.find({ _id: { $in: [...posts.map((post) => post.userId), ...comments.map((comment) => comment.userId)] } }).fetch();
-
-  const authorsMap = new Map(authors.map((author) => [author._id, author]));
-  const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
-  // eslint-disable-next-line no-console
-  console.time("constructPostMessageHistory");
 
   // Add fetched posts and comments to message history
   for (const post of posts) {
@@ -111,17 +103,13 @@ async function constructMessageHistory(
       content: [
         {
           type: "text",
-          text: getPostBodyFormatted(post, revisionsMap, authorsMap),
+          text: getPostBodyFormatted(post),
         },
       ],
     });
   }
 
-  // eslint-disable-next-line no-console
-  console.timeEnd("constructPostMessageHistory");
-
   for (const comment of comments) {
-    const parentPost = postsOfComments.find((post) => post._id === comment.postId);
     messages.push({
       role: "user",
       content: [{ type: "text", text: `<cmd>cat lw/${comment._id}.txt</cmd>` }],
@@ -129,7 +117,7 @@ async function constructMessageHistory(
 
     messages.push({
       role: "assistant",
-      content: [{ type: "text", text: getCommentBodyFormatted(comment, revisionsMap, authorsMap, parentPost!) }],
+      content: [{ type: "text", text: getCommentBodyFormatted(comment) }],
     });
   }
 
@@ -141,27 +129,17 @@ async function constructMessageHistory(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToComment = await Comments.findOne({ _id: replyingCommentId });
-    if (!replyingToComment) {
+    const replyingToCommentResponse = await runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocompleteWithParents",
+      terms: { commentIds: [replyingCommentId] },
+      context,
+    })
+    if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
       throw new Error("Comment not found");
     }
-    const parentComments = await getParentComments(replyingToComment);
-    const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
-    const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
-
-    if (!parentPost) {
-      throw new Error(`Parent post or revision not found ${replyingToComment.postId}`);
-    }
-
-    const authors = await Users.find({ _id: { $in: [parentPost.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
-
-    authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(parentPost._id!, parentPostRevision!);
-    if (!parentPost) {
-      throw new Error("Post not found");
-    }
-
-    const message = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)
+    const replyingToComment = replyingToCommentResponse[0];
+    const message = getCommentReplyMessageFormatted(replyingToComment, prefix, currentUser)
 
     messages.push({
       role: "assistant",
@@ -174,27 +152,23 @@ async function constructMessageHistory(
     });
   }
   else if (postId) {
-    const post = await Posts.findOne({ _id: postId });
-    if (!post) {
+    const postResponse = await runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds: [postId] },
+      context,
+    })
+    if (!postResponse || postResponse.length === 0) {
       throw new Error("Post not found");
     }
-    const postRevision = await Revisions.findOne({ documentId: post._id, fieldName: "contents", version: "1.0.0" });
-    if (!postRevision) {
-      throw new Error("Post revision not found");
-    }
-
-    const authors = await Users.find({ _id: post.userId }).fetch();
-    authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(post._id!, postRevision);
-
-    const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix);
+    const post = postResponse[0];
 
     messages.push({
       role: "assistant",
       content: [
         {
           type: "text",
-          text: getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix)
+          text: getPostReplyMessageFormatted(post, currentUser, prefix)
         },
       ],
     });
@@ -219,24 +193,27 @@ async function construct405bPrompt(
   commentIds: string[],
   postIds: string[],
   currentUser: any,
+  context: ResolverContext,
   replyingCommentId?: string,
   postId?: string
 ): Promise<string> {
 
   // Make the fetches parallel to save time
-  const [revisions, posts, comments] = await Promise.all([
-    Revisions.find({ documentId: { $in: [...postIds, ...commentIds] }, fieldName: "contents", version: "1.0.0" }).fetch(),
-    Posts.find({ _id: { $in: postIds } }).fetch(),
-    Comments.find({ _id: { $in: commentIds } }).fetch(),
+  const [posts, comments] = await Promise.all([
+    runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds },
+      context,
+    }),
+    runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocomplete",
+      terms: { commentIds },
+      context,
+    }),
   ]);
 
-  const authors = await Users.find({ _id: { $in: [...posts.map((post) => post.userId), ...comments.map((comment) => comment.userId)] } }).fetch();
-
-  const authorsMap = new Map(authors.map((author) => [author._id, author]));
-  const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
-  
-  const postsOfComments = await Posts.find({ _id: { $in: comments.map((comment) => comment.postId) } }).fetch();
-  const postsOfCommentsMap = new Map(postsOfComments.map((post) => [post._id, post]));
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`, postId, replyingCommentId);
@@ -245,49 +222,40 @@ async function construct405bPrompt(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToComment = await
-    Comments.findOne({ _id: replyingCommentId });
-    if (!replyingToComment) {
+    const replyingToCommentResponse = await runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocompleteWithParents",
+      terms: { commentIds: [replyingCommentId] },
+      context,
+    })
+    if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
       throw new Error("Comment not found");
     }
-    const parentComments = await getParentComments(replyingToComment);
-    const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
-    const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
+    const replyingToComment = replyingToCommentResponse[0];
 
-    if (!parentPost) {
-      throw new Error(`Parent post or revision not found ${replyingToComment.postId}`);
-    }
-
-    const authors = await Users.find({ _id: { $in: [parentPost.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
-
-    authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(parentPost._id!, parentPostRevision!);
-
-    finalSection = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)    
+    finalSection = getCommentReplyMessageFormatted(replyingToComment, prefix, currentUser)    
   } else if (postId) {
-    const post = await Posts.findOne({ _id: postId });
-    if (!post) {
+    const postResponse = await runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds: [postId] },
+      context,
+    })
+    if (!postResponse || postResponse.length === 0) {
       throw new Error("Post not found");
     }
-    const postRevision = await Revisions.findOne({ documentId: post._id, fieldName: "contents", version: "1.0.0" });
-    if (!postRevision) {
-      throw new Error("Post revision not found");
-    }
+    const post = postResponse[0];
 
-    const authors = await Users.find({ _id: post.userId }).fetch();
-    authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(post._id!, postRevision);
-
-    finalSection = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix)
+    finalSection = getPostReplyMessageFormatted(post, currentUser, prefix)
   } else {
     finalSection = `${prefix}`
   }
 
 
   return `
-${posts.map((post) => getPostBodyFormatted(post, revisionsMap, authorsMap)).join("\n---\n")}
+${posts.map((post) => getPostBodyFormatted(post)).join("\n---\n")}
 ====
-${comments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap, postsOfCommentsMap.get(comment.postId!)!)).join("\n---\n")}
+${comments.map((comment) => getCommentBodyFormatted(comment)).join("\n---\n")}
 ====
 ${finalSection}`.trim();
 }
@@ -296,7 +264,8 @@ ${finalSection}`.trim();
 export function addAutocompleteEndpoint(app: Express) {
   app.use("/api/autocomplete", express.json());
   app.post("/api/autocomplete", async (req, res) => {
-    const currentUser = getUserFromReq(req);
+    const context = await getContextFromReqAndRes(req, res);
+    const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -326,6 +295,7 @@ export function addAutocompleteEndpoint(app: Express) {
           commentIds,
           postIds,
           currentUser,
+          context,
           replyingCommentId,
           postId
         ),
@@ -358,7 +328,8 @@ export function addAutocompleteEndpoint(app: Express) {
   });
   app.use("/api/autocomplete405b", express.json());
   app.post("/api/autocomplete405b", async (req, res) => {
-    const currentUser = getUserFromReq(req);
+    const context = await getContextFromReqAndRes(req, res);
+    const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -386,6 +357,7 @@ export function addAutocompleteEndpoint(app: Express) {
           commentIds,
           postIds,
           currentUser,
+          context,
           replyingCommentId,
           postId
         ),
