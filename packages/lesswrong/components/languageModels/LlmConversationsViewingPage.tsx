@@ -6,6 +6,7 @@ import { useMulti } from '@/lib/crud/withMulti';
 import { useSingle } from '@/lib/crud/withSingle';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -180,7 +181,8 @@ const LlmConversationViewer = ({conversationId, classes}: {
 
   return <div className={classes.conversationViewer}>
     <SectionTitle title={title} titleClassName={classes.conversationViewerTitle} />
-    {messages.map((message, idx) => {
+    {!messages?.length && <div>No messages in this conversation</div>}
+    {messages?.length && messages.map((message, idx) => {
       return <LlmChatMessage  key={idx} message={message} />
     })}
   </div> 
@@ -192,7 +194,12 @@ export const LlmConversationsViewingPage = ({classes}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
+  const currentUser = useCurrentUser();
   const [currentConversationId, setCurrentConversationId] = React.useState<string|undefined>(undefined);
+
+  if (!currentUser || !currentUser.isAdmin) {
+    return <div>You must be an admin to view this page</div>
+  }
 
   return <AnalyticsContext pageContext="llmConversationViewingPage">
     <div className={classes.root}>
