@@ -30,15 +30,15 @@ export default class AIAutocomplete extends Plugin {
         // Add keyboard shortcut
         editor.editing.view.document.on('keydown', (evt, data) => {            
             // Check for Cmd+E (Mac) or Ctrl+E (Windows/Linux)
-            if ((data.ctrlKey || data.metaKey) && data.keyCode === 69) {
+            if ((data.ctrlKey || data.metaKey) && !data.shiftKey && data.keyCode === 69) {
                 evt.stop();
                 this.autocomplete();
             }
         });
 
         editor.editing.view.document.on('keydown', (evt, data) => {            
-            // Check for Ctrl+b (Windows/Linux)
-            if ((data.ctrlKey || data.metaKey) && data.keyCode === 66) {
+            // Check for Ctrl+shift+e (Windows/Linux)
+            if ((data.ctrlKey || data.metaKey) && data.shiftKey && data.keyCode === 69) {
                 evt.stop();
                 this.autocomplete405b();
             }
