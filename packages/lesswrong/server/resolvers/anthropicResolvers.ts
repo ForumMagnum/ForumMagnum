@@ -218,6 +218,7 @@ async function getPreviousUserMessageData(message?: DbLlmMessage): Promise<LlmSt
   };
 }
 
+// TODO: we don't need to send the last user message since we've switched away from sending to all tabs/sessions
 async function sendStreamContentEvent({conversationId, messageBuffer, lastUserMessage, sendEventToClient}: {
   conversationId: string,
   messageBuffer: string,
