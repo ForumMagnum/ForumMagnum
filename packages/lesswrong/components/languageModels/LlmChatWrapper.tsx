@@ -195,15 +195,15 @@ const LlmChatWrapper = ({children}: {
       };
       
       // previousUserMessage only gets sent with the first stream event for any given message response
-      if (previousUserMessage && lastClientMessageIsAssistant) {
-        updatedMessages.push(previousUserMessage, newMessage);
-      } else {
+      // if (previousUserMessage && lastClientMessageIsAssistant) {
+      //   updatedMessages.push(previousUserMessage, newMessage);
+      // } else {
         // Since we're sending an aggregate buffer rather than diffs, we need to replace the last message in the conversation each time we get one (after the first time)
         if (lastClientMessageIsAssistant) {
           updatedMessages.pop();
         }
         updatedMessages.push(newMessage);
-      }
+      // }
   
       const updatedConversation = { ...streamConversation, messages: updatedMessages };
       
