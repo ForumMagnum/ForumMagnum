@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: theme.spacing.unit*3,
-    paddingBottom: 8
+    paddingBottom: 8,
   },
   noTopMargin: {
     marginTop: 0
@@ -58,7 +58,8 @@ export const getAnchorId = (anchor: string|undefined, title: React.ReactNode) =>
 
 export type SectionTitleProps = {
   children?: React.ReactNode,
-  className?: string,
+  titleClassName?: string,
+  rootClassName?: string,
   title: React.ReactNode,
   noTopMargin?: boolean,
   noBottomPadding?: boolean,
@@ -76,15 +77,16 @@ const SectionTitle = ({
   anchor,
   href,
   children,
-  className,
+  titleClassName,
+  rootClassName,
   classes,
 }: SectionTitleProps & {classes: ClassesType}) => {
   return (
-    <div className={classNames(classes.root, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
+    <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Components.Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
-        className={classNames(classes.title, className)}
+        className={classNames(classes.title, titleClassName)}
       >
         {href
           ? <Link to={href}>{title}</Link>

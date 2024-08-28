@@ -59,6 +59,7 @@ import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { getCookieFromReq } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
 import { getSqlClientOrThrow } from './sql/sqlClient';
+import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -346,6 +347,7 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addTestingRoutes(app);
+  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {

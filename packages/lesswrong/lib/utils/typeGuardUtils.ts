@@ -66,11 +66,11 @@ export type FieldsNotNull<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>> &
 }; 
 
 export function areFieldsNotNull<T, K extends keyof T>(item: T, ...fields: [K, ...K[]]): item is T & FieldsNotNull<T, K> {
-  return fields.some((field) => item[field] !== null && item[field] !== undefined);
+  return fields.every((field) => item[field] !== null && item[field] !== undefined);
 }
 
 function areFieldsNotNullCurry<T, K extends keyof T>(...fields: [K, ...K[]]): (item: T) => item is T & FieldsNotNull<T, K> {
-  return ((item) => fields.some((field) => item[field] !== null && item[field] !== undefined)) as (item: T) => item is T & FieldsNotNull<T, K>;
+  return ((item): item is T & FieldsNotNull<T, K> => fields.every((field) => item[field] !== null && item[field] !== undefined));
 }
 
 export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fields: [K, ...K[]]): FieldsNotNull<T, K>[] {

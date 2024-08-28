@@ -188,6 +188,8 @@ import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
+import './server/resolvers/anthropicResolvers';
+import './server/resolvers/llmConversationsResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

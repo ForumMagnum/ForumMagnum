@@ -1,16 +1,15 @@
 import Tags from "../../../lib/collections/tags/collection";
-import { PublicInstanceSetting } from "../../../lib/instanceSettings";
+import { anthropicApiKey } from "../../../lib/instanceSettings";
 import { Globals, createAdminContext, createMutator } from "../../vulcan-lib";
 
 import Anthropic from '@anthropic-ai/sdk';
 import Spotlights from "../../../lib/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 
-const API_KEY = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 
 async function queryClaude(prompt: string) {
   const anthropic = new Anthropic({
-    apiKey: API_KEY.get()
+    apiKey: anthropicApiKey.get()
   });
   const HUMAN_PROMPT = '\n\nHuman: ';
   const AI_PROMPT = '\n\nAssistant:'

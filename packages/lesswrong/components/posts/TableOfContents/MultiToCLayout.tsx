@@ -1,19 +1,13 @@
 import classNames from 'classnames';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 import { HEADER_HEIGHT } from '@/components/common/Header';
 
-const FULL_HEIGHT_TOC_LEFT_MARGIN = '1fr'
-const DEFAULT_TOC_MARGIN = '1.5fr'
-const MAX_TOC_WIDTH = 270
-const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
-const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
-const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
 export const HOVER_CLASSNAME = 'ToCRowHover'
 export const FIXED_TOC_COMMENT_COUNT_HEIGHT = 50;
@@ -32,26 +26,43 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       paddingTop: 12,
     },
-
+    
     gridTemplateColumns: `
-      ${LEFT_COLUMN_WIDTH}
-      minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-      minmax(50px, ${FULL_HEIGHT_TOC_LEFT_MARGIN})
+      0px
+      minmax(200px, 270px)
+      minmax(35px, 0.5fr)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(300px, ${DEFAULT_TOC_MARGIN})
-      minmax(min-content, 300px)
-      10px
-      ${RIGHT_COLUMN_WIDTH}
+      minmax(10px,30px)
+      50px
+      minmax(0px, 0.5fr)
     `,
+    [theme.breakpoints.up('lg')]: {
+      gridTemplateColumns: `
+        0px
+        minmax(200px, 270px)
+        minmax(35px, 0.5fr)
+        minmax(min-content, ${MAX_COLUMN_WIDTH}px)
+        minmax(10px,30px)
+        min-content
+        minmax(0px, 0.5fr)
+      `,
+    },
     [theme.breakpoints.down('sm')]: {
-      display: 'block',
-      paddingTop: 12
+      gridTemplateColumns: `
+        0px
+        0px
+        1fr
+        minmax(0,${MAX_COLUMN_WIDTH}px)
+        minmax(5px,1fr)
+        min-content
+        0px
+      `
     },
   },
+  gap1: {gridArea: "gap1"},
   toc: {
     position: 'unset',
     width: 'unset',
-    left: -DEFAULT_TOC_MARGIN,
     marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
     [theme.breakpoints.down('sm')]:{
@@ -99,8 +110,10 @@ const styles = (theme: ThemeType) => ({
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${STICKY_BLOCK_SCROLLER_CLASS_NAME}`]: {
-      top: HEADER_HEIGHT,
-      height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+      '&&': {
+        top: HEADER_HEIGHT,
+        height: `calc(100vh - ${HEADER_HEIGHT}px - ${FIXED_TOC_COMMENT_COUNT_HEIGHT}px)`
+      }
     }
   },
   stickyBlock: {
@@ -111,11 +124,6 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
-  gap1: { 
-    gridArea: 'gap1'
-  },
-  gap2: { gridArea: 'gap2' },
-  gap3: { gridArea: 'gap3' },
   rhs: {},
   hideTocButton: {
     position: "fixed",
@@ -176,17 +184,27 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   const { LWCommentCount } = Components;
   const tocVisible = true;
   const gridTemplateAreas = segments
-    .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
+    .map((_segment,i) => `"... toc${tocRowMap[i] ?? i} gap1 content${i} gap2 rhs${i} ..."`)
     .join('\n')
 
   return <div className={classes.root}>
     <div className={classNames(classes.tableOfContents)} style={{ gridTemplateAreas }}>
       {segments.map((segment,i) => <React.Fragment key={i}>
         {segment.toc && tocVisible && <>
-          <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} 
-            style={{ "gridArea": `toc${i}` }} 
+          <div
+            style={{ "gridArea": `toc${i}` }}
+            className={classNames(
+              classes.toc,
+              segment.isCommentToC && classes.commentToCMargin,
+              showSplashPageHeader && classes.splashPageHeaderToc,
+              !showSplashPageHeader && classes.normalHeaderToc,
+            )}
           >
-            <div className={classNames(classes.stickyBlockScroller, STICKY_BLOCK_SCROLLER_CLASS_NAME, { [classes.commentToCIntersection]: segment.isCommentToC })}>
+            <div className={classNames(
+              classes.stickyBlockScroller,
+              STICKY_BLOCK_SCROLLER_CLASS_NAME,
+              segment.isCommentToC && classes.commentToCIntersection
+            )}>
               <div className={classes.stickyBlock}>
                 {segment.toc}
               </div>
@@ -197,11 +215,9 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
         <div className={classes.content} style={{ "gridArea": `content${i}` }} >
           {segment.centralColumn}
         </div>
-        <div className={classes.gap2}/>
         {segment.rightColumn && <div className={classes.rhs} style={{ "gridArea": `rhs${i}` }}>
           {segment.rightColumn}
         </div>}
-        <div className={classes.gap3}/>
       </React.Fragment>)}
     </div>
     <div className={classes.commentCount}>

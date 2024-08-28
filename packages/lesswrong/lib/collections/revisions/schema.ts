@@ -213,6 +213,12 @@ const schema: SchemaType<"Revisions"> = {
     canRead: ['guests']
     // resolveAs defined in resolvers.js
   },
+  hasFootnotes: {
+    type: Boolean,
+    canRead: ['guests']
+    // resolveAs defined in revisionResolvers.ts
+  },
+
   changeMetrics: {
     type: Object,
     nullable: false,
