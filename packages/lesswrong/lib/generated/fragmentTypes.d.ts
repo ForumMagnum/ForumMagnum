@@ -4100,6 +4100,10 @@ interface LlmConversationsFragment { // fragment on LlmConversations
   readonly deleted: boolean,
 }
 
+interface LlmConversationsWithUserInfoFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly user: UsersMinimumInfo|null,
+}
+
 interface LlmConversationsWithMessagesFragment extends LlmConversationsFragment { // fragment on LlmConversations
   readonly messages: Array<LlmMessagesFragment>,
 }
@@ -4410,6 +4414,7 @@ interface FragmentTypes {
   SurveyScheduleEdit: SurveyScheduleEdit
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
   LlmConversationsFragment: LlmConversationsFragment
+  LlmConversationsWithUserInfoFragment: LlmConversationsWithUserInfoFragment
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
@@ -4484,7 +4489,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
-  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithMessagesFragment"
+  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithUserInfoFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
@@ -4760,6 +4765,7 @@ interface CollectionNamesByFragmentName {
   SurveyScheduleEdit: "SurveySchedules"
   LlmConversationsDefaultFragment: "LlmConversations"
   LlmConversationsFragment: "LlmConversations"
+  LlmConversationsWithUserInfoFragment: "LlmConversations"
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"
