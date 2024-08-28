@@ -104,13 +104,17 @@ class SelectFragmentQuery<
    *
    * Note that it is not necessary to call this function if the result will be
    * passed to the front-end via GraphQL as Apollo will fill in the missing
-   * fields for us automatically (set `getFields` in `initGraphQL.ts`).
+   * fields for us automatically (see `getFields` in `initGraphQL.ts`).
    */
   async executeCodeResolvers<T extends DbObject>(
-    obj: T,
+    obj: T | null,
     context: ResolverContext,
     resolvers = this.codeResolvers,
-  ): Promise<T> {
+  ): Promise<T | null> {
+    if (!obj) {
+      return null;
+    }
+
     const promises: Promise<unknown>[] = [];
     const subresolvers: Record<string, CodeResolverMap> = {};
 
@@ -120,7 +124,7 @@ class SelectFragmentQuery<
         const generator = async () => {
           const result = await resolver(
             obj as AnyBecauseTodo,
-            this.resolverArgs,
+            this.resolverArgs ?? {},
             context,
           );
           obj[resolverName as keyof T] = result;
