@@ -89,13 +89,13 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
       { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
       { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
     ],
-    tools: [contextSelectionTool]
+    tools: [contextSelectionTool],
   });
 
   const rawArguments = toolUseResponse.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
   if (!rawArguments) {
     // eslint-disable-next-line no-console
-    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse });
+    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
     return 'error';
   }
 
@@ -200,40 +200,18 @@ async function sendNewConversationEvent(conversationContext: ConversationContext
   }
 }
 
-async function getPreviousUserMessageData(message?: DbLlmMessage): Promise<LlmStreamContentMessage['data']['previousUserMessage']> {
-  if (!message || message.role !== 'user') {
-    return undefined;
-  }
-
-  const { _id, content, role, userId, createdAt } = message;
-
-  const parsedContent = await markdownToHtml(content);
-
-  return {
-    _id,
-    content: parsedContent,
-    role,
-    userId,
-    createdAt: createdAt.toISOString()
-  };
-}
-
-async function sendStreamContentEvent({conversationId, messageBuffer, lastUserMessage, sendEventToClient}: {
+// TODO: we don't need to send the last user message since we've switched away from sending to all tabs/sessions
+async function sendStreamContentEvent({conversationId, messageBuffer, sendEventToClient}: {
   conversationId: string,
   messageBuffer: string,
-  lastUserMessage?: DbLlmMessage,
   sendEventToClient: (event: LlmStreamMessage) => Promise<void>
 }) {
-  const [previousUserMessage, parsedMessageBuffer] = await Promise.all([
-    getPreviousUserMessageData(lastUserMessage),
-    markdownToHtml(messageBuffer)
-  ]);
+  const parsedMessageBuffer = await markdownToHtml(messageBuffer);
 
   const streamContentEvent: LlmStreamContentMessage = {
     eventType: 'llmStreamContent',
     data: {
       content: parsedMessageBuffer,
-      previousUserMessage,
       conversationId,
     },
   };
@@ -297,16 +275,8 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
 
   let buffer = '';
   stream.on('text', (text) => {
-    const isFirstChunk = buffer === '';
-    const includePreviousUserMessage = isFirstChunk && previousMessages.length > 0;
-
-    const previousUserMessage = includePreviousUserMessage
-      ? newMessages[0]
-      : undefined;
-
     buffer += text;
-
-    void sendStreamContentEvent({conversationId, messageBuffer: buffer, lastUserMessage: previousUserMessage, sendEventToClient});
+    void sendStreamContentEvent({conversationId, messageBuffer: buffer, sendEventToClient});
   });
 
   const finalMessage = await stream.finalMessage();
