@@ -35,9 +35,17 @@ export default class AIAutocomplete extends Plugin {
                 this.autocomplete();
             }
         });
+
+        editor.editing.view.document.on('keydown', (evt, data) => {            
+            // Check for Ctrl+b (Windows/Linux)
+            if ((data.ctrlKey || data.metaKey) && data.keyCode === 66) {
+                evt.stop();
+                this.autocomplete405b();
+            }
+        });
     }
 
-    autocomplete() {
+    getPrefix = () => {
         const editor = this.editor;
         const selection = editor.model.document.selection;
 
@@ -56,33 +64,54 @@ ${new Date().toDateString()}
 ${50 + Math.floor(Math.random() * 100)}
 ${selectedContent}`;
         }
+        return selectedContent
+    }
+
+    insertMessage(message: string) {
+        const editor = this.editor;
+        const selection = editor.model.document.selection;
+        const paragraphs = message.split('\n\n');
+        paragraphs.forEach((paragraph, index) => {
+            if (index > 0) {
+                editor.commands.execute('enter');
+            }
+            if (paragraph.trim() === '') {
+                return;
+            }
+            const lines = paragraph.split('\n');
+            lines.forEach((line, index) => {
+                editor.model.change(writer => {
+                    if ((lines[index - 1]?.trim() !== '' && index > 0) || line.trim() === '') {
+                        writer.insertElement('softBreak', selection.getLastPosition());
+                    }
+                    writer.insertText(line, selection.getLastPosition());
+                })
+            });  
+        })
+    }
+
+    autocomplete() {
+        const selectedContent = this.getPrefix();
+        const editor = this.editor;
 
         editor.model.change(writer => {
             const spaceElement = writer.createText(' ');
             editor.model.insertContent(spaceElement, editor.model.document.selection);
         })
 
-        getAutocompletion(selectedContent, (message) => {
-            const paragraphs = message.split('\n\n');
-            paragraphs.forEach((paragraph, index) => {
-                if (index > 0) {
-                    editor.commands.execute('enter');
-                }
-                if (paragraph.trim() === '') {
-                    return;
-                }
-                const lines = paragraph.split('\n');
-                lines.forEach((line, index) => {
-                    editor.model.change(writer => {
-                        if ((lines[index - 1]?.trim() !== '' && index > 0) || line.trim() === '') {
-                            writer.insertElement('softBreak', selection.getLastPosition());
-                        }
-                        writer.insertText(line, selection.getLastPosition());
-                    })
-                });  
-            })
-              
-        });
+        getAutocompletion(selectedContent, x => this.insertMessage(x));
+    }
+
+    autocomplete405b() {
+        const selectedContent = this.getPrefix();
+        const editor = this.editor;
+
+        editor.model.change(writer => {
+            const spaceElement = writer.createText(' ');
+            editor.model.insertContent(spaceElement, editor.model.document.selection);
+        })
+
+        get405bCompletion(selectedContent, x => this.insertMessage(x));
     }
 
     getSelectedContent(): string {
@@ -126,6 +155,34 @@ const getPostId = () : string | undefined => {
     return undefined;
 }
 
+async function handleStream(stream: ReadableStream, onMessage: (message: any) => void) {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        
+        let boundary;
+        while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+            const line = buffer.slice(0, boundary);
+            buffer = buffer.slice(boundary + 2);
+
+            if (line.startsWith('data: ')) {
+                try {
+                    const data = JSON.parse(line.slice(6));
+                    console.log('Received text:', data);
+                    onMessage(data);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                }
+            }
+        }
+    }
+}
 
 async function getAutocompletion(prefix: string, onCompletion: (completion: string) => void) {
     // Get the id of the comment we are replying to from the DOM
@@ -146,54 +203,27 @@ async function getAutocompletion(prefix: string, onCompletion: (completion: stri
         }),
     });
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
+    handleStream(response.body, (data: any) => onCompletion(data.content));
+}
 
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+async function get405bCompletion(prefix: string, onCompletion: (completion: string) => void) {
+    // Get the id of the comment we are replying to from the DOM
+    const replyingCommentId = getReplyingCommentId();
+    const postId = getPostId();
 
-        buffer += decoder.decode(value, { stream: true });
-        
-        let boundary;
-        while ((boundary = buffer.indexOf('\n\n')) !== -1) {
-            const line = buffer.slice(0, boundary);
-            buffer = buffer.slice(boundary + 2);
+    const response = await fetch('/api/autocomplete405b', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            prefix,
+            commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
+            postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
+            replyingCommentId,
+            postId
+        }),
+    });
 
-            if (line.startsWith('data: ')) {
-                try {
-                    const data = JSON.parse(line.slice(6));
-                    switch (data.type) {
-                        case 'text':
-                            console.log('Received text:', data.content);
-                            onCompletion(data.content);
-                            break;
-                        case 'end':
-                            console.log('Stream ended');
-                            // Handle stream end in your UI
-                            return;
-                        case 'error':
-                            console.error('Stream error:', data.message);
-                            // Handle error in your UI
-                            return;
-                    }
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                }
-            }
-        }
-    }
-    // Handle any remaining data in the buffer
-    if (buffer.startsWith('data: ')) {
-        try {
-            const data = JSON.parse(buffer.slice(6));
-            if (data.type === 'text') {
-                console.log('Received text:', data.content);
-                onCompletion(data.content);
-            }
-        } catch (error) {
-            console.error('Error parsing JSON:', error);
-        }
-    }
+    handleStream(response.body, (data: any) => onCompletion(data?.choices[0]?.text));
 }

@@ -10,6 +10,10 @@ import Revisions from "@/lib/collections/revisions/collection";
 import { turndownService } from "./editor/conversionUtils";
 import { formatRelative } from "@/lib/utils/timeFormat";
 import Users from "@/lib/vulcan-users";
+const { Readable } = require('stream');
+import { pipeline } from 'stream/promises'
+import { hyperbolicApiKey } from "@/lib/instanceSettings";
+
 
 
 const getParentComments = async (comment: DbComment) => {
@@ -205,6 +209,82 @@ async function constructMessageHistory(
   return messages;
 }
 
+async function construct405bPrompt(
+  prefix: string,
+  commentIds: string[],
+  postIds: string[],
+  currentUser: any,
+  replyingCommentId?: string,
+  postId?: string
+): Promise<string> {
+
+  // Make the fetches parallel to save time
+  const [revisions, posts, comments] = await Promise.all([
+    Revisions.find({ documentId: { $in: [...postIds, ...commentIds] }, fieldName: "contents", version: "1.0.0" }).fetch(),
+    Posts.find({ _id: { $in: postIds } }).fetch(),
+    Comments.find({ _id: { $in: commentIds } }).fetch(),
+  ]);
+
+  const authors = await Users.find({ _id: { $in: [...posts.map((post) => post.userId), ...comments.map((comment) => comment.userId)] } }).fetch();
+
+  const authorsMap = new Map(authors.map((author) => [author._id, author]));
+  const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
+
+  // eslint-disable-next-line no-console
+  console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
+
+  let finalSection = ''
+
+  if (replyingCommentId) {
+    // Fetch the comment we're replying to
+    const replyingToComment = await
+    Comments.findOne({ _id: replyingCommentId });
+    if (!replyingToComment) {
+      throw new Error("Comment not found");
+    }
+    const parentComments = await getParentComments(replyingToComment);
+    const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
+    const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
+
+    if (!parentPost) {
+      throw new Error(`Parent post or revision not found ${replyingToComment.postId}`);
+    }
+
+    const authors = await Users.find({ _id: { $in: [parentPost.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
+
+    authors.forEach((author) => authorsMap.set(author._id, author));
+    revisionsMap.set(parentPost._id!, parentPostRevision!);
+
+    finalSection = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser)    
+  } else if (postId) {
+    const post = await Posts.findOne({ _id: postId });
+    if (!post) {
+      throw new Error("Post not found");
+    }
+    const postRevision = await Revisions.findOne({ documentId: post._id, fieldName: "contents", version: "1.0.0" });
+    if (!postRevision) {
+      throw new Error("Post revision not found");
+    }
+
+    const authors = await Users.find({ _id: post.userId }).fetch();
+    authors.forEach((author) => authorsMap.set(author._id, author));
+    revisionsMap.set(post._id!, postRevision);
+
+    finalSection = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix)
+  } else {
+    finalSection = `${prefix}`
+  }
+
+
+  return `
+${posts.map((post) => getPostBodyFormatted(post, revisionsMap, authorsMap)).join("\n---\n")}
+---
+${comments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap)).join("\n---\n")}
+---
+${finalSection}`.trim();
+}
+
+
 export function addAutocompleteEndpoint(app: Express) {
   app.use("/api/autocomplete", express.json());
   app.post("/api/autocomplete", async (req, res) => {
@@ -262,6 +342,77 @@ export function addAutocompleteEndpoint(app: Express) {
         );
         res.end();
       });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Autocomplete error:", error);
+      res.status(500).json({ error: "An error occurred during autocomplete" });
+    }
+  });
+  app.use("/api/autocomplete405b", express.json());
+  app.post("/api/autocomplete405b", async (req, res) => {
+    const currentUser = getUserFromReq(req);
+    if (!currentUser) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
+    // Set headers for streaming response
+    res.writeHead(200, {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    });
+
+    const url = 'https://api.hyperbolic.xyz/v1/completions';
+
+    console.log(`Bearer ${hyperbolicApiKey.get()}`)
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${hyperbolicApiKey.get()}`,
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3.1-405B',
+        prompt: await construct405bPrompt(
+          prefix,
+          commentIds,
+          postIds,
+          currentUser,
+          replyingCommentId,
+          postId
+        ),
+        max_tokens: 256,
+        temperature: 0.7,
+        top_p: 0.9,
+        stream: true
+      }),
+    });
+
+    if (!response.ok || !response.body) {
+      res.writeHead(response.status, response.statusText);
+      res.end(`Error from API: ${response.statusText}`);
+      return;
+    }
+
+    try {
+      if (!userIsAdmin(currentUser)) {
+        throw new Error("Claude Completion is for admins only");
+      }
+      const reader = response.body.getReader();
+      const readableNodeStream = new Readable({
+        async read() {
+          const { done, value } = await reader.read();
+          if (done) {
+            this.push(null);
+          } else {
+            this.push(Buffer.from(value));
+          }
+        }
+      });
+
+      await pipeline(readableNodeStream, res);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Autocomplete error:", error);
