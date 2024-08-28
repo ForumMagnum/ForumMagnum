@@ -158,9 +158,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
             {crosspostNode}
-            <div className={classes.date}>
+            {!post.isEvent && <div className={classes.date}>
               <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />
-            </div>
+            </div>}
             {rssFeedSource && rssFeedSource.user &&
               <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
