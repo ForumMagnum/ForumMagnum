@@ -728,5 +728,10 @@
     "acceptsSchemaHash": "1b522f36535bb2cd26ae4018d17687c3",
     "acceptedByMigration": "20240826T222955.create_LlmConversationsAndMessages_tables.ts",
     "timestamp": "2024-08-26T22:29:55.000Z"
+  },
+  {
+    "acceptsSchemaHash": "68a03187ab4d9f263dbd9a713fcf7f67",
+    "acceptedByMigration": "20240828T213335.create_DoppelComments_table.ts",
+    "timestamp": "2024-08-28T21:33:35.000Z"
   }
 ]

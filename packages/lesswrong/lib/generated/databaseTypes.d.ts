@@ -333,6 +333,17 @@ interface DbDigest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type DoppelCommentsCollection = CollectionBase<"DoppelComments">;
+
+interface DbDoppelComment extends DbObject {
+  __collectionName?: "DoppelComments"
+  commentId: string
+  content: string
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type ElectionCandidatesCollection = CollectionBase<"ElectionCandidates">;
 
 interface DbElectionCandidate extends DbObject {
@@ -953,7 +964,6 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
-  hasFootnotes: boolean | null
   disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
@@ -1955,6 +1965,7 @@ interface CollectionsByName {
   DialogueMatchPreferences: DialogueMatchPreferencesCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
+  DoppelComments: DoppelCommentsCollection
   ElectionCandidates: ElectionCandidatesCollection
   ElectionVotes: ElectionVotesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
@@ -2039,6 +2050,7 @@ interface ObjectsByCollectionName {
   DialogueMatchPreferences: DbDialogueMatchPreference
   DigestPosts: DbDigestPost
   Digests: DbDigest
+  DoppelComments: DbDoppelComment
   ElectionCandidates: DbElectionCandidate
   ElectionVotes: DbElectionVote
   ElicitQuestionPredictions: DbElicitQuestionPrediction
@@ -2123,6 +2135,7 @@ interface ObjectsByTypeName {
   DialogueMatchPreference: DbDialogueMatchPreference
   DigestPost: DbDigestPost
   Digest: DbDigest
+  DoppelComment: DbDoppelComment
   ElectionCandidate: DbElectionCandidate
   ElectionVote: DbElectionVote
   ElicitQuestionPrediction: DbElicitQuestionPrediction

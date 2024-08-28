@@ -347,6 +347,11 @@ import "./collections/llmConversations/views";
 import "./collections/llmMessages/collection";
 import "./collections/llmMessages/fragments";
 
+// DoppelComments
+import './collections/doppelComments/collection';
+import './collections/doppelComments/views';
+import './collections/doppelComments/fragments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
