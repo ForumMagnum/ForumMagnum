@@ -1,7 +1,7 @@
 import SelectFragmentQuery from "./sql/SelectFragmentQuery";
 import { getSqlClientOrThrow } from "./sql/sqlClient";
 import { accessFilterMultiple } from "../lib/utils/schemaUtils";
-import { getCollection } from "./vulcan-lib";
+import { computeContextFromUser, getCollection } from "./vulcan-lib";
 
 type FetchFragmentOptions<
   CollectionName extends CollectionNameString & keyof FragmentTypesByCollection,
@@ -61,9 +61,11 @@ export const fetchFragment = async <
   selector,
   options,
   resolverArgs,
-  context,
+  context: maybeContext,
   skipFiltering,
 }: FetchFragmentOptions<CollectionName, FragmentName>): Promise<FetchedFragment<FragmentName>[]> => {
+  const context = maybeContext ?? await computeContextFromUser(currentUser);
+
   const query = new SelectFragmentQuery(
     fragmentName as FragmentName,
     currentUser ?? null,
@@ -74,10 +76,15 @@ export const fetchFragment = async <
   );
   const {sql, args} = query.compile();
   const db = getSqlClientOrThrow();
+
   const results = await db.any(sql, args);
+  await Promise.all(results.map(
+    (result) => query.executeCodeResolvers(result, context),
+  ));
   if (skipFiltering) {
     return results;
   }
+
   const filtered = await accessFilterMultiple(
     currentUser,
     getCollection(collectionName),
