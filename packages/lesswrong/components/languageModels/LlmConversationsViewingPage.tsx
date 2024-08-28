@@ -1,5 +1,4 @@
-// TODO: Import component in components.ts
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useMulti } from '@/lib/crud/withMulti';
@@ -7,6 +6,7 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,41 +54,40 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   conversationRowUsername: {
-      ...theme.typography.commentStyle,
-      width: 100,
-      fontWeight: 400,
-      fontSize: "0.95rem",
-      marginRight: 10,
-      opacity: 0.7,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
+    ...theme.typography.commentStyle,
+    width: 100,
+    fontWeight: 400,
+    fontSize: "0.95rem",
+    marginRight: 10,
+    opacity: 0.7,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   conversationRowTitle: {
-      ...theme.typography.commentStyle,
-      maxWidth: 450,
-      fontWeight: 500,
-      fontSize: "1.15rem",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      whiteSpace: "nowrap",
+    ...theme.typography.commentStyle,
+    maxWidth: 450,
+    fontWeight: 500,
+    fontSize: "1.15rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
   },
   conversationRowNumLastUpdated: {
-      ...theme.typography.commentStyle,
-      padding: 2,
-      fontWeight: 400,
-      fontSize: "0.9rem",
-      opacity: 0.8
+    ...theme.typography.commentStyle,
+    padding: 2,
+    fontWeight: 400,
+    fontSize: "0.9rem",
+    opacity: 0.8
   }
 });
 
 const LlmConversationRow = ({conversation, currentConversationId, setCurrentConversationId, classes}: {
   conversation: LlmConversationsWithUserInfoFragment
-  currentConversationId: string|undefined,
+  currentConversationId?: string
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-
   const isCurrentlySelected = currentConversationId === conversation._id;
   const { title, user, lastUpdatedAt, createdAt } = conversation;
 
@@ -107,7 +106,7 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
 
 // Lists all conversations for admins to select from
 const LlmConversationSelector = ({currentConversationId, setCurrentConversationId, classes}: {
-  currentConversationId: string|undefined,
+  currentConversationId?: string
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -116,6 +115,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsWithUserInfoFragment",
     terms: { view: "llmConversationsAll" },
+    limit: 200,
   });
 
   useEffect(() => {
@@ -136,11 +136,11 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   return <div className={classes.conversationSelectorRoot}>
     {results.map((conversation, idx) => {
       return <LlmConversationRow
-      key={idx} 
-      conversation={conversation}
-      currentConversationId={currentConversationId}
-      setCurrentConversationId={setCurrentConversationId}
-      classes={classes} />;
+        key={idx} 
+        conversation={conversation}
+        currentConversationId={currentConversationId}
+        setCurrentConversationId={setCurrentConversationId}
+        classes={classes} />;
     })}
   </div>
 }
@@ -170,7 +170,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
   if (!conversation && loading) {
     return <div className={classes.conversationViewer}>
       <Components.Loading />
-      </div>
+    </div>
   }
 
   if (!conversation) {
@@ -183,7 +183,7 @@ const LlmConversationViewer = ({conversationId, classes}: {
     <SectionTitle title={title} titleClassName={classes.conversationViewerTitle} />
     {!messages?.length && <div>No messages in this conversation</div>}
     {messages?.length && messages.map((message, idx) => {
-      return <LlmChatMessage  key={idx} message={message} />
+      return <LlmChatMessage key={idx} message={message} />
     })}
   </div> 
 }
@@ -192,22 +192,20 @@ const LlmConversationViewer = ({conversationId, classes}: {
 export const LlmConversationsViewingPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
-
   const currentUser = useCurrentUser();
-  const [currentConversationId, setCurrentConversationId] = React.useState<string|undefined>(undefined);
+  const [currentConversationId, setCurrentConversationId] = useState<string>();
 
-  if (!currentUser || !currentUser.isAdmin) {
-    return <div>You must be an admin to view this page</div>
+  if (!userIsAdmin(currentUser)) {
+    return <Components.Error404 />
   }
 
   return <AnalyticsContext pageContext="llmConversationViewingPage">
     <div className={classes.root}>
       <div className={classes.mainColumn}>
         <LlmConversationSelector
-        currentConversationId={currentConversationId}
-        setCurrentConversationId={setCurrentConversationId}
-        classes={classes}
+          currentConversationId={currentConversationId}
+          setCurrentConversationId={setCurrentConversationId}
+          classes={classes}
         />
         <LlmConversationViewer
           conversationId={currentConversationId}

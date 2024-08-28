@@ -286,7 +286,7 @@ export const ChatInterface = ({classes}: {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <LLMChatMessage key={index} message={message} classes={classes} />
+      <Components.LLMChatMessage key={index} message={message} />
     ))}
   </div>
 

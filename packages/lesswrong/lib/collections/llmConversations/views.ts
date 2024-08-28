@@ -31,7 +31,6 @@ LLMConversations.addView("llmConversationsWithUser", function (terms: LlmConvers
 
 LLMConversations.addView("llmConversationsAll", function (terms: LlmConversationsAllViewTerms) {
   return {
-    selector: { },
     options: {
       sort: {
         createdAt: -1

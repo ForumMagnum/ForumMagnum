@@ -1576,7 +1576,6 @@ addRoute(
     subtitle: 'LLM Conversations',
     noFooter: true,
     noIndex: true,
-    // background: 'white',
   }
 );
 
