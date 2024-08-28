@@ -110,7 +110,6 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-
   const { results, loading } = useMulti({
     collectionName: "LlmConversations",
     fragmentName: "LlmConversationsWithUserInfoFragment",
@@ -150,7 +149,6 @@ const LlmConversationViewer = ({conversationId, classes}: {
   conversationId: string|undefined,
   classes: ClassesType<typeof styles>,
 }) => {
-
   const { LlmChatMessage, SectionTitle } = Components
 
   const { document: conversation, loading } = useSingle({
