@@ -89,13 +89,13 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
       { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
       { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
     ],
-    tools: [contextSelectionTool]
+    tools: [contextSelectionTool],
   });
 
   const rawArguments = toolUseResponse.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
   if (!rawArguments) {
     // eslint-disable-next-line no-console
-    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse });
+    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
     return 'error';
   }
 
