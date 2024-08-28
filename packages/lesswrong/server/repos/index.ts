@@ -35,46 +35,73 @@ import VotesRepo from "./VotesRepo";
 import LWEventsRepo from "./LWEventsRepo";
 
 declare global {
-  type Repos = ReturnType<typeof getAllRepos>;
+  type AllRepos = typeof allRepos;
+  type RepoName = keyof AllRepos;
+  type RepoInstance<T extends RepoName> = InstanceType<AllRepos[T]>;
+  type Repos = {
+    [K in RepoName]: RepoInstance<K>;
+  }
 }
 
-const getAllRepos = () => ({
-  collections: new CollectionsRepo(),
-  clientIds: new ClientIdsRepo(),
-  comments: new CommentsRepo(),
-  conversations: new ConversationsRepo(),
-  curationEmails: new CurationEmailsRepo(),
-  databaseMetadata: new DatabaseMetadataRepo(),
-  debouncerEvents: new DebouncerEventsRepo(),
-  electionCandidates: new ElectionCandidatesRepo(),
-  electionVotes: new ElectionVotesRepo(),
-  forumEvents: new ForumEventsRepo(),
-  localgroups: new LocalgroupsRepo(),
-  lwEvents: new LWEventsRepo(),
-  notifications: new NotificationsRepo(),
-  postEmbeddings: new PostEmbeddingsRepo(),
-  pageCaches: new PageCacheRepo(),
-  manifoldProbabilitiesCachesRepo: new ManifoldProbabilitiesCachesRepo(),
-  postRecommendations: new PostRecommendationsRepo(),
-  postRelations: new PostRelationsRepo(),
-  posts: new PostsRepo(),
-  postViews: new PostViewsRepo(),
-  postViewTimes: new PostViewTimesRepo(),
-  readStatuses: new ReadStatusesRepo(),
-  recommendationsCaches: new RecommendationsCachesRepo(),
-  reviewWinners: new ReviewWinnersRepo(),
-  reviewWinnerArts: new ReviewWinnerArtsRepo(),
-  sequences: new SequencesRepo(),
-  sideComments: new SideCommentCachesRepo(),
-  splashArtCoordinates: new SplashArtCoordinatesRepo(),
-  surveys: new SurveysRepo(),
-  surveySchedules: new SurveySchedulesRepo(),
-  tags: new TagsRepo(),
-  tweets: new TweetsRepo(),
-  typingIndicators: new TypingIndicatorsRepo(),
-  users: new UsersRepo(),
-  votes: new VotesRepo(),
-} as const);
+const allRepos = {
+  collections: CollectionsRepo,
+  clientIds: ClientIdsRepo,
+  comments: CommentsRepo,
+  conversations: ConversationsRepo,
+  curationEmails: CurationEmailsRepo,
+  databaseMetadata: DatabaseMetadataRepo,
+  debouncerEvents: DebouncerEventsRepo,
+  electionCandidates: ElectionCandidatesRepo,
+  electionVotes: ElectionVotesRepo,
+  forumEvents: ForumEventsRepo,
+  localgroups: LocalgroupsRepo,
+  lwEvents: LWEventsRepo,
+  notifications: NotificationsRepo,
+  postEmbeddings: PostEmbeddingsRepo,
+  pageCaches: PageCacheRepo,
+  manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
+  postRecommendations: PostRecommendationsRepo,
+  postRelations: PostRelationsRepo,
+  posts: PostsRepo,
+  postViews: PostViewsRepo,
+  postViewTimes: PostViewTimesRepo,
+  readStatuses: ReadStatusesRepo,
+  recommendationsCaches: RecommendationsCachesRepo,
+  reviewWinners: ReviewWinnersRepo,
+  reviewWinnerArts: ReviewWinnerArtsRepo,
+  sequences: SequencesRepo,
+  sideComments: SideCommentCachesRepo,
+  splashArtCoordinates: SplashArtCoordinatesRepo,
+  surveys: SurveysRepo,
+  surveySchedules: SurveySchedulesRepo,
+  tags: TagsRepo,
+  tweets: TweetsRepo,
+  typingIndicators: TypingIndicatorsRepo,
+  users: UsersRepo,
+  votes: VotesRepo,
+} as const;
+
+/**
+ * The main `ResolverContext` type has a property called `repos` of type
+ * `Repos` (ie; a map from repo names to repo instances). However, _most_
+ * requests do not use _most_ of the repos, and there's a lot of repos
+ * which need to be instantiated for every request. To avoid wasting
+ * resources we instead replace the plain `repos` object with this proxy which
+ * intercepts accesses to repos and only instantiates repos as-and-when
+ * they're actually used. The garbage collector will be very thankful.
+ */
+const getAllRepos = (): Repos => new Proxy({} as Repos, {
+  get<N extends RepoName>(target: Partial<Repos>, repoName: N) {
+    if (!target[repoName]) {
+      if (!(repoName in allRepos)) {
+        throw new Error(`Invalid repo name: ${repoName}`);
+      }
+      target[repoName] = new allRepos[repoName] as AnyBecauseHard;
+    }
+
+    return target[repoName];
+  }
+});
 
 export {
   CollectionsRepo,
