@@ -347,7 +347,7 @@ export const styles = (theme: ThemeType) => ({
       },
     },
   },
-  notifyMe: {
+  subscribeToGroup: {
     padding: '8px 16px',
     ...theme.typography.body2,
   },
@@ -848,7 +848,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
                     document={post.group}
                     subscribeMessage="Subscribe to group"
                     unsubscribeMessage="Unsubscribe from group"
-                    className={classes.notifyMe}
+                    className={classes.subscribeToGroup}
                 />
               </LWTooltip>
             </div>
