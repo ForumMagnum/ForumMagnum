@@ -660,6 +660,7 @@ registerFragment(`
     currentUserExtendedVote
     fmCrosspost
     rejectedReason
+    autoFrontpage
 
     contents {
       _id

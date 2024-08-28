@@ -50,7 +50,7 @@ const schema: SchemaType<"LlmConversations"> = {
       return lastMessage?.createdAt ?? document.createdAt;
     },
     sqlResolver: ({field, join}) => `(
-      SELECT MAX(COALESCE(${field("createdAt")}, lm."createdAt"))
+      SELECT MAX(COALESCE(lm."createdAt", ${field("createdAt")}))
       FROM "LlmMessages" lm
       WHERE lm."conversationId" = ${field("_id")}
       GROUP BY lm."conversationId"
