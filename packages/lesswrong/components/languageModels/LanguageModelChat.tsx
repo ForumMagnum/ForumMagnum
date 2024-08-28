@@ -313,6 +313,8 @@ export const ChatInterface = ({classes}: {
     archiveConversation(conversationId);
   };
 
+  console.log({orderedConversationsInfo: orderedConversations.map(({title, lastUpdatedAt, createdAt}) => ({title, lastUpdatedAt, createdAt}))})
+
   const conversationSelect = <Select 
     onChange={onSelect} 
     value={currentConversation?._id ?? NEW_CONVERSATION_MENU_ITEM}
@@ -322,7 +324,7 @@ export const ChatInterface = ({classes}: {
     renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
     >
       {
-        orderedConversations.reverse().map(({ title, _id }, index) => (
+        orderedConversations.map(({ title, _id }, index) => (
           <MenuItem key={index} value={_id} className={classes.menuItem}>
             {title ?? "...Title Pending..."}
             <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
