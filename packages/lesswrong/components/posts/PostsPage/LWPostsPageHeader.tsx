@@ -138,7 +138,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
 
   const linkpostDomain = post.url && new URL(post.url).hostname;
   const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
-  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>{linkpostDomain}</LWTooltip> : null;
+  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}><a href={post.url} target="_blank" rel="noopener noreferrer">{linkpostDomain}</a></LWTooltip> : null;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
