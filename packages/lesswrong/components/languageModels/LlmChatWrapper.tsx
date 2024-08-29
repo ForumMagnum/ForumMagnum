@@ -7,12 +7,40 @@ import { useSingle } from '@/lib/crud/withSingle';
 import { useUpdate } from '@/lib/crud/withUpdate';
 import keyBy from 'lodash/keyBy';
 import { randomId } from '@/lib/random';
+import { z } from 'zod';
+import markdownIt from "markdown-it";
+import markdownItContainer from "markdown-it-container";
+import markdownItFootnote from "markdown-it-footnote";
+import markdownItSub from "markdown-it-sub";
+import markdownItSup from "markdown-it-sup";
 
-export interface ClientMessage {
-  conversationId: string | null
-  userId: string
-  content: string
-}
+const mdi = markdownIt({ linkify: true });
+// mdi.use(markdownItMathjax()) // for performance, don't render mathjax
+mdi.use(markdownItContainer, "spoiler");
+mdi.use(markdownItFootnote);
+mdi.use(markdownItSub);
+mdi.use(markdownItSup);
+
+const ClientMessageSchema = z.object({
+  conversationId: z.string().nullable(),
+  userId: z.string(),
+  content: z.string(),
+});
+
+const PromptContextOptionsSchema = z.object({
+  postId: z.string().optional(),
+  includeComments: z.boolean().optional(),
+});
+
+export const ClaudeMessageRequestSchema = z.object({
+  newMessage: ClientMessageSchema,
+  promptContextOptions: PromptContextOptionsSchema,
+  newConversationChannelId: z.string().optional(),
+});
+
+export type ClientMessage = z.infer<typeof ClientMessageSchema>;
+export type PromptContextOptions = z.infer<typeof PromptContextOptionsSchema>;
+export type ClaudeMessageRequest = z.infer<typeof ClaudeMessageRequestSchema>;
 
 type LlmStreamContent = {
   conversationId: string;
@@ -21,7 +49,7 @@ type LlmStreamContent = {
 
 type LlmStreamChunk = {
   conversationId: string;
-  messageId: string;
+  // messageId: string;
   chunk: string;
 };
 
@@ -56,13 +84,7 @@ export type LlmStreamEndMessage = {
 
 export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamEndMessage;
 
-interface PromptContextOptions {
-  postId?: string,
-  useRag?: boolean
-  includeComments?: boolean
-}
-
-type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string };
+type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string, buffer?: string };
 type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
 type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId'|'createdAt'|'lastUpdatedAt'> & { _id: string, title?: string, messages: NewLlmMessage[] };
 type LlmConversationWithPartialMessages = LlmConversationsFragment & { messages: Array<LlmMessagesFragment | NewLlmMessage> };
@@ -181,23 +203,37 @@ const LlmChatWrapper = ({children}: {
       return;
     }
 
-    const { conversationId, messageId, chunk } = message.data;
+    const { conversationId, chunk } = message.data;
 
     setConversations((conversations) => {
       const streamConversation = conversations[conversationId];
       const updatedMessages = [...streamConversation.messages];
       const lastMessageInConversation = updatedMessages.slice(-1)[0];
       const lastClientMessageIsAssistant = lastMessageInConversation?.role === 'assistant';
+
+      // We need to buffer the unparsed chunks, since every time we parse the in-progress message we get html which can't be appended-to in a sane way
+      // Then, each time we get a new chunk, we parse the full buffer
+      // `handleLlmStreamContent` gets the final message when the whole thing is done, which might differ slightly since we also do some server-side LaTeX handling that we can't do on the client
+      let newBuffer;
+      if (lastClientMessageIsAssistant && 'buffer' in lastMessageInConversation) {
+        newBuffer = (lastMessageInConversation.buffer ?? '') + chunk;
+      } else {
+        newBuffer = chunk;
+      }
+
+      const parsedContent = mdi.render(newBuffer, { docId: randomId() });
   
       const newMessage: NewLlmMessage = { 
         conversationId,
         userId: currentUser._id,
-        // TODO: pass back role through stream, maybe even the whole message object?
+        // TODO: pass back role through stream?
         role: "assistant", 
-        content,
+        content: parsedContent,
+        buffer: newBuffer,
       };
       
-      // Since we're sending an aggregate buffer rather than diffs, we need to replace the last message in the conversation each time we get one (after the first time)
+      // If the last message is an assistant message, then we're appending to it
+      // That means we need to replace it in the conversation's messages array instead of appending a new one
       if (lastClientMessageIsAssistant) {
         updatedMessages.pop();
       }
@@ -255,13 +291,13 @@ const LlmChatWrapper = ({children}: {
         handleLlmStreamContent(message);
         break;
       case "llmStreamChunk":
-
+        handleLlmStreamChunk(message);
         break;
       case "llmStreamEnd":
         setConversationLoadingState(message.data.conversationId, false);
         break;
     }
-  }, [hydrateNewConversation, handleLlmStreamContent, setConversationLoadingState]);
+  }, [hydrateNewConversation, handleLlmStreamContent, handleLlmStreamChunk, setConversationLoadingState]);
   
   const sendClaudeMessage = useCallback(async ({newMessage, promptContextOptions, newConversationChannelId}: {
     newMessage: ClientMessage,

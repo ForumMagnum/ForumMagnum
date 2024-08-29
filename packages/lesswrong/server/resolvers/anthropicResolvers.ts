@@ -3,25 +3,18 @@ import uniqBy from "lodash/uniqBy";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionTool, ContextSelectionParameters } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat } from "../languageModels/promptUtils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { ClientMessage, LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
+import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
 import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
-
-
-// If present, use to construct context
-interface PromptContextOptions {
-  postId?: string
-  includeComments?: boolean
-}
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -66,7 +59,7 @@ interface SendMessagesToClaudeArgs {
 // a type for kind of context to use that's a value of "query-based", "post-based", or "both"
 type RagContextType = "query-based" | "current-post-based" | "both" | "none" | "error"
 
-function getConversationContext(newConversationChannelId: string | null, newMessage: ClientMessage): ConversationContext {
+function getConversationContext(newConversationChannelId: string | undefined, newMessage: ClientMessage): ConversationContext {
   return newConversationChannelId ? {
     newConversationChannelId,
     type: 'new',
@@ -83,25 +76,24 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
   }
 
   // TODO: come back to this when haiku 3.5 is out to replace it, maybe
-  const toolUseResponse = await openai.chat.completions.create({
+  const toolUseResponse = await openai.beta.chat.completions.parse({
     model: 'gpt-4o-mini-2024-07-18',
     messages: [
       { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
       { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
     ],
-    tools: [contextSelectionTool],
+    // tools: [contextSelectionTool],
+    response_format: contextSelectionResponseFormat
   });
 
-  const rawArguments = toolUseResponse.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
-  if (!rawArguments) {
+  const parsedResponse = toolUseResponse.choices[0].message.parsed;
+  if (!parsedResponse) {
     // eslint-disable-next-line no-console
     console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
     return 'error';
   }
 
-  const parsedArguments: ContextSelectionParameters = JSON.parse(rawArguments);
-
-  return parsedArguments.strategy_choice;
+  return parsedResponse.strategy_choice;
 }
 
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
@@ -196,11 +188,10 @@ async function sendNewConversationEvent(conversationContext: ConversationContext
       channelId: conversationContext.newConversationChannelId,
     };
 
-    await sendEventToClient(newConversationEvent);
+    return sendEventToClient(newConversationEvent);
   }
 }
 
-// TODO: we don't need to send the last user message since we've switched away from sending to all tabs/sessions
 async function sendStreamContentEvent({conversationId, messageBuffer, sendEventToClient}: {
   conversationId: string,
   messageBuffer: string,
@@ -216,7 +207,23 @@ async function sendStreamContentEvent({conversationId, messageBuffer, sendEventT
     },
   };
 
-  await sendEventToClient(streamContentEvent);
+  return sendEventToClient(streamContentEvent);
+}
+
+async function sendStreamChunkEvent({conversationId, chunk, sendEventToClient}: {
+  conversationId: string,
+  chunk: string,
+  sendEventToClient: (event: LlmStreamMessage) => Promise<void>
+}) {
+  const streamChunkEvent: LlmStreamChunkMessage = {
+    eventType: 'llmStreamChunk',
+    data: {
+      chunk,
+      conversationId,
+    },
+  };
+
+  return sendEventToClient(streamChunkEvent);
 }
 
 async function sendStreamEndEvent(conversationId: string, sendEventToClient: (event: LlmStreamMessage) => Promise<void>) {
@@ -225,7 +232,7 @@ async function sendStreamEndEvent(conversationId: string, sendEventToClient: (ev
     data: { conversationId },
   };
 
-  await sendEventToClient(streamEndEvent);
+  return sendEventToClient(streamEndEvent);
 }
 
 function convertMessageRoleForClaude(role: LlmVisibleMessageRole) {
@@ -260,6 +267,7 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
 async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser, sendEventToClient }: SendMessagesToClaudeArgs & {
   sendEventToClient: (event: LlmStreamMessage) => Promise<void>
 }) {
+  const client = getAnthropicClientOrThrow();
   const promptCachingClient = getAnthropicPromptCachingClientOrThrow();
 
   const conversationMessages = [...previousMessages, ...newMessages];
@@ -273,27 +281,41 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
     messages: preparedMessages,
   });
 
-  let buffer = '';
-  stream.on('text', (text) => {
-    buffer += text;
-    void sendStreamContentEvent({conversationId, messageBuffer: buffer, sendEventToClient});
+  const writeEventPromises: Array<Promise<void>> = [];
+
+  stream.on('text', async (text) => {
+    const writeEventPromise = sendStreamChunkEvent({ conversationId, chunk: text, sendEventToClient });
+    writeEventPromises.push(writeEventPromise);
   });
 
-  const finalMessage = await stream.finalMessage();
+  // In production, we seemed to often be missing the last few chunks of the message.
+  // This tries to ensure that we've finished writing all the messages to the client before we call res.end(), later
+  // Even if it turns out that `end` being emitted can cause this to run before the last `text` promise gets pushed into the array,
+  // we still end up awaiting the full-message event at the end before resolving this, so it should end up fine on the client.
+  return new Promise<Partial<DbInsertion<DbLlmMessage>>>((resolve) => {
+    stream.on('end', async () => {
+      const [finalMessage] = await Promise.all([
+        stream.finalMessage(),
+        Promise.allSettled(writeEventPromises)
+      ]);
 
-  const response = finalMessage.content[0];
-  if (response.type === 'tool_use') {
-    throw new Error("response is tool use which is not a proper response in this context");
-  }
+      const response = finalMessage.content[0];
+      if (response.type === 'tool_use') {
+        throw new Error("response is tool use which is not a proper response in this context");
+      }
+    
+      const newResponse = {
+        conversationId,
+        userId: currentUser._id,
+        role: "assistant" as const,
+        content: response.text,
+      };
 
-  const newResponse = {
-    conversationId,
-    userId: currentUser._id,
-    role: "assistant" as const,
-    content: response.text,
-  };
-
-  return newResponse;
+      await sendStreamContentEvent({ conversationId, messageBuffer: response.text, sendEventToClient });
+    
+      resolve(newResponse);
+    });
+  });
 }
 
 async function getPostWithContents(postId: string, context: ResolverContext): Promise<PostsPage | null> {
@@ -411,10 +433,18 @@ export function addLlmChatEndpoint(app: Express) {
     if (!userHasLlmChat(currentUser)) {
       throw new Error('Only admins and authorized users can use Claude chat at present');
     }
+
+    const parsedBody = ClaudeMessageRequestSchema.safeParse(req.body);
+
+    if (!parsedBody.success) {
+      throw new Error('Invalid requesty body');
+    }
+
+    const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody.data;
     
-    const newMessage: ClientMessage = req.body.newMessage;
-    const promptContextOptions: PromptContextOptions = req.body.promptContextOptions;
-    const newConversationChannelId: string = req.body.newConversationChannelId;
+    // const newMessage: ClientMessage = req.body.newMessage;
+    // const promptContextOptions: PromptContextOptions = req.body.promptContextOptions;
+    // const newConversationChannelId: string = req.body.newConversationChannelId;
     const { postId: currentPostId } = promptContextOptions
     
     if (!newConversationChannelId && !newMessage.conversationId) {
@@ -477,8 +507,17 @@ export function addLlmChatEndpoint(app: Express) {
     ]);
 
     res.status(200);
+
     async function sendEventToClient(event: LlmStreamMessage): Promise<void> {
-      res.write("data: " + JSON.stringify(event) + "\n\n");
+      return new Promise((resolve, reject) => {
+        res.write("data: " + JSON.stringify(event) + "\n\n", (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
     }
 
     // TODO: figure out if we can relocate this to be earlier by fixing the thing on the client where we refetch the latest conversation
