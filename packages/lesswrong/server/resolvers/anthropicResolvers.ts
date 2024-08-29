@@ -10,7 +10,7 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { ClientMessage, LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
 import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
-import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
@@ -52,6 +52,13 @@ type ConversationContext = {
 interface ClaudeAllowableMessage {
   content: string;
   role: LlmVisibleMessageRole;
+}
+
+interface NewLlmMessage {
+  userId: string;
+  content: string;
+  role: LlmVisibleMessageRole|UserVisibleMessageRole
+  conversationId: string;
 }
 
 interface SendMessagesToClaudeArgs {
@@ -378,7 +385,11 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     conversationId,
   } as const;
 
-  const newMessageRecords = [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord, ...(contextualPosts.length > 0 ? [newUserContextMessageRecord] : [])]
+  const newMessageRecords: NewLlmMessage[] = [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord]
+
+  if (contextualPosts.length > 0) {
+    newMessageRecords.push(newUserContextMessageRecord);
+  }
 
   return {
     conversation,
