@@ -92,14 +92,14 @@ const getJailbreakPromptBase = ({posts, spotlights}: {posts: PostsWithNavigation
   for (const post of posts) {
     const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
     prompt += `
-      Post: ${post.title}
-      ---
-      Post Contents: ${post.contents?.html}
-      ---
-      A short description of the essay, ~2 sentences, no paragraph breaks or bullet points: ${spotlight?.description?.originalContents?.data}
-      ---
-      ---
-      ---
+Post: ${post.title}
+---
+Post Contents: ${post.contents?.html}
+---
+A short description of the essay, ~2 sentences, no paragraph breaks or bullet points: ${spotlight?.description?.originalContents?.data}
+---
+---
+---
     `
   }
   return prompt
@@ -132,7 +132,7 @@ async function createSpotlights() {
 
   const jailbreakPromptBase = getJailbreakPromptBase({posts: postsForPrompt, spotlights})
 
-  for (const post of postsWithoutSpotlights.slice(0, 2)) {
+  for (const post of postsWithoutSpotlights.slice(0, 10)) {
     const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
 
     try {

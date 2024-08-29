@@ -296,7 +296,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 12
   },
   splashImage: {
-    transform: "translateX(13%)",
+    transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
     filter: "brightness(1.2)",
   },
   splashImageContainer: {
