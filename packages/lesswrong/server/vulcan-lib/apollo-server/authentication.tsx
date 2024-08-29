@@ -6,7 +6,7 @@ import { createHash, randomBytes } from "crypto";
 import GraphQLLocalStrategy from "./graphQLLocalStrategy";
 import sha1 from 'crypto-js/sha1';
 import { addGraphQLMutation, addGraphQLSchema, addGraphQLResolvers, } from "../../../lib/vulcan-lib";
-import { getForwardedWhitelist } from "../../forwarded_whitelist";
+import { getClientIP } from '@/server/utils/getClientIP';
 import { LWEvents } from "../../../lib/collections/lwevents";
 import Users from "../../../lib/vulcan-users";
 import { hashLoginToken, userIsBanned } from "../../loginTokens";
@@ -341,7 +341,7 @@ function registerLoginEvent(user: DbUser, req: AnyBecauseTodo) {
     userId: user._id,
     properties: {
       type: 'passport-login',
-      ip: getForwardedWhitelist().getClientIP(req),
+      ip: getClientIP(req),
       userAgent: req.headers['user-agent'],
       referrer: req.headers['referer']
     }

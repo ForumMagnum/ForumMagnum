@@ -1215,11 +1215,13 @@ interface DbSpotlight extends DbObject {
   headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
+  spotlightSplashImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null

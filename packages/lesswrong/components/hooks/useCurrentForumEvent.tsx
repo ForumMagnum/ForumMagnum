@@ -41,7 +41,9 @@ export const CurrentForumEventProvider: FC<{
     : true;
 
   useEffect(() => {
-    void refetch();
+    if (hasForumEvents) {
+      void refetch();
+    }
   }, [refetch, eventEnded]);
 
   const value = useMemo(() => {
