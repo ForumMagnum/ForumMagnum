@@ -400,6 +400,8 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
           }
         })
         return
+      default:
+        break
     }
     
     setFormValues(currentValues => {

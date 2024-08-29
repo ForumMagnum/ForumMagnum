@@ -2,7 +2,7 @@ import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
 import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
-import { zodFunction } from "openai/helpers/zod";
+import { zodFunction, zodResponseFormat } from "openai/helpers/zod";
 
 interface NestedComment {
   _id: string;
@@ -102,9 +102,7 @@ const ContextSelectionParameters = z.object({
   strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-based'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
 });
 
-export type ContextSelectionParameters = z.TypeOf<typeof ContextSelectionParameters>;
-
-export const contextSelectionTool = zodFunction({ name: 'getContextLoadingStrategy', parameters: ContextSelectionParameters });
+export const contextSelectionResponseFormat = zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy');
 
 export const generateContextSelectionPrompt = (query: string, currentPost: PostsPage | null): string => {
   const postTitle = currentPost?.title
