@@ -322,7 +322,7 @@ async function getContextMessages(content: string, currentPost: PostsPage | null
   const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
   const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
 
-  return { userContextMessage, assistantContextMessage };
+  return { userContextMessage, assistantContextMessage, contextualPosts };
 }
 
 async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
@@ -333,7 +333,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     : Promise.resolve(null)
   );
 
-  const [conversation, { userContextMessage, assistantContextMessage }] = await Promise.all([
+  const [conversation, { userContextMessage, assistantContextMessage, contextualPosts }] = await Promise.all([
     createNewConversation({
       query: content,
       systemPrompt,
@@ -378,9 +378,11 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     conversationId,
   } as const;
 
+  const newMessageRecords = [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord, ...(contextualPosts.length > 0 ? [newUserContextMessageRecord] : [])]
+
   return {
     conversation,
-    newMessageRecords: [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord, newUserContextMessageRecord],
+    newMessageRecords
   };
 }
 
