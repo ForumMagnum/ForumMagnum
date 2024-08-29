@@ -50,13 +50,8 @@ export const CollectionTableOfContents = ({classes, collection}: {
     })
   })
 
-  const sectionData = {
-    html: "",
-    sections,
-  }
-
   return <TableOfContents
-    sectionData={sectionData}
+    sections={sections}
     title={collection.title}
   />
 }

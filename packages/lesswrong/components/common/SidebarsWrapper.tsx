@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import type { ToCData } from '../../lib/tableOfContents';
+import type { ToCData, ToCSection } from '../../lib/tableOfContents';
 
 // Context used to share a reference used to share the table of contents
 // between the ToC itself, and the Header. The Header uses the ToC to change
@@ -10,7 +10,7 @@ import type { ToCData } from '../../lib/tableOfContents';
 //
 // The reference is to a function setToC, which puts the ToC in the state of
 // Layout.
-type ToCWithTitle = {title: string, sectionData: ToCData};
+type ToCWithTitle = {title: string, sections: ToCSection[]};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
   tocVisible: boolean,

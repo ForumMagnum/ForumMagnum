@@ -26,6 +26,14 @@ export interface ToCSection {
   anchor: string,
   level: number,
   divider?: boolean,
+
+  /**
+   * If the ToC was computed client-side using a real DOM (as opposed to using
+   * an HTML string and something like `cheerio`), and this is a section with a
+   * section heading, a reference to the section heading for this section.
+   * Otherwise undefined.
+   */
+  elementRef?: HTMLElement
   
   /**
    * The y-position of the anchor that corresponds to this ToC entry, relative
@@ -95,12 +103,11 @@ const headingSelector = _.keys(headingTags).join(",");
  *     ]
  *   }
  */
-export function extractTableOfContents({
-  document,
-  window,
-}: {
-  document: Document;
-  window: WindowType;
+export function extractTableOfContents({ document, rootElement, window, includeElementRefs=false }: {
+  document: Document
+  rootElement?: HTMLElement,
+  window: WindowType
+  includeElementRefs?: boolean
 }): ToCData | null {
   if (!document.body.innerHTML) return null;
 
@@ -109,7 +116,7 @@ export function extractTableOfContents({
 
   // First, find the headings in the document, create a linear list of them,
   // and insert anchors at each one.
-  let headingElements = document.querySelectorAll(headingSelector);
+  let headingElements = (rootElement ?? document).querySelectorAll(headingSelector);
   for (const element of Array.from(headingElements)) {
     if (!(element instanceof window.HTMLElement)) {
       continue;
@@ -130,11 +137,15 @@ export function extractTableOfContents({
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
       element.id = anchor;
-      headings.push({
+      const tocSection = {
         title: title,
         anchor: anchor,
         level: tagToHeadingLevel(tagName),
-      });
+        ...(includeElementRefs && {
+          elementRef: element,
+        })
+      }
+      headings.push(tocSection);
     }
   }
 

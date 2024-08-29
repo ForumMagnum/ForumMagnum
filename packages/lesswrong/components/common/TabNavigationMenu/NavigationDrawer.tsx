@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import SwipeableDrawer from '@material-ui/core/SwipeableDrawer';
 import classNames from 'classnames';
-import type { ToCData } from '../../../lib/tableOfContents';
+import type { ToCSection } from '../../../lib/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   paperWithoutToC: {
@@ -51,15 +51,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
+const NavigationDrawer = ({open, handleOpen, handleClose, tocSections, classes}: {
   open: boolean,
   handleOpen: () => void,
   handleClose: () => void,
-  toc: ToCData|null,
+  tocSections: ToCSection[]|null,
   classes: ClassesType,
 }) => {
   const { TabNavigationMenu, TabNavigationMenuCompressed } = Components
-  const showToc = toc && toc.sections
+  const showToc = !!tocSections;
 
   return <SwipeableDrawer
     open={open}
@@ -79,7 +79,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
       </div>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
-          tocSections={toc.sections}
+          tocSections={tocSections}
           title={null}
           onClickSection={() => handleClose()}
         />

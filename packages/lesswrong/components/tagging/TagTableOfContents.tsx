@@ -40,7 +40,7 @@ const TagTableOfContents = ({tag, expandAll, showContributors, onHoverContributo
   return (
     <span className={classes.tableOfContentsWrapper}>
       <TableOfContents
-        sectionData={tag.tableOfContents}
+        sections={tag.tableOfContents?.sections}
         title={tag.name}
         onClickSection={expandAll}
         displayOptions={displayOptions}

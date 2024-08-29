@@ -60,7 +60,7 @@ function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[
       sectionHeaderIds.add(id);
     }
   }
-  const filteredSections = sections.filter(section => sectionHeaderIds.has(section.anchor));
+  const filteredSections = sections.filter(section => section.elementRef || sectionHeaderIds.has(section.anchor));
 
   // Measure the post contents container (distinct from the post body container,
   // in that it doesn't include the title and metadata).
@@ -69,7 +69,7 @@ function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[
 
   // Measure the vertical position of each anchor
   const sectionsWithOffsets = filteredSections.map((section) => {
-    const anchor = document.getElementById(section.anchor);
+    const anchor = section.elementRef ?? document.getElementById(section.anchor);
     if (anchor) {
       return {
         ...section,
@@ -287,7 +287,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }, [])
 
   useEffect(() => {
-    const postContent = document.getElementById('postContent');
+    const postContent = getPostBodyElement();
     if (!postContent) return;
     const newNormalizedSections = getSectionsWithOffsets(postContent, filteredSections);
 
@@ -383,8 +383,12 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   </div>
 }
 
+function getPostBodyElement() {
+  return document.getElementById('postBody') ?? document.getElementsByClassName("input-contents")?.[0];
+}
+
 async function waitForAllPostImagesToLoad() {
-  const postBody = document.getElementById('postBody');
+  const postBody = getPostBodyElement();
   if (!postBody) return;
   const postImages = Array.from(postBody.getElementsByTagName('img'));
 

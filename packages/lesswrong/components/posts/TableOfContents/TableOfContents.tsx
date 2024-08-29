@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { SidebarsContext } from '../../common/SidebarsWrapper';
-import type { ToCData } from '../../../lib/tableOfContents';
+import type { ToCSection } from '../../../lib/tableOfContents';
 import type { ToCDisplayOptions } from './TableOfContentsList';
 
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const TableOfContents = ({sectionData, title, onClickSection, displayOptions, fixedPositionToc = false, hover, commentCount, answerCount}: {
-  sectionData: ToCData,
+const TableOfContents = ({sections, title, onClickSection, displayOptions, fixedPositionToc = false, hover, commentCount, answerCount}: {
+  sections: ToCSection[],
   title: string,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
@@ -23,21 +23,21 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, fi
 
   useEffect(() => {
     if (setToC) {
-      setToC({title, sectionData});
+      setToC({title, sections});
     }
     
     return () => {
       if (setToC)
         setToC(null);
     }
-  }, [title, sectionData, setToC]);
+  }, [title, sections, setToC]);
 
-  const displayToc = toc ?? {title, sectionData}
+  const displayToc = toc ?? {title, sections}
 
   if (fixedPositionToc) {
     return (
       <Components.FixedPositionToC
-        tocSections={displayToc.sectionData.sections}
+        tocSections={displayToc.sections}
         title={title}
         onClickSection={onClickSection}
         displayOptions={displayOptions}
@@ -50,7 +50,7 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, fi
 
   return (
     <Components.TableOfContentsList
-      tocSections={sectionData.sections}
+      tocSections={sections}
       title={title}
       onClickSection={onClickSection}
       displayOptions={displayOptions}

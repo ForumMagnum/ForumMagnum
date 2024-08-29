@@ -292,7 +292,7 @@ export const EditorFormComponent = ({
   const wrappedSetContents = useStabilizedCallback((change: EditorChangeEvent) => {
     const {contents: newContents, autosave} = change;
     if (dynamicTableOfContents && editableFieldOptions.hasToc) {
-      dynamicTableOfContents.setToc(change.contents);
+      dynamicTableOfContents.tocChanged(change.contents);
     }
     setContents(newContents);
     
@@ -334,7 +334,7 @@ export const EditorFormComponent = ({
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
     if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
-      dynamicTableOfContents.setToc(contents);
+      dynamicTableOfContents.tocChanged(contents);
       hasGeneratedFirstToC.current.generated = true;
     }
   }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);

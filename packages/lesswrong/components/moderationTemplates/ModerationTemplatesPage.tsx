@@ -62,20 +62,17 @@ export const ModerationTemplatesPage = ({classes}: {
     }
   }
 
-  const sectionData = {
-    html: "",
-    sections: [
-      ...nonDeletedTemplates.map(template => 
-        ({
-        title: template.name,
-        anchor: template._id,
-        level: 1
-      }))
-    ],
-  }
+  const sections = [
+    ...nonDeletedTemplates.map(template => 
+      ({
+      title: template.name,
+      anchor: template._id,
+      level: 1
+    }))
+  ];
 
   return <ToCColumn tableOfContents={<TableOfContents
-    sectionData={sectionData}
+    sections={sections}
     title={"Moderation Templates"}
   />}>
     <SingleColumnSection>
