@@ -330,20 +330,24 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
     .filter(([, isSelected]) => isSelected)
     .map(([id]) => id);
 
+  console.log({selectedIds})
+
   const selectedPosts = selectedIds.filter(
     (id) =>
-      posts?.some((post: PostsListWithVotes) => post._id === id) ??
+      posts?.some((post: PostsListWithVotes) => post._id === id) ||
       featuredAuthors.some((author) =>
         authorContent[author.userId]?.posts?.some((post: PostsListWithVotes) => post._id === id),
       ),
   );
   const selectedComments = selectedIds.filter(
     (id) =>
-      comments?.some((comment: CommentsList) => comment._id === id) ??
+      comments?.some((comment: CommentsList) => comment._id === id) ||
       featuredAuthors.some((author) =>
         authorContent[author.userId]?.comments?.some((comment: CommentsList) => comment._id === id),
       ),
   );
+
+  console.log({selectedPosts, selectedComments})
 
   localStorage.setItem("selectedTrainingPosts", JSON.stringify(selectedPosts));
   localStorage.setItem("selectedTrainingComments", JSON.stringify(selectedComments));

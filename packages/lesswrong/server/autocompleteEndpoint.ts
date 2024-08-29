@@ -9,6 +9,7 @@ import { Readable } from 'stream';
 import { pipeline } from 'stream/promises'
 import { hyperbolicApiKey } from "@/lib/instanceSettings";
 import { runFragmentQuery } from "./vulcan-lib/query";
+import Users from "@/lib/vulcan-users";
 
 
 
@@ -44,7 +45,7 @@ const getPostReplyMessageFormatted = (post: PostsForAutocomplete, currentUser: D
   return `${getPostBodyFormatted(post)}
 ---
 Comment on ${post.title}
-${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.35) * 100)}
 ${prefix}`.trim();
 }
 
@@ -65,7 +66,7 @@ async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],
-  currentUser: any,
+  user: DbUser,
   context: ResolverContext,
   replyingCommentId?: string,
   postId?: string
@@ -139,7 +140,7 @@ async function constructMessageHistory(
       throw new Error("Comment not found");
     }
     const replyingToComment = replyingToCommentResponse[0];
-    const message = getCommentReplyMessageFormatted(replyingToComment, prefix, currentUser)
+    const message = getCommentReplyMessageFormatted(replyingToComment, prefix, user)
 
     messages.push({
       role: "assistant",
@@ -168,7 +169,7 @@ async function constructMessageHistory(
       content: [
         {
           type: "text",
-          text: getPostReplyMessageFormatted(post, currentUser, prefix)
+          text: getPostReplyMessageFormatted(post, user, prefix)
         },
       ],
     });
@@ -185,6 +186,7 @@ async function constructMessageHistory(
     });
   }
 
+  console.log({ messages, contents: messages.map(m => JSON.stringify(m.content)) });
   return messages;
 }
 
@@ -192,7 +194,7 @@ async function construct405bPrompt(
   prefix: string,
   commentIds: string[],
   postIds: string[],
-  currentUser: any,
+  user: DbUser,
   context: ResolverContext,
   replyingCommentId?: string,
   postId?: string
@@ -233,7 +235,7 @@ async function construct405bPrompt(
     }
     const replyingToComment = replyingToCommentResponse[0];
 
-    finalSection = getCommentReplyMessageFormatted(replyingToComment, prefix, currentUser)    
+    finalSection = getCommentReplyMessageFormatted(replyingToComment, prefix, user)    
   } else if (postId) {
     const postResponse = await runFragmentQuery({
       collectionName: "Posts",
@@ -246,7 +248,7 @@ async function construct405bPrompt(
     }
     const post = postResponse[0];
 
-    finalSection = getPostReplyMessageFormatted(post, currentUser, prefix)
+    finalSection = getPostReplyMessageFormatted(post, user, prefix)
   } else {
     finalSection = `${prefix}`
   }
@@ -277,7 +279,8 @@ export function addAutocompleteEndpoint(app: Express) {
 
       const client = getAnthropicPromptCachingClientOrThrow();
 
-      const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId, userId } = req.body;
+      const user = userId ? await Users.findOne({ _id: userId}) : undefined;
 
       // Set headers for streaming response
       res.writeHead(200, {
@@ -294,7 +297,7 @@ export function addAutocompleteEndpoint(app: Express) {
           prefix,
           commentIds,
           postIds,
-          currentUser,
+          user ?? currentUser,
           context,
           replyingCommentId,
           postId
@@ -339,7 +342,9 @@ export function addAutocompleteEndpoint(app: Express) {
         throw new Error("Claude Completion is for admins only");
       }
   
-      const { prefix = '', commentIds, postIds, replyingCommentId, postId } = req.body;
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId, userId } = req.body;
+      const user = userId ? await Users.findOne({ _id: userId}) : undefined;
+
       // Set headers for streaming response
       res.writeHead(200, {
         "Content-Type": "text/event-stream",
@@ -361,7 +366,7 @@ export function addAutocompleteEndpoint(app: Express) {
             prefix,
             commentIds,
             postIds,
-            currentUser,
+            user ?? currentUser,
             context,
             replyingCommentId,
             postId
