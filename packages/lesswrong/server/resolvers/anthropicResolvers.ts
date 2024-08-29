@@ -406,7 +406,7 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
 export function addLlmChatEndpoint(app: Express) {
   app.use("/api/sendLlmChat", express.json());
   app.post("/api/sendLlmChat", async (req, res) => {
-    const context = await getContextFromReqAndRes(req, res);
+    const context = await getContextFromReqAndRes({req, res, isSSR: false});
     const currentUser = context.currentUser;
     if (!userHasLlmChat(currentUser)) {
       throw new Error('Only admins and authorized users can use Claude chat at present');
