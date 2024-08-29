@@ -286,7 +286,6 @@ export const ChatInterface = ({classes}: {
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
-  const lengthOfMostRecentMessage = currentConversation?.messages.slice(-1)[0]?.content.length
 
   const { flash } = useMessages();
 
@@ -295,13 +294,54 @@ export const ChatInterface = ({classes}: {
   const { pathname } = location;
   const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
 
-  const messagesRef = useRef<HTMLDivElement>(null)
-  // useEffect to scroll to bottom of chat history after new message is added or most recent message is updated (because of streaming)
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const lastMessageLengthRef = useRef(0);
+  const previousMessagesLengthRef = useRef(0);
+
+  // Scroll to bottom when new messages are added or the content of the last message grows due to streaming
   useEffect(() => {
-    if (messagesRef.current) {
-      messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
+    const messages = currentConversation?.messages ?? [];
+    const currentMessagesLength = messages.length;
+
+    const scrollToBottom = (behavior: 'auto' | 'smooth' = 'auto') => {
+      if (messagesRef.current) {
+        messagesRef.current.scrollTo({ 
+          top: messagesRef.current.scrollHeight, 
+          behavior 
+        });
+      }
+    };
+
+    const scrollToBottomIfNearBottom = () => {
+      if (messagesRef.current) {
+        const { scrollHeight, scrollTop, clientHeight } = messagesRef.current;
+        const scrollThreshold = clientHeight * 0.2; // 20% of the visible area
+        const isScrolledNearBottom = scrollHeight - scrollTop <= clientHeight + scrollThreshold;
+
+        if (isScrolledNearBottom) {
+          scrollToBottom('smooth');
+        }
+      }
+    };
+
+    // New message added
+    if (currentMessagesLength > previousMessagesLengthRef.current) {
+      scrollToBottom();
+      previousMessagesLengthRef.current = currentMessagesLength;
+    } 
+    // Content of the last message changed (e.g., streaming)
+    else if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      const currentLastMessageLength = lastMessage.content.length;
+
+      if (currentLastMessageLength !== lastMessageLengthRef.current) {
+        lastMessageLengthRef.current = currentLastMessageLength;
+        
+        // Delay scroll check slightly to allow for content update
+        setTimeout(scrollToBottomIfNearBottom, 100);
+      }
     }
-  }, [currentConversation?.messages.length, lengthOfMostRecentMessage]);
+  }, [currentConversation?.messages]);
 
   const [cookies, setCookies] = useCookiesWithConsent([HIDE_LLM_CHAT_GUIDE_COOKIE])
   const showGuide = cookies[HIDE_LLM_CHAT_GUIDE_COOKIE] !== "true";
