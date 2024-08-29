@@ -75,6 +75,23 @@ const schema: SchemaType<"LlmConversations"> = {
     canUpdate: [userOwns, "admins"], 
     ...schemaDefaultValue(false),
   },
-}
+  // Word count not calculated via same means used elsewhere, but is only a rough idea
+  approxWordCount: resolverOnlyField({
+    type: Number,
+    nullable: false,
+    canRead: [userOwns, "admins"],
+    resolver: async (document, args, context) => {
+      const { LlmMessages } = context;
+      const messages = await LlmMessages.find({conversationId: document._id}, {projection: {content: 1}}).fetch();
+      return Math.round(messages.reduce((acc, message) => acc + message.content.length, 0)/6);
+    },
+    sqlResolver: ({field}) => `(
+    SELECT ROUND(SUM(LENGTH(lm."content"))/6)
+    FROM "LlmMessages" lm
+    WHERE lm."conversationId" = ${field("_id")}
+    )`
+  }),
+};
+
 
 export default schema;

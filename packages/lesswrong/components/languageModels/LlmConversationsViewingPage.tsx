@@ -52,13 +52,13 @@ const styles = (theme: ThemeType) => ({
   conversationRowSelected: {
     backgroundColor: theme.palette.grey[300],
   },
-  conversationRowLeftAligned: {
+  conversationRowGroup: {
     display: "flex",
     alignItems: "center",
   },
   conversationRowUsername: {
     ...theme.typography.commentStyle,
-    width: 100,
+    width: 90,
     fontWeight: 400,
     fontSize: "0.95rem",
     marginRight: 10,
@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   },
   conversationRowTitle: {
     ...theme.typography.commentStyle,
-    maxWidth: 450,
+    maxWidth: 375,
     fontWeight: 500,
     fontSize: "1.15rem",
     overflow: "hidden",
@@ -82,11 +82,20 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 400,
     fontSize: "0.9rem",
     opacity: 0.8
-  }
+  },
+  conversationRowWordCount: {
+    ...theme.typography.commentStyle,
+    padding: 2,
+    fontWeight: 400,
+    fontSize: "0.9rem",
+    fontStyle: "italic",
+    opacity: 0.7,
+    marginRight: 10,
+  },
 });
 
 const LlmConversationRow = ({conversation, currentConversationId, setCurrentConversationId, classes}: {
-  conversation: LlmConversationsWithUserInfoFragment
+  conversation: LlmConversationsViewingPageFragment
   currentConversationId?: string
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
@@ -98,11 +107,14 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
     className={classNames(classes.conversationRow, {[classes.conversationRowSelected]: isCurrentlySelected})}
     onClick={()=> setCurrentConversationId(conversation._id)}
     >
-    <span className={classes.conversationRowLeftAligned}>
+    <span className={classes.conversationRowGroup}>
       <span className={classes.conversationRowUsername}>{userGetDisplayName(user)}</span>
       <span className={classes.conversationRowTitle}>{title}</span>
     </span>
-    <span className={classes.conversationRowNumLastUpdated}><Components.FormatDate date={lastUpdatedAt ?? createdAt}/></span>
+    <span className={classes.conversationRowGroup}>
+      <span className={classes.conversationRowWordCount}>{conversation.approxWordCount} words</span>
+      <span className={classes.conversationRowNumLastUpdated}><Components.FormatDate date={lastUpdatedAt ?? createdAt}/></span>
+    </span>
   </div>
 }
 
@@ -115,7 +127,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
 }) => {
   const { results, loading } = useMulti({
     collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsWithUserInfoFragment",
+    fragmentName: "LlmConversationsViewingPageFragment",
     terms: { view: "llmConversationsAll" },
     limit: 200,
   });

@@ -12,8 +12,9 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment LlmConversationsWithUserInfoFragment on LlmConversation {
+  fragment LlmConversationsViewingPageFragment on LlmConversation {
     ...LlmConversationsFragment
+    approxWordCount
     user {
       ...UsersMinimumInfo
     }
