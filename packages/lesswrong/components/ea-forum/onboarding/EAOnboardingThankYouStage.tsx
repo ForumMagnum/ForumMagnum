@@ -38,13 +38,6 @@ const styles = (theme: ThemeType) => ({
       flexGrow: 1,
     },
   },
-  interviewSection: {
-    background: 'none',
-    borderTop: theme.palette.border.normal,
-    borderRadius: 0,
-    padding: '24px 0 0',
-    marginTop: 24,
-  },
   heading: {
     color: theme.palette.grey[1000],
     fontSize: 14,
@@ -54,14 +47,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: 14,
     fontWeight: 500,
-  },
-  interviewDescription: {
-    color: theme.palette.grey[600],
-    fontSize: 13,
-    lineHeight: '140%',
-    fontWeight: 500,
-    textWrap: 'pretty',
-    marginTop: 4,
   },
   toggle: {
     [theme.breakpoints.down("xs")]: {
@@ -77,18 +62,6 @@ const styles = (theme: ThemeType) => ({
         flexBasis: "50%",
       },
     },
-  },
-  interviewButtonWrapper: {
-    flex: 'none',
-    [theme.breakpoints.down("xs")]: {
-      alignSelf: 'center',
-      marginTop: 8,
-    },
-  },
-  interviewButton: {
-    fontWeight: 600,
-    textDecoration: 'none !important',
-    padding: '12px 16px',
   },
   footer: {
     textAlign: 'center',
@@ -189,21 +162,6 @@ export const EAOnboardingThankYouStage = ({classes}: {
           <div className={classes.podcasts}>
             <EAOnboardingPodcast podcast={getPodcastDataByName("Spotify")} />
             <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
-          </div>
-        </div>
-        <div className={classNames(classes.section, classes.interviewSection, classes.mobileColumn)}>
-          <div>
-            <div className={classes.heading}>
-              Sign up for a user interview
-            </div>
-            <div className={classes.interviewDescription}>
-              We’d love to learn why you joined and how you got involved with EA. We’ll also answer any questions you have.
-            </div>
-          </div>
-          <div className={classes.interviewButtonWrapper}>
-            <EAButton href="https://savvycal.com/cea/forum-team" target="_blank" rel="noreferrer" style="grey" className={classes.interviewButton}>
-              Book a call
-            </EAButton>
           </div>
         </div>
       </div>
