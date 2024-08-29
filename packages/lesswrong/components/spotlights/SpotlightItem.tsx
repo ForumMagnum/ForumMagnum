@@ -294,6 +294,18 @@ const styles = (theme: ThemeType) => ({
     textAlign: "right",
     paddingTop: 6,
     paddingBottom: 12
+  },
+  splashImage: {
+    transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
+    filter: "brightness(1.2)",
+  },
+  splashImageContainer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
   }
 });
 
@@ -384,6 +396,7 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
+        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}><img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/></div>}
         {spotlight.spotlightImageId && <CloudinaryImage2
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}

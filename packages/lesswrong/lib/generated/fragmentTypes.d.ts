@@ -3641,11 +3641,13 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly headerTitleRightColor: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
+  readonly deletedDraft: boolean,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
   readonly imageFadeColor: string | null,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageUrl: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -3654,7 +3656,9 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageUrl: string | null,
   readonly draft: boolean,
+  readonly deletedDraft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,

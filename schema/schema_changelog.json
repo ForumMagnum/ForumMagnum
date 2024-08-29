@@ -738,5 +738,10 @@
     "acceptsSchemaHash": "3da0f2961c017b248168aeaa90955305",
     "acceptedByMigration": "20240828T230839.update_userId_type_on_LlmConversations.ts",
     "timestamp": "2024-08-28T23:08:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "793addca611706caf3f63f08a909d4ab",
+    "acceptedByMigration": "20240829T030437.add_deletedDraft_and_splash_url_to_spotlights.ts",
+    "timestamp": "2024-08-29T03:04:37.000Z"
   }
 ]
