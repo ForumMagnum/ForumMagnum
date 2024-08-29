@@ -85,9 +85,9 @@ const schema: SchemaType<"LlmConversations"> = {
       return messages.reduce((acc, message) => acc + message.content.length, 0);
     },
     sqlResolver: ({field}) => `(
-    SELECT SUM(LENGTH(lm."content"))
-    FROM "LlmMessages" lm
-    WHERE lm."conversationId" = ${field("_id")}
+      SELECT SUM(LENGTH(lm."content"))
+      FROM "LlmMessages" lm
+      WHERE lm."conversationId" = ${field("_id")}
     )`
   }),
 };
