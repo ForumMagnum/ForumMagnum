@@ -1,6 +1,5 @@
 import uniq from "lodash/uniq";
 import uniqBy from "lodash/uniqBy";
-import { defineMutation } from "../utils/serverGraphqlUtil";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
@@ -9,31 +8,14 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { sendSseMessageToUser } from "../serverSentEvents";
-import { LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage } from "@/components/hooks/useUnreadNotifications";
-import { createMutator, runFragmentQuery } from "../vulcan-lib";
+import { ClientMessage, LlmCreateConversationMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
+import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
 import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
+import express, { Express } from "express";
 
-const ClientMessage = `input ClientLlmMessage {
-  conversationId: String
-  userId: String!
-  content: String!
-}`
-
-const PromptContextOptions = `input PromptContextOptions {
-  postId: String
-  useRag: Boolean
-  includeComments: Boolean
-}`
-
-interface ClientMessage {
-  conversationId: string | null
-  userId: string
-  content: string
-}
 
 // If present, use to construct context
 interface PromptContextOptions {
@@ -107,13 +89,13 @@ async function getQueryContextDecision(query: string, currentPost: PostsPage | n
       { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
       { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
     ],
-    tools: [contextSelectionTool]
+    tools: [contextSelectionTool],
   });
 
   const rawArguments = toolUseResponse.choices[0]?.message.tool_calls?.[0]?.function?.arguments;
   if (!rawArguments) {
     // eslint-disable-next-line no-console
-    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse });
+    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
     return 'error';
   }
 
@@ -203,7 +185,7 @@ function getPostContextMessage(postsLoadedIntoContext: PostsPage[], currentPost:
   return message;
 }
 
-function sendNewConversationEvent(conversationContext: ConversationContext, conversation: DbLlmConversation, currentUser: DbUser) {
+async function sendNewConversationEvent(conversationContext: ConversationContext, conversation: DbLlmConversation, currentUser: DbUser, sendEventToClient: (event: LlmStreamMessage) => Promise<void>) {
   if (conversationContext.type === 'new') {
     const newConversationEvent: LlmCreateConversationMessage = {
       eventType: 'llmCreateConversation',
@@ -214,53 +196,36 @@ function sendNewConversationEvent(conversationContext: ConversationContext, conv
       channelId: conversationContext.newConversationChannelId,
     };
 
-    sendSseMessageToUser(currentUser._id, newConversationEvent);
+    await sendEventToClient(newConversationEvent);
   }
 }
 
-async function getPreviousUserMessageData(message?: DbLlmMessage): Promise<LlmStreamContentMessage['data']['previousUserMessage']> {
-  if (!message || message.role !== 'user') {
-    return undefined;
-  }
-
-  const { _id, content, role, userId, createdAt } = message;
-
-  const parsedContent = await markdownToHtml(content);
-
-  return {
-    _id,
-    content: parsedContent,
-    role,
-    userId,
-    createdAt: createdAt.toISOString()
-  };
-}
-
-async function sendStreamContentEvent(conversationId: string, messageBuffer: string, currentUser: DbUser, lastUserMessage?: DbLlmMessage) {
-  const [previousUserMessage, parsedMessageBuffer] = await Promise.all([
-    getPreviousUserMessageData(lastUserMessage),
-    markdownToHtml(messageBuffer)
-  ]);
+// TODO: we don't need to send the last user message since we've switched away from sending to all tabs/sessions
+async function sendStreamContentEvent({conversationId, messageBuffer, sendEventToClient}: {
+  conversationId: string,
+  messageBuffer: string,
+  sendEventToClient: (event: LlmStreamMessage) => Promise<void>
+}) {
+  const parsedMessageBuffer = await markdownToHtml(messageBuffer);
 
   const streamContentEvent: LlmStreamContentMessage = {
     eventType: 'llmStreamContent',
     data: {
       content: parsedMessageBuffer,
-      previousUserMessage,
       conversationId,
     },
   };
 
-  sendSseMessageToUser(currentUser._id, streamContentEvent);
+  await sendEventToClient(streamContentEvent);
 }
 
-function sendStreamEndEvent(conversationId: string, currentUser: DbUser) {
+async function sendStreamEndEvent(conversationId: string, sendEventToClient: (event: LlmStreamMessage) => Promise<void>) {
   const streamEndEvent: LlmStreamEndMessage = {
     eventType: 'llmStreamEnd',
     data: { conversationId },
   };
 
-  sendSseMessageToUser(currentUser._id, streamEndEvent);
+  await sendEventToClient(streamEndEvent);
 }
 
 function convertMessageRoleForClaude(role: LlmVisibleMessageRole) {
@@ -292,7 +257,9 @@ function isClaudeAllowableMessage<T extends { role: DbLlmMessage['role'], conten
   return llmVisibleMessageRoles.has(message.role);
 }
 
-async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser }: SendMessagesToClaudeArgs) {
+async function sendMessagesToClaude({ previousMessages, newMessages, conversationId, model, currentUser, sendEventToClient }: SendMessagesToClaudeArgs & {
+  sendEventToClient: (event: LlmStreamMessage) => Promise<void>
+}) {
   const promptCachingClient = getAnthropicPromptCachingClientOrThrow();
 
   const conversationMessages = [...previousMessages, ...newMessages];
@@ -308,16 +275,8 @@ async function sendMessagesToClaude({ previousMessages, newMessages, conversatio
 
   let buffer = '';
   stream.on('text', (text) => {
-    const isFirstChunk = buffer === '';
-    const includePreviousUserMessage = isFirstChunk && previousMessages.length > 0;
-
-    const previousUserMessage = includePreviousUserMessage
-      ? newMessages[0]
-      : undefined;
-
     buffer += text;
-
-    void sendStreamContentEvent(conversationId, buffer, currentUser, previousUserMessage);
+    void sendStreamContentEvent({conversationId, messageBuffer: buffer, sendEventToClient});
   });
 
   const finalMessage = await stream.finalMessage();
@@ -443,24 +402,21 @@ async function prepareMessagesForConversation({ newMessage, conversationId, cont
   };
 }
 
-defineMutation({
-  name: 'sendClaudeMessage',
-  schema: `${ClientMessage}\n${PromptContextOptions}`,
-  argTypes: '(newMessage: ClientLlmMessage!, promptContextOptions: PromptContextOptions!, newConversationChannelId: String)',
-  resultType: 'JSON',
-  fn: async (_, { newMessage, promptContextOptions, newConversationChannelId }: {
-    newMessage: ClientMessage,
-    promptContextOptions: PromptContextOptions,
-    title: string | null,
-    newConversationChannelId: string | null
-  }, context) => {
-    const { currentUser } = context;
-    const { postId: currentPostId } = promptContextOptions
 
+export function addLlmChatEndpoint(app: Express) {
+  app.use("/api/sendLlmChat", express.json());
+  app.post("/api/sendLlmChat", async (req, res) => {
+    const context = await getContextFromReqAndRes(req, res);
+    const currentUser = context.currentUser;
     if (!userHasLlmChat(currentUser)) {
       throw new Error('Only admins and authorized users can use Claude chat at present');
     }
-
+    
+    const newMessage: ClientMessage = req.body.newMessage;
+    const promptContextOptions: PromptContextOptions = req.body.promptContextOptions;
+    const newConversationChannelId: string = req.body.newConversationChannelId;
+    const { postId: currentPostId } = promptContextOptions
+    
     if (!newConversationChannelId && !newMessage.conversationId) {
       throw new Error('Message must either be part of an existing conversation, or a new conversation channel id needs to be provided');
     }
@@ -520,9 +476,14 @@ defineMutation({
       createNewMessagesSequentiallyPromise,
     ]);
 
+    res.status(200);
+    async function sendEventToClient(event: LlmStreamMessage): Promise<void> {
+      res.write("data: " + JSON.stringify(event) + "\n\n");
+    }
+
     // TODO: figure out if we can relocate this to be earlier by fixing the thing on the client where we refetch the latest conversation
     // which will be missing the latest messages, if we haven't actually inserted them into the database (which we do above)
-    sendNewConversationEvent(conversationContext, conversation, currentUser);
+    await sendNewConversationEvent(conversationContext, conversation, currentUser, sendEventToClient);
     
     const claudeResponse = await sendMessagesToClaude({
       previousMessages,
@@ -531,6 +492,7 @@ defineMutation({
       model,
       currentUser,
       context,
+      sendEventToClient
     });
 
     await createMutator({
@@ -539,10 +501,11 @@ defineMutation({
       context,
       currentUser,
     });
-
-    sendStreamEndEvent(conversationId, currentUser);
-  }
-})
+    
+    await sendStreamEndEvent(conversationId, sendEventToClient);
+    res.end();
+  });
+}
 
 
 // defineMutation({
@@ -607,5 +570,3 @@ defineMutation({
 //     return []
 //   }
 // })
-
-

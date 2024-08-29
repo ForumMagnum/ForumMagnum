@@ -16,6 +16,7 @@ import { mentionPluginConfiguration } from '@/lib/editor/mentionsConfig';
 import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { AnalyticsContext } from '@/lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,24 +34,47 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
   },
   editor: {
-    minHeight: 100,
+    minHeight: 60,
     '& .ck.ck-content': {
-      minHeight: 100,
+      minHeight: 60,
     },
     ...ckEditorStyles(theme),
+    overflowY: 'scroll',
+    paddingLeft: 20,
+    paddingTop: 20,
+    fontSize: '1.1rem',
+    '& blockquote, & li': {
+      fontSize: '1.1rem'
+    }
   },
   inputTextbox: {
-    padding: 16,
     margin: 10,
     marginTop: 20,
     borderRadius: 4,
-    minHeight: 100,
-    maxHeight: 200,
+    maxHeight: "40vh",
     backgroundColor: theme.palette.panelBackground.commentNodeEven,
-    overflow: 'scroll',
+    overflowY: 'hidden',
+    overflowX: 'hidden',
     flexGrow: 0,
     flexShrink: 0,
     flexBasis: "auto",
+    display: "flex",
+    flexDirection: "column",
+  },
+  submitButton:{
+    width: "fit-content",
+    fontSize: "16px",
+    color: theme.palette.lwTertiary.main,
+    marginLeft: "5px",
+    "&:hover": {
+      opacity: .5,
+      backgroundColor: "none",
+    },
+  },
+  editorButtons: {
+    display: "flex",
+    justifyContent: "flex-end",
+    padding: "10px",
   },
   welcomeGuide: {
     margin: 10,
@@ -116,7 +140,7 @@ const styles = (theme: ThemeType) => ({
   },
   loadingSpinner: {
     marginTop: 10
-  }
+  },
 });
 
 interface LlmConversationMessage {
@@ -158,6 +182,12 @@ const LLMInputTextbox = ({onSubmit, classes}: {
     mention: mentionPluginConfiguration,
   };
 
+  const submitEditorContentAndClear = useCallback(() => {
+    const currentEditorContent = editorRef.current?.getData();
+    currentEditorContent && void onSubmit(currentEditorContent);
+    setCurrentMessage('');
+  }, [onSubmit]);
+
   // We need to pipe through the `conversationId` and do all of this eventListener setup/teardown like this because
   // otherwise messages get submitted to whatever conversation was "current" when the editor was initially loaded
   // Running this useEffect whenever either the conversationId or onSubmit changes ensures we remove and re-attach a fresh event listener with the correct "targets"
@@ -169,9 +199,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
       if ((event.ctrlKey || event.metaKey) && event.keyCode === 13) {
         event.stopPropagation();
         event.preventDefault();
-        const currentEditorContent = editorRef.current?.getData();
-        currentEditorContent && void onSubmit(currentEditorContent);
-        setCurrentMessage('');
+        submitEditorContentAndClear();
       }
     };
   
@@ -186,7 +214,18 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         internalEditorRefInstance.removeEventListener('keydown', handleKeyDown, options);
       }
     }
-  }, [onSubmit]);
+  }, [onSubmit, submitEditorContentAndClear]);
+
+  const submitButton = <div className={classes.editorButtons}>
+    <Button
+      type='submit'
+      id='llm-submit-button'
+      className={classes.submitButton} 
+      onClick={submitEditorContentAndClear}
+    >
+      Submit
+    </Button>
+  </div>;
 
   // TODO: styling and debouncing
   return <ContentStyles className={classes.inputTextbox} contentType='comment'>
@@ -217,6 +256,7 @@ const LLMInputTextbox = ({onSubmit, classes}: {
         config={editorConfig}
       />
     </div>
+    {submitButton}
   </ContentStyles>
 }
 
@@ -242,7 +282,7 @@ const welcomeGuideHtml = [
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
+  const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
@@ -285,7 +325,7 @@ export const ChatInterface = ({classes}: {
   const messagesForDisplay = <div className={classes.messages} ref={messagesRef}>
     {llmChatGuide}
     {currentConversation?.messages.map((message, index) => (
-      <LLMChatMessage key={index} message={message} classes={classes} />
+      <LlmChatMessage key={index} message={message} />
     ))}
   </div>
 
@@ -322,7 +362,7 @@ export const ChatInterface = ({classes}: {
     renderValue={(conversationId: string) => orderedConversations.find(c => c._id === conversationId)?.title ?? NEW_CONVERSATION_MENU_ITEM}
     >
       {
-        orderedConversations.reverse().map(({ title, _id }, index) => (
+        orderedConversations.map(({ title, _id }, index) => (
           <MenuItem key={index} value={_id} className={classes.menuItem}>
             {title ?? "...Title Pending..."}
             <CloseIcon onClick={(ev) => deleteConversation(ev, _id)} className={classes.deleteConvoIcon} />
@@ -362,16 +402,21 @@ export const LanguageModelChat = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <DeferRender ssr={false}>
-    <div className={classes.root}>
-      <ChatInterface classes={classes} />
-    </div>
+    <AnalyticsContext pageSectionContext='llmChat'>
+      <div className={classes.root}>
+        <ChatInterface classes={classes} />
+      </div>
+    </AnalyticsContext>
   </DeferRender>;
 }
 
 const LanguageModelChatComponent = registerComponent('LanguageModelChat', LanguageModelChat, {styles});
 
+const LlmChatMessageComponent = registerComponent('LlmChatMessage', LLMChatMessage, {styles});
+
 declare global {
   interface ComponentTypes {
     LanguageModelChat: typeof LanguageModelChatComponent
+    LlmChatMessage: typeof LlmChatMessageComponent
   }
 }

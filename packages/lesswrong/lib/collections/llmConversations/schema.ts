@@ -1,10 +1,16 @@
 import { userHasLlmChat } from "@/lib/betas";
-import { resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users";
 
 const schema: SchemaType<"LlmConversations"> = {
   userId: {
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "userId",
+      resolverName: "user",
+      collectionName: "Users",
+      type: "User",
+      nullable: true,
+    }),
     optional: false,
     nullable: false,
     canRead: [userOwns, "admins"],
@@ -45,7 +51,7 @@ const schema: SchemaType<"LlmConversations"> = {
       return lastMessage?.createdAt ?? document.createdAt;
     },
     sqlResolver: ({field, join}) => `(
-      SELECT MAX(COALESCE(${field("createdAt")}, lm."createdAt"))
+      SELECT MAX(COALESCE(lm."createdAt", ${field("createdAt")}))
       FROM "LlmMessages" lm
       WHERE lm."conversationId" = ${field("_id")}
       GROUP BY lm."conversationId"
@@ -68,7 +74,7 @@ const schema: SchemaType<"LlmConversations"> = {
     canCreate: ["admins"],
     canUpdate: [userOwns, "admins"], 
     ...schemaDefaultValue(false),
-  }
+  },
 }
 
 export default schema;

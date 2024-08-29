@@ -12,6 +12,16 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment LlmConversationsWithUserInfoFragment on LlmConversation {
+    ...LlmConversationsFragment
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`)
+
+
+registerFragment(`
   fragment LlmConversationsWithMessagesFragment on LlmConversation {
     ...LlmConversationsFragment
     messages {

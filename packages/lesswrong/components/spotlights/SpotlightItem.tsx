@@ -153,7 +153,7 @@ const styles = (theme: ThemeType) => ({
     } : {}),
   },
   title: {
-    ...theme.typography.headerStyle,
+    ...theme.typography.postStyle,
     ...(isFriendlyUI
       ? {
         fontSize: 22,

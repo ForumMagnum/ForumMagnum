@@ -57,44 +57,7 @@ export type NotificationCheckMessage = {
   newestNotificationTime?: string // stringified date
 }
 
-type LlmStreamContent = {
-  conversationId: string;
-  content: string;
-  previousUserMessage?: {
-    _id: string;
-    content: string;
-    userId: string;
-    role: 'user';
-    /** Stringified date */
-    createdAt: string;
-  };
-};
-
-type LlmStreamEnd = {
-  conversationId: string;
-};
-
-export type LlmCreateConversationMessage = {
-  eventType: 'llmCreateConversation';
-  title: string;
-  conversationId: string;
-  /** Stringified date */
-  createdAt: string;
-  userId: string;
-  channelId: string;
-}
-
-export type LlmStreamContentMessage = {
-  eventType: 'llmStreamContent',
-  data: LlmStreamContent
-};
-
-export type LlmStreamEndMessage = {
-  eventType: 'llmStreamEnd',
-  data: LlmStreamEnd
-};
-
-export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage | LlmStreamContentMessage | LlmCreateConversationMessage | LlmStreamEndMessage;
+export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage;
 
 type EventType = ServerSentEventsMessage['eventType'];
 type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
@@ -305,9 +268,6 @@ let notificationEventListenersByType = {
   notificationCheck: [] as NotificationEventListener<'notificationCheck'>[],
   activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
   typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
-  llmCreateConversation: [] as NotificationEventListener<'llmCreateConversation'>[],
-  llmStreamContent: [] as NotificationEventListener<'llmStreamContent'>[],
-  llmStreamEnd: [] as NotificationEventListener<'llmStreamEnd'>[],
 };
 
 function getEventListenersOfType<T extends EventType>(eventType: T): NotificationEventListener<T>[] {
@@ -331,15 +291,6 @@ export function onServerSentNotificationEvent(message: ServerSentEventsMessage) 
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
     case 'typingIndicator':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
-    case 'llmCreateConversation':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
-    case 'llmStreamContent':
-      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
-      break;
-    case 'llmStreamEnd':
       listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
       break;
   }
