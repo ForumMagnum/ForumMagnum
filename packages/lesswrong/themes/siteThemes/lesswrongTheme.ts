@@ -56,7 +56,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     link: {
       color: "#327E09",
-      visited: shadePalette.grey[500],
+      visited: "#a1b73a",
     },
   }),
   make: (palette: ThemePalette) => ({
