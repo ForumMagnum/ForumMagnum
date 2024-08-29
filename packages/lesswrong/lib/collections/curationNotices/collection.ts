@@ -4,7 +4,7 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { makeEditable } from "../../editor/make_editable";
 
-export const CurationNotice: CurationNoticesCollection = createCollection({
+export const CurationNotices: CurationNoticesCollection = createCollection({
   collectionName: 'CurationNotices',
   typeName: 'CurationNotice',
   schema,
@@ -13,10 +13,10 @@ export const CurationNotice: CurationNoticesCollection = createCollection({
   logChanges: true,
 });
 
-addUniversalFields({collection: CurationNotice});
+addUniversalFields({collection: CurationNotices});
 
 makeEditable({
-  collection: CurationNotice,
+  collection: CurationNotices,
   options: {
     commentEditor: true,
     commentStyles: true,
@@ -25,4 +25,4 @@ makeEditable({
   }
 })
 
-export default CurationNotice;
+export default CurationNotices;
