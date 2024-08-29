@@ -296,7 +296,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 12
   },
   splashImage: {
-    transform: "translateX(25%)",
+    transform: "translateX(13%)",
     filter: "brightness(1.2)",
   },
   splashImageContainer: {
@@ -305,7 +305,6 @@ const styles = (theme: ThemeType) => ({
     right: 0,
     width: "100%",
     height: "100%",
-    zIndex: -1,
     overflow: "hidden",
   }
 });

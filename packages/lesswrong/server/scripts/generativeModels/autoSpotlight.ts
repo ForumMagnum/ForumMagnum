@@ -85,7 +85,8 @@ const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigation[], s
 }
 
 const getJailbreakPromptBase = ({posts, spotlights}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[]}) => {
-  let prompt = `A series of essays, each followed by a short description of the essay. The style of the short description is slightly casual. They are a single paragraph, 1-3 sentences long. Try to avoid referencing the essay or author (i.e. they don't say "the author" or "in this post" or similar), just talk about the ideas.
+  let prompt = 
+`A series of essays, each followed by a short description of the essay. The style of the short description is slightly casual. They are a single paragraph, 1-3 sentences long. Try to avoid referencing the essay or author (i.e. they don't say "the author" or "in this post" or similar), just talk about the ideas.
   
   `
 
@@ -112,17 +113,6 @@ const getSpotlightPrompt = ({post}: {post: PostsWithNavigation}) => {
   Post Contents: ${post.contents?.html}
   ---
   A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
-}
-
-const getSpotlightPrompt2 = ({post}: {post: PostsWithNavigation}) => {
-  return `
-  Post: ${post.title}
-  ---
-  Post Contents: ${post.contents?.html}
-  ---
-  First, write out three key points that the author makes.
-  Then, write "==="
-  Then, write a short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
 }
 
 // TODO: figure out what the type from the response is supposed to be and fix it
@@ -153,18 +143,6 @@ async function createSpotlights() {
       console.log({title: post.title, summary1})
       const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") 
       createSpotlight(post, reviewWinner, cleanedSummary1)
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e)
-    }
-
-    try{ 
-      const jailbreakSummary2 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt2({post}), 300)
-      const summary2 = jailbreakSummary2.content[0] as AnthropicMessageContent
-      const cleanedSummary2 = summary2.text.replace(/---|\n/g, "").split("===")[1]
-      // eslint-disable-next-line no-console
-      console.log({title: post.title, summary2})
-      createSpotlight(post, reviewWinner, cleanedSummary2)
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e)
