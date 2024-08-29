@@ -10,6 +10,7 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
+import NotesIcon from '@material-ui/icons/Notes';
 import * as _ from 'underscore';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -23,9 +24,10 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 
-const SunshineCuratedSuggestionsItem = ({classes, post}: {
+const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
   classes: ClassesType,
-  post: PostsList
+  post: PostsList,
+  setCurationPost?: (post: PostsList) => void,
 }) => {
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
@@ -111,6 +113,11 @@ const SunshineCuratedSuggestionsItem = ({classes, post}: {
           Endorsed by { post.suggestForCuratedUsernames }
         </Components.SidebarInfo>
         { hover && <Components.SidebarActionMenu>
+          { setCurationPost && 
+            <Components.SidebarAction title="Write Curation Notice" onClick={() => setCurationPost(post)}>
+              <NotesIcon/>
+            </Components.SidebarAction>
+          }
           { !post.suggestForCuratedUserIds || !post.suggestForCuratedUserIds.includes(currentUser!._id) ?
             <Components.SidebarAction title="Endorse Curation" onClick={handleSuggestCurated}>
               <PlusOneIcon/>

@@ -1,6 +1,6 @@
 // TODO: Import component in components.ts
-import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import React, { useState } from 'react';
+import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
@@ -32,13 +32,30 @@ export const CurationPage = ({classes}: {
 //     fragmentName: 'CommentsList',
 //   });
 
-  const { SunshineCuratedSuggestionsList } = Components
+  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle } = Components
+
+  const [ post, setPost ] = useState<PostsList|null>(null)
 
   return <div className={classes.root}>
 
+  <SingleColumnSection>
+    <SectionTitle title={'New Curation Notice'} />
+        <div>
+          {post &&
+          <BasicFormStyles>
+            <WrappedSmartForm
+              collectionName="CurationNotices"
+              mutationFragment={getFragment('CurationNoticesFragment')}
+              prefilledProps={{post: post}}
+            />
+          </BasicFormStyles>
+          }
+        </div>
+
+  </SingleColumnSection>
 
     {currentUser?.isAdmin && <div className={classes.curated}>
-        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold/>
+        <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold setCurationPost={setPost}/>
     </div>}
   </div>;
 }

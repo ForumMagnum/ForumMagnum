@@ -3685,9 +3685,19 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
 
 interface CurationNoticesDefaultFragment { // fragment on CurationNotices
   readonly userId: string,
-  readonly commentId: string,
+  readonly commentId: string | null,
   readonly postId: string,
   readonly deleted: boolean,
+}
+
+interface CurationNoticesFragment { // fragment on CurationNotices
+  readonly userId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly commentId: string | null,
+  readonly comment: CommentsList|null,
+  readonly postId: string,
+  readonly deleted: boolean,
+  readonly contents: RevisionEdit|null,
 }
 
 interface UserRateLimitsDefaultFragment { // fragment on UserRateLimits
@@ -4312,6 +4322,7 @@ interface FragmentTypes {
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
   CurationNoticesDefaultFragment: CurationNoticesDefaultFragment
+  CurationNoticesFragment: CurationNoticesFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
@@ -4412,7 +4423,7 @@ interface FragmentTypesByCollection {
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
-  CurationNotices: "CurationNoticesDefaultFragment"
+  CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
@@ -4661,6 +4672,7 @@ interface CollectionNamesByFragmentName {
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
   CurationNoticesDefaultFragment: "CurationNotices"
+  CurationNoticesFragment: "CurationNotices"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"

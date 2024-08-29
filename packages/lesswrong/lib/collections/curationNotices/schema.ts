@@ -27,6 +27,7 @@ const schema: SchemaType<"CurationNotices"> = {
       canRead: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
       optional: true,
+      nullable: true,
       hidden: true,
   },
   postId: {
@@ -37,7 +38,6 @@ const schema: SchemaType<"CurationNotices"> = {
       type: "Post",
       nullable: true,
     }),
-    optional: true,
     canRead: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
@@ -45,11 +45,10 @@ const schema: SchemaType<"CurationNotices"> = {
   deleted: {
     type: Boolean,
     optional: true,
+    nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
-    canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
     control: "checkbox",
-    hidden: true,
     ...schemaDefaultValue(false),
   },
 }
