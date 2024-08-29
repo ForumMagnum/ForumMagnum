@@ -91,9 +91,6 @@ const getJailbreakPromptBase = ({posts, spotlights}: {posts: PostsWithNavigation
 
   for (const post of posts) {
     const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
-    if (!spotlight) {
-      console.log("No spotlight found for post", post.title)
-    }
     prompt += `
       Post: ${post.title}
       ---
@@ -151,29 +148,27 @@ async function createSpotlights() {
 
     try {
       const jailbreakSummary1 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}), 75)
-      console.log({jailbreakSummary1})
       const summary1 = jailbreakSummary1.content[0] as AnthropicMessageContent
-      console.log(post.title, summary1)
+      // eslint-disable-next-line no-console
+      console.log({title: post.title, summary1})
       const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") 
       createSpotlight(post, reviewWinner, cleanedSummary1)
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e)
     }
-    // eslint-disable-next-line no-console
 
     try{ 
       const jailbreakSummary2 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt2({post}), 300)
-      console.log({jailbreakSummary2})
       const summary2 = jailbreakSummary2.content[0] as AnthropicMessageContent
-      console.log(post.title, summary2)
       const cleanedSummary2 = summary2.text.replace(/---|\n/g, "").split("===")[1]
+      // eslint-disable-next-line no-console
+      console.log({title: post.title, summary2})
       createSpotlight(post, reviewWinner, cleanedSummary2)
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.log(e)
     }
-
-    // // eslint-disable-next-line no-console
-
   }
 
   // eslint-disable-next-line no-console
