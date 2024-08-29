@@ -189,6 +189,15 @@ const schema: SchemaType<"Spotlights"> = {
     // Default to the epoch date if not specified
     ...schemaDefaultValue(new Date(0)),
   },
+  spotlightSplashImageUrl: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    optional: true,
+    nullable: true,
+    order: 88,
+  },
   draft: {
     type: Boolean,
     canRead: ['guests'],
@@ -241,6 +250,7 @@ const schema: SchemaType<"Spotlights"> = {
     nullable: true,
     control: "FormComponentColorPicker",
   },
+
   spotlightImageId: {
     type: String,
     canRead: ['guests'],
@@ -260,15 +270,6 @@ const schema: SchemaType<"Spotlights"> = {
     optional: true,
     nullable: true,
     order: 100,
-  },
-  spotlightSplashImageUrl: {
-    type: String,
-    canRead: ['guests'],
-    canUpdate: ['admins', 'sunshineRegiment'],
-    canCreate: ['admins', 'sunshineRegiment'],
-    optional: true,
-    nullable: true,
-    order: 110,
   },
   sequenceChapters: resolverOnlyField({
     type: Array,

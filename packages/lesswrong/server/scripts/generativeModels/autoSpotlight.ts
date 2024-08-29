@@ -114,12 +114,7 @@ const getSpotlightPrompt = ({post}: {post: PostsWithNavigation}) => {
   A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
 }
 
-// TODO: figure out what the type from the response is supposed to be and fix it
-// right now it claims "text" isn't a valid type but seems like it should be
-type AnthropicMessageContent = {
-  type: "text"
-  text: string
-}
+
 
 async function createSpotlights() {
   // eslint-disable-next-line no-console
@@ -137,11 +132,13 @@ async function createSpotlights() {
 
     try {
       const jailbreakSummary1 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}), 75)
-      const summary1 = jailbreakSummary1.content[0] as AnthropicMessageContent
+      const summary1 = jailbreakSummary1.content[0]
       // eslint-disable-next-line no-console
       console.log({title: post.title, summary1})
-      const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") 
-      createSpotlight(post, reviewWinner, cleanedSummary1)
+      if (summary1.type === "text") {
+        const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") 
+        createSpotlight(post, reviewWinner, cleanedSummary1)
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.log(e)
