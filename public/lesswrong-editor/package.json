@@ -100,5 +100,9 @@
   "eslintIgnore": [
     "build/**",
     "packages/**"
-  ]
+  ],
+  "dependencies": {
+    "markdown-it": "^14.1.0",
+    "turndown": "^7.2.0"
+  }
 }
