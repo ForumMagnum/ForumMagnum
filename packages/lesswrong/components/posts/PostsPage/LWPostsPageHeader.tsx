@@ -5,6 +5,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
+import LinkIcon from '@material-ui/icons/Link'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -109,6 +110,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   readTime: {
     marginRight: 20,
+  },
+  linkIcon: {
+    fontSize: 14,
+    position: 'relative',
+    top: 2,
+    transform: 'rotate(-45deg)'
   }
 }); 
 
@@ -141,7 +148,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
   const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
-      {linkpostDomain}
+      <LinkIcon className={classes.linkIcon}/> {linkpostDomain}
     </a>
   </LWTooltip> : null;
 
