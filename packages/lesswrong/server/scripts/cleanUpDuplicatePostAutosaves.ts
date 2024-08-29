@@ -13,7 +13,7 @@ Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
     throw new Error('Admin user id provided does not find an admin account!');
   }
 
-  const adminContext = await computeContextFromUser(adminUser);
+  const adminContext = await computeContextFromUser({user: adminUser, isSSR: false});
 
   const query = `
     WITH duplicate_posts AS (

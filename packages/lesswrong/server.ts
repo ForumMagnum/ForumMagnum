@@ -81,7 +81,7 @@ import "./server/scripts/addManualReviewArt";
 import "./server/scripts/backfillRecombee";
 import "./server/scripts/backfillGoogleVertex";
 // doesn't pass unit tests but works fine. Leaving commented out for now
-// import './server/scripts/generativeModels/autoSpotlight';
+import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
 import './server/manualMigrations';
 import './server/manualMigrations/migrationsDashboardGraphql';
@@ -188,6 +188,8 @@ import './server/resolvers/reviewWinnerResolvers';
 import './server/resolvers/googleVertexResolvers';
 import './server/resolvers/defaultResolvers';
 import './server/resolvers/forumEventResolvers';
+import './server/resolvers/anthropicResolvers';
+import './server/resolvers/llmConversationsResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

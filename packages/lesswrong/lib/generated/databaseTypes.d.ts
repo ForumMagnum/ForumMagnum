@@ -530,6 +530,31 @@ interface DbLegacyData extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type LlmConversationsCollection = CollectionBase<"LlmConversations">;
+
+interface DbLlmConversation extends DbObject {
+  __collectionName?: "LlmConversations"
+  userId: string
+  title: string
+  model: string
+  systemPrompt: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type LlmMessagesCollection = CollectionBase<"LlmMessages">;
+
+interface DbLlmMessage extends DbObject {
+  __collectionName?: "LlmMessages"
+  userId: string
+  conversationId: string
+  role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
+  content: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type LocalgroupsCollection = CollectionBase<"Localgroups">;
 
 interface DbLocalgroup extends DbObject {
@@ -856,6 +881,7 @@ interface DbPost extends DbObject {
   metaDate: Date | null
   suggestForCuratedUserIds: Array<string> | null
   frontpageDate: Date | null
+  autoFrontpage: "show" | "hide" | null
   collectionTitle: string | null
   coauthorStatuses: Array<{
     userId: string,
@@ -928,7 +954,6 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
-  hasFootnotes: boolean | null
   disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
@@ -1190,11 +1215,13 @@ interface DbSpotlight extends DbObject {
   headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
+  spotlightSplashImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null
@@ -1942,6 +1969,8 @@ interface CollectionsByName {
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
+  LlmConversations: LlmConversationsCollection
+  LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
@@ -2024,6 +2053,8 @@ interface ObjectsByCollectionName {
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversations: DbLlmConversation
+  LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
@@ -2106,6 +2137,8 @@ interface ObjectsByTypeName {
   Images: DbImages
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversation: DbLlmConversation
+  LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage

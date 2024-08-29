@@ -56,6 +56,7 @@ async function generateCandidateSetsForTagClassification(): Promise<void> {
     draft: false, status: postStatuses.STATUS_APPROVED,
     isFuture: false, unlisted: false, shortform: false, authorIsUnreviewed: false,
     question: false, isEvent: false,
+    // FIXME `contents: {$ne: null}` now throws an error due to contents being normalized
     contents: {$ne: null},
     baseScore: {$gte: 10},
     tagRelevance: {$exists: true},

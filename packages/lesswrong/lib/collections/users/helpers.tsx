@@ -478,7 +478,8 @@ export const useUserLocation = (currentUser: UsersCurrent|DbUser|null, dontAsk?:
       const ls = getBrowserLocalStorage()
       if (!currentUser && ls) {
         try {
-          const lsLocation = JSON.parse(ls.getItem('userlocation'))
+          const storedUserLocation = ls.getItem('userlocation')
+          const lsLocation = storedUserLocation ? JSON.parse(storedUserLocation) : null
           if (lsLocation) {
             return {...lsLocation, loading: false}
           }

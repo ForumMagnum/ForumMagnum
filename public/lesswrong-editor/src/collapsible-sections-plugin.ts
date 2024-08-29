@@ -1,5 +1,5 @@
 import { Command, Plugin } from '@ckeditor/ckeditor5-core';
-import { type DowncastConversionApi, Element, type Writer } from '@ckeditor/ckeditor5-engine';
+import { type DowncastConversionApi, type Element, type Writer } from '@ckeditor/ckeditor5-engine';
 import { ButtonView } from '@ckeditor/ckeditor5-ui';
 import { Widget, toWidgetEditable, toWidget } from '@ckeditor/ckeditor5-widget';
 import collapsibleSectionIcon from './collapsible-section-icon.svg';

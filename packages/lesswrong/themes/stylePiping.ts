@@ -465,14 +465,14 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     paddingRight: '0.07em'
   },
   '& a, & a:hover, & a:active': {
-    color: theme.palette.primary.main,
+    color: theme.palette.link.color ?? theme.palette.primary.main,
     '& u': {
       textDecoration: "none"
     }
   },
-  '& a:visited': isFriendlyUI ? {
-    color: theme.palette.link.visited,
-  } : {},
+  '& a:visited': {
+    color: theme.palette.link.visited
+  },
   '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},

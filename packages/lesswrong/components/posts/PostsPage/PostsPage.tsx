@@ -40,6 +40,8 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
+import { LWUserTooltipContent } from '@/components/users/LWUserTooltipContent';
+import { extractVersionsFromSemver } from '@/lib/editor/utils';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -312,7 +314,7 @@ export const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
-  subscribeToDialogue: {
+  bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
     border: theme.palette.border.commentBorder,
@@ -345,6 +347,15 @@ export const styles = (theme: ThemeType) => ({
       },
     },
   },
+  subscribeToGroup: {
+    padding: '8px 16px',
+    ...theme.typography.body2,
+  },
+  dateAtBottom: {
+    color: theme.palette.text.dim3,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -419,8 +430,8 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const ls = getBrowserLocalStorage()
   useEffect(() => {
     if (ls && hasDigests) {
-      const postReadCount = ls.getItem('postReadCount') ?? 0
-      ls.setItem('postReadCount', parseInt(postReadCount) + 1)
+      const postReadCount = ls.getItem('postReadCount') ?? '0'
+      ls.setItem('postReadCount', `${parseInt(postReadCount) + 1}`)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -531,7 +542,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
   } = Components
 
   useEffect(() => {
@@ -623,7 +634,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const onClickCommentOnSelection = useCallback((html: string) => {
     openDialog({
-      componentName:"ReplyCommentDialog",
+      componentName: "ReplyCommentDialog",
       componentProps: {
         post, initialHtml: html
       },
@@ -803,13 +814,16 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
           <div id="postContent">
-            {htmlWithAnchors &&
+            {htmlWithAnchors && <>
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
                 sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
                 voteProps={voteProps}
               />
+              {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
+              }
+              </>
             }
           </div>
           </CommentOnSelectionContentWrapper>
@@ -818,7 +832,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       </ContentStyles>}
 
       {showSubscribeToDialogueButton && <Row justifyContent="center">
-        <div className={classes.subscribeToDialogue}>
+        <div className={classes.bottomOfPostSubscribe}>
           <NotifyMeDropdownItem
             document={post}
             enabled={!!post.collabEditorDialogue}
@@ -829,6 +843,22 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           />
         </div>
       </Row>}
+
+      {post.isEvent && post.group && isBookUI &&
+          <Row justifyContent="center">
+            <div className={classes.bottomOfPostSubscribe}>
+              <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
+                <NotifyMeButton
+                    showIcon
+                    document={post.group}
+                    subscribeMessage="Subscribe to group"
+                    unsubscribeMessage="Unsubscribe from group"
+                    className={classes.subscribeToGroup}
+                />
+              </LWTooltip>
+            </div>
+          </Row>
+      }
 
       {post.debate && debateResponses && debateResponseReplies && fullPost &&
         <DebateBody
