@@ -112,7 +112,9 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
       <span className={classes.conversationRowTitle}>{title}</span>
     </span>
     <span className={classes.conversationRowGroup}>
-      <span className={classes.conversationRowWordCount}>{conversation.approxWordCount} words</span>
+      <Components.LWTooltip title="Character count" placement='top'>
+        <span className={classes.conversationRowWordCount}>{conversation.totalCharacterCount}</span>
+      </Components.LWTooltip>
       <span className={classes.conversationRowNumLastUpdated}><Components.FormatDate date={lastUpdatedAt ?? createdAt}/></span>
     </span>
   </div>

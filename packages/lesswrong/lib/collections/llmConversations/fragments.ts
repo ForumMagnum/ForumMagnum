@@ -14,7 +14,7 @@ registerFragment(`
 registerFragment(`
   fragment LlmConversationsViewingPageFragment on LlmConversation {
     ...LlmConversationsFragment
-    approxWordCount
+    totalCharacterCount
     user {
       ...UsersMinimumInfo
     }

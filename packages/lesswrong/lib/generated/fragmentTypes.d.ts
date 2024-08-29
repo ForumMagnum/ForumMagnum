@@ -4101,7 +4101,7 @@ interface LlmConversationsFragment { // fragment on LlmConversations
 }
 
 interface LlmConversationsViewingPageFragment extends LlmConversationsFragment { // fragment on LlmConversations
-  readonly approxWordCount: number|null,
+  readonly totalCharacterCount: number|null,
   readonly user: UsersMinimumInfo|null,
 }
 
