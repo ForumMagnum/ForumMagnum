@@ -46,6 +46,7 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   await postsNewNotifications(post);
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
+  await ensureNonzeroRevisionVersionsAfterUndraft(post, context);
 }
 
 if (isEAForum) {
@@ -275,12 +276,12 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
-postPublishedCallback.add(async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
   // When a post is published, ensure that the version number of its contents
   // revision does not have `draft` set or an 0.x version number (which would
   // affect permissions).
   await context.repos.posts.ensurePostHasNonDraftContents(post._id);
-});
+}
 
 interface SendPostRejectionPMParams {
   messageContents: string,

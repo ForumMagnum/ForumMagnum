@@ -2,6 +2,7 @@ import { getSchema } from "@/lib/utils/getSchema";
 import { loggerConstructor } from "@/lib/utils/logging";
 import { getAllCollections, getCollection } from "@/lib/vulcan-lib/getCollection";
 import { getCollectionHooks } from "../mutationCallbacks";
+import { elasticSyncDocument } from "../search/elastic/elasticCallbacks";
 
 
 export function addCountOfReferenceCallbacks() {
@@ -12,6 +13,11 @@ export function addCountOfReferenceCallbacks() {
       const countOfReferencesOptions = schema[fieldName].countOfReferences;
       if (!countOfReferencesOptions) {
         continue;
+      }
+      const resync = (documentId: string) => {
+        if (countOfReferencesOptions.resyncElastic) {
+          void elasticSyncDocument(collectionName, documentId);
+        }
       }
       const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
 
@@ -32,6 +38,7 @@ export function addCountOfReferenceCallbacks() {
             await collection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
           
           return newDoc;
@@ -52,6 +59,7 @@ export function addCountOfReferenceCallbacks() {
               await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
                 $inc: { [fieldName]: 1 }
               });
+              resync(newDoc[foreignFieldName]);
             }
           } else if (!filter(newDoc) && filter(oldDocument)) {
             // The old doc counted, but the new doc doesn't. Decrement on the old doc.
@@ -60,6 +68,7 @@ export function addCountOfReferenceCallbacks() {
               await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
                 $inc: { [fieldName]: -1 }
               });
+              resync(newDoc[foreignFieldName]);
             }
           } else if (filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
             denormalizedLogger(`${foreignFieldName} of ${foreignTypeName} has changed from ${oldDocument[foreignFieldName]} to ${newDoc[foreignFieldName]}`)
@@ -70,12 +79,14 @@ export function addCountOfReferenceCallbacks() {
               await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
                 $inc: { [fieldName]: -1 }
               });
+              resync(newDoc[foreignFieldName]);
             }
             if (newDoc[foreignFieldName]) {
               denormalizedLogger(`changing ${foreignFieldName} leads to increment of ${newDoc[foreignFieldName]}`)
               await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
                 $inc: { [fieldName]: 1 }
               });
+              resync(newDoc[foreignFieldName]);
             }
           }
           return newDoc;
@@ -90,6 +101,7 @@ export function addCountOfReferenceCallbacks() {
             await countingCollection.rawUpdateOne(document[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
+            resync(document[foreignFieldName]);
           }
         }
       );

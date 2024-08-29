@@ -198,6 +198,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     foreignCollectionName: CollectionNameString
     foreignFieldName: string
     filterFn?: (obj: AnyBecauseHard) => boolean
+    resyncElastic: boolean
   }
 }
 

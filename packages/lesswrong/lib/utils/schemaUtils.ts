@@ -398,7 +398,7 @@ export function denormalizedCountOfReferences<
       foreignCollectionName,
       foreignFieldName,
       filterFn,
-      resyncElastic,
+      resyncElastic: resyncElastic ?? false,
     },
   }
 }

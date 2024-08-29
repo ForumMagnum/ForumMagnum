@@ -1,5 +1,4 @@
 import { createMutator, runQuery, setOnGraphQLError } from '../server/vulcan-lib';
-import { waitUntilCallbacksFinished } from '../server/utils/callbackHooks';
 import Users from '../lib/collections/users/collection';
 import { Posts } from '../lib/collections/posts'
 import { Comments } from '../lib/collections/comments'
@@ -14,7 +13,7 @@ import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
 import { UserRateLimits } from '../lib/collections/userRateLimits';
-import { callbacksArePending } from "@/lib/vulcan-lib/callbacks";
+import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
