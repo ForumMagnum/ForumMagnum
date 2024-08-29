@@ -4,6 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
+import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -138,7 +139,11 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
 
   const linkpostDomain = post.url && new URL(post.url).hostname;
   const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
-  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}><a href={post.url} target="_blank" rel="noopener noreferrer">{linkpostDomain}</a></LWTooltip> : null;
+  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>
+    <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
+      {linkpostDomain}
+    </a>
+  </LWTooltip> : null;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
