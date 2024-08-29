@@ -4,7 +4,7 @@ import { unflattenComments, addGapIndicators } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { CommentsNodeProps } from './CommentsNode';
-import { useLocation } from '../../lib/routeUtil';
+import { useCommentLinkState } from './CommentsItem/useCommentLink';
 
 const styles = (theme: ThemeType): JssStyles => ({
   showChildren: {
@@ -38,11 +38,12 @@ const CommentWithReplies = ({
   className,
   classes,
 }: CommentWithRepliesProps) => {
-  const { hash: focusCommentId } = useLocation();
+  const { scrollToCommentId } = useCommentLinkState();
 
-  const commentId = focusCommentId.slice(1) || null;
-
-  startExpanded ??= comment.latestChildren.some(c => c._id === commentId);
+  // Note: I refactored this from using the hash id directly to using scrollToCommentId, but I'm not actually
+  // sure it was correct to use the hash here originally (I think this `startExpanded` might be redundant with the
+  // logic inside CommentsNode)
+  startExpanded ??= comment.latestChildren.some(c => c._id === scrollToCommentId);
 
   const [maxChildren, setMaxChildren] = useState(startExpanded ? 500 : initialMaxChildren);
 
@@ -56,7 +57,7 @@ const CommentWithReplies = ({
     condensed: true,
     showPostTitle: true,
     post: post ?? comment.post ?? undefined,
-    noHash: true,
+    noDOMId: true,
     ...(commentNodeProps?.treeOptions || {}),
   };
 

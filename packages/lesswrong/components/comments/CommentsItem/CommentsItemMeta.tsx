@@ -4,12 +4,13 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
-import { useCommentLink } from "./useCommentLink";
+import { useCommentLink, useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
 import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
+import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
 
 export const metaNoticeStyles = (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
@@ -120,6 +121,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     top: 1,
   },
+  linkIconHighlighted: {
+    strokeWidth: "0.7px",
+    stroke: "currentColor",
+    color: theme.palette.primary.main
+  },
   menu: isFriendlyUI
     ? {
       color: theme.palette.icon.dim,
@@ -163,6 +169,7 @@ export const CommentsItemMeta = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const { scrollToCommentId } = useCommentLinkState();
 
   const {
     postPage, showCollapseButtons, post, tag, singleLineCollapse, isSideComment,
@@ -225,6 +232,9 @@ export const CommentsItemMeta = ({
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
     ForumIcon, CommentsMenu, UserCommentMarkers
   } = Components;
+
+  // Note: This could be decoupled from `commentPermalinkStyleSetting` without any side effects
+  const highlightLinkIcon = commentPermalinkStyleSetting.get() === 'in-context' && scrollToCommentId === comment._id
 
   return (
     <div className={classNames(
@@ -328,7 +338,7 @@ export const CommentsItemMeta = ({
         {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
-            <ForumIcon icon="Link" className={classes.linkIcon} />
+            <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
           </CommentLinkWrapper>
         }
         {!isParentComment && !hideActionsMenu &&

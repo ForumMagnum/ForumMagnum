@@ -1,6 +1,8 @@
 import {useEffect, useRef} from 'react';
 import {registerComponent} from '../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../lib/routeUtil';
+import { isLWorAF } from '@/lib/instanceSettings';
+import stringify from 'json-stringify-deterministic';
 
 // Scroll restoration based on https://reacttraining.com/react-router/web/guides/scroll-restoration.
 export default function ScrollToTop() {
@@ -9,7 +11,7 @@ export default function ScrollToTop() {
   const isNotFirstMountRef = useRef(false)
   
   // Stringify `query` to guarantee referential stability for the useEffect dependency
-  const queryAsStr = JSON.stringify(query);
+  const queryAsStr = isLWorAF && stringify(query);
   
   useEffect(() => {
     // Skip scrolling to the top the first time this useEffect runs, because that's

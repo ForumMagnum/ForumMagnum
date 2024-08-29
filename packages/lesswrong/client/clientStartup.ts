@@ -9,10 +9,10 @@ import { randomId } from '../lib/random';
 import '../client';
 import { CLIENT_ID_COOKIE } from '../lib/cookies/cookies';
 import { initAutoRefresh } from './autoRefresh';
-import { rememberScrollPositionOnPageReload } from './scrollRestoration';
 import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
 import { initLegacyRoutes } from '@/lib/routes';
 import { hydrateClient } from './start';
+import { rememberScrollPositionOnPageReload } from './scrollRestoration';
 
 /**
  * These identifiers may or may not have been set on the server, depending on whether the request
@@ -39,6 +39,7 @@ async function clientStartup() {
   startupCalled = true;
 
   filterConsoleLogSpam();
+
   require('../deferred-client-scripts.js');
 
   initAutoRefresh();

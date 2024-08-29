@@ -1,10 +1,11 @@
-import React, { FC, MouseEvent, PropsWithChildren } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { useSubscribedLocation } from "../../../lib/routeUtil";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
 import { commentPermalinkStyleSetting } from "@/lib/publicSettings";
+import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,
@@ -35,7 +36,6 @@ export const useCommentLink = ({
     tagCommentType: comment.tagCommentType,
     permalink,
   });
-  console.log('url', url);
 
   const furtherContext = "dateIcon"; // For historical reasons
 
@@ -53,12 +53,9 @@ export const useCommentLink = ({
     }
 
     event.preventDefault();
-    const navigateArgs = commentPermalinkStyleSetting.get() === 'top' ? {
+    const navigateArgs = {
       search: qs.stringify({...query, commentId: comment._id}),
       hash: null,
-    } : {
-      search: qs.stringify(query),
-      hash: comment._id,
     }
     navigate({
       ...location,
@@ -83,4 +80,16 @@ export const useCommentLink = ({
     );
 
   return Wrapper;
+}
+
+export const useCommentLinkState = () => {
+  const { query, hash } = useSubscribedLocation();
+  const { matchSSR } = useContext(EnvironmentOverrideContext);
+
+  const queryId = query.commentId
+  const hashId = matchSSR ? '' : hash.slice(1)
+
+  const scrollToCommentId = commentPermalinkStyleSetting.get() === 'in-context' ? queryId ?? hashId : hashId
+
+  return { linkedCommentId: queryId, scrollToCommentId }
 }
