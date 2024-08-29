@@ -13,6 +13,7 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
+import { useMessages } from '../common/withMessages';
 
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
@@ -49,8 +50,12 @@ type LlmStreamContent = {
 
 type LlmStreamChunk = {
   conversationId: string;
-  // messageId: string;
   chunk: string;
+};
+
+type LlmStreamError = {
+  conversationId: string;
+  error: string;
 };
 
 type LlmStreamEnd = {
@@ -77,12 +82,17 @@ export type LlmStreamChunkMessage = {
   data: LlmStreamChunk
 };
 
+export type LlmStreamErrorMessage = {
+  eventType: 'llmStreamError',
+  data: LlmStreamError
+};
+
 export type LlmStreamEndMessage = {
   eventType: 'llmStreamEnd',
   data: LlmStreamEnd
 };
 
-export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamEndMessage;
+export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamErrorMessage | LlmStreamEndMessage;
 
 type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string, buffer?: string };
 type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
@@ -114,6 +124,7 @@ const LlmChatWrapper = ({children}: {
 }) => {
 
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
 
   const { mutate: updateConversation } = useUpdate({
     collectionName: "LlmConversations",
@@ -282,6 +293,11 @@ const LlmChatWrapper = ({children}: {
     setConversationLoadingState(conversationId, false);
   }, [currentUser, setConversationLoadingState]);
 
+  const handleLlmStreamError = useCallback((message: LlmStreamErrorMessage) => {
+    flash(message.data.error);
+    setConversationLoadingState(message.data.conversationId, false);
+  }, [flash, setConversationLoadingState]);
+
   const handleClaudeResponseMesage = useCallback((message: LlmStreamMessage) => {
     switch (message.eventType) {
       case "llmCreateConversation":
@@ -293,11 +309,14 @@ const LlmChatWrapper = ({children}: {
       case "llmStreamChunk":
         handleLlmStreamChunk(message);
         break;
+      case "llmStreamError":
+        handleLlmStreamError(message);
+        break;
       case "llmStreamEnd":
         setConversationLoadingState(message.data.conversationId, false);
         break;
     }
-  }, [hydrateNewConversation, handleLlmStreamContent, handleLlmStreamChunk, setConversationLoadingState]);
+  }, [hydrateNewConversation, handleLlmStreamContent, handleLlmStreamChunk, handleLlmStreamError, setConversationLoadingState]);
   
   const sendClaudeMessage = useCallback(async ({newMessage, promptContextOptions, newConversationChannelId}: {
     newMessage: ClientMessage,
@@ -311,6 +330,26 @@ const LlmChatWrapper = ({children}: {
       },
       body: JSON.stringify({ newMessage, promptContextOptions, newConversationChannelId }),
     });
+    if (!response.ok) {
+      let errorMessage;
+      try {
+        errorMessage = await response.text();
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
+        errorMessage = 'Unknown error when sending message.';
+      }
+
+      handleLlmStreamError({
+        eventType: 'llmStreamError',
+        data: {
+          conversationId: (newMessage.conversationId ?? newConversationChannelId)!,
+          error: errorMessage
+        }
+      });
+
+      return;
+    }
     if (!response.body) {
       return; // TODO better error handling
     }
@@ -331,7 +370,7 @@ const LlmChatWrapper = ({children}: {
         buffer = buffer.slice(boundary + 2);
 
         if (line.startsWith('data: ')) {
-          let message: LlmStreamMessage|null = null
+          let message: LlmStreamMessage | null = null;
           try {
             message = JSON.parse(line.slice("data: ".length));
           } catch (error) {
@@ -358,7 +397,7 @@ const LlmChatWrapper = ({children}: {
       }
     }
     
-  }, [handleClaudeResponseMesage]);
+  }, [handleClaudeResponseMesage, handleLlmStreamError]);
 
   // TODO: Ensure code is sanitized against injection attacks
   const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
