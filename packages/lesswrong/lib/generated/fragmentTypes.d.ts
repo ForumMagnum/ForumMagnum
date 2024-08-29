@@ -98,6 +98,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly showCommunityInRecentDiscussion: boolean,
   readonly hidePostsRecommendations: boolean,
   readonly petrovOptOut: boolean,
+  readonly optedOutOfSurveys: boolean | null,
   readonly acceptedTos: boolean,
   readonly hideNavigationSidebar: boolean,
   readonly currentFrontpageFilter: string,
@@ -125,6 +126,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>,
   readonly legacyId: string,
   readonly deleted: boolean,
+  readonly permanentDeletionRequestedAt: Date | null,
   readonly voteBanned: boolean,
   readonly nullifyVotes: boolean,
   readonly deleteContent: boolean,
@@ -435,6 +437,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly inactiveSurveyEmailSentAt: Date | null,
+  readonly userSurveyEmailSentAt: Date | null,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -569,15 +572,6 @@ interface CurationEmailsDefaultFragment { // fragment on CurationEmails
   readonly postId: string,
 }
 
-interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
-  readonly userId: string,
-  readonly targetUserId: string,
-  readonly checked: boolean,
-  readonly checkedAt: Date,
-  readonly match: boolean,
-  readonly hideInRecommendations: boolean,
-}
-
 interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly electionName: string,
   readonly name: string,
@@ -604,6 +598,19 @@ interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userExplanation: string | null,
   readonly userOtherComments: string | null,
+}
+
+interface ForumEventsDefaultFragment { // fragment on ForumEvents
+  readonly title: string,
+  readonly startDate: Date,
+  readonly endDate: Date,
+  readonly darkColor: string,
+  readonly lightColor: string,
+  readonly contrastColor: string | null,
+  readonly tagId: string,
+  readonly bannerImageId: string | null,
+  readonly includesPoll: boolean,
+  readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface ManifoldProbabilitiesCachesDefaultFragment { // fragment on ManifoldProbabilitiesCaches
@@ -681,6 +688,31 @@ interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
   readonly annotatedHtml: string,
   readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly version: number,
+}
+
+interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly editedAt: Date,
+  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly version: string,
+  readonly commitMessage: string,
+  readonly userId: string,
+  readonly draft: boolean,
+  readonly originalContents: any /*ContentType*/,
+  readonly html: string,
+  readonly markdown: string|null,
+  readonly draftJS: any /*JSON*/,
+  readonly ckEditorMarkup: string|null,
+  readonly wordCount: number | null,
+  readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
+  readonly plaintextDescription: string,
+  readonly plaintextMainText: string,
+  readonly hasFootnotes: boolean|null,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
@@ -782,6 +814,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly metaDate: Date,
   readonly suggestForCuratedUserIds: Array<string>,
   readonly frontpageDate: Date,
+  readonly autoFrontpage: "show" | "hide" | null,
   readonly collectionTitle: string,
   readonly coauthorStatuses: Array<{
     userId: string,
@@ -857,6 +890,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tableOfContentsRevision: any,
   readonly sideComments: any,
   readonly sideCommentVisibility: string,
+  readonly disableSidenotes: boolean,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
   readonly hideCommentKarma: boolean,
@@ -929,10 +963,37 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly rightFlipped: boolean,
 }
 
+interface SurveysDefaultFragment { // fragment on Surveys
+  readonly name: string,
+}
+
+interface SurveySchedulesDefaultFragment { // fragment on SurveySchedules
+  readonly surveyId: string,
+  readonly name: string,
+  readonly impressionsLimit: number | null,
+  readonly maxVisitorPercentage: number | null,
+  readonly minKarma: number | null,
+  readonly maxKarma: number | null,
+  readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
+  readonly startDate: Date | null,
+  readonly endDate: Date | null,
+  readonly deactivated: boolean,
+  readonly clientIds: Array<string>,
+}
+
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly userId: string,
   readonly documentId: string,
   readonly lastUpdated: Date,
+}
+
+interface CronHistoriesDefaultFragment { // fragment on CronHistories
+  readonly _id: string,
+  readonly intendedAt: Date,
+  readonly name: string,
+  readonly startedAt: Date,
+  readonly finishedAt: Date | null,
+  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface VotesDefaultFragment { // fragment on Votes
@@ -1014,27 +1075,6 @@ interface SessionsDefaultFragment { // fragment on Sessions
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly expires: Date | null,
   readonly lastModified: Date | null,
-}
-
-interface MessagesDefaultFragment { // fragment on Messages
-  readonly userId: string,
-  readonly conversationId: string,
-  readonly noEmail: boolean,
-}
-
-interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
-  readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
-  readonly endedAt: Date | null,
-}
-
-interface CronHistoriesDefaultFragment { // fragment on CronHistories
-  readonly _id: string,
-  readonly intendedAt: Date,
-  readonly name: string,
-  readonly startedAt: Date,
-  readonly finishedAt: Date | null,
-  readonly result: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PostsMinimumInfo { // fragment on Posts
@@ -1176,6 +1216,7 @@ interface PostsBase extends PostsMinimumInfo { // fragment on Posts
   readonly nominationCount2019: number,
   readonly reviewCount2019: number,
   readonly votingSystem: string,
+  readonly disableRecommendation: boolean,
 }
 
 interface PostsBase_group { // fragment on Localgroups
@@ -1192,6 +1233,22 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
+  readonly podcastEpisode: PostsListWithVotes_podcastEpisode|null,
+}
+
+interface PostsListWithVotes_podcastEpisode { // fragment on PodcastEpisodes
+  readonly _id: string,
+  readonly title: string,
+  readonly podcast: PostsListWithVotes_podcastEpisode_podcast,
+  readonly episodeLink: string,
+  readonly externalEpisodeId: string,
+}
+
+interface PostsListWithVotes_podcastEpisode_podcast { // fragment on Podcasts
+  readonly _id: string,
+  readonly title: string,
+  readonly applePodcastLink: string | null,
+  readonly spotifyPodcastLink: string | null,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
@@ -1242,7 +1299,6 @@ interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly readTimeMinutes: number,
   readonly rejectedReason: string | null,
-  readonly disableRecommendation: boolean,
   readonly customHighlight: PostsListBase_customHighlight|null,
   readonly lastPromotedComment: PostsListBase_lastPromotedComment|null,
   readonly bestAnswer: CommentsList|null,
@@ -1252,11 +1308,13 @@ interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
   readonly totalDialogueResponseCount: number,
   readonly unreadDebateResponseCount: number,
   readonly dialogTooltipPreview: string|null,
+  readonly disableSidenotes: boolean,
 }
 
 interface PostsListBase_customHighlight { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+  readonly plaintextDescription: string,
 }
 
 interface PostsListBase_lastPromotedComment { // fragment on Comments
@@ -1490,7 +1548,6 @@ interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Post
   readonly user: UsersMinimumInfo|null,
   readonly usersSharedWith: Array<UsersMinimumInfo>,
   readonly coauthors: Array<UsersMinimumInfo>,
-  readonly swrCachingEnabled: boolean,
 }
 
 interface PostsEditQueryFragment extends PostsEdit { // fragment on Posts
@@ -1531,6 +1588,7 @@ interface SunshinePostsList extends PostsListBase { // fragment on Posts
     foreignPostId: string | null,
   },
   readonly rejectedReason: string | null,
+  readonly autoFrontpage: "show" | "hide" | null,
   readonly contents: SunshinePostsList_contents|null,
   readonly moderationGuidelines: SunshinePostsList_moderationGuidelines|null,
   readonly user: SunshinePostsList_user|null,
@@ -1628,6 +1686,45 @@ interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
+}
+
+interface PostsRSSFeed extends PostsPage { // fragment on Posts
+  readonly scoreExceeded2Date: Date | null,
+  readonly scoreExceeded30Date: Date | null,
+  readonly scoreExceeded45Date: Date | null,
+  readonly scoreExceeded75Date: Date | null,
+  readonly scoreExceeded125Date: Date | null,
+  readonly scoreExceeded200Date: Date | null,
+  readonly metaDate: Date,
+}
+
+interface PostsOriginalContents { // fragment on Posts
+  readonly _id: string,
+  readonly contents: PostsOriginalContents_contents|null,
+}
+
+interface PostsOriginalContents_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly originalContents: any,
+}
+
+interface PostsHTML { // fragment on Posts
+  readonly _id: string,
+  readonly contents: RevisionHTML|null,
+}
+
+interface PostsForAutocomplete { // fragment on Posts
+  readonly _id: string,
+  readonly title: string,
+  readonly userId: string,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly user: UsersMinimumInfo|null,
+  readonly contents: PostsForAutocomplete_contents|null,
+}
+
+interface PostsForAutocomplete_contents { // fragment on Revisions
+  readonly markdown: string|null,
 }
 
 interface CommentsList { // fragment on Comments
@@ -1788,6 +1885,61 @@ interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on C
   readonly modGPTAnalysis: string | null,
 }
 
+interface CommentsForAutocomplete { // fragment on Comments
+  readonly _id: string,
+  readonly postId: string,
+  readonly baseScore: number,
+  readonly extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/,
+  readonly createdAt: Date,
+  readonly user: UsersMinimumInfo|null,
+  readonly contents: CommentsForAutocomplete_contents|null,
+  readonly post: PostsForAutocomplete|null,
+}
+
+interface CommentsForAutocomplete_contents { // fragment on Revisions
+  readonly markdown: string|null,
+}
+
+interface CommentsForAutocompleteWithParents extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment|null,
+}
+
+interface CommentsForAutocompleteWithParents_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment_parentComment extends CommentsForAutocomplete { // fragment on Comments
+  readonly parentComment: CommentsForAutocomplete|null,
+}
+
 interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
@@ -1799,6 +1951,11 @@ interface RevisionDisplay { // fragment on Revisions
   readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+}
+
+interface RevisionHTML { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface RevisionEdit { // fragment on Revisions
@@ -1873,6 +2030,12 @@ interface NotificationsList { // fragment on Notifications
   readonly type: string,
   readonly viewed: boolean,
   readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface MessagesDefaultFragment { // fragment on Messages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly noEmail: boolean,
 }
 
 interface messageListFragment { // fragment on Messages
@@ -2602,6 +2765,12 @@ interface UserOnboardingTag { // fragment on Tags
   readonly squareImageId: string,
 }
 
+interface TagName { // fragment on Tags
+  readonly _id: string,
+  readonly name: string,
+  readonly slug: string,
+}
+
 interface AdvisorRequestsDefaultFragment { // fragment on AdvisorRequests
   readonly userId: string,
   readonly interestedInMetaculus: boolean,
@@ -2691,6 +2860,8 @@ interface DigestsDefaultFragment { // fragment on Digests
   readonly startDate: Date,
   readonly endDate: Date | null,
   readonly publishedDate: Date | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
 }
 
 interface DigestsMinimumInfo { // fragment on Digests
@@ -2699,16 +2870,8 @@ interface DigestsMinimumInfo { // fragment on Digests
   readonly startDate: Date,
   readonly endDate: Date | null,
   readonly publishedDate: Date | null,
-}
-
-interface ForumEventsDefaultFragment { // fragment on ForumEvents
-  readonly title: string,
-  readonly startDate: Date,
-  readonly endDate: Date,
-  readonly darkColor: string,
-  readonly lightColor: string,
-  readonly tagId: string,
-  readonly bannerImageId: string | null,
+  readonly onsiteImageId: string | null,
+  readonly onsitePrimaryColor: string | null,
 }
 
 interface ForumEventsMinimumInfo { // fragment on ForumEvents
@@ -2718,17 +2881,27 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly endDate: Date,
   readonly darkColor: string,
   readonly lightColor: string,
+  readonly contrastColor: string | null,
   readonly tagId: string,
   readonly bannerImageId: string | null,
+  readonly includesPoll: boolean,
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
+  readonly publicData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly voteCount: number,
   readonly tag: TagBasicInfo|null,
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
+  readonly frontpageDescriptionMobile: ForumEventsDisplay_frontpageDescriptionMobile|null,
   readonly postPageDescription: ForumEventsDisplay_postPageDescription|null,
 }
 
 interface ForumEventsDisplay_frontpageDescription { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
+interface ForumEventsDisplay_frontpageDescriptionMobile { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
 }
@@ -2740,6 +2913,7 @@ interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
 
 interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
   readonly frontpageDescription: RevisionEdit|null,
+  readonly frontpageDescriptionMobile: RevisionEdit|null,
   readonly postPageDescription: RevisionEdit|null,
 }
 
@@ -2789,30 +2963,6 @@ interface PodcastEpisodeFull { // fragment on PodcastEpisodes
   readonly externalEpisodeId: string,
 }
 
-interface RevisionsDefaultFragment { // fragment on Revisions
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
-  readonly version: string,
-  readonly commitMessage: string,
-  readonly userId: string,
-  readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
-  readonly html: string,
-  readonly markdown: string|null,
-  readonly draftJS: any /*JSON*/,
-  readonly ckEditorMarkup: string|null,
-  readonly wordCount: number | null,
-  readonly htmlHighlight: string,
-  readonly htmlHighlightStartingAtHash: string,
-  readonly plaintextDescription: string,
-  readonly plaintextMainText: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
@@ -2849,7 +2999,7 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly howOthersCanHelpMe: RevisionDisplay|null,
   readonly howICanHelpOthers: RevisionDisplay|null,
   readonly profileTagIds: Array<string>,
-  readonly profileTags: Array<TagBasicInfo>,
+  readonly profileTags: Array<TagPreviewFragment>,
   readonly organizerOfGroupIds: Array<string>,
   readonly organizerOfGroups: Array<localGroupsBase>,
   readonly programParticipation: Array<string>,
@@ -3058,6 +3208,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
   readonly hideSunshineSidebar: boolean,
+  readonly optedOutOfSurveys: boolean | null,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3351,6 +3502,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly hideFrontpageBookAd: boolean,
   readonly hideFrontpageBook2020Ad: boolean,
   readonly deleted: boolean,
+  readonly permanentDeletionRequestedAt: Date | null,
 }
 
 interface UsersAdmin { // fragment on Users
@@ -3374,6 +3526,7 @@ interface UsersWithReviewInfo extends UsersMinimumInfo { // fragment on Users
 interface UsersProfileEdit { // fragment on Users
   readonly _id: string,
   readonly slug: string,
+  readonly displayName: string,
   readonly jobTitle: string,
   readonly organization: string,
   readonly careerStage: Array<string>,
@@ -3488,11 +3641,13 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly headerTitleRightColor: string | null,
   readonly lastPromotedAt: Date,
   readonly draft: boolean,
+  readonly deletedDraft: boolean,
   readonly showAuthor: boolean,
   readonly imageFade: boolean,
   readonly imageFadeColor: string | null,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageUrl: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -3501,7 +3656,9 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly documentType: "Sequence" | "Post",
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
+  readonly spotlightSplashImageUrl: string | null,
   readonly draft: boolean,
+  readonly deletedDraft: boolean,
   readonly position: number,
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
@@ -3549,6 +3706,12 @@ interface SpotlightDisplay_description { // fragment on Revisions
 
 interface SpotlightEditQueryFragment extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly description: RevisionEdit|null,
+}
+
+interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
+  readonly userId: string,
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert",
+  readonly endedAt: Date | null,
 }
 
 interface ModeratorActionDisplay { // fragment on ModeratorActions
@@ -3727,13 +3890,20 @@ interface ElicitQuestionPredictionsDefaultFragment { // fragment on ElicitQuesti
   readonly binaryQuestionId: string,
 }
 
+interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
+  readonly userId: string,
+  readonly targetUserId: string,
+  readonly checked: boolean,
+  readonly checkedAt: Date,
+  readonly hideInRecommendations: boolean,
+}
+
 interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly _id: string,
   readonly userId: string,
   readonly targetUserId: string,
   readonly checked: boolean,
   readonly checkedAt: Date,
-  readonly match: boolean,
   readonly hideInRecommendations: boolean,
   readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
   readonly reciprocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
@@ -3859,6 +4029,105 @@ interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly rightFlipped: boolean,
 }
 
+interface SurveyMinimumInfo { // fragment on Surveys
+  readonly _id: string,
+  readonly name: string,
+  readonly questions: Array<SurveyQuestionMinimumInfo>,
+  readonly createdAt: Date,
+}
+
+interface SurveyQuestionsDefaultFragment { // fragment on SurveyQuestions
+  readonly surveyId: string,
+  readonly question: string,
+  readonly format: "rank0To10" | "text" | "multilineText",
+  readonly order: number,
+}
+
+interface SurveyQuestionMinimumInfo { // fragment on SurveyQuestions
+  readonly _id: string,
+  readonly question: string,
+  readonly format: "rank0To10" | "text" | "multilineText",
+  readonly order: number,
+}
+
+interface SurveyResponsesDefaultFragment { // fragment on SurveyResponses
+  readonly surveyId: string,
+  readonly surveyScheduleId: string,
+  readonly userId: string,
+  readonly clientId: string,
+  readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface SurveyResponseMinimumInfo { // fragment on SurveyResponses
+  readonly _id: string,
+  readonly surveyId: string,
+  readonly surveyScheduleId: string,
+  readonly userId: string,
+  readonly clientId: string,
+  readonly response: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
+interface SurveyScheduleMinimumInfo { // fragment on SurveySchedules
+  readonly _id: string,
+  readonly survey: SurveyMinimumInfo,
+}
+
+interface SurveyScheduleEdit extends SurveyScheduleMinimumInfo { // fragment on SurveySchedules
+  readonly surveyId: string,
+  readonly name: string,
+  readonly impressionsLimit: number | null,
+  readonly maxVisitorPercentage: number | null,
+  readonly minKarma: number | null,
+  readonly maxKarma: number | null,
+  readonly target: "allUsers" | "loggedInOnly" | "loggedOutOnly",
+  readonly startDate: Date | null,
+  readonly endDate: Date | null,
+  readonly deactivated: boolean,
+  readonly createdAt: Date,
+}
+
+interface LlmConversationsDefaultFragment { // fragment on LlmConversations
+  readonly userId: string,
+  readonly title: string,
+  readonly model: string,
+  readonly systemPrompt: string | null,
+  readonly messages: Array<LlmMessage|null>,
+  readonly deleted: boolean,
+}
+
+interface LlmConversationsFragment { // fragment on LlmConversations
+  readonly _id: string,
+  readonly userId: string,
+  readonly title: string,
+  readonly createdAt: Date,
+  readonly lastUpdatedAt: Date|null,
+  readonly deleted: boolean,
+}
+
+interface LlmConversationsWithUserInfoFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly user: UsersMinimumInfo|null,
+}
+
+interface LlmConversationsWithMessagesFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly messages: Array<LlmMessagesFragment>,
+}
+
+interface LlmMessagesDefaultFragment { // fragment on LlmMessages
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant",
+  readonly content: string,
+}
+
+interface LlmMessagesFragment { // fragment on LlmMessages
+  readonly _id: string,
+  readonly userId: string,
+  readonly conversationId: string,
+  readonly role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant",
+  readonly content: string,
+  readonly createdAt: Date,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3874,6 +4143,7 @@ interface SubscribedPostAndCommentsFeed { // fragment on non-collection type
   readonly _id: any,
   readonly post: any,
   readonly comments: any,
+  readonly expandCommentIds: any,
   readonly postIsFromSubscribedUser: any,
 }
 
@@ -3888,9 +4158,9 @@ interface FragmentTypes {
   TagsDefaultFragment: TagsDefaultFragment
   ConversationsDefaultFragment: ConversationsDefaultFragment
   CurationEmailsDefaultFragment: CurationEmailsDefaultFragment
-  DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
+  ForumEventsDefaultFragment: ForumEventsDefaultFragment
   ManifoldProbabilitiesCachesDefaultFragment: ManifoldProbabilitiesCachesDefaultFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -3898,6 +4168,7 @@ interface FragmentTypes {
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
+  RevisionsDefaultFragment: RevisionsDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
@@ -3905,7 +4176,10 @@ interface FragmentTypes {
   ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
+  SurveysDefaultFragment: SurveysDefaultFragment
+  SurveySchedulesDefaultFragment: SurveySchedulesDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
+  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
   newEventFragment: newEventFragment
@@ -3914,9 +4188,6 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
-  MessagesDefaultFragment: MessagesDefaultFragment
-  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
-  CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsTopItemInfo: PostsTopItemInfo
   PostsBase: PostsBase
@@ -3954,6 +4225,10 @@ interface FragmentTypes {
   PostWithGeneratedSummary: PostWithGeneratedSummary
   PostsEditCriticismTips: PostsEditCriticismTips
   PostsBestOfList: PostsBestOfList
+  PostsRSSFeed: PostsRSSFeed
+  PostsOriginalContents: PostsOriginalContents
+  PostsHTML: PostsHTML
+  PostsForAutocomplete: PostsForAutocomplete
   CommentsList: CommentsList
   CommentsListWithTopLevelComment: CommentsListWithTopLevelComment
   ShortformComments: ShortformComments
@@ -3966,7 +4241,10 @@ interface FragmentTypes {
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
+  CommentsForAutocomplete: CommentsForAutocomplete
+  CommentsForAutocompleteWithParents: CommentsForAutocompleteWithParents
   RevisionDisplay: RevisionDisplay
+  RevisionHTML: RevisionHTML
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
   RevisionMetadataWithChangeMetrics: RevisionMetadataWithChangeMetrics
@@ -3975,6 +4253,7 @@ interface FragmentTypes {
   RecentDiscussionRevisionTagFragment: RecentDiscussionRevisionTagFragment
   WithVoteRevision: WithVoteRevision
   NotificationsList: NotificationsList
+  MessagesDefaultFragment: MessagesDefaultFragment
   messageListFragment: messageListFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
@@ -4045,6 +4324,7 @@ interface FragmentTypes {
   TagRecentDiscussion: TagRecentDiscussion
   SunshineTagFragment: SunshineTagFragment
   UserOnboardingTag: UserOnboardingTag
+  TagName: TagName
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
   UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
@@ -4057,7 +4337,6 @@ interface FragmentTypes {
   DigestPostsMinimumInfo: DigestPostsMinimumInfo
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
-  ForumEventsDefaultFragment: ForumEventsDefaultFragment
   ForumEventsMinimumInfo: ForumEventsMinimumInfo
   ForumEventsDisplay: ForumEventsDisplay
   ForumEventsEdit: ForumEventsEdit
@@ -4067,7 +4346,6 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastEpisodeFull: PodcastEpisodeFull
-  RevisionsDefaultFragment: RevisionsDefaultFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -4100,6 +4378,7 @@ interface FragmentTypes {
   SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
+  ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   ModeratorActionDisplay: ModeratorActionDisplay
   CommentModeratorActionsDefaultFragment: CommentModeratorActionsDefaultFragment
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
@@ -4118,6 +4397,7 @@ interface FragmentTypes {
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
+  DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
@@ -4129,6 +4409,19 @@ interface FragmentTypes {
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinates: SplashArtCoordinates
+  SurveyMinimumInfo: SurveyMinimumInfo
+  SurveyQuestionsDefaultFragment: SurveyQuestionsDefaultFragment
+  SurveyQuestionMinimumInfo: SurveyQuestionMinimumInfo
+  SurveyResponsesDefaultFragment: SurveyResponsesDefaultFragment
+  SurveyResponseMinimumInfo: SurveyResponseMinimumInfo
+  SurveyScheduleMinimumInfo: SurveyScheduleMinimumInfo
+  SurveyScheduleEdit: SurveyScheduleEdit
+  LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
+  LlmConversationsFragment: LlmConversationsFragment
+  LlmConversationsWithUserInfoFragment: LlmConversationsWithUserInfoFragment
+  LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
+  LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
+  LlmMessagesFragment: LlmMessagesFragment
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
@@ -4138,14 +4431,14 @@ interface FragmentTypesByCollection {
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
   Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
   Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"|"UserOnboardingAuthor"
-  Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
+  Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
-  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"|"UserOnboardingTag"|"TagName"
   Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"|"ConversationsListWithReadStatus"
   CurationEmails: "CurationEmailsDefaultFragment"
-  DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
   ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
+  ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
   ManifoldProbabilitiesCaches: "ManifoldProbabilitiesCachesDefaultFragment"
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
   PostRelations: "PostRelationsDefaultFragment"
@@ -4153,22 +4446,23 @@ interface FragmentTypesByCollection {
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionHTML"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsModerationGuidelines"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"PostsRSSFeed"|"PostsOriginalContents"|"PostsHTML"|"PostsForAutocomplete"|"SuggestAlignmentPost"
   RecommendationsCaches: "RecommendationsCachesDefaultFragment"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
+  Surveys: "SurveysDefaultFragment"|"SurveyMinimumInfo"
+  SurveySchedules: "SurveySchedulesDefaultFragment"|"SurveyScheduleMinimumInfo"|"SurveyScheduleEdit"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
+  CronHistories: "CronHistoriesDefaultFragment"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
-  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
-  CronHistories: "CronHistoriesDefaultFragment"
-  Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
@@ -4182,20 +4476,25 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
-  ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
   Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
   PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunch"
   FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
   Spotlights: "SpotlightsDefaultFragment"|"SpotlightMinimumInfo"|"SpotlightHeaderEventSubtitle"|"SpotlightDisplay"|"SpotlightEditQueryFragment"
+  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
+  DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
+  SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
+  SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
+  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithUserInfoFragment"|"LlmConversationsWithMessagesFragment"
+  LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4210,9 +4509,9 @@ interface CollectionNamesByFragmentName {
   TagsDefaultFragment: "Tags"
   ConversationsDefaultFragment: "Conversations"
   CurationEmailsDefaultFragment: "CurationEmails"
-  DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
+  ForumEventsDefaultFragment: "ForumEvents"
   ManifoldProbabilitiesCachesDefaultFragment: "ManifoldProbabilitiesCaches"
   NotificationsDefaultFragment: "Notifications"
   PostRelationsDefaultFragment: "PostRelations"
@@ -4220,6 +4519,7 @@ interface CollectionNamesByFragmentName {
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
   SideCommentCachesDefaultFragment: "SideCommentCaches"
+  RevisionsDefaultFragment: "Revisions"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostsDefaultFragment: "Posts"
@@ -4227,7 +4527,10 @@ interface CollectionNamesByFragmentName {
   ReviewWinnersDefaultFragment: "ReviewWinners"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
+  SurveysDefaultFragment: "Surveys"
+  SurveySchedulesDefaultFragment: "SurveySchedules"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
+  CronHistoriesDefaultFragment: "CronHistories"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
   newEventFragment: "LWEvents"
@@ -4236,9 +4539,6 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
-  MessagesDefaultFragment: "Messages"
-  ModeratorActionsDefaultFragment: "ModeratorActions"
-  CronHistoriesDefaultFragment: "CronHistories"
   PostsMinimumInfo: "Posts"
   PostsTopItemInfo: "Posts"
   PostsBase: "Posts"
@@ -4276,6 +4576,10 @@ interface CollectionNamesByFragmentName {
   PostWithGeneratedSummary: "Posts"
   PostsEditCriticismTips: "Posts"
   PostsBestOfList: "Posts"
+  PostsRSSFeed: "Posts"
+  PostsOriginalContents: "Posts"
+  PostsHTML: "Posts"
+  PostsForAutocomplete: "Posts"
   CommentsList: "Comments"
   CommentsListWithTopLevelComment: "Comments"
   ShortformComments: "Comments"
@@ -4288,7 +4592,10 @@ interface CollectionNamesByFragmentName {
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
   CommentsListWithModGPTAnalysis: "Comments"
+  CommentsForAutocomplete: "Comments"
+  CommentsForAutocompleteWithParents: "Comments"
   RevisionDisplay: "Revisions"
+  RevisionHTML: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"
   RevisionMetadataWithChangeMetrics: "Revisions"
@@ -4297,6 +4604,7 @@ interface CollectionNamesByFragmentName {
   RecentDiscussionRevisionTagFragment: "Revisions"
   WithVoteRevision: "Revisions"
   NotificationsList: "Notifications"
+  MessagesDefaultFragment: "Messages"
   messageListFragment: "Messages"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
@@ -4367,6 +4675,7 @@ interface CollectionNamesByFragmentName {
   TagRecentDiscussion: "Tags"
   SunshineTagFragment: "Tags"
   UserOnboardingTag: "Tags"
+  TagName: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
   UserJobAdsDefaultFragment: "UserJobAds"
@@ -4379,7 +4688,6 @@ interface CollectionNamesByFragmentName {
   DigestPostsMinimumInfo: "DigestPosts"
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
-  ForumEventsDefaultFragment: "ForumEvents"
   ForumEventsMinimumInfo: "ForumEvents"
   ForumEventsDisplay: "ForumEvents"
   ForumEventsEdit: "ForumEvents"
@@ -4389,7 +4697,6 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastEpisodeFull: "PodcastEpisodes"
-  RevisionsDefaultFragment: "Revisions"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
@@ -4422,6 +4729,7 @@ interface CollectionNamesByFragmentName {
   SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
+  ModeratorActionsDefaultFragment: "ModeratorActions"
   ModeratorActionDisplay: "ModeratorActions"
   CommentModeratorActionsDefaultFragment: "CommentModeratorActions"
   CommentModeratorActionDisplay: "CommentModeratorActions"
@@ -4440,6 +4748,7 @@ interface CollectionNamesByFragmentName {
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
+  DialogueChecksDefaultFragment: "DialogueChecks"
   DialogueCheckInfo: "DialogueChecks"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
@@ -4451,13 +4760,26 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinates: "SplashArtCoordinates"
+  SurveyMinimumInfo: "Surveys"
+  SurveyQuestionsDefaultFragment: "SurveyQuestions"
+  SurveyQuestionMinimumInfo: "SurveyQuestions"
+  SurveyResponsesDefaultFragment: "SurveyResponses"
+  SurveyResponseMinimumInfo: "SurveyResponses"
+  SurveyScheduleMinimumInfo: "SurveySchedules"
+  SurveyScheduleEdit: "SurveySchedules"
+  LlmConversationsDefaultFragment: "LlmConversations"
+  LlmConversationsFragment: "LlmConversations"
+  LlmConversationsWithUserInfoFragment: "LlmConversations"
+  LlmConversationsWithMessagesFragment: "LlmConversations"
+  LlmMessagesDefaultFragment: "LlmMessages"
+  LlmMessagesFragment: "LlmMessages"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

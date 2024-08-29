@@ -1,5 +1,5 @@
 import { RecommendationFeatureName } from "../../lib/collections/users/recommendationSettings";
-import { DEFAULT_EMBEDDINGS_MODEL } from "../embeddings";
+import { embeddingsSettings } from "../embeddings";
 
 abstract class Feature {
   getJoin(): string {
@@ -71,7 +71,7 @@ class CollabFilterFeature extends Feature {
 
 class TextSimilarityFeature extends Feature {
   constructor(
-    private model = DEFAULT_EMBEDDINGS_MODEL,
+    private model = embeddingsSettings.embeddingModel,
   ) {
     super();
   }

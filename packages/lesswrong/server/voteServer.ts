@@ -388,18 +388,15 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         consequences: ["warningPopup"],
         message: null,
       },
-    ];
-
-    if (isLWorAF) {
-      rateLimits.push({
+      {
         voteCount: 10,
         periodInMinutes: 60,
         types: "onlyStrong",
         users: "allUsers",
         consequences: ["denyThisVote"],
         message: "too many strong-votes in one hour",
-      });
-      rateLimits.push({
+      },
+      {
         voteCount: (postCommentCount: number|null) => 5 + Math.round((postCommentCount??0) * .05),
         periodInMinutes: null,
         allOnSamePost: true,
@@ -407,8 +404,8 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         users: "allUsers",
         consequences: ["denyThisVote"],
         message: "You can only strong-vote on up to (5+5%) of the comments on a post",
-      });
-    }
+      },
+    ];
 
     return rateLimits;
   }

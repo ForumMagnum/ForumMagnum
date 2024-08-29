@@ -14,7 +14,6 @@ const restrictedImportsPaths = [
   { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
   { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
   { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
-  { name: "react-no-ssr", message: "Don't import react-no-ssr, use ForumNoSSR" },
   { name: "@material-ui/core/ClickAwayListener", message: "Don't use material-UI's ClickAwayListener component; use LWClickAwayListener instead" },
 ];
 const clientRestrictedImportPaths = [
@@ -275,7 +274,8 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
-    "@typescript-eslint/type-annotation-spacing": 1
+    "@typescript-eslint/type-annotation-spacing": 1,
+    "@typescript-eslint/switch-exhaustiveness-check": 1,
   },
   "overrides": [
     {

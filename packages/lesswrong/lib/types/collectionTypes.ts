@@ -9,9 +9,12 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import Table from '../sql/Table';
-import PgCollection from '../sql/PgCollection';
-import type { BulkWriterResult } from '../sql/BulkWriter';
+
+// These server imports are safe as they use `import type`
+// eslint-disable-next-line import/no-restricted-paths
+import type Table from '@/server/sql/Table';
+// eslint-disable-next-line import/no-restricted-paths
+import type { BulkWriterResult } from '@/server/sql/BulkWriter';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -24,7 +27,6 @@ type CheckAccessFunction<T extends DbObject> = (
   outReasonDenied?: {reason?: string},
 ) => Promise<boolean>;
 
-// See PgCollection.ts for implementation
 interface CollectionBase<N extends CollectionNameString = CollectionNameString> {
   collectionName: N,
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
@@ -40,10 +42,10 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   isConnected: () => boolean
 
-  isVoteable: () => this is PgCollection<VoteableCollectionName>
+  isVoteable: () => this is CollectionBase<VoteableCollectionName>;
   makeVoteable: () => void
 
-  hasSlug: () => this is PgCollection<CollectionNameWithSlug>
+  hasSlug: () => boolean
 
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
 
@@ -259,8 +261,8 @@ interface DbObject extends HasIdType {
   schemaVersion: number
 }
 
-interface HasSlugType extends DbObject {
-  slug: string | null
+interface HasSlugType {
+  slug: string
 }
 
 interface HasCreatedAtType extends DbObject {
@@ -299,6 +301,7 @@ interface ResolverContext extends CollectionsByName {
   currentUser: DbUser|null,
   visitorActivity: DbUserActivity|null,
   locale: string,
+  isSSR: boolean,
   isGreaterWrong: boolean,
   /**
    * This means that the request originated from the other FM instance's servers
@@ -337,6 +340,11 @@ interface EditableFieldContents {
 // The subset of EditableFieldContents that you provide when creating a new document
 // or revision, ie, the parts of a revision which are not auto-generated.
 type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage"|"googleDocMetadata">
+
+type EditableFieldUpdate = EditableFieldInsertion & {
+  dataWithDiscardedSuggestions?: string,
+  updateType?: DbRevision['updateType'],
+};
 
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>

@@ -70,6 +70,8 @@ window.addEventListener('load', ev => {
     utmSource: urlParams.get('utm_source'),
     utmMedium: urlParams.get('utm_medium'),
     utmCampaign: urlParams.get('utm_campaign'),
+    utmContent: urlParams.get('utm_content'),
+    utmTerm: urlParams.get('utm_term'),
     browserProps: browserProperties(),
     prefersDarkMode: devicePrefersDarkMode(),
     performance: {

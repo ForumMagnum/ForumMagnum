@@ -16,7 +16,7 @@ import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -280,6 +280,9 @@ const PostsNewForm = ({classes}: {
   if (!currentUser) {
     return (<LoginForm />);
   }
+  if (!currentUserWithModerationGuidelines) {
+    return <Loading/>
+  }
 
   if (!userCanPost(currentUser)) {
     return (<SingleColumnSection>
@@ -310,7 +313,7 @@ const PostsNewForm = ({classes}: {
           <PostsAcceptTos currentUser={currentUser} />
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-          <ForumNoSSR>
+          <DeferRender ssr={false}>
               <WrappedSmartForm
                 collectionName="Posts"
                 mutationFragment={getFragment('PostsPage')}
@@ -342,7 +345,7 @@ const PostsNewForm = ({classes}: {
                   FormSubmit: NewPostsSubmit
                 }}
               />
-          </ForumNoSSR>
+          </DeferRender>
         </RecaptchaWarning>
       </div>
     </DynamicTableOfContents>

@@ -101,7 +101,12 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
   return userAgent.startsWith("Dexador");
 }
 
-export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
+export const computeContextFromUser = async ({user, req, res, isSSR}: {
+  user: DbUser|null,
+  req?: Request,
+  res?: Response,
+  isSSR: boolean
+}): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
   if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
@@ -117,6 +122,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     res,
     headers: (req as any)?.headers,
     locale: (req as any)?.headers ? getHeaderLocale((req as any).headers, null) : "en-US",
+    isSSR,
     isGreaterWrong: requestIsFromGreaterWrong(req),
     repos: getAllRepos(),
     clientId,
@@ -157,8 +163,12 @@ export const getUserFromReq = (req: AnyBecauseTodo): DbUser|null => {
   // return getUser(getAuthToken(req));
 }
 
-export async function getContextFromReqAndRes(req: Request, res: Response): Promise<ResolverContext> {
+export async function getContextFromReqAndRes({req, res, isSSR}: {
+  req: Request,
+  res: Response,
+  isSSR: boolean
+}): Promise<ResolverContext> {
   const user = getUserFromReq(req);
-  const context = await computeContextFromUser(user, req, res);
+  const context = await computeContextFromUser({user, req, res, isSSR});
   return context;
 }

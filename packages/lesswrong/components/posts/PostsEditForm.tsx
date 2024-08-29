@@ -16,7 +16,8 @@ import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useNavigate } from '../../lib/reactRouterWrapper';
-import ForumNoSSR from '../common/ForumNoSSR';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import DeferRender from '../common/DeferRender';
 
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
@@ -121,7 +122,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
-        <ForumNoSSR>
+        <DeferRender ssr={false}>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
               collectionName="Posts"
@@ -159,7 +160,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
               }}
               showRemove={true}
               collabEditorDialogue={!!document.collabEditorDialogue}
-              submitLabel={isDraft ? "Publish" : "Publish Changes"}
+              submitLabel={preferredHeadingCase(isDraft ? "Publish" : "Publish Changes")}
               formComponents={{FormSubmit: !!document.collabEditorDialogue ? DialogueSubmit : EditPostsSubmit}}
               extraVariables={{
                 version: 'String'
@@ -179,7 +180,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
               addFields={(document.isEvent || !!document.collabEditorDialogue) ? [] : ['tagRelevance']}
             />
           </EditorContext.Provider>
-        </ForumNoSSR>
+        </DeferRender>
       </div>
     </DynamicTableOfContents>
   );

@@ -50,7 +50,7 @@ const EAEmojisVoteOnPostSecondary = ({
   return (
     <div className={classes.root}>
       <div className={classes.divider} />
-      <SectionTitle title="Reactions" className={classes.heading} />
+      <SectionTitle title="Reactions" titleClassName={classes.heading} />
       <div className={classes.reacts}>
         <EAReactsSection
           document={document}

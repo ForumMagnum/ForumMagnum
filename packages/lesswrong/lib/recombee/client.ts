@@ -70,6 +70,15 @@ const recombeeRequestHelpers = {
       cascadeCreate: false
     });
   },
+
+  shouldLogRecombeeError(error: AnyBecauseIsInput) {
+    // If there isn't a statusCode, then it's not a standard recombee error and we should definitely log it to Sentry
+    // 404 generally indicates a missing userId or itemId with cascadeCreate not set to true
+    // This can happen if we've e.g. failed to prevent an event from getting sent for a post that shouldn't (and doesn't) exist in recombee
+    // 409 generally indicates we're trying to create/set something which already exists in recombee, i.e. a detail view for a given post by a given user
+    // See https://docs.recombee.com/api for more specific details
+    return !('statusCode' in error) || (error.statusCode !== 404 && error.statusCode !== 409);
+  },
 }
 
 
@@ -80,8 +89,8 @@ const recombeeApi = {
 
     try {
       await client.send(request);
-    } catch (error) { 
-      if (error.statusCode !== 409) {
+    } catch (error) {
+      if (recombeeRequestHelpers.shouldLogRecombeeError(error)) {
         captureException(error);
       }
     }
@@ -94,7 +103,9 @@ const recombeeApi = {
     try {
       await client.send(request);
     } catch (error) {
-      captureException(error);
+      if (recombeeRequestHelpers.shouldLogRecombeeError(error)) {
+        captureException(error);
+      }
     }
   },
 
@@ -108,7 +119,9 @@ const recombeeApi = {
     try {
       await client.send(request);
     } catch (error) {
-      captureException(error);
+      if (recombeeRequestHelpers.shouldLogRecombeeError(error)) {
+        captureException(error);
+      }
     }
   },
 }

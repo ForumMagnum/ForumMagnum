@@ -2,7 +2,7 @@
   "public": {
     "forumType": "EAForum",
     "hasEvents": true,
-    "title": "EA Forum Test",
+    "title": "EAForum Test",
     "tagline": "Effective Altruism research, discussion and community updates",
     "faviconUrl": "https://www.effectivealtruism.org/favicon-16x16.png",
     "forumSettings": {
@@ -11,7 +11,7 @@
       "shortForumTitle": "EA Forum"
     },
     "siteNameWithArticle": "the EA Forum",
-    "siteUrl": "http://localhost:4000",
+    "siteUrl": "http://localhost:3456",
     
     "debug": false,
     
@@ -23,8 +23,8 @@
     "disableEnsureIndex": true,
     "disableElastic": true,
     "fmCrosspost": {
-      "siteName": "LessWrong Dev",
-      "baseUrl": "http://localhost:3000/"
+      "siteName": "LessWrong Test",
+      "baseUrl": "http://localhost:3467/"
     }
   }
 }

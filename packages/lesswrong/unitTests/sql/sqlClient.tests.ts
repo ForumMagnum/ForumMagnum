@@ -3,7 +3,7 @@ import {
   getSqlClient,
   getSqlClientOrThrow,
   closeSqlClient,
-} from "../../lib/sql/sqlClient";
+} from "@/server/sql/sqlClient";
 
 const createMockClient = (): SqlClient => {
   const client = {

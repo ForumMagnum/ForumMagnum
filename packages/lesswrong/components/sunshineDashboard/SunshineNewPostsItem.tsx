@@ -21,6 +21,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 14,
     marginRight: 4
   },
+  robotIcon: {
+    width: 14,
+    marginLeft: 4,
+  },
   buttonRow: {
     ...theme.typography.commentStyle
   },
@@ -113,11 +117,25 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     refetch();
   }
 
-  const { MetaInfo, LinkPostMessage, ContentItemBody, SunshineListItem, SidebarHoverOver, SidebarInfo, FormatDate, FooterTagList, Typography, ContentStyles, SmallSideVote } = Components
+  const {
+    MetaInfo,
+    LinkPostMessage,
+    ContentItemBody,
+    SunshineListItem,
+    SidebarHoverOver,
+    SidebarInfo,
+    FormatDate,
+    FooterTagList,
+    Typography,
+    ContentStyles,
+    SmallSideVote,
+    ForumIcon
+  } = Components;
   const { html: modGuidelinesHtml = "" } = post.moderationGuidelines || {}
   const { html: userGuidelinesHtml = "" } = post.user?.moderationGuidelines || {}
 
   const moderationSection = post.moderationStyle || post.user?.moderationStyle || modGuidelinesHtml || userGuidelinesHtml
+  const autoFrontpage = post.autoFrontpage
 
   return (
     <span {...eventHandlers}>
@@ -126,10 +144,10 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>
-              <PersonIcon className={classes.icon} /> Personal
+              <PersonIcon className={classes.icon} /> Personal {autoFrontpage === "hide" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
             </Button>
             {post.submitToFrontpage && <Button onClick={handlePromote}>
-              <HomeIcon className={classes.icon} /> Frontpage
+              <HomeIcon className={classes.icon} /> Frontpage {autoFrontpage === "show" && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
             </Button>}
             <Button onClick={handleDelete}>
               <ClearIcon className={classes.icon} /> Draft

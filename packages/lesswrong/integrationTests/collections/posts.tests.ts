@@ -5,8 +5,8 @@ import {
   createDummyPost,
   catchGraphQLErrors,
   assertIsPermissionsFlavoredError,
+  waitUntilCallbacksFinished,
 } from '../utils'
-import { waitUntilCallbacksFinished } from "../../server/utils/callbackHooks";
 import Posts from '../../lib/collections/posts/collection';
 import * as _ from 'underscore';
 

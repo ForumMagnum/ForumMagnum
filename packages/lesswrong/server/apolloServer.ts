@@ -1,7 +1,7 @@
 import { ApolloServer } from 'apollo-server-express';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 
-import { isDevelopment, getInstanceSettings, getServerPort, isProduction } from '../lib/executionEnvironment';
+import { isDevelopment, getInstanceSettings, getServerPort, isProduction, isE2E } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
 import { pickerMiddleware, addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -35,7 +35,7 @@ import { getEAGApplicationData } from './zohoUtils';
 import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled, isDatadogEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCypressRoutes } from './testingSqlClient';
+import { addTestingRoutes } from './testingSqlClient';
 import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
@@ -56,6 +56,30 @@ import { randomId } from '../lib/random';
 import { addCacheControlMiddleware, responseIsCacheable } from './cacheControlMiddleware';
 import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
+import { getCookieFromReq } from './utils/httpUtil';
+import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+import { getSqlClientOrThrow } from './sql/sqlClient';
+import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
+
+/**
+ * End-to-end tests automate interactions with the page. If we try to, for
+ * instance, click on a button before the page has been hydrated then the "click"
+ * will occur but nothing will happen as the event listener won't be attached
+ * yet which leads to flaky tests. To avoid this we add some static styles to
+ * the top of the SSR'd page which are then manually deleted _after_ React
+ * hydration has finished. Be careful editing this - it would ve very bad for
+ * this to end up in production builds.
+ */
+const ssrInteractionDisable = isE2E
+  ? `
+    <style id="ssr-interaction-disable">
+      #react-app * {
+        display: none;
+      }
+    </style>
+  `
+  : "";
 
 /**
  * Try to set the response status, but log an error if the headers have already been sent.
@@ -228,7 +252,7 @@ export function startWebserver() {
     tracing: false,
     cacheControl: true,
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes(req, res);
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
       configureSentryScope(context);
       setAsyncStoreValue('resolverContext', context);
       return context;
@@ -323,7 +347,8 @@ export function startWebserver() {
   })
 
   addCrosspostRoutes(app);
-  addCypressRoutes(app);
+  addTestingRoutes(app);
+  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -333,6 +358,7 @@ export function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
+  addAutocompleteEndpoint(app);
 
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
@@ -342,6 +368,18 @@ export function startWebserver() {
     // disruptive. So instead just serve a minimal 404.
     res.status(404);
     res.end("");
+  });
+
+  app.get('/api/health', async (request, response) => {
+    try {
+      const db = getSqlClientOrThrow();
+      await db.one('SELECT 1');
+      response.status(200);
+      response.end("");
+    } catch (err) {
+      response.status(500);
+      response.end("");
+    }
   });
 
   app.get('*', async (request, response) => {
@@ -376,6 +414,8 @@ export function startWebserver() {
     // by multiple tabs), this is generated in `clientStartup.ts` instead.
     const tabId = responseIsCacheable(response) ? null : randomId();
     
+    const isReturningVisitor = !!getCookieFromReq(request, LAST_VISITED_FRONTPAGE_COOKIE);
+
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -387,11 +427,13 @@ export function startWebserver() {
       + '<head>\n'
         + jssStylePreload
         + externalStylesPreload
+        + ssrInteractionDisable
         + instanceSettingsHeader
         + faviconHeader
         // Embedded script tags that must precede the client bundle
         + publicSettingsHeader
         + embedAsGlobalVar("tabId", tabId)
+        + embedAsGlobalVar("isReturningVisitor", isReturningVisitor)
         // The client bundle. Because this uses <script async>, its load order
         // relative to any scripts that come later than this is undetermined and
         // varies based on timings and the browser cache.

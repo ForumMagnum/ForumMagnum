@@ -53,6 +53,7 @@ interface SearchUser extends SearchBase {
   bio: string,
   htmlBio: string,
   karma: number,
+  commentCount: number,
   slug: string,
   jobTitle?: string,
   organization?: string,
@@ -66,7 +67,9 @@ interface SearchUser extends SearchBase {
     coordinates: number[],
   },
   mapLocationAddress?: string,
-  tags: Array<string>,
+  tags: {_id: string, slug: string, name: string}[] | null,
+  posts: {_id: string, slug: string, title: string}[] | null,
+  profileCompletion: number,
   profileUpdatedAt: Date,
 }
 

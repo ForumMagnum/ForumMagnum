@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectorySkeletonUserCell = ({classes}: {
+const PeopleDirectorySkeletonUserCell = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {PeopleDirectorySkeletonTextCell} = Components;

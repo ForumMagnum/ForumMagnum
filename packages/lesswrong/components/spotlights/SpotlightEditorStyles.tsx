@@ -13,16 +13,16 @@ const styles = (theme: ThemeType): JssStyles => ({
         width: "100%",
         ...descriptionStyles(theme),
       },
-      '& .input-spotlightImageId, & .input-darkImageId': {
-        width: "100%"
+      '& .input-spotlightImageId, & .input-darkImageId, & .input-spotlightSplashImageUrl': {
+        width: "50%"
       },
-      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade, & .input-headerTitle, & .input-headerTitleLeftColor, & .input-headerTitleRightColor': {
-        width: "calc(33% - 12px)",
+      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade, & .input-headerTitle, & .input-headerTitleLeftColor, & .input-headerTitleRightColor, & .input-showAuthor': {
+        width: "calc(25% - 12px)",
         overflow: "hidden",
         marginRight: 12
       },
       '& .input-lastPromotedAt': {
-        width: "calc(33% - 12px)",
+        width: "calc(25% - 12px)",
         marginRight: 12
       },
       '& .form-submit': {

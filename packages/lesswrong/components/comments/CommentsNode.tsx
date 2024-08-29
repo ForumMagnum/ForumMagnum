@@ -4,7 +4,7 @@ import { useSubscribedLocation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
-import { CommentTreeNode, commentTreesEqual } from '../../lib/utils/unflatten';
+import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { getCurrentSectionMark, getLandmarkY } from '../hooks/useScrollHighlight';
@@ -114,9 +114,27 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
+  const {hash: commentHash} = useSubscribedLocation();
   const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
+
+  // If the comment starts collapsed, check if the commentHash in the url matches any of this
+  // comment's children and uncollapse if so. This needs to be done inside a useEffect because
+  // the hash part of the url isn't sent to the server
+  useEffect(() => {
+    if (!collapsed) return;
+
+    const commentAndChildren = [
+      comment,
+      ...(childComments ? childComments.flatMap((c) => flattenCommentBranch(c)) : []),
+    ];
+    if (commentAndChildren.some(child => `#${child._id}` === commentHash)) {
+      setCollapsed(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noHash, onToggleCollapsed } = treeOptions;
 
   const beginSingleLine = (): boolean => {
     // TODO: Before hookification, this got nestingLevel without the default value applied, which may have changed its behavior?
@@ -125,6 +143,8 @@ const CommentsNode = ({
     const shortformAndTop = (nestingLevel === 1) && shortform
     const postPageAndTop = (nestingLevel === 1) && postPage
 
+    if (expandOnlyCommentIds)
+      return !expandOnlyCommentIds.has(comment._id);
     if (forceSingleLine)
       return true;
     if (treeOptions.isSideComment && nestingLevel>1)
@@ -183,7 +203,6 @@ const CommentsNode = ({
     }
   }
 
-  const {hash: commentHash} = useSubscribedLocation();
   useEffect(() => {
     if (!noHash && !noAutoScroll && comment && commentHash === ("#" + comment._id)) {
       setTimeout(() => { //setTimeout make sure we execute this after the element has properly rendered

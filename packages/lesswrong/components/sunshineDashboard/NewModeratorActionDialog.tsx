@@ -17,7 +17,7 @@ const NewModeratorActionDialog = ({classes, onClose, userId}: {
   const { WrappedSmartForm, LWDialog } = Components;
   
   return (
-    <LWDialog open={true}>
+    <LWDialog open={true} onClose={onClose}>
       <DialogTitle>
         New Moderator Action
       </DialogTitle>

@@ -327,6 +327,8 @@ interface DbDigest extends DbObject {
   startDate: Date | null
   endDate: Date | null
   publishedDate: Date | null
+  onsiteImageId: string | null
+  onsitePrimaryColor: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -442,12 +444,17 @@ interface DbForumEvent extends DbObject {
   endDate: Date
   darkColor: string
   lightColor: string
+  contrastColor: string | null
   tagId: string
   bannerImageId: string | null
+  includesPoll: boolean
+  publicData: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   frontpageDescription: EditableFieldContents | null
   frontpageDescription_latest: string | null
+  frontpageDescriptionMobile: EditableFieldContents | null
+  frontpageDescriptionMobile_latest: string | null
   postPageDescription: EditableFieldContents | null
   postPageDescription_latest: string | null
 }
@@ -491,7 +498,9 @@ type ImagesCollection = CollectionBase<"Images">;
 
 interface DbImages extends DbObject {
   __collectionName?: "Images"
-  originalUrl: string
+  originalUrl: string | null
+  identifier: string
+  identifierType: "sha256Hash" | "originalUrl"
   cdnHostedUrl: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -517,6 +526,31 @@ interface DbLegacyData extends DbObject {
   __collectionName?: "LegacyData"
   objectId: string
   collectionName: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type LlmConversationsCollection = CollectionBase<"LlmConversations">;
+
+interface DbLlmConversation extends DbObject {
+  __collectionName?: "LlmConversations"
+  userId: string
+  title: string
+  model: string
+  systemPrompt: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type LlmMessagesCollection = CollectionBase<"LlmMessages">;
+
+interface DbLlmMessage extends DbObject {
+  __collectionName?: "LlmMessages"
+  userId: string
+  conversationId: string
+  role: "user" | "assistant" | "user-context" | "assistant-context" | "lw-assistant"
+  content: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -847,6 +881,7 @@ interface DbPost extends DbObject {
   metaDate: Date | null
   suggestForCuratedUserIds: Array<string> | null
   frontpageDate: Date | null
+  autoFrontpage: "show" | "hide" | null
   collectionTitle: string | null
   coauthorStatuses: Array<{
     userId: string,
@@ -919,6 +954,7 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
+  disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
   hideCommentKarma: boolean
@@ -943,7 +979,6 @@ interface DbPost extends DbObject {
   swrCachingEnabled: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  contents: EditableFieldContents | null
   contents_latest: string | null
   pingbacks: any /*{"definitions":[{}]}*/
   moderationGuidelines_latest: string | null
@@ -1180,11 +1215,13 @@ interface DbSpotlight extends DbObject {
   headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
+  spotlightSplashImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null
@@ -1201,6 +1238,59 @@ interface DbSubscription extends DbObject {
   collectionName: CollectionNameString
   deleted: boolean
   type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newSequencePosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages" | "newActivityForFeed"
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveyQuestionsCollection = CollectionBase<"SurveyQuestions">;
+
+interface DbSurveyQuestion extends DbObject {
+  __collectionName?: "SurveyQuestions"
+  surveyId: string
+  question: string
+  format: "rank0To10" | "text" | "multilineText"
+  order: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveyResponsesCollection = CollectionBase<"SurveyResponses">;
+
+interface DbSurveyResponse extends DbObject {
+  __collectionName?: "SurveyResponses"
+  surveyId: string
+  surveyScheduleId: string
+  userId: string
+  clientId: string
+  response: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveySchedulesCollection = CollectionBase<"SurveySchedules">;
+
+interface DbSurveySchedule extends DbObject {
+  __collectionName?: "SurveySchedules"
+  surveyId: string
+  name: string
+  impressionsLimit: number | null
+  maxVisitorPercentage: number | null
+  minKarma: number | null
+  maxKarma: number | null
+  target: "allUsers" | "loggedInOnly" | "loggedOutOnly"
+  startDate: Date | null
+  endDate: Date | null
+  deactivated: boolean
+  clientIds: Array<string>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type SurveysCollection = CollectionBase<"Surveys">;
+
+interface DbSurvey extends DbObject {
+  __collectionName?: "Surveys"
+  name: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1294,6 +1384,17 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string | null
   moderationGuidelines: EditableFieldContents | null
   moderationGuidelines_latest: string | null
+}
+
+type TweetsCollection = CollectionBase<"Tweets">;
+
+interface DbTweet extends DbObject {
+  __collectionName?: "Tweets"
+  postId: string
+  tweetId: string
+  content: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type TypingIndicatorsCollection = CollectionBase<"TypingIndicators">;
@@ -1435,6 +1536,7 @@ interface DbUser extends DbObject {
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
   petrovOptOut: boolean
+  optedOutOfSurveys: boolean | null
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
@@ -1463,6 +1565,7 @@ interface DbUser extends DbObject {
   hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   legacyId: string | null
   deleted: boolean
+  permanentDeletionRequestedAt: Date | null
   voteBanned: boolean | null
   nullifyVotes: boolean | null
   deleteContent: boolean | null
@@ -1768,6 +1871,7 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   inactiveSurveyEmailSentAt: Date | null
+  userSurveyEmailSentAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents | null
@@ -1865,6 +1969,8 @@ interface CollectionsByName {
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
+  LlmConversations: LlmConversationsCollection
+  LlmMessages: LlmMessagesCollection
   Localgroups: LocalgroupsCollection
   ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
@@ -1896,9 +2002,14 @@ interface CollectionsByName {
   SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
+  SurveyQuestions: SurveyQuestionsCollection
+  SurveyResponses: SurveyResponsesCollection
+  SurveySchedules: SurveySchedulesCollection
+  Surveys: SurveysCollection
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
   UserEAGDetails: UserEAGDetailsCollection
@@ -1942,6 +2053,8 @@ interface ObjectsByCollectionName {
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversations: DbLlmConversation
+  LlmMessages: DbLlmMessage
   Localgroups: DbLocalgroup
   ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
@@ -1973,9 +2086,14 @@ interface ObjectsByCollectionName {
   SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
+  SurveyQuestions: DbSurveyQuestion
+  SurveyResponses: DbSurveyResponse
+  SurveySchedules: DbSurveySchedule
+  Surveys: DbSurvey
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
   UserEAGDetails: DbUserEAGDetail
@@ -2019,6 +2137,8 @@ interface ObjectsByTypeName {
   Images: DbImages
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
+  LlmConversation: DbLlmConversation
+  LlmMessage: DbLlmMessage
   Localgroup: DbLocalgroup
   ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
@@ -2050,9 +2170,14 @@ interface ObjectsByTypeName {
   SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
+  SurveyQuestion: DbSurveyQuestion
+  SurveyResponse: DbSurveyResponse
+  SurveySchedule: DbSurveySchedule
+  Survey: DbSurvey
   TagFlag: DbTagFlag
   TagRel: DbTagRel
   Tag: DbTag
+  Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
   UserEAGDetail: DbUserEAGDetail

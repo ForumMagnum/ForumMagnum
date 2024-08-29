@@ -23,7 +23,6 @@ import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
@@ -33,11 +32,10 @@ import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
 import { postsNewNotifications } from '../notificationCallbacks';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
+import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
-
-const type3ClientIdSetting = new DatabaseServerSetting<string | null>('type3.clientId', null)
-const type3WebhookSecretSetting = new DatabaseServerSetting<string | null>('type3.webhookSecret', null)
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -75,7 +73,7 @@ if (isEAForum) {
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
-    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
@@ -277,6 +275,13 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
+postPublishedCallback.add(async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+  // When a post is published, ensure that the version number of its contents
+  // revision does not have `draft` set or an 0.x version number (which would
+  // affect permissions).
+  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+});
+
 interface SendPostRejectionPMParams {
   messageContents: string,
   lwAccount: DbUser,
@@ -387,14 +392,19 @@ async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
+  const contents = await getLatestContentsRevision(post);
+  if (!contents) {
+    return post;
+  }
+
   let socialPreviewImageAutoUrl = ''
-  if (post.contents?.html) {
-    const $ = cheerioParse(post.contents?.html)
+  if (contents?.html) {
+    const $ = cheerioParse(contents?.html)
     const firstImg = $('img').first()
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {
       try {
-        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+        socialPreviewImageAutoUrl = await moveImageToCloudinary({oldUrl: firstImgSrc, originDocumentId: post._id}) ?? firstImgSrc
       } catch (e) {
         captureException(e);
         socialPreviewImageAutoUrl = firstImgSrc
@@ -617,7 +627,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 /* Recombee callbacks */
 
 function updateRecombeeWithPublishedPost(post: DbPost, context: ResolverContext) {
-  if (post.shortform || post.unlisted) return;
+  if (!isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -637,7 +647,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
   // This does seem likely to be a bug in a the mutator logic
   const post = await context.loaders.Posts.load(newDocument._id);
   const redrafted = post.draft && !oldDocument.draft
-  if ((post.draft && !redrafted) || post.shortform || post.unlisted || post.rejected) return;
+  if ((post.draft && !redrafted) || !isRecombeeRecommendablePost(post)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(post, context)
@@ -653,7 +663,7 @@ getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, oldDocument, c
 });
 
 export function updateRecombeeVote({ newDocument, vote }: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context: ResolverContext) {
-  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
+  if (vote.collectionName !== 'Posts' || newDocument.userId === vote.userId || !isRecombeeRecommendablePost(newDocument as DbPost)) return;
 
   if (recombeeEnabledSetting.get()) {
     void recombeeApi.upsertPost(newDocument as DbPost, context)

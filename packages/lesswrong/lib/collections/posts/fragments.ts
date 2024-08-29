@@ -173,6 +173,8 @@ registerFragment(`
     reviewCount2019
 
     votingSystem
+    
+    disableRecommendation
   }
 `);
 
@@ -189,6 +191,18 @@ registerFragment(`
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+    podcastEpisode {
+      _id
+      title
+      podcast {
+        _id
+        title
+        applePodcastLink
+        spotifyPodcastLink
+      }
+      episodeLink
+      externalEpisodeId
+    }
   }
 `)
 
@@ -260,10 +274,10 @@ registerFragment(`
     ...PostsAuthors
     readTimeMinutes
     rejectedReason
-    disableRecommendation
     customHighlight {
       _id
       html
+      plaintextDescription
     }
     lastPromotedComment {
       _id
@@ -286,6 +300,7 @@ registerFragment(`
     totalDialogueResponseCount
     unreadDebateResponseCount
     dialogTooltipPreview
+    disableSidenotes
   }
 `);
 
@@ -578,7 +593,6 @@ registerFragment(`
     coauthors {
       ...UsersMinimumInfo
     }
-    swrCachingEnabled
   }
 `);
 
@@ -646,6 +660,7 @@ registerFragment(`
     currentUserExtendedVote
     fmCrosspost
     rejectedReason
+    autoFrontpage
 
     contents {
       _id
@@ -779,3 +794,54 @@ registerFragment(`
     firstVideoAttribsForPreview
   }
 `);
+
+registerFragment(`
+  fragment PostsRSSFeed on Post {
+    ...PostsPage
+    scoreExceeded2Date
+    scoreExceeded30Date
+    scoreExceeded45Date
+    scoreExceeded75Date
+    scoreExceeded125Date
+    scoreExceeded200Date
+    metaDate
+  }
+`);
+
+registerFragment(`
+  fragment PostsOriginalContents on Post {
+    _id
+    contents {
+      _id
+      originalContents {
+        type
+        data
+      }
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsHTML on Post {
+    _id
+    contents {
+      ...RevisionHTML
+    }
+  }
+`);
+
+registerFragment(`
+  fragment PostsForAutocomplete on Post {
+    _id
+    title
+    userId
+    baseScore
+    extendedScore
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      markdown
+    }
+  }
+`)

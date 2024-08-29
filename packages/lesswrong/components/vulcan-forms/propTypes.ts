@@ -142,6 +142,7 @@ declare global {
     formProps: any
     formType: "new"|"edit"
     setFooterContent?: any
+    hideClear?: boolean
   }
   interface FormComponentProps<T> extends FormComponentWrapperProps<T>{
     value: T

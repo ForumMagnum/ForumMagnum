@@ -1,0 +1,30 @@
+{
+  "public": {
+    "forumType": "EAForum",
+    "hasEvents": true,
+    "title": "LessWrong Test",
+    "tagline": "LessWrong",
+    "faviconUrl": "https://www.effectivealtruism.org/favicon-16x16.png",
+    "forumSettings": {
+      "tabTitle": "LessWrong Test",
+      "headerTitle": "LessWrong Test",
+      "shortForumTitle": "LessWrong"
+    },
+    "siteNameWithArticle": "LessWrong",
+    "siteUrl": "http://localhost:3467",
+    
+    "debug": false,
+    
+    "testServer": true,
+    "analytics": {
+      "environment": "dev"
+    },
+    "disallowCrawlers": true,
+    "disableEnsureIndex": true,
+    "disableElastic": true,
+    "fmCrosspost": {
+      "siteName": "EAForum Test",
+      "baseUrl": "http://localhost:3456/"
+    }
+  }
+}

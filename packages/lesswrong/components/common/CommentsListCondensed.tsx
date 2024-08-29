@@ -51,7 +51,7 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
 
   const showLoadMore = !loading && (count === undefined || totalCount === undefined || count < totalCount)
   return <>
-    <SectionTitle title={label} className={classes.subheader} >
+    <SectionTitle title={label} titleClassName={classes.subheader} >
       {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
         <SectionButton>
           <AddBoxIcon />

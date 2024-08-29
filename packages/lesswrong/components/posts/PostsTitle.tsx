@@ -158,10 +158,10 @@ const PostsTitle = ({
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
-  showRecommendationIcon=false,
   Wrapper=DefaultWrapper,
   showEventTag,
   linkEventProps,
+  postItemHovered,
   className,
   classes,
 }: {
@@ -176,10 +176,10 @@ const PostsTitle = ({
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
-  showRecommendationIcon?: boolean
   Wrapper?: FC<PropsWithChildren<{}>>,
   showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
+  postItemHovered?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -226,7 +226,7 @@ const PostsTitle = ({
         </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
-        {isLink ? <Link to={url} eventProps={linkEventProps}>{title}</Link> : title }
+        {isLink ? <Link to={url} doOnDown={true} eventProps={linkEventProps}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
         <InteractionWrapper className={classes.interactionWrapper}>
@@ -234,7 +234,7 @@ const PostsTitle = ({
             post={post} 
             hideCuratedIcon={curatedIconLeft} 
             hidePersonalIcon={!showPersonalIcon}
-            showRecommendationIcon={showRecommendationIcon}
+            hover={postItemHovered}
           />
         </InteractionWrapper>
       </span>}
@@ -244,7 +244,7 @@ const PostsTitle = ({
             tagSlug={currentForumEvent.tag.slug}
             className={classes.highlightedTagTooltip}
           >
-            <Link to={tagGetUrl(currentForumEvent.tag)}>
+            <Link doOnDown={true} to={tagGetUrl(currentForumEvent.tag)}>
               <span
                 className={classes.eventTag}
                 style={{

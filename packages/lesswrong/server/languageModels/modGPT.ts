@@ -21,6 +21,7 @@ import { appendToSunshineNotes } from '../../lib/collections/users/helpers';
 import { createAdminContext } from "../vulcan-lib/query";
 import difference from 'lodash/difference';
 import { truncatise } from '../../lib/truncatise';
+import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
 
 
 export const modGPTPrompt = `
@@ -42,7 +43,7 @@ export const modGPTPrompt = `
   * Harassment or threats of violence
   * Misgendering deliberately and/or deadnaming gratuitously, although mistakes are expected and fine
 
-  The user input will include some previous text as context (with the post data inside of <post> tags and the parent comment inside of <parent> tags) and the comment to be reviewed (inside <comment> tags). Review the comment you're given by making an overall assessment of how well the comment meets the norms. Make a recommendation as to whether the moderation team should intervene. Flag if the comment contains any specific discouraged behaviors from the list above.
+  The user input will include some previous text as context (with the post title and an excerpt inside of <post> tags and the parent comment inside of <parent> tags) and the comment to be reviewed (inside <comment> tags). Review the comment you're given by making an overall assessment of how well the comment meets the norms. Make a recommendation as to whether the moderation team should intervene. Flag if the comment contains any specific discouraged behaviors from the list above.
 
   Your three recommendation options are:
   * Intervene
@@ -66,7 +67,7 @@ export const modGPTPrompt = `
 
 const getModGPTAnalysis = async (api: OpenAI, text: string) => {
   return await api.chat.completions.create({
-    model: 'gpt-4',
+    model: 'gpt-4o',
     messages: [
       {role: 'system', content: modGPTPrompt},
       {role: 'user', content: text},
@@ -97,10 +98,15 @@ const getMessageToCommenter = (user: DbUser, commentLink: string, flag?: string)
   `
 }
 
+export const sanitizeHtmlOptions = {
+  allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio', 'figure']),
+  nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img', 'figure' ]
+}
+
 /**
  * Ask GPT-4 to help moderate the given comment. It will respond with a "recommendation", as per the prompt above.
  */
-async function checkModGPT(comment: DbComment, post: DbPost): Promise<void> {
+async function checkModGPT(comment: DbComment, post: FetchedFragment<'PostsOriginalContents'>): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
     if (!isAnyTest) {
@@ -110,7 +116,7 @@ async function checkModGPT(comment: DbComment, post: DbPost): Promise<void> {
     return
   }
   
-  if (!comment.contents?.originalContents?.data) {
+  if (!comment.contents?.originalContents?.data || !post.contents?.originalContents?.data) {
     if (!isAnyTest) {
       //eslint-disable-next-line no-console
       console.log("Skipping ModGPT (no contents on this comment!)")
@@ -118,31 +124,27 @@ async function checkModGPT(comment: DbComment, post: DbPost): Promise<void> {
     return
   }
 
-  const commentText = sanitizeHtml(comment.contents?.html ?? "", {
-    allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
-    nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
-  })
-  const postText = sanitizeHtml(post.contents?.html ?? "", {
-    allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
-    nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
-  })
+  const commentHtml = await dataToHTML(comment.contents.originalContents.data, comment.contents.originalContents.type, {sanitize: false})
+  const postHtml = await dataToHTML(post.contents.originalContents.data, post.contents.originalContents.type, {sanitize: false})
+  const commentText = sanitizeHtml(commentHtml ?? "", sanitizeHtmlOptions)
+  const postText = sanitizeHtml(postHtml ?? "", sanitizeHtmlOptions)
   const postExcerpt = truncatise(postText, {TruncateBy: 'characters', TruncateLength: 300, Strict: true, Suffix: ''})
   
   // Build the message that will be attributed to the user
-  let userText = `
-    <post>
+  let userText = `<post>
     Title: ${post.title}
     Excerpt: ${postExcerpt}
-    </post>
-  `
+    </post>`
   if (comment.parentCommentId) {
     // If this comment has a parent, include that as well
     const parentComment = await Comments.findOne({_id: comment.parentCommentId})
-    if (parentComment) {
-      const parentCommentText = sanitizeHtml(parentComment.contents?.html ?? "", {
-        allowedTags: difference(sanitizeAllowedTags, ['img', 'iframe', 'audio']),
-        nonTextTags: [ 'style', 'script', 'textarea', 'option', 'img' ]
-      })
+    if (parentComment && parentComment.contents?.originalContents?.data) {
+      const parentCommentHtml = await dataToHTML(
+        parentComment.contents.originalContents.data,
+        parentComment.contents.originalContents.type,
+        {sanitize: false}
+      )
+      const parentCommentText = sanitizeHtml(parentCommentHtml ?? "", sanitizeHtmlOptions)
       userText += `<parent>${parentCommentText}</parent>`
     }
   }
@@ -261,25 +263,36 @@ async function checkModGPT(comment: DbComment, post: DbPost): Promise<void> {
 }
 
 getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
-  // on the EA Forum, ModGPT checks earnest comments on posts for norm violations
+  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
+  // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
     !isEAForum ||
     !newDocument.postId ||
     newDocument.deleted ||
+    newDocument.deletedPublic ||
     newDocument.spam ||
+    newDocument.needsReview ||
+    newDocument.authorIsUnreviewed ||
     newDocument.retracted ||
+    newDocument.rejected ||
     newDocument.shortform ||
-    !oldDocument.contents?.originalContents?.data ||
+    newDocument.moderatorHat ||
     !newDocument.contents?.originalContents?.data
   ) {
     return
   }
   
-  const noChange = oldDocument.contents?.originalContents.data === newDocument.contents?.originalContents.data
+  const noChange = oldDocument.contents?.originalContents?.data === newDocument.contents.originalContents.data
   if (noChange) return
 
   // only have ModGPT check comments on posts tagged with "Community"
-  const post = await Posts.findOne(newDocument.postId)
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsOriginalContents",
+    currentUser: null,
+    skipFiltering: true,
+    selector: {_id: newDocument.postId},
+  });
   if (!post) return
   
   const postTags = post.tagRelevance
@@ -289,20 +302,32 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
 })
 
 getCollectionHooks("Comments").createAsync.add(async ({document}) => {
-  // on the EA Forum, ModGPT checks earnest comments on posts for norm violations
+  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
+  // We skip comments by unreviewed authors, because those will be reviewed by a human.
   if (
     !isEAForum ||
     !document.postId ||
     document.deleted ||
+    document.deletedPublic ||
     document.spam ||
+    document.needsReview ||
+    document.authorIsUnreviewed ||
     document.retracted ||
-    document.shortform
+    document.rejected ||
+    document.shortform ||
+    document.moderatorHat
   ) {
     return
   }
   
   // only have ModGPT check comments on posts tagged with "Community"
-  const post = await Posts.findOne(document.postId)
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsOriginalContents",
+    currentUser: null,
+    skipFiltering: true,
+    selector: {_id: document.postId},
+  });
   if (!post) return
   
   const postTags = post.tagRelevance
