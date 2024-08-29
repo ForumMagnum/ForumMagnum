@@ -10,7 +10,7 @@ import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { ClaudeMessageRequestSchema, ClientMessage, LlmCreateConversationMessage, LlmStreamChunkMessage, LlmStreamContentMessage, LlmStreamEndMessage, LlmStreamMessage } from "@/components/languageModels/LlmChatWrapper";
 import { createMutator, getContextFromReqAndRes, runFragmentQuery } from "../vulcan-lib";
-import { LlmVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
+import { LlmVisibleMessageRole, UserVisibleMessageRole, llmVisibleMessageRoles } from "@/lib/collections/llmMessages/schema";
 import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
@@ -45,6 +45,13 @@ type ConversationContext = {
 interface ClaudeAllowableMessage {
   content: string;
   role: LlmVisibleMessageRole;
+}
+
+interface NewLlmMessage {
+  userId: string;
+  content: string;
+  role: LlmVisibleMessageRole|UserVisibleMessageRole
+  conversationId: string;
 }
 
 interface SendMessagesToClaudeArgs {
@@ -344,7 +351,7 @@ async function getContextMessages(content: string, currentPost: PostsPage | null
   const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
   const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
 
-  return { userContextMessage, assistantContextMessage };
+  return { userContextMessage, assistantContextMessage, contextualPosts };
 }
 
 async function createConversationWithMessages({ newMessage, systemPrompt, model, currentPostId, currentUser, context }: InitializeConversationArgs) {
@@ -355,7 +362,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     : Promise.resolve(null)
   );
 
-  const [conversation, { userContextMessage, assistantContextMessage }] = await Promise.all([
+  const [conversation, { userContextMessage, assistantContextMessage, contextualPosts }] = await Promise.all([
     createNewConversation({
       query: content,
       systemPrompt,
@@ -400,9 +407,15 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
     conversationId,
   } as const;
 
+  const newMessageRecords: NewLlmMessage[] = [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord]
+
+  if (contextualPosts.length > 0) {
+    newMessageRecords.push(newUserContextMessageRecord);
+  }
+
   return {
     conversation,
-    newMessageRecords: [newAssistantContextMessageRecord, newAssistantAckMessageRecord, newUserMessageRecord, newUserContextMessageRecord],
+    newMessageRecords
   };
 }
 
