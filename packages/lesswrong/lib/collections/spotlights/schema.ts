@@ -202,6 +202,8 @@ const schema: SchemaType<"Spotlights"> = {
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     order: 80,
+    optional: true,
+    nullable: true,
     tooltip: "Remove from the spotlights page, but keep in the database.",
     ...schemaDefaultValue(false),
   },

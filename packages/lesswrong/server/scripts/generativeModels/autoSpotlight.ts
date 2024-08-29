@@ -62,7 +62,7 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlight
     skipFiltering: true,
   });
   const postIds = reviewWinners.map(winner => winner.postId);
-  // Assume these functions exist to fetch data from the database
+
   const posts = await fetchFragment({
     collectionName: "Posts",
     fragmentName: "PostsWithNavigation",
