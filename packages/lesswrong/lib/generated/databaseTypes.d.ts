@@ -337,7 +337,7 @@ type DoppelCommentsCollection = CollectionBase<"DoppelComments">;
 
 interface DbDoppelComment extends DbObject {
   __collectionName?: "DoppelComments"
-  commentId: string
+  commentId: string | null
   content: string
   deleted: boolean
   createdAt: Date

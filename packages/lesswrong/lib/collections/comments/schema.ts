@@ -875,7 +875,21 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
-  } 
+  },
+
+  doppelComments: {
+    // Resolved by doppelComments resolver
+    type: Array,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: true,
+  },
+
+  'doppelComments.$': {
+    type: String,
+  },
 };
 
 export default schema;

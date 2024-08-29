@@ -1,7 +1,8 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { Tabs, Tab } from '@material-ui/core';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
 import { useCurrentUser } from '../../common/withUser'
 import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
@@ -47,7 +48,7 @@ const CommentBody = ({
   voteProps,
   className,
   classes,
-  cryptoComments,
+  doppelComments,
 }: {
   comment: CommentsList,
   commentBodyRef?: React.RefObject<ContentItemBody>|null,
@@ -57,13 +58,13 @@ const CommentBody = ({
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
   classes: ClassesType,
-  cryptoComments?: string[]
+  doppelComments?: string[]
 }) => {
   const currentUser = useCurrentUser();
-  const potentialCommentBodies = useMemo(() => ([...(cryptoComments ?? []), comment.contents?.html])
+  const potentialCommentBodies = useMemo(() => ([...(doppelComments ?? []), comment.contents?.html])
     .map(a => ({val: a, ix: Math.random()}))
     .sort((a, b) => a.ix - b.ix)
-    .map(a => a.val), [JSON.stringify(cryptoComments), comment.contents?.html])
+    .map(a => a.val), [doppelComments, comment.contents?.html])
   const [activeTab, setActiveTab] = React.useState<0|1|2>(0)
   const { ContentItemBody, CommentDeletedMetadata, ContentStyles, InlineReactSelectionWrapper } = Components
   const { html = "" } = comment.contents || {}
@@ -112,7 +113,7 @@ const CommentBody = ({
     <div>
       <Tabs
         value={activeTab}
-        onChange={(event, newValue) => setActiveTab(newValue)}
+        onChange={(_event, newValue) => setActiveTab(newValue)}
         className={classes.tabs}
       >
         {([0,1,2]).map((tabIndex) => (
@@ -125,10 +126,10 @@ const CommentBody = ({
 
   if (votingSystem.name === "namesAttachedReactions" && voteProps) {
     return <InlineReactSelectionWrapper commentBodyRef={commentBodyRef} voteProps={voteProps} styling="comment" >
-      {(cryptoComments ?? []).length ? tabContent : renderContent(innerHtml)}
+      {(doppelComments ?? []).length ? tabContent : renderContent(innerHtml)}
     </InlineReactSelectionWrapper>
   } else {
-    return <>{(cryptoComments ?? []).length ? tabContent : renderContent(innerHtml)}</>
+    return <>{(doppelComments ?? []).length ? tabContent : renderContent(innerHtml)}</>
   }
 }
 

@@ -74,6 +74,9 @@ registerFragment(`
     rejectedReason
     modGPTRecommendation
     originalDialogueId
+    doppelComments {
+      ...DoppelCommentsFragment
+    }
   }
 `);
 

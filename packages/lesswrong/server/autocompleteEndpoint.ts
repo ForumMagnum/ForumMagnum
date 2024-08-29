@@ -12,7 +12,7 @@ import { formatRelative } from "@/lib/utils/timeFormat";
 import Users from "@/lib/vulcan-users";
 
 
-const getParentComments = async (comment: DbComment) => {
+export const getParentComments = async (comment: DbComment) => {
   const parentComments: DbComment[] = [];
   let currentComment: DbComment | null = comment;
   while (currentComment.parentCommentId && currentComment.parentCommentId !== currentComment._id) {
@@ -27,7 +27,7 @@ const getParentComments = async (comment: DbComment) => {
   return parentComments.reverse();
 }
 
-const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
+export const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
   const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? "<not available/>");
   const author = authorsMap.get(post.userId)?.displayName;
   return `${post.title}
@@ -36,7 +36,7 @@ ${post.baseScore}
 ${markdownBody}`.trim();
 }
 
-const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
+export const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
   const markdownBody = turndownService.turndown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
   const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
   const author = authorsMap.get(comment.userId)?.displayName;
@@ -44,14 +44,14 @@ const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, D
 ${markdownBody}`.trim();
 }
 
-const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string, author?: string) => {
+export const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string, author?: string) => {
   return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
 ---
 ${author ?? currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
-const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser, author?: string) => {
+export const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser, author?: string) => {
   const parentComment = parentComments[parentComments.length - 1];
   return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
 ---
@@ -63,7 +63,7 @@ ${author ?? currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))}
 ${prefix}`.trim();
 }
 
-async function constructMessageHistory(
+export async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],

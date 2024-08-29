@@ -17,7 +17,6 @@ import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
-import { markdownToHtml } from '@/server/editor/conversionUtils';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -201,42 +200,8 @@ export const CommentsItem = ({
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
-  const [cryptoComments, setCryptoComments] = useState<string[]>([]);
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
-
-  useEffect(() => {
-    const replyingCommentId = comment.parentCommentId;
-    const postId = comment.postId;
-
-    const prefix = '';
-
-    if (!comment.user?.karma || comment.user?.karma < 1e4) return
-
-    const getAlternative = async () => {
-      const alternative = await fetch('/api/autocomplete/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prefix,
-          commentIds: JSON.parse(localStorage.getItem('commentIds') || '[]'),
-          postIds: JSON.parse(localStorage.getItem('postIds') || '[]'),
-          replyingCommentId,
-          postId,
-          author: comment.user?.displayName,
-        }),
-      }).then(r => r.text());
-
-      console.log(alternative);
-
-      setCryptoComments(cryptos => cryptos.concat(alternative));
-    }
-
-    void getAlternative();
-    void getAlternative();
-  }, [comment.parentCommentId, comment.postId, comment.user?.displayName, comment.user?.karma]);
 
   const {
     postPage, tag, post, refetch, showPostTitle, hideReviewVoteButtons,
@@ -301,7 +266,7 @@ export const CommentsItem = ({
         comment={comment}
         postPage={postPage}
         voteProps={voteProps}
-        cryptoComments={cryptoComments}
+        doppelComments={comment.doppelComments.map(c => c.content)}
       />
     }
   }

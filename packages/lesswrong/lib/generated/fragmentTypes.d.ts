@@ -501,6 +501,7 @@ interface CommentsDefaultFragment { // fragment on Comments
   readonly moveToAlignmentUserId: string,
   readonly agentFoundationsId: string,
   readonly originalDialogueId: string | null,
+  readonly doppelComments: Array<DoppelComment|null>,
 }
 
 interface UserTagRelsDefaultFragment { // fragment on UserTagRels
@@ -1771,6 +1772,7 @@ interface CommentsList { // fragment on Comments
   readonly rejectedReason: string | null,
   readonly modGPTRecommendation: string | null,
   readonly originalDialogueId: string | null,
+  readonly doppelComments: Array<DoppelCommentsFragment>,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -4060,6 +4062,7 @@ interface DoppelCommentsFragment { // fragment on DoppelComments
   readonly commentId: string,
   readonly createdAt: Date,
   readonly deleted: boolean,
+  readonly content: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
