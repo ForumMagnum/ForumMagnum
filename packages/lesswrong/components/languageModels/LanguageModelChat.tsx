@@ -262,21 +262,10 @@ const LLMInputTextbox = ({onSubmit, classes}: {
 
 const welcomeGuideHtml = [
   `<h1>Welcome to the LessWrong LLM Chat!</h1>`,
-  `<ul><li>Ctrl/Cmd + Enter to submit</li>`,
-  `<li>The LLM chat interface is currently hooked up to Claude Sonnet 3.5</li><li>While in development, LW is paying for the usage. This will likely change later.</li>`,
-  `<li>LaTeX is supported both on input and output</li><li>Images are not yet supported</li><li style="color: #bf360c;">While this feature is under heavy development, the LessWrong team will read conversations to help us with product iteration.</li></ul>`,
-  `<h1>Loading Context</h1><p><strong>Currently, context loading only happens with the first message in a conversation</strong></p>`,
-  `<p>When you start a new chat, your very first message is analyzed for potentially relevant context based on the text of your query and the post you are currently viewing (if any).`,
-  ` The system will decide whether or not to load in posts and comments related to your query, your current post, both, or neither.</p>`,
-  `<p>The kinds of requests you can make include but are not limited to:</p>`,
-  `<p><i>About the current post</i></p><blockquote>`,
-  `<p>"Please give me a tl;dr of this post and tell me three surprising things in it."</p>`,
-  `<p>&lt;copy-paste section of post&gt; "Please explain this to me including worked examples and explanations of the math notation."</p>`,
-  `<p>"What the objections to the OP in the comments and how did the author respond to them?"</p>`,
-  `<p>"What are background posts that would help understand this?"</p></blockquote>`,
-  `<p><i>Generally</i></p><blockquote><p>"Can you give me an overview of Infrabayesianism?"</p>`,
-  `<p>"Please give me an of the Sleeping Beauty problem and its significance?"</p></blockquote>`,
-  `<p>(Our chat is good for asking about niche LessWrong content.)</p><p>Feel free to try out other kinds of questions!!</p><p><em>(This guide can be hidden - see the button in the top right.)</em></p>`
+  `<ul><li>The LLM chat interface is currently hooked up to Claude Sonnet 3.5</li>`,
+  `<li>LaTeX is supported both on input and output.`,
+  `<li style="color: #bf360c;">The LessWrong team will read conversations to help us with product iteration during development.</li></ul>`,
+  `<p><strong>Posts and comments may be loaded into the context window based on your <em>first message</em> (and based on the current post you are viewing).</strong></p>`,
 ].join('');
 
 export const ChatInterface = ({classes}: {
