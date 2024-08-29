@@ -11,3 +11,5 @@
 --ignore-file=is:.eslintcache
 --ignore-dir=webpack/src
 --ignore-dir=express/src
+--ignore-file=is:client_stats.html
+--ignore-file=is:client_meta.json
