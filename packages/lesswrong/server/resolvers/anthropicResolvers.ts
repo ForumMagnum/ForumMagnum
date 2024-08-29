@@ -440,11 +440,7 @@ export function addLlmChatEndpoint(app: Express) {
       throw new Error('Invalid requesty body');
     }
 
-    const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody.data;
-    
-    // const newMessage: ClientMessage = req.body.newMessage;
-    // const promptContextOptions: PromptContextOptions = req.body.promptContextOptions;
-    // const newConversationChannelId: string = req.body.newConversationChannelId;
+    const { newMessage, promptContextOptions, newConversationChannelId } = parsedBody.data;    
     const { postId: currentPostId } = promptContextOptions
     
     if (!newConversationChannelId && !newMessage.conversationId) {
