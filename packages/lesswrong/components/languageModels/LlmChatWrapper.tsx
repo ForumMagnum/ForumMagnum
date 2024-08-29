@@ -17,14 +17,6 @@ export interface ClientMessage {
 type LlmStreamContent = {
   conversationId: string;
   content: string;
-  previousUserMessage?: {
-    _id: string;
-    content: string;
-    userId: string;
-    role: 'user';
-    /** Stringified date */
-    createdAt: string;
-  };
 };
 
 type LlmStreamEnd = {
@@ -113,10 +105,10 @@ const LlmChatWrapper = ({children}: {
 
   const sortedConversations = useMemo(() => {
     const llmConversationsList = conversations ? Object.values(conversations) : [];
-    return sortBy(llmConversationsList, (conversation) => -(conversation.lastUpdatedAt ?? conversation.createdAt));
+    return sortBy(llmConversationsList, (conversation) => conversation.lastUpdatedAt ?? conversation.createdAt);
   }, [conversations]);
 
-  const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(sortedConversations[0]?._id);
+  const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(sortedConversations.slice(-1)[0]?._id);
 
   const { document: currentConversationWithMessages } = useSingle({
     collectionName: "LlmConversations",
@@ -151,68 +143,62 @@ const LlmChatWrapper = ({children}: {
     });
   }, []);
 
-  // TODO: maybe break this out into separate update operations
-  const updateConversationById = useCallback((updatedConversation: LlmConversation | LlmConversationsWithMessagesFragment) => {
-    setConversations((conversations) => ({ ...conversations, [updatedConversation._id]: updatedConversation }));
-  }, []);
-
   const hydrateNewConversation = useCallback((newConversationEvent: LlmCreateConversationMessage) => {
     const { title, conversationId, createdAt, userId, channelId } = newConversationEvent;
-    const { [channelId]: { messages }, ...rest } = conversations;
+    setConversations((conversations) => {
+      const { [channelId]: { messages }, ...rest } = conversations;
 
-    const hydratedConversation: LlmConversationWithPartialMessages = {
-      _id: conversationId,
-      title,
-      messages,
-      createdAt: new Date(createdAt),
-      deleted: false,
-      lastUpdatedAt: new Date(createdAt),
-      userId
-    };
-
-    const updatedConversations = { [conversationId]: hydratedConversation, ...rest };
+      const hydratedConversation: LlmConversationWithPartialMessages = {
+        _id: conversationId,
+        title,
+        messages,
+        createdAt: new Date(createdAt),
+        deleted: false,
+        lastUpdatedAt: new Date(createdAt),
+        userId
+      };
+  
+      return { [conversationId]: hydratedConversation, ...rest };
+    });
 
     setCurrentConversationId(conversationId);
-    setConversations(updatedConversations);
     setConversationLoadingState(conversationId, true);
-  }, [conversations, setConversationLoadingState]);
+  }, [setConversationLoadingState]);
   
   const handleLlmStreamContent = useCallback((message: LlmStreamContentMessage) => {
     if (!currentUser) {
       return;
     }
 
-    const { conversationId, content, previousUserMessage } = message.data;
+    const { conversationId, content } = message.data;
 
-    const streamConversation = conversations[conversationId];
-    const updatedMessages = [...streamConversation.messages];
-    const lastMessageInConversation = updatedMessages.slice(-1)[0];
-    const lastClientMessageIsAssistant = lastMessageInConversation?.role === 'assistant';
-
-    const newMessage: NewLlmMessage = { 
-      conversationId,
-      userId: currentUser._id,
-      // TODO: pass back role through stream, maybe even the whole message object?
-      role: "assistant", 
-      content,
-    };
-    
-    // previousUserMessage only gets sent with the first stream event for any given message response
-    if (previousUserMessage && lastClientMessageIsAssistant) {
-      updatedMessages.push(previousUserMessage, newMessage);
-    } else {
+    setConversations((conversations) => {
+      const streamConversation = conversations[conversationId];
+      const updatedMessages = [...streamConversation.messages];
+      const lastMessageInConversation = updatedMessages.slice(-1)[0];
+      const lastClientMessageIsAssistant = lastMessageInConversation?.role === 'assistant';
+  
+      const newMessage: NewLlmMessage = { 
+        conversationId,
+        userId: currentUser._id,
+        // TODO: pass back role through stream, maybe even the whole message object?
+        role: "assistant", 
+        content,
+      };
+      
       // Since we're sending an aggregate buffer rather than diffs, we need to replace the last message in the conversation each time we get one (after the first time)
       if (lastClientMessageIsAssistant) {
         updatedMessages.pop();
       }
       updatedMessages.push(newMessage);
-    }
+  
+      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+      
+      return { ...conversations, [updatedConversation._id]: updatedConversation };
+    });
 
-    const updatedConversation = { ...streamConversation, messages: updatedMessages };
-    
-    updateConversationById(updatedConversation);
     setConversationLoadingState(conversationId, false);
-  }, [conversations, currentUser, updateConversationById, setConversationLoadingState]);
+  }, [currentUser, setConversationLoadingState]);
 
   const handleClaudeResponseMesage = useCallback((message: LlmStreamMessage) => {
     switch (message.eventType) {
@@ -317,14 +303,18 @@ const LlmChatWrapper = ({children}: {
       content: query
     };
 
-    // We don't send the role to the server
-    const newClientMessage: NewLlmMessage = { ...preSaveMessage, role: 'user' };
-    const updatedMessages = [...displayedConversation.messages ?? [], newClientMessage];
-    const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation, messages: updatedMessages };
+    setConversations((conversations) => {
+      // We don't send the role to the server
+      const newClientMessage: NewLlmMessage = { ...preSaveMessage, role: 'user' };
+      const updatedMessages = [...displayedConversation.messages ?? [], newClientMessage];
+      const conversationWithNewUserMessage: LlmConversation = { ...displayedConversation, messages: updatedMessages };
+
+      return { ...conversations, [conversationWithNewUserMessage._id]: conversationWithNewUserMessage };
+    });
+
 
     // Update Client Display
     setConversationLoadingState(displayedConversation._id, true);
-    updateConversationById(conversationWithNewUserMessage);
 
     if (!isExistingConversation) {
       setCurrentConversationId(newConversationChannelId);
@@ -340,7 +330,7 @@ const LlmChatWrapper = ({children}: {
       promptContextOptions,
       ...(isExistingConversation ? {} : { newConversationChannelId }),
     });
-  }, [currentUser, currentConversation, sendClaudeMessage, updateConversationById, setConversationLoadingState]);
+  }, [currentUser, currentConversation, sendClaudeMessage, setConversationLoadingState]);
 
   const setCurrentConversation = useCallback(setCurrentConversationId, [setCurrentConversationId]);
 
@@ -354,8 +344,10 @@ const LlmChatWrapper = ({children}: {
     }
 
     // remove conversation with this id from conversations object
-    const { [conversationId]: _, ...rest } = conversations;
-    setConversations(rest);
+    setConversations((conversations) => {
+      const { [conversationId]: _, ...rest } = conversations;
+      return rest;
+    });
 
     void updateConversation({
       selector: { _id: conversationId },
@@ -363,16 +355,20 @@ const LlmChatWrapper = ({children}: {
         deleted: true
       }
     })
-  }, [currentUser, conversations, currentConversationId, updateConversation]);
+  }, [currentUser, currentConversationId, updateConversation]);
 
   useEffect(() => {
     if (currentConversationWithMessages) {
-      const clientSideConversationState = conversations[currentConversationWithMessages._id];
-      if (currentConversationWithMessages.messages.length > clientSideConversationState.messages.length) {
-        updateConversationById(currentConversationWithMessages);
-      }
+      setConversations((conversations) => {
+        const clientSideConversationState = conversations[currentConversationWithMessages._id];
+        if (currentConversationWithMessages.messages.length > clientSideConversationState.messages.length) {
+          return { ...conversations, [currentConversationWithMessages._id]: currentConversationWithMessages };
+        }
+
+        return conversations;
+      });
     }
-  }, [currentConversationWithMessages, conversations, updateConversationById]);
+  }, [currentConversationWithMessages]);
 
   const llmChatContext = useMemo((): LlmChatContextType => ({
     currentConversation,

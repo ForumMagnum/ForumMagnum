@@ -33,6 +33,7 @@ declare global {
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
+    commentIds?: string[],
   }
   
   /**
@@ -88,6 +89,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
         : notDeletedOrDeletionIsPublic
       ),
       hideAuthor: terms.userId ? false : undefined,
+      ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },

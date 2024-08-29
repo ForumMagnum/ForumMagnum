@@ -5,7 +5,7 @@ import LRU from 'lru-cache';
 import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled, performanceMetricLoggingSqlSampleRate } from '../lib/instanceSettings';
-import { getForwardedWhitelist } from './forwarded_whitelist';
+import { getClientIP } from './utils/getClientIP';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
@@ -192,7 +192,7 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     op_type: 'request',
     op_name: req.originalUrl,
     client_path: req.headers['request-origin-path'] as string,
-    ip: getForwardedWhitelist().getClientIP(req),
+    ip: getClientIP(req),
     user_agent: req.headers["user-agent"],
     user_id: req.user?._id,
   });
