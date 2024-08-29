@@ -740,8 +740,8 @@
     "timestamp": "2024-08-28T23:08:39.000Z"
   },
   {
-    "acceptsSchemaHash": "fbfbc086986d64913d7474fde81eaea8",
-    "acceptedByMigration": "20240829T002752.add_deletedDraft_and_spotlightSplashImageUrl_to_spotlight.ts",
-    "timestamp": "2024-08-29T00:27:52.000Z"
+    "acceptsSchemaHash": "793addca611706caf3f63f08a909d4ab",
+    "acceptedByMigration": "20240829T030437.add_deletedDraft_and_splash_url_to_spotlights.ts",
+    "timestamp": "2024-08-29T03:04:37.000Z"
   }
 ]
