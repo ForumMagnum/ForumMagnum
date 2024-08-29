@@ -191,21 +191,6 @@ export const EAOnboardingThankYouStage = ({classes}: {
             <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
           </div>
         </div>
-        <div className={classNames(classes.section, classes.interviewSection, classes.mobileColumn)}>
-          <div>
-            <div className={classes.heading}>
-              Sign up for a user interview
-            </div>
-            <div className={classes.interviewDescription}>
-              We’d love to learn why you joined and how you got involved with EA. We’ll also answer any questions you have.
-            </div>
-          </div>
-          <div className={classes.interviewButtonWrapper}>
-            <EAButton href="https://savvycal.com/cea/forum-team" target="_blank" rel="noreferrer" style="grey" className={classes.interviewButton}>
-              Book a call
-            </EAButton>
-          </div>
-        </div>
       </div>
     </EAOnboardingStage>
   );
