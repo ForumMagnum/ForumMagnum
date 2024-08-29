@@ -185,8 +185,6 @@ async function constructMessageHistory(
       ]
     });
   }
-
-  console.log({ messages, contents: messages.map(m => JSON.stringify(m.content)) });
   return messages;
 }
 
@@ -280,7 +278,7 @@ export function addAutocompleteEndpoint(app: Express) {
       const client = getAnthropicPromptCachingClientOrThrow();
 
       const { prefix = '', commentIds, postIds, replyingCommentId, postId, userId } = req.body;
-      const user = userId ? await Users.findOne({ _id: userId}) : undefined;
+      const user = userId ? await context.loaders.Users.load(userId) : undefined;
 
       // Set headers for streaming response
       res.writeHead(200, {
