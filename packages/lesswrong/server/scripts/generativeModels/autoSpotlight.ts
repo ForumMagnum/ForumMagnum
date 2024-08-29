@@ -71,7 +71,7 @@ async function getPromptInfo(): Promise<{posts: PostsWithNavigation[], spotlight
     skipFiltering: true,
   });
 
-  const spotlights = await Spotlights.find({ documentId: { $in: postIds }, draft: false }).fetch();
+  const spotlights = await Spotlights.find({ documentId: { $in: postIds }, draft: false, deletedDraft: false }).fetch();
   return { posts, spotlights };
 }
 
@@ -107,11 +107,11 @@ A short description of the essay, ~2 sentences, no paragraph breaks or bullet po
 
 const getSpotlightPrompt = ({post}: {post: PostsWithNavigation}) => {
   return `
-  Post: ${post.title}
-  ---
-  Post Contents: ${post.contents?.html}
-  ---
-  A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
+Post: ${post.title}
+---
+Post Contents: ${post.contents?.html}
+---
+A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
 }
 
 
