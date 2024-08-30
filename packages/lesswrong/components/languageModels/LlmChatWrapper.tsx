@@ -13,7 +13,6 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
-import { useMessages } from '../common/withMessages';
 
 const mdi = markdownIt({ linkify: true });
 // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
@@ -138,7 +137,6 @@ const LlmChatWrapper = ({children}: {
 }) => {
 
   const currentUser = useCurrentUser();
-  const { flash } = useMessages();
 
   const { mutate: updateConversation } = useUpdate({
     collectionName: "LlmConversations",
