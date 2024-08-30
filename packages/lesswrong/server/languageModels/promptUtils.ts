@@ -54,6 +54,13 @@ const truncateRemainingTrees = (queue: CommentTreeNode<NestedComment>[]) => {
   }
 }
 
+/**
+ * Does a greedy karma-sorted breadth-first traversal over all the comment branches, and truncates them at the point where we estimate that we hit the token limit
+ * i.e. we take the highest karma comment from all the queue, increment token count, put its children into the queue, resort, do the operation again
+ * This means that we never have any gaps in comment branches.
+ * It does pessimize against comments that are children of lower-karma comments, but doing lookahead is annoying and that shouldn't be a problem most of the time.
+ * It might turn out that we want to prioritize full comment branches, in which case this will need to be replaced with a depth-first thing.
+ */
 const filterCommentTrees = (trees: CommentTreeNode<NestedComment>[], tokenCounter: TokenCounter) => {
   const tokenThreshold = 150_000;
   
