@@ -394,8 +394,8 @@ const LlmChatWrapper = ({children}: {
           error: 'Missing response body for unknown reasons'
         }
       });
-      
-      return; // TODO better error handling
+
+      return;
     }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
