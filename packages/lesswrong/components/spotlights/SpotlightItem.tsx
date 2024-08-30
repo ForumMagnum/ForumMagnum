@@ -64,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
-    '&:hover $editButtonIcon': {
+    '&:hover $adminButtonIcon': {
       opacity: .2
     },
     '&:hover $closeButton': {
@@ -265,7 +265,7 @@ const styles = (theme: ThemeType) => ({
   editAllButtonIcon: {
     width: 20
   },
-  editButtonIcon: {
+  adminButtonIcon: {
     width: 18,
     opacity: 0,
     cursor: "pointer",
@@ -422,7 +422,7 @@ export const SpotlightItem = ({
             </Link>
             <span className={classes.editDescriptionButton}>
               {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
               </LWTooltip>}
             </span>
           </div>
@@ -484,20 +484,20 @@ export const SpotlightItem = ({
         }
         <div className={classes.editAllButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
+            <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
         <div className={classes.draftButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
             <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
-              <PublishIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon, 
+              <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
                 !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
             </LWTooltip>
           }
         </div>
         {spotlight.draft && <div className={classes.deleteButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Archive">
-            <CloseIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
+            <CloseIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
           </LWTooltip>}
         </div>}
       </div>
