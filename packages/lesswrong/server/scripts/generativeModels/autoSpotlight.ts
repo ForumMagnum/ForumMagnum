@@ -126,10 +126,10 @@ async function createSpotlights() {
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
-  const summary_prompts = [ "50WordSummary", "clickbait", "gwern_tweet" ]
+  const summary_prompts = [ "50WordSummary", "clickbait", "gwern_tweet", "tweet", "key_quote" ]
 
   for (const summary_prompt of summary_prompts) {
-    for (const post of postsWithoutSpotlights.slice(0,2)) {
+    for (const post of postsWithoutSpotlights.slice(2,4)) {
       const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
 
       try {
@@ -137,7 +137,7 @@ async function createSpotlights() {
         const jailbreakSummary1 = await queryClaudeJailbreak(prompt, 200)
         const summary1 = jailbreakSummary1.content[0]
         if (summary1.type === "text") {
-          const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") + summary_prompt
+          const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") + ` [${summary_prompt}]`
           // eslint-disable-next-line no-console
           console.log({title: post.title, cleanedSummary1})
           createSpotlight(post, reviewWinner, cleanedSummary1)
@@ -145,7 +145,7 @@ async function createSpotlights() {
         const jailbreakSummary2 = await queryClaudeJailbreak(prompt, 200)
         const summary2 = jailbreakSummary2.content[0]
         if (summary2.type === "text") {
-          const cleanedSummary2 = summary2.text.replace(/---|\n/g, "") + summary_prompt
+          const cleanedSummary2 = summary2.text.replace(/---|\n/g, "") + ` [${summary_prompt}]`
 
           console.log({title: post.title, cleanedSummary2})
           createSpotlight(post, reviewWinner, cleanedSummary2)

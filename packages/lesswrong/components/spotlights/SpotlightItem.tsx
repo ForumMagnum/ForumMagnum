@@ -1,6 +1,8 @@
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
+import PublishIcon from '@material-ui/icons/Publish';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
@@ -12,6 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 const TEXT_WIDTH = 350;
 
@@ -235,6 +238,30 @@ const styles = (theme: ThemeType) => ({
       right: 8
     },
   },
+  draftButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      top: 35,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      top: 33,
+      right: 8
+    },
+  },
+  deleteButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      bottom: 0,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      bottom: 0,
+      right: 8
+    },
+  },
   editAllButtonIcon: {
     width: 20
   },
@@ -306,7 +333,10 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     height: "100%",
     overflow: "hidden",
-  }
+  },
+  reverseIcon: {
+    transform: "rotate(180deg)",
+  },
 });
 
 export const SpotlightItem = ({
@@ -338,6 +368,33 @@ export const SpotlightItem = ({
     setEdit(false);
     refetchAllSpotlights?.();
   }, [refetchAllSpotlights]);
+
+  const { mutate: updateSpotlight } = useUpdate({
+    collectionName: "Spotlights",
+    fragmentName: "SpotlightDisplay",
+  });
+
+  const toggleDraft = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
+      return;
+    }
+    await updateSpotlight({
+      selector: { _id: spotlight._id },
+      data: { draft: !spotlight.draft }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights]);
+
+  const deleteDraft = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
+      return;
+    }
+    await updateSpotlight({
+      selector: { _id: spotlight._id },
+      data: { deletedDraft: true }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights]);
 
   // Define fade color with a CSS variable to be accessed in the styles
   const style = {
@@ -430,6 +487,19 @@ export const SpotlightItem = ({
             <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
+        <div className={classes.draftButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
+            <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+              <PublishIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon, 
+                !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
+            </LWTooltip>
+          }
+        </div>
+        {spotlight.draft && <div className={classes.deleteButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Archive">
+            <CloseIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
+          </LWTooltip>}
+        </div>}
       </div>
       {showAdminInfo && <>
         {edit ? <div className={classes.form}>
