@@ -394,7 +394,7 @@ export const SpotlightItem = ({
       data: { deletedDraft: true }
     });
     refetchAllSpotlights?.();
-  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
+  }, [currentUser, spotlight._id, spotlight.deletedDraft, refetchAllSpotlights, updateSpotlight]);
 
   // Define fade color with a CSS variable to be accessed in the styles
   const style = {

@@ -127,8 +127,9 @@ async function createSpotlights() {
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
   const summary_prompts = [ 
-    // "50WordSummary", "clickbait", 
-    "gwern_tweet", "tweet", 
+    "50WordSummary",
+    "clickbait", 
+    "tweet", 
     "key_quote" 
   ]
 
