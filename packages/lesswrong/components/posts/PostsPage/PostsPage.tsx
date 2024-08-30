@@ -310,7 +310,9 @@ export const styles = (theme: ThemeType) => ({
     display: "none"
   },
   welcomeBox: {
-    marginTop: LW_POST_HEADER_PADDING,
+    ...(isBookUI ? {
+      marginTop: LW_POST_HEADER_PADDING,
+    } : {}),
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
