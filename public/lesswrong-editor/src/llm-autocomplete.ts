@@ -200,7 +200,8 @@ async function getAutocompletion(prefix: string, onCompletion: (completion: stri
             commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
             postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
             replyingCommentId,
-            postId
+            postId,
+            userId: JSON.parse(localStorage.getItem("selectedTrainingUserId") || undefined),
         }),
     });
 
@@ -222,7 +223,8 @@ async function get405bCompletion(prefix: string, onCompletion: (completion: stri
             commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
             postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
             replyingCommentId,
-            postId
+            postId,
+            userId: JSON.parse(localStorage.getItem("selectedTrainingUserId") || undefined),
         }),
     });
 
