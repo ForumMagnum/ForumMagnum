@@ -2,7 +2,7 @@ import {addGraphQLMutation, addGraphQLResolvers} from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
 import { accessFilterMultiple, accessFilterSingle, augmentFieldsDict } from '../../lib/utils/schemaUtils';
-import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, runFragmentQuery, updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
 import { createPaginatedResolver } from './paginatedResolver';
@@ -18,6 +18,7 @@ import { constructMessageHistory } from '../autocompleteEndpoint';
 import { Posts } from '@/lib/collections/posts';
 import { getAnthropicPromptCachingClientOrThrow } from '../languageModels/anthropicClient';
 import { markdownToHtmlSimple } from '@/lib/editor/utils';
+import DoppelCommentVotes from '@/lib/collections/doppelCommentVotes/collection';
 
 const specificResolvers = {
   Mutation: {
@@ -201,36 +202,52 @@ augmentFieldsDict(Comments, {
   doppelComments: {
     resolveAs: {
       type: '[DoppelComment]',
-      resolver: async (dbComment) => {
-        const [user, doppelComments, topUserComments, topUserPosts] = await Promise.all([
-          Users.findOne({_id: dbComment.userId}),
-          DoppelComments.find({commentId: dbComment._id}).fetch(),
-          Comments.find({userId: dbComment.userId}, {sort: {'baseScore': -1}, limit: 5, projection: {'_id': 1}}).fetch(),
-          Posts.find({userId: dbComment.userId}, {sort: {'baseScore': -1}, limit: 5, projection: {'_id': 1}}).fetch(),
-        ])
+      resolver: async (dbComment, context: ResolverContext) => {
+        const user = await Users.findOne({ _id: dbComment.userId });
         if ((user?.karma ?? 0) < 1e4) return []
+        const doppelComments = await runFragmentQuery({
+          fragmentName: 'DoppelCommentsFragment',
+          terms: { view: 'doppelCommentsForComment', commentId: dbComment._id },
+          collectionName: 'DoppelComments',
+        })
         if (doppelComments.length < 2) {
           // We'll make 'em for next time
-          const messageHistory = await constructMessageHistory(
-            '',
-            topUserComments.map(comment => comment._id),
-            topUserPosts.map(post => post._id),
-            user,
-            dbComment.parentCommentId ?? undefined,
-            dbComment.postId ?? undefined,
-            dbComment.userId
-          )
-
-          const client = getAnthropicPromptCachingClientOrThrow()
-
           const createDoppelComment = async () => {
-            const res = await client.messages.create({
-              model: 'claude-3-5-sonnet-20240620',
-              max_tokens: 2000,
-              system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
-              messages: messageHistory,
-              stop_sequences: ['---'],
-            })
+            const [interestingGwernComment, eightShortStudies, topUserComment, topUserPost] = await Promise.all([
+              Comments.findOne({ _id: 'hxMNNJRF6o644aNTa'}),
+              Posts.findOne({_id: 'gFMH3Cqw4XxwL69iy'}),
+              Comments.findOne({ userId: dbComment.userId }, { sort: { 'baseScore': -1 }, limit: 1, projection: { '_id': 1 } }),
+              Posts.findOne({ userId: dbComment.userId }, { sort: { 'baseScore': -1 }, limit: 1, projection: { '_id': 1 } }),
+            ])
+            if (!interestingGwernComment || !eightShortStudies || !topUserComment || !topUserPost) {
+              console.warn("Failed to find all necessary documents for doppel comment")
+              return
+            }
+            const messageHistory = await constructMessageHistory(
+              '',
+              [interestingGwernComment, topUserComment].map(comment => comment._id),
+              [eightShortStudies, topUserPost].map(post => post._id),
+              user,
+              dbComment.parentCommentId ?? undefined,
+              dbComment.postId ?? undefined,
+              dbComment.userId
+            )
+
+            const client = getAnthropicPromptCachingClientOrThrow()
+
+            let res = null
+            try {
+              res = await client.messages.create({
+                model: 'claude-3-5-sonnet-20240620',
+                max_tokens: 2000,
+                system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
+                messages: messageHistory,
+                stop_sequences: ['---'],
+              })
+            } catch (e) {
+              console.error("Failed to create doppel comment", e)
+              return
+            }
 
             if (res.content[0].type === 'tool_use') {
               console.warn("The LLM think this comment would be a tool use. That's surprising.")

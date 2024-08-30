@@ -333,6 +333,19 @@ interface DbDigest extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type DoppelCommentVotesCollection = CollectionBase<"DoppelCommentVotes">;
+
+interface DbDoppelCommentVote extends DbObject {
+  __collectionName?: "DoppelCommentVotes"
+  userId: string | null
+  commentId: string | null
+  type: "vote" | "skip"
+  doppelCommentChoiceId: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type DoppelCommentsCollection = CollectionBase<"DoppelComments">;
 
 interface DbDoppelComment extends DbObject {
@@ -1965,6 +1978,7 @@ interface CollectionsByName {
   DialogueMatchPreferences: DialogueMatchPreferencesCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
+  DoppelCommentVotes: DoppelCommentVotesCollection
   DoppelComments: DoppelCommentsCollection
   ElectionCandidates: ElectionCandidatesCollection
   ElectionVotes: ElectionVotesCollection
@@ -2050,6 +2064,7 @@ interface ObjectsByCollectionName {
   DialogueMatchPreferences: DbDialogueMatchPreference
   DigestPosts: DbDigestPost
   Digests: DbDigest
+  DoppelCommentVotes: DbDoppelCommentVote
   DoppelComments: DbDoppelComment
   ElectionCandidates: DbElectionCandidate
   ElectionVotes: DbElectionVote
@@ -2135,6 +2150,7 @@ interface ObjectsByTypeName {
   DialogueMatchPreference: DbDialogueMatchPreference
   DigestPost: DbDigestPost
   Digest: DbDigest
+  DoppelCommentVote: DbDoppelCommentVote
   DoppelComment: DbDoppelComment
   ElectionCandidate: DbElectionCandidate
   ElectionVote: DbElectionVote

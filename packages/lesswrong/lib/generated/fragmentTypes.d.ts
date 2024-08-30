@@ -1773,6 +1773,8 @@ interface CommentsList { // fragment on Comments
   readonly modGPTRecommendation: string | null,
   readonly originalDialogueId: string | null,
   readonly doppelComments: Array<DoppelCommentsFragment>,
+  readonly ownDoppelCommentVote: DoppelCommentVotesFragment|null,
+  readonly doppelCommentVotes: Array<CommentsList_doppelCommentVotes>,
 }
 
 interface CommentsList_tag { // fragment on Tags
@@ -1784,6 +1786,12 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
   readonly wordCount: number | null,
+}
+
+interface CommentsList_doppelCommentVotes { // fragment on DoppelCommentVotes
+  readonly type: "vote" | "skip",
+  readonly doppelCommentChoiceId: string,
+  readonly userId: string,
 }
 
 interface CommentsListWithTopLevelComment extends CommentsList { // fragment on Comments
@@ -4065,6 +4073,23 @@ interface DoppelCommentsFragment { // fragment on DoppelComments
   readonly content: string,
 }
 
+interface DoppelCommentVotesDefaultFragment { // fragment on DoppelCommentVotes
+  readonly userId: string,
+  readonly commentId: string,
+  readonly type: "vote" | "skip",
+  readonly doppelCommentChoiceId: string,
+  readonly deleted: boolean,
+}
+
+interface DoppelCommentVotesFragment { // fragment on DoppelCommentVotes
+  readonly _id: string,
+  readonly userId: string,
+  readonly commentId: string,
+  readonly type: "vote" | "skip",
+  readonly doppelCommentChoiceId: string,
+  readonly deleted: boolean,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -4357,6 +4382,8 @@ interface FragmentTypes {
   LlmMessagesFragment: LlmMessagesFragment
   DoppelCommentsDefaultFragment: DoppelCommentsDefaultFragment
   DoppelCommentsFragment: DoppelCommentsFragment
+  DoppelCommentVotesDefaultFragment: DoppelCommentVotesDefaultFragment
+  DoppelCommentVotesFragment: DoppelCommentVotesFragment
   SuggestAlignmentComment: SuggestAlignmentComment
   SubscribedPostAndCommentsFeed: SubscribedPostAndCommentsFeed
 }
@@ -4431,6 +4458,7 @@ interface FragmentTypesByCollection {
   LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   DoppelComments: "DoppelCommentsDefaultFragment"|"DoppelCommentsFragment"
+  DoppelCommentVotes: "DoppelCommentVotesDefaultFragment"|"DoppelCommentVotesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
 
@@ -4707,13 +4735,15 @@ interface CollectionNamesByFragmentName {
   LlmMessagesFragment: "LlmMessages"
   DoppelCommentsDefaultFragment: "DoppelComments"
   DoppelCommentsFragment: "DoppelComments"
+  DoppelCommentVotesDefaultFragment: "DoppelCommentVotes"
+  DoppelCommentVotesFragment: "DoppelCommentVotes"
   SuggestAlignmentComment: "Comments"
   SubscribedPostAndCommentsFeed: never
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"DoppelComments"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"DoppelCommentVotes"|"DoppelComments"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"DoppelComments"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"DoppelCommentVotes"|"DoppelComments"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

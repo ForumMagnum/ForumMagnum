@@ -1,5 +1,5 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
-import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue, accessFilterMultiple } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { Utils } from '../../vulcan-lib';
@@ -890,6 +890,27 @@ const schema: SchemaType<"Comments"> = {
   'doppelComments.$': {
     type: String,
   },
+
+  ownDoppelCommentVote: resolverOnlyField({
+    type: 'DoppelCommentVote',
+    graphQLtype: 'DoppelCommentVote',
+    canRead: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      const { DoppelCommentVotes } = context;
+      return await DoppelCommentVotes.findOne({commentId: comment._id, userId: context.currentUser?._id});
+    },
+  }),
+
+  doppelCommentVotes: resolverOnlyField({
+    type: 'DoppelCommentVote[]',
+    graphQLtype: '[DoppelCommentVote]',
+    canRead: ['guests'],
+    resolver: async (comment: DbComment, args: void, context: ResolverContext) => {
+      const { DoppelCommentVotes } = context;
+      const dcvs = await DoppelCommentVotes.find({commentId: comment._id}).fetch();
+      return await accessFilterMultiple(context.currentUser, DoppelCommentVotes, dcvs.filter(dcv => !!dcv), context);
+    },
+  }),
 };
 
 export default schema;

@@ -17,6 +17,7 @@ type DialogueChecksViewName = "userDialogueChecks"|"userTargetDialogueChecks";
 type DialogueMatchPreferencesViewName = "dialogueMatchPreferences";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
+type DoppelCommentVotesViewName = never
 type DoppelCommentsViewName = "doppelCommentsForComment";
 type ElectionCandidatesViewName = never
 type ElectionVotesViewName = "allSubmittedVotes";
@@ -101,6 +102,7 @@ interface ViewTermsByCollectionName {
   DialogueMatchPreferences: DialogueMatchPreferencesViewTerms
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
+  DoppelCommentVotes: ViewTermsBase
   DoppelComments: DoppelCommentsViewTerms
   ElectionCandidates: ElectionCandidatesViewTerms
   ElectionVotes: ElectionVotesViewTerms

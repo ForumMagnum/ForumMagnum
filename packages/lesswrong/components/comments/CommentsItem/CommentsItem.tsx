@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import withErrorBoundary from '../../common/withErrorBoundary';
@@ -17,6 +17,9 @@ import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
+import Button from '@material-ui/core/Button';
+import { useCreate } from '@/lib/crud/withCreate';
+import omit from 'lodash/omit';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -148,6 +151,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   excerpt: {
     marginBottom: 8,
   },
+  doppelCommentsButton: {
+    color: theme.palette.lwTertiary.main,
+  },
+  doppelCommentVoteStrip: {
+    backgroundColor: theme.palette.greyAlpha(0.1),
+    borderRadius: theme.borderRadius.small,
+    padding: theme.spacing.unit,
+  }
 });
 
 /**
@@ -200,6 +211,15 @@ export const CommentsItem = ({
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
+  const [activePotentialComment, setActivePotentialComment] = React.useState<0|1|2>(0)
+  const potentialCommentBodies = useMemo(() => ([...(comment.doppelComments ?? []), comment])
+    .map(a => ({
+      content: 'commentId' in a ? a.content : (a.contents?.html ?? ""),
+      score: Math.random(),
+      doppelId: 'commentId' in a ? a._id : null
+    }))
+    .sort((a, b) => a.score - b.score)
+    .map(a => omit(a, ['score'])), [comment])
   const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
 
@@ -266,7 +286,7 @@ export const CommentsItem = ({
         comment={comment}
         postPage={postPage}
         voteProps={voteProps}
-        doppelComments={comment.doppelComments.map(c => c.content)}
+        potentialCommentsData={potentialCommentsData}
       />
     }
   }
@@ -312,6 +332,38 @@ export const CommentsItem = ({
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist
+  const createDoppelVote = useCreate({
+    collectionName: "DoppelCommentVotes",
+    fragmentName: "DoppelCommentVotesFragment",
+  })
+  const voteForThisDoppel = (type: "skip" | "vote", doppelCommentChoiceId?: string) => {
+    if (!currentUser) return
+    const result = createDoppelVote.create({
+      data: {
+        userId: currentUser._id,
+        commentId: comment._id,
+        type,
+        doppelCommentChoiceId,
+      }
+    })
+    console.log(result)
+  }
+  const doppelCommentVote = (className: string) => (comment: CommentsList) => <div className={className}>
+    <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("vote", potentialCommentBodies[activePotentialComment].doppelId ?? undefined)}>
+      Pick current as the real comment
+    </Button>
+    <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("skip")}>
+      Skip voting and reveal
+    </Button>
+    <Button className={classes.doppelCommentsButton} onClick={_ => console.log("opt out")}>
+      Opt out of this feature
+    </Button>
+  </div>
+
+const potentialCommentsData = (comment.doppelComments.length >= 2 && !comment.ownDoppelCommentVote && currentUser) ? {potentialComments: potentialCommentBodies, setActivePotentialComment, activePotentialComment, doppelCommentVote: doppelCommentVote('')(comment)} : undefined
+const replaceReplyButtonsWith = potentialCommentsData ? {
+  replaceReplyButtonsWith: doppelCommentVote(classes.doppelCommentVoteStrip)
+} : {}
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -378,6 +430,7 @@ export const CommentsItem = ({
               collapsed,
               toggleCollapse,
               setShowEdit,
+              doppelCommentVotes: comment.ownDoppelCommentVote ? comment.doppelCommentVotes : undefined,
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
@@ -393,7 +446,7 @@ export const CommentsItem = ({
             voteProps={voteProps}
             commentBodyRef={commentBodyRef}
             replyButton={
-              treeOptions?.replaceReplyButtonsWith?.(comment) || <a
+              ({...treeOptions, ...replaceReplyButtonsWith}).replaceReplyButtonsWith?.(comment) || <a
                 className={classNames("comments-item-reply-link", classes.replyLink)}
                 onClick={showInlineCancel ? closeReplyForm : openReplyForm}
               >

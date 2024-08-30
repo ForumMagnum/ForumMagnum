@@ -77,6 +77,14 @@ registerFragment(`
     doppelComments {
       ...DoppelCommentsFragment
     }
+    ownDoppelCommentVote {
+      ...DoppelCommentVotesFragment
+    }
+    doppelCommentVotes {
+      type
+      doppelCommentChoiceId
+      userId
+    }
   }
 `);
 

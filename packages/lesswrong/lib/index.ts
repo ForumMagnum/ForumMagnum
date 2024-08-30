@@ -351,6 +351,8 @@ import "./collections/llmMessages/fragments";
 import './collections/doppelComments/collection';
 import './collections/doppelComments/views';
 import './collections/doppelComments/fragments';
+import './collections/doppelCommentVotes/collection';
+import './collections/doppelCommentVotes/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';
