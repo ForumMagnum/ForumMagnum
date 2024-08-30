@@ -6,9 +6,11 @@ import classNames from 'classnames';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
 
+export const LW_POST_HEADER_PADDING = 110
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 110,
+    paddingTop: LW_POST_HEADER_PADDING,
     marginBottom: 96,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,

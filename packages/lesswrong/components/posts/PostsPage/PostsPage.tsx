@@ -40,8 +40,8 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
-import { LWUserTooltipContent } from '@/components/users/LWUserTooltipContent';
-import { extractVersionsFromSemver } from '@/lib/editor/utils';
+import { LW_POST_HEADER_PADDING } from './LWPostsPageHeader';
+
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -310,6 +310,7 @@ export const styles = (theme: ThemeType) => ({
     display: "none"
   },
   welcomeBox: {
+    marginTop: LW_POST_HEADER_PADDING,
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
@@ -748,7 +749,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const welcomeBox = (
     <DeferRender ssr={false}>
-      <WelcomeBox />
+      <div className={classes.welcomeBox}>
+        <WelcomeBox />
+      </div>
     </DeferRender>
   );
   
