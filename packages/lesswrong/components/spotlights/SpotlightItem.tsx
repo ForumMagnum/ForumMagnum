@@ -383,7 +383,7 @@ export const SpotlightItem = ({
       data: { draft: !spotlight.draft }
     });
     refetchAllSpotlights?.();
-  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights]);
+  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
 
   const deleteDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
@@ -394,7 +394,7 @@ export const SpotlightItem = ({
       data: { deletedDraft: true }
     });
     refetchAllSpotlights?.();
-  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights]);
+  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
 
   // Define fade color with a CSS variable to be accessed in the styles
   const style = {

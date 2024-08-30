@@ -126,7 +126,11 @@ async function createSpotlights() {
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
-  const summary_prompts = [ "50WordSummary", "clickbait", "gwern_tweet", "tweet", "key_quote" ]
+  const summary_prompts = [ 
+    // "50WordSummary", "clickbait", 
+    "gwern_tweet", "tweet", 
+    "key_quote" 
+  ]
 
   for (const summary_prompt of summary_prompts) {
     for (const post of postsWithoutSpotlights.slice(2,4)) {
@@ -134,6 +138,7 @@ async function createSpotlights() {
 
       try {
         const prompt = [...getJailbreakPromptBase({posts: postsForPrompt, spotlights, summary_prompt_name: summary_prompt}), ...getSpotlightPrompt({post, summary_prompt_name: summary_prompt})]
+
         const jailbreakSummary1 = await queryClaudeJailbreak(prompt, 200)
         const summary1 = jailbreakSummary1.content[0]
         if (summary1.type === "text") {
@@ -142,14 +147,16 @@ async function createSpotlights() {
           console.log({title: post.title, cleanedSummary1})
           createSpotlight(post, reviewWinner, cleanedSummary1)
         }
+
         const jailbreakSummary2 = await queryClaudeJailbreak(prompt, 200)
         const summary2 = jailbreakSummary2.content[0]
         if (summary2.type === "text") {
           const cleanedSummary2 = summary2.text.replace(/---|\n/g, "") + ` [${summary_prompt}]`
-
+          // eslint-disable-next-line no-console
           console.log({title: post.title, cleanedSummary2})
           createSpotlight(post, reviewWinner, cleanedSummary2)
         }
+
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e)
