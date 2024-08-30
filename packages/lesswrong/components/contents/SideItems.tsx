@@ -99,7 +99,7 @@ const SideItemsContainer = ({classes, children}: {
     // Compare height reported by the ResizeObserver to the last known height.
     // Round down, becauses the ResizeObserver may report a non-integer size,
     // but when we measure it with `Element.clientHeight`, it gets rounded.
-    if (sideItem && sideItem.sideItemHeight && (sideItem.sideItemHeight - newHeight) >= 1.0) {
+    if (sideItem && sideItem.sideItemHeight && Math.abs(sideItem.sideItemHeight - newHeight) >= 1.0) {
       state.current.sideItems = [...state.current.sideItems];
       rerender();
     }
