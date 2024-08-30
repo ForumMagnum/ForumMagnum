@@ -42,9 +42,9 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     paddingLeft: 20,
     paddingTop: 20,
-    fontSize: '1.1rem',
+    fontSize: '1.0rem',
     '& blockquote, & li': {
-      fontSize: '1.1rem'
+      fontSize: '1.0rem'
     }
   },
   inputTextbox: {

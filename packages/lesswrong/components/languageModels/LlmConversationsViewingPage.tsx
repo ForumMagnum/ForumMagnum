@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   },
   conversationViewer: {
     borderRadius: 5,
-    width: 600,
+    width: 500,
     height: "calc(100vh - 114px)",
     backgroundColor: theme.palette.grey[0],
     overflowY: "scroll",
