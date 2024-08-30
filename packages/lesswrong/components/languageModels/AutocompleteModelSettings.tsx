@@ -332,14 +332,14 @@ const debouncedSaveSelection = debounce((selectedItems: Record<string, boolean>,
 
   const selectedPosts = selectedIds.filter(
     (id) =>
-      posts?.some((post: PostsListWithVotes) => post._id === id) ??
+      posts?.some((post: PostsListWithVotes) => post._id === id) ||
       featuredAuthors.some((author) =>
         authorContent[author.userId]?.posts?.some((post: PostsListWithVotes) => post._id === id),
       ),
   );
   const selectedComments = selectedIds.filter(
     (id) =>
-      comments?.some((comment: CommentsList) => comment._id === id) ??
+      comments?.some((comment: CommentsList) => comment._id === id) ||
       featuredAuthors.some((author) =>
         authorContent[author.userId]?.comments?.some((comment: CommentsList) => comment._id === id),
       ),
