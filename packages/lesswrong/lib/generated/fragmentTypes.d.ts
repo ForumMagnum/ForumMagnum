@@ -4104,7 +4104,8 @@ interface LlmConversationsFragment { // fragment on LlmConversations
   readonly deleted: boolean,
 }
 
-interface LlmConversationsWithUserInfoFragment extends LlmConversationsFragment { // fragment on LlmConversations
+interface LlmConversationsViewingPageFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly totalCharacterCount: number|null,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -4418,7 +4419,7 @@ interface FragmentTypes {
   SurveyScheduleEdit: SurveyScheduleEdit
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
   LlmConversationsFragment: LlmConversationsFragment
-  LlmConversationsWithUserInfoFragment: LlmConversationsWithUserInfoFragment
+  LlmConversationsViewingPageFragment: LlmConversationsViewingPageFragment
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
@@ -4493,7 +4494,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
-  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithUserInfoFragment"|"LlmConversationsWithMessagesFragment"
+  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
@@ -4769,7 +4770,7 @@ interface CollectionNamesByFragmentName {
   SurveyScheduleEdit: "SurveySchedules"
   LlmConversationsDefaultFragment: "LlmConversations"
   LlmConversationsFragment: "LlmConversations"
-  LlmConversationsWithUserInfoFragment: "LlmConversations"
+  LlmConversationsViewingPageFragment: "LlmConversations"
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"

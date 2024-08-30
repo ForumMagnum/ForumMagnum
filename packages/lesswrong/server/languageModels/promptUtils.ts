@@ -2,7 +2,7 @@ import { userGetDisplayName } from "@/lib/collections/users/helpers"
 import { htmlToMarkdown } from "../editor/conversionUtils";
 import { CommentTreeNode, unflattenComments } from "@/lib/utils/unflatten";
 import { z } from "zod";
-import { zodFunction, zodResponseFormat } from "openai/helpers/zod";
+import { zodResponseFormat } from "openai/helpers/zod";
 
 interface NestedComment {
   _id: string;
@@ -11,6 +11,13 @@ interface NestedComment {
   contents?: string;
   karmaScore: number;
 }
+
+interface TokenCounter {
+  tokenCount: number;
+}
+
+// Trying to be conservative, since we have a bunch of additional tokens coming from e.g. JSON.stringify
+const CHARS_PER_TOKEN = 3.5;
 
 export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
   const html = document?.contents?.html;
@@ -21,6 +28,64 @@ export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
   return htmlToMarkdown(html);
 }
 
+const mergeSortedArrays = (queue: CommentTreeNode<NestedComment>[], children: CommentTreeNode<NestedComment>[]): CommentTreeNode<NestedComment>[] => {
+  const merged: CommentTreeNode<NestedComment>[] = [];
+  let queueIdx = 0, childrenIdx = 0;
+
+  while (queueIdx < queue.length && childrenIdx < children.length) {
+    if (queue[queueIdx].item.karmaScore >= children[childrenIdx].item.karmaScore) {
+      merged.push(queue[queueIdx]);
+      queueIdx++;
+    } else {
+      merged.push(children[childrenIdx]);
+      childrenIdx++;
+    }
+  }
+
+  // Add any remaining elements
+  return merged
+    .concat(queue.slice(queueIdx))
+    .concat(children.slice(childrenIdx));
+}
+
+const truncateRemainingTrees = (queue: CommentTreeNode<NestedComment>[]) => {
+  for (let node of queue) {
+    node.children = [];
+  }
+}
+
+/**
+ * Does a greedy karma-sorted breadth-first traversal over all the comment branches, and truncates them at the point where we estimate that we hit the token limit
+ * i.e. we take the highest karma comment from all the queue, increment token count, put its children into the queue, resort, do the operation again
+ * This means that we never have any gaps in comment branches.
+ * It does pessimize against comments that are children of lower-karma comments, but doing lookahead is annoying and that shouldn't be a problem most of the time.
+ * It might turn out that we want to prioritize full comment branches, in which case this will need to be replaced with a depth-first thing.
+ */
+const filterCommentTrees = (trees: CommentTreeNode<NestedComment>[], tokenCounter: TokenCounter) => {
+  const tokenThreshold = 150_000;
+  
+  // Initialize the queue with root nodes, sorted by karma
+  let queue: CommentTreeNode<NestedComment>[] = trees.sort((a, b) => b.item.karmaScore - a.item.karmaScore);
+
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+    const nodeTokens = (node.item.contents ?? '').length / CHARS_PER_TOKEN;
+
+    if (tokenCounter.tokenCount + nodeTokens > tokenThreshold) {
+      // We've reached the token limit, truncate remaining trees
+      truncateRemainingTrees(queue);
+      break;
+    }
+
+    tokenCounter.tokenCount += nodeTokens;
+
+    // Sort children and merge them with the existing sorted queue
+    if (node.children.length > 0) {
+      const sortedChildren = node.children.sort((a, b) => b.item.karmaScore - a.item.karmaScore);
+      queue = mergeSortedArrays(queue, sortedChildren);
+    }
+  }
+}
 
 const createCommentTree = (comments: DbComment[]): CommentTreeNode<NestedComment>[] => {
   return unflattenComments<NestedComment>(comments.map(comment => {
@@ -33,14 +98,15 @@ const createCommentTree = (comments: DbComment[]): CommentTreeNode<NestedComment
   }));
 }
 
-const formatCommentsForPost = async (post: PostsMinimumInfo, context: ResolverContext): Promise<string> => {
+const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: TokenCounter, context: ResolverContext): Promise<string> => {
     const comments = await context.Comments.find({postId: post._id}).fetch()
     if (!comments.length) {
       return ""
     }
 
-    const nestedComments = createCommentTree(comments)
-    const formattedComments = JSON.stringify(nestedComments, null, 2);
+    const nestedComments = createCommentTree(comments);
+    filterCommentTrees(nestedComments, tokenCounter);
+    const formattedComments = JSON.stringify(nestedComments);
 
     return `Comments for the post titled "${post.title}" with postId "${post._id}" are below.  Note that the comments are threaded (i.e. branching) and are formatted as a nested JSON structure for readability.  The threads of conversation (back and forth responses) might be relevant for answering some questions.
 
@@ -59,9 +125,27 @@ Score: ${post.baseScore}
 Content: ${markdown}`;
 }
 
-const formatAdditionalPostsForPrompt = (posts: PostsPage[]): string => {
+const formatAdditionalPostsForPrompt = (posts: PostsPage[], tokenCounter: TokenCounter): string => {
   const formattedPosts = posts.map(post => formatPostForPrompt(post));
-  return formattedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
+  const includedPosts: string[] = [];
+
+  for (let [idx, formattedPost] of Object.entries(formattedPosts)) {
+    const approximatePostTokenCount = formattedPost.length / CHARS_PER_TOKEN;
+    const postInclusionTokenCount = tokenCounter.tokenCount + approximatePostTokenCount;
+    // Include at least one additional post, unless that takes us over the higher threshold
+    if (idx !== '0' && postInclusionTokenCount > 120_000) {
+      break;
+    }
+
+    if (idx === '0' && postInclusionTokenCount > 140_000) {
+      break;
+    }
+
+    includedPosts.push(formattedPost);
+    tokenCounter.tokenCount += approximatePostTokenCount;
+  }
+
+  return includedPosts.map((post, index) => `Supplementary Post #${index}:\n${post}`).join('\n')
 }
 
 export const generateLoadingMessagePrompt = (query: string, postTitle?: string): string => {
@@ -132,26 +216,10 @@ export const generateAssistantContextMessage = async (query: string, currentPost
   const currentPostLine = currentPost
     ? `The user is currently viewing the post titled "${currentPost.title}" with postId "${currentPost._id}".\n\n`
     : '';
-
-  const additionalPostsBlock = additionalPosts.length > 0
-    ? `The following posts have been provided as possibly relevant context: <AdditionalPosts>\n${formatAdditionalPostsForPrompt(additionalPosts)}\n</AdditionalPosts>\n\n`
-    : '';
   
   const currentPostContentBlock = currentPost
     ? `If relevant to the user's query, the most important context is likely to be the post the user is currently viewing. The full text of the current post is provided below:
 <CurrentPost>\n${formatPostForPrompt(currentPost)}\n</CurrentPost>\n\n`
-    : '';
-
-  const commentsOnPostBlock = includeComments && currentPost
-    ? `These are the comments on the current post:
-<CurrentPostComments>\n${await formatCommentsForPost(currentPost, context)}\n</CurrentPostComments>\n\n`
-    : '';
-
-  const contextBlock = contextIsProvided
-    ? `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system.
-<Context>    
-${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnPostBlock}
-</Context>`
     : '';
 
   const additionalInstructionContextLine = contextIsProvided
@@ -171,6 +239,31 @@ The postId and commentIds (the _id in each comment) are given in the search resu
 
   const repeatedPostTitleLine = currentPost
     ? `\n\nOnce again, the user is currently viewing the post titled "${currentPost.title}".`
+    : '';
+
+  const approximateUsedTokens = (
+    currentPostLine.length
+    + currentPostContentBlock.length
+    + additionalInstructions.length
+    + repeatedPostTitleLine.length
+  ) / CHARS_PER_TOKEN;
+
+  const tokenCounter = { tokenCount: approximateUsedTokens };
+
+  const additionalPostsBlock = additionalPosts.length > 0
+    ? `The following posts have been provided as possibly relevant context: <AdditionalPosts>\n${formatAdditionalPostsForPrompt(additionalPosts, tokenCounter)}\n</AdditionalPosts>\n\n`
+    : '';
+
+  const commentsOnPostBlock = includeComments && currentPost
+    ? `These are the comments on the current post:
+<CurrentPostComments>\n${await formatCommentsForPost(currentPost, tokenCounter, context)}\n</CurrentPostComments>\n\n`
+    : '';
+
+  const contextBlock = contextIsProvided
+    ? `The following context is provided to help you answer the user's question. Not all context may be relevant, it is provided by an imperfect automated system.
+<Context>    
+${currentPostLine}${additionalPostsBlock}${currentPostContentBlock}${commentsOnPostBlock}
+</Context>`
     : '';
 
   return `<SystemInstruction>You are interfacing with a user via chat window on LessWrong.com. The user has sent a query: "${query}".
