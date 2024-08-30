@@ -11,6 +11,9 @@ registerFragment(`
       ...CommentsList
     }
     postId
+    post {
+      ...PostsMinimumInfo
+    }
     deleted
     contents {
       ...RevisionEdit

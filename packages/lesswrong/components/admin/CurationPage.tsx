@@ -4,6 +4,7 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
+import { userCanDo } from '@/lib/vulcan-users';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -32,9 +33,22 @@ export const CurationPage = ({classes}: {
 //     fragmentName: 'CommentsList',
 //   });
 
-  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle } = Components
+  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem } = Components
 
   const [ post, setPost ] = useState<PostsList|null>(null)
+
+  const { results: curationNotices = [], loading } = useMulti({
+    collectionName: 'CurationNotices',
+    fragmentName: 'CurationNoticesFragment',
+    terms: {
+      view: "curationNoticesPage",
+      limit: 20
+    }
+  });
+
+  if (!currentUser || !userCanDo(currentUser, 'curationNotices.edit.all')) {
+    return <ErrorAccessDenied/>
+  }
 
   return <div className={classes.root}>
 
@@ -43,13 +57,16 @@ export const CurationPage = ({classes}: {
         <div>
           {post &&
           <BasicFormStyles>
+            {post.title}
             <WrappedSmartForm
               collectionName="CurationNotices"
               mutationFragment={getFragment('CurationNoticesFragment')}
-              prefilledProps={{post: post}}
+              prefilledProps={{userId: currentUser._id, postId: post._id}}
+              // successCallback={(a) => console.log(a)}
             />
           </BasicFormStyles>
           }
+          {curationNotices?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice}/>)}
         </div>
 
   </SingleColumnSection>

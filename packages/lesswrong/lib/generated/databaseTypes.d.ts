@@ -1228,6 +1228,7 @@ interface DbSpotlight extends DbObject {
   headerTitleLeftColor: string | null
   headerTitleRightColor: string | null
   lastPromotedAt: Date
+  spotlightSplashImageUrl: string | null
   draft: boolean
   deletedDraft: boolean
   showAuthor: boolean
@@ -1235,7 +1236,6 @@ interface DbSpotlight extends DbObject {
   imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
-  spotlightSplashImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null

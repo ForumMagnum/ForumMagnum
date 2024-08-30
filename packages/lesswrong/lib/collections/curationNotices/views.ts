@@ -7,7 +7,7 @@ declare global {
   }
 }
 
-CurationNotices.addView('CurationNoticesPage', function () {
+CurationNotices.addView('curationNoticesPage', function () {
   return {
     selector: { deleted: false },
     options: { sort: { createdAt: -1 } }
