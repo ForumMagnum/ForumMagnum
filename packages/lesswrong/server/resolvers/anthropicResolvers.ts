@@ -15,6 +15,7 @@ import { asyncMapSequential } from "@/lib/utils/asyncUtils";
 import { markdownToHtml, htmlToMarkdown } from "../editor/conversionUtils";
 import { getOpenAI } from "../languageModels/languageModelIntegration";
 import express, { Express } from "express";
+import { captureException } from "@sentry/core";
 
 interface InitializeConversationArgs {
   newMessage: ClientMessage;
@@ -587,6 +588,7 @@ export function addLlmChatEndpoint(app: Express) {
       
       await sendStreamEndEvent(conversationId, sendEventToClient);
     } catch (err) {
+      captureException(err);
       await sendStreamErrorEvent(conversationId, err.message, sendEventToClient);
     }
 

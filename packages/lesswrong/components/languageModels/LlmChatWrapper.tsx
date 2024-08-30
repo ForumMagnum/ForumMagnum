@@ -94,10 +94,24 @@ export type LlmStreamEndMessage = {
 
 export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamErrorMessage | LlmStreamEndMessage;
 
-type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string, buffer?: string };
+export type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'content'> & {
+  role: LlmMessagesFragment['role'] | 'error';
+  conversationId?: string;
+  buffer?: string;
+};
+
 type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
-type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId'|'createdAt'|'lastUpdatedAt'> & { _id: string, title?: string, messages: NewLlmMessage[] };
-type LlmConversationWithPartialMessages = LlmConversationsFragment & { messages: Array<LlmMessagesFragment | NewLlmMessage> };
+
+type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId' | 'createdAt' | 'lastUpdatedAt'> & {
+  _id: string;
+  title?: string;
+  messages: NewLlmMessage[];
+};
+
+type LlmConversationWithPartialMessages = LlmConversationsFragment & {
+  messages: Array<LlmMessagesFragment | NewLlmMessage>;
+};
+
 type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
@@ -294,9 +308,31 @@ const LlmChatWrapper = ({children}: {
   }, [currentUser, setConversationLoadingState]);
 
   const handleLlmStreamError = useCallback((message: LlmStreamErrorMessage) => {
-    flash(message.data.error);
-    setConversationLoadingState(message.data.conversationId, false);
-  }, [flash, setConversationLoadingState]);
+    if (!currentUser) {
+      return;
+    }
+
+    const { conversationId, error } = message.data;
+
+    setConversations((conversations) => {
+      const streamConversation = conversations[conversationId];
+      const updatedMessages = [...streamConversation.messages];
+
+      const newMessage: NewLlmMessage = {
+        conversationId,
+        userId: currentUser?._id,
+        role: "error",
+        content: error
+      };
+
+      updatedMessages.push(newMessage);
+      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+
+      return { ...conversations, [updatedConversation._id]: updatedConversation };
+    });
+
+    setConversationLoadingState(conversationId, false);
+  }, [currentUser, setConversationLoadingState]);
 
   const handleClaudeResponseMesage = useCallback((message: LlmStreamMessage) => {
     switch (message.eventType) {
