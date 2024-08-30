@@ -44,7 +44,11 @@ export const SpotlightsPage = ({classes}: {
   }, [spotlights]);
 
   const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
-  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
+  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft).sort((a, b) => {
+    if (a.documentId < b.documentId) return -1;
+    if (a.documentId > b.documentId) return 1;
+    return 0;
+  })
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
