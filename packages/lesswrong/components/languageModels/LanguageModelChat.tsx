@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -104,6 +104,9 @@ const styles = (theme: ThemeType) => ({
   userMessage: {
     backgroundColor: theme.palette.grey[300],
   },
+  errorMessage: {
+    backgroundColor: theme.palette.error.light,
+  },
   messages: {
     overflowY: "scroll",
     flexGrow: 1,
@@ -143,15 +146,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-interface LlmConversationMessage {
-  role: string
-  content: string
-}
-
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
 const LLMChatMessage = ({message, classes}: {
-  message: LlmConversationMessage,
+  message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
@@ -160,10 +158,13 @@ const LLMChatMessage = ({message, classes}: {
 
   return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
     <ContentItemBody
-      className={classNames(classes.chatMessage, {[classes.userMessage]: role==='user'})}
+      className={classNames(classes.chatMessage, {
+        [classes.userMessage]: role === 'user',
+        [classes.errorMessage]: role === 'error'
+      })}
       dangerouslySetInnerHTML={{__html: content}}
     />
-</ContentStyles>
+  </ContentStyles>
 }
 
 const LLMInputTextbox = ({onSubmit, classes}: {
