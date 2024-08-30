@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorAndSecondaryInfo: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     columnGap: 20,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
