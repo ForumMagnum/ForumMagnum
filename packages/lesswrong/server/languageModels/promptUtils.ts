@@ -30,12 +30,12 @@ export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
 
 const mergeSortedArrays = (queue: CommentTreeNode<NestedComment>[], children: CommentTreeNode<NestedComment>[]): CommentTreeNode<NestedComment>[] => {
   const merged: CommentTreeNode<NestedComment>[] = [];
-  let queueIdk = 0, childrenIdx = 0;
+  let queueIdx = 0, childrenIdx = 0;
 
-  while (queueIdk < queue.length && childrenIdx < children.length) {
-    if (queue[queueIdk].item.karmaScore >= children[childrenIdx].item.karmaScore) {
-      merged.push(queue[queueIdk]);
-      queueIdk++;
+  while (queueIdx < queue.length && childrenIdx < children.length) {
+    if (queue[queueIdx].item.karmaScore >= children[childrenIdx].item.karmaScore) {
+      merged.push(queue[queueIdx]);
+      queueIdx++;
     } else {
       merged.push(children[childrenIdx]);
       childrenIdx++;
@@ -44,7 +44,7 @@ const mergeSortedArrays = (queue: CommentTreeNode<NestedComment>[], children: Co
 
   // Add any remaining elements
   return merged
-    .concat(queue.slice(queueIdk))
+    .concat(queue.slice(queueIdx))
     .concat(children.slice(childrenIdx));
 }
 
