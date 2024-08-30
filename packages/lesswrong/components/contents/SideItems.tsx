@@ -31,7 +31,7 @@ type SideItemsState = {
 type SideItemsPlacementContextType = {
   addSideItem: (anchorEl: HTMLElement, options: SideItemOptions) => HTMLDivElement
   removeSideItem: (anchorEl: HTMLElement) => void
-  resizeItem: (anchorEl: HTMLElement) => void
+  resizeItem: (anchorEl: HTMLElement, newHeight: number) => void
 }
 type SideItemsDisplayContextType = {
   sideItems: SideItem[]
@@ -92,9 +92,17 @@ const SideItemsContainer = ({classes, children}: {
     }
   }, [rerender]);
   
-  const resizeItem = useCallback((anchorEl: HTMLElement) => {
-    state.current.sideItems = [...state.current.sideItems];
-    rerender();
+  const resizeItem = useCallback((anchorEl: HTMLElement, newHeight: number) => {
+    // Find the corresponding sideItem
+    const sideItem = state.current.sideItems.find(s => s.container === anchorEl);
+    
+    // Compare height reported by the ResizeObserver to the last known height.
+    // Round down, becauses the ResizeObserver may report a non-integer size,
+    // but when we measure it with `Element.clientHeight`, it gets rounded.
+    if (sideItem && sideItem.sideItemHeight && (sideItem.sideItemHeight - newHeight) >= 1.0) {
+      state.current.sideItems = [...state.current.sideItems];
+      rerender();
+    }
   }, [rerender]);
   
   const sideItemsPlacementContext: SideItemsPlacementContextType = useMemo(() => ({
@@ -192,7 +200,7 @@ const SideItemsSidebar = ({classes}: {
     const resizeObserver = new ResizeObserver((entries) => {
       if (placementContext) {
         for (let entry of entries) {
-          placementContext.resizeItem(entry.target as HTMLElement);
+          placementContext.resizeItem(entry.target as HTMLElement, entry.contentRect.height);
         }
       }
     });
