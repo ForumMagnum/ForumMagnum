@@ -387,6 +387,14 @@ const LlmChatWrapper = ({children}: {
       return;
     }
     if (!response.body) {
+      handleLlmStreamError({
+        eventType: 'llmStreamError',
+        data: {
+          conversationId: (newMessage.conversationId ?? newConversationChannelId)!,
+          error: 'Missing response body for unknown reasons'
+        }
+      });
+      
       return; // TODO better error handling
     }
     const reader = response.body.getReader();
