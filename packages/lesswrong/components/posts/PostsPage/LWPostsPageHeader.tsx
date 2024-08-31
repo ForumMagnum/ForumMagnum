@@ -150,7 +150,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     </a>
   </LWTooltip> : null;
 
-  const backgroundUrl = splashPageHeader && post.reviewWinner.reviewWinnerArt?.splashArtImageUrl ?? "";
+  // const backgroundUrl = splashPageHeader && post.reviewWinner.reviewWinnerArt?.splashArtImageUrl ?? "";
 
   return <div className={classNames(classes.root, post.isEvent && classes.eventHeader, splashPageHeader && classes.splashPageHeader)}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
@@ -170,8 +170,8 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
       <div className={classes.titleSection}>
         <div className={classes.title}>
           <PostsPageTitle post={post} splashPageHeader={splashPageHeader}/>
-          {splashPageHeader && <img src={post.reviewWinner.reviewWinnerArt?.splashArtImageUrl ?? ""} />
-          </div>}
+          {/* {splashPageHeader && <img src={post.reviewWinner.reviewWinnerArt?.splashArtImageUrl ?? ""} />
+          </div>} */}
           <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
