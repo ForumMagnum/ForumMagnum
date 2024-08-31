@@ -32,7 +32,7 @@ Spotlights.addView("spotlightsPage", function (terms: SpotlightsViewTerms) {
       deletedDraft: false
     },
     options: {
-      sort: { lastPromotedAt: -1, position: 1 },
+      sort: {draft: 1, lastPromotedAt: -1, position: 1 },
       ...limit
     }
   }
@@ -46,7 +46,7 @@ Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) 
       draft: true
     },
     options: {
-      sort: { lastPromotedAt: -1, position: 1 },
+      sort: { documentId: 1 },
       ...limit
     }
   }
