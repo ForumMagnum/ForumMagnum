@@ -4,7 +4,6 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
-import sortBy from 'lodash/sortBy';
 
 const styles = (theme: ThemeType): JssStyles => ({
   form: {
@@ -45,10 +44,7 @@ export const SpotlightsPage = ({classes}: {
   }, [spotlights]);
 
   const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
-  const draftSpotlights = sortBy(
-    spotlightsInDisplayOrder.filter(spotlight => spotlight.draft),
-    'documentId'
-  );
+  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
