@@ -398,7 +398,7 @@ export const sanitize = function(s: string): string {
       'neuronpedia.org'
     ],
     allowedClasses: {
-      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
+      span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link', "math-tex" ],
       div: [
         'spoilers',
         'footnote-content',
