@@ -66,7 +66,7 @@ turndownService.addRule('latex-spans', {
   filter: (node, options) => node.classList?.contains('math-tex'),
   replacement: (content) => {
     // Leave the first three and last three characters alone, and then replace every escaped markdown control character with its unescaped version
-    return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,.\/:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
+    return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
   }
 })
 
