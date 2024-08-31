@@ -42,7 +42,7 @@ turndownService.addRule('footnote', {
   filter: (node, options) => node.classList?.contains('footnote-item'),
   replacement: (content, node) => {
     // Use the data-footnote-id attribute to get the footnote id
-    const id = (node as Element).getAttribute('data-footnote-id')
+    const id = (node as Element).getAttribute('data-footnote-id') || 'missing-id'
 
     // Get the content of the footnote by getting the content of the footnote-content div
     const text = (node as Element).querySelector('.footnote-content')?.textContent || ''
