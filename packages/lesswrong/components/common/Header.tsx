@@ -318,7 +318,7 @@ const Header = ({
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
     <React.Fragment>
-      {toc?.sectionData?.sections
+      {toc?.sections
         ? <>
             <div className={classes.hideSmDown}>
               <IconButton
@@ -407,7 +407,7 @@ const Header = ({
     open={navigationOpen}
     handleOpen={() => setNavigationOpen(true)}
     handleClose={() => setNavigationOpen(false)}
-    toc={toc?.sectionData ?? null}
+    tocSections={toc?.sections ?? null}
   />
 
   // the right side notifications menu

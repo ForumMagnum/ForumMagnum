@@ -200,47 +200,44 @@ const ModerationLog = ({classes}: {
   const { SingleColumnSection, RejectedPostsList, RejectedCommentsList, SectionTitle, ToCColumn, TableOfContents } = Components;
   
 
-  const sectionData = {
-    html: "",
-    sections: [
-      {
-        title: "Deleted Comments",
-        anchor: "deleted-comments",
-        level: 1
-      },
-      {
-        title: "Users Banned From Posts",
-        anchor: "users-banned-from-posts",
-        level: 1
-      },
-      {
-        title: "Users Banned From Users",
-        anchor: "users-banned-from-users",
-        level: 1
-      },
-      {
-        title: "Moderated Users",
-        anchor: "moderated-users",
-        level: 1
-      },
-      {
-        title: "Rejected Posts",
-        anchor: "rejected-posts",
-        level: 1
-      },
-      {
-        title: "Rejected Comments",
-        anchor: "rejected-comments",
-        level: 1
-      },
-    ],
-  }
+  const sections = [
+    {
+      title: "Deleted Comments",
+      anchor: "deleted-comments",
+      level: 1
+    },
+    {
+      title: "Users Banned From Posts",
+      anchor: "users-banned-from-posts",
+      level: 1
+    },
+    {
+      title: "Users Banned From Users",
+      anchor: "users-banned-from-users",
+      level: 1
+    },
+    {
+      title: "Moderated Users",
+      anchor: "moderated-users",
+      level: 1
+    },
+    {
+      title: "Rejected Posts",
+      anchor: "rejected-posts",
+      level: 1
+    },
+    {
+      title: "Rejected Comments",
+      anchor: "rejected-comments",
+      level: 1
+    },
+  ];
 
   return (
     <ToCColumn tableOfContents={<TableOfContents
-        sectionData={sectionData}
-        title={"Moderation Log"}
-      />}>
+      sections={sections}
+      title={"Moderation Log"}
+    />}>
       <SingleColumnSection className={classes.root}>
         <SectionTitle title="Moderation Log"/>
         <div className={classes.section}>

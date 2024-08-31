@@ -60,34 +60,31 @@ export const SpotlightsPage = ({classes}: {
 
   const totalDraftDuration = draftSpotlights.reduce((total, spotlight) => total + spotlight.duration, 0);
 
-  const sectionData = {
-    html: "",
-    sections: [
-      {
-        title: "Upcoming Spotlights",
-        anchor: "upcoming-spotlights",
-        level: 1
-      },
-      ...upcomingSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
-        anchor: spotlight._id,
-        level: 2
-      })),
-      {
-        title: "Draft Spotlights",
-        anchor: "draft-spotlights",
-        level: 1
-      },
-      ...draftSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
-        anchor: spotlight._id,
-        level: 2
-      })),
-    ],
-  }
+  const sections = [
+    {
+      title: "Upcoming Spotlights",
+      anchor: "upcoming-spotlights",
+      level: 1
+    },
+    ...upcomingSpotlights.map(spotlight => ({
+      title: spotlight.document.title,
+      anchor: spotlight._id,
+      level: 2
+    })),
+    {
+      title: "Draft Spotlights",
+      anchor: "draft-spotlights",
+      level: 1
+    },
+    ...draftSpotlights.map(spotlight => ({
+      title: spotlight.document.title,
+      anchor: spotlight._id,
+      level: 2
+    })),
+  ];
 
   return <ToCColumn tableOfContents={<TableOfContents
-    sectionData={sectionData}
+    sections={sections}
     title={"Spotlights"}
   />}>
     <SingleColumnSection>
