@@ -10,6 +10,7 @@ import { userIsAdmin } from '@/lib/vulcan-users';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -100,22 +101,25 @@ const LlmConversationRow = ({conversation, currentConversationId, setCurrentConv
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { LWTooltip, FormatDate, UsersNameDisplay } = Components;
   const isCurrentlySelected = currentConversationId === conversation._id;
   const { title, user, lastUpdatedAt, createdAt } = conversation;
 
-  return <div 
-    className={classNames(classes.conversationRow, {[classes.conversationRowSelected]: isCurrentlySelected})}
-    onClick={()=> setCurrentConversationId(conversation._id)}
-    >
+  const conversationCharacterCount = conversation.totalCharacterCount ?? 0;
+  const estimatedTokenCount = Math.round(conversationCharacterCount / 4.4);
+
+  return <div className={classNames(classes.conversationRow, {[classes.conversationRowSelected]: isCurrentlySelected})}>
     <span className={classes.conversationRowGroup}>
-      <span className={classes.conversationRowUsername}>{userGetDisplayName(user)}</span>
-      <span className={classes.conversationRowTitle}>{title}</span>
+      <UsersNameDisplay user={user} className={classes.conversationRowUsername} hideFollowButton />
+      <span className={classes.conversationRowTitle} onClick={()=>setCurrentConversationId(conversation._id)}>
+        <Link to={`/admin/llmConversations?conversationId=${conversation._id}`}>{title}</Link>
+      </span>
     </span>
     <span className={classes.conversationRowGroup}>
-      <Components.LWTooltip title={`Character count, estimated ${Math.round((conversation.totalCharacterCount ?? 0)/4.4)} tokens`} placement='top'>
-        <span className={classes.conversationRowWordCount}>{conversation.totalCharacterCount}</span>
-      </Components.LWTooltip>
-      <span className={classes.conversationRowNumLastUpdated}><Components.FormatDate date={lastUpdatedAt ?? createdAt}/></span>
+      <LWTooltip title={`${conversationCharacterCount} characters`} placement='top'>
+        <span className={classes.conversationRowWordCount}>{estimatedTokenCount}</span>
+      </LWTooltip>
+      <span className={classes.conversationRowNumLastUpdated}><FormatDate date={lastUpdatedAt ?? createdAt}/></span>
     </span>
   </div>
 }
