@@ -3764,6 +3764,8 @@ interface CurationNoticesDefaultFragment { // fragment on CurationNotices
 }
 
 interface CurationNoticesFragment { // fragment on CurationNotices
+  readonly _id: string,
+  readonly createdAt: Date,
   readonly userId: string,
   readonly user: UsersMinimumInfo|null,
   readonly commentId: string | null,

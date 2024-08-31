@@ -1,9 +1,14 @@
 // TODO: Import component in components.ts
-import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import React, { useState } from 'react';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '@/themes/forumTheme';
 import { commentBodyStyles } from '../../themes/stylePiping'
+import { useCurrentUser } from '../common/withUser';
+import { useCreate } from '@/lib/crud/withCreate';
+import { commentDefaultToAlignment } from '@/lib/collections/comments/helpers';
+import { User } from '@sentry/node';
+import { useUpdate } from '@/lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -17,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 24,
   },
   editButton: {
-    ...commentBodyStyles(theme),
+    ...theme.typography.body2,
     color: theme.palette.primary.main,
     padding: "0px 16px",
     fontSize: "16px",
@@ -25,9 +30,12 @@ const styles = (theme: ThemeType) => ({
     right: 10,
     top: 10,
     textTransform: "uppercase",
+    "&:hover": {
+      opacity: 0.5,
+      },
 },
   publishButton: {
-      ...commentBodyStyles(theme),
+      ...theme.typography.body2,
       color: theme.palette.primary.main,
       padding: "0px 16px",
       fontSize: "16px",
@@ -35,6 +43,9 @@ const styles = (theme: ThemeType) => ({
       right: 10,
       bottom: 10,
       textTransform: "uppercase",
+      "&:hover": {
+        opacity: 0.5,
+      },
   },
   meta: {
     "& > div": {
@@ -77,7 +88,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const { ContentItemBody, Button } = Components;
+const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
 
 export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
@@ -85,26 +96,89 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
+  const [ edit, setEdit ] = useState<boolean>(false)
+
+  const { create } = useCreate({
+    collectionName: "Comments",
+    fragmentName: 'CommentsList'
+  });
+
+  const {mutate: UpdateCurrentCurationNotice} = useUpdate({
+    collectionName: "CurationNotices",
+    fragmentName: 'CurationNoticesFragment',
+  });
+
+  const makeComment = async (curationNotice: CurationNoticesFragment
+  ) => {
+    if (!curationNotice.contents) {throw Error("Error creating comment")}
+
+    const comment = {
+      postId: curationNotice.postId,
+      userId: curationNotice.userId,
+      contents: { originalContents: { 
+        data: curationNotice.contents.originalContents.data,
+        type: curationNotice.contents.originalContents.type,
+      }} as EditableFieldContents
+    };
+
+    try {
+      const result = await create({data: comment});
+      const commentId = result.data?.createComment.data._id;
+      UpdateCurrentCurationNotice({
+        selector: { _id: curationNotice._id },
+        data: { commentId: commentId }
+      });
+    } catch (error) {
+      console.error("Error creating comment: ", error)
+    }
+
+    // UpdateCurrentCurationNotice({
+    //   commentId: 
+    // })
+  }
+
+  if (curationNotice.post === null) return "error: no post associated with curation notice";
+
   return <div className={classes.root}>
-    <div className={classes.meta}>
-      <div>
-        <span className={classes.postTitle}>{curationNotice.post?.title}</span>
-        <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
+    { edit ? 
+    <div>
+      <BasicFormStyles>
+          {curationNotice.post.title}
+          <WrappedSmartForm
+            collectionName="CurationNotices"
+            documentId={curationNotice._id}
+            mutationFragment={getFragment('CurationNoticesFragment')}
+            queryFragment={getFragment('CurationNoticesFragment')}
+            successCallback={() => setEdit(false)}
+            prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
+            // successCallback={(a) => console.log(a)}
+          />
+      </BasicFormStyles>
+    </div>
+    : <>
+      <div className={classes.meta}>
+        <div>
+          <span className={classes.postTitle}>{curationNotice.post?.title}</span>
+          <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
+        </div>
       </div>
-    </div>
-    <div
-      onClick={() => console.log("click")}
-      className={classes.editButton}
-      >
-      Edit
-    </div>
-    <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
-    <div
-      onClick={() => console.log("click")}
-      className={classes.publishButton}
-      >
-      Publish
-    </div>
+      <div
+        onClick={() => setEdit(true)}
+        className={classes.editButton}
+        >
+        Edit
+      </div>
+      <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
+      <div
+        onClick={() => makeComment(curationNotice)}
+        className={classes.publishButton}
+        >
+        Publish
+      </div>
+      <div>{curationNotice.commentId}</div>
+    </>
+    }
+    
   </div>
 }
 
@@ -115,3 +189,7 @@ declare global {
     CurationNoticesItem: typeof CurationNoticesItemComponent
   }
 }
+function getMarkdownContents(text: string) {
+  throw new Error('Function not implemented.');
+}
+

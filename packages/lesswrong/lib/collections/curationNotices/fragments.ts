@@ -2,6 +2,8 @@ import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
   fragment CurationNoticesFragment on CurationNotice {
+    _id
+    createdAt
     userId
     user {
       ...UsersMinimumInfo

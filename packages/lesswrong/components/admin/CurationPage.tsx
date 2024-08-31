@@ -66,7 +66,7 @@ export const CurationPage = ({classes}: {
             />
           </BasicFormStyles>
           }
-          {curationNotices?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice}/>)}
+          {curationNotices?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
         </div>
 
   </SingleColumnSection>

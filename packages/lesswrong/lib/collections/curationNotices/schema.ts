@@ -25,6 +25,7 @@ const schema: SchemaType<"CurationNotices"> = {
           nullable: true,
       }),
       canRead: ['sunshineRegiment', 'admins'],
+      canUpdate: ['sunshineRegiment', 'admins'],
       canCreate: ['sunshineRegiment', 'admins'],
       optional: true,
       nullable: true,
