@@ -727,14 +727,15 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          {!showSplashPageHeader && isBookUI && <LWPostsPageHeader
+          {isBookUI && <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            splashPageHeader={showSplashPageHeader}
             />}
-          {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
+          {!isBookUI && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
@@ -799,9 +800,6 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
       {isBookUI && header}
-      {showSplashPageHeader && <h1 className={classes.secondSplashPageHeader}>
-        {post.title}
-      </h1>}
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
@@ -933,13 +931,13 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
+    {/* {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
       // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
       post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
       showEmbeddedPlayer={showEmbeddedPlayer}
       toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-    />}
+    />} */}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[

@@ -3,6 +3,7 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import classNames from 'classnames';
 
 export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
@@ -42,6 +43,9 @@ const styles = (theme: ThemeType) => ({
   root: {
     ...postPageTitleStyles(theme)
   },
+  splashPageHeader: {
+    fontSize: '5em',
+  },
   draft: {
     color: theme.palette.text.dim4
   },
@@ -70,9 +74,10 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const PostsPageTitle = ({classes, post}: {
+const PostsPageTitle = ({classes, post, splashPageHeader}: {
   post: PostsDetails|PostsList,
   classes: ClassesType<typeof styles>,
+  splashPageHeader?: boolean,
 }) => {
   const sourcePostRelations = ('sourcePostRelations' in post) ? post.sourcePostRelations : null;
   const parentPost = sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
@@ -96,7 +101,7 @@ const PostsPageTitle = ({classes, post}: {
           [ Parent Question — {parentPost.title} ]
         </Link>
       </Typography>}
-      <Typography variant="display3" className={classes.root}>
+      <Typography variant="display3" className={classNames(classes.root, splashPageHeader && classes.splashPageHeader)}>
         <Link to={postGetPageUrl(post)} className={classes.link}>
           {post.draft && <span className={classes.draft}>[Draft] </span>}
           {mostOfTitle}{mostOfTitle && " "}

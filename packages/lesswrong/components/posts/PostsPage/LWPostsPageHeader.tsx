@@ -15,6 +15,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 38
     },
   },
+  splashPageHeader: {
+    paddingTop: "calc(50% - 100px)",
+    marginBottom: 160,
+  },
   eventHeader: {
     marginBottom: 0,
   },
@@ -114,13 +118,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, splashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
   dialogueResponses: CommentsList[],
   answerCount?: number,
+  splashPageHeader?: boolean,
 }) => {
   const { PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon, PostsGroupDetails, PostsTopSequencesNav, PostsPageEventData, AddToCalendarButton, GroupLinks, LWPostsPageHeaderTopRight, PostsAudioPlayerWrapper, PostsVote, AudioToggle, PostActionsButton, AlignmentCrosspostLink, ReadTime, LWCommentCount } = Components;
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -145,7 +150,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
     </a>
   </LWTooltip> : null;
 
-  return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
+  const backgroundUrl = splashPageHeader && post.reviewWinner.reviewWinnerArt?.splashArtImageUrl ?? "";
+
+  return <div className={classNames(classes.root, post.isEvent && classes.eventHeader, splashPageHeader && classes.splashPageHeader)}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
       <AnalyticsContext pageSectionContext="topSequenceNavigation">
         {('sequence' in post) && !!post.sequence && <div className={classes.sequenceNav}>
@@ -162,7 +169,9 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
       </div>
       <div className={classes.titleSection}>
         <div className={classes.title}>
-          <PostsPageTitle post={post} />
+          <PostsPageTitle post={post} splashPageHeader={splashPageHeader}/>
+          {splashPageHeader && <img src={post.reviewWinner.reviewWinnerArt?.splashArtImageUrl ?? ""} />
+          </div>}
           <div className={classes.authorAndSecondaryInfo}>
             <div className={classes.authorInfo}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
