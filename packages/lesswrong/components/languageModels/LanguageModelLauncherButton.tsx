@@ -57,7 +57,7 @@ export const LanguageModelLauncherButton = ({classes}: {
   },[openDialog, captureEvent, setCookie]);
 
   useEffect(() => {
-    if (cookies[SHOW_LLM_CHAT_COOKIE]!=="true") {
+    if (cookies[SHOW_LLM_CHAT_COOKIE]==="false") {
       return;
     }
     openLlmChat();

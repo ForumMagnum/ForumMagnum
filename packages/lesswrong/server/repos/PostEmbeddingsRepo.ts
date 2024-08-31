@@ -55,7 +55,7 @@ class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     LEFT JOIN "Posts" p ON p._id = ed."postId"
     WHERE ${getViewablePostsSelector('p')}
     AND p."baseScore" > 0
-    ORDER BY (0.5 * (1 / (distance + 0.1)) + 0.5 * log(p."baseScore")) DESC
+    ORDER BY (0.8 * (1 / (distance + 0.1)) + 0.2 * log(p."baseScore")) DESC
     LIMIT $(limit)
   `;
 
