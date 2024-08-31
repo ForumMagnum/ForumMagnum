@@ -29,6 +29,26 @@ import axios from 'axios';
 export const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
 turndownService.remove('style') // Make sure we don't add the content of style tags to the markdown
+turndownService.addRule('footnote-ref', {
+  filter: (node, options) => node.classList?.contains('footnote-reference'),
+  replacement: (content, node) => {
+    // Use the data-footnote-id attribute to get the footnote id
+    const id = (node as Element).getAttribute('data-footnote-id')
+    return `[^${id}]`
+  }
+})
+
+turndownService.addRule('footnote', {
+  filter: (node, options) => node.classList?.contains('footnote-item'),
+  replacement: (content, node) => {
+    // Use the data-footnote-id attribute to get the footnote id
+    const id = (node as Element).getAttribute('data-footnote-id')
+
+    // Get the content of the footnote by getting the content of the footnote-content div
+    const text = (node as Element).querySelector('.footnote-content')?.textContent || ''
+    return `[^${id}]: ${text} \n\n`
+  }
+})
 turndownService.addRule('subscript', {
   filter: ['sub'],
   replacement: (content) => `~${content}~`
@@ -40,6 +60,14 @@ turndownService.addRule('supscript', {
 turndownService.addRule('italic', {
   filter: ['i'],
   replacement: (content) => `*${content}*`
+})
+//If we have a math-tex block, we want to leave it as is without escaping it
+turndownService.addRule('latex-spans', {
+  filter: (node, options) => node.classList?.contains('math-tex'),
+  replacement: (content) => {
+    // Leave the first three and last three characters alone, and then replace every escaped markdown control character with its unescaped version
+    return content.slice(0, 3) + content.slice(3, -3).replace(/\\([ \\!"#$%&'()*+,.\/:;<=>?@[\]^_`{|}~-])/g, '$1') + content.slice(-3)
+  }
 })
 
 const mdi = markdownIt({linkify: true})
