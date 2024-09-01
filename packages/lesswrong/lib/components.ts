@@ -153,7 +153,7 @@ importComponent("CommentSubscriptionsDropdownItem", () => require('../components
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
 importComponent("PostActionsButton", () => require('../components/dropdowns/posts/PostActionsButton'));
-importComponent("SetSideCommentVisibility", () => require('../components/dropdowns/posts/SetSideCommentVisibility'));
+importComponent("SetSideItemVisibility", () => require('../components/dropdowns/posts/SetSideItemVisibility'));
 importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/posts/SuggestCuratedDropdownItem'));
 importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/posts/DeleteDraftDropdownItem'));
 importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/posts/MoveToDraftDropdownItem'));
@@ -289,6 +289,8 @@ importComponent("WrappedStrawPoll", () => require('../components/common/WrappedS
 importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("TabPicker", () => require('../components/common/TabPicker'));
 importComponent("Sparkline", () => require('../components/common/Sparkline'));
+importComponent(["SideItem","SideItemsSidebar","SideItemsContainer"], () => require('../components/contents/SideItems'));
+importComponent("SideItemLine", () => require('../components/contents/SideItemLine'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -374,6 +376,8 @@ importComponent("UsersEmailVerification", () => require('../components/users/Use
 importComponent("UsersViewABTests", () => require('../components/users/UsersViewABTests'));
 importComponent("FollowUserButton", () => require('../components/users/FollowUserButton'));
 importComponent("ViewSubscriptionsPage", () => require('../components/users/ViewSubscriptionsPage'));
+importComponent("SubscriptionsList", () => require('../components/users/SubscriptionsList'));
+importComponent("SubscribedItem", () => require('../components/users/SubscribedItem'));
 importComponent("EmailConfirmationRequiredCheckbox", () => require('../components/users/EmailConfirmationRequiredCheckbox'));
 importComponent("LoginPage", () => require('../components/users/LoginPage'));
 importComponent("CrosspostLoginPage", () => require('../components/users/CrosspostLoginPage'));
@@ -416,6 +420,7 @@ importComponent("PostsHighlight", () => require('../components/posts/PostsHighli
 importComponent("FeedPostsHighlight", () => require('../components/posts/FeedPostsHighlight'));
 importComponent("PostsListPlaceholder", () => require('../components/posts/PostsListPlaceholder'));
 importComponent("AlignmentCrosspostMessage", () => require('../components/posts/AlignmentCrosspostMessage'));
+importComponent("AlignmentCrosspostLink", () => require('../components/posts/AlignmentCrosspostLink'));
 importComponent("LegacyPostRedirect", () => require('../components/posts/LegacyPostRedirect'));
 importComponent("LinkPostMessage", () => require('../components/posts/LinkPostMessage'));
 importComponent("PostsSingle", () => require('../components/posts/PostsSingle'));
@@ -564,7 +569,7 @@ importComponent("UsersWhoReacted", () => require('../components/votes/lwReaction
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("PostsVoteDefault", () => require('../components/votes/PostsVoteDefault'));
-importComponent("PostsSplashPageHeaderVote", () => require('../components/votes/PostsSplashPageHeaderVote'));
+importComponent("LWPostsPageTopHeaderVote", () => require('../components/votes/LWPostsPageTopHeaderVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
 // Events
@@ -673,6 +678,7 @@ importComponent("CommentsListMeta", () => require('../components/comments/Commen
 importComponent("CommentsNode", () => require('../components/comments/CommentsNode'));
 importComponent("CommentFrame", () => require('../components/comments/CommentFrame'));
 importComponent("CommentsViews", () => require('../components/comments/CommentsViews'));
+importComponent("CommentsSortBySelector", () => require('../components/comments/CommentsSortBySelector'));
 importComponent("LegacyCommentRedirect", () => require('../components/comments/LegacyCommentRedirect'));
 importComponent("RecentComments", () => require('../components/comments/RecentComments'));
 importComponent("UserCommentsReplies", () => require('../components/comments/UserCommentsReplies'));
@@ -798,6 +804,7 @@ importComponent("SunshineGoogleServiceAccount", () => require('../components/sun
 importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
 importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
+importComponent("SidebarsWrapper", () => require('../components/common/SidebarsWrapper'));
 importComponent("SunshineUserMessages", () => require('../components/sunshineDashboard/SunshineUserMessages'));
 importComponent("SunshineSendMessageWithDefaults", () => require('../components/sunshineDashboard/SunshineSendMessageWithDefaults'));
 importComponent("SunshineListTitle", () => require('../components/sunshineDashboard/SunshineListTitle'));
@@ -1190,3 +1197,10 @@ importComponent("PeopleDirectoryPostsCell", () => require('../components/peopleD
 
 importComponent("OnboardingFlow", () => require('../components/onboarding/OnboardingFlow'));
 importComponent("BasicOnboardingFlow", () => require('../components/onboarding/BasicOnboardingFlow'));
+
+importComponent(["LanguageModelChat", "LlmChatMessage"], () => require('../components/languageModels/LanguageModelChat'));
+importComponent("PopupLanguageModelChat", () => require('../components/languageModels/PopupLanguageModelChat'));
+importComponent("LanguageModelLauncherButton", () => require('../components/languageModels/LanguageModelLauncherButton'));
+importComponent("AutocompleteModelSettings", () => require('../components/languageModels/AutocompleteModelSettings'));
+importComponent("LlmChatWrapper", () => require('../components/languageModels/LlmChatWrapper'));
+importComponent("LlmConversationsViewingPage", () => require('../components/languageModels/LlmConversationsViewingPage'));

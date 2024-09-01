@@ -30,6 +30,7 @@ import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import { recombeeApi } from '../recombee/client';
 import { editableUserProfileFields, simpleUserProfileFields } from '../userProfileUpdates';
+import { fetchFragmentSingle } from '../fetchFragment';
 import { hasAuth0 } from '../authenticationMiddlewares';
 import { hasType3ApiAccess, regenerateAllType3AudioForUser } from '../type3';
 
@@ -382,7 +383,12 @@ async function sendWelcomeMessageTo(userId: string) {
     console.log("Not sending welcome email, welcomeEmailPostId setting is not configured");
     return;
   }
-  const welcomePost = await Posts.findOne({_id: postId});
+  const welcomePost = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: postId},
+    currentUser: null,
+  });
   if (!welcomePost) {
     // eslint-disable-next-line no-console
     console.error(`Not sending welcome email, welcomeEmailPostId of ${postId} does not match any post`);

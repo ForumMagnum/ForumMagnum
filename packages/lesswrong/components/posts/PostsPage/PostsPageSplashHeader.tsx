@@ -29,7 +29,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'column',
-    ...theme.typography.postStyle,
     '&::before': {
       content: '""',
       position: 'absolute',
@@ -67,7 +66,7 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      background: `linear-gradient(0deg, ${theme.palette.panelBackground.default} 3%, transparent 48%)`,
+      background: `linear-gradient(180deg, ${theme.palette.panelBackground.translucent} 64px, transparent 40%, transparent 48%, ${theme.palette.panelBackground.default} 97%)`,
       pointerEvents: 'none'
     },
     transition: 'opacity 0.5s ease-in-out',
@@ -119,6 +118,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   centralSection: {
+    ...theme.typography.postStyle,
     textAlign: 'center',
     display: 'flex',
     flexDirection: 'column',
@@ -127,14 +127,13 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: '7vh',
-    transition: 'transform .75s ease-in-out',
-    [theme.breakpoints.down('xs')]: {
-      paddingBottom: '1vh'
-    }
+    transition: 'transform .75s ease-in-out'
   },
   top: {
     display: 'flex',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginRight: 8,
   },
   leftSection: {
     display: 'flex',
@@ -142,8 +141,7 @@ const styles = (theme: ThemeType) => ({
     width: 'fit-content',
     maxWidth: '350px',
     textAlign: 'left',
-    marginLeft: 6,
-    padding: 8,
+    marginLeft: 16,
     whiteSpace: 'nowrap',
     ...theme.typography.commentStyle,
   },
@@ -193,13 +191,13 @@ const styles = (theme: ThemeType) => ({
     }
   },
   audioPlayerContainer: {
-    [theme.breakpoints.up('sm')]: {
-      width: '480px',
-    }
+    display: "flex",
+    justifyContent: "flex-end"
   },
   audioPlayer: {
     padding: 8,
     marginLeft: 6,
+    width: 480
   },
   togglePodcastContainer: {
     marginTop: 6,
@@ -234,7 +232,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: '75vw',
     textWrap: 'balance',
     [theme.breakpoints.down('xs')]: {
-      fontSize: '2.5rem',
+      fontSize: '4rem',
       maxWidth: '90vw'
     },
   },
@@ -260,20 +258,12 @@ const styles = (theme: ThemeType) => ({
   },
   reviewNavigation: {
     display: 'block',
-    backgroundColor: theme.palette.panelBackground.reviewGold,
-    padding: 6,
-    borderRadius: 4,
-    color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
   },
   reviewNavigationMobile: {
-    backgroundColor: theme.palette.panelBackground.reviewGold,
-    padding: 6, 
-    borderRadius: 4,
-    color: theme.palette.text.alwaysWhite,
     display: 'none',
     [theme.breakpoints.down('xs')]: {
       display: 'block',
@@ -375,7 +365,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { UsersName, CommentBody, LWPopper, ImageCropPreview, SplashHeaderImageOptions, PostsAudioPlayerWrapper, LWPostsPageHeaderTopRight } = Components;
   
   const { selectedImageInfo } = useImageContext();
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -452,18 +442,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     return () => setToCVisible(true);
   }, [post, selectedImageInfo, imageFlipped, setToCVisible]);
 
-  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF;
-
-  const audioIcon = (
-    <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio, [classes.audioIconOn]: showEmbeddedPlayer})}>
-      <a href="#" onClick={toggleEmbeddedPlayer}>
-        <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {})} />
-      </a>
-    </LWTooltip>
-  );
-
-  const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
-  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
   const topLeftSection = (
     <div className={classes.leftSection}>
@@ -473,7 +451,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       <Link className={classes.reviewNavigationMobile} to="/leastwrong?sort=year">
         #{post.reviewWinner.reviewRanking + 1} in {post.reviewWinner.reviewYear} Review
       </Link>
-      {toggleEmbeddedPlayer && audioIcon}
     </div>
   );
 
@@ -491,20 +468,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       <div className={classes.rightSectionBelowBottomRow}>
         <ImageCropPreview imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
       </div>
-    </div>
-  );
-
-  const topRightSection = (
-    <div className={classes.rightSection}>
-      <AnalyticsContext pageSectionContext="tagHeader">
-        <div className={classes.rightSectionTopRow}>
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} align="right" />
-        </div>
-      </AnalyticsContext>
-      <div className={classes.rightSectionBottomRow}>
-        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
-      </div>
-      {imagePreviewAndCrop}
     </div>
   );
 
@@ -573,10 +536,12 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>}
     <div className={classes.top}>
       {topLeftSection}
-      {topRightSection}
+      <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} higherContrast={true} />
     </div>
-
     {audioPlayer}
+    <div className={classes.rightSection}>
+      {imagePreviewAndCrop}
+    </div>
     {reviewContainer}
     {centralSection}
   </div>

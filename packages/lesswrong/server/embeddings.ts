@@ -10,6 +10,7 @@ import { isAnyTest, isE2E } from "../lib/executionEnvironment";
 import { isEAForum, isLWorAF } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
+import { fetchFragment, fetchFragmentSingle } from "./fetchFragment";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
@@ -32,12 +33,14 @@ export const embeddingsSettings = forumSelect({
     "tokenizerModel": TOKENIZER_MODEL,
     "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
     "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+    "dimensions": null,
     "supportsBatchUpdate": false,
   },
   "default": {
     "tokenizerModel": TOKENIZER_MODEL,
     "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
     "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+    "dimensions": EMBEDDINGS_VECTOR_SIZE,
     "supportsBatchUpdate": true,
   }
 })
@@ -91,7 +94,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
     throw new Error("OpenAI client is not configured");
   }
 
-  const { tokenizerModel, embeddingModel, maxTokens } = embeddingsSettings
+  const { tokenizerModel, embeddingModel, maxTokens, dimensions } = embeddingsSettings
 
   const trimmedInputTuples: [string, string][] = [];
   for (const [postId, postText] of Object.entries(inputs)) {
@@ -117,7 +120,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   const result = await api.embeddings.create({
     input: filteredInputs,
     model: embeddingModel,
-    dimensions: EMBEDDINGS_VECTOR_SIZE,
+    ...(dimensions && { dimensions })
   });
 
   const embeddingResults = result?.data;
@@ -141,7 +144,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   };
 }
 
-const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
+export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
   if (isAnyTest) {
     return {
       embeddings: [],
@@ -153,13 +156,13 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
     throw new Error("OpenAI client is not configured");
   }
 
-  const { maxTokens, embeddingModel, tokenizerModel } = embeddingsSettings
+  const { maxTokens, embeddingModel, tokenizerModel, dimensions } = embeddingsSettings
 
   const trimmedText = trimText(text, tokenizerModel, maxTokens);
   const result = await api.embeddings.create({
     input: trimmedText,
     model: embeddingModel,
-    dimensions: EMBEDDINGS_VECTOR_SIZE
+    ...(dimensions && { dimensions })
   });
   const embeddings = result?.data?.[0].embedding;
   if (
@@ -181,7 +184,13 @@ type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
 const getEmbeddingsForPost = async (
   postId: string,
 ): Promise<EmbeddingsWithHash> => {
-  const post = await Posts.findOne({_id: postId});
+  const post = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    selector: {_id: postId},
+    currentUser: null,
+    skipFiltering: true,
+  });
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
   }
@@ -192,7 +201,7 @@ const getEmbeddingsForPost = async (
 }
 
 const getEmbeddingsForPosts = async (
-  posts: DbPost[],
+  posts: PostsPage[],
 ): Promise<Record<string, EmbeddingsWithHash>> => {
   const textMappings = Object.fromEntries(posts.map((post) => [post._id, htmlToTextDefault(post.contents?.html ?? "")] as const));
   const hashMappings = mapValues(textMappings, (postText: string) => md5(postText));
@@ -214,8 +223,15 @@ export const updatePostEmbeddings = async (postId: string) => {
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
 }
 
-export const batchUpdatePostEmbeddings = async (posts: DbPost[]) => {
+const batchUpdatePostEmbeddings = async (postIds: string[]) => {
   const repo = new PostEmbeddingsRepo();
+  const posts = await fetchFragment({
+    collectionName: "Posts",
+    fragmentName: "PostsPage",
+    selector: {_id: {$in: postIds}},
+    currentUser: null,
+    skipFiltering: true,
+  });
   const postEmbeddings = await getEmbeddingsForPosts(posts);
   const updates = Object.entries(postEmbeddings).map(([postId, { hash, model, embeddings }]) => repo.setPostEmbeddings(postId, hash, model, embeddings));
   await Promise.all(updates);
@@ -230,7 +246,7 @@ const updateAllPostEmbeddings = async () => {
       console.log("Processing next batch")
       try {
         if (embeddingsSettings.supportsBatchUpdate) {
-          await batchUpdatePostEmbeddings(posts);
+          await batchUpdatePostEmbeddings(posts.map(({_id}) => _id));
         } else {
           await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
         }
@@ -248,8 +264,7 @@ export const updateMissingPostEmbeddings = async () => {
   if (embeddingsSettings.supportsBatchUpdate) {
     for (const idBatch of chunk(ids, 50)) {
       try {
-        const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
-        await batchUpdatePostEmbeddings(posts);
+        await batchUpdatePostEmbeddings(idBatch);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error(`Failed to generate or update embeddings`, { error: e.response ?? e, idBatch });

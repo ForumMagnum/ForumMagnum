@@ -17,7 +17,7 @@ interface BatchUpdateParams {
   forceUpdate?: boolean;
 }
 
-const getPgCollectionProjections = (collectionName: CollectionNameString) => {
+const getPgCollectionProjections = (collectionName: VoteableCollectionName) => {
   const proj = {
     _id: '"_id"',
     postedAt: '"postedAt"',
@@ -44,11 +44,13 @@ const getPgCollectionProjections = (collectionName: CollectionNameString) => {
         )
         ELSE 0 END)) as "baseScore"`;
       break;
+    default:
+      break;
   }
   return Object.values(proj);
 }
 
-const getBatchItemsPg = async <N extends CollectionNameString>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
+const getBatchItemsPg = async <N extends VoteableCollectionName>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
   const {collectionName} = collection;
   if (!["Posts", "Comments"].includes(collectionName)) {
     return [];
@@ -79,11 +81,11 @@ const getBatchItemsPg = async <N extends CollectionNameString>(collection: Colle
   `, [INACTIVITY_THRESHOLD_DAYS, SCORE_BIAS, TIME_DECAY_FACTOR.get()], "read");
 }
 
-const getBatchItems = <N extends CollectionNameString>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
+const getBatchItems = <N extends VoteableCollectionName>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
   return getBatchItemsPg(collection, inactive, forceUpdate)
 }
 
-export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<CollectionNameString> }) => {
+export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<VoteableCollectionName> }) => {
   const items = await getBatchItems(collection, inactive, forceUpdate);
   let updatedDocumentsCounter = 0;
 
@@ -119,7 +121,7 @@ export const batchUpdateScore = async ({collection, inactive = false, forceUpdat
   return updatedDocumentsCounter;
 }
 
-export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}: BatchUpdateParams & { collectionName: CollectionNameString }) => {
+export const batchUpdateScoreByName = ({collectionName, inactive = false, forceUpdate = false}: BatchUpdateParams & { collectionName: VoteableCollectionName }) => {
   const collection = getCollection(collectionName);
   return batchUpdateScore({collection, inactive, forceUpdate});
 }

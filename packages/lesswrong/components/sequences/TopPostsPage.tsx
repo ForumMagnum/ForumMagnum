@@ -640,7 +640,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>
           <div className={classes.description}>
-            <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} className={classes.title} />
+            <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} titleClassName={classes.title} />
             <ContentStyles contentType="post">
               Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
               <br /><br />

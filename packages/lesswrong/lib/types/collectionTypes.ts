@@ -301,6 +301,7 @@ interface ResolverContext extends CollectionsByName {
   currentUser: DbUser|null,
   visitorActivity: DbUserActivity|null,
   locale: string,
+  isSSR: boolean,
   isGreaterWrong: boolean,
   /**
    * This means that the request originated from the other FM instance's servers
@@ -339,6 +340,11 @@ interface EditableFieldContents {
 // The subset of EditableFieldContents that you provide when creating a new document
 // or revision, ie, the parts of a revision which are not auto-generated.
 type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage"|"googleDocMetadata">
+
+type EditableFieldUpdate = EditableFieldInsertion & {
+  dataWithDiscardedSuggestions?: string,
+  updateType?: DbRevision['updateType'],
+};
 
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>

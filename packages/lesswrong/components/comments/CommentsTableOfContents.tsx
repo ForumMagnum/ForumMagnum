@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark, useScrollHighlight } from '../hooks/useScrollHighlight';
@@ -9,6 +9,8 @@ import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { forumTypeSetting } from '@/lib/instanceSettings';
+
+const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -44,13 +46,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     transform: "rotate(-90deg)",
   },
   postTitle: {
-    minHeight: 24,
+    minHeight: 76,
     paddingTop: 16,
+    ...theme.typography.body2,
     ...theme.typography.postStyle,
     ...theme.typography.smallCaps,
+    cursor: "pointer",
     fontSize: "1.3rem",
-    marginBottom: 8,
-    display: 'block'
+    paddingBottom: 16,
+    display: 'flex',
+    alignItems: 'center',
   },
   tocPostedAt: {
     color: theme.palette.link.tocLink
@@ -60,6 +65,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: -7,
     borderLeft: `solid 3px ${theme.palette.secondary.main}`
   },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${COMMENTS_TITLE_CLASS_NAME}, body:has(.headroom--unfixed) .${COMMENTS_TITLE_CLASS_NAME}`]: {
+      opacity: 0,
+    }
+  }
 })
 
 const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
@@ -69,7 +80,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow, FormatDate } = Components;
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -78,33 +88,39 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
 
+  const [isPinned, setIsPinned] = useState(true);
+  const titleRef = useRef<HTMLAnchorElement|null>(null);
+  const hideTitleContainer = isPinned;
+
+  useEffect(() => {
+    const target = titleRef.current;
+    if (target) {
+      // To prevent the comment ToC title from being hidden when scrolling up
+      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
+      const observer = new IntersectionObserver(([e]) => {
+        const newIsPinned = e.intersectionRatio < 1;
+        setIsPinned(newIsPinned);
+      }, { threshold: [1] });
+  
+      observer.observe(target);
+      return () => observer.unobserve(target);
+    }
+  }, []);
+
   if (flattenedComments.length === 0) return null;
   
   if (!commentsTableOfContentsEnabled) {
     return null;
   }
-  
+
   return <div className={classes.root}>
-    <TableOfContentsRow key="postTitle"
-      href="#"
+      <a id="comments-table-of-contents" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
       onClick={ev => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
-      }}
-      highlighted={highlightedLandmarkName==="above"}
-      title
-      fullHeight
-      commentToC
-    >
-      <span className={classes.postTitle}>
+        ev.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }} ref={titleRef}>
         {post.title?.trim()}
-      </span>
-      {post.postedAt && <div className={classes.tocPostedAt}>
-        <FormatDate date={post.postedAt} format={"Do MMM YYYY"} />
-      </div>}
-    </TableOfContentsRow>
+      </a>
 
     {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
@@ -166,7 +182,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
           // that otherwise cause us to wind up just above the comment such that the ToC
           // highlights the wrong one.
           const y = commentTop + window.scrollY - getCurrentSectionMark() + 1;
-          window.scrollTo({ top: y });
+          window.scrollTo({ top: y, behavior: "smooth" });
         }
 
         delete query.commentId;

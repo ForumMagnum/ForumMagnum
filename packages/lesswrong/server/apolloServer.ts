@@ -58,6 +58,9 @@ import { SSRMetadata } from '../lib/utils/timeUtil';
 import type { RouterLocation } from '../lib/vulcan-lib/routes';
 import { getCookieFromReq } from './utils/httpUtil';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '@/lib/cookies/cookies';
+import { addAutocompleteEndpoint } from './autocompleteEndpoint';
+import { getSqlClientOrThrow } from './sql/sqlClient';
+import { addLlmChatEndpoint } from './resolvers/anthropicResolvers';
 
 /**
  * End-to-end tests automate interactions with the page. If we try to, for
@@ -249,7 +252,7 @@ export function startWebserver() {
     tracing: false,
     cacheControl: true,
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
-      const context = await getContextFromReqAndRes(req, res);
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
       configureSentryScope(context);
       setAsyncStoreValue('resolverContext', context);
       return context;
@@ -345,6 +348,7 @@ export function startWebserver() {
 
   addCrosspostRoutes(app);
   addTestingRoutes(app);
+  addLlmChatEndpoint(app);
 
   if (testServerSetting.get()) {
     app.post('/api/quit', (_req, res) => {
@@ -354,6 +358,7 @@ export function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
+  addAutocompleteEndpoint(app);
 
   app.get('/node_modules/*', (req, res) => {
     // Under some circumstances (I'm not sure exactly what the trigger is), the
@@ -363,6 +368,18 @@ export function startWebserver() {
     // disruptive. So instead just serve a minimal 404.
     res.status(404);
     res.end("");
+  });
+
+  app.get('/api/health', async (request, response) => {
+    try {
+      const db = getSqlClientOrThrow();
+      await db.one('SELECT 1');
+      response.status(200);
+      response.end("");
+    } catch (err) {
+      response.status(500);
+      response.end("");
+    }
   });
 
   app.get('*', async (request, response) => {

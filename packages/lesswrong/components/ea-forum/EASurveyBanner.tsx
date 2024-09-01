@@ -26,16 +26,19 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 450,
     color: theme.palette.text.alwaysWhite,
     [theme.breakpoints.down("sm")]: {
+      fontSize: 14,
       flexDirection: "column",
       gap: "12px",
-      paddingRight: 60,
+      padding: "12px 48px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      paddingTop: 20,
     },
   },
   button: {
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
     borderRadius: theme.borderRadius.default,
-    fontSize: 15,
     fontWeight: 500,
     padding: "8px 12px",
     cursor: "pointer",
@@ -50,29 +53,19 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       opacity: 0.75,
     },
+    [theme.breakpoints.down("sm")]: {
+      right: 12,
+      top: 12,
+    },
+    [theme.breakpoints.down("xs")]: {
+      top: 20,
+    },
   },
 });
 
 /**
  * This banner is now disabled but the code is left here in case we want to
- * do something similar again in the future. If so, there are a couple of bugs
- * to fix:
- *   1) We had some users complaining that the banner didn't get hidden properly
- *      or that it would open again when revisiting the page. The most important
- *      thing is that the cookie must be marked as "necessary" to ensure it works
- *      for users who don't accept cookies. We still had some users who reported
- *      it wasn't working properly though - maybe we should just disable the
- *      banner entirely or users who don't accept cookies?
- *   2) The banner currently obscures the autocomplete window that popups up
- *      when typing in the search box. We probably just need to add some kind
- *      of top margin or offset.
- *   3) We also removed the old cookie, so a new cookie name needs to be added
- *      below. We previously used:
- *      export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
- *        name: "hide_ea_forum_survey_banner",
- *        type: "necessary",
- *        description: "Don't show the EA Forum survey banner",
- *      });
+ * do something similar again in the future.
  */
 const EASurveyBanner = ({classes}: {classes: ClassesType}) => {
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_EA_FORUM_SURVEY_BANNER_COOKIE]);

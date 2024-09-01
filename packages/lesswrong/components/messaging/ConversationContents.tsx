@@ -114,7 +114,8 @@ const ConversationContents = ({
     } else if (conversation && conversation.participantIds.length === 2 && ls) {
       // if this is a conversation with one other person, see if we have info on where the current user found them
       const otherUserId = conversation.participantIds.find((id) => id !== currentUser._id);
-      const lastViewedProfiles = JSON.parse(ls.getItem("lastViewedProfiles"));
+      const storedLastViewedProfiles = ls.getItem("lastViewedProfiles")
+      const lastViewedProfiles = storedLastViewedProfiles ? JSON.parse(storedLastViewedProfiles) : [];
       profileViewedFrom.current = lastViewedProfiles?.find((profile: any) => profile.userId === otherUserId)?.from;
     }
   }, [query.from, conversation, currentUser._id]);

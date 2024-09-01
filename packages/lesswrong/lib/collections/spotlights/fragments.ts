@@ -7,11 +7,14 @@ registerFragment(`
     documentType
     spotlightImageId
     spotlightDarkImageId
+    spotlightSplashImageUrl
     draft
+    deletedDraft
     position
     lastPromotedAt
     customTitle
     customSubtitle
+    subtitleUrl
     headerTitle
     headerTitleLeftColor
     headerTitleRightColor

@@ -148,19 +148,22 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
     inProgressRenders[cacheKey] = [inProgressRender];
   }
   
-  const rendered = await renderPromise;
-  if (!rendered.aborted) {
-    // eslint-disable-next-line no-console
-    console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
-    cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
-  }
+  let rendered;
+  try {
+    rendered = await renderPromise;
+    if (!rendered.aborted) {
+      // eslint-disable-next-line no-console
+      console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
+      cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
+    }  
+  } finally {
+    inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
+    if (!inProgressRenders[cacheKey].length)
+      delete inProgressRenders[cacheKey];
   
-  inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
-  if (!inProgressRenders[cacheKey].length)
-    delete inProgressRenders[cacheKey];
-
-  // This just clears expired entries from cachedABtestsIndex, the actual page cache is an LRU() so it's cleared automatically
-  clearExpiredCacheEntries();
+    // This just clears expired entries from cachedABtestsIndex, the actual page cache is an LRU() so it's cleared automatically
+    clearExpiredCacheEntries();  
+  }
   
   return {
     ...rendered,

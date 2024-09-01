@@ -148,7 +148,7 @@ const UpcomingEventsSection = ({classes}: {
         <SectionTitle
           title="Upcoming events"
           href="/events"
-          className={classes.sectionTitle}
+          titleClassName={classes.sectionTitle}
           noTopMargin
           noBottomPadding
         />
@@ -251,7 +251,7 @@ export const EAHomeRightHandSide = ({classes}: {
             <SectionTitle
               title="Opportunities"
               href="/topics/opportunities-to-take-action?sortedBy=magic"
-              className={classes.sectionTitle}
+              titleClassName={classes.sectionTitle}
               noTopMargin
               noBottomPadding
             />
@@ -283,7 +283,7 @@ export const EAHomeRightHandSide = ({classes}: {
             <SectionTitle
               title="Online courses"
               href="https://www.effectivealtruism.org/virtual-programs?utm_source=ea_forum&utm_medium=rhs&utm_campaign=home_page"
-              className={classes.sectionTitle}
+              titleClassName={classes.sectionTitle}
               noTopMargin
               noBottomPadding
             />

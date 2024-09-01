@@ -173,7 +173,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
             <>
               <SectionTitle
                 title="Karma & reacts"
-                className={classes.sectionTitle}
+                titleClassName={classes.sectionTitle}
               />
               {cachedKarmaChanges &&
                 <NotificationsPageKarmaChangeList
@@ -194,7 +194,7 @@ const NotificationsPopover = ({karmaChanges, markAllAsRead, closePopover, classe
               }
               <SectionTitle
                 title="Posts & comments"
-                className={classes.sectionTitle}
+                titleClassName={classes.sectionTitle}
               />
               <div className={classes.notifications}>
                 {notifs.current.map((notification) =>

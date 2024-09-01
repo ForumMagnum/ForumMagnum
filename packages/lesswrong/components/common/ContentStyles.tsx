@@ -62,9 +62,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 0,
     },
   },
+  llmChat: {
+    ...commentBodyStyles(theme),
+    fontSize: '1.0rem',
+    '& blockquote, & li': {
+      fontSize: '1.0rem'
+    }
+  }
 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -104,6 +111,7 @@ const ContentStyles = ({contentType, className, style, children, classes}: {
     contentType==="answer" && classes.answerBody,
     contentType==="tag" && classes.tagBody,
     contentType==="debateResponse" && classes.debateResponseBody,
+    contentType==="llmChat" && classes.llmChat,
   )}>
     {children}
   </div>;

@@ -5,7 +5,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { RobotIcon } from '../icons/RobotIcon';
 import { useCurrentUser } from '../common/withUser';
 import { coreTagIconMap } from './CoreTagIcon';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
@@ -111,6 +110,12 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
+  noBackground: {
+    backgroundColor: "transparent",
+    border: 'none',
+    paddingTop: 3,
+    paddingBottom: 3,
+  }
 });
 
 const FooterTag = ({
@@ -126,6 +131,7 @@ const FooterTag = ({
   hideRelatedTags,
   className,
   classes,
+  noBackground = false, 
 }: {
   tag: TagPreviewFragment | TagSectionPreviewFragment | TagRecentDiscussion,
   tagRel?: TagRelMinimumFragment,
@@ -138,6 +144,7 @@ const FooterTag = ({
   neverCoreStyling?: boolean,
   hideRelatedTags?: boolean,
   className?: string,
+  noBackground?: boolean
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -150,7 +157,7 @@ const FooterTag = ({
     ? tag.shortName || tag.name
     : tag.name;
 
-  const {TagsTooltip, CoreTagIcon} = Components;
+  const {TagsTooltip, CoreTagIcon, ForumIcon} = Components;
   const renderedTag = <>
     {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
@@ -169,10 +176,11 @@ const FooterTag = ({
         <span className={classNames(classes.root, className, {
           [classes.core]: !neverCoreStyling && tag.core,
           [classes.smallText]: smallText,
+          [classes.noBackground]: noBackground,
         })}>
           {link ? <Link to={tagGetUrl(tag)}>
             {renderedTag}
-            {highlightAsAutoApplied && <span className={classes.robotIcon}><RobotIcon/></span>}
+            {highlightAsAutoApplied && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
           </Link> : renderedTag}
         </span>
       </TagsTooltip>

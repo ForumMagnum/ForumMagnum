@@ -12,12 +12,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision) => {
+export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes) => {
   return post.podcastEpisode || isPostAllowedType3Audio(post);
 }
 
 export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
   classes: ClassesType<typeof styles>,
 }) => {

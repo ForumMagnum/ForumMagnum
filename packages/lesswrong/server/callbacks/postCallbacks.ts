@@ -33,6 +33,7 @@ import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPrefere
 import { recombeeApi } from '../recombee/client';
 import { recombeeEnabledSetting, vertexEnabledSetting } from '../../lib/publicSettings';
 import { googleVertexApi } from '../google-vertex/client';
+import { getLatestContentsRevision } from '../../lib/collections/revisions/helpers';
 import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -62,7 +63,7 @@ if (isEAForum) {
 
 if (HAS_EMBEDDINGS_FOR_RECOMMENDATIONS) {
   const updateEmbeddings = async (newPost: DbPost, oldPost?: DbPost) => {
-    const hasChanged = !oldPost || oldPost.contents?.html !== newPost.contents?.html;
+    const hasChanged = !oldPost || oldPost.contents_latest !== newPost.contents_latest;
     if (hasChanged &&
       !newPost.draft &&
       !newPost.deletedDraft &&
@@ -263,6 +264,13 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   }
 });
 
+postPublishedCallback.add(async function ensureNonzeroRevisionVersionsAfterUndraft (post: DbPost, context: ResolverContext) {
+  // When a post is published, ensure that the version number of its contents
+  // revision does not have `draft` set or an 0.x version number (which would
+  // affect permissions).
+  await context.repos.posts.ensurePostHasNonDraftContents(post._id);
+});
+
 interface SendPostRejectionPMParams {
   messageContents: string,
   lwAccount: DbUser,
@@ -373,9 +381,14 @@ async function extractSocialPreviewImage (post: DbPost) {
   // socialPreviewImageId is set manually, and will override this
   if (post.socialPreviewImageId) return post
 
+  const contents = await getLatestContentsRevision(post);
+  if (!contents) {
+    return post;
+  }
+
   let socialPreviewImageAutoUrl = ''
-  if (post.contents?.html) {
-    const $ = cheerioParse(post.contents?.html)
+  if (contents?.html) {
+    const $ = cheerioParse(contents?.html)
     const firstImg = $('img').first()
     const firstImgSrc = firstImg?.attr('src')
     if (firstImg && firstImgSrc) {
