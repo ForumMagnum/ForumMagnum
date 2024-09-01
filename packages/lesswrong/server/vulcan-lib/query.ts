@@ -84,6 +84,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     currentUser: null,
     headers: null,
     locale: localeSetting.get(),
+    isSSR: false,
     isGreaterWrong: false,
     repos: getAllRepos(),
     ...getCollectionsByName(),

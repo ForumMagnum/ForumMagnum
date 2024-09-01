@@ -171,7 +171,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
 
     const lookbackPeriod = isAF ? '1 month' : '1 week';
     const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
-    
+
     return this.any(`
       -- CommentsRepo.getPopularComments
       SELECT c.*
@@ -193,6 +193,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE
         p."hideFromPopularComments" IS NOT TRUE
+        AND p."frontpageDate" IS NOT NULL
         AND ${getViewablePostsSelector('p')}
         ${excludedTagIdCondition}
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC

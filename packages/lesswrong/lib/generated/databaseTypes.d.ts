@@ -954,7 +954,6 @@ interface DbPost extends DbObject {
   commentSortOrder: string | null
   hideAuthor: boolean
   sideCommentVisibility: string | null
-  hasFootnotes: boolean | null
   disableSidenotes: boolean
   moderationStyle: string | null
   ignoreRateLimits: boolean | null
@@ -1211,11 +1210,14 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  subtitleUrl: string | null
   headerTitle: string | null
   headerTitleLeftColor: string | null
   headerTitleRightColor: string | null
   lastPromotedAt: Date
+  spotlightSplashImageUrl: string | null
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null

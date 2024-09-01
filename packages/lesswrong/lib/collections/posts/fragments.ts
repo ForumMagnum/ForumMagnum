@@ -829,3 +829,19 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment PostsForAutocomplete on Post {
+    _id
+    title
+    userId
+    baseScore
+    extendedScore
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      markdown
+    }
+  }
+`)

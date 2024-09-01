@@ -312,7 +312,7 @@ export const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
-  subscribeToDialogue: {
+  bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
     border: theme.palette.border.commentBorder,
@@ -345,6 +345,15 @@ export const styles = (theme: ThemeType) => ({
       },
     },
   },
+  subscribeToGroup: {
+    padding: '8px 16px',
+    ...theme.typography.body2,
+  },
+  dateAtBottom: {
+    color: theme.palette.text.dim3,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -531,7 +540,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
   } = Components
 
   useEffect(() => {
@@ -790,13 +799,16 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-            {htmlWithAnchors &&
+            {htmlWithAnchors && <>
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
                 isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
+              {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
+              }
+              </>
             }
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
@@ -804,7 +816,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       </ContentStyles>}
 
       {showSubscribeToDialogueButton && <Row justifyContent="center">
-        <div className={classes.subscribeToDialogue}>
+        <div className={classes.bottomOfPostSubscribe}>
           <NotifyMeDropdownItem
             document={post}
             enabled={!!post.collabEditorDialogue}
@@ -815,6 +827,22 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           />
         </div>
       </Row>}
+
+      {post.isEvent && post.group && isBookUI &&
+          <Row justifyContent="center">
+            <div className={classes.bottomOfPostSubscribe}>
+              <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
+                <NotifyMeButton
+                    showIcon
+                    document={post.group}
+                    subscribeMessage="Subscribe to group"
+                    unsubscribeMessage="Unsubscribe from group"
+                    className={classes.subscribeToGroup}
+                />
+              </LWTooltip>
+            </div>
+          </Row>
+      }
 
       {post.debate && debateResponses && debateResponseReplies && fullPost &&
         <DebateBody

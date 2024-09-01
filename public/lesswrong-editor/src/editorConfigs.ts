@@ -172,7 +172,7 @@ export const postEditorConfig = {
 			'trackChanges',
 			'math',
 			'ctaButtonToolbarItem',
-			'footnote',
+			'footnote'
 		],
 		shouldNotGroupWhenFull: true,
 	},

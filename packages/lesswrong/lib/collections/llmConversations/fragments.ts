@@ -12,6 +12,17 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment LlmConversationsViewingPageFragment on LlmConversation {
+    ...LlmConversationsFragment
+    totalCharacterCount
+    user {
+      ...UsersMinimumInfo
+    }
+  }
+`)
+
+
+registerFragment(`
   fragment LlmConversationsWithMessagesFragment on LlmConversation {
     ...LlmConversationsFragment
     messages {
