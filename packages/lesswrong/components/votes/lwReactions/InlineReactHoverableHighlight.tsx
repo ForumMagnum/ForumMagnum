@@ -55,7 +55,7 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   const { InlineReactHoverInfo, SideItem, LWTooltip } = Components;
 
   const hoveredReactions = useContext(HoveredReactionListContext);
-  const voteProps = useContext(InlineReactVoteContext)!;
+  const voteProps = useContext(InlineReactVoteContext);
 
   const isHovered = hoveredReactions
     && Object.keys(reactions).some(reaction =>
@@ -97,6 +97,10 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   // 1) the quote itself is hovered over, or
   // 2) if the post/comment is hovered over, and the react has net-positive agreement across all users
   const shouldUnderline = isHovered || anyPositive;
+
+  if (!voteProps) {
+    return null;
+  }
 
   return <LWTooltip
     title={<InlineReactHoverInfo
