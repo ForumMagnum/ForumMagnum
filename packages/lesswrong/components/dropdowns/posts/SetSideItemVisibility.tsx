@@ -46,7 +46,7 @@ const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: s
   {name: "all", label: "Show All"},
 ];
 
-export type InlineReactsMode = "hidden"|"netPositive"|"seconded"|"all";
+export type InlineReactsMode = "hidden"|"netPositive"|"all";
 const inlineReactModes: {name: InlineReactsMode, label: string, detailedLabel?: string}[] = [
   {name: "hidden", label: "Hide All"},
   {name: "netPositive", label: "Hide Downvoted"},
