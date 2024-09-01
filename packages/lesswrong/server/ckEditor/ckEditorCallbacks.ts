@@ -171,10 +171,12 @@ defineMutation({
           context,
           documentId: post._id,
           data: {
+            // Contents is a resolver only field, but there is handling for it
+            // in `createMutator`/`updateMutator`
             contents: {
               originalContents: revision.originalContents,
             },
-          },
+          } as AnyBecauseHard,
           currentUser,
           validate: false,
         });

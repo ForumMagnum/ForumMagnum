@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const FormComponentNumber = (props: FormComponentProps<number>) => {
@@ -18,13 +17,6 @@ const FormComponentNumber = (props: FormComponentProps<number>) => {
     }
   />
 }
-
-(FormComponentNumber as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
-(FormComponentNumber as any).childContextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
 
 // Replaces FormComponentNumber from vulcan-ui-bootstrap
 const FormComponentNumberComponent = registerComponent("FormComponentNumber", FormComponentNumber);

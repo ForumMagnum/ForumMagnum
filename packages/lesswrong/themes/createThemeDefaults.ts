@@ -48,10 +48,13 @@ export const zIndexes = {
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
   intercomButton: 1030,
+  languageModelChatButton: 1030,
   sideCommentBox: 1040,
+  languageModelChat: 1041,
   postItemMenu: 1050,
   searchResults: 1100,
   tabNavigation: 1101,
+  hideTableOfContentsButton: 1200,
   header: 1300,
   karmaChangeNotifier: 1400,
   notificationsMenu: 1500,
@@ -70,7 +73,7 @@ export const zIndexes = {
 export const baseTheme: BaseThemeSpecification = {
   shadePalette: defaultShadePalette(),
   componentPalette: (shadePalette: ThemeShadePalette) => defaultComponentPalette(shadePalette),
-  make: (palette: ThemePalette): PartialDeep<ThemeType> => {
+  make: (palette: ThemePalette): NativeThemeType => {
     const spacingUnit = 8
   
     return {
@@ -95,12 +98,20 @@ export const baseTheme: BaseThemeSpecification = {
         quickTakesEntry: 3,
       },
       typography: {
+        fontFamily: palette.fonts.sansSerifStack,
         cloudinaryFont: {
           stack: "'Merriweather', serif",
           url: "https://fonts.googleapis.com/css?family=Merriweather",
         },
         postStyle: {
           fontFamily: palette.fonts.sansSerifStack,
+        },
+        commentStyle: {
+          fontFamily: palette.fonts.sansSerifStack,
+        },
+        errorStyle: {
+          color: palette.error.main,
+          fontFamily: palette.fonts.sansSerifStack
         },
         contentNotice: {
           fontStyle: "italic",
@@ -113,16 +124,17 @@ export const baseTheme: BaseThemeSpecification = {
           wordBreak: "break-word"
         },
         body1: {
-          fontSize: '1.4rem',
-          lineHeight: '2rem'
+          fontSize: 18.2,
+          lineHeight: "26px"
         },
         body2: {
           fontWeight: 400,
-          fontSize: '1.1rem',
-          lineHeight: '1.5rem',
+          fontSize: 14.3,
+          lineHeight: "19.5px",
         },
+        headline: {},
         postsItemTitle: {
-          fontSize: "1.3rem"
+          fontSize: 16.9
         },
         chapterTitle: {
           fontSize: "1.2em",
@@ -130,25 +142,25 @@ export const baseTheme: BaseThemeSpecification = {
           color: palette.grey[600]
         },
         largeChapterTitle: {
-          fontSize: '1.4rem',
+          fontSize: 18.2,
           margin: "1.5em 0 .5em 0",
           color: palette.grey[800]
         },
         smallText: {
           fontFamily: palette.fonts.sansSerifStack,
           fontWeight: 400,
-          fontSize: "1rem",
-          lineHeight: '1.4rem'
+          fontSize: 13,
+          lineHeight: "18.2px"
         },
         tinyText: {
           fontWeight: 400,
-          fontSize: ".75rem",
-          lineHeight: '1.4rem'
+          fontSize: 9.75,
+          lineHeight: "18.2px"
         },
         // used by h3
         display0: {
           color: palette.grey[700],
-          fontSize: '1.6rem',
+          fontSize: 20.8,
           marginTop: '1em',
           // added by MUI to display1, which we're imitating
           fontWeight: 400,
@@ -156,18 +168,18 @@ export const baseTheme: BaseThemeSpecification = {
         },
         display1: {
           color: palette.grey[800],
-          fontSize: '2rem',
+          fontSize: 26,
           marginTop: '1em'
         },
         display2: {
           color: palette.grey[800],
-          fontSize: '2.8rem',
+          fontSize: 36.4,
           marginTop: '1em'
         },
         display3: {
           color: palette.grey[800],
           marginTop: '1.2em',
-          fontSize: '3rem'
+          fontSize: 39
         },
         display4: {
           color: palette.grey[800],
@@ -183,7 +195,7 @@ export const baseTheme: BaseThemeSpecification = {
           fontFamily: palette.fonts.sansSerifStack,
         },
         caption: {
-          fontSize: ".9rem"
+          fontSize: 11.7,
         },
         blockquote: {
           fontWeight: 400,
@@ -208,7 +220,7 @@ export const baseTheme: BaseThemeSpecification = {
           backgroundColor: palette.grey[100],
           borderRadius: "5px",
           border: `solid 1px ${palette.grey[300]}`,
-          padding: '1rem',
+          padding: 13,
           whiteSpace: 'pre-wrap',
           margin: "1em 0",
         },
@@ -223,10 +235,10 @@ export const baseTheme: BaseThemeSpecification = {
           lineHeight: 1.42
         },
         li: {
-          marginBottom: '.5rem',
+          marginBottom: '6.5px',
         },
         commentHeader: {
-          fontSize: '1.5rem',
+          fontSize: 19.5,
           marginTop: '.5em',
           fontWeight:500,
         },
@@ -234,10 +246,11 @@ export const baseTheme: BaseThemeSpecification = {
           fontSize:15,
           color: palette.grey[600]
         },
+        headerStyle: {},
         subtitle: {
           fontSize: 16,
           fontWeight: 600,
-          marginBottom: ".5rem"
+          marginBottom: "6.5px"
         },
         italic: {
           fontStyle: "italic",
@@ -306,15 +319,15 @@ export const baseTheme: BaseThemeSpecification = {
         MuiFormControlLabel: {
           label: {
             fontFamily: palette.fonts.sansSerifStack,
-            fontSize: "1.1rem",
+            fontSize: 14.3,
             fontWeight: 400,
-            lineHeight: "1.5rem",
+            lineHeight: "19.5px",
           }
         },
         MuiTableCell: {
           body: {
-            fontSize: '1.1rem',
-            lineHeight: '1.5rem',
+            fontSize: 14.3,
+            lineHeight: "19.5px",
             paddingLeft: 16,
             paddingRight: 16,
             paddingTop: 12,

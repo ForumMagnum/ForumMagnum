@@ -25,7 +25,7 @@ import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequenc
 import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { blackBarTitle } from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: isFriendlyUI ? undefined : 5,
     wordBreak: 'break-all',
@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const UsersMenu = ({classes}: {
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
@@ -187,7 +187,7 @@ const UsersMenu = ({classes}: {
         ? (
           <DropdownItem
             title={preferredHeadingCase("New Quick Take")}
-            onClick={() => openDialog({componentName:"NewShortformDialog", noClickawayCancel: true})}
+            onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
       : null,
@@ -217,7 +217,11 @@ const UsersMenu = ({classes}: {
   return (
     <div className={classes.root} {...eventHandlers}>
       <Link to={`/users/${currentUser.slug}`}>
-        <Button classes={{root: classes.userButtonRoot}} onClick={menuButtonOnClick}>
+        <Button
+          classes={{root: classes.userButtonRoot}}
+          onClick={menuButtonOnClick}
+          data-testid="users-menu"
+        >
           {userButtonNode}
         </Button>
       </Link>

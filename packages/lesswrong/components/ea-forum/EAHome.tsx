@@ -1,19 +1,18 @@
 import React, { useCallback } from 'react'
-import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings'
+import { PublicInstanceSetting, isBotSiteSetting, isEAForum } from '../../lib/instanceSettings'
 import { DatabasePublicSetting } from '../../lib/publicSettings'
 import { Components, combineUrls, getSiteUrl, registerComponent } from '../../lib/vulcan-lib'
 import { useCurrentUser } from '../common/withUser'
 import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils'
 import { maintenanceTime } from '../common/MaintenanceBanner'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import ForumNoSSR from '../common/ForumNoSSR'
+import DeferRender from '../common/DeferRender'
 
 const eaHomeSequenceIdSetting = new PublicInstanceSetting<string | null>('eaHomeSequenceId', null, "optional") // Sequence ID for the EAHomeHandbook sequence
 const showSmallpoxSetting = new DatabasePublicSetting<boolean>('showSmallpox', false)
 const showHandbookBannerSetting = new DatabasePublicSetting<boolean>('showHandbookBanner', false)
 const showEventBannerSetting = new DatabasePublicSetting<boolean>('showEventBanner', false)
 const showMaintenanceBannerSetting = new DatabasePublicSetting<boolean>('showMaintenanceBanner', false)
-const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
 
 /**
  * Build structured data to help with SEO.
@@ -56,26 +55,29 @@ const FrontpageNode = ({classes}: {classes: ClassesType<typeof styles>}) => {
     RecentDiscussionFeed, QuickTakesSection, DismissibleSpotlightItem,
     HomeLatestPosts, EAHomeCommunityPosts, EAPopularCommentsSection,
   } = Components
+
   return (
     <>
       <DismissibleSpotlightItem current className={classes.spotlightMargin} />
       <HomeLatestPosts />
-      {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
-      {isEAForum && <QuickTakesSection />}
-      <ForumNoSSR if={!!currentUser}>
+      <DeferRender ssr={true} clientTiming="mobile-aware">
+        {!currentUser?.hideCommunitySection && <EAHomeCommunityPosts />}
+        <QuickTakesSection />
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="mobile-aware">
         <EAPopularCommentsSection />
-      </ForumNoSSR>
-      <ForumNoSSR if={!!currentUser}>
+      </DeferRender>
+      <DeferRender ssr={!!currentUser} clientTiming="async-non-blocking">
         <RecentDiscussionFeed
           title="Recent discussion"
           af={false}
           commentsLimit={recentDiscussionCommentsPerPost}
           maxAgeHours={18}
         />
-      </ForumNoSSR>
+      </DeferRender>
     </>
   );
-}
+};
 
 const EAHome = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const shouldRenderEventBanner = showEventBannerSetting.get()

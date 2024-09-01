@@ -400,6 +400,8 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
           }
         })
         return
+      default:
+        break
     }
     
     setFormValues(currentValues => {
@@ -421,7 +423,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
     })
   }
   
-  const handleUpdateValue = <T extends {}>(val: T) => {
+  const handleUpdateValue = async <T extends {}>(val: T) => {
     setFormValues(currentValues => {
       return {
         ...currentValues,
@@ -577,7 +579,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
           placeholder="Select all that apply"
           separator={'\r\n'}
           setValue={(value) => {
-            handleUpdateValue({
+            void handleUpdateValue({
               careerStage: value
             });
           }}
@@ -706,6 +708,7 @@ const EAGApplicationImportForm = ({currentUser, classes}: {
       
       <div className={classes.formRow}>
         <label className={classes.label}>LinkedIn profile</label>
+        {/* @ts-ignore: We're skipping some props here, but it should be safe */}
         <PrefixedInput
           value={formValues.linkedinProfileURL ?? ''}
           inputPrefix={SOCIAL_MEDIA_PROFILE_FIELDS.linkedinProfileURL}

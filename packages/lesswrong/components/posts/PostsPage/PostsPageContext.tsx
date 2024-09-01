@@ -1,7 +1,10 @@
 import { createContext, useContext } from "react";
 
-type PostsPageContextPayload = PostsWithNavigation|PostsWithNavigationAndRevision|null;
+type PostsPageContextPayload = {
+  fullPost: PostsWithNavigation|PostsWithNavigationAndRevision|null
+  postPreload: PostsListWithVotes|null
+}
 
-export const PostsPageContext = createContext<PostsPageContextPayload>(null);
+export const PostsPageContext = createContext<PostsPageContextPayload|null>(null);
 
 export const usePostsPageContext = () => useContext(PostsPageContext);

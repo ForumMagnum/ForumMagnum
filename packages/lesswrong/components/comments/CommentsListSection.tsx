@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -87,6 +87,7 @@ const CommentsListSection = ({
   totalComments,
   loadMoreComments,
   loadingMoreComments,
+  loading,
   comments,
   parentAnswerId,
   startThreadTruncated,
@@ -103,6 +104,7 @@ const CommentsListSection = ({
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
+  loading?: boolean,
   comments: CommentsList[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
@@ -142,20 +144,29 @@ const CommentsListSection = ({
     setAnchorEl(null);
   }
 
+  const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
+
+  useEffect(() => {
+    if (restoreScrollPos === -1) return;
+
+    window.scrollTo({top: restoreScrollPos})
+    setRestoreScrollPos(-1);
+  }, [restoreScrollPos])
+
   const renderTitleComponent = () => {
     const { CommentsListMeta, Typography, MenuItem } = Components
     const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
     let commentSortNode = (commentCount < totalComments) ?
       <span>
-        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
+        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
         {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
       </span> :
       <span>
-        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
+        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
       </span>
     if (isFriendlyUI) {
-      commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
+      commentSortNode = <>Sorted by <Components.CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
     }
 
     const contentType = isEAForum && post?.shortform
@@ -271,6 +282,7 @@ const CommentsListSection = ({
         comments={commentTree}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
+        loading={loading}
       />
       <PostsPageCrosspostComments />
       {!isEAForum && <Row justifyContent="flex-end">

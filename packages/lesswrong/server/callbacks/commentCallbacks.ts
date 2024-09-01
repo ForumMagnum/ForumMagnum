@@ -20,6 +20,7 @@ import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema'
 import { captureEvent } from '../../lib/analyticsEvents';
 import { adminAccountSetting, recombeeEnabledSetting } from '../../lib/publicSettings';
 import { recombeeApi } from '../recombee/client';
+import { userShortformPostTitle } from '@/lib/collections/users/helpers';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
@@ -56,13 +57,12 @@ getCollectionHooks("Comments").newValidate.add(async function createShortformPos
       });
     }
 
-    const shortformName = isEAForum ? "Quick takes" : "Shortform";
     const post = await createMutator({
       collection: Posts,
       document: {
         userId: currentUser._id,
         shortform: true,
-        title: `${currentUser.displayName}'s ${shortformName}`,
+        title: userShortformPostTitle(currentUser),
         af: currentUser.groups?.includes('alignmentForum'),
       },
       currentUser,

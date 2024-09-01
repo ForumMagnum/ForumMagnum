@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -18,10 +18,9 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useCallbackDebugRerenders } from '../hooks/useCallbackDebugRerenders';
 import { useDebouncedCallback, useStabilizedCallback } from '../hooks/useDebouncedCallback';
 import { useMessages } from '../common/withMessages';
+import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -47,7 +46,21 @@ const getPostPlaceholder = (post: PostsBase) => {
   return defaultEditorPlaceholder;
 }
 
-export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
+export const EditorFormComponent = ({
+  form,
+  formType,
+  formProps,
+  document,
+  name,
+  fieldName,
+  value,
+  hintText,
+  placeholder,
+  label,
+  formVariant,
+  commentStyles,
+  classes,
+}: {
   form: any,
   formType: "edit"|"new",
   formProps: FormProps,
@@ -58,8 +71,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   hintText: string,
   placeholder: string,
   label: string,
+  formVariant?: "default" | "grey",
   commentStyles: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
@@ -447,6 +461,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       _classes={classes}
       currentUser={currentUser}
       label={label}
+      formVariant={formVariant}
       formType={updatedFormType}
       documentId={document._id}
       collectionName={collectionName}
@@ -467,7 +482,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
+    {!hideControls && formVariant !== "grey" &&
+      <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
+    }
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

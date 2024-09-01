@@ -1,25 +1,34 @@
-import AddFieldQuery from "../../../lib/sql/AddFieldQuery";
-import UpdateDefaultValueQuery from "../../../lib/sql/UpdateDefaultValueQuery";
-import DropDefaultValueQuery from "../../../lib/sql/DropDefaultValueQuery";
-import UpdateFieldTypeQuery from "../../../lib/sql/UpdateFieldTypeQuery";
-import TableIndex from "../../../lib/sql/TableIndex";
-import DropIndexQuery from "../../../lib/sql/DropIndexQuery";
-import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
-import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
-import DropTableQuery from "../../../lib/sql/DropTableQuery";
-import DropFieldQuery from "../../../lib/sql/DropFieldQuery";
-import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
+import AddFieldQuery from "@/server/sql/AddFieldQuery";
+import UpdateDefaultValueQuery from "@/server/sql/UpdateDefaultValueQuery";
+import DropDefaultValueQuery from "@/server/sql/DropDefaultValueQuery";
+import UpdateFieldTypeQuery from "@/server/sql/UpdateFieldTypeQuery";
+import TableIndex from "@/server/sql/TableIndex";
+import DropIndexQuery from "@/server/sql/DropIndexQuery";
+import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
+import CreateTableQuery from "@/server/sql/CreateTableQuery";
+import DropTableQuery from "@/server/sql/DropTableQuery";
+import DropFieldQuery from "@/server/sql/DropFieldQuery";
+import CreateExtensionQuery from "@/server/sql/CreateExtensionQuery";
 import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
-import { JsonType, Type } from "../../../lib/sql/Type";
-import LogTableQuery from "../../../lib/sql/LogTableQuery";
+import { JsonType, Type } from "@/server/sql/Type";
+import LogTableQuery from "@/server/sql/LogTableQuery";
 import {
   expectedIndexes,
   expectedCustomPgIndexes,
 } from "../../../lib/collectionIndexUtils";
 import { getPostgresViewByName } from "../../postgresView";
 import { sleep } from "../../../lib/utils/asyncUtils";
+import { afterCreateRevisionCallback, buildRevision, getInitialVersion } from "@/server/editor/make_editable_callbacks";
+import { getAdminTeamAccount } from "@/server/callbacks/commentCallbacks";
+import { createMutator, getCollection } from "@/server/vulcan-lib";
+import { undraftPublicPostRevisions } from "@/server/manualMigrations/2024-08-14-undraftPublicRevisions";
+import Revisions from "@/lib/collections/revisions/collection";
+import chunk from "lodash/chunk";
+import { getLatestRev } from "@/server/editor/utils";
+import { Globals } from '@/lib/vulcan-lib/config';
+import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -198,12 +207,14 @@ export const updateView = async (db: SqlClientOrTx, name: string) => {
   }
 }
 
-export const normalizeEditableField = async <N extends CollectionNameString>(
-  db: SqlClientOrTx,
-  collection: CollectionBase<N>,
+export const normalizeEditableField = async ({ db: maybeDb, collectionName, fieldName, dropField }: {
+  db?: SqlClientOrTx,
+  collectionName: CollectionNameString,
   fieldName: string,
-) => {
-  const {collectionName} = collection;
+  dropField: boolean
+}) => {
+  const db = maybeDb ?? getSqlClientOrThrow();
+  const collection = getCollection(collectionName);
 
   // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
@@ -221,8 +232,99 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
     return;
   }
 
+  // Find any documents where the latest revision id is null and create a
+  // new revision for them
+  const latestFieldName = `${fieldName}_latest`;
+  const documents = await collection.find({
+    [latestFieldName]: {$exists: false},
+  }).fetch();
+  const documentBatches = chunk(documents, 20);
+  let existingRevUsed = 0;
+  let revCreated = 0;
+  const currentUser = await getAdminTeamAccount();
+  if (!currentUser) {
+    throw new Error("Can't find admin user account");
+  }
+
+  for (let i = 0; i < documentBatches.length; i++) {
+    // eslint-disable-next-line no-console
+    console.log(`Backfilling missing revisions for batch ${i} of ${documentBatches.length}... (${existingRevUsed} reused, ${revCreated} created)`);
+
+    const batch = documentBatches[i];
+
+    await Promise.all(batch.map(async (document) => {
+      const editableField: (EditableFieldContents & EditableFieldUpdate) | undefined =
+        (document as AnyBecauseHard)[fieldName];
+      if (!editableField) {
+        return;
+      }
+
+      try {
+        const existingLatestRev = await getLatestRev(document._id, "contents");
+        if (
+          existingLatestRev
+          && existingLatestRev?.html === editableField?.html
+          && !existingLatestRev.draft
+        ) {
+          existingRevUsed++;
+          await collection.rawUpdateOne({_id: document._id}, {
+            $set: {[latestFieldName]: existingLatestRev._id},
+          })
+        } else {
+          const dataWithDiscardedSuggestions = editableField?.dataWithDiscardedSuggestions;
+          delete editableField?.dataWithDiscardedSuggestions;
+    
+          const userId = (document as AnyBecauseHard).userId || currentUser._id;
+    
+          const revisionData = editableField.originalContents
+            ? await buildRevision({
+              originalContents: editableField.originalContents,
+              dataWithDiscardedSuggestions,
+              currentUser,
+            })
+            : {
+              html: "",
+              wordCount: 0,
+              originalContents: {type: "ckEditorMarkup", data: ""},
+              editedAt: new Date(),
+              userId,
+            };
+    
+          revCreated++;
+          const revision = await createMutator({
+            collection: Revisions,
+            document: {
+              version: editableField.version || getInitialVersion(document),
+              changeMetrics: {added: 0, removed: 0},
+              collectionName,
+              ...revisionData,
+              userId,
+            },
+            validate: false,
+          });
+    
+          await Promise.all([
+            afterCreateRevisionCallback.runCallbacksAsync([{
+              revisionID: revision.data._id,
+            }]),
+            collection.rawUpdateOne({_id: document._id}, {
+              $set: {[latestFieldName]: revision.data._id},
+            }),
+          ]);
+        }
+      } catch(e) {
+        // eslint-disable-next-line no-console
+        console.log(`Failed on post with ID ${document._id}`);
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
+    }));
+  }
+
   // Check for data integrity issues and update any revisions that have diverged
   // from the current denormalized value
+  // eslint-disable-next-line no-console
+  console.log("Updating out-of-sync revisions...");
   await db.none(`
     UPDATE "Revisions" AS r
     SET
@@ -234,16 +336,28 @@ export const normalizeEditableField = async <N extends CollectionNameString>(
       "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
       "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
       "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents")
+      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents"),
+      "draft" = COALESCE(p."draft", FALSE),
+      "collectionName" = $1
     FROM "${collectionName}" AS p
     WHERE
-      r."collectionName" = '${collectionName}'
+      r."collectionName" = $1
       AND r."fieldName" = '${fieldName}'
       AND p."${fieldName}_latest" = r."_id"
       AND p."${fieldName}"->>'html' <> r."html"
-  `);
-  await dropRemovedField(db, collection, fieldName);
+  `, [collectionName]);
+
+  if (dropField) {
+    // eslint-disable-next-line no-console
+    console.log("Dropping denormalized field...");
+    await dropRemovedField(db, collection, fieldName);
+  }
+
+  // eslint-disable-next-line no-console
+  console.log("Undrafting most recent revisions for published posts...");
+  await undraftPublicPostRevisions(db);
 }
+
 
 export const denormalizeEditableField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
@@ -271,3 +385,6 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       AND p."${fieldName}_latest" = r."_id"
   `);
 }
+
+Globals.normalizeEditableField = normalizeEditableField
+Globals.denormalizeEditableField = denormalizeEditableField

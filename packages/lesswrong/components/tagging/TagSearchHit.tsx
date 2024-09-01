@@ -48,7 +48,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   });
   const {eventHandlers, hover, anchorEl} = useHover();
   const currentUser = useCurrentUser();
-  const post = usePostsPageContext();
+  const post = usePostsPageContext()?.fullPost ?? null;
 
   // Some tags are only allowed to be voted on by certain users, ex. mods & admins
   // - in these cases, other users should not be able to find them via search.

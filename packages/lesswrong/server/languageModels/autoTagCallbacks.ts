@@ -8,9 +8,13 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { Users } from '../../lib/collections/users/collection';
 import { cheerioParse } from '../utils/htmlUtil';
-import { isAnyTest, isProduction } from '../../lib/executionEnvironment';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isAnyTest, isE2E, isProduction } from '../../lib/executionEnvironment';
+import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from '../../lib/instanceSettings';
 import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
+import { FetchedFragment, fetchFragmentSingle } from '../fetchFragment';
+import { updateMutator } from '../vulcan-lib';
+import { Posts } from '@/lib/collections/posts';
+import { isWeekend } from '@/lib/utils/timeUtil';
 
 /**
  * To set up automatic tagging:
@@ -107,7 +111,11 @@ import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
 
 const bodyWordCountLimit = 1500;
 const tagBotAccountSlug = new DatabaseServerSetting<string|null>('languageModels.autoTagging.taggerAccountSlug', null);
+const tagBotActiveTimeSetting = new DatabaseServerSetting<"always" | "weekends">('languageModels.autoTagging.activeTime', "always");
 
+const autoFrontpageSetting = new DatabaseServerSetting<boolean>('languageModels.autoTagging.autoFrontpage', false);
+const autoFrontpageModelSetting = new DatabaseServerSetting<string|null>('languageModels.autoTagging.autoFrontpageModel', "gpt-4o-mini");
+const autoFrontpagePromptSetting = new DatabaseServerSetting<string | null>("languageModels.autoTagging.autoFrontpagePrompt", null);
 
 /**
  * Preprocess HTML before converting to markdown to be then converted into a
@@ -127,7 +135,7 @@ function preprocessHtml(html: string): string {
 
 export async function postToPrompt({template, post, promptSuffix, postBodyCache, markdownBody}: {
   template: LanguageModelTemplate,
-  post: DbPost|PostIsCriticismRequest,
+  post: FetchedFragment<"PostsHTML">|PostIsCriticismRequest,
   promptSuffix: string
   // Optional mapping from post ID to markdown body, to avoid redoing the html-to-markdown conversions
   postBodyCache?: PostBodyCache,
@@ -137,7 +145,11 @@ export async function postToPrompt({template, post, promptSuffix, postBodyCache,
   const {header, body} = template;
   
   const preprocessedBody = '_id' in post ? postBodyCache?.preprocessedBody?.[post._id] : null
-  const htmlPostBody = ('body' in post ? post.body : null) ?? ('contents' in post ? post.contents?.html : null) ?? ''
+  const htmlPostBody = (('body' in post && post.body) ? post.body : null)
+    ?? (('contents' in post && post.contents)
+        ? post.contents?.html
+        : null)
+    ?? ''
   const markdownPostBody = markdownBody ?? preprocessedBody ?? preprocessPostHtml(htmlPostBody);
   
   const linkpostMeta = ('url' in post && post.url) ? `\nThis is a linkpost for ${post.url}` : '';
@@ -166,7 +178,7 @@ function preprocessPostHtml(postHtml: string): string {
 }
 
 export type PostBodyCache = {preprocessedBody: Record<string,string>}
-export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
+export function generatePostBodyCache(posts: FetchedFragment<"PostsHTML">[]): PostBodyCache {
   const result: PostBodyCache = {preprocessedBody: {}};
   for (let post of posts) {
     result.preprocessedBody[post._id] = preprocessPostHtml(post.contents?.html ?? "");
@@ -174,7 +186,47 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   return result;
 }
 
-export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAI) {
+const CHAT_MODEL_BASENAMES = [
+  'gpt-4', // gpt-4o or gpt-4o-mini currently (2024-08-20) recommended
+  'gpt-3.5-turbo'
+]
+
+async function booleanLLMCheck(
+  model: string,
+  prompt: string,
+  openAIApi: OpenAI
+): Promise<boolean> {
+  let completion = "";
+
+  if (CHAT_MODEL_BASENAMES.some(name => model.includes(name))) {
+    const chatCompletion = await openAIApi.chat.completions.create({
+      model,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+    completion = chatCompletion.choices[0].message.content?.trim().toLowerCase() ?? "no";
+  } else {
+    const languageModelResult = await openAIApi.completions.create({
+      model,
+      prompt,
+      max_tokens: 1,
+    });
+    completion = languageModelResult.choices[0].text!;
+  }
+
+  const finalWord = completion.trim().toLowerCase().split(/[\n\s]+/).pop();
+  return finalWord === "yes";
+}
+
+export async function checkTags(
+  post: FetchedFragment<"PostsHTML">,
+  tags: DbTag[],
+  openAIApi: OpenAI,
+) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let tagsApplied: Record<string,boolean> = {};
@@ -182,17 +234,41 @@ export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAI) 
   for (let tag of tags) {
     if (!tag.autoTagPrompt || !tag.autoTagModel)
       continue;
-    const languageModelResult = await openAIApi.completions.create({
-      model: tag.autoTagModel,
-      prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),
-      max_tokens: 1,
-    });
-    const completion = languageModelResult.choices[0].text!;
-    const hasTag = (completion.trim().toLowerCase() === "yes");
-    tagsApplied[tag.slug] = hasTag;
+
+    try {
+      const userPrompt = await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt});
+      tagsApplied[tag.slug] = await booleanLLMCheck(tag.autoTagModel, userPrompt, openAIApi);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      continue;
+    }
   }
   
   return tagsApplied;
+}
+
+export async function checkFrontpage(
+  post: FetchedFragment<"PostsHTML">,
+  openAIApi: OpenAI,
+) {
+  const template = await wikiSlugToTemplate("lm-config-autotag");
+
+  const autoFrontpageModel = autoFrontpageModelSetting.get()
+  const autoFrontpagePrompt = autoFrontpagePromptSetting.get()
+
+  if (!autoFrontpageModel || !autoFrontpagePrompt) {
+    return false;
+  }
+
+  try {
+    const userPrompt = await postToPrompt({template, post, promptSuffix: autoFrontpagePrompt});
+    return await booleanLLMCheck(autoFrontpageModel, userPrompt, openAIApi);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    return false;
+  }
 }
 
 
@@ -243,24 +319,37 @@ export async function getAutoAppliedTags(): Promise<DbTag[]> {
   return await Tags.find({ autoTagPrompt: {$exists: true, $ne: ""} }).fetch();
 }
 
-async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<void> {
+async function autoReview(post: DbPost, context: ResolverContext): Promise<void> {
   const api = await getOpenAI();
   if (!api) {
-    if (!isAnyTest) {
+    if (!isAnyTest && !isE2E) {
       //eslint-disable-next-line no-console
       console.log("Skipping autotagging (API not configured)");
     }
     return;
   }
   const tagBot = await getTagBotAccount(context);
-  if (!tagBot) {
+  const tagBotActiveTime = tagBotActiveTimeSetting.get();
+
+  if (!tagBot || (tagBotActiveTime === "weekends" && !isWeekend())) {
     //eslint-disable-next-line no-console
-    console.log("Skipping autotagging (no tag-bot account)");
+    console.log(`Skipping autotagging (${!tagBot ? "no tag-bot account" : "not a weekend"})`);
     return;
   }
   
   const tags = await getAutoAppliedTags();
-  const tagsApplied = await checkTags(post, tags, api);
+  const postHTML = await fetchFragmentSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsHTML",
+    selector: {_id: post._id},
+    currentUser: context.currentUser,
+    context,
+    skipFiltering: true,
+  });
+  if (!postHTML) {
+    return;
+  }
+  const tagsApplied = await checkTags(postHTML, tags, api);
   
   //eslint-disable-next-line no-console
   console.log(`Auto-applying tags to post ${post.title} (${post._id}): ${JSON.stringify(tagsApplied)}`);
@@ -274,6 +363,45 @@ async function autoApplyTagsTo(post: DbPost, context: ResolverContext): Promise<
         context,
       });
     }
+  }
+
+  const autoFrontpageEnabled = autoFrontpageSetting.get()
+  if (!autoFrontpageEnabled) {
+    return;
+  }
+
+  const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
+  const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
+    post.isEvent,
+    post.submitToFrontpage,
+    post.draft,
+  )
+  if (requireFrontpageReview !== defaultFrontpageHide) {
+    // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
+    // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
+    return
+  }
+
+  const autoFrontpageReview = await checkFrontpage(postHTML, api);
+
+  // eslint-disable-next-line no-console
+  console.log(
+    `Frontpage auto-review result for ${post.title} (${post._id}): ${
+      autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
+    }`
+  );
+
+  if (autoFrontpageReview) {
+    await updateMutator({
+      collection: Posts,
+      documentId: post._id,
+      data: {
+        frontpageDate: defaultFrontpageHide ? new Date() : null,
+        autoFrontpage: defaultFrontpageHide ? "show" : "hide"
+      },
+      currentUser: context.currentUser,
+      context,
+    });
   }
 }
 
@@ -328,12 +456,12 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
 getCollectionHooks("Posts").updateAsync.add(async ({oldDocument, newDocument, context}) => {
   if (oldDocument.draft && !newDocument.draft) {
     // Post was undrafted
-    void autoApplyTagsTo(newDocument, context);
+    void autoReview(newDocument, context);
   }
 })
 getCollectionHooks("Posts").createAsync.add(async ({document, context}) => {
   if (!document.draft) {
     // Post created (and is not a draft)
-    void autoApplyTagsTo(document, context);
+    void autoReview(document, context);
   }
 })

@@ -259,6 +259,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dim4: shades.grey[500],
     dim5: shades.greyAlpha(.3),
     dim6: shades.greyAlpha(.2),
+    dim05: shades.greyAlpha(.08),
     dim55: shades.greyAlpha(.55),
     dim600: shades.grey[600],
     dim700: shades.grey[700],
@@ -340,6 +341,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: shades.grey[0],
+    sidenoteBackground: "rgba(190,120,80,.05)",
   },
   panelBackground: {
     default: shades.grey[0],
@@ -378,6 +380,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     recentDiscussionThread: shades.grey[20],
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
+    mapboxTooltip: "#fff",
     modalBackground: "#fff",
     loginInput: "#efefef",
     loginInputHovered: "#e4e4e4",
@@ -473,6 +476,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       background: shades.grey[700],
       hoverBackground: shades.grey[800],
     },
+  },
+  sideItemIndicator: {
+    sideComment: '#5f9b65',
+    inlineReaction: 'lch(68 34.48 85.39 / 76%)',
   },
   tag: {
     text: shades.greyAlpha(.9),
@@ -573,12 +580,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
-  },
-  dialogueMatching: {
-    checkedNotMatched: "#ADD8E6",
-    checkedMatched: "#00000038",
-    optIn: "#9a9a9a",
-    warning: "yellow",
   },
   namesAttachedReactions: {
     selectedAnti: "rgb(255, 189, 189, .23)",

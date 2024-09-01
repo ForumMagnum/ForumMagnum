@@ -172,6 +172,7 @@ export interface TabRecord {
   showLabsIcon?: boolean,
   showSparkleIcon?: boolean,
   isInfiniteScroll?: boolean,
+  defaultTab?: boolean
 }
 
 /**

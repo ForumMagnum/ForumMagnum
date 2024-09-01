@@ -205,7 +205,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     label: "Locally Invalid",
     svg: "/reactionImages/nounproject/negateddoubleturnstile.svg",
     searchTerms: ["locally", "invalid", "unsound"],
-    description: "This reasoning is not sound and does not preserve truth values.",
+    description: "This step is incorrect; these premises do not imply this conclusion.",
   },
   
   {
@@ -286,6 +286,15 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     name: "empathy",
     label: "Empathy",
     searchTerms: ["heart"],
+    svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
+    description: "",
+    filter: {opacity: 0.6, translateY: 1, scale: 1.05},
+    deprecated:true
+  },
+  {
+    name: "heart",
+    label: "Heart",
+    searchTerms: ["empathy"],
     svg: "/reactionImages/nounproject/noun-heart-1212629.svg",
     description: "",
     filter: {opacity: 0.6, translateY: 1, scale: 1.05},

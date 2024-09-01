@@ -64,12 +64,12 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
 // have been removed. If document is null, returns null.
-export const accessFilterSingle = async <N extends CollectionNameString>(
+export const accessFilterSingle = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
-  document: ObjectsByCollectionName[N]|null,
+  document: DocType|null,
   context: ResolverContext|null,
-): Promise<Partial<ObjectsByCollectionName[N]>|null> => {
+): Promise<Partial<DocType|null>> => {
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
@@ -82,18 +82,18 @@ export const accessFilterSingle = async <N extends CollectionNameString>(
 // list, and fields which the user can't access are removed from the documents inside
 // the list. If currentUser is null, applies permission checks for the logged-out
 // view.
-export const accessFilterMultiple = async <N extends CollectionNameString>(
+export const accessFilterMultiple = async <N extends CollectionNameString, DocType extends ObjectsByCollectionName[N]>(
   currentUser: DbUser|null,
   collection: CollectionBase<N>,
-  unfilteredDocs: Array<ObjectsByCollectionName[N]|null>,
+  unfilteredDocs: Array<DocType|null>,
   context: ResolverContext|null,
-): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
+): Promise<Partial<DocType>[]> => {
   const { checkAccess } = collection
   
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
   // nulls.
-  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as ObjectsByCollectionName[N][];
+  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as DocType[];
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess
     ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d, context))
@@ -344,21 +344,37 @@ export function denormalizedField<N extends CollectionNameString>({ needsUpdate,
 export function denormalizedCountOfReferences<
   SourceCollectionName extends CollectionNameString,
   TargetCollectionName extends CollectionNameString
->({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
+>({
+  collectionName,
+  fieldName,
+  foreignCollectionName,
+  foreignTypeName,
+  foreignFieldName,
+  filterFn,
+  resyncElastic,
+}: {
   collectionName: SourceCollectionName,
   fieldName: string & keyof ObjectsByCollectionName[SourceCollectionName],
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
   foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
   filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName]) => boolean,
+  resyncElastic?: boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
   const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
 
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
   
-  if (isServer)
-  {
+  if (bundleIsServer) {
+    const resync = (documentId: string) => {
+      if (resyncElastic) {
+        // eslint-disable-next-line import/no-restricted-paths
+        const {elasticSyncDocument} = require("../../server/search/elastic/elasticCallbacks");
+        elasticSyncDocument(collectionName, documentId);
+      }
+    }
+
     // When inserting a new document which potentially needs to be counted, follow
     // its reference and update with $inc.
     const createCallback = async (newDoc: AnyBecauseTodo, {currentUser, collection, context}: AnyBecauseTodo) => {
@@ -369,6 +385,7 @@ export function denormalizedCountOfReferences<
         await collection.rawUpdateOne(newDoc[foreignFieldName], {
           $inc: { [fieldName]: 1 }
         });
+        resync(newDoc[foreignFieldName]);
       }
       
       return newDoc;
@@ -389,6 +406,7 @@ export function denormalizedCountOfReferences<
             await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
         } else if (!filter(newDoc) && filter(oldDocument)) {
           // The old doc counted, but the new doc doesn't. Decrement on the old doc.
@@ -397,6 +415,7 @@ export function denormalizedCountOfReferences<
             await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
         } else if (filter(newDoc) && oldDocument[foreignFieldName] !== newDoc[foreignFieldName]) {
           denormalizedLogger(`${foreignFieldName} of ${foreignTypeName} has changed from ${oldDocument[foreignFieldName]} to ${newDoc[foreignFieldName]}`)
@@ -407,12 +426,14 @@ export function denormalizedCountOfReferences<
             await countingCollection.rawUpdateOne(oldDocument[foreignFieldName], {
               $inc: { [fieldName]: -1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
           if (newDoc[foreignFieldName]) {
             denormalizedLogger(`changing ${foreignFieldName} leads to increment of ${newDoc[foreignFieldName]}`)
             await countingCollection.rawUpdateOne(newDoc[foreignFieldName], {
               $inc: { [fieldName]: 1 }
             });
+            resync(newDoc[foreignFieldName]);
           }
         }
         return newDoc;
@@ -427,6 +448,7 @@ export function denormalizedCountOfReferences<
           await countingCollection.rawUpdateOne(document[foreignFieldName], {
             $inc: { [fieldName]: -1 }
           });
+          resync(document[foreignFieldName]);
         }
       }
     );

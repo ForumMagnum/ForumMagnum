@@ -8,6 +8,7 @@ export const textCellStyles = (theme: ThemeType) => ({
   color: theme.palette.grey[1000],
   fontSize: 13,
   fontWeight: 500,
+  lineHeight: "1.4rem",
   overflow: "hidden",
   textOverflow: "ellipsis",
   display: "-webkit-box",
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
+const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
   classes: ClassesType<typeof styles>,
@@ -36,7 +37,7 @@ export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   const text = String(user[fieldName] || "").trim() || EMPTY_TEXT_PLACEHOLDER;
   const {LWTooltip} = Components;
   return (
-    <LWTooltip title={String(user[fieldName])}>
+    <LWTooltip title={user[fieldName] ? String(user[fieldName]) : undefined}>
       <div className={classNames(classes.root, {
         [classes.empty]: text === EMPTY_TEXT_PLACEHOLDER,
       })}>

@@ -9,6 +9,7 @@ import { useUpdate } from '../../../lib/crud/withUpdate';
 import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../../lib/collections/tags/schema';
 import difference from 'lodash/fp/difference';
 import { PostsLayout } from '../../../lib/collections/posts/dropdownOptions';
+import { ObservableQuery } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({
   centralColumn: {
@@ -84,10 +85,10 @@ const SubforumSubforumTab = ({
 
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const refetchRef = useRef<null|(() => void)>(null);
+  const refetchRef = useRef<null|ObservableQuery['refetch']>(null);
   const refetch = useCallback(() => {
     if (refetchRef.current)
-      refetchRef.current();
+      void refetchRef.current();
   }, [refetchRef]);
 
   const hideIntroPost = currentUser && userTagRel && !!userTagRel?.subforumHideIntroPost

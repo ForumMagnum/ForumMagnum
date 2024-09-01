@@ -11,10 +11,10 @@ export type SSRMetadata = {
   timezone: string;
 }
 
-export type TimeOverride = Pick<SSRMetadata, "cacheFriendly" | "timezone"> & {
-  currentTime: Date;
+export type EnvironmentOverride = Partial<SSRMetadata> & {
+  matchSSR: boolean;
 }
-export const TimeOverrideContext = React.createContext<TimeOverride | null>(null);
+export const EnvironmentOverrideContext = React.createContext<EnvironmentOverride>({matchSSR: true});
 
 // useCurrentTime: If we're rehydrating a server-side render, returns the
 // time the SSR was prepared. If we're preparing an SSR, returns the time the
@@ -29,9 +29,9 @@ export const TimeOverrideContext = React.createContext<TimeOverride | null>(null
 // (This isn't necessary inside of event handlers or in any context that
 // isn't a component or used by components.)
 export function useCurrentTime(): Date {
-  const time = useContext(TimeOverrideContext);
-  if (time?.currentTime) {
-    return time.currentTime;
+  const { renderedAt } = useContext(EnvironmentOverrideContext);
+  if (renderedAt) {
+    return new Date(renderedAt);
   } else {
     return new Date();
   }
@@ -89,4 +89,29 @@ export function relativeTimeToLongFormat(time: string): string {
       default:
           return time;
   }
+}
+
+/**
+ * Check whether it's after 5pm UK time on Friday and before 9am ET on Monday
+ */
+export function isWeekend(): boolean {
+  const nowUK = moment().tz("Europe/London");
+  const nowET = moment().tz("America/New_York");
+
+  const dayOfWeekUK = nowUK.day();
+  const hourOfDayUK = nowUK.hour();
+  const dayOfWeekET = nowET.day();
+  const hourOfDayET = nowET.hour();
+
+  if (dayOfWeekUK === 5 && hourOfDayUK >= 17) {
+    return true;
+  }
+  if (dayOfWeekUK === 6 || dayOfWeekUK === 0) {
+    return true;
+  }
+  if (dayOfWeekET === 1 && hourOfDayET < 9) {
+    return true;
+  }
+
+  return false;
 }

@@ -1,12 +1,13 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
-import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
 import { getPostgresViewByName } from "../postgresView";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
+import { MULTISELECT_SUGGESTION_LIMIT } from "@/components/hooks/useSearchableMultiSelect";
+import { getViewablePostsSelector } from "./helpers";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -171,7 +172,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
 
   private getSearchDocumentQuery(): string {
     return `
-      -- UsersRepo.getSearchDocumentQuery
       SELECT
         u."_id",
         u."_id" AS "objectID",
@@ -188,6 +188,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."howOthersCanHelpMe"->>'html' AS "howOthersCanHelpMe",
         u."howICanHelpOthers"->>'html' AS "howICanHelpOthers",
         COALESCE(u."karma", 0) AS "karma",
+        COALESCE(u."commentCount", 0) AS "commentCount",
         u."slug",
         NULLIF(TRIM(u."jobTitle"), '') AS "jobTitle",
         NULLIF(TRIM(u."organization"), '') AS "organization",
@@ -195,7 +196,23 @@ class UsersRepo extends AbstractRepo<"Users"> {
         NULLIF(TRIM(u."website"), '') AS "website",
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
-        u."profileTagIds" AS "tags",
+        (SELECT JSONB_AGG(JSONB_BUILD_OBJECT(
+          '_id', t."_id",
+          'slug', t."slug",
+          'name', t."name"
+        )) FROM "Tags" t WHERE
+          t."_id" = ANY(u."profileTagIds") AND
+          t."deleted" IS NOT TRUE
+        ) AS "tags",
+        (SELECT ARRAY_AGG(JSONB_BUILD_OBJECT(
+          '_id', p."_id",
+          'slug', p."slug",
+          'title', p."title"
+        ) ORDER BY p."baseScore" DESC) FROM "Posts" p WHERE
+          p."userId" = u."_id" AND
+          p."shortform" IS NOT TRUE AND
+          ${getViewablePostsSelector("p")}
+        ) AS "posts",
         NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
           'website', NULLIF(TRIM(u."website"), ''),
           'github', NULLIF(TRIM(u."githubProfileURL"), ''),
@@ -212,6 +229,24 @@ class UsersRepo extends AbstractRepo<"Users"> {
           )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
         u."profileUpdatedAt",
+        (
+          CASE WHEN u."profileImageId" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."jobTitle" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."organization" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."biography"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."howOthersCanHelpMe"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."howICanHelpOthers"->>'html' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."careerStage" IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."website" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."githubProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."twitterProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."linkedinProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."facebookProfileURL" IS NULL THEN 0 ELSE 0.25 END +
+          CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN 0 ELSE 1 END +
+          CASE WHEN u."commentCount" < 1 THEN 0 ELSE 1 END +
+          CASE WHEN u."postCount" < 1 THEN 0 ELSE 2 END +
+          CASE WHEN u."karma" IS NULL OR u."karma" <= 0 THEN 0 ELSE 1 - 1 / u."karma" END * 100
+        ) AS "profileCompletion",
         NOW() AS "exportedAt"
       FROM "Users" u
     `;
@@ -361,205 +396,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `)
   }
 
-  async getUsersTopUpvotedUsers(user: DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
-    const karma = user?.karma ?? 0
-    const smallVotePower = calculateVotePower(karma, "smallUpvote");
-    const bigVotePower = calculateVotePower(karma, "bigUpvote");
-    
-    return this.getRawDb().any(`
-      -- UsersRepo.getUsersTopUpvotedUsers
-      WITH "CombinedVotes" AS (
-      -- Joining Users with Posts and Votes
-      SELECT
-          v.power AS vote_power,
-          u._id AS user_id,
-          u.username AS user_username,
-          u."displayName" AS user_displayName,
-          CASE
-              WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
-              WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
-              WHEN v."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-              WHEN v."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
-              WHEN v."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
-              ELSE 0
-          END AS agreement_value
-        FROM "Users" u
-        INNER JOIN "Posts" p ON u._id = p."userId"
-        INNER JOIN "Votes" v ON p._id = v."documentId"
-        WHERE
-            v."userId" = $1
-            AND u._id != $1
-            AND v."votedAt" > NOW() - INTERVAL '1.5 years'
-            AND v."cancelled" IS NOT TRUE
-
-        UNION ALL
-    
-        -- Joining Users with Comments and Votes
-        SELECT
-            v.power AS vote_power,
-            u._id AS user_id,
-            u.username AS user_username,
-            u."displayName" AS user_displayName,
-            CASE
-                WHEN v."extendedVoteType"->>'agreement' = 'bigDownvote' THEN -$3
-                WHEN v."extendedVoteType"->>'agreement' = 'smallDownvote' THEN -$2
-                WHEN v."extendedVoteType"->>'agreement' = 'neutral' THEN 0
-                WHEN v."extendedVoteType"->>'agreement' = 'smallUpvote' THEN $2
-                WHEN v."extendedVoteType"->>'agreement' = 'bigUpvote' THEN $3
-                ELSE 0
-            END AS agreement_value
-        FROM "Users" u
-        INNER JOIN "Comments" c ON u._id = c."userId"
-        INNER JOIN "Votes" v ON c._id = v."documentId"
-        WHERE
-            v."userId" = $1
-            AND u._id != $1
-            AND v."votedAt" > NOW() - INTERVAL '1.5 years'
-            AND v."cancelled" IS NOT TRUE
-    ),
-
-    "UserChecks" AS (
-      SELECT
-          u._id,
-          COALESCE(
-              EXISTS (
-                  SELECT 1
-                  FROM "DialogueChecks" as dc
-                  WHERE
-                      dc."userId" = u._id
-                      AND "checkedAt" > NOW() - INTERVAL '$5 days'
-              ),
-              FALSE
-          ) AS recently_active_matchmaking
-      FROM "Users" as u
-    )
-  
-    SELECT
-      user_id AS _id,
-      user_username AS username,
-      user_displayName AS "displayName",
-      SUM(vote_power) AS total_power,
-      ARRAY_AGG(vote_power) AS power_values,
-      COUNT(vote_power) AS vote_counts,
-      SUM(agreement_value) AS total_agreement,
-      ARRAY(
-          SELECT val
-          FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
-          WHERE val != 0
-      ) AS agreement_values,
-      uc.recently_active_matchmaking
-    FROM "CombinedVotes" as cv
-    LEFT JOIN "UserChecks" AS uc ON cv.user_id = uc._id
-    GROUP BY 
-      user_id, 
-      user_username, 
-      user_displayName,
-      uc.recently_active_matchmaking
-    HAVING SUM(vote_power) > 1
-    ORDER BY total_power DESC
-    LIMIT $4;
-      `, [user._id, smallVotePower, bigVotePower, limit, recencyLimitDays])
-  }
-
-  async getDialogueMatchedUsers(userId: string): Promise<DbUser[]> {
-    return this.any(`
-      -- UsersRepo.getDialogueMatchedUsers
-      SELECT DISTINCT(u.*)
-      FROM "DialogueChecks" other_users_checks
-      JOIN "DialogueChecks" current_user_checks
-      -- Join such that there must exist reciprocal checks
-      ON (
-        other_users_checks."targetUserId" = current_user_checks."userId"
-        AND current_user_checks."targetUserId" = other_users_checks."userId"
-        AND other_users_checks.checked IS TRUE
-        AND current_user_checks.checked IS TRUE
-      )
-      JOIN "Users" u
-      -- Given those, join for users who've created checks on you
-      ON (
-        other_users_checks."userId" = u._id
-        AND other_users_checks."targetUserId" = $1
-        AND current_user_checks."userId" = $1
-      )
-    `, [userId]);
-  }
-
-  async getDialogueRecommendedUsers(userId: string, upvotedUsers: UpvotedUser[], limit = 100): Promise<DbUser[]> {
-    const upvotedUserIds = upvotedUsers.map(user => user._id);
-
-    return this.any(`
-    -- UsersRepo.getDialogueRecommendedUsers
-    (
-      SELECT u.*
-      FROM unnest($2::text[]) AS uv(_id)
-      INNER JOIN "Users" AS u ON uv._id = u._id
-      WHERE
-      -- Exclude users that the current user has already checked
-
-        (
-          SELECT COUNT(*)
-          FROM "DialogueChecks"
-          WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
-        ) = 0
-        AND
-        (
-          -- Don't recommend users who've never commented on your posts
-
-          (
-            SELECT COUNT(*)
-            FROM public."Comments" AS c
-            INNER JOIN "Posts" AS p ON c."postId" = p._id
-            WHERE c."userId" = uv._id AND p."userId" = $1
-          ) >= 1
-          OR 
-          -- Don't recommend users who've never replied to your comments 
-
-          (
-            SELECT COUNT(*)
-            FROM public."Comments"
-            WHERE
-              "userId" = uv._id
-              AND "parentCommentId" IN (
-                SELECT _id
-                FROM "Comments"
-                WHERE "userId" = $1
-              )
-          ) >= 1
-        )
-      LIMIT $3
-    )
-    -- If the above query doesn't return enough users, then fill in the rest with users who you've upvoted
-      UNION
-      (
-        SELECT u.*
-        FROM unnest($2::text[]) AS uv(_id)
-        INNER JOIN "Users" AS u ON uv._id = u._id
-        WHERE
-          (
-            SELECT COUNT(*)
-            FROM "DialogueChecks"
-            WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
-          ) = 0
-        LIMIT $3
-      )
-    `, [userId, upvotedUserIds, limit]);
-  }
-
-  async getActiveDialogueMatchSeekers(limit: number): Promise<DbUser[]> {
-    return this.manyOrNone(`
-      -- UsersRepo.getActiveDialogueMatchSeekers
-      SELECT  
-        u.*,
-        MAX(dc."checkedAt") AS "mostRecentCheckedAt"
-      FROM public."Users" AS u
-      LEFT JOIN public."DialogueChecks" AS dc ON u._id = dc."userId"
-      WHERE dc."userId" IS NOT NULL
-      GROUP BY u._id
-      ORDER BY "mostRecentCheckedAt" DESC
-      LIMIT $1;
-    `, [limit])
-  }
-
   async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
     const result = await this.getRawDb().any(`
     SELECT
@@ -589,13 +425,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return result;
   }
 
-  async isDisplayNameTaken(displayName: string): Promise<boolean> {
+  async isDisplayNameTaken({ displayName, currentUserId }: { displayName: string; currentUserId: string; }): Promise<boolean> {
     const result = await this.getRawDb().one(`
       -- UsersRepo.isDisplayNameTaken
       SELECT COUNT(*) > 0 AS "isDisplayNameTaken"
       FROM "Users"
-      WHERE "displayName" = $1
-    `, [displayName]);
+      WHERE "displayName" = $1 AND NOT "_id" = $2
+    `, [displayName, currentUserId]);
     return result.isDisplayNameTaken;
   }
   
@@ -650,6 +486,61 @@ class UsersRepo extends AbstractRepo<"Users"> {
       LIMIT $1;
     `, [limit])
   }
+  
+   /**
+   * Returns a list of users to whom we want to send an email
+   * asking them to fill in the annual EA Forum user survey.
+   *
+   * This excludes deleted/deactivated users,
+   * flagged or purged or removed from queue users,
+   * users who unsubscribed from all site emails,
+   * users who were banned any time over the past 6 month period,
+   * users who have less than -10 karma,
+   * users who haven't been to the site in the past 2 years,
+   * and users who have already been sent this email.
+   */
+   async getUsersForUserSurveyEmail(limit: number): Promise<DbUser[]> {
+    return this.manyOrNone(`
+      -- UsersRepo.getUsersForUserSurveyEmail
+      SELECT
+        u.*
+      FROM public."Users" AS u
+      LEFT JOIN (
+        SELECT "userId", MAX("lastUpdated") AS max_last_updated
+        FROM "ReadStatuses"
+        WHERE "isRead" IS TRUE
+        GROUP BY "userId"
+      ) AS rs ON u._id = rs."userId"
+      WHERE
+        u."userSurveyEmailSentAt" IS NULL
+        AND u."unsubscribeFromAll" IS NOT TRUE
+        AND u.deleted IS NOT TRUE
+        AND u."deleteContent" IS NOT TRUE
+        AND u."sunshineFlagged" IS NOT TRUE
+        AND (
+          u.banned IS NULL
+          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '6 months'
+        )
+        AND (
+          u."reviewedByUserId" IS NOT NULL
+          OR u."sunshineNotes" IS NULL
+          OR u."sunshineNotes" = ''
+        )
+        AND u.karma >= -10
+        AND (
+          (
+            rs.max_last_updated IS NULL
+            AND u."createdAt" > CURRENT_TIMESTAMP - INTERVAL '2 years'
+          )
+          OR (
+            rs.max_last_updated IS NOT NULL
+            AND rs.max_last_updated > CURRENT_TIMESTAMP - INTERVAL '2 years'
+          )
+        )
+      ORDER BY u."createdAt" desc
+      LIMIT $1;
+    `, [limit])
+  }
 
   async searchFacets(facetFieldName: string, query: string): Promise<string[]> {
     const {name, pgField} = getFacetField(facetFieldName);
@@ -677,8 +568,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
         ) AND
         ${getDefaultFacetFieldSelector(pgField)}
       ORDER BY "rank" DESC, ${normalizedFacetField} DESC
-      LIMIT 8
-    `, [query]);
+      LIMIT $2
+    `, [query, MULTISELECT_SUGGESTION_LIMIT]);
 
     return results.map(({result}) => result);
   }
@@ -738,108 +629,56 @@ class UsersRepo extends AbstractRepo<"Users"> {
         FROM "Votes"
         WHERE
           "userId" = $1
-          AND cancelled IS NOT TRUE
-          AND "isUnvote" IS NOT TRUE
-          AND power > 0
-          AND NOT "userId" = ANY("authorIds")
+          AND cancelled IS FALSE
+          AND NOT ("authorIds" @> ARRAY["userId"])
         ORDER BY "votedAt"
-        ),
-        most_upvoted_authors AS (
-          SELECT
-            "authorId",
-            SUM(power) AS summed_power
-          FROM votes
-          GROUP BY "authorId"
-          ORDER BY summed_power DESC
-        ),
-        reads AS (
-          SELECT
-            "postId",
-            "lastUpdated",
-          p."userId" AS "authorId"
-          FROM "ReadStatuses" rs
-          JOIN "Posts" p ON p."_id" = rs."postId"
-          WHERE 
-            rs."userId" = $1
-            AND "isRead" = TRUE
-        ),
-        most_read_authors AS (
-          SELECT
-            "authorId",
-            COUNT(*) AS posts_read
-          FROM reads
-          GROUP BY "authorId"
-          ORDER BY COUNT(*) DESC
-        ),
-        recent_posts AS (
-          SELECT
-            "userId" AS "authorId",
-            "postedAt"
-          FROM "Posts" p
-          WHERE 
-            "postedAt" > current_date - INTERVAL '30 days'
-            AND p.draft IS NOT TRUE
-            AND p.status = 2
-            AND p.rejected IS NOT TRUE
-            AND p."authorIsUnreviewed" IS NOT TRUE
-            AND p."hiddenRelatedQuestion" IS NOT TRUE
-            AND p.unlisted IS NOT TRUE
-            AND p."isFuture" IS NOT TRUE
-            AND "baseScore" > 20
-        ),
-        most_active_posters AS (
-          SELECT 
-            "authorId", 
-            COUNT(*) AS num_posts_written
-          FROM recent_posts
-          GROUP BY 1
-          ORDER BY num_posts_written DESC
-        ),
-        recent_comments AS (
-          SELECT
-            "userId" AS "authorId",
-            "postedAt"
-          FROM "Comments" c
-          WHERE 
-            "postedAt" > current_date - INTERVAL '30 days'
-            AND c.deleted IS NOT TRUE
-            AND c."baseScore" >= 5
-        ),
-        most_active_commenters AS (
-          SELECT 
-            "authorId", 
-            COUNT(*) AS num_comments_written
-          FROM recent_comments
-          GROUP BY 1
-          ORDER BY num_comments_written DESC
-        ),
-        activity_scores AS (
-          SELECT
-            *,
-            COALESCE(num_posts_written, 0) * 5 + COALESCE(num_comments_written, 0) AS "activity_score"
-          FROM most_active_posters
-          FULL OUTER JOIN most_active_commenters USING ("authorId")
-        )
+      ),
+      most_upvoted_authors AS (
         SELECT
-          u.*
-        FROM most_upvoted_authors
-        FULL OUTER JOIN most_read_authors USING ("authorId")
-        LEFT JOIN activity_scores USING ("authorId")
-        JOIN "Users" u ON u."_id" = "authorId"
-        LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
-        WHERE
-            (u.banned IS NULL OR u.banned < current_date)
-            AND "authorId" != $1
-            AND es."userId" IS NULL
-            AND activity_score >= 5
-        ORDER BY (
-          COALESCE(summed_power*3,0) + COALESCE(posts_read*2, 0)
-        ) DESC NULLS LAST
-        LIMIT $2
+          "authorId",
+          SUM(power) AS summed_power
+        FROM votes
+        GROUP BY "authorId"
+        ORDER BY summed_power DESC
+      ),
+      reads AS (
+        SELECT
+          "postId",
+          "lastUpdated",
+        p."userId" AS "authorId"
+        FROM "ReadStatuses" rs
+        JOIN "Posts" p ON p."_id" = rs."postId"
+        WHERE 
+          rs."userId" = $1
+          AND "isRead" IS TRUE
+      ),
+      most_read_authors AS (
+        SELECT
+          "authorId",
+          COUNT(*) AS posts_read
+        FROM reads
+        GROUP BY "authorId"
+        ORDER BY COUNT(*) DESC
+      )
+      SELECT
+        u.*
+      FROM most_upvoted_authors
+      FULL OUTER JOIN most_read_authors USING ("authorId")
+      JOIN "Users" u ON u."_id" = "authorId"
+      LEFT JOIN existing_subscriptions es ON es."userId" = "authorId"
+      WHERE
+          (u.banned IS NULL OR u.banned < current_date)
+          AND "authorId" != $1
+          AND es."userId" IS NULL
+          AND u."deleted" IS NOT TRUE
+      ORDER BY (
+        COALESCE(summed_power*3, 0) + COALESCE(posts_read*2, 0)
+      ) DESC NULLS LAST
+      LIMIT $2
     `, [userId, limit]);
   }
 }
 
-recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken', 'getActiveDialogues'] });
 
 export default UsersRepo;

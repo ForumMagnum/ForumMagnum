@@ -29,13 +29,12 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
-import ForumNoSSR from './common/ForumNoSSR';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import moment from 'moment';
 
-import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
+import DeferRender from './common/DeferRender';
+import { userHasLlmChat } from '@/lib/betas';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -70,6 +69,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
+    [theme.breakpoints.down('md')]: {
+      paddingTop: isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+    },
     [theme.breakpoints.down('sm')]: {
       paddingTop: isFriendlyUI ? 0 : 10,
       paddingLeft: 8,
@@ -283,6 +285,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
+  languageModelLauncher: {
+    position: 'absolute',
+    top: '-57px',
+    right: '-334px',
+    [theme.breakpoints.down('lg')]: {
+      display: 'none',
+    }
+  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
@@ -294,11 +304,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       zIndex: theme.zIndexes.styledMapPopup
     },
     // Font fallback to ensure that all greek letters just directly render as Arial
-    '@font-face': {
-      fontFamily: "GreekFallback",
-      src: "local('Arial')",
-      unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
-    },
+    '@font-face': [{
+        fontFamily: "GreekFallback",
+        src: "local('Arial')",
+        unicodeRange: 'U+0370-03FF, U+1F00-1FFF' // Unicode range for greek characters
+      },
+      {
+        fontFamily: "ETBookRoman",
+        src: "url('https://res.cloudinary.com/lesswrong-2-0/raw/upload/v1723063815/et-book-roman-line-figures_tvofzs.woff') format('woff')",  
+      },
+    ],
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
@@ -452,6 +467,8 @@ const Layout = ({currentUser, children, classes}: {
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
+      LanguageModelLauncherButton,
+      LlmChatWrapper
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -462,6 +479,7 @@ const Layout = ({currentUser, children, classes}: {
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
@@ -470,6 +488,7 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -495,6 +514,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
@@ -518,9 +538,9 @@ const Layout = ({currentUser, children, classes}: {
               <NavigationEventSender/>
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
-              <ForumNoSSR>
+              <DeferRender ssr={false}>
                 {showCookieBanner ? <CookieBanner /> : <IntercomWrapper/>}
-              </ForumNoSSR>
+              </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
@@ -554,11 +574,13 @@ const Layout = ({currentUser, children, classes}: {
                     headerAtTop={headerAtTop}
                     classes={classes}
                   >
-                    <NavigationStandalone
-                      sidebarHidden={hideNavigationSidebar}
-                      unspacedGridLayout={unspacedGridLayout}
-                      noTopMargin={friendlyHomeLayout}
-                    />
+                    <DeferRender ssr={true} clientTiming='mobile-aware'>
+                      <NavigationStandalone
+                        sidebarHidden={hideNavigationSidebar}
+                        unspacedGridLayout={unspacedGridLayout}
+                        noTopMargin={friendlyHomeLayout}
+                      />
+                    </DeferRender>
                   </StickyWrapper>
                 }
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
@@ -577,27 +599,11 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.frontpageImage} publicId="idfk2_j6jdv9" darkPublicId={"idfk2_j6jdv9"}/>
-                        <AnalyticsContext pageSectionContext='frontpageFullpageBanner'>
-                          <div className={classes.bannerText}>
-                            <h2><a href="http://less.online" target="_blank" rel="noreferrer" onClick={() => captureEvent('frontpageBannerHeaderClicked')}>LessOnline Festival</a></h2>
-                            <p>May 31st to June 2nd, Berkeley CA</p>
-                            <a href="http://less.online/#tickets-section" onClick={() => captureEvent('frontpageCTAButtonClicked')}><button>Buy Tickets</button></a>
-                          </div>
-                        </AnalyticsContext>
-                        <div className={classes.backgroundGradient}/>
-                      </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
-                  </>
-                }
+                {isLW && <>
+                  {standaloneNavigation && <div className={classes.imageColumn}>
+                    <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                  </div>}
+                </>}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   <StickyWrapper
@@ -606,13 +612,20 @@ const Layout = ({currentUser, children, classes}: {
                     headerAtTop={headerAtTop}
                     classes={classes}
                   >
-                    <EAHomeRightHandSide />
+                    <DeferRender ssr={true} clientTiming='mobile-aware'>
+                      <EAHomeRightHandSide />
+                    </DeferRender>
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <ForumNoSSR>
+                  <DeferRender ssr={false}>
                     <SunshineSidebar/>
-                  </ForumNoSSR>
+                  </DeferRender>
+                </div>}
+                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                  <DeferRender ssr={false}>
+                    <LanguageModelLauncherButton/>
+                  </DeferRender>
                 </div>}
               </div>
             </CommentBoxManager>
@@ -621,6 +634,7 @@ const Layout = ({currentUser, children, classes}: {
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
+      </LlmChatWrapper>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>

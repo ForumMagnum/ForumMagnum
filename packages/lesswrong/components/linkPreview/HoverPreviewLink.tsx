@@ -119,6 +119,11 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
           {children}
         </Components.ManifoldPreview>
       }
+      if (linkTargetAbsolute.host === "neuronpedia.org" || linkTargetAbsolute.host === "www.neuronpedia.org") {
+        return <Components.NeuronpediaPreview href={href} id={id}>
+          {children}
+        </Components.NeuronpediaPreview>
+      }
       if (linkTargetAbsolute.host === "metaforecast.org" || linkTargetAbsolute.host === "www.metaforecast.org") {
         return <Components.MetaforecastPreview href={href} id={id}>
           {children}

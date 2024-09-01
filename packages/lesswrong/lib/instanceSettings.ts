@@ -1,4 +1,4 @@
-import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isCypress } from './executionEnvironment';
+import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl, isE2E } from './executionEnvironment';
 import { pluralize } from './vulcan-lib/pluralize';
 import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
@@ -186,7 +186,7 @@ export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('for
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
 
 /** Whether this forum verifies user emails */
-export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", !isEAForum, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
@@ -205,9 +205,20 @@ const disableElastic = new PublicInstanceSetting<boolean>(
   "optional",
 );
 
-export const isElasticEnabled = !isAnyTest && !isCypress && !disableElastic.get();
+export const isElasticEnabled = !isAnyTest && !isE2E && !disableElastic.get();
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const eaFrontpageDateDefault = (
+  isEvent?: boolean,
+  submitToFrontpage?: boolean,
+  draft?: boolean,
+) => {
+  if (isEvent || !submitToFrontpage || draft) {
+    return null;
+  }
+  return new Date();
+}
+
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
 
@@ -233,7 +244,8 @@ export type PostFeedDetails = {
   adminOnly?: boolean,
   showLabsIcon?: boolean,
   isInfiniteScroll?: boolean,
-  slug?: string
+  slug?: string,
+  showToLoggedOut?: boolean,
 }
 
 export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetails[]>('homepagePosts.feeds', [
@@ -255,8 +267,6 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
   ]
   , 'optional')
 
-export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>('email.assumeVerified', isEAForum, 'optional')
-
 /**
  * This is a filepath that is _relative_ to the location of the instance settings file itself.
  * See full explanation in `google-vertex/client.ts`
@@ -264,3 +274,11 @@ export const assumeUserEmailVerifiedSetting = new PublicInstanceSetting<boolean>
 export const googleRecommendationsCredsPath = new PublicInstanceSetting<string | null>('google.recommendationsServiceCredsPath', null, "optional");
 
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
+
+export const isBotSiteSetting = new PublicInstanceSetting<boolean>('botSite.isBotSite', false, 'optional');
+
+export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+
+export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
+
+export const hyperbolicApiKey = new PublicInstanceSetting<string>('hyperbolic.apiKey', "", "optional")

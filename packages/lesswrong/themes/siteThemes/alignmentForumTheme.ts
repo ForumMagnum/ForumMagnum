@@ -58,6 +58,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       text: "#ffffff",
       background: "#3f51b5",
     },
+    link: {
+      visited: "#8c4298",
+    }
   }),
   make: (palette: ThemePalette) => ({
     typography: {
@@ -65,6 +68,9 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       postStyle: {
         fontFamily: sansSerifStack,
         fontVariantNumeric: "lining-nums",
+      },
+      headerStyle: {
+        fontFamily: sansSerifStack,
       },
       commentStyle: {
         fontFamily: sansSerifStack,
@@ -95,7 +101,7 @@ export const alignmentForumTheme: SiteThemeSpecification = {
       },
       MuiTooltip: {
         tooltip: {
-          fontSize: "1rem"
+          fontSize: 13
         }
       },
       PostsVoteDefault: {

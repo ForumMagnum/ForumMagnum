@@ -114,6 +114,7 @@ const ForumDropdownMultiselect = ({
   onSelect,
   paddingSize = 10,
   useIconLabel,
+  disabled,
   classes,
   className,
 }: {
@@ -123,6 +124,7 @@ const ForumDropdownMultiselect = ({
   onSelect?: (value: string) => void,
   paddingSize?: number,
   useIconLabel?: boolean,
+  disabled?: boolean,
   classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
@@ -146,6 +148,7 @@ const ForumDropdownMultiselect = ({
         onClick={(e) => {
           setAnchorEl(e.currentTarget)
         }}
+        disabled={disabled}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
         {label} {dropdownIcon}
@@ -157,10 +160,7 @@ const ForumDropdownMultiselect = ({
             key={option}
             value={option}
             onClick={() => {
-              // setTimeout here is a fix for a bug where clicking an option opened a dialog,
-              // and then the LWClickAwayListener was triggered immediately, closing the dialog.
-              // I don't understand exactly why this fixes it
-              setTimeout(() => setAnchorEl(null), 0);
+              setAnchorEl(null);
               onSelect?.(option);
             }}
             className={classes.menuItem}

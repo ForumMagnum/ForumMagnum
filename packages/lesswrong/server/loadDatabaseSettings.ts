@@ -1,6 +1,6 @@
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
 import { DatabaseMetadataRepo } from "./repos";
-import { getSqlClient } from '../lib/sql/sqlClient';
+import { getSqlClient } from './sql/sqlClient';
 import { isAnyTest } from '../lib/executionEnvironment';
 
 let databaseIdPreloaded = false;
@@ -59,7 +59,7 @@ const loadDatabaseSettings = async (): Promise<DatabaseSettings> => {
       return await loadDatabaseSettingsPostgres();
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error("Failed to load database settings from Postgres");
+      console.error("Failed to load database settings from Postgres", e);
     }
   }
   return {

@@ -4,9 +4,6 @@ import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import classnames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  labelColor: {
-    color: theme.secondary
-  },
   textField: {
     fontSize: "15px",
     width: 350,

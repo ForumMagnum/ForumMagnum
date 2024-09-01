@@ -3,7 +3,7 @@ import { Globals, computeContextFromUser, createMutator, updateMutator } from ".
 import Users from "../../lib/collections/users/collection";
 import Conversations from "../../lib/collections/conversations/collection";
 import groupBy from "lodash/groupBy";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 import Messages from "../../lib/collections/messages/collection";
 
 Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
@@ -13,7 +13,7 @@ Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
     throw new Error('Admin user id provided does not find an admin account!');
   }
 
-  const adminContext = await computeContextFromUser(adminUser);
+  const adminContext = await computeContextFromUser({user: adminUser, isSSR: false});
 
   const query = `
     WITH duplicate_posts AS (

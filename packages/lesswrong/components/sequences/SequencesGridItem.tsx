@@ -6,7 +6,7 @@ import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/help
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { defaultSequenceBannerIdSetting } from './SequencesPage';
 import { isLWorAF } from '../../lib/instanceSettings';
-import ForumNoSSR from '../common/ForumNoSSR';
+import DeferRender from '../common/DeferRender';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -150,13 +150,13 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
       </div>
     }>
       <div className={classes.image}>
-        <ForumNoSSR>
+        <DeferRender ssr={false}>
           {imageId && <Components.CloudinaryImage
             publicId={imageId}
             height={124}
             width={315}
           />}
-        </ForumNoSSR>
+        </DeferRender>
       </div>
       <div className={classNames(classes.meta, {[classes.hiddenAuthor]:!showAuthor, [classes.bookItemContentStyle]: bookItemStyle})}>
         <div className={classes.title}>

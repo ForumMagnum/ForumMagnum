@@ -8,9 +8,9 @@ import { Conversations } from '../../lib/collections/conversations/collection'
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 import sumBy from 'lodash/sumBy';
 import { ConversationsRepo, LocalgroupsRepo, PostsRepo, VotesRepo } from '../repos';
-import Localgroups from '../../lib/collections/localgroups/collection';
 import { collectionsThatAffectKarma } from '../callbacks/votingCallbacks';
 import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
+import { editableFieldIsNormalized } from '@/lib/editor/makeEditableOptions';
 
 const transferOwnership = async ({documentId, targetUserId, collection, fieldName = "userId"}: {
   documentId: string
@@ -93,14 +93,16 @@ const transferEditableField = async ({documentId, sourceUserId, targetUserId, co
   collection: CollectionBase<CollectionNameString>,
   fieldName: string
 }) => {
-  // Update the denormalized revision on the document
-  await updateMutator({
-    collection,
-    documentId,
-    set: {[`${fieldName}.userId`]: targetUserId},
-    unset: {},
-    validate: false
-  })
+  if (!editableFieldIsNormalized(collection.collectionName, fieldName)) {
+    // Update the denormalized revision on the document
+    await updateMutator({
+      collection,
+      documentId,
+      set: {[`${fieldName}.userId`]: targetUserId},
+      unset: {},
+      validate: false
+    });
+  }
   // Update the revisions themselves
   await Revisions.rawUpdateMany({ documentId, userId: sourceUserId, fieldName }, {$set: {userId: targetUserId}}, { multi: true })
 }

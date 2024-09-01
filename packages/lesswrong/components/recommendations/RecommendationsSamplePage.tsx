@@ -225,7 +225,7 @@ const RecommendationsSamplePage = ({classes}: {
         {results?.map((post: PostsListWithVotes) =>
           <div key={post._id} className={classes.result}>
             <PostsItem post={post} />
-            <PostsPageContext.Provider value={post as PostsWithNavigationAndRevision}>
+            <PostsPageContext.Provider value={{fullPost: post as PostsWithNavigationAndRevision, postPreload: null}}>
               <PostsPageRecommendationsList
                 title=""
                 strategy={strategy}

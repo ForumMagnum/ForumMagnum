@@ -13,6 +13,7 @@ import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
 import {
+  eaFrontpageDateDefault,
   fmCrosspostBaseUrlSetting,
   fmCrosspostSiteNameSetting,
   forumTypeSetting,
@@ -34,10 +35,11 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
-import { hasSideComments } from '../../betas';
+import { hasSideComments, hasSidenotes } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 import { stableSortTags } from '../tags/helpers';
+import { getLatestContentsRevision } from '../revisions/helpers';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -129,17 +131,6 @@ export async function getLastReadStatus(post: DbPost, context: ResolverContext) 
   );
   if (!readStatus.length) return null;
   return readStatus[0];
-}
-
-const eaFrontpageDateDefault = (
-  isEvent?: boolean,
-  submitToFrontpage?: boolean,
-  draft?: boolean,
-) => {
-  if (isEvent || !submitToFrontpage || draft) {
-    return null;
-  }
-  return new Date();
 }
 
 export const sideCommentCacheVersion = 1;
@@ -554,38 +545,57 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost): number =>
-      Math.max(
-        1,
-        Math.round(typeof readTimeMinutesOverride === "number"
-          ? readTimeMinutesOverride
-          : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
-      ),
-    sqlResolver: ({field}) => `GREATEST(1, ROUND(COALESCE(
-      ${field("readTimeMinutesOverride")},
-      (${field("contents")}->'wordCount')::INTEGER
-    ) / ${READ_WORDS_PER_MINUTE}))`,
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const normalizeValue = (value: number): number =>
+        Math.max(1, Math.round(value));
+      if (typeof post.readTimeMinutesOverride === "number") {
+        return normalizeValue(post.readTimeMinutesOverride);
+      }
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.wordCount
+        ? normalizeValue(revision.wordCount / READ_WORDS_PER_MINUTE)
+        : 1;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => `GREATEST(1, ROUND(COALESCE(
+        ${field("readTimeMinutesOverride")},
+        ${revisionsField("wordCount")}
+      ) / ${READ_WORDS_PER_MINUTE}))`,
+    }),
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
   wordCount: resolverOnlyField({
     type: Number,
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return 0;
-      return contents.wordCount;
-    }
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.wordCount ?? 0;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => revisionsField("wordCount"),
+    }),
   }),
   // DEPRECATED field for GreaterWrong backwards compatibility
   htmlBody: resolverOnlyField({
     type: String,
     canRead: [documentIsNotDeleted],
-    resolver: (post: DbPost, args: void, { Posts }: ResolverContext) => {
-      const contents = post.contents;
-      if (!contents) return "";
-      return contents.html;
-    }
+    resolver: async (post: DbPost, _args: void, context: ResolverContext) => {
+      const revision = await getLatestContentsRevision(post, context);
+      return revision?.html;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "Revisions",
+      type: "left",
+      on: {_id: field("contents_latest")},
+      resolver: (revisionsField) => revisionsField("html"),
+    }),
   }),
 
   submitToFrontpage: {
@@ -1463,6 +1473,17 @@ const schema: SchemaType<"Posts"> = {
         return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
       },
     }),
+  },
+
+  autoFrontpage: {
+    type: String,
+    allowedValues: ["show", "hide"],
+    canRead: ['sunshineRegiment', 'admins'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    hidden: true,
+    optional: true,
+    nullable: true,
   },
 
   collectionTitle: {
@@ -2411,7 +2432,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: isFriendlyUI ? formGroups.category : formGroups.title,
+    group: formGroups.category,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
@@ -2567,6 +2588,22 @@ const schema: SchemaType<"Posts"> = {
         ];
       }
     },
+  },
+  
+  /**
+   * Author-controlled option to disable sidenotes (display of footnotes in the
+   * right margin).
+   */
+  disableSidenotes: {
+    type: Boolean,
+    optional: true,
+    group: formGroups.advancedOptions,
+    canRead: ['guests'],
+    // HACK: canCreate is more restrictive than canUpdate so that it's hidden on the new-post page, for clutter-reduction reasons, while leaving it still visible on the edit-post page
+    canCreate: ['sunshineRegiment'],
+    canUpdate: ['members'],
+    hidden: !hasSidenotes,
+    ...schemaDefaultValue(false),
   },
 
   moderationStyle: {
@@ -2995,8 +3032,7 @@ const schema: SchemaType<"Posts"> = {
   },
 
   /**
-   * Setting to enable stale-while-revalidate caching for this post. Remove this field once
-   * swr caching is enabled on all posts.
+   * @deprecated Remove after 2024-06-14
    */
   swrCachingEnabled: {
     type: Boolean,

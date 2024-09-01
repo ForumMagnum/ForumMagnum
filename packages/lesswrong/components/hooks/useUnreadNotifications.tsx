@@ -54,7 +54,7 @@ export type TypingIndicatorMessage = {
 export type NotificationCheckMessage = {
   eventType: 'notificationCheck',
   stop?: boolean,
-  newestNotificationTime?: string //stringified date
+  newestNotificationTime?: string // stringified date
 }
 
 export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage;

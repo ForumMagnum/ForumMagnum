@@ -1,8 +1,8 @@
-import { testTable } from "../../lib/sql/tests/testHelpers";
-import BulkWriter from "../../lib/sql/BulkWriter";
-import InsertQuery from "../../lib/sql/InsertQuery";
-import UpdateQuery from "../../lib/sql/UpdateQuery";
-import DeleteQuery from "../../lib/sql/DeleteQuery";
+import { testTable } from "@/server/sql/tests/testHelpers";
+import BulkWriter from "@/server/sql/BulkWriter";
+import InsertQuery from "@/server/sql/InsertQuery";
+import UpdateQuery from "@/server/sql/UpdateQuery";
+import DeleteQuery from "@/server/sql/DeleteQuery";
 
 describe("BulkWriter", () => {
   it("insertOne creates an InsertQuery", () => {

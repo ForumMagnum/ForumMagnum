@@ -16,6 +16,7 @@ export type MultiSelectState = MultiSelectOption & {
 }
 
 export type MultiSelectResult = {
+  title: string,
   state: MultiSelectState[],
   selectedValues: string[],
   clear: () => void,
@@ -66,6 +67,7 @@ export const useMultiSelect = ({
   }, []);
 
   return {
+    title,
     state,
     selectedValues: selected,
     clear,
