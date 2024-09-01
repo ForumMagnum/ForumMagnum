@@ -29,7 +29,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   const {
     MoveToDraftDropdownItem, BookmarkDropdownItem, SuggestCuratedDropdownItem,
     SuggestAlignmentPostDropdownItem, ReportPostDropdownItem, DeleteDraftDropdownItem,
-    HideFrontpagePostDropdownItem, SetSideCommentVisibility, ResyncRssDropdownItem,
+    HideFrontpagePostDropdownItem, SetSideItemVisibility, ResyncRssDropdownItem,
     MarkAsReadDropdownItem, SummarizeDropdownItem, MoveToFrontpageDropdownItem,
     MoveToAlignmentPostDropdownItem, ShortformDropdownItem, DropdownMenu,
     EditTagsDropdownItem, EditPostDropdownItem, DuplicateEventDropdownItem,
@@ -59,7 +59,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       <PostAnalyticsDropdownItem post={post} />
       <PostSubscriptionsDropdownItem post={post} />
       {includeBookmark && <BookmarkDropdownItem post={post} />}
-      <SetSideCommentVisibility />
+      <SetSideItemVisibility />
       <HideFrontpagePostDropdownItem post={post} />
       <DislikeRecommendationDropdownItem post={post} />
       <ReportPostDropdownItem post={post}/>
