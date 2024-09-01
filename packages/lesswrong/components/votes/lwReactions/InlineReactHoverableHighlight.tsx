@@ -7,6 +7,7 @@ import sumBy from 'lodash/sumBy';
 import { useHover } from '@/components/common/withHover';
 import type { VotingProps } from '../votingProps';
 import { useCurrentUser } from '@/components/common/withUser';
+import { defaultInlineReactsMode, SideItemVisibilityContext } from '@/components/dropdowns/posts/SetSideItemVisibility';
 
 const styles = (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -83,6 +84,14 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
   
   // (reactions is already filtered by quote, we don't have to filter it again for this)
   const anyPositive = atLeastOneQuoteReactHasPositiveScore(reactions);
+
+  const visibilityMode = useContext(SideItemVisibilityContext)?.inlineReactsMode ?? defaultInlineReactsMode;
+  let sideItemIsVisible = false
+  switch(visibilityMode) {
+    case "hidden":      sideItemIsVisible = false; break;
+    case "netPositive": sideItemIsVisible = anyPositive; break;
+    case "all":         sideItemIsVisible = true; break;
+  }
   
   // We underline any given inline react if either:
   // 1) the quote itself is hovered over, or
@@ -105,7 +114,7 @@ const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=fa
       [classes.highlight]: shouldUnderline,
       [classes.reactionTypeHovered]: isHovered
     })}>
-      {!isSplitContinuation && <SideItem options={{format: "icon"}}>
+      {!isSplitContinuation && sideItemIsVisible && <SideItem options={{format: "icon"}}>
         <SidebarInlineReact quote={quote} reactions={reactions} voteProps={voteProps} classes={classes} />
       </SideItem>}
       {children}
