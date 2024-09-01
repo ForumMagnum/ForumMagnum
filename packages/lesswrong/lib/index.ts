@@ -99,7 +99,6 @@ import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';
-import './collections/localgroups/permissions';
 import './collections/localgroups/fragments';
 
 import './collections/chapters/fragments';
@@ -114,7 +113,6 @@ import './alignment-forum/users/fragments';
 
 import './collections/tagRels/collection';
 import './collections/tagRels/views';
-import './collections/tagRels/permissions';
 import './collections/tagRels/fragments';
 
 import './collections/userTagRels/collection';
@@ -132,27 +130,21 @@ import './collections/tweets/collection'
 import './collections/chapters/views';
 
 import './collections/sequences/permissions';
-import './collections/collections/permissions';
-import './collections/books/permissions';
 
 import './collections/advisorRequests/collection';
 import './collections/advisorRequests/fragments';
-import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
 import './collections/userJobAds/collection';
 import './collections/userJobAds/fragments';
-import './collections/userJobAds/permissions';
 import './collections/userJobAds/views';
 
 import './collections/userEAGDetails/collection';
 import './collections/userEAGDetails/fragments';
-import './collections/userEAGDetails/permissions';
 import './collections/userEAGDetails/views';
 
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
-import './collections/userMostValuablePosts/permissions';
 import './collections/userMostValuablePosts/views';
 
 import './collections/useractivities/collection';
@@ -226,7 +218,6 @@ import './collections/votes';
 // Spotlights
 import './collections/spotlights/collection';
 import './collections/spotlights/fragments';
-import './collections/spotlights/permissions';
 import './collections/spotlights/views';
 
 // Moderator actions
