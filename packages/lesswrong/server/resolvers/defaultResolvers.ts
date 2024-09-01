@@ -221,6 +221,9 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         );
         const compiledQuery = query.compile();
         const db = getSqlClientOrThrow();
+        if (fragmentName === 'PostsEditQueryFragment') {
+          console.log({ compiledQuery, input });
+        }
         doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
       } else {
         doc = await Utils.Connectors.get(collection, selector);

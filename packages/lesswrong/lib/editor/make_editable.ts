@@ -92,6 +92,8 @@ const buildEditableResolver = <N extends CollectionNameString>(
         const {currentUser, Revisions} = context;
         const {checkAccess} = Revisions;
 
+        console.log({ version: args.version });
+
         let revision: DbRevision|null;
         if (args.version) {
           revision = await Revisions.findOne({
@@ -117,6 +119,8 @@ const buildEditableResolver = <N extends CollectionNameString>(
         on: (revisionField) => `CASE WHEN ${resolverArg("version")} IS NULL
           THEN
             ${field(`${fieldName}_latest` as FieldName<N>)} = ${revisionField("_id")}
+          WHEN ${resolverArg("version")} = 'draft' THEN
+            ${revisionField("_id")} = (SELECT _id FROM "Revisions" WHERE "documentId" = ${field("_id")} AND "fieldName" = '${fieldName}' ORDER BY "editedAt" DESC LIMIT 1)
           ELSE
             ${resolverArg("version")} = ${revisionField("version")} AND
             ${field("_id")} = ${revisionField("documentId")}

@@ -164,6 +164,7 @@ type SingleMovieInput {
 */
 export const singleInputTemplate = ({ typeName }: {typeName: string}) => (
 `input Single${typeName}Input {
+  terms: JSON
   selector: ${typeName}SelectorUniqueInput
   # Whether to enable caching for this query
   enableCache: Boolean

@@ -4,6 +4,7 @@ import { extractFragmentInfo } from '../vulcan-lib/handleOptions';
 import { collectionNameToTypeName } from '../vulcan-lib/getCollection';
 import { camelCaseify } from '../vulcan-lib/utils';
 import { apolloSSRFlag } from '../helpers';
+import { print } from 'graphql';
 
 // Template of a GraphQL query for useSingle. A sample query might look
 // like:
@@ -48,8 +49,17 @@ export function getGraphQLQueryFromOptions({ extraVariables, collectionName, fra
 
   // LESSWRONG MODIFICATION: Allow the passing of extraVariables so that you can have field-specific queries
   let extraVariablesString = ''
+  // let extraVariablesArgsString = ''
   if (extraVariables) {
     extraVariablesString = Object.keys(extraVariables).map(k => `$${k}: ${extraVariables[k]}`).join(', ')
+    // extraVariablesArgsString = Object.keys(extraVariables).map(k => `${k}: $${k}`).join(', ')
+  }
+
+  if (fragmentName === 'PostsEditQueryFragment') {
+    // console.log(`
+    //   ${singleClientTemplate({ typeName, fragmentName, extraVariablesString, extraVariablesArgsString })}
+    //   ${print(fragment)}
+    // `);  
   }
   
   const query = gql`
@@ -137,14 +147,16 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
   const query = getGraphQLQueryFromOptions({ extraVariables, collectionName, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collectionName)
+  // console.log({ extraVariablesValues, query });
   // TODO: Properly type this generic query
   const { data, error, ...rest } = useQuery(query, {
     variables: {
       input: {
         selector: { documentId, slug },
+        terms: extraVariablesValues,
         ...(allowNull && {allowNull: true})
       },
-      ...extraVariablesValues
+      // ...extraVariablesValues
     },
     fetchPolicy,
     nextFetchPolicy,

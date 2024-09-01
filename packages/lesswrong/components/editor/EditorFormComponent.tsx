@@ -23,7 +23,7 @@ import { useMessages } from '../common/withMessages';
 import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 
 const autosaveInterval = 3000; //milliseconds
-const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
+const remoteAutosaveInterval = 1000  * 5; // 5 minutes in milliseconds
 
 export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
@@ -237,6 +237,7 @@ export const EditorFormComponent = ({
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
+    console.log({ autosaveContentsRef: autosaveContentsRef.current, newContents, isEqual: isEqual(autosaveContentsRef.current, newContents) });
     if (collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
       // In order to avoid recreating this function (which is throttled) each time the contents change,
       // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
@@ -317,7 +318,7 @@ export const EditorFormComponent = ({
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
       // TODO: come back to this after the React 18 upgrade and test it properly
-      // if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
+      if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
