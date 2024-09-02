@@ -64,7 +64,10 @@ export const fetchFragment = async <
   context: maybeContext,
   skipFiltering,
 }: FetchFragmentOptions<CollectionName, FragmentName>): Promise<FetchedFragment<FragmentName>[]> => {
-  const context = maybeContext ?? await computeContextFromUser(currentUser);
+  const context = maybeContext ?? await computeContextFromUser({
+    user: currentUser,
+    isSSR: false,
+  });
 
   const query = new SelectFragmentQuery(
     fragmentName as FragmentName,
