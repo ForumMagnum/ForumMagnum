@@ -153,7 +153,7 @@ importComponent("CommentSubscriptionsDropdownItem", () => require('../components
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
 importComponent("PostActionsButton", () => require('../components/dropdowns/posts/PostActionsButton'));
-importComponent("SetSideCommentVisibility", () => require('../components/dropdowns/posts/SetSideCommentVisibility'));
+importComponent("SetSideItemVisibility", () => require('../components/dropdowns/posts/SetSideItemVisibility'));
 importComponent("SuggestCuratedDropdownItem", () => require('../components/dropdowns/posts/SuggestCuratedDropdownItem'));
 importComponent("DeleteDraftDropdownItem", () => require('../components/dropdowns/posts/DeleteDraftDropdownItem'));
 importComponent("MoveToDraftDropdownItem", () => require('../components/dropdowns/posts/MoveToDraftDropdownItem'));
