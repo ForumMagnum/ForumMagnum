@@ -10,7 +10,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.default,
-    width: 600,
+    width: 500,
     maxHeight: "calc(100vh - 80px)",
     position: "fixed",
     right: theme.spacing.unit,

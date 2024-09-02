@@ -154,7 +154,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const postPageContext = usePostsPageContext();
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
-  const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("md");
+  const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
   const sidenoteIsVisible = hasSidenotes && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (

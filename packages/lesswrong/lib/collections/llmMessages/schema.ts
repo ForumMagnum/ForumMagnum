@@ -7,7 +7,7 @@ export const llmVisibleMessageRoles = new TupleSet(["user", "assistant", "assist
 export type LlmVisibleMessageRole = UnionOf<typeof llmVisibleMessageRoles>;
 
 export const userVisibleMessageRoles = new TupleSet(["user", "assistant", "user-context"] as const);
-export type UserVisibleMessageRole = UnionOf<typeof llmVisibleMessageRoles>;
+export type UserVisibleMessageRole = UnionOf<typeof userVisibleMessageRoles>;
 
 const schema: SchemaType<"LlmMessages"> = {
   userId: {

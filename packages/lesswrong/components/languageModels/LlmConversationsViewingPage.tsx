@@ -10,6 +10,7 @@ import { userIsAdmin } from '@/lib/vulcan-users';
 import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { isEmpty } from 'underscore';
 import qs from 'qs';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   },
   conversationViewer: {
     borderRadius: 5,
-    width: 600,
+    width: 500,
     height: "calc(100vh - 114px)",
     backgroundColor: theme.palette.grey[0],
     overflowY: "scroll",
@@ -52,13 +53,13 @@ const styles = (theme: ThemeType) => ({
   conversationRowSelected: {
     backgroundColor: theme.palette.grey[300],
   },
-  conversationRowLeftAligned: {
+  conversationRowGroup: {
     display: "flex",
     alignItems: "center",
   },
   conversationRowUsername: {
     ...theme.typography.commentStyle,
-    width: 100,
+    width: 90,
     fontWeight: 400,
     fontSize: "0.95rem",
     marginRight: 10,
@@ -69,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   },
   conversationRowTitle: {
     ...theme.typography.commentStyle,
-    maxWidth: 450,
+    maxWidth: 375,
     fontWeight: 500,
     fontSize: "1.15rem",
     overflow: "hidden",
@@ -82,27 +83,44 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 400,
     fontSize: "0.9rem",
     opacity: 0.8
-  }
+  },
+  conversationRowWordCount: {
+    ...theme.typography.commentStyle,
+    padding: 2,
+    fontWeight: 400,
+    fontSize: "0.9rem",
+    fontStyle: "italic",
+    opacity: 0.7,
+    marginRight: 10,
+  },
 });
 
 const LlmConversationRow = ({conversation, currentConversationId, setCurrentConversationId, classes}: {
-  conversation: LlmConversationsWithUserInfoFragment
+  conversation: LlmConversationsViewingPageFragment
   currentConversationId?: string
   setCurrentConversationId: (conversationId: string) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const { LWTooltip, FormatDate, UsersNameDisplay } = Components;
   const isCurrentlySelected = currentConversationId === conversation._id;
   const { title, user, lastUpdatedAt, createdAt } = conversation;
 
-  return <div 
-    className={classNames(classes.conversationRow, {[classes.conversationRowSelected]: isCurrentlySelected})}
-    onClick={()=> setCurrentConversationId(conversation._id)}
-    >
-    <span className={classes.conversationRowLeftAligned}>
-      <span className={classes.conversationRowUsername}>{userGetDisplayName(user)}</span>
-      <span className={classes.conversationRowTitle}>{title}</span>
+  const conversationCharacterCount = conversation.totalCharacterCount ?? 0;
+  const estimatedTokenCount = Math.round(conversationCharacterCount / 4.4);
+
+  return <div className={classNames(classes.conversationRow, {[classes.conversationRowSelected]: isCurrentlySelected})}>
+    <span className={classes.conversationRowGroup}>
+      <UsersNameDisplay user={user} className={classes.conversationRowUsername} hideFollowButton />
+      <span className={classes.conversationRowTitle} onClick={()=>setCurrentConversationId(conversation._id)}>
+        <Link to={`/admin/llmConversations?conversationId=${conversation._id}`}>{title}</Link>
+      </span>
     </span>
-    <span className={classes.conversationRowNumLastUpdated}><Components.FormatDate date={lastUpdatedAt ?? createdAt}/></span>
+    <span className={classes.conversationRowGroup}>
+      <LWTooltip title={`${conversationCharacterCount} characters`} placement='top'>
+        <span className={classes.conversationRowWordCount}>{estimatedTokenCount}</span>
+      </LWTooltip>
+      <span className={classes.conversationRowNumLastUpdated}><FormatDate date={lastUpdatedAt ?? createdAt}/></span>
+    </span>
   </div>
 }
 
@@ -115,7 +133,7 @@ const LlmConversationSelector = ({currentConversationId, setCurrentConversationI
 }) => {
   const { results, loading } = useMulti({
     collectionName: "LlmConversations",
-    fragmentName: "LlmConversationsWithUserInfoFragment",
+    fragmentName: "LlmConversationsViewingPageFragment",
     terms: { view: "llmConversationsAll" },
     limit: 200,
   });

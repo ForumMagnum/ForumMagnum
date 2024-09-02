@@ -14,6 +14,7 @@ registerFragment(`
     lastPromotedAt
     customTitle
     customSubtitle
+    subtitleUrl
     headerTitle
     headerTitleLeftColor
     headerTitleRightColor

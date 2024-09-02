@@ -75,6 +75,22 @@ const schema: SchemaType<"LlmConversations"> = {
     canUpdate: [userOwns, "admins"], 
     ...schemaDefaultValue(false),
   },
-}
+  totalCharacterCount: resolverOnlyField({
+    type: Number,
+    nullable: false,
+    canRead: [userOwns, "admins"],
+    resolver: async (document, args, context) => {
+      const { LlmMessages } = context;
+      const messages = await LlmMessages.find({conversationId: document._id}, {projection: {content: 1}}).fetch();
+      return messages.reduce((acc, message) => acc + message.content.length, 0);
+    },
+    sqlResolver: ({field}) => `(
+      SELECT SUM(LENGTH(lm."content"))
+      FROM "LlmMessages" lm
+      WHERE lm."conversationId" = ${field("_id")}
+    )`
+  }),
+};
+
 
 export default schema;

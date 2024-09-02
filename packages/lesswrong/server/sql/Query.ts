@@ -228,8 +228,9 @@ abstract class Query<T extends DbObject> {
         return Object.keys(typeHint).some((key) => key[0] === "$")
           ? ""
           : "::JSONB";
+      default:
+        return "";
     }
-    return "";
   }
 
   /**

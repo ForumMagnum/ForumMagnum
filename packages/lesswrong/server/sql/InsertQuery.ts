@@ -16,7 +16,7 @@ type InsertSqlBaseOptions = Partial<{
 }>
 
 export type InsertSqlConflictOptions<T extends DbObject> = Partial<{
-  conflictStrategy: Omit<ConflictStrategy, "upsert">,
+  conflictStrategy: Exclude<ConflictStrategy, "upsert">,
   upsertSelector: never,
 }> | {
   conflictStrategy: "upsert",

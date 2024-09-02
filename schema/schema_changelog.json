@@ -743,5 +743,10 @@
     "acceptsSchemaHash": "793addca611706caf3f63f08a909d4ab",
     "acceptedByMigration": "20240829T030437.add_deletedDraft_and_splash_url_to_spotlights.ts",
     "timestamp": "2024-08-29T03:04:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "17afacac40e75c7380478219e9b4f751",
+    "acceptedByMigration": "20240830T022436.add_subtitleUrl.ts",
+    "timestamp": "2024-08-30T02:24:36.000Z"
   }
 ]

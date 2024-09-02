@@ -2,7 +2,7 @@ import { addCallback, getCollection } from '../vulcan-lib';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
-import { isServer } from '../executionEnvironment';
+import { isAnyTest } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
@@ -368,7 +368,7 @@ export function denormalizedCountOfReferences<
   
   if (bundleIsServer) {
     const resync = (documentId: string) => {
-      if (resyncElastic) {
+      if (resyncElastic && !isAnyTest) {
         // eslint-disable-next-line import/no-restricted-paths
         const {elasticSyncDocument} = require("../../server/search/elastic/elasticCallbacks");
         elasticSyncDocument(collectionName, documentId);
