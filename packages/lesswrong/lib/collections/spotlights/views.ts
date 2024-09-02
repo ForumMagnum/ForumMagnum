@@ -46,7 +46,7 @@ Spotlights.addView("spotlightsPageDraft", function (terms: SpotlightsViewTerms) 
       draft: true
     },
     options: {
-      sort: { documentId: 1 },
+      sort: { documentId: 1, position: 1, createdAt: 1 },
       ...limit
     }
   }
