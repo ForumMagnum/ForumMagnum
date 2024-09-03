@@ -81,7 +81,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 
   const handleClose = () => {
-    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/"});
+    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
     onClose();
   }
 
