@@ -267,11 +267,17 @@ function getFootnoteIndex(href: string, html: string): string|null {
       const olStartAttr = parentElement.getAttribute("start");
       const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
 
+      let numPrecedingLiElements = 0;
       for (let i=0; i<parentElement.children.length; i++) {
-        if (parentElement.children.item(i) === footnoteElement) {
-          return ""+(i+olStart);
+        const elem = parentElement.children.item(i);
+        if (elem?.tagName === 'LI') {
+          numPrecedingLiElements++;
+        }
+        if (elem === footnoteElement) {
+          break;
         }
       }
+      return ""+(numPrecedingLiElements+olStart);
     }
   }
   
