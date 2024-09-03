@@ -132,10 +132,6 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     } catch (error) {
       console.error("Error creating comment: ", error)
     }
-
-    // UpdateCurrentCurationNotice({
-    //   commentId: 
-    // })
   }
 
   if (curationNotice.post === null) return "error: no post associated with curation notice";
