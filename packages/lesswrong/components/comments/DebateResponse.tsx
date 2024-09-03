@@ -92,7 +92,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
-    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection } = Components;
+    const { CommentUserName, CommentsItemDate, CommentBody, CommentsEditForm, CommentsMenu, DebateCommentsListSection, HoveredReactionContextProvider } = Components;
 
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
@@ -104,10 +104,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
 
     const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
-
     const fullParticipantSet = new Set([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)]);
-
-
 
     const currentUser = useCurrentUser();
 
@@ -166,30 +163,32 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const replyState = showReplyState && showReplyLink && replyCommentList;
 
     return (
-      <div
-        key={`debate-comment-${comment._id}`}
-        id={`debate-comment-${comment._id}`}
-        className={classNames(classes.innerDebateComment, borderStyle, { [classes.blockMargin]: addBottomMargin })}
-      >
-        {header}
-        {menu}
-        <div className={classes.commentWithReplyButton}>
-          {commentBodyOrEditor}
+      <HoveredReactionContextProvider voteProps={voteProps}>
+        <div
+          key={`debate-comment-${comment._id}`}
+          id={`debate-comment-${comment._id}`}
+          className={classNames(classes.innerDebateComment, borderStyle, { [classes.blockMargin]: addBottomMargin })}
+        >
+          {header}
+          {menu}
+          <div className={classes.commentWithReplyButton}>
+            {commentBodyOrEditor}
+          </div>
+          {replyState}
+          <div className={classes.bottomUI}>
+            {VoteBottomComponent && <VoteBottomComponent
+              document={comment}
+              hideKarma={post.hideCommentKarma}
+              collectionName="Comments"
+              votingSystem={votingSystem}
+              commentBodyRef={commentBodyRef}
+              voteProps={voteProps}
+              post={post}
+            />}
+            {replyLink}
+          </div>
         </div>
-        {replyState}
-        <div className={classes.bottomUI}>
-          {VoteBottomComponent && <VoteBottomComponent
-            document={comment}
-            hideKarma={post.hideCommentKarma}
-            collectionName="Comments"
-            votingSystem={votingSystem}
-            commentBodyRef={commentBodyRef}
-            voteProps={voteProps}
-            post={post}
-          />}
-          {replyLink}
-        </div>
-      </div>
+      </HoveredReactionContextProvider>
     );
   }
 

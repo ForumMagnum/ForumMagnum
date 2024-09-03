@@ -118,7 +118,7 @@ const levelToClassName = (level: number, classes: ClassesType<typeof styles>) =>
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset, fullHeight, commentToC
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, scale, fullHeight, commentToC
 }: {
   indentLevel?: number,
   highlighted?: boolean,
@@ -130,19 +130,17 @@ const TableOfContentsRow = ({
   divider?: boolean,
   answer?: boolean,
   dense?: boolean,
-  /**
-   * Used to dynamically set `flex` ratios for the full-height ToC
-   */
-  offset?: number,
+  /** Used to dynamically set `flex` ratios for the full-height ToC */
+  scale?: number,
   fullHeight?: boolean,
   commentToC?: boolean
-}) => {  
+}) => {
   const fullHeightTitle = !!(title && fullHeight);
 
-  const offsetStyling = offset !== undefined ? { flex: offset } : undefined;
+  const scaleStyling = scale !== undefined ? { flex: scale } : undefined;
 
   if (divider) {
-    return <Components.TableOfContentsDivider offsetStyling={offsetStyling} />
+    return <Components.TableOfContentsDivider scaleStyling={scaleStyling} />
   }
   
   return <div
@@ -152,7 +150,7 @@ const TableOfContentsRow = ({
       { [classes.titleContainer]: fullHeightTitle },
       { [classes.highlighted]: highlighted },
     )}
-    style={offsetStyling}
+    style={scaleStyling}
   >
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,
