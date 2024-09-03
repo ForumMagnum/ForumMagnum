@@ -9,11 +9,11 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { PostsItemConfig } from "./usePostsItem";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 
-export type PostsListConfig = {
+export type PostsListConfig<TagId extends string | undefined = undefined> = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: Omit<PostsViewTerms, 'tagId'>,
+  terms?: TagId extends string ? PostsViewTerms & { tagId?: never } : PostsViewTerms,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -44,7 +44,7 @@ export type PostsListConfig = {
   showNominationCount?: boolean,
   showReviewCount?: boolean,
   showDraftTag?: boolean,
-  tagId?: string,
+  tagId?: TagId,
   dense?: boolean,
   defaultToShowUnreadComments?: boolean,
   itemsPerPage?: number,
@@ -82,7 +82,7 @@ const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
-export const usePostsList = ({
+export const usePostsList = <TagId extends string | undefined = undefined>({
   children,
   terms,
   dimWhenLoading = false,
@@ -117,7 +117,7 @@ export const usePostsList = ({
   viewType: configuredViewType = "list",
   showPlacement = false,
   order,
-}: PostsListConfig) => {
+}: PostsListConfig<TagId>) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
   const tagVariables = tagId

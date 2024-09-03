@@ -55,7 +55,7 @@ const AllPostsList = ({
   const {timezone} = useTimezone();
   const {query} = useLocation();
 
-  const baseTerms: PostsViewTerms = {
+  const baseTerms = {
     karmaThreshold: query.karmaThreshold || (currentShowLowKarma
       ? MAX_LOW_KARMA_THRESHOLD
       : DEFAULT_LOW_KARMA_THRESHOLD),
