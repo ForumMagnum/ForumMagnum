@@ -23,7 +23,7 @@ import { useMessages } from '../common/withMessages';
 import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOptions';
 
 const autosaveInterval = 3000; //milliseconds
-const remoteAutosaveInterval = 1000  * 5; // 5 minutes in milliseconds
+const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
 export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
@@ -317,7 +317,7 @@ export const EditorFormComponent = ({
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
       // TODO: come back to this after the React 18 upgrade and test it properly
-      if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
+      // if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
