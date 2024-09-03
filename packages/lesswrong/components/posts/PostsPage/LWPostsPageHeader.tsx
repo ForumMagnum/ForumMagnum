@@ -5,6 +5,7 @@ import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
 import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -138,10 +139,11 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // us as a draft, display a notice and a link to the collaborative editor.
 
   const linkpostDomain = post.url && new URL(post.url).hostname;
-  const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
-  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>
+  const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
+  const displayLinkpost = post.url && feedDomain !== linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
-      {linkpostDomain}
+      Linkpost from {linkpostDomain}
     </a>
   </LWTooltip> : null;
 
