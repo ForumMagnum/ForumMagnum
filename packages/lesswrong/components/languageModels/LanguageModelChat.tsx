@@ -42,9 +42,9 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     paddingLeft: 20,
     paddingTop: 20,
-    fontSize: '1.1rem',
+    fontSize: '1.0rem',
     '& blockquote, & li': {
-      fontSize: '1.1rem'
+      fontSize: '1.0rem'
     }
   },
   inputTextbox: {
@@ -362,7 +362,7 @@ export const ChatInterface = ({classes}: {
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
     const conversationHistory = currentConversation.messages.filter(({role}) => ['user', 'assistant', 'user-context'].includes(role))
-    const formattedChatHistory = conversationHistory.map(({role, content}) => `${role.toUpperCase()}: ${content}`).join("\n")
+    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role.toUpperCase()}:</strong> ${content}`).join("\n")
     void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }
