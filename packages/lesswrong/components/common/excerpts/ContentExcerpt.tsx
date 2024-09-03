@@ -16,6 +16,7 @@ const contentTypeMap: Record<ContentStyleType, string> = {
   answer: "answer",
   tag: "tag",
   debateResponse: "debate response",
+  llmChat: "llm chat",
 };
 
 const normalHeading = {

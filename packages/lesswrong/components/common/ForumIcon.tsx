@@ -111,6 +111,9 @@ import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
 import MuiCommentIcon from '@material-ui/icons/ModeComment';
 import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
+import MuiExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import MuiExpandLessIcon from "@material-ui/icons/ExpandLess";
+import MuiPlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 
 
 /**
@@ -144,6 +147,7 @@ import { CardViewIcon } from "../icons/CardViewIcon";
 import { CheckSmallIcon } from "../icons/CheckSmallIcon";
 import { FilterBarsIcon } from "../icons/FilterBarsIcon";
 import { EAEnvelopeIcon } from "../icons/EAEnvelopeIcon";
+import { RobotIcon } from '../icons/RobotIcon';
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -258,7 +262,11 @@ export type ForumIconName =
   "AddReaction" |
   "LabBeaker" |
   "Sparkle" |
-  "NotInterested"
+  "NotInterested" |
+  "Robot" |
+  "ExpandMore" |
+  "ExpandLess" |
+  "PlaylistAdd"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -370,6 +378,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
     NotInterested: MuiNotInterestedIcon,
+    Robot: RobotIcon,
+    ExpandMore: MuiExpandMoreIcon,
+    ExpandLess: MuiExpandLessIcon,
+    PlaylistAdd: MuiPlaylistAddIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -479,6 +491,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     LabBeaker: LabBeakerIcon,
     Sparkle: SparkleIcon,
     NotInterested: MuiNotInterestedIcon,
+    Robot: RobotIcon,
+    ExpandMore: MuiExpandMoreIcon,
+    ExpandLess: MuiExpandLessIcon,
+    PlaylistAdd: MuiPlaylistAddIcon
   },
 };
 

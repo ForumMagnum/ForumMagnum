@@ -264,6 +264,7 @@ const memoizeComponent = (areEqual: AreEqualOption, component: any, name: string
             }
             return false;
           }
+        // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check
         } else switch(areEqual[key]) {
           case "ignore":
             break;

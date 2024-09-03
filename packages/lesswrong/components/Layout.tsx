@@ -31,11 +31,10 @@ import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotificatio
 import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
-import moment from 'moment';
 
-import { Link } from '../lib/reactRouterWrapper';
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
+import { userHasLlmChat } from '@/lib/betas';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -286,6 +285,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   sunshine: {
     gridArea: 'sunshine'
   },
+  languageModelLauncher: {
+    position: 'absolute',
+    top: '-57px',
+    right: '-334px',
+    [theme.breakpoints.down('lg')]: {
+      display: 'none',
+    }
+  },
   whiteBackground: {
     background: theme.palette.background.pageActiveAreaBackground,
   },
@@ -460,7 +467,8 @@ const Layout = ({currentUser, children, classes}: {
       CloudinaryImage2,
       ForumEventBanner,
       GlobalHotkeys,
-      EASurveyBanner,
+      LanguageModelLauncherButton,
+      LlmChatWrapper
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -471,6 +479,7 @@ const Layout = ({currentUser, children, classes}: {
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
+      renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
@@ -479,6 +488,7 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -504,6 +514,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
       <CurrentForumEventProvider>
@@ -547,7 +558,6 @@ const Layout = ({currentUser, children, classes}: {
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              {isEAForum && <EASurveyBanner />}
 
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
@@ -612,6 +622,11 @@ const Layout = ({currentUser, children, classes}: {
                     <SunshineSidebar/>
                   </DeferRender>
                 </div>}
+                {renderLanguageModelChatLauncher && <div className={classes.languageModelChatLauncher}>
+                  <DeferRender ssr={false}>
+                    <LanguageModelLauncherButton/>
+                  </DeferRender>
+                </div>}
               </div>
             </CommentBoxManager>
           </DialogManager>
@@ -619,6 +634,7 @@ const Layout = ({currentUser, children, classes}: {
       </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
+      </LlmChatWrapper>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>
