@@ -9,6 +9,7 @@ import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useHasSideItemsSidebar } from '../contents/SideItems';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -155,7 +156,8 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
-  const sidenoteIsVisible = hasSidenotes && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
+  const hasSideItemsSidebar = useHasSideItemsSidebar();
+  const sidenoteIsVisible = hasSidenotes && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
