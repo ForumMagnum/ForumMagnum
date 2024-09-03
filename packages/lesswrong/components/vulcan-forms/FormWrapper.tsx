@@ -165,8 +165,6 @@ const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartForm
   const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
   const { extraVariables = {}, extraVariablesValues = {} } = props
-
-  // console.log({ props, extraVariables, extraVariablesValues });
   
   const selector: DocumentIdOrSlug = props.documentId
     ? {documentId: props.documentId}

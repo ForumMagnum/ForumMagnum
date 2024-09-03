@@ -13,7 +13,7 @@ export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
   /** The search terms used to select the posts that will be shown. */
-  terms?: any,
+  terms?: Omit<PostsViewTerms, 'tagId'>,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)

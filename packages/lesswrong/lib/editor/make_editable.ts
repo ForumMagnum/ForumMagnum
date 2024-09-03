@@ -92,8 +92,6 @@ const buildEditableResolver = <N extends CollectionNameString>(
         const {currentUser, Revisions} = context;
         const {checkAccess} = Revisions;
 
-        console.log({ version: args.version });
-
         let revision: DbRevision|null;
         if (args.version) {
           revision = await Revisions.findOne({

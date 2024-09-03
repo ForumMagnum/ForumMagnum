@@ -8,6 +8,7 @@ import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { DefaultResolverOptions, defaultResolverOptions } from "@/lib/vulcan-core/default_resolvers";
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import type { FieldNode, FragmentSpreadNode, GraphQLResolveInfo } from "graphql";
+import { captureException } from "@sentry/core";
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -61,6 +62,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
           enableCache?: boolean,
           enableTotal?: boolean,
           createIfMissing?: Partial<T>,
+          resolverArgs?: Record<string, unknown>,
         },
       },
       context: ResolverContext,
@@ -68,10 +70,17 @@ const addDefaultResolvers = <N extends CollectionNameString>(
     ) => {
       // const startResolve = Date.now()
       const input = args?.input || {};
-      const { terms={}, enableCache = false, enableTotal = false } = input;
+      const { terms={}, enableCache = false, enableTotal = false, resolverArgs={} } = input;
       const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
       logger('multi resolver()')
       logger('multi terms', terms)
+
+      const termKeys = Object.keys(terms);
+      const overlappingKeys = Object.keys(resolverArgs).filter(termKey => termKeys.includes(termKey));
+
+      if (overlappingKeys.length) {
+        captureException(`Got a ${collectionName} multi request with overlapping term and resolverArg keys: ${overlappingKeys.join(', ')}`);
+      }
 
       // Don't allow API requests with an arbitrarily large offset. This
       // prevents some extremely-slow queries.
@@ -108,7 +117,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const query = new SelectFragmentQuery(
           fragmentName as FragmentName,
           currentUser,
-          terms,
+          {...resolverArgs, ...terms},
           parameters.selector,
           parameters.syntheticFields,
           parameters.options,
@@ -174,7 +183,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now();
-      const {enableCache = false, allowNull = false, terms} = input;
+      const {enableCache = false, allowNull = false, terms={}, resolverArgs={}} = input;
       // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
       // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
       // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -189,6 +198,15 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       );
       logger(`Options: ${JSON.stringify(resolverOptions)}`);
       logger(`Selector: ${JSON.stringify(selector)}`);
+
+      // I think the "terms" here are fake; we don't pass in terms from `useSingle`.
+      // My guess is that it was a copy & paste error from the multi resolver code at some point
+      const termKeys = Object.keys(terms);
+      const overlappingKeys = Object.keys(resolverArgs).filter(termKey => termKeys.includes(termKey));
+
+      if (overlappingKeys.length) {
+        captureException(`Got a ${collectionName} single request with overlapping term and resolverArg keys: ${overlappingKeys.join(', ')}`);
+      }
 
       const {cacheControl} = info;
       if (cacheControl && enableCache) {
@@ -214,16 +232,13 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const query = new SelectFragmentQuery(
           fragmentName as FragmentName,
           currentUser,
-          terms,
+          {...resolverArgs, ...terms},
           selector,
           undefined,
           {limit: 1},
         );
         const compiledQuery = query.compile();
         const db = getSqlClientOrThrow();
-        if (fragmentName === 'PostsEditQueryFragment') {
-          console.log({ compiledQuery, input });
-        }
         doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
       } else {
         doc = await Utils.Connectors.get(collection, selector);

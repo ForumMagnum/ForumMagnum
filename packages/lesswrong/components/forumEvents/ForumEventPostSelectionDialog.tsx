@@ -87,7 +87,7 @@ const ForumEventPostSelectionDialog = ({ tag, voteData, onClose, classes }: {
       tagId: tag._id,
       sortedBy: 'magic',
       limit: 50
-    },
+    } as const,
     hideTag: true,
   }), [tag])
   const {loading, error, orderedResults, itemProps} = usePostsList(postsListProps)

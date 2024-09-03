@@ -59,26 +59,16 @@ export function getGraphQLQueryFromOptions({collectionName, typeName, fragmentNa
   `;
 }
 
-// type ExtraVariableValues
-
-// type UseMultiTerms<CollectionName extends CollectionNameString, Terms extends ViewTermsByCollectionName[CollectionName]> = ;
-
-type foobar = Extract<'a', 'b' | 'c'>;
-type barbarz = string extends never ? true : false;
-type asfasdf = 'a' extends 'a' | 'b' ? true : false;
-
-export type UseMultiOptions<
+export interface UseMultiOptions<
   FragmentTypeName extends keyof FragmentTypes,
-  CollectionName extends CollectionNameString,
-  Terms extends ViewTermsByCollectionName[CollectionName],
-  ExtraVariables extends string,
-> = string extends ExtraVariables ? {
-  terms: Terms,
-  extraVariablesValues?: Record<ExtraVariables, any>,
+  CollectionName extends CollectionNameString
+> {
+  terms?: ViewTermsByCollectionName[CollectionName],
+  extraVariablesValues?: any,
   pollInterval?: number,
   enableTotal?: boolean,
   enableCache?: boolean,
-  extraVariables?: Record<ExtraVariables, any>,
+  extraVariables?: any,
   fetchPolicy?: WatchQueryFetchPolicy,
   nextFetchPolicy?: WatchQueryFetchPolicy,
   collectionName: CollectionNameString,
@@ -90,25 +80,7 @@ export type UseMultiOptions<
   alwaysShowLoadMore?: boolean,
   createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
   ssr?: boolean,
-} : ViewTermsByCollectionName[CollectionName] extends Terms ? never : Extract<ExtraVariables, keyof Terms> extends never ? {
-  terms: Terms,
-  extraVariablesValues?: Record<ExtraVariables, any>,
-  pollInterval?: number,
-  enableTotal?: boolean,
-  enableCache?: boolean,
-  extraVariables?: Record<ExtraVariables, any>,
-  fetchPolicy?: WatchQueryFetchPolicy,
-  nextFetchPolicy?: WatchQueryFetchPolicy,
-  collectionName: CollectionNameString,
-  fragmentName: FragmentTypeName,
-  limit?: number,
-  itemsPerPage?: number,
-  skip?: boolean,
-  queryLimitName?: string,
-  alwaysShowLoadMore?: boolean,
-  createIfMissing?: Partial<ObjectsByCollectionName[CollectionName]>,
-  ssr?: boolean,
-} : never;
+}
 
 export type LoadMoreCallback = (limitOverride?: number) => void
 
@@ -152,9 +124,7 @@ export type UseMultiResult<
  */
 export function useMulti<
   FragmentTypeName extends keyof FragmentTypes,
-  CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName],
-  Terms extends ViewTermsByCollectionName[CollectionName] = ViewTermsByCollectionName[CollectionName],
-  ExtraVariables extends string = string
+  CollectionName extends CollectionNameString = CollectionNamesByFragmentName[FragmentTypeName]
 >({
   terms,
   extraVariablesValues,
@@ -173,7 +143,7 @@ export function useMulti<
   alwaysShowLoadMore = false,
   createIfMissing,
   ssr = true,
-}: UseMultiOptions<FragmentTypeName,CollectionName, Terms, ExtraVariables>): UseMultiResult<FragmentTypeName> {
+}: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
   const navigate = useNavigate();
 
@@ -193,6 +163,7 @@ export function useMulti<
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
+      resolverArgs: extraVariablesValues,
       enableCache, enableTotal, createIfMissing
     },
     ...extraVariablesValues

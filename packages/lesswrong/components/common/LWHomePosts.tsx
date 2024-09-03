@@ -597,7 +597,7 @@ const LWHomePosts = ({ children, classes }: {
     view: "magic",
     forum: true,
     limit:limit
-  };
+  } as const;
 
   useEffect(() => {
     if (currentUser && vertexEnabledSetting.get()) {
