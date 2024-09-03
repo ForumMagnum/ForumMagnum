@@ -27,13 +27,7 @@ export const CurationPage = ({classes}: {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser()
 
-//   const commentQueryResult = useMulti({
-//     terms: {view: "curationComments"},
-//     collectionName: "Comments",
-//     fragmentName: 'CommentsList',
-//   });
-
-  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem } = Components
+  const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
 
   const [ post, setPost ] = useState<PostsList|null>(null)
 
@@ -45,6 +39,15 @@ export const CurationPage = ({classes}: {
       limit: 20
     }
   });
+  console.log(curationNotices.map((notice) => ({title: notice.post?.title, commentId: notice.commentId})))
+
+  const curationNoticesList = curationNotices.filter(notice => !notice.comment);
+  const curationCommentsList = curationNotices.filter(notice => notice.comment).map(notice => notice.comment!);
+
+  const commentTreeNodes = curationCommentsList.map(comment => ({
+    item: comment,
+    children: []
+  }));
 
   if (!currentUser || !userCanDo(currentUser, 'curationNotices.edit.all')) {
     return <ErrorAccessDenied/>
@@ -66,7 +69,19 @@ export const CurationPage = ({classes}: {
             />
           </BasicFormStyles>
           }
-          {curationNotices?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
+          <h2>Draft Curation Notices</h2>
+          {curationNoticesList?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
+          <h2>Published Curation Notices</h2>
+          <CommentsList
+            comments={commentTreeNodes}
+            treeOptions={{
+              // You can customize these options as needed
+              showCollapseButtons: true,
+              highlightDate: undefined,
+              post: undefined,
+              postPage: false,
+            }}
+          />
         </div>
 
   </SingleColumnSection>

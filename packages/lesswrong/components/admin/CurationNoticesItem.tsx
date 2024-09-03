@@ -92,7 +92,7 @@ const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Component
 
 export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
-  classes: ClassesType<typeof styles>,
+  classes: ClassesType<typeof styles>
 }) => {
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
 
@@ -128,6 +128,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
         selector: { _id: curationNotice._id },
         data: { commentId: commentId }
       });
+      console.log("I just did a refetch, apparently)")
     } catch (error) {
       console.error("Error creating comment: ", error)
     }
