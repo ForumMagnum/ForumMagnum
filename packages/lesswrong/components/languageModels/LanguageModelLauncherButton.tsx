@@ -53,7 +53,7 @@ export const LanguageModelLauncherButton = ({classes}: {
     openDialog({
       componentName:"PopupLanguageModelChat",
     })
-    setCookie(SHOW_LLM_CHAT_COOKIE, "true");
+    setCookie(SHOW_LLM_CHAT_COOKIE, "true", { path: "/" });
   },[openDialog, captureEvent, setCookie]);
 
   useEffect(() => {
