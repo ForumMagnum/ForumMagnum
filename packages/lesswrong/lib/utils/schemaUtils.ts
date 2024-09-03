@@ -2,6 +2,7 @@ import { getCollection } from '../vulcan-lib';
 import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
+import { isAnyTest } from '../executionEnvironment';
 import { asyncFilter } from './asyncUtils';
 import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
@@ -398,7 +399,7 @@ export function denormalizedCountOfReferences<
       foreignCollectionName,
       foreignFieldName,
       filterFn,
-      resyncElastic: resyncElastic ?? false,
+      resyncElastic: (resyncElastic && !isAnyTest) ?? false,
     },
   }
 }

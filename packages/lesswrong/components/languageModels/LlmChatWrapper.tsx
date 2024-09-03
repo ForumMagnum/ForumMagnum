@@ -49,8 +49,12 @@ type LlmStreamContent = {
 
 type LlmStreamChunk = {
   conversationId: string;
-  // messageId: string;
   chunk: string;
+};
+
+type LlmStreamError = {
+  conversationId: string;
+  error: string;
 };
 
 type LlmStreamEnd = {
@@ -77,17 +81,36 @@ export type LlmStreamChunkMessage = {
   data: LlmStreamChunk
 };
 
+export type LlmStreamErrorMessage = {
+  eventType: 'llmStreamError',
+  data: LlmStreamError
+};
+
 export type LlmStreamEndMessage = {
   eventType: 'llmStreamEnd',
   data: LlmStreamEnd
 };
 
-export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamEndMessage;
+export type LlmStreamMessage = LlmCreateConversationMessage | LlmStreamContentMessage | LlmStreamChunkMessage | LlmStreamErrorMessage | LlmStreamEndMessage;
 
-type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'role' | 'content'> & { conversationId?: string, buffer?: string };
+export type NewLlmMessage = Pick<LlmMessagesFragment, 'userId' | 'content'> & {
+  role: LlmMessagesFragment['role'] | 'error';
+  conversationId?: string;
+  buffer?: string;
+};
+
 type PreSaveLlmMessage = Omit<NewLlmMessage, 'role'>;
-type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId'|'createdAt'|'lastUpdatedAt'> & { _id: string, title?: string, messages: NewLlmMessage[] };
-type LlmConversationWithPartialMessages = LlmConversationsFragment & { messages: Array<LlmMessagesFragment | NewLlmMessage> };
+
+type NewLlmConversation = Pick<LlmConversationsWithMessagesFragment, 'userId' | 'createdAt' | 'lastUpdatedAt'> & {
+  _id: string;
+  title?: string;
+  messages: NewLlmMessage[];
+};
+
+type LlmConversationWithPartialMessages = LlmConversationsFragment & {
+  messages: Array<LlmMessagesFragment | NewLlmMessage>;
+};
+
 type LlmConversation = NewLlmConversation | LlmConversationWithPartialMessages;
 type LlmConversationsDict = Record<string, LlmConversation>;
 
@@ -282,6 +305,33 @@ const LlmChatWrapper = ({children}: {
     setConversationLoadingState(conversationId, false);
   }, [currentUser, setConversationLoadingState]);
 
+  const handleLlmStreamError = useCallback((message: LlmStreamErrorMessage) => {
+    if (!currentUser) {
+      return;
+    }
+
+    const { conversationId, error } = message.data;
+
+    setConversations((conversations) => {
+      const streamConversation = conversations[conversationId];
+      const updatedMessages = [...streamConversation.messages];
+
+      const newMessage: NewLlmMessage = {
+        conversationId,
+        userId: currentUser?._id,
+        role: "error",
+        content: error
+      };
+
+      updatedMessages.push(newMessage);
+      const updatedConversation = { ...streamConversation, messages: updatedMessages };
+
+      return { ...conversations, [updatedConversation._id]: updatedConversation };
+    });
+
+    setConversationLoadingState(conversationId, false);
+  }, [currentUser, setConversationLoadingState]);
+
   const handleClaudeResponseMesage = useCallback((message: LlmStreamMessage) => {
     switch (message.eventType) {
       case "llmCreateConversation":
@@ -293,11 +343,14 @@ const LlmChatWrapper = ({children}: {
       case "llmStreamChunk":
         handleLlmStreamChunk(message);
         break;
+      case "llmStreamError":
+        handleLlmStreamError(message);
+        break;
       case "llmStreamEnd":
         setConversationLoadingState(message.data.conversationId, false);
         break;
     }
-  }, [hydrateNewConversation, handleLlmStreamContent, handleLlmStreamChunk, setConversationLoadingState]);
+  }, [hydrateNewConversation, handleLlmStreamContent, handleLlmStreamChunk, handleLlmStreamError, setConversationLoadingState]);
   
   const sendClaudeMessage = useCallback(async ({newMessage, promptContextOptions, newConversationChannelId}: {
     newMessage: ClientMessage,
@@ -311,8 +364,36 @@ const LlmChatWrapper = ({children}: {
       },
       body: JSON.stringify({ newMessage, promptContextOptions, newConversationChannelId }),
     });
+    if (!response.ok) {
+      let errorMessage;
+      try {
+        errorMessage = await response.text();
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
+        errorMessage = 'Unknown error when sending message.';
+      }
+
+      handleLlmStreamError({
+        eventType: 'llmStreamError',
+        data: {
+          conversationId: (newMessage.conversationId ?? newConversationChannelId)!,
+          error: errorMessage
+        }
+      });
+
+      return;
+    }
     if (!response.body) {
-      return; // TODO better error handling
+      handleLlmStreamError({
+        eventType: 'llmStreamError',
+        data: {
+          conversationId: (newMessage.conversationId ?? newConversationChannelId)!,
+          error: 'Missing response body for unknown reasons'
+        }
+      });
+
+      return;
     }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -331,7 +412,7 @@ const LlmChatWrapper = ({children}: {
         buffer = buffer.slice(boundary + 2);
 
         if (line.startsWith('data: ')) {
-          let message: LlmStreamMessage|null = null
+          let message: LlmStreamMessage | null = null;
           try {
             message = JSON.parse(line.slice("data: ".length));
           } catch (error) {
@@ -358,7 +439,7 @@ const LlmChatWrapper = ({children}: {
       }
     }
     
-  }, [handleClaudeResponseMesage]);
+  }, [handleClaudeResponseMesage, handleLlmStreamError]);
 
   // TODO: Ensure code is sanitized against injection attacks
   const submitMessage = useCallback(async (query: string, currentPostId?: string) => {
