@@ -80,6 +80,10 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       if (overlappingKeys.length) {
         captureException(`Got a ${collectionName} multi request with overlapping term and resolverArg keys: ${overlappingKeys.join(', ')}`);
+        Utils.throwError({
+          id: 'app.overlapping_term_and_resolver_arg_keys',
+          data: { terms, resolverArgs, collectionName },
+        });
       }
 
       // Don't allow API requests with an arbitrarily large offset. This
@@ -206,6 +210,10 @@ const addDefaultResolvers = <N extends CollectionNameString>(
 
       if (overlappingKeys.length) {
         captureException(`Got a ${collectionName} single request with overlapping term and resolverArg keys: ${overlappingKeys.join(', ')}`);
+        Utils.throwError({
+          id: 'app.overlapping_term_and_resolver_arg_keys',
+          data: { terms, resolverArgs, selector, collectionName },
+        });
       }
 
       const {cacheControl} = info;
