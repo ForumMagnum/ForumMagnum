@@ -483,7 +483,7 @@ export const SpotlightItem = ({
           )
         }
         <div className={classes.editAllButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
@@ -501,29 +501,27 @@ export const SpotlightItem = ({
           </LWTooltip>}
         </div>}
       </div>
-      {showAdminInfo && <>
-        {edit ? <div className={classes.form}>
-            <SpotlightEditorStyles>
-            <WrappedSmartForm
-              collectionName="Spotlights"
-              documentId={spotlight._id}
-              mutationFragment={getFragment('SpotlightEditQueryFragment')}
-              queryFragment={getFragment('SpotlightEditQueryFragment')}
-              successCallback={onUpdate}
-            />
-            </SpotlightEditorStyles>
-          </div>
-           :
-          <div className={classes.metaData}>
-            {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
-            <MetaInfo>{spotlight.position}</MetaInfo>
-            <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
-            <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
-              <MetaInfo>{duration} days</MetaInfo>
-            </LWTooltip>
-          </div>
-        }
-      </>}
+      {edit ? <div className={classes.form}>
+          <SpotlightEditorStyles>
+          <WrappedSmartForm
+            collectionName="Spotlights"
+            documentId={spotlight._id}
+            mutationFragment={getFragment('SpotlightEditQueryFragment')}
+            queryFragment={getFragment('SpotlightEditQueryFragment')}
+            successCallback={onUpdate}
+          />
+          </SpotlightEditorStyles>
+        </div>
+          :
+        <div className={classes.metaData}>
+          {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
+          <MetaInfo>{spotlight.position}</MetaInfo>
+          <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
+          <LWTooltip title={`This will be on the frontpage for ${duration} days when it rotates in`}>
+            <MetaInfo>{duration} days</MetaInfo>
+          </LWTooltip>
+        </div>
+      }
     </div>
   </AnalyticsTracker>
 }
