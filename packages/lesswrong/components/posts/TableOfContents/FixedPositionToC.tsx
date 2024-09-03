@@ -3,7 +3,7 @@ import { Components, registerComponent } from '@/lib/vulcan-lib/components';
 import withErrorBoundary from '@/components/common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation } from '../../../lib/routeUtil';
-import type { ToCSection, ToCSectionWithOffset, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
+import type { ToCSection, ToCSectionWithOffsetAndScale } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import isEqual from 'lodash/isEqual';
