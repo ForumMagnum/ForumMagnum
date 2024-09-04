@@ -12,6 +12,8 @@ const shortformDraftMessage = isFriendlyUI
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
   : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
+export const BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD = 800;
+
 const styles = (theme: ThemeType): JssStyles => ({
   reviewInfo: {
     textAlign: "center",
@@ -115,7 +117,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    {isFriendlyUI && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />}
+    {(isFriendlyUI || ((post.contents?.wordCount ?? 0) < BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD)) && <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />}
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

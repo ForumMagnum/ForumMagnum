@@ -76,12 +76,12 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   const { LanguageModelChat, LWTooltip } = Components;
 
   const { currentConversation } = useLlmChat();
-  const [_, setCookies] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
+  const [_, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 
   const handleClose = () => {
-    setCookies(SHOW_LLM_CHAT_COOKIE, "false");
+    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
     onClose();
   }
 

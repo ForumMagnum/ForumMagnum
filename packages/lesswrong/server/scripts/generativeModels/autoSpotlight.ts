@@ -134,7 +134,7 @@ async function createSpotlights() {
   ]
 
   for (const summary_prompt of summary_prompts) {
-    for (const post of postsWithoutSpotlights.slice(2,4)) {
+    for (const post of postsWithoutSpotlights) {
       const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
 
       try {
