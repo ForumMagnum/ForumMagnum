@@ -1,17 +1,17 @@
 /**
- * Generated on 2024-08-29T20:19:06.082Z by `yarn makemigrations`
+ * Generated on 2024-09-04T20:55:02.054Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/benpace/LessWrongAll/LessWrongCode/ForumMagnum/schema/accepted_schema.sql b/Users/benpace/LessWrongAll/LessWrongCode/ForumMagnum/schema/schema_to_accept.sql
- * index fc554e914e..289df73e67 100644
+ * index 7e8068bf8d..7b5f2d534d 100644
  * --- a/Users/benpace/LessWrongAll/LessWrongCode/ForumMagnum/schema/accepted_schema.sql
  * +++ b/Users/benpace/LessWrongAll/LessWrongCode/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: 793addca611706caf3f63f08a909d4ab
+ * --- Overall schema hash: 17afacac40e75c7380478219e9b4f751
  * -
- * --- Accepted on 2024-08-29T03:04:37.000Z by 20240829T030437.add_deletedDraft_and_splash_url_to_spotlights.ts
- * +-- Overall schema hash: e8ef706bd43c157c477c734cbc559362
+ * --- Accepted on 2024-08-30T02:24:36.000Z by 20240830T022436.add_subtitleUrl.ts
+ * +-- Overall schema hash: f857f474b5a374350cc1797a5d9240fa
  *  
  * @@ -623,2 +621,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_CurationEmails_userId" ON "CurationEmails
  *  
@@ -42,7 +42,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "e8ef706bd43c157c477c734cbc559362";
+export const acceptsSchemaHash = "f857f474b5a374350cc1797a5d9240fa";
 
 import { CurationNotices } from "../../lib/collections/curationNotices/collection.ts"
 import { createTable, dropTable } from "./meta/utils";
