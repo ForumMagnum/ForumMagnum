@@ -98,6 +98,8 @@ function gridPositionToClassesEntry(theme: ThemeType, gridPosition: number) {
   }] as const;
 };
 
+const IMAGE_GRID_HEADER_WIDTH = 40;
+
 const styles = (theme: ThemeType) => ({
   widerColumn: {
     marginLeft: "auto",
@@ -196,7 +198,7 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.leastwrong.imageGridHeaderHighlighted
     },
     [theme.breakpoints.up(800)]: {
-      width: 40,
+      width: IMAGE_GRID_HEADER_WIDTH,
       height: 'inherit',
     },
     [theme.breakpoints.down(800)]: {
@@ -211,6 +213,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
     fontSize: 32,
     transition: 'opacity 0.5s ease-in 0.5s',
+    ...theme.typography.headerStyle
   },
   toggleIcon: {
     fontSize: 24,
@@ -436,6 +439,56 @@ const styles = (theme: ThemeType) => ({
       inherits: false,
       initialValue: '36%',
     }
+  },
+  postsByYearSectionCentered: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    '& h1': {
+      ...theme.typography.display3,
+      marginTop: 0,
+      ...theme.typography.headerStyle
+    }
+  },
+  topicTitle: {
+    textTransform: 'capitalize',
+  },
+  year: {
+    ...theme.typography.display1,
+    ...theme.typography.headerStyle,
+    marginTop: 12,
+    color: theme.palette.grey[600],
+  },
+  topic: {
+    ...theme.typography.display1,
+    fontSize: '1.6rem',
+    marginTop: 12,
+    ...theme.typography.headerStyle,
+    fontVariantCaps: 'all-small-caps',
+    color: theme.palette.grey[600],
+    marginBottom: 24
+  },
+  postsByYearTopic: {
+    display: 'flex',
+    marginBottom: 12
+  },
+  yearTopicSectionTitle: {
+    ...theme.typography.display2,
+    ...theme.typography.headerStyle,
+    marginBottom: 12,
+
+  },
+  yearSelector: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '12px',
+    marginBottom: '12px'
+  },
+  topicSelector: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '12px',
+    marginBottom: '12px'
   }
 });
 
@@ -533,7 +586,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
 
   const location = useLocation();
-  const { query } = location;
+  const { query, params } = location;
 
   const screenWidth = useWindowWidth(2000);
   /** 
@@ -566,6 +619,17 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     setExpansionState(newState);
     setExpandedNotYetMoved(true)
   }
+
+  const { results: spotlights = [] } = useMulti({
+    collectionName: 'Spotlights',
+    fragmentName: 'SpotlightDisplay',
+    terms: {
+      view: "spotlightsBySubtitle",
+      subtitle: "Best of LessWrong 2019",
+      limit: 10
+    },
+    enableTotal: false
+  });
 
   const toggleFullyOpenGridId = (id: string) => {
     if (fullyOpenGridIds.includes(id)) {
@@ -634,22 +698,12 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
 
+  const year = params.year ?? "2022"
+  const topic = params.topic ?? "rationality"
+  const years = Object.keys(yearGroupsInfo).sort((a, b) => parseInt(b) - parseInt(a));
+  const topics = Object.keys(sectionsInfo).sort((a, b) => b.localeCompare(a));
 
-  const documentIds = [...yearGrid, ...sectionGrid].map((grid) => grid.props.id);
-
-  const { results: spotlights = [] } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: "spotlightsBySubtitle",
-      subtitle: "Best of LessWrong 2019",
-      limit: 10
-    },
-    enableTotal: false
-  });
-  console.log(spotlights);
-
-  const { SingleColumnSection, SpotlightItem } = Components;
+  const { SpotlightItem, Divider } = Components;
 
   return (
     <>
@@ -671,9 +725,20 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
-          <SingleColumnSection>
-            {spotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} />)}
-          </SingleColumnSection>
+          <Divider margin={100}/>
+          <div className={classes.postsByYearSectionCentered}>
+            <h1 className={classes.yearTopicSectionTitle}>Best of <span className={classes.topicTitle}>{topic}</span> {year}</h1>
+            <div className={classes.yearSelector}>
+              {years.map((y) => <a href={`/bestoflesswrong/${year}`} className={classes.year} key={year} style={{color: y === year ? '#000' : '#888'}}>{y}</a>)}
+            </div>
+
+            <div className={classes.topicSelector}>
+              {topics.map((t) => <a href={`/bestoflesswrong/${topic}`} className={classes.topic} key={topic} style={{color: t === topic ? '#000' : '#888'}}>{t}</a>)}
+            </div>
+            <div style={{ maxWidth: 800}}>
+              {spotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} key={spotlight._id} />)}
+            </div>
+          </div>
         </div>
       </AnalyticsContext>
     </>

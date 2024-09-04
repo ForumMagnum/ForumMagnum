@@ -165,6 +165,7 @@ import './server/callbacks/votingCallbacks';
 import './server/resolvers/diffResolvers';
 import './server/resolvers/revisionResolvers';
 import './server/resolvers/postResolvers';
+import './server/resolvers/spotlightResolvers';
 import './server/resolvers/userResolvers';
 import './server/resolvers/wrappedResolvers';
 import './server/resolvers/karmaChangeResolvers';

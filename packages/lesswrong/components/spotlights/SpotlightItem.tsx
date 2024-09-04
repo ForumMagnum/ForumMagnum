@@ -15,6 +15,8 @@ import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { gql, useMutation } from '@apollo/client';
+import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
 
 const TEXT_WIDTH = 350;
 
@@ -374,16 +376,24 @@ export const SpotlightItem = ({
     fragmentName: "SpotlightDisplay",
   });
 
+  const { publishAndDeDuplicateSpotlight } = usePublishAndDeDuplicateSpotlight({
+    fragmentName: "SpotlightDisplay",
+  });
+
   const toggleDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
       return;
     }
-    await updateSpotlight({
-      selector: { _id: spotlight._id },
-      data: { draft: !spotlight.draft }
-    });
+    if (!spotlight.draft) {
+      await updateSpotlight({
+        selector: { _id: spotlight._id },
+        data: { draft: !spotlight.draft }
+      });
+    } else {
+      await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+    }
     refetchAllSpotlights?.();
-  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
+  }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, publishAndDeDuplicateSpotlight, refetchAllSpotlights]);
 
   const deleteDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
@@ -489,7 +499,7 @@ export const SpotlightItem = ({
         </div>
         <div className={classes.draftButton}>
           {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
-            <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+            <LWTooltip title={spotlight.draft ? "Undraft, and archive duplicates" : "Draft"}>
               <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
                 !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
             </LWTooltip>
