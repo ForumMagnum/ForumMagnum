@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     textTransform: "uppercase",
     "&:hover": {
       opacity: 0.5,
-      },
+    },
 },
   publishButton: {
       ...theme.typography.body2,
@@ -61,7 +61,6 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
     marginRight: isFriendlyUI ? 40 : 20,
-
     "& a:hover, & a:active": {
       textDecoration: "none",
       color: isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
@@ -113,20 +112,19 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     fragmentName: 'PostsList',
   });
 
-  const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment
-  ) => {
-
-  const { contents, postId, userId } = curationNotice;
+  const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment) => {
+    const { contents, postId, userId } = curationNotice;
 
     if (!contents) {throw Error("Curation notice is missing contents")}
+
+    const { originalContents: { data, type } } = contents;
 
     const comment = {
       postId,
       userId,
-      contents: { originalContents: { 
-        data: contents.originalContents.data,
-        type: contents.originalContents.type,
-      }} as EditableFieldContents
+      contents: {
+        originalContents: { data, type }
+      } as EditableFieldContents
     };
 
     try {
@@ -158,7 +156,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     handlePublishCommentAndCurate
   );
 
-  if (curationNotice.post === null) return "error: no post associated with curation notice";
+  if (curationNotice.post === null) return null;
 
   return <div className={classes.root}>
     { edit ? 

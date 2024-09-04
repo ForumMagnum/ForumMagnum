@@ -3,8 +3,8 @@ import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
-import { userCanDo } from '@/lib/vulcan-users';
-import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { userCanDo, userIsAdminOrMod } from '@/lib/vulcan-users';
+import { filterNonnull, filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
 
 const styles = (theme: ThemeType) => ({
@@ -39,11 +39,10 @@ export const CurationPage = ({classes}: {
   });
 
   const curationNoticesList = curationNotices.filter(notice => !notice.comment);
-  const curationCommentsList = filterNonnull(curationNotices.map(notice => notice.comment));
-
-  const commentTreeNodes = unflattenComments(curationCommentsList)
-
-  if (!currentUser || !userCanDo(currentUser, 'curationNotices.edit.all')) {
+  const curationCommentsList = filterWhereFieldsNotNull(curationNotices, 'comment', 'post')
+  const curationCommentsAndPostsList = curationCommentsList.map(({comment, post}) => ({comment: unflattenComments([comment]), post}));
+  
+  if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return <ErrorAccessDenied/>
   }
 
@@ -65,16 +64,18 @@ export const CurationPage = ({classes}: {
             <h2>Draft Curation Notices</h2>
             {curationNoticesList?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
             <h2>Published Curation Notices</h2>
-            <CommentsList
-              comments={commentTreeNodes}
-              treeOptions={{
-                // You can customize these options as needed
-                showCollapseButtons: true,
-                highlightDate: undefined,
-                post: undefined,
-                postPage: false,
-              }}
-            />
+            {curationCommentsAndPostsList.map(({comment, post}) => (
+              <CommentsList
+                key={comment[0].item._id}
+                comments={comment}
+                treeOptions={{
+                  showCollapseButtons: true,
+                  highlightDate: undefined,
+                  post,
+                  postPage: false,
+                }}
+              />
+            ))}
           </div>
     </SingleColumnSection>
     {<div className={classes.curated}>
