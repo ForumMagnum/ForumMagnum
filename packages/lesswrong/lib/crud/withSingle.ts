@@ -142,7 +142,6 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
     variables: {
       input: {
         selector: { documentId, slug },
-        resolverArgs: extraVariablesValues,
         ...(allowNull && {allowNull: true})
       },
       ...extraVariablesValues,

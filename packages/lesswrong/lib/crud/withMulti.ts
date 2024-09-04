@@ -163,7 +163,6 @@ export function useMulti<
   const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
-      resolverArgs: extraVariablesValues,
       enableCache, enableTotal, createIfMissing
     },
     ...extraVariablesValues
