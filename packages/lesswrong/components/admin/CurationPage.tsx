@@ -22,12 +22,11 @@ const styles = (theme: ThemeType) => ({
 export const CurationPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser()
 
   const { SunshineCuratedSuggestionsList, SingleColumnSection, BasicFormStyles, WrappedSmartForm, SectionTitle, ErrorAccessDenied, CurationNoticesItem, CommentsList } = Components
 
-  const [ post, setPost ] = useState<PostsList|null>(null)
+  const [post, setPost] = useState<PostsList|null>(null)
 
   const { results: curationNotices = [], loading } = useMulti({
     collectionName: 'CurationNotices',
@@ -57,7 +56,6 @@ export const CurationPage = ({classes}: {
                   collectionName="CurationNotices"
                   mutationFragment={getFragment('CurationNoticesFragment')}
                   prefilledProps={{userId: currentUser._id, postId: post._id}}
-                  // successCallback={(a) => console.log(a)}
                 />
               </BasicFormStyles>
             }

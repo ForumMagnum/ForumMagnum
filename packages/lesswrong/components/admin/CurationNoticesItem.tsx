@@ -82,22 +82,21 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
-
 export const CurationNoticesItem = ({curationNotice, classes}: {
   curationNotice: CurationNoticesFragment,
   classes: ClassesType<typeof styles>
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const { ContentItemBody, Button, BasicFormStyles, WrappedSmartForm } = Components;
 
-  const [ edit, setEdit ] = useState<boolean>(false)
+
+  const [edit, setEdit] = useState<boolean>(false)
 
   const { create } = useCreate({
     collectionName: "Comments",
     fragmentName: 'CommentsList'
   });
 
-  const {mutate: updateCurrentCurationNotice} = useUpdate({
+  const { mutate: updateCurrentCurationNotice } = useUpdate({
     collectionName: "CurationNotices",
     fragmentName: 'CurationNoticesFragment',
   });
@@ -110,7 +109,7 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment) => {
     const { contents, postId, userId } = curationNotice;
 
-    if (!contents) {throw Error("Curation notice is missing contents")}
+    if (!contents) throw Error("Curation notice is missing contents")
 
     const { originalContents: { data, type } } = contents;
 
@@ -123,14 +122,14 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     };
 
     try {
-      const result = await create({data: comment});
+      const result = await create({ data: comment });
       const commentId = result.data?.createComment.data._id;
       await updateCurrentCurationNotice({
         selector: { _id: curationNotice._id },
         data: { commentId: commentId }
       });
       await updatePost({
-        selector: {_id: curationNotice.postId},
+        selector: { _id: curationNotice.postId },
         data: {
           reviewForCuratedUserId: curationNotice.userId,
           curatedDate: new Date(),
@@ -145,9 +144,9 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
   if (curationNotice.post === null) return null;
 
   return <div className={classes.root}>
-    { edit ? 
-    <div>
-      <BasicFormStyles>
+    {edit ? 
+      <div>
+        <BasicFormStyles>
           {curationNotice.post.title}
           <WrappedSmartForm
             collectionName="CurationNotices"
@@ -157,29 +156,29 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
             successCallback={() => setEdit(false)}
             prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
           />
-      </BasicFormStyles>
-    </div>
-    : <>
-      <div className={classes.meta}>
-        <div>
-          <span className={classes.postTitle}>{curationNotice.post?.title}</span>
-          <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
-        </div>
+        </BasicFormStyles>
       </div>
-      {!curationNotice.commentId && <div
-        onClick={() => setEdit(true)}
-        className={classes.editButton}
+      : <>
+        <div className={classes.meta}>
+          <div>
+            <span className={classes.postTitle}>{curationNotice.post?.title}</span>
+            <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
+          </div>
+        </div>
+        {!curationNotice.commentId && <div
+          onClick={() => setEdit(true)}
+          className={classes.editButton}
         >
-        Edit
-      </div>}
-      <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
-      {!curationNotice.commentId && <div
-        onClick={() => publishCommentAndCurate(curationNotice)}
-        className={classes.publishButton}
+          Edit
+        </div>}
+        <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
+        {!curationNotice.commentId && <div
+          onClick={() => publishCommentAndCurate(curationNotice)}
+          className={classes.publishButton}
         >
-        Publish & Curate
-      </div>}
-    </>
+          Publish & Curate
+        </div>}
+      </>
     }
     
   </div>
