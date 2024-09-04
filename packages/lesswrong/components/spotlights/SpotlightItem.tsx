@@ -501,7 +501,7 @@ export const SpotlightItem = ({
           </LWTooltip>}
         </div>}
       </div>
-      {edit ? <div className={classes.form}>
+      {edit && <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
               collectionName="Spotlights"
@@ -512,8 +512,8 @@ export const SpotlightItem = ({
             />
             </SpotlightEditorStyles>
           </div>
-           :
-          <div className={classes.metaData}>
+      }
+      {!edit && showAdminInfo &&  <div className={classes.metaData}>
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>

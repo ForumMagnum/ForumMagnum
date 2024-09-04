@@ -13,6 +13,7 @@ import classNames from 'classnames';
 import range from 'lodash/range';
 import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
+import { useMulti } from '@/lib/crud/withMulti';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -633,6 +634,23 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
 
+
+  const documentIds = [...yearGrid, ...sectionGrid].map((grid) => grid.props.id);
+
+  const { results: spotlights = [] } = useMulti({
+    collectionName: 'Spotlights',
+    fragmentName: 'SpotlightDisplay',
+    terms: {
+      view: "spotlightsBySubtitle",
+      subtitle: "Best of LessWrong 2019",
+      limit: 10
+    },
+    enableTotal: false
+  });
+  console.log(spotlights);
+
+  const { SingleColumnSection, SpotlightItem } = Components;
+
   return (
     <>
       <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,q_auto/v1709263848/Screen_Shot_2024-02-29_at_7.30.43_PM_m5pyah.png"} />
@@ -653,6 +671,9 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
+          <SingleColumnSection>
+            {spotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} />)}
+          </SingleColumnSection>
         </div>
       </AnalyticsContext>
     </>

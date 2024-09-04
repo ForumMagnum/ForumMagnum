@@ -4,6 +4,7 @@ import Spotlights from "./collection";
 declare global {
   interface SpotlightsViewTerms extends ViewTermsBase {
     sequenceId?: string;
+    subtitle?: string;
   }
 }
 
@@ -56,6 +57,20 @@ Spotlights.addView("spotlightForSequence", (terms: SpotlightsViewTerms) => {
   return {
     selector: {
       documentId: terms.sequenceId,
+      draft: false,
+      deletedDraft: false
+    },
+    options: {
+      sort: { position: 1 }
+    }
+  }
+});
+
+
+Spotlights.addView("spotlightsBySubtitle", (terms: SpotlightsViewTerms) => {
+  return {
+    selector: {
+      customSubtitle: terms.subtitle,
       draft: false,
       deletedDraft: false
     },
