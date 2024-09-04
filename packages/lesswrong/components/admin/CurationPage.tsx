@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, { useState } from 'react';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -9,9 +8,6 @@ import { filterNonnull } from '@/lib/utils/typeGuardUtils';
 import { unflattenComments } from '@/lib/utils/unflatten';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
-  },
   curated: {
     position: "absolute",
     right: 0,
@@ -51,39 +47,36 @@ export const CurationPage = ({classes}: {
     return <ErrorAccessDenied/>
   }
 
-  return <div className={classes.root}>
-
-  <SingleColumnSection>
-    <SectionTitle title={'New Curation Notice'} />
-        <div>
-          {post &&
-          <BasicFormStyles>
-            {post.title}
-            <WrappedSmartForm
-              collectionName="CurationNotices"
-              mutationFragment={getFragment('CurationNoticesFragment')}
-              prefilledProps={{userId: currentUser._id, postId: post._id}}
-              // successCallback={(a) => console.log(a)}
+  return <div>
+    <SingleColumnSection>
+      <SectionTitle title={'New Curation Notice'} />
+          <div>
+            {post &&
+              <BasicFormStyles>
+                {post.title}
+                <WrappedSmartForm
+                  collectionName="CurationNotices"
+                  mutationFragment={getFragment('CurationNoticesFragment')}
+                  prefilledProps={{userId: currentUser._id, postId: post._id}}
+                  // successCallback={(a) => console.log(a)}
+                />
+              </BasicFormStyles>
+            }
+            <h2>Draft Curation Notices</h2>
+            {curationNoticesList?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
+            <h2>Published Curation Notices</h2>
+            <CommentsList
+              comments={commentTreeNodes}
+              treeOptions={{
+                // You can customize these options as needed
+                showCollapseButtons: true,
+                highlightDate: undefined,
+                post: undefined,
+                postPage: false,
+              }}
             />
-          </BasicFormStyles>
-          }
-          <h2>Draft Curation Notices</h2>
-          {curationNoticesList?.map((curationNotice) => <CurationNoticesItem curationNotice={curationNotice} key={curationNotice._id}/>)}
-          <h2>Published Curation Notices</h2>
-          <CommentsList
-            comments={commentTreeNodes}
-            treeOptions={{
-              // You can customize these options as needed
-              showCollapseButtons: true,
-              highlightDate: undefined,
-              post: undefined,
-              postPage: false,
-            }}
-          />
-        </div>
-
-  </SingleColumnSection>
-
+          </div>
+    </SingleColumnSection>
     {<div className={classes.curated}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold setCurationPost={setPost}/>
     </div>}
