@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, { useState } from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -9,6 +8,7 @@ import { useCreate } from '@/lib/crud/withCreate';
 import { commentDefaultToAlignment } from '@/lib/collections/comments/helpers';
 import { User } from '@sentry/node';
 import { useUpdate } from '@/lib/crud/withUpdate';
+import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -103,36 +103,60 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     fragmentName: 'CommentsList'
   });
 
-  const {mutate: UpdateCurrentCurationNotice} = useUpdate({
+  const {mutate: updateCurrentCurationNotice} = useUpdate({
     collectionName: "CurationNotices",
     fragmentName: 'CurationNoticesFragment',
   });
 
-  const makeComment = async (curationNotice: CurationNoticesFragment
+  const { mutate: updatePost } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: 'PostsList',
+  });
+
+  const publishCommentAndCurate = async (curationNotice: CurationNoticesFragment
   ) => {
-    if (!curationNotice.contents) {throw Error("Error creating comment")}
+
+  const { contents, postId, userId } = curationNotice;
+
+    if (!contents) {throw Error("Curation notice is missing contents")}
 
     const comment = {
-      postId: curationNotice.postId,
-      userId: curationNotice.userId,
+      postId,
+      userId,
       contents: { originalContents: { 
-        data: curationNotice.contents.originalContents.data,
-        type: curationNotice.contents.originalContents.type,
+        data: contents.originalContents.data,
+        type: contents.originalContents.type,
       }} as EditableFieldContents
     };
 
     try {
       const result = await create({data: comment});
       const commentId = result.data?.createComment.data._id;
-      UpdateCurrentCurationNotice({
+      await updateCurrentCurationNotice({
         selector: { _id: curationNotice._id },
         data: { commentId: commentId }
       });
-      console.log("I just did a refetch, apparently)")
+      await updatePost({
+        selector: {_id: curationNotice.postId},
+        data: {
+          reviewForCuratedUserId: curationNotice.userId,
+          curatedDate: new Date(),
+        }
+      })
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Error creating comment: ", error)
     }
   }
+
+  const handlePublishCommentAndCurate = async (ev: React.MouseEvent<Element, MouseEvent>): Promise<void> => {
+    await publishCommentAndCurate(curationNotice);
+  }
+
+  const [hasCommentId, toggleHasCommentId] = useOptimisticToggle(
+    !!curationNotice.commentId ?? false,
+    handlePublishCommentAndCurate
+  );
 
   if (curationNotice.post === null) return "error: no post associated with curation notice";
 
@@ -148,7 +172,6 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
             queryFragment={getFragment('CurationNoticesFragment')}
             successCallback={() => setEdit(false)}
             prefilledProps={{userId: curationNotice.userId, postId: curationNotice.postId}}
-            // successCallback={(a) => console.log(a)}
           />
       </BasicFormStyles>
     </div>
@@ -159,20 +182,19 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
           <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
         </div>
       </div>
-      <div
+      {!hasCommentId && <div
         onClick={() => setEdit(true)}
         className={classes.editButton}
         >
         Edit
-      </div>
+      </div>}
       <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
-      <div
-        onClick={() => makeComment(curationNotice)}
+      {!hasCommentId && <div
+        onClick={handlePublishCommentAndCurate}
         className={classes.publishButton}
         >
-        Publish
-      </div>
-      <div>{curationNotice.commentId}</div>
+        Publish & Curate
+      </div>}
     </>
     }
     
@@ -186,7 +208,5 @@ declare global {
     CurationNoticesItem: typeof CurationNoticesItemComponent
   }
 }
-function getMarkdownContents(text: string) {
-  throw new Error('Function not implemented.');
-}
+
 

@@ -1599,10 +1599,10 @@ addRoute(
 
 addRoute(
   {
-    name: 'curationQueue',
-    path:'/curationQueue',
+    name: 'curation',
+    path:'/curation',
     componentName: "CurationPage",
-    title: "Curation Queue",
+    title: "Curation",
     noIndex: true,
   }
 );

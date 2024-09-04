@@ -5,6 +5,8 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '../../lib/crud/withMulti';
 import { userCanDo } from '@/lib/vulcan-users';
+import { filterNonnull } from '@/lib/utils/typeGuardUtils';
+import { unflattenComments } from '@/lib/utils/unflatten';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,15 +41,11 @@ export const CurationPage = ({classes}: {
       limit: 20
     }
   });
-  console.log(curationNotices.map((notice) => ({title: notice.post?.title, commentId: notice.commentId})))
 
   const curationNoticesList = curationNotices.filter(notice => !notice.comment);
-  const curationCommentsList = curationNotices.filter(notice => notice.comment).map(notice => notice.comment!);
+  const curationCommentsList = filterNonnull(curationNotices.map(notice => notice.comment));
 
-  const commentTreeNodes = curationCommentsList.map(comment => ({
-    item: comment,
-    children: []
-  }));
+  const commentTreeNodes = unflattenComments(curationCommentsList)
 
   if (!currentUser || !userCanDo(currentUser, 'curationNotices.edit.all')) {
     return <ErrorAccessDenied/>
@@ -86,7 +84,7 @@ export const CurationPage = ({classes}: {
 
   </SingleColumnSection>
 
-    {currentUser?.isAdmin && <div className={classes.curated}>
+    {<div className={classes.curated}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 50}} belowFold setCurationPost={setPost}/>
     </div>}
   </div>;
