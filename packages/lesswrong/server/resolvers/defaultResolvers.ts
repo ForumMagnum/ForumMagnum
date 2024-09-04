@@ -57,20 +57,20 @@ const addDefaultResolvers = <N extends CollectionNameString>(
     resolvers.multi.resolver = async (
       root: void,
       args: {
-        input: {
+        input?: {
           terms: ViewTermsBase & Record<string, unknown>,
           enableCache?: boolean,
           enableTotal?: boolean,
           createIfMissing?: Partial<T>,
-          resolverArgs?: Record<string, unknown>,
         },
+        [resolverArgKeys: string]: unknown
       },
       context: ResolverContext,
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now()
-      const input = args?.input || {};
-      const { terms={}, enableCache = false, enableTotal = false, resolverArgs={} } = input;
+      const { input, ...resolverArgs } = args ?? { input: {} };
+      const { terms = {}, enableCache = false, enableTotal = false, createIfMissing } = input ?? {};
       const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
       logger('multi resolver()')
       logger('multi terms', terms)
@@ -139,8 +139,8 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       let docs = await fetchDocs();
 
       // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
-      if (input.createIfMissing && docs.length === 0) {
-        await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
+      if (createIfMissing && docs.length === 0) {
+        await collection.options.mutations.create.mutation(root, {data: createIfMissing}, context)
         docs = await fetchDocs();
       }
 
@@ -182,12 +182,12 @@ const addDefaultResolvers = <N extends CollectionNameString>(
   if (resolvers?.single) {
     resolvers.single.resolver = async (
       _root: void,
-      {input = {}}: {input: AnyBecauseTodo},
+      {input = {}, ...resolverArgs}: {input: AnyBecauseTodo},
       context: ResolverContext,
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now();
-      const {enableCache = false, allowNull = false, terms={}, resolverArgs={}} = input;
+      const {enableCache = false, allowNull = false} = input;
       // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
       // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
       // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -202,19 +202,6 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       );
       logger(`Options: ${JSON.stringify(resolverOptions)}`);
       logger(`Selector: ${JSON.stringify(selector)}`);
-
-      // I think the "terms" here are fake; we don't pass in terms from `useSingle`.
-      // My guess is that it was a copy & paste error from the multi resolver code at some point
-      const termKeys = Object.keys(terms);
-      const overlappingKeys = Object.keys(resolverArgs).filter(termKey => termKeys.includes(termKey));
-
-      if (overlappingKeys.length) {
-        captureException(`Got a ${collectionName} single request with overlapping term and resolverArg keys: ${overlappingKeys.join(', ')}`);
-        Utils.throwError({
-          id: 'app.overlapping_term_and_resolver_arg_keys',
-          data: { terms, resolverArgs, selector, collectionName },
-        });
-      }
 
       const {cacheControl} = info;
       if (cacheControl && enableCache) {
@@ -240,7 +227,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
         const query = new SelectFragmentQuery(
           fragmentName as FragmentName,
           currentUser,
-          {...resolverArgs, ...terms},
+          resolverArgs,
           selector,
           undefined,
           {limit: 1},
