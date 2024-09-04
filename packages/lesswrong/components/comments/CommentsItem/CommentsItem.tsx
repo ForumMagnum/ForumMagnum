@@ -20,6 +20,7 @@ import type { ContentItemBody } from '../../common/ContentItemBody';
 import Button from '@material-ui/core/Button';
 import { useCreate } from '@/lib/crud/withCreate';
 import omit from 'lodash/omit';
+import { isLWorAF } from '@/lib/instanceSettings';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -152,12 +153,26 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   doppelCommentsButton: {
-    color: theme.palette.lwTertiary.main,
+    "&.MuiButton-root": {
+      backgroundColor: theme.palette.greyAlpha(0.1),
+      padding: theme.spacing.unit,
+      paddingLeft: theme.spacing.unit*3,
+      paddingRight: theme.spacing.unit*3,
+      borderRadius: theme.borderRadius.small,
+      textTransform: "none",
+      fontVariant: "small-caps",
+      fontColor: theme.palette.text.primary,
+      marginRight: theme.spacing.unit,
+      fontSize: theme.baseFontSize,
+    }
   },
-  doppelCommentVoteStrip: {
-    backgroundColor: theme.palette.greyAlpha(0.1),
-    borderRadius: theme.borderRadius.small,
-    padding: theme.spacing.unit,
+  doppelCommentsOptOutButton: {
+    "&&": {
+      backgroundColor: "rgba(0,0,0,0)"
+    }
+  },
+  adminTriedToOptOutMessage: {
+    color: theme.palette.error.main,
   }
 });
 
@@ -212,6 +227,7 @@ export const CommentsItem = ({
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
   const [activePotentialComment, setActivePotentialComment] = React.useState<0|1|2>(0)
+  const [adminTriedToOptOut, setAdminTriedToOptOut] = React.useState<string|null>(null)
   const potentialCommentBodies = useMemo(() => ([...(comment.doppelComments ?? []), comment])
     .map(a => ({
       content: 'commentId' in a ? a.content : (a.contents?.html ?? ""),
@@ -332,38 +348,61 @@ export const CommentsItem = ({
 
   const voteProps = useVote(comment, "Comments", votingSystem);
   const showInlineCancel = replyFormIsOpen && isMinimalist
-  const createDoppelVote = useCreate({
+  const { create: createDoppelVote, data: newDoppelCommentVote } = useCreate({
     collectionName: "DoppelCommentVotes",
     fragmentName: "DoppelCommentVotesFragment",
   })
   const voteForThisDoppel = (type: "skip" | "vote", doppelCommentChoiceId?: string) => {
     if (!currentUser) return
-    const result = createDoppelVote.create({
+    void createDoppelVote({
       data: {
         userId: currentUser._id,
         commentId: comment._id,
         type,
         doppelCommentChoiceId,
-      }
+      },
     })
-    console.log(result)
   }
-  const doppelCommentVote = (className: string) => (comment: CommentsList) => <div className={className}>
-    <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("vote", potentialCommentBodies[activePotentialComment].doppelId ?? undefined)}>
-      Pick current as the real comment
-    </Button>
-    <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("skip")}>
-      Skip voting and reveal
-    </Button>
-    <Button className={classes.doppelCommentsButton} onClick={_ => console.log("opt out")}>
-      Opt out of this feature
-    </Button>
-  </div>
+  const doppelCommentVote = (className: string) => (comment: CommentsList) => {
+    return <>
+      <div className={className}>
+        <LWTooltip title="Do you think the current comment was really written by the user, rather than an LLM?">
+          <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("vote", potentialCommentBodies[activePotentialComment].doppelId ?? undefined)}>
+            Pick current
+          </Button>
+        </LWTooltip>
+        <LWTooltip title="Reveal the true comment without voting">
+          <Button className={classes.doppelCommentsButton} onClick={_ => voteForThisDoppel("skip")}>
+            Skip
+          </Button>
+        </LWTooltip>
+        <LWTooltip title="Don't see these Turing tests on any comments">
+          <Button className={classNames(classes.doppelCommentsButton, classes.doppelCommentsOptOutButton)} onClick={_ => setAdminTriedToOptOut(comment._id)}>
+            Opt out of this feature
+          </Button>
+        </LWTooltip>
+      </div>
+      {adminTriedToOptOut === comment._id && <div className={classes.adminTriedToOptOutMessage}>Admins can't opt out of this "feature"</div>}
+    </>
+  }
 
-const potentialCommentsData = (comment.doppelComments.length >= 2 && !comment.ownDoppelCommentVote && currentUser) ? {potentialComments: potentialCommentBodies, setActivePotentialComment, activePotentialComment, doppelCommentVote: doppelCommentVote('')(comment)} : undefined
-const replaceReplyButtonsWith = potentialCommentsData ? {
-  replaceReplyButtonsWith: doppelCommentVote(classes.doppelCommentVoteStrip)
-} : {}
+  const shouldWeDoppel = isLWorAF // forum gate
+    && currentUser?.isAdmin // admin gate
+    && comment.doppelComments.length >= 2 // are there doppel comments to show?
+    && !(comment.ownDoppelCommentVote || newDoppelCommentVote) // has user already voted?
+
+  const potentialCommentsData = shouldWeDoppel
+    ? { potentialComments: potentialCommentBodies,
+        setActivePotentialComment, activePotentialComment,
+        doppelCommentVote: doppelCommentVote('')(comment)
+      }
+    : undefined
+  const replaceReplyButtonsWith = potentialCommentsData ? {
+    replaceReplyButtonsWith: doppelCommentVote(classes.doppelCommentVoteStrip)
+  } : {}
+  const doppelCommentVotes = comment.ownDoppelCommentVote
+    ? comment.doppelCommentVotes
+    : undefined
 
   return (
     <AnalyticsContext pageElementContext="commentItem" commentId={comment._id}>
@@ -430,7 +469,7 @@ const replaceReplyButtonsWith = potentialCommentsData ? {
               collapsed,
               toggleCollapse,
               setShowEdit,
-              doppelCommentVotes: comment.ownDoppelCommentVote ? comment.doppelCommentVotes : undefined,
+              doppelCommentVotes
             }}
           />
           {comment.promoted && comment.promotedByUser && <div className={classes.metaNotice}>
