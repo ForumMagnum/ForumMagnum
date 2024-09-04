@@ -88,9 +88,9 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
 
-  const [isPinned, setIsPinned] = useState(true);
+  const [pageHeaderCoversTitle, setPageHeaderCoversTitle] = useState(false);
   const titleRef = useRef<HTMLAnchorElement|null>(null);
-  const hideTitleContainer = isPinned;
+  const hideTitleContainer = pageHeaderCoversTitle;
 
   useEffect(() => {
     const target = titleRef.current;
@@ -98,8 +98,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       // To prevent the comment ToC title from being hidden when scrolling up
       // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
       const observer = new IntersectionObserver(([e]) => {
-        const newIsPinned = e.intersectionRatio < 1;
-        setIsPinned(newIsPinned);
+        setPageHeaderCoversTitle(e.intersectionRatio < 1);
       }, { threshold: [1] });
   
       observer.observe(target);
@@ -107,20 +106,28 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
     }
   }, []);
 
-  if (flattenedComments.length === 0) return null;
+  if (flattenedComments.length === 0) {
+    console.log(`Skipping CommentsTableOfContents (no comments)`);
+    return null;
+  }
   
   if (!commentsTableOfContentsEnabled) {
     return null;
   }
 
   return <div className={classes.root}>
-      <a id="comments-table-of-contents" href="#" className={classNames(classes.postTitle, {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer})}
+    <a id="comments-table-of-contents" href="#" className={classNames(
+      classes.postTitle,
+      {[COMMENTS_TITLE_CLASS_NAME]: hideTitleContainer}
+    )}
       onClick={ev => {
         ev.preventDefault();
         window.scrollTo({ top: 0, behavior: "smooth" });
-      }} ref={titleRef}>
-        {post.title?.trim()}
-      </a>
+      }}
+      ref={titleRef}
+    >
+      {post.title?.trim()}
+    </a>
 
     {answersTree && answersTree.map(answer => <>
       <ToCCommentBlock
