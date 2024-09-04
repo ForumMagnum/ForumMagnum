@@ -35,6 +35,7 @@ const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
 import { LoginPopoverContextProvider } from './hooks/useLoginPopoverContext';
 import DeferRender from './common/DeferRender';
 import { userHasLlmChat } from '@/lib/betas';
+import { AutosaveEditorStateContext } from './editor/EditorFormComponent';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
@@ -369,6 +370,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
+  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<string | undefined>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
@@ -434,6 +436,10 @@ const Layout = ({currentUser, children, classes}: {
     [disableNoKibitz, setDisableNoKibitz]
   );
 
+  const autosaveEditorStateContext = useMemo(
+    () => ({ autosaveEditorState, setAutosaveEditorState }),
+    [autosaveEditorState, setAutosaveEditorState]
+  );
 
   let headerBackgroundColor: ColorString;
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
@@ -514,6 +520,7 @@ const Layout = ({currentUser, children, classes}: {
       <ItemsReadContextWrapper>
       <LoginPopoverContextProvider>
       <SidebarsWrapper>
+      <AutosaveEditorStateContext.Provider value={autosaveEditorStateContext}>
       <LlmChatWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
@@ -635,6 +642,7 @@ const Layout = ({currentUser, children, classes}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </LlmChatWrapper>
+      </AutosaveEditorStateContext.Provider>
       </SidebarsWrapper>
       </LoginPopoverContextProvider>
       </ItemsReadContextWrapper>

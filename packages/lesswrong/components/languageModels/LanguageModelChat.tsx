@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import DeferRender from '../common/DeferRender';
@@ -17,6 +17,8 @@ import { ckEditorStyles } from '@/themes/stylePiping';
 import { HIDE_LLM_CHAT_GUIDE_COOKIE } from '@/lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import { AutosaveEditorStateContext } from '../editor/EditorFormComponent';
+import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -269,6 +271,29 @@ const welcomeGuideHtml = [
   `<p><strong>Posts and comments may be loaded into the context window based on your <em>first message</em> (and based on the current post you are viewing).</strong></p>`,
 ].join('');
 
+function useCurrentPostContext() {
+  const { location: { query } } = useLocation();
+  const postsPageContext = usePostsPageContext();
+
+  const postsPagePostId = postsPageContext?.fullPost?._id ?? postsPageContext?.postPreload?._id;
+
+  if (postsPagePostId) {
+    return {
+      currentPostId: postsPagePostId,
+      postContext: 'post-page'
+    };
+  }
+
+  if (query.postId) {
+    return {
+      currentPostId: query.postId,
+      postContext: 'post-editor'
+    };
+  }
+
+  return {};
+}
+
 export const ChatInterface = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
@@ -276,13 +301,17 @@ export const ChatInterface = ({classes}: {
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
 
+  const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
   const { flash } = useMessages();
 
   // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
-  const { location } = useLocation();
-  const { pathname } = location;
-  const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1];
+  // const { location } = useLocation();
+  // const { pathname, query } = location;
+  // const postsPageContext = usePostsPageContext();
+  // const currentPostId = postsPageContext?.fullPost?._id ?? postsPageContext?.postPreload?._id ?? query.postId;
+  const { currentPostId, postContext } = useCurrentPostContext();
+  // const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1] ?? query.postId;
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
@@ -414,9 +443,14 @@ export const ChatInterface = ({classes}: {
     {conversationSelect}
   </div>  
 
-  const handleSubmit = useCallback((message: string) => {
+  const handleSubmit = useCallback(async (message: string) => {
+    // TODO: just use the postId from the query param instead of passing it through the return value of autosaveEditorState?
+    // autosaveEditorState().then(())
+    if (autosaveEditorState) {
+      await autosaveEditorState();
+    }
     submitMessage(message, currentPostId);
-  }, [currentPostId, submitMessage]);
+  }, [autosaveEditorState, currentPostId, submitMessage]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}

@@ -62,6 +62,7 @@ const addDefaultResolvers = <N extends CollectionNameString>(
           enableCache?: boolean,
           enableTotal?: boolean,
           createIfMissing?: Partial<T>,
+          resolverArgs?: Record<string, unknown>
         },
         [resolverArgKeys: string]: unknown
       },
@@ -69,8 +70,8 @@ const addDefaultResolvers = <N extends CollectionNameString>(
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now()
-      const { input, ...resolverArgs } = args ?? { input: {} };
-      const { terms = {}, enableCache = false, enableTotal = false, createIfMissing } = input ?? {};
+      const { input } = args ?? { input: {} };
+      const { terms = {}, enableCache = false, enableTotal = false, createIfMissing, resolverArgs = {} } = input ?? {};
       const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
       logger('multi resolver()')
       logger('multi terms', terms)
@@ -182,12 +183,12 @@ const addDefaultResolvers = <N extends CollectionNameString>(
   if (resolvers?.single) {
     resolvers.single.resolver = async (
       _root: void,
-      {input = {}, ...resolverArgs}: {input: AnyBecauseTodo},
+      {input = {}}: {input: AnyBecauseTodo},
       context: ResolverContext,
       info: GraphQLResolveInfo,
     ) => {
       // const startResolve = Date.now();
-      const {enableCache = false, allowNull = false} = input;
+      const {enableCache = false, allowNull = false, resolverArgs} = input;
       // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
       // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
       // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product

@@ -950,6 +950,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
       try {
         const result = await this.props.createMutation({ data });
         this.newMutationSuccessCallback(result, submitOptions);
+        return result;
       } catch(error) {
         this.mutationErrorCallback(document, error);
       }
@@ -962,6 +963,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
           data
         });
         this.editMutationSuccessCallback(result, submitOptions);
+        return result;
       } catch(error) {
         this.mutationErrorCallback(document, error);
       }

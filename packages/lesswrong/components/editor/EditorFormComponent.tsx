@@ -25,6 +25,17 @@ import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOption
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
+type AutosaveFunc = () => Promise<string | undefined>;
+interface AutosaveEditorStateContext {
+  autosaveEditorState: AutosaveFunc | null;
+  setAutosaveEditorState: (autosaveFunc: AutosaveFunc | null) => void;
+}
+
+export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
+  autosaveEditorState: null,
+  setAutosaveEditorState: _ => {},
+});
+
 export function isCollaborative(post: Pick<DbPost, '_id' | 'shareWithUsers' | 'sharingSettings' | 'collabEditorDialogue'>, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
@@ -101,7 +112,8 @@ export const EditorFormComponent = ({
   const [updatedFormType, setUpdatedFormType] = useState(formType);
 
   const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
-  
+  const { setAutosaveEditorState } = useContext(AutosaveEditorStateContext);
+
   const defaultEditorType = getUserDefaultEditor(currentUser);
   const currentEditorType = contents.type || defaultEditorType;
 
@@ -232,7 +244,7 @@ export const EditorFormComponent = ({
   `);
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
-  const saveRemoteBackup = useCallback(async (newContents: EditorContents) => {
+  const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<string | undefined> => {
     // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
@@ -247,13 +259,16 @@ export const EditorFormComponent = ({
         const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
         await updateCurrentValues({ draft: true, ...defaultTitle });
         // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
-        await submitForm(null, { noReload: true });
+        const result = await submitForm(null, { noReload: true });
+
+        return result._id;
       } else {
         await autosaveRevision({ 
           variables: { postId: document._id, contents: newContents }
         });
       }
     }
+    return document._id;
   }, [collectionName, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
 
   /**
@@ -317,7 +332,7 @@ export const EditorFormComponent = ({
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
       // TODO: come back to this after the React 18 upgrade and test it properly
-      // if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
+      if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
@@ -437,6 +452,24 @@ export const EditorFormComponent = ({
   if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
     placeholderKey.current = actualPlaceholder;
   }
+
+  useEffect(() => {
+    if (!isCollabEditor && fieldName === 'contents') {
+      setAutosaveEditorState(() => new Promise<string | undefined>((resolve, reject) => {
+        if (editorRef.current && shouldSubmitContents(editorRef.current)) {
+          void editorRef.current?.submitData()
+            .then(({ originalContents: { type, data: value }}) => ({ type, value }))
+            .then(saveRemoteBackup)
+            .then(resolve)
+            .catch(reject);
+        }
+      }));
+    }
+
+    return () => {
+      setAutosaveEditorState(null);
+    }
+  }, [isCollabEditor, fieldName, saveRemoteBackup, setAutosaveEditorState]);
 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
