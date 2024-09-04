@@ -3,7 +3,6 @@ import { captureEvent } from '../lib/analyticsEvents';
 import { isAnyTest } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { printInFlightRequests, checkForMemoryLeaks } from './vulcan-lib/apollo-ssr/pageCache';
-import { printInProgressCallbacks } from '../lib/vulcan-lib/callbacks';
 import { Globals } from '../lib/vulcan-lib/config';
 
 import * as Sentry from '@sentry/node';
@@ -11,6 +10,7 @@ import * as SentryIntegrations from '@sentry/integrations';
 import { sentryUrlSetting, sentryEnvironmentSetting, sentryReleaseSetting } from '../lib/instanceSettings';
 import * as _ from 'underscore';
 import fs from 'fs';
+import { printInProgressCallbacks } from './utils/callbackHooks';
 import type { AddMiddlewareType } from './apolloServer';
 
 // Log unhandled promise rejections, eg exceptions escaping from async

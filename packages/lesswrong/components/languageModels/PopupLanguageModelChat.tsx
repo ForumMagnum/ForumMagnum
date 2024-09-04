@@ -10,7 +10,7 @@ import { AnalyticsContext } from '@/lib/analyticsEvents';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.default,
-    width: 600,
+    width: 500,
     maxHeight: "calc(100vh - 80px)",
     position: "fixed",
     right: theme.spacing.unit,
@@ -76,12 +76,12 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   const { LanguageModelChat, LWTooltip } = Components;
 
   const { currentConversation } = useLlmChat();
-  const [_, setCookies] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
+  const [_, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 
   const handleClose = () => {
-    setCookies(SHOW_LLM_CHAT_COOKIE, "false");
+    setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
     onClose();
   }
 

@@ -1,7 +1,6 @@
 import SelectQuery from "./SelectQuery";
 import { getSqlFragment } from "../vulcan-lib";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
-import type { GraphQLResolveInfo } from "graphql";
 
 /**
  * `SelectFragmentQuery` is the main external interface for running select
@@ -105,20 +104,17 @@ class SelectFragmentQuery<
    *
    * Note that it is not necessary to call this function if the result will be
    * passed to the front-end via GraphQL as Apollo will fill in the missing
-   * fields for us automatically (set `getFields` in `initGraphQL.ts`).
+   * fields for us automatically (see `getFields` in `initGraphQL.ts`).
    */
-  /**
-   * This is commented out for now as it's not needed (due to Apollo filling
-   * in any missing fields) and it has no test coverage.
-   * TODO: Do we actually need this, or can we delete?
-   */
-  /*
   async executeCodeResolvers<T extends DbObject>(
-    obj: T,
+    obj: T | null,
     context: ResolverContext,
-    info: GraphQLResolveInfo,
     resolvers = this.codeResolvers,
-  ): Promise<T> {
+  ): Promise<T | null> {
+    if (!obj) {
+      return null;
+    }
+
     const promises: Promise<unknown>[] = [];
     const subresolvers: Record<string, CodeResolverMap> = {};
 
@@ -128,9 +124,8 @@ class SelectFragmentQuery<
         const generator = async () => {
           const result = await resolver(
             obj as AnyBecauseTodo,
-            this.resolverArgs,
+            this.resolverArgs ?? {},
             context,
-            info,
           );
           obj[resolverName as keyof T] = result;
         }
@@ -145,7 +140,6 @@ class SelectFragmentQuery<
       promises.push(this.executeCodeResolvers(
         obj[subresolverName as keyof T] as DbObject,
         context,
-        info,
         subresolvers[subresolverName],
       ));
     }
@@ -154,7 +148,6 @@ class SelectFragmentQuery<
 
     return obj;
   }
-  */
 }
 
 export default SelectFragmentQuery;

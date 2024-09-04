@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -42,9 +42,9 @@ const styles = (theme: ThemeType) => ({
     overflowY: 'scroll',
     paddingLeft: 20,
     paddingTop: 20,
-    fontSize: '1.1rem',
+    fontSize: '1.0rem',
     '& blockquote, & li': {
-      fontSize: '1.1rem'
+      fontSize: '1.0rem'
     }
   },
   inputTextbox: {
@@ -104,6 +104,9 @@ const styles = (theme: ThemeType) => ({
   userMessage: {
     backgroundColor: theme.palette.grey[300],
   },
+  errorMessage: {
+    backgroundColor: theme.palette.error.light,
+  },
   messages: {
     overflowY: "scroll",
     flexGrow: 1,
@@ -143,15 +146,10 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-interface LlmConversationMessage {
-  role: string
-  content: string
-}
-
 const NEW_CONVERSATION_MENU_ITEM = "New Conversation";
 
 const LLMChatMessage = ({message, classes}: {
-  message: LlmConversationMessage,
+  message: LlmMessagesFragment | NewLlmMessage,
   classes: ClassesType<typeof styles>,
 }) => {
   const { ContentItemBody, ContentStyles } = Components;
@@ -160,10 +158,13 @@ const LLMChatMessage = ({message, classes}: {
 
   return <ContentStyles contentType="llmChat" className={classes.chatMessageContent}>
     <ContentItemBody
-      className={classNames(classes.chatMessage, {[classes.userMessage]: role==='user'})}
+      className={classNames(classes.chatMessage, {
+        [classes.userMessage]: role === 'user',
+        [classes.errorMessage]: role === 'error'
+      })}
       dangerouslySetInnerHTML={{__html: content}}
     />
-</ContentStyles>
+  </ContentStyles>
 }
 
 const LLMInputTextbox = ({onSubmit, classes}: {
@@ -361,7 +362,7 @@ export const ChatInterface = ({classes}: {
   const exportHistoryToClipboard = () => {
     if (!currentConversation) return
     const conversationHistory = currentConversation.messages.filter(({role}) => ['user', 'assistant', 'user-context'].includes(role))
-    const formattedChatHistory = conversationHistory.map(({role, content}) => `${role.toUpperCase()}: ${content}`).join("\n")
+    const formattedChatHistory = conversationHistory.map(({role, content}) => `<strong>${role.toUpperCase()}:</strong> ${content}`).join("\n")
     void navigator.clipboard.writeText(formattedChatHistory)
     flash('Chat history copied to clipboard')
   }

@@ -17,14 +17,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, LoadMore } = Components;
 
   const currentUser = useCurrentUser();
 
   const { query } = useLocation();
   const onlyDrafts = query.drafts === 'true';
 
-  const { results: spotlights = [], loading, refetch } = useMulti({
+  const { results: spotlights = [], loading, refetch, loadMoreProps } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
@@ -32,7 +32,8 @@ export const SpotlightsPage = ({classes}: {
       limit: 100
     },
     fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only'
+    nextFetchPolicy: 'network-only',
+    enableTotal:  true
   });
 
   const spotlightsInDisplayOrder = useMemo(() => {
@@ -96,11 +97,12 @@ export const SpotlightsPage = ({classes}: {
           />
         </SpotlightEditorStyles>
       </div>
-      {loading && <Loading/>}
+      {loading && !onlyDrafts && <Loading/>}
       <SectionTitle title="Upcoming Spotlights">
         <div>Total: {totalUpcomingDuration} days</div>
       </SectionTitle>
       {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      <LoadMore {...loadMoreProps} />
       <SectionTitle title="Draft Spotlights">
         <div>Total: {totalDraftDuration} days</div>
       </SectionTitle>

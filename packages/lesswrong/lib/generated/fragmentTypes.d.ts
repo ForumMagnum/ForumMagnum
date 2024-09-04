@@ -3636,6 +3636,7 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly duration: number,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly subtitleUrl: string | null,
   readonly headerTitle: string | null,
   readonly headerTitleLeftColor: string | null,
   readonly headerTitleRightColor: string | null,
@@ -3663,6 +3664,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly subtitleUrl: string | null,
   readonly headerTitle: string | null,
   readonly headerTitleLeftColor: string | null,
   readonly headerTitleRightColor: string | null,
@@ -4124,7 +4126,8 @@ interface LlmConversationsFragment { // fragment on LlmConversations
   readonly deleted: boolean,
 }
 
-interface LlmConversationsWithUserInfoFragment extends LlmConversationsFragment { // fragment on LlmConversations
+interface LlmConversationsViewingPageFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly totalCharacterCount: number|null,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -4440,7 +4443,7 @@ interface FragmentTypes {
   SurveyScheduleEdit: SurveyScheduleEdit
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
   LlmConversationsFragment: LlmConversationsFragment
-  LlmConversationsWithUserInfoFragment: LlmConversationsWithUserInfoFragment
+  LlmConversationsViewingPageFragment: LlmConversationsViewingPageFragment
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
@@ -4516,7 +4519,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
-  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithUserInfoFragment"|"LlmConversationsWithMessagesFragment"
+  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
@@ -4794,7 +4797,7 @@ interface CollectionNamesByFragmentName {
   SurveyScheduleEdit: "SurveySchedules"
   LlmConversationsDefaultFragment: "LlmConversations"
   LlmConversationsFragment: "LlmConversations"
-  LlmConversationsWithUserInfoFragment: "LlmConversations"
+  LlmConversationsViewingPageFragment: "LlmConversations"
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"

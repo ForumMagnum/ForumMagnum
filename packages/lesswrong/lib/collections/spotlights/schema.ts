@@ -152,6 +152,15 @@ const schema: SchemaType<"Spotlights"> = {
     optional: true,
     nullable: true
   },
+  subtitleUrl: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    order: 61,
+    optional: true,
+    nullable: true
+  },
   headerTitle: {
     type: String,
     canRead: ["guests"],

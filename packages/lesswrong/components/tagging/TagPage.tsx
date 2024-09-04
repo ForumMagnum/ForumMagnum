@@ -179,6 +179,15 @@ export const tagPostTerms = (tag: Pick<TagBasicInfo, "_id" | "name"> | null, que
   })
 }
 
+export const RelevanceLabel = () => (
+  <Components.LWTooltip
+    title='"Relevance" represents how related the tag is to the post it is tagging. You can vote on relevance below, or by hovering over tags on post pages.'
+    placement="bottom-end"
+  >
+    Relevance
+  </Components.LWTooltip>
+);
+
 const PostsListHeading: FC<{
   tag: TagPageFragment|TagPageWithRevisionFragment,
   query: Record<string, string>,
@@ -191,7 +200,9 @@ const PostsListHeading: FC<{
         <SectionTitle title={`Posts tagged ${tag.name}`} />
         <div className={classes.postListMeta}>
           <PostsListSortDropdown value={query.sortedBy || "relevance"} />
-          <div className={classes.relevance}>Relevance</div>
+          <div className={classes.relevance}>
+            <RelevanceLabel />
+          </div>
         </div>
       </>
     );
