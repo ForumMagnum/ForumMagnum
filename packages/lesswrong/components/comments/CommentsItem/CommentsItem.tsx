@@ -169,7 +169,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   doppelCommentsOptOutButton: {
     "&&": {
-      backgroundColor: "rgba(0,0,0,0)"
+      backgroundColor: theme.palette.greyAlpha(0),
     }
   },
   adminTriedToOptOutMessage: {
