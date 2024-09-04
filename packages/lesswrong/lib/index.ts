@@ -238,6 +238,9 @@ import './collections/commentModeratorActions/index';
 // ModerationTemplates
 import './collections/moderationTemplates/index';
 
+// CurationNotices
+import './collections/curationNotices/index';
+
 // UserRateLimits
 import './collections/userRateLimits/index';
 
