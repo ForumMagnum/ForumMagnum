@@ -1599,10 +1599,10 @@ addRoute(
 
 addRoute(
   {
-    name: 'curation',
-    path:'/curation',
+    name: 'admin.curation',
+    path:'/admin/curation',
     componentName: "CurationPage",
-    title: "Curation",
+    title: "Curation Dashboard",
     noIndex: true,
   }
 );

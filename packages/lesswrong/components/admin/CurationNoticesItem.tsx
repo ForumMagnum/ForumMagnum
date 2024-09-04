@@ -35,17 +35,17 @@ const styles = (theme: ThemeType) => ({
     },
 },
   publishButton: {
-      ...theme.typography.body2,
-      color: theme.palette.primary.main,
-      padding: "0px 16px",
-      fontSize: "16px",
-      position: "absolute",
-      right: 10,
-      bottom: 10,
-      textTransform: "uppercase",
-      "&:hover": {
-        opacity: 0.5,
-      },
+    ...theme.typography.body2,
+    color: theme.palette.primary.main,
+    padding: "0px 16px",
+    fontSize: "16px",
+    position: "absolute",
+    right: 10,
+    bottom: 10,
+    textTransform: "uppercase",
+    "&:hover": {
+      opacity: 0.5,
+    },
   },
   meta: {
     "& > div": {
@@ -76,11 +76,6 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     fontWeight: 600,
     marginLeft: 25,
-  },
-  rightGroup: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
   },
   commentBody: {
     ...commentBodyStyles(theme)
@@ -147,15 +142,6 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
     }
   }
 
-  const handlePublishCommentAndCurate = async (ev: React.MouseEvent<Element, MouseEvent>): Promise<void> => {
-    await publishCommentAndCurate(curationNotice);
-  }
-
-  const [hasCommentId, toggleHasCommentId] = useOptimisticToggle(
-    !!curationNotice.commentId ?? false,
-    handlePublishCommentAndCurate
-  );
-
   if (curationNotice.post === null) return null;
 
   return <div className={classes.root}>
@@ -180,15 +166,15 @@ export const CurationNoticesItem = ({curationNotice, classes}: {
           <span className={classes.username}>Curation by {curationNotice.user?.displayName}</span>
         </div>
       </div>
-      {!hasCommentId && <div
+      {!curationNotice.commentId && <div
         onClick={() => setEdit(true)}
         className={classes.editButton}
         >
         Edit
       </div>}
       <ContentItemBody dangerouslySetInnerHTML={{__html: curationNotice.contents?.html ?? ''}} className={classes.commentBody}/>
-      {!hasCommentId && <div
-        onClick={handlePublishCommentAndCurate}
+      {!curationNotice.commentId && <div
+        onClick={() => publishCommentAndCurate(curationNotice)}
         className={classes.publishButton}
         >
         Publish & Curate
