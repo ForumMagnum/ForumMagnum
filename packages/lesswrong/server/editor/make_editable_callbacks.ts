@@ -9,7 +9,7 @@ import {
   sealEditableFields,
 } from '../../lib/editor/make_editable'
 import {getCollection} from '../../lib/vulcan-lib/getCollection'
-import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
+import { CallbackHook } from '../utils/callbackHooks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {Globals} from '../../lib/vulcan-lib/config'

@@ -1,6 +1,8 @@
 import Button from '@material-ui/core/Button';
 import EditIcon from '@material-ui/icons/Edit';
+import PublishIcon from '@material-ui/icons/Publish';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import CloseIcon from '@material-ui/icons/Close';
 import classNames from 'classnames';
 import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
@@ -12,6 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
+import { useUpdate } from '../../lib/crud/withUpdate';
 
 const TEXT_WIDTH = 350;
 
@@ -61,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
     },
-    '&:hover $editButtonIcon': {
+    '&:hover $adminButtonIcon': {
       opacity: .2
     },
     '&:hover $closeButton': {
@@ -153,7 +156,7 @@ const styles = (theme: ThemeType) => ({
     } : {}),
   },
   title: {
-    ...theme.typography.headerStyle,
+    ...theme.typography.postStyle,
     ...(isFriendlyUI
       ? {
         fontSize: 22,
@@ -235,10 +238,34 @@ const styles = (theme: ThemeType) => ({
       right: 8
     },
   },
+  draftButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      top: 35,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      top: 33,
+      right: 8
+    },
+  },
+  deleteButton: {
+    [theme.breakpoints.up('md')]: {
+      position: "absolute",
+      bottom: 0,
+      right: -28,
+    },
+    [theme.breakpoints.down('sm')]: {
+      position: "absolute",
+      bottom: 0,
+      right: 8
+    },
+  },
   editAllButtonIcon: {
     width: 20
   },
-  editButtonIcon: {
+  adminButtonIcon: {
     width: 18,
     opacity: 0,
     cursor: "pointer",
@@ -294,7 +321,22 @@ const styles = (theme: ThemeType) => ({
     textAlign: "right",
     paddingTop: 6,
     paddingBottom: 12
-  }
+  },
+  splashImage: {
+    transform: "translateX(13%) scale(1.15)", // splash images aren't quite designed for this context and need this adjustment. Scale 1.15 to deal with a few random images that had weird whitespace.
+    filter: "brightness(1.2)",
+  },
+  splashImageContainer: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
+  },
+  reverseIcon: {
+    transform: "rotate(180deg)",
+  },
 });
 
 export const SpotlightItem = ({
@@ -327,6 +369,33 @@ export const SpotlightItem = ({
     refetchAllSpotlights?.();
   }, [refetchAllSpotlights]);
 
+  const { mutate: updateSpotlight } = useUpdate({
+    collectionName: "Spotlights",
+    fragmentName: "SpotlightDisplay",
+  });
+
+  const toggleDraft = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
+      return;
+    }
+    await updateSpotlight({
+      selector: { _id: spotlight._id },
+      data: { draft: !spotlight.draft }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, spotlight.draft, refetchAllSpotlights, updateSpotlight]);
+
+  const deleteDraft = useCallback(async () => {
+    if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
+      return;
+    }
+    await updateSpotlight({
+      selector: { _id: spotlight._id },
+      data: { deletedDraft: true }
+    });
+    refetchAllSpotlights?.();
+  }, [currentUser, spotlight._id, refetchAllSpotlights, updateSpotlight]);
+
   // Define fade color with a CSS variable to be accessed in the styles
   const style = {
     "--spotlight-fade": spotlight.imageFadeColor,
@@ -353,7 +422,7 @@ export const SpotlightItem = ({
             </Link>
             <span className={classes.editDescriptionButton}>
               {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-                <EditIcon className={classes.editButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
+                <EditIcon className={classes.adminButtonIcon} onClick={() => setEditDescription(!editDescription)}/>
               </LWTooltip>}
             </span>
           </div>
@@ -384,6 +453,7 @@ export const SpotlightItem = ({
           </Typography>}
           <SpotlightStartOrContinueReading spotlight={spotlight} className={classes.startOrContinue} />
         </div>
+        {spotlight.spotlightSplashImageUrl && <div className={classes.splashImageContainer}><img src={spotlight.spotlightSplashImageUrl} className={classNames(classes.image, classes.imageFade, classes.splashImage)}/></div>}
         {spotlight.spotlightImageId && <CloudinaryImage2
           publicId={spotlight.spotlightImageId}
           darkPublicId={spotlight.spotlightDarkImageId}
@@ -413,13 +483,25 @@ export const SpotlightItem = ({
           )
         }
         <div className={classes.editAllButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
-            <MoreVertIcon className={classNames(classes.editButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
+          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+            <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
+        <div className={classes.draftButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && 
+            <LWTooltip title={spotlight.draft ? "Undraft" : "Draft"}>
+              <PublishIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon, 
+                !spotlight.draft && classes.reverseIcon)} onClick={() => toggleDraft()}/>
+            </LWTooltip>
+          }
+        </div>
+        {spotlight.draft && <div className={classes.deleteButton}>
+          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Archive">
+            <CloseIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => deleteDraft()}/>
+          </LWTooltip>}
+        </div>}
       </div>
-      {showAdminInfo && <>
-        {edit ? <div className={classes.form}>
+      {edit && <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
               collectionName="Spotlights"
@@ -430,8 +512,8 @@ export const SpotlightItem = ({
             />
             </SpotlightEditorStyles>
           </div>
-           :
-          <div className={classes.metaData}>
+      }
+      {!edit && showAdminInfo &&  <div className={classes.metaData}>
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
@@ -439,8 +521,7 @@ export const SpotlightItem = ({
               <MetaInfo>{duration} days</MetaInfo>
             </LWTooltip>
           </div>
-        }
-      </>}
+      }
     </div>
   </AnalyticsTracker>
 }

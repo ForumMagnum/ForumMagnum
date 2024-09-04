@@ -10,10 +10,9 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
+import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
-import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
@@ -40,6 +39,7 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
+import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -312,7 +312,7 @@ export const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
-  subscribeToDialogue: {
+  bottomOfPostSubscribe: {
     marginBottom: 40,
     marginTop: 40,
     border: theme.palette.border.commentBorder,
@@ -345,6 +345,15 @@ export const styles = (theme: ThemeType) => ({
       },
     },
   },
+  subscribeToGroup: {
+    padding: '8px 16px',
+    ...theme.typography.body2,
+  },
+  dateAtBottom: {
+    color: theme.palette.text.dim3,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    cursor: 'default'
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -531,7 +540,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
     PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
     StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper, AttributionInViewTracker,
-    ForumEventPostPagePollSection
+    ForumEventPostPagePollSection, NotifyMeButton, LWTooltip, PostsPageDate
   } = Components
 
   useEffect(() => {
@@ -566,16 +575,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  const isOldVersion = query.revision && post.contents;
-  
-  const defaultSideCommentVisibility = hasSideComments
-    ? (fullPost?.sideCommentVisibility ?? "highKarma")
-    : "hidden";
-  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
-  const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
-    () => ({ sideCommentMode, setSideCommentMode }),
-    [sideCommentMode, setSideCommentMode]
-  );
+  const isOldVersion = !!(query.revision && post.contents);
   
   const sequenceId = getSequenceId();
   const sectionData = useDynamicTableOfContents({
@@ -794,26 +794,34 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
-      {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+      {!post.debate && <ContentStyles
+        contentType="post"
+        className={classNames(classes.postContent, "instapaper_body")}
+      >
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-            {htmlWithAnchors &&
+          <div id="postContent">
+            {htmlWithAnchors && <>
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
-                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
+              {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
+              }
+              </>
             }
+          </div>
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
         </AnalyticsContext>
       </ContentStyles>}
 
       {showSubscribeToDialogueButton && <Row justifyContent="center">
-        <div className={classes.subscribeToDialogue}>
+        <div className={classes.bottomOfPostSubscribe}>
           <NotifyMeDropdownItem
             document={post}
             enabled={!!post.collabEditorDialogue}
@@ -824,6 +832,22 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
           />
         </div>
       </Row>}
+
+      {post.isEvent && post.group && isBookUI &&
+          <Row justifyContent="center">
+            <div className={classes.bottomOfPostSubscribe}>
+              <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
+                <NotifyMeButton
+                    showIcon
+                    document={post.group}
+                    subscribeMessage="Subscribe to group"
+                    unsubscribeMessage="Unsubscribe from group"
+                    className={classes.subscribeToGroup}
+                />
+              </LWTooltip>
+            </div>
+          </Row>
+      }
 
       {post.debate && debateResponses && debateResponseReplies && fullPost &&
         <DebateBody
@@ -901,7 +925,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
-    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
+    <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
@@ -948,7 +972,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         hasTableOfContents={hasTableOfContents}
       />
     </AnalyticsInViewTracker>}
-    </SideCommentVisibilityContext.Provider>
+    </SideItemVisibilityContextProvider>
     </ImageProvider>
     </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>

@@ -24,8 +24,6 @@ import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
-import { allowSubscribeToUserComments } from '../../lib/betas';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 
 export const sectionFooterLeftStyles = {
@@ -45,9 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   usernameTitle: {
-    fontSize: "3rem",
+    fontSize: "3.2rem",
     ...theme.typography.display3,
-    ...theme.typography.postStyle,
+    ...theme.typography.headerStyle,
     marginTop: 0,
   },
   deletedUserName: {

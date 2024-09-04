@@ -53,7 +53,11 @@ export const lessWrongTheme: SiteThemeSpecification = {
     },
     background: {
       default: '#f8f4ee'
-    }
+    },
+    link: {
+      color: "#327E09",
+      visited: "#798754"
+    },
   }),
   make: (palette: ThemePalette) => ({
     typography: {
@@ -89,7 +93,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
         fontFamily: serifStack,
       },
       title: {
-        fontFamily: serifStack,
+        fontFamily: headerStack,
         fontWeight: 500,
       },
       uiSecondary: {

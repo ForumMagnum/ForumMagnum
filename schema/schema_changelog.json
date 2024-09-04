@@ -725,18 +725,33 @@
     "timestamp": "2024-08-20T18:32:33.000Z"
   },
   {
-    "acceptsSchemaHash": "1b522f36535bb2cd26ae4018d17687c3",
-    "acceptedByMigration": "20240826T222955.create_LlmConversationsAndMessages_tables.ts",
-    "timestamp": "2024-08-26T22:29:55.000Z"
+    "acceptsSchemaHash": "eb768d8bdc708f08c58c7db559625f10",
+    "acceptedByMigration": "20240823T102724.add_autoFrontpage.ts",
+    "timestamp": "2024-08-23T10:27:24.000Z"
   },
   {
-    "acceptsSchemaHash": "68a03187ab4d9f263dbd9a713fcf7f67",
-    "acceptedByMigration": "20240828T213335.create_DoppelComments_table.ts",
-    "timestamp": "2024-08-28T21:33:35.000Z"
+    "acceptsSchemaHash": "e4f656b97627c2f035fdee90d49cb5dc",
+    "acceptedByMigration": "20240827T185218.create_LlmConversationsAndMessages_tables.ts",
+    "timestamp": "2024-08-27T18:52:18.000Z"
   },
   {
-    "acceptsSchemaHash": "2f2359e68b43ebe4eadabc0dbbe8a9e0",
-    "acceptedByMigration": "20240829T042948.create_DoppelCommentVotes_table.ts",
-    "timestamp": "2024-08-29T04:29:48.000Z"
+    "acceptsSchemaHash": "3da0f2961c017b248168aeaa90955305",
+    "acceptedByMigration": "20240828T230839.update_userId_type_on_LlmConversations.ts",
+    "timestamp": "2024-08-28T23:08:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "793addca611706caf3f63f08a909d4ab",
+    "acceptedByMigration": "20240829T030437.add_deletedDraft_and_splash_url_to_spotlights.ts",
+    "timestamp": "2024-08-29T03:04:37.000Z"
+  },
+  {
+    "acceptsSchemaHash": "17afacac40e75c7380478219e9b4f751",
+    "acceptedByMigration": "20240830T022436.add_subtitleUrl.ts",
+    "timestamp": "2024-08-30T02:24:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "884a322e2fcac49c4f86a27ecf11bb81",
+    "acceptedByMigration": "20240904T224642.create_DoppelComments_and_DoppelCommentVotes_tables.ts",
+    "timestamp": "2024-09-04T22:46:42.000Z"
   }
 ]

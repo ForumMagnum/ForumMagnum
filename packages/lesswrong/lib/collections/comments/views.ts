@@ -33,6 +33,7 @@ declare global {
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
     showCommunity?: boolean,
+    commentIds?: string[],
   }
   
   /**
@@ -88,6 +89,7 @@ Comments.addDefaultView((terms: CommentsViewTerms, _, context?: ResolverContext)
         : notDeletedOrDeletionIsPublic
       ),
       hideAuthor: terms.userId ? false : undefined,
+      ...(terms.commentIds && {_id: {$in: terms.commentIds}}),
       ...alignmentForum,
       ...validFields,
       debateResponse: { $ne: true },
@@ -308,7 +310,7 @@ export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSel
 Comments.addView("profileRecentComments", (terms: CommentsViewTerms) => {
   return {
     selector: {deletedPublic: false},
-    options: {sort: { isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
+    options: {sort: {isPinnedOnProfile: -1, postedAt: -1}, limit: terms.limit || 5},
   };
 })
 

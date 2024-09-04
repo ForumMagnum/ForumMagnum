@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { EnvironmentOverride, EnvironmentOverrideContext } from '../../lib/utils/timeUtil';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation, withRouter } from 'react-router';
@@ -40,18 +40,18 @@ const App = ({serverRequestStatus, envOverride, history}: ExternalProps & {
   const locale = localeSetting.get();
 
   useEffect(() => {
-    void userChangedCallback.runCallbacks({
-      iterator: currentUser,
-      properties: [],
-    });
+    if (!bundleIsServer) {
+      const { onUserChanged } = require('@/client/logging');
+      onUserChanged(currentUser);
+    }
     moment.locale(locale);
   }, [currentUser, locale]);
 
   useEffect(() => {
-    void userChangedCallback.runCallbacks({
-      iterator: currentUser,
-      properties: [],
-    });
+    if (!bundleIsServer) {
+      const { onUserChanged } = require('@/client/logging');
+      onUserChanged(currentUser);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser?._id]);
 

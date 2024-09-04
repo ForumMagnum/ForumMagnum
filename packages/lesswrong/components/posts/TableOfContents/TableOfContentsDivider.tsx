@@ -12,11 +12,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TableOfContentsDivider = ({ offsetStyling, classes }: {
-  offsetStyling?: CSSProperties
+const TableOfContentsDivider = ({ scaleStyling, classes }: {
+  scaleStyling?: CSSProperties
   classes: ClassesType,
 }) => {
-  return <div className={classes.divider} style={offsetStyling}/>
+  return <div className={classes.divider} style={scaleStyling}/>
 }
 
 const TableOfContentsDividerComponent = registerComponent('TableOfContentsDivider', TableOfContentsDivider, {styles});

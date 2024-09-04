@@ -29,15 +29,24 @@ export default class AIAutocomplete extends Plugin {
 
         // Add keyboard shortcut
         editor.editing.view.document.on('keydown', (evt, data) => {            
-            // Check for Cmd+E (Mac) or Ctrl+E (Windows/Linux)
-            if ((data.ctrlKey || data.metaKey) && data.keyCode === 69) {
+            // Check for Ctrl+Y (Windows/Linux)
+            if ((data.ctrlKey) && !data.shiftKey && data.keyCode === 89) {
                 evt.stop();
                 this.autocomplete();
+                
+            }
+        });
+
+        editor.editing.view.document.on('keydown', (evt, data) => {            
+            // Check for Ctrl+Shift+Y (Windows/Linux)
+            if ((data.ctrlKey) && data.shiftKey && data.keyCode === 89) {
+                evt.stop();
+                this.autocomplete405b();
             }
         });
     }
 
-    autocomplete() {
+    getPrefix = () => {
         const editor = this.editor;
         const selection = editor.model.document.selection;
 
@@ -56,33 +65,54 @@ ${new Date().toDateString()}
 ${50 + Math.floor(Math.random() * 100)}
 ${selectedContent}`;
         }
+        return selectedContent
+    }
+
+    insertMessage(message: string) {
+        const editor = this.editor;
+        const selection = editor.model.document.selection;
+        const paragraphs = message.split('\n\n');
+        paragraphs.forEach((paragraph, index) => {
+            if (index > 0) {
+                editor.commands.execute('enter');
+            }
+            if (paragraph.trim() === '') {
+                return;
+            }
+            const lines = paragraph.split('\n');
+            lines.forEach((line, index) => {
+                editor.model.change(writer => {
+                    if ((lines[index - 1]?.trim() !== '' && index > 0) || line.trim() === '') {
+                        writer.insertElement('softBreak', selection.getLastPosition());
+                    }
+                    writer.insertText(line, selection.getLastPosition());
+                })
+            });  
+        })
+    }
+
+    autocomplete() {
+        const selectedContent = this.getPrefix();
+        const editor = this.editor;
 
         editor.model.change(writer => {
             const spaceElement = writer.createText(' ');
             editor.model.insertContent(spaceElement, editor.model.document.selection);
         })
 
-        getAutocompletion(selectedContent, (message) => {
-            const paragraphs = message.split('\n\n');
-            paragraphs.forEach((paragraph, index) => {
-                if (index > 0) {
-                    editor.commands.execute('enter');
-                }
-                if (paragraph.trim() === '') {
-                    return;
-                }
-                const lines = paragraph.split('\n');
-                lines.forEach((line, index) => {
-                    editor.model.change(writer => {
-                        if ((lines[index - 1]?.trim() !== '' && index > 0) || line.trim() === '') {
-                            writer.insertElement('softBreak', selection.getLastPosition());
-                        }
-                        writer.insertText(line, selection.getLastPosition());
-                    })
-                });  
-            })
-              
-        });
+        getAutocompletion(selectedContent, x => this.insertMessage(x));
+    }
+
+    autocomplete405b() {
+        const selectedContent = this.getPrefix();
+        const editor = this.editor;
+
+        editor.model.change(writer => {
+            const spaceElement = writer.createText(' ');
+            editor.model.insertContent(spaceElement, editor.model.document.selection);
+        })
+
+        get405bCompletion(selectedContent, x => this.insertMessage(x));
     }
 
     getSelectedContent(): string {
@@ -101,11 +131,13 @@ ${selectedContent}`;
 
         // Convert the HTML into markdown
         const turnDownService = new TurndownService();
+        // Override turndown escape rules to never escape characters
+        turnDownService.escape = (string: string) => string;
         return turnDownService.turndown(content);
     }
 }
 
-const getReplyingCommentId = () : string | undefined => {
+const getReplyingCommentId = (): string | undefined => {
     // Get the text field that is currently selected
     const currentlySelectedTextField = document.activeElement;
 
@@ -116,37 +148,19 @@ const getReplyingCommentId = () : string | undefined => {
     return replyingToCommentNode?.id;
 }
 
-const getPostId = () : string | undefined => {
+const getPostId = (): string | undefined => {
     // The URL for post pages is in the format /posts/:postId/:postSlug
     const postId = window.location.pathname.split('/')[2];
     // Check if the postId is the right shape (HbkNAyAoa4gCnuzwa)
+    console.log({postId});
     if (postId && postId.length === 17) {
         return postId;
     }
     return undefined;
 }
 
-
-async function getAutocompletion(prefix: string, onCompletion: (completion: string) => void) {
-    // Get the id of the comment we are replying to from the DOM
-    const replyingCommentId = getReplyingCommentId();
-    const postId = getPostId();
-
-    const response = await fetch('/api/autocomplete', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-            prefix,
-            commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
-            postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
-            replyingCommentId,
-            postId
-        }),
-    });
-
-    const reader = response.body.getReader();
+async function handleStream(stream: ReadableStream, onMessage: (message: any) => void) {
+    const reader = stream.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
 
@@ -164,36 +178,60 @@ async function getAutocompletion(prefix: string, onCompletion: (completion: stri
             if (line.startsWith('data: ')) {
                 try {
                     const data = JSON.parse(line.slice(6));
-                    switch (data.type) {
-                        case 'text':
-                            console.log('Received text:', data.content);
-                            onCompletion(data.content);
-                            break;
-                        case 'end':
-                            console.log('Stream ended');
-                            // Handle stream end in your UI
-                            return;
-                        case 'error':
-                            console.error('Stream error:', data.message);
-                            // Handle error in your UI
-                            return;
-                    }
+                    console.log('Received text:', data);
+                    onMessage(data);
                 } catch (error) {
                     console.error('Error parsing JSON:', error);
                 }
             }
         }
     }
-    // Handle any remaining data in the buffer
-    if (buffer.startsWith('data: ')) {
-        try {
-            const data = JSON.parse(buffer.slice(6));
-            if (data.type === 'text') {
-                console.log('Received text:', data.content);
-                onCompletion(data.content);
-            }
-        } catch (error) {
-            console.error('Error parsing JSON:', error);
-        }
-    }
+}
+
+async function getAutocompletion(prefix: string, onCompletion: (completion: string) => void) {
+    // Get the id of the comment we are replying to from the DOM
+    const replyingCommentId = getReplyingCommentId();
+    const postId = getPostId();
+    const selectedTrainingUserId = JSON.parse(localStorage.getItem("selectedTrainingUserId") || "null");
+
+    const response = await fetch('/api/autocomplete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            prefix,
+            commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
+            postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
+            replyingCommentId,
+            postId,
+            userId: selectedTrainingUserId ? selectedTrainingUserId : undefined,
+        }),
+    });
+
+    handleStream(response.body, (data: any) => onCompletion(data.content));
+}
+
+async function get405bCompletion(prefix: string, onCompletion: (completion: string) => void) {
+    // Get the id of the comment we are replying to from the DOM
+    const replyingCommentId = getReplyingCommentId();
+    const postId = getPostId();
+    const selectedTrainingUserId = JSON.parse(localStorage.getItem("selectedTrainingUserId") || "null");
+
+    const response = await fetch('/api/autocomplete405b', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            prefix,
+            commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
+            postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
+            replyingCommentId,
+            postId,
+            userId: selectedTrainingUserId ? selectedTrainingUserId : undefined,
+        }),
+    });
+
+    handleStream(response.body, (data: any) => onCompletion(data?.choices[0]?.text));
 }

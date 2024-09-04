@@ -71,7 +71,7 @@ function getWebpackConfig(mode) {
 						{
 							loader: 'style-loader',
 							options: {
-								injectType: 'singletonStyleTag'
+								injectType: 'styleTag'
 							}
 						},
 						'css-loader',

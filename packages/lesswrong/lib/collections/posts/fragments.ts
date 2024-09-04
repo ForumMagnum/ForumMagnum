@@ -660,6 +660,7 @@ registerFragment(`
     currentUserExtendedVote
     fmCrosspost
     rejectedReason
+    autoFrontpage
 
     contents {
       _id
@@ -828,3 +829,19 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment PostsForAutocomplete on Post {
+    _id
+    title
+    userId
+    baseScore
+    extendedScore
+    user {
+      ...UsersMinimumInfo
+    }
+    contents {
+      markdown
+    }
+  }
+`)

@@ -33,12 +33,14 @@ export const embeddingsSettings = forumSelect({
     "tokenizerModel": TOKENIZER_MODEL,
     "embeddingModel": LEGACY_EMBEDDINGS_MODEL,
     "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+    "dimensions": null,
     "supportsBatchUpdate": false,
   },
   "default": {
     "tokenizerModel": TOKENIZER_MODEL,
     "embeddingModel": DEFAULT_EMBEDDINGS_MODEL,
     "maxTokens": DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS,
+    "dimensions": EMBEDDINGS_VECTOR_SIZE,
     "supportsBatchUpdate": true,
   }
 })
@@ -92,7 +94,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
     throw new Error("OpenAI client is not configured");
   }
 
-  const { tokenizerModel, embeddingModel, maxTokens } = embeddingsSettings
+  const { tokenizerModel, embeddingModel, maxTokens, dimensions } = embeddingsSettings
 
   const trimmedInputTuples: [string, string][] = [];
   for (const [postId, postText] of Object.entries(inputs)) {
@@ -118,7 +120,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   const result = await api.embeddings.create({
     input: filteredInputs,
     model: embeddingModel,
-    dimensions: EMBEDDINGS_VECTOR_SIZE,
+    ...(dimensions && { dimensions })
   });
 
   const embeddingResults = result?.data;
@@ -154,13 +156,13 @@ export const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResu
     throw new Error("OpenAI client is not configured");
   }
 
-  const { maxTokens, embeddingModel, tokenizerModel } = embeddingsSettings
+  const { maxTokens, embeddingModel, tokenizerModel, dimensions } = embeddingsSettings
 
   const trimmedText = trimText(text, tokenizerModel, maxTokens);
   const result = await api.embeddings.create({
     input: trimmedText,
     model: embeddingModel,
-    dimensions: EMBEDDINGS_VECTOR_SIZE
+    ...(dimensions && { dimensions })
   });
   const embeddings = result?.data?.[0].embedding;
   if (

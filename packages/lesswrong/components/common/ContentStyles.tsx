@@ -64,9 +64,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   llmChat: {
     ...commentBodyStyles(theme),
-    fontSize: '1.1rem',
+    fontSize: '1.0rem',
     '& blockquote, & li': {
-      fontSize: '1.1rem'
+      fontSize: '1.0rem'
     }
   }
 });

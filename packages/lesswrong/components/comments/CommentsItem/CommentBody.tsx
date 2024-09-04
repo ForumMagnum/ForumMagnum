@@ -33,8 +33,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit,
   },
   doppelQuizHeader: {
-    padding: 2*theme.spacing.unit,
-    marginBottom: -theme.spacing.unit,
+    padding: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit * 2,
+    margin: 0,
   },
   doppelQuizTabs: {
   },

@@ -905,6 +905,7 @@ interface DbPost extends DbObject {
   metaDate: Date | null
   suggestForCuratedUserIds: Array<string> | null
   frontpageDate: Date | null
+  autoFrontpage: "show" | "hide" | null
   collectionTitle: string | null
   coauthorStatuses: Array<{
     userId: string,
@@ -1233,11 +1234,14 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  subtitleUrl: string | null
   headerTitle: string | null
   headerTitleLeftColor: string | null
   headerTitleRightColor: string | null
   lastPromotedAt: Date
+  spotlightSplashImageUrl: string | null
   draft: boolean
+  deletedDraft: boolean
   showAuthor: boolean
   imageFade: boolean
   imageFadeColor: string | null

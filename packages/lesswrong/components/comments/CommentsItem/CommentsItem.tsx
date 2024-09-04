@@ -21,6 +21,7 @@ import Button from '@material-ui/core/Button';
 import { useCreate } from '@/lib/crud/withCreate';
 import omit from 'lodash/omit';
 import { isLWorAF } from '@/lib/instanceSettings';
+import { useMessages } from '@/components/common/withMessages';
 
 export const highlightSelectorClassName = "highlighted-substring";
 export const dimHighlightClassName = "dim-highlighted-substring";
@@ -352,6 +353,7 @@ export const CommentsItem = ({
     collectionName: "DoppelCommentVotes",
     fragmentName: "DoppelCommentVotesFragment",
   })
+  const {flash} = useMessages()
   const voteForThisDoppel = (type: "skip" | "vote", doppelCommentChoiceId?: string) => {
     if (!currentUser) return
     void createDoppelVote({
@@ -362,6 +364,7 @@ export const CommentsItem = ({
         doppelCommentChoiceId,
       },
     })
+    type === "vote" && flash(`You were ${doppelCommentChoiceId === null ? "correct" : "incorrect"}`)
   }
   const doppelCommentVote = (className: string) => (comment: CommentsList) => {
     return <>

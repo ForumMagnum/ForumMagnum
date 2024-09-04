@@ -205,7 +205,8 @@ augmentFieldsDict(Comments, {
       type: '[DoppelComment]',
       resolver: async (dbComment, context: ResolverContext) => {
         const user = await Users.findOne({ _id: dbComment.userId });
-        if ((user?.karma ?? 0) < 1e4) return []
+        if (!user) return []
+        if (user.karma < 1e4) return []
         const doppelComments = await runFragmentQuery({
           fragmentName: 'DoppelCommentsFragment',
           terms: { view: 'doppelCommentsForComment', commentId: dbComment._id },
@@ -223,7 +224,7 @@ augmentFieldsDict(Comments, {
   }
 });
 
-const createDoppelComment = async (dbComment: DbComment, user: DbUser|null) => {
+const createDoppelComment = async (dbComment: DbComment, user: DbUser) => {
   const [interestingGwernComment, eightShortStudies, topUserComment, topUserPost] = await Promise.all([
     Comments.findOne({ _id: 'hxMNNJRF6o644aNTa'}),
     Posts.findOne({_id: 'gFMH3Cqw4XxwL69iy'}),
@@ -241,9 +242,9 @@ const createDoppelComment = async (dbComment: DbComment, user: DbUser|null) => {
     [interestingGwernComment, topUserComment].map(comment => comment._id),
     [eightShortStudies, topUserPost].map(post => post._id),
     user,
+    createAdminContext(),
     dbComment.parentCommentId ?? undefined,
     dbComment.postId ?? undefined,
-    dbComment.userId
   )
 
   const client = getAnthropicPromptCachingClientOrThrow()

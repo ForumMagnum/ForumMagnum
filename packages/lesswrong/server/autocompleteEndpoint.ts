@@ -1,65 +1,64 @@
 import type { Express } from "express";
-import { getUserFromReq } from "./vulcan-lib/apollo-server/context";
+import { getContextFromReqAndRes, getUserFromReq } from "./vulcan-lib/apollo-server/context";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getAnthropicPromptCachingClientOrThrow } from "./languageModels/anthropicClient";
 import express from "express";
 import { PromptCachingBetaMessageParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
-import { Posts } from "@/lib/collections/posts";
-import { Comments } from "@/lib/collections/comments";
-import Revisions from "@/lib/collections/revisions/collection";
-import { turndownService } from "./editor/conversionUtils";
 import { formatRelative } from "@/lib/utils/timeFormat";
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises'
+import { hyperbolicApiKey } from "@/lib/instanceSettings";
+import { runFragmentQuery } from "./vulcan-lib/query";
 import Users from "@/lib/vulcan-users";
 
 
-export const getParentComments = async (comment: DbComment) => {
-  const parentComments: DbComment[] = [];
-  let currentComment: DbComment | null = comment;
-  while (currentComment.parentCommentId && currentComment.parentCommentId !== currentComment._id) {
-    currentComment = await Comments.findOne({ _id: currentComment.parentCommentId });
+
+const getParentComments = (comment: CommentsForAutocompleteWithParents) => {
+  const parentComments: CommentsForAutocompleteWithParents[] = [];
+  let currentComment: CommentsForAutocompleteWithParents | null = comment;
+  while (currentComment.parentComment && currentComment.parentComment._id !== currentComment._id) {
+    currentComment = currentComment.parentComment as CommentsForAutocompleteWithParents;
     if (currentComment) {
       parentComments.push(currentComment);
     } else {
       break;
     }
   }
-
   return parentComments.reverse();
 }
 
-export const getPostBodyFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
-  const markdownBody = turndownService.turndown(revisionsMap.get(post._id)?.html ?? "<not available/>");
-  const author = authorsMap.get(post.userId)?.displayName;
+const getPostBodyFormatted = (post: PostsForAutocomplete) => {
   return `${post.title}
-by ${author}
+by ${post.user?.displayName}
 ${post.baseScore}
-${markdownBody}`.trim();
+${post.contents?.markdown}`.trim();
 }
 
-export const getCommentBodyFormatted = (comment: DbComment, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>) => {
-  const markdownBody = turndownService.turndown(revisionsMap.get(comment._id)?.html ?? comment.contents?.html ?? "<not available/>");
+const getCommentBodyFormatted = (comment: CommentsForAutocomplete) => {
   const dateString = formatRelative(new Date(comment.createdAt), new Date(), false)
-  const author = authorsMap.get(comment.userId)?.displayName;
-  return `${author} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
-${markdownBody}`.trim();
+  return `Comment on ${comment.post?.title}
+${comment.user?.displayName} ${dateString} ${comment.baseScore} ${comment.extendedScore?.agreement}
+${comment.contents?.markdown}`.trim();
 }
 
-export const getPostReplyMessageFormatted = (post: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, currentUser: DbUser, prefix: string, author?: string) => {
-  return `${getPostBodyFormatted(post, revisionsMap, authorsMap)}
+const getPostReplyMessageFormatted = (post: PostsForAutocomplete, currentUser: DbUser, prefix: string) => {
+  return `${getPostBodyFormatted(post)}
 ---
-${author ?? currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+Comment on ${post.title}
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.35) * 100)}
 ${prefix}`.trim();
 }
 
-export const getCommentReplyMessageFormatted = (comment: DbComment, parentComments: DbComment[], parentPost: DbPost, revisionsMap: Map<string, DbRevision>, authorsMap: Map<string, DbUser>, prefix: string, currentUser: DbUser, author?: string) => {
-  const parentComment = parentComments[parentComments.length - 1];
-  return `${getPostBodyFormatted(parentPost, revisionsMap, authorsMap)}
+const getCommentReplyMessageFormatted = (comment: CommentsForAutocompleteWithParents, prefix: string, currentUser: DbUser) => {
+  const parentComments = getParentComments(comment);
+  return `${getPostBodyFormatted(comment.post!)}
 ---
-${parentComments.map((comment) => getCommentBodyFormatted(comment, revisionsMap, authorsMap)).join("\n---\n")}
+${parentComments.map((comment) => getCommentBodyFormatted(comment)).join("\n---\n")}
 ---
-${getCommentBodyFormatted(comment, revisionsMap, authorsMap)}
+${getCommentBodyFormatted(comment)}
 ---
-${author ?? currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
+Comment on ${comment.post?.title}
+${currentUser.displayName} 1h ${Math.floor(20 + (Math.random() * 75))} ${Math.floor((Math.random() - 0.5) * 100)}
 ${prefix}`.trim();
 }
 
@@ -67,29 +66,31 @@ export async function constructMessageHistory(
   prefix: string,
   commentIds: string[],
   postIds: string[],
-  currentUser: any,
+  user: DbUser,
+  context: ResolverContext,
   replyingCommentId?: string,
-  postId?: string,
-  author?: string
+  postId?: string
 ): Promise<PromptCachingBetaMessageParam[]> {
   const messages: PromptCachingBetaMessageParam[] = [];
 
   // Make the fetches parallel to save time
-  const [revisions, posts, comments] = await Promise.all([
-    Revisions.find({ documentId: { $in: [...postIds, ...commentIds] }, fieldName: "contents", version: "1.0.0" }).fetch(),
-    Posts.find({ _id: { $in: postIds } }).fetch(),
-    Comments.find({ _id: { $in: commentIds } }).fetch(),
+  const [posts, comments] = await Promise.all([
+    runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds },
+      context,
+    }),
+    runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocomplete",
+      terms: { commentIds },
+      context,
+    }),
   ]);
-
-  const authors = await Users.find({ _id: { $in: [...posts.map((post) => post.userId), ...comments.map((comment) => comment.userId)] } }).fetch();
-
-  const authorsMap = new Map(authors.map((author) => [author._id, author]));
-  const revisionsMap = new Map(revisions.map((revision) => [revision.documentId!, revision]));
 
   // eslint-disable-next-line no-console
   console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`);
-  // eslint-disable-next-line no-console
-  console.time("constructPostMessageHistory");
 
   // Add fetched posts and comments to message history
   for (const post of posts) {
@@ -103,14 +104,11 @@ export async function constructMessageHistory(
       content: [
         {
           type: "text",
-          text: getPostBodyFormatted(post, revisionsMap, authorsMap),
+          text: getPostBodyFormatted(post),
         },
       ],
     });
   }
-
-  // eslint-disable-next-line no-console
-  console.timeEnd("constructPostMessageHistory");
 
   for (const comment of comments) {
     messages.push({
@@ -120,7 +118,7 @@ export async function constructMessageHistory(
 
     messages.push({
       role: "assistant",
-      content: [{ type: "text", text: getCommentBodyFormatted(comment, revisionsMap, authorsMap) }],
+      content: [{ type: "text", text: getCommentBodyFormatted(comment) }],
     });
   }
 
@@ -132,27 +130,17 @@ export async function constructMessageHistory(
 
   if (replyingCommentId) {
     // Fetch the comment we're replying to
-    const replyingToComment = await Comments.findOne({ _id: replyingCommentId });
-    if (!replyingToComment) {
+    const replyingToCommentResponse = await runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocompleteWithParents",
+      terms: { commentIds: [replyingCommentId] },
+      context,
+    })
+    if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
       throw new Error("Comment not found");
     }
-    const parentComments = await getParentComments(replyingToComment);
-    const parentPost = await Posts.findOne({ _id: replyingToComment.postId });
-    const parentPostRevision = await Revisions.findOne({ documentId: parentPost?._id, fieldName: "contents", version: "1.0.0" });
-
-    if (!parentPost) {
-      throw new Error(`Parent post or revision not found ${replyingToComment.postId}`);
-    }
-
-    const authors = await Users.find({ _id: { $in: [parentPost.userId, ...parentComments.map((comment) => comment.userId), replyingToComment.userId] } }).fetch();
-
-    authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(parentPost._id!, parentPostRevision!);
-    if (!parentPost) {
-      throw new Error("Post not found");
-    }
-
-    const message = getCommentReplyMessageFormatted(replyingToComment, parentComments, parentPost, revisionsMap, authorsMap, prefix, currentUser, author)
+    const replyingToComment = replyingToCommentResponse[0];
+    const message = getCommentReplyMessageFormatted(replyingToComment, prefix, user)
 
     messages.push({
       role: "assistant",
@@ -165,28 +153,23 @@ export async function constructMessageHistory(
     });
   }
   else if (postId) {
-    const post = await Posts.findOne({ _id: postId });
-    if (!post) {
+    const postResponse = await runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds: [postId] },
+      context,
+    })
+    if (!postResponse || postResponse.length === 0) {
       throw new Error("Post not found");
     }
-    const postRevision = await Revisions.findOne({ documentId: post._id, fieldName: "contents", version: "1.0.0" });
-    if (!postRevision) {
-      throw new Error("Post revision not found");
-    }
-
-    const authors = await Users.find({ _id: post.userId }).fetch();
-    authors.forEach((author) => authorsMap.set(author._id, author));
-    revisionsMap.set(post._id!, postRevision);
-
-    const message = getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix, author);
-    // console.log("Message", message);
+    const post = postResponse[0];
 
     messages.push({
       role: "assistant",
       content: [
         {
           type: "text",
-          text: getPostReplyMessageFormatted(post, revisionsMap, authorsMap, currentUser, prefix, author)
+          text: getPostReplyMessageFormatted(post, user, prefix)
         },
       ],
     });
@@ -202,14 +185,87 @@ export async function constructMessageHistory(
       ]
     });
   }
-
   return messages;
 }
+
+async function construct405bPrompt(
+  prefix: string,
+  commentIds: string[],
+  postIds: string[],
+  user: DbUser,
+  context: ResolverContext,
+  replyingCommentId?: string,
+  postId?: string
+): Promise<string> {
+
+  // Make the fetches parallel to save time
+  const [posts, comments] = await Promise.all([
+    runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds },
+      context,
+    }),
+    runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocomplete",
+      terms: { commentIds },
+      context,
+    }),
+  ]);
+
+
+  // eslint-disable-next-line no-console
+  console.log(`Converting ${posts.length} posts and ${comments.length} comments to messages`, postId, replyingCommentId);
+
+  let finalSection = ''
+
+  if (replyingCommentId) {
+    // Fetch the comment we're replying to
+    const replyingToCommentResponse = await runFragmentQuery({
+      collectionName: "Comments",
+      fragmentName: "CommentsForAutocompleteWithParents",
+      terms: { commentIds: [replyingCommentId] },
+      context,
+    })
+    if (!replyingToCommentResponse || replyingToCommentResponse.length === 0) {
+      throw new Error("Comment not found");
+    }
+    const replyingToComment = replyingToCommentResponse[0];
+
+    finalSection = getCommentReplyMessageFormatted(replyingToComment, prefix, user)    
+  } else if (postId) {
+    const postResponse = await runFragmentQuery({
+      collectionName: "Posts",
+      fragmentName: "PostsForAutocomplete",
+      terms: { postIds: [postId] },
+      context,
+    })
+    if (!postResponse || postResponse.length === 0) {
+      throw new Error("Post not found");
+    }
+    const post = postResponse[0];
+
+    finalSection = getPostReplyMessageFormatted(post, user, prefix)
+  } else {
+    finalSection = `${prefix}`
+  }
+
+
+  return `
+${posts.map((post) => getPostBodyFormatted(post)).join("\n---\n")}
+====
+${comments.map((comment) => getCommentBodyFormatted(comment)).join("\n---\n")}
+====
+${finalSection}`.trim();
+}
+
 
 export function addAutocompleteEndpoint(app: Express) {
   app.use("/api/autocomplete", express.json());
   app.post("/api/autocomplete", async (req, res) => {
-    const currentUser = getUserFromReq(req);
+    const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    const currentUser = context.currentUser
     if (!currentUser) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -221,7 +277,8 @@ export function addAutocompleteEndpoint(app: Express) {
 
       const client = getAnthropicPromptCachingClientOrThrow();
 
-      const { prefix = '', commentIds, postIds, replyingCommentId, postId, author } = req.body;
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId, userId } = req.body;
+      const user = userId ? await context.loaders.Users.load(userId) : undefined;
 
       // Set headers for streaming response
       res.writeHead(200, {
@@ -238,20 +295,21 @@ export function addAutocompleteEndpoint(app: Express) {
           prefix,
           commentIds,
           postIds,
-          currentUser,
+          user ?? currentUser,
+          context,
           replyingCommentId,
-          postId,
-          author
-        ),
-        stop_sequences: ['---'],
+          postId
+        )
       });
 
       loadingMessagesStream.on("text", (delta, snapshot) => {
-        res.write(delta);
+        res.write(
+          `data: ${JSON.stringify({ type: "text", content: delta })}\n\n`,
+        );
       });
 
       loadingMessagesStream.on("end", () => {
-        // res.write(`data: ${JSON.stringify({ type: "end" })}\n\n`);
+        res.write(`data: ${JSON.stringify({ type: "end" })}\n\n`);
         res.end();
       });
 
@@ -263,6 +321,80 @@ export function addAutocompleteEndpoint(app: Express) {
         );
         res.end();
       });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Autocomplete error:", error);
+      res.status(500).json({ error: "An error occurred during autocomplete" });
+    }
+  });
+  app.use("/api/autocomplete405b", express.json());
+  app.post("/api/autocomplete405b", async (req, res) => {
+    const context = await getContextFromReqAndRes({req, res, isSSR: false});
+    const currentUser = context.currentUser
+    if (!currentUser) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      if (!userIsAdmin(currentUser)) {
+        throw new Error("Claude Completion is for admins only");
+      }
+  
+      const { prefix = '', commentIds, postIds, replyingCommentId, postId, userId } = req.body;
+      const user = userId ? await Users.findOne({ _id: userId}) : undefined;
+
+      // Set headers for streaming response
+      res.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      });
+  
+      const url = 'https://api.hyperbolic.xyz/v1/completions';
+  
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${hyperbolicApiKey.get()}`,
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/Meta-Llama-3.1-405B',
+          prompt: await construct405bPrompt(
+            prefix,
+            commentIds,
+            postIds,
+            user ?? currentUser,
+            context,
+            replyingCommentId,
+            postId
+          ),
+          max_tokens: 256,
+          temperature: 0.7,
+          top_p: 0.9,
+          stream: true,
+          frequency_penalty: 0.5
+        }),
+      });
+  
+      if (!response.ok || !response.body) {
+        res.writeHead(response.status, response.statusText);
+        res.end(`Error from API: ${response.statusText}`);
+        return;
+      }
+      const reader = response.body.getReader();
+      const readableNodeStream = new Readable({
+        async read() {
+          const { done, value } = await reader.read();
+          if (done) {
+            this.push(null);
+          } else {
+            this.push(Buffer.from(value));
+          }
+        }
+      });
+
+      await pipeline(readableNodeStream, res);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Autocomplete error:", error);

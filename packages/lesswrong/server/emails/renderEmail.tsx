@@ -143,7 +143,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   if (!bodyComponent) throw new Error("Missing required argument: bodyComponent");
   
   // Set up Apollo
-  const apolloClient = await createClient(await computeContextFromUser(user));
+  const apolloClient = await createClient(await computeContextFromUser({user, isSSR: false}));
   
   // Wrap the body in Apollo, JSS, and MUI wrappers.
   const sheetsRegistry = new SheetsRegistry();
