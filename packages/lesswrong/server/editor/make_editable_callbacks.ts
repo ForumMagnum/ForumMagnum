@@ -223,32 +223,28 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const editedAt = new Date()
       const previousRev = await getLatestRev(newDocument._id, fieldName);
       const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
+      const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-      let newRevisionId;
-      if (await revisionIsChange(newDocument, fieldName)) {
-        const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
+      const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
+        documentId: document._id,
+        ...revision,
+        fieldName,
+        collectionName,
+        version,
+        draft: versionIsDraft(version, collectionName),
+        updateType,
+        commitMessage,
+        changeMetrics,
+        createdAt: editedAt,
+      };
+      
+      const newRevisionDoc = await createMutator({
+        collection: Revisions,
+        document: newRevision,
+        validate: false
+      });
 
-        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
-          documentId: document._id,
-          ...revision,
-          fieldName,
-          collectionName,
-          version,
-          draft: versionIsDraft(version, collectionName),
-          updateType,
-          commitMessage,
-          changeMetrics,
-          createdAt: editedAt,
-        }
-        const newRevisionDoc = await createMutator({
-          collection: Revisions,
-          document: newRevision,
-          validate: false
-        });
-        newRevisionId = newRevisionDoc.data._id;
-      } else {
-        newRevisionId = previousRev!._id;
-      }
+      const newRevisionId = newRevisionDoc.data._id;
 
       if (newRevisionId) {
         await afterCreateRevisionCallback.runCallbacksAsync([{ revisionID: newRevisionId }]);
