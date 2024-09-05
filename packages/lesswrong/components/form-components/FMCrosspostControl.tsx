@@ -158,10 +158,15 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
 
   const onClickLogin = async () => {
     try {
-      const {token} = await generateTokenRoute.makeRequest({});
+      const result = await fetch("/api/crosspostToken");
+      const {token, error} = await result.json();
+      // TODO Switch to this once deployed
+      // const {token} = await generateTokenRoute.makeRequest({});
       if (token) {
         const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
         window.open(url, "_blank")?.focus();
+      } else if (typeof error === 'string') {
+        setError(error);
       } else {
         setError("Couldn't create login token");
       }
