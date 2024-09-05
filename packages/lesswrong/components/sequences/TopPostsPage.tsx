@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
@@ -676,6 +676,18 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
   const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
+  useEffect(() => {
+    if (params.year) {
+      const element = document.getElementById('year-topic-section');
+      if (element) {
+        element.scrollIntoView({ });
+      }
+    }
+  }, [params.year]);
+
+  const years = useMemo(() => Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)), [yearGroupsInfo]);
+  const topics = useMemo(() => Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)), [sectionsInfo]);
+
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
     console.error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
@@ -698,10 +710,14 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
 
-  const year = params.year ?? "2022"
-  const topic = params.topic ?? "rationality"
-  const years = Object.keys(yearGroupsInfo).sort((a, b) => parseInt(b) - parseInt(a));
-  const topics = Object.keys(sectionsInfo).sort((a, b) => b.localeCompare(a));
+
+  const year = (params.year && years.includes(params.year)) 
+    ? params.year 
+    : "2022"
+
+  const topic = (params.topic && topics.includes(params.topic)) 
+    ? params.topic 
+    : "rationality" 
 
   const { SpotlightItem, Divider } = Components;
 
@@ -726,14 +742,13 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </div>
           </div>
           <Divider margin={100}/>
-          <div className={classes.postsByYearSectionCentered}>
+          <div className={classes.postsByYearSectionCentered} id="year-topic-section">
             <h1 className={classes.yearTopicSectionTitle}>Best of <span className={classes.topicTitle}>{topic}</span> {year}</h1>
             <div className={classes.yearSelector}>
-              {years.map((y) => <a href={`/bestoflesswrong/${year}`} className={classes.year} key={year} style={{color: y === year ? '#000' : '#888'}}>{y}</a>)}
+              {years.map((y) => <Link to={`/bestoflesswrong/${y}/${topic}`} className={classes.year} key={year} style={{color: y === year ? '#000' : '#888'}}>{y}</Link>)}
             </div>
-
             <div className={classes.topicSelector}>
-              {topics.map((t) => <a href={`/bestoflesswrong/${topic}`} className={classes.topic} key={topic} style={{color: t === topic ? '#000' : '#888'}}>{t}</a>)}
+              {topics.map((t) => <Link to={`/bestoflesswrong/${year}/${t}`} className={classes.topic} key={topic} style={{color: t === topic ? '#000' : '#888'}}>{t}</Link>)}
             </div>
             <div style={{ maxWidth: 800}}>
               {spotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} key={spotlight._id} />)}

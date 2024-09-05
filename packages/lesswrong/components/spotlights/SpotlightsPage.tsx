@@ -106,7 +106,7 @@ export const SpotlightsPage = ({classes}: {
       <SectionTitle title="Draft Spotlights">
         <div>Total: {totalDraftDuration} days</div>
       </SectionTitle>
-      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
     </SingleColumnSection>
   </ToCColumn>
 }

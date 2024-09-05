@@ -346,6 +346,7 @@ export const SpotlightItem = ({
   showAdminInfo,
   hideBanner,
   refetchAllSpotlights,
+  isDraftProcessing,
   className,
   classes,
 }: {
@@ -354,6 +355,7 @@ export const SpotlightItem = ({
   hideBanner?: () => void,
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
+  isDraftProcessing?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -394,6 +396,12 @@ export const SpotlightItem = ({
     }
     refetchAllSpotlights?.();
   }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, publishAndDeDuplicateSpotlight, refetchAllSpotlights]);
+
+  const handleUndraftSpotlight = async () => {
+    if (isDraftProcessing && spotlight.draft) {
+      await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+    }
+  }
 
   const deleteDraft = useCallback(async () => {
     if (!currentUser || !userCanDo(currentUser, 'spotlights.edit.all')) {
@@ -448,7 +456,7 @@ export const SpotlightItem = ({
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
                   queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => setEditDescription(false)}
+                  successCallback={() => { setEditDescription(false); handleUndraftSpotlight() }}
                 />
               </div>
               :
