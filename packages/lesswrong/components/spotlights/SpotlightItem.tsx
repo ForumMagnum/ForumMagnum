@@ -398,8 +398,10 @@ export const SpotlightItem = ({
   }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, publishAndDeDuplicateSpotlight, refetchAllSpotlights]);
 
   const handleUndraftSpotlight = async () => {
+    console.log("isDraftProcessing", isDraftProcessing, spotlight.draft)
     if (isDraftProcessing && spotlight.draft) {
       await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
+      refetchAllSpotlights?.()
     }
   }
 
