@@ -144,7 +144,7 @@ export async function handleCrosspostUpdate(
     logger('crosspost should be removed, removing')
     await removeCrosspost(newDocument);
   }
-  if (!fmCrosspost) {
+  if (!fmCrosspost?.isCrosspost) {
     logger('post is not a crosspost, returning')
     return data;
   }
