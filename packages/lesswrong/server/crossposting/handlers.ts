@@ -65,7 +65,7 @@ const addHandler = <
 
     let response: ResponseData;
     try {
-      const context = await getContextFromReqAndRes(req, res);
+      const context = await getContextFromReqAndRes({req, res, isSSR: false});
       response = await requestHandler(context, parsedResult.data);
     } catch (error) {
       const message = error.message ?? "Invalid cross-site request body";
