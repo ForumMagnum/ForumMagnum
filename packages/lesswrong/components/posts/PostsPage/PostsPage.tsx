@@ -310,6 +310,7 @@ export const styles = (theme: ThemeType) => ({
   },
   welcomeBox: {
     marginTop: LW_POST_PAGE_PADDING,
+    maxWidth: 220,
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
