@@ -82,6 +82,10 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     "$sidenoteHover &": {
       color: theme.palette.text.normal,
     },
+    "& li": {
+      fontSize: "0.9em",
+      lineHeight: "1.4em",
+    },
   },
   
   overflowFade: {
