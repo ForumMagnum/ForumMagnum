@@ -24,6 +24,7 @@ import { initGatherTownCron } from './gatherTownCron';
 import { registerViewCronJobs } from './postgresView';
 import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
+import { isLW } from '@/lib/instanceSettings';
 
 /**
  * Entry point for the server, assuming it's a webserver (ie not cluster mode,
@@ -121,6 +122,10 @@ const compileWithGlobals = (code: string) => {
 // write-access inside the repo directory is already equivalent to script
 // execution.
 const watchForShellCommands = () => {
+  if (isLW) {
+    return;
+  }
+
   const watcher = chokidar.watch('./tmp/pendingShellCommands');
   watcher.on('add', async (path) => {
     const fileContents = fs.readFileSync(path, 'utf8');
