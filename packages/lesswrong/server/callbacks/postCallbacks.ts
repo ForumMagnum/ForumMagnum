@@ -16,7 +16,7 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from '../../lib/collections/moderatorActions/schema';
 import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
-import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
+import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/errors';
 import TagRels from '../../lib/collections/tagRels/collection';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import Conversations from '../../lib/collections/conversations/collection';
