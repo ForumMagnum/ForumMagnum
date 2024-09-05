@@ -29,7 +29,7 @@ export const SpotlightsPage = ({classes}: {
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
-      limit: 100
+      limit: 500
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -45,7 +45,7 @@ export const SpotlightsPage = ({classes}: {
   }, [spotlights]);
 
   const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
-  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
+  const draftSpotlights = spotlights.filter(spotlight => spotlight.draft)
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
