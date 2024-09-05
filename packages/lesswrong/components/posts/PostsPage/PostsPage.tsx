@@ -794,11 +794,15 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
-      {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+      {!post.debate && <ContentStyles
+        contentType="post"
+        className={classNames(classes.postContent, "instapaper_body")}
+      >
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+          <div id="postContent">
             {htmlWithAnchors && <>
               <PostBody
                 post={post}
@@ -810,6 +814,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
               }
               </>
             }
+          </div>
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
         </AnalyticsContext>

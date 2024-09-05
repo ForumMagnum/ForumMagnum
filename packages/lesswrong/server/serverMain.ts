@@ -22,6 +22,7 @@ import fs from 'fs';
 import { basename, join } from 'path';
 import { initGatherTownCron } from './gatherTownCron';
 import { registerViewCronJobs } from './postgresView';
+import { addCountOfReferenceCallbacks } from './callbacks/countOfReferenceCallbacks';
 import { registerElasticCallbacks } from './search/elastic/elasticCallbacks';
 
 /**
@@ -64,6 +65,7 @@ export async function runServerOnStartupFunctions() {
   addLegacyRssRoutes();
   await initReviewWinnerCache();
   initGatherTownCron();
+  addCountOfReferenceCallbacks();
 
   // define executableSchema
   createVoteableUnionType();

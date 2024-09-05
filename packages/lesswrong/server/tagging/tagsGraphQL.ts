@@ -2,7 +2,6 @@ import { createMutator, addGraphQLMutation, addGraphQLResolvers } from '../vulca
 import { Tags } from '../../lib/collections/tags/collection';
 import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Posts } from '../../lib/collections/posts/collection';
-import { performVoteServer } from '../voteServer';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
 export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
@@ -41,6 +40,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
     return tagRel.data;
   } else {
     // Upvote the tag
+    const { performVoteServer } = require("../voteServer");
     const {modifiedDocument: votedTagRel} = await performVoteServer({
       document: existingTagRel,
       voteType: 'smallUpvote',
