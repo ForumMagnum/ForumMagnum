@@ -3,7 +3,7 @@ import uniqBy from "lodash/uniqBy";
 import { getAnthropicClientOrThrow, getAnthropicPromptCachingClientOrThrow } from "../languageModels/anthropicClient";
 import { getEmbeddingsFromApi } from "../embeddings";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, CurrentPost } from "../languageModels/promptUtils";
+import { generateContextSelectionPrompt, CLAUDE_CHAT_SYSTEM_PROMPT, generateTitleGenerationPrompt, generateAssistantContextMessage, CONTEXT_SELECTION_SYSTEM_PROMPT, contextSelectionResponseFormat, CurrentPost, BasePromptArgs } from "../languageModels/promptUtils";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { userHasLlmChat } from "@/lib/betas";
 import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
@@ -32,8 +32,9 @@ interface CreateNewConversationArgs {
   systemPrompt: string;
   model: string;
   currentUser: DbUser;
-  context: ResolverContext;
   currentPost: CurrentPost;
+  postContext?: PromptContextOptions['postContext']
+  context: ResolverContext;
 }
 
 type ConversationContext = {
@@ -78,7 +79,7 @@ function getConversationContext(newConversationChannelId: string | undefined, ne
   };
 }
 
-async function getQueryContextDecision(query: string, currentPost: CurrentPost): Promise<RagContextType> {
+async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContextType> {
   const openai = await getOpenAI();
   if (!openai) {
     return 'error';
@@ -89,7 +90,7 @@ async function getQueryContextDecision(query: string, currentPost: CurrentPost):
     model: 'gpt-4o-mini-2024-07-18',
     messages: [
       { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
-      { role: 'user', content: generateContextSelectionPrompt(query, currentPost) }
+      { role: 'user', content: generateContextSelectionPrompt(args) }
     ],
     // tools: [contextSelectionTool],
     response_format: contextSelectionResponseFormat
@@ -106,8 +107,8 @@ async function getQueryContextDecision(query: string, currentPost: CurrentPost):
 }
 
 // TODO: come back and refactor the query context decision to actually use the embedding distance results (including the post titles)
-async function getContextualPosts(query: string, currentPost: CurrentPost, context: ResolverContext): Promise<PostsPage[]> {
-  const contextSelectionCode = await getQueryContextDecision(query, currentPost);
+async function getContextualPosts({ content: query, currentPost, postContext, context }: GetContextMessageArgs): Promise<PostsPage[]> {
+  const contextSelectionCode = await getQueryContextDecision({ query, postContext, currentPost });
   const useQueryEmbeddings = ['query-based', 'both'].includes(contextSelectionCode);
   const useCurrentPostEmbeddings = ['current-post-based', 'both'].includes(contextSelectionCode);
 
@@ -131,8 +132,8 @@ async function getContextualPosts(query: string, currentPost: CurrentPost, conte
   return getPostsWithContents(deduplicatedSearchResultIds, context);
 };
 
-async function getConversationTitle({ query, currentPost }: Pick<CreateNewConversationArgs, 'query' | 'currentPost'>) {
-  const titleGenerationPrompt = generateTitleGenerationPrompt(query, currentPost)
+async function getConversationTitle(args: BasePromptArgs) {
+  const titleGenerationPrompt = generateTitleGenerationPrompt(args);
 
   const client = getAnthropicClientOrThrow()
   const titleResult = await client.messages.create({
@@ -149,7 +150,7 @@ async function getConversationTitle({ query, currentPost }: Pick<CreateNewConver
   return titleResponse.text
 }
 
-async function createNewConversation({ query, systemPrompt, model, currentUser, context, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
+async function createNewConversation({ query, systemPrompt, model, currentUser, context, postContext, currentPost }: CreateNewConversationArgs): Promise<DbLlmConversation> {
   const title = await getConversationTitle({ query, currentPost });
   const newConversation = await createMutator({
     collection: context.LlmConversations,
@@ -374,11 +375,18 @@ async function getPostsWithContents(postIds: string[], context: ResolverContext)
   });
 }
 
-async function getContextMessages(content: string, currentPost: CurrentPost, context: ResolverContext) {
-  const contextualPosts = await getContextualPosts(content, currentPost, context);
+interface GetContextMessageArgs {
+  content: string;
+  currentPost: CurrentPost;
+  postContext?: PromptContextOptions['postContext'];
+  context: ResolverContext;
+}
+
+async function getContextMessages({ content, currentPost, postContext, context }: GetContextMessageArgs) {
+  const contextualPosts = await getContextualPosts({ content, currentPost, postContext, context });
   // TODO: refactor this to avoid returning a context message if there were no posts loaded into the context window.  (And make sure it depends on what's actually in the context window, not just on whether the user's on a current post.)
   const userContextMessage = getPostContextMessage(contextualPosts, currentPost);
-  const assistantContextMessage = await generateAssistantContextMessage(content, currentPost, contextualPosts, true, context);
+  const assistantContextMessage = await generateAssistantContextMessage({ query: content, currentPost, additionalPosts: contextualPosts, includeComments: true, postContext, context });
 
   return { userContextMessage, assistantContextMessage, contextualPosts };
 }
@@ -400,7 +408,7 @@ async function createConversationWithMessages({ newMessage, systemPrompt, model,
       context,
       currentPost,
     }),
-    getContextMessages(content, currentPost, context)
+    getContextMessages({ content, currentPost, context })
   ]);
 
   const conversationId = conversation._id;
