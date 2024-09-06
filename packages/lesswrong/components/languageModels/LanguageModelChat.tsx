@@ -7,7 +7,7 @@ import { useMessages } from '../common/withMessages';
 import Select from '@material-ui/core/Select';
 import CloseIcon from '@material-ui/icons/Close';
 import { useLocation } from "../../lib/routeUtil";
-import { NewLlmMessage, useLlmChat } from './LlmChatWrapper';
+import { NewLlmMessage, PromptContextOptions, useLlmChat } from './LlmChatWrapper';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import CKEditor from '@/lib/vendor/ckeditor5-react/ckeditor';
 import { getCkCommentEditor } from '@/lib/wrapCkEditor';
@@ -271,8 +271,16 @@ const welcomeGuideHtml = [
   `<p><strong>Posts and comments may be loaded into the context window based on your <em>first message</em> (and based on the current post you are viewing).</strong></p>`,
 ].join('');
 
-function useCurrentPostContext() {
-  const { location: { query } } = useLocation();
+type CurrentPostContext = {
+  currentPostId: string;
+  postContext: Exclude<PromptContextOptions['postContext'], undefined>
+} | {
+  currentPostId?: undefined;
+  postContext?: undefined;
+};
+
+function useCurrentPostContext(): CurrentPostContext {
+  const { query } = useLocation();
   const postsPageContext = usePostsPageContext();
 
   const postsPagePostId = postsPageContext?.fullPost?._id ?? postsPageContext?.postPreload?._id;
@@ -444,13 +452,11 @@ export const ChatInterface = ({classes}: {
   </div>  
 
   const handleSubmit = useCallback(async (message: string) => {
-    // TODO: just use the postId from the query param instead of passing it through the return value of autosaveEditorState?
-    // autosaveEditorState().then(())
     if (autosaveEditorState) {
       await autosaveEditorState();
     }
-    submitMessage(message, currentPostId);
-  }, [autosaveEditorState, currentPostId, submitMessage]);
+    submitMessage({ query: message, currentPostId, postContext });
+  }, [autosaveEditorState, currentPostId, postContext, submitMessage]);
 
   return <div className={classes.subRoot}>
     {messagesForDisplay}

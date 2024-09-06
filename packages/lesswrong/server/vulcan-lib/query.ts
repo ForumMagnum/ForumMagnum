@@ -9,8 +9,10 @@ import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { generateDataLoaders } from './apollo-server/context';
 import { getAllRepos } from '../repos';
 import { collectionNameToTypeName, getCollectionsByName } from '../../lib/vulcan-lib/getCollection';
-import { getGraphQLQueryFromOptions } from '@/lib/crud/withMulti';
+import { getGraphQLMultiQueryFromOptions } from '@/lib/crud/withMulti';
 import { getMultiResolverName } from '@/lib/crud/utils';
+import { PrimitiveGraphQLType } from '@/lib/crud/types';
+import { getGraphQLSingleQueryFromOptions, getResolverNameFromOptions } from '@/lib/crud/withSingle';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -38,6 +40,7 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
     ? query
     : print(query)
 
+  console.log({ stringQuery: stringQuery.slice(0, 300), variables: JSON.stringify(variables, null, 2) });
   // see http://graphql.org/graphql-js/graphql/#graphql
   const result = await graphql<T>(executableSchema, stringQuery, {}, queryContext, variables);
 
@@ -49,31 +52,55 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
   return result;
 };
 
-export const runFragmentQuery = async <
+export const runFragmentSingleQuery = async <
   FragmentTypeName extends keyof FragmentTypes,
   CollectionName extends CollectionNameString,
->({ collectionName, fragmentName, terms, extraVariables, context }: {
+>({ collectionName, fragmentName, documentId, extraVariables, extraVariablesValues, context }: {
+  collectionName: CollectionName,
+  fragmentName: FragmentTypeName,
+  documentId: string,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
+  extraVariablesValues?: Record<string, unknown>,
+  context?: ResolverContext,
+}) => {
+  const resolverName = getResolverNameFromOptions(collectionName);
+
+  const query = getGraphQLSingleQueryFromOptions({ collectionName, fragmentName, fragment: undefined, extraVariables });
+
+  const variables = {
+    input: { selector: { documentId }, resolverArgs: extraVariablesValues },
+    ...extraVariablesValues
+  };
+
+  const queryResult = await runQuery<Record<string, { result?: FragmentTypes[FragmentTypeName] }>>(query, variables, context);
+
+  return queryResult.data?.[resolverName]?.result;
+};
+
+export const runFragmentMultiQuery = async <
+  FragmentTypeName extends keyof FragmentTypes,
+  CollectionName extends CollectionNameString,
+>({ collectionName, fragmentName, terms, extraVariables, extraVariablesValues, context }: {
   collectionName: CollectionName,
   fragmentName: FragmentTypeName,
   terms: ViewTermsByCollectionName[CollectionName],
-  extraVariables?: AnyBecauseHard,
+  extraVariables?: Record<string, PrimitiveGraphQLType>,
+  extraVariablesValues?: Record<string, unknown>,
   context?: ResolverContext,
 }) => {
   const typeName = collectionNameToTypeName(collectionName);
   const resolverName = getMultiResolverName(typeName);
 
-  const query = getGraphQLQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });
+  const query = getGraphQLMultiQueryFromOptions({ collectionName, typeName, fragmentName, fragment: undefined, extraVariables });
 
   const variables = {
-    input: { terms },
-    ...extraVariables
+    input: { terms, resolverArgs: extraVariablesValues },
+    ...extraVariablesValues
   };
 
   const result = await runQuery<Record<string, { results: Array<FragmentTypes[FragmentTypeName]> }>>(query, variables, context);
 
-  const results = result.data?.[resolverName]?.results ?? [];
-
-  return results;
+  return result.data?.[resolverName]?.results ?? [];
 };
 
 export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {

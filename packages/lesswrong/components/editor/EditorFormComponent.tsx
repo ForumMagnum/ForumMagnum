@@ -28,7 +28,14 @@ const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 type AutosaveFunc = () => Promise<string | undefined>;
 interface AutosaveEditorStateContext {
   autosaveEditorState: AutosaveFunc | null;
-  setAutosaveEditorState: (autosaveFunc: AutosaveFunc | null) => void;
+  /**
+   * WARNING: since `setAutosaveEditorState` is a React setState function,
+   * passing in a function seems to cause it to interpret it as the (prevValue: T): T => newValue form,
+   * so you actually need to pass in with an additional closure if you want to update `autosaveEditorState` with a new function:
+   * 
+   * (prevValue: T) => (): T => { ...;  return newValue; }
+   */
+  setAutosaveEditorState: React.Dispatch<React.SetStateAction<AutosaveFunc | null>>;
 }
 
 export const AutosaveEditorStateContext = React.createContext<AutosaveEditorStateContext>({
@@ -455,7 +462,7 @@ export const EditorFormComponent = ({
 
   useEffect(() => {
     if (!isCollabEditor && fieldName === 'contents') {
-      setAutosaveEditorState(() => new Promise<string | undefined>((resolve, reject) => {
+      setAutosaveEditorState((_) => () => new Promise<string | undefined>((resolve, reject) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
           void editorRef.current?.submitData()
             .then(({ originalContents: { type, data: value }}) => ({ type, value }))

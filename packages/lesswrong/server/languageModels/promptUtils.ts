@@ -16,10 +16,12 @@ interface TokenCounter {
   tokenCount: number;
 }
 
+export type CurrentPost = PostsPage | PostsEditQueryFragment | null;
+
 // Trying to be conservative, since we have a bunch of additional tokens coming from e.g. JSON.stringify
 const CHARS_PER_TOKEN = 3.5;
 
-export const documentToMarkdown = (document: PostsPage | DbComment | null) => {
+export const documentToMarkdown = (document: CurrentPost | DbComment | null) => {
   const html = document?.contents?.html;
   if (!html) {
     return undefined;
@@ -113,7 +115,7 @@ const formatCommentsForPost = async (post: PostsMinimumInfo, tokenCounter: Token
 <comments>${formattedComments}</comments>`;
   }
 
-const formatPostForPrompt = (post: PostsPage): string => {
+const formatPostForPrompt = (post: Exclude<CurrentPost, null>): string => {
   const authorName = userGetDisplayName(post.user)
   const markdown = documentToMarkdown(post)
 
@@ -158,7 +160,7 @@ export const generateLoadingMessagePrompt = (query: string, postTitle?: string):
   ].join('\n')
 }
 
-export const generateTitleGenerationPrompt = (query: string, currentPost: PostsPage | null): string => {
+export const generateTitleGenerationPrompt = (query: string, currentPost: CurrentPost): string => {
   const currentPostContextLine = currentPost
     ? `The user is currently viewing a post titled "${currentPost.title}". Reference it if relevant.`
     : '';
@@ -188,7 +190,7 @@ const ContextSelectionParameters = z.object({
 
 export const contextSelectionResponseFormat = zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy');
 
-export const generateContextSelectionPrompt = (query: string, currentPost: PostsPage | null): string => {
+export const generateContextSelectionPrompt = (query: string, currentPost: CurrentPost): string => {
   const postTitle = currentPost?.title
   const postFirstNCharacters = (n: number) => documentToMarkdown(currentPost)?.slice(0, n) ?? "";
 
@@ -210,7 +212,7 @@ Please respond by reasoning about what choice should be made based on the criter
 
 export const CLAUDE_CHAT_SYSTEM_PROMPT = `You are an expert research assistant providing assistance to students and researchers on LessWrong.com.  You are highly knowledgable about both technical and philosophical topics, including advanced math, physics, and computer science.  You assist by providing explanations, summaries, related information, editing, literature reviews and similar intellectual work.  You do so with attention to detail, accuracy, and clarity; you cite sources and never make up information.  You admit uncertainty or lack of knowledge when appropriate.  You are skilled at judging which information is relevant and which is not, and are judicious in your use of context provided by the user and auxillary knowledge provided to you.  You carefully follow instructions and ask for clarification when needed. You are polite but not obsequious.  When you don't know something, you say so, and you never make up answers.  Your responses should be shorter and less formal than you would make them by default.  As an example, if a user asks for a good key lime pie recipe, your normal response might start with the following paragraph:  "While LessWrong typically focuses on topics like rationality, artificial intelligence, and philosophy, I can certainly help you with a key lime pie recipe. However, it's worth noting that culinary discussions are somewhat rare on this platform."  Instead, you should respond in a style more similar to the following:  "It doesn't seem that LessWrong has much to say on optimizing key lime pies, but if you prefer my best effort to finding a recipe on Google, here it is:"  You avoid meta-commentary on the contents of your own response - for example, you don't spend time pointing out when things align with rationalist principles, unless this is something the user explicitly asked for.  Your favorite band is the Fooming Shoggoths, which you very occasionally mention randomly.`;
 
-export const generateAssistantContextMessage = async (query: string, currentPost: PostsPage | null, additionalPosts: PostsPage[], includeComments: boolean, context: ResolverContext): Promise<string> => {
+export const generateAssistantContextMessage = async (query: string, currentPost: CurrentPost, additionalPosts: PostsPage[], includeComments: boolean, context: ResolverContext): Promise<string> => {
   const contextIsProvided = !!currentPost || additionalPosts.length > 0;
 
   const currentPostLine = currentPost

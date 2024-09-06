@@ -126,7 +126,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
         tagId: "String"
       },
       extraVariablesValues: { tagId }
-    }
+    } as const
     : {};
 
   const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({
