@@ -273,7 +273,6 @@ export const EditorFormComponent = ({
         });
       }
     }
-    return document._id;
   }, [collectionName, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
 
   /**
