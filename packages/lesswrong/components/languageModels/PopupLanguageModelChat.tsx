@@ -2,10 +2,13 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from "@material-ui/core/Card"
 import CloseIcon from '@material-ui/icons/Close';
+import Fullscreen from '@material-ui/icons/Fullscreen';
+import FullscreenExit from '@material-ui/icons/FullscreenExit';
 import { useLlmChat } from './LlmChatWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { LLM_CHAT_EXPANDED, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,6 +22,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('sm')]: {
       display: "none"
     }
+  },
+  expanded: {
+    width: 650,
   },
   title: {
     ...theme.typography.commentStyle,
@@ -40,10 +46,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 350,
     fontSize: "0.9em"
   },
-  close: {
-    position: "absolute",
-    right: 8,
-    top: 10,
+  icon: {
+    marginLeft: 2,
     cursor: "pointer",
     color: theme.palette.grey[400],
     height: 20,
@@ -51,13 +55,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.grey[600],
     }
   },
+  icons: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-end",
+  },
   header: {
     backgroundColor: theme.palette.grey[100],
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 8,
     paddingBottom: 8,
-    position: "relative"
+    position: "relative",
+    display: "flex",
   },
   editor: {
     paddingLeft: 20,
@@ -76,7 +87,8 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   const { LanguageModelChat, LWTooltip } = Components;
 
   const { currentConversation } = useLlmChat();
-  const [_, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
+  const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
+  const expanded = cookies[LLM_CHAT_EXPANDED] === "true";
 
   const title = currentConversation?.title ?? PLACEHOLDER_TITLE;
 
@@ -85,7 +97,11 @@ const PopupLanguageModelChat = ({onClose, classes}: {
     onClose();
   }
 
-  return <Paper className={classes.root}>
+  const toggleExpanded = () => {
+    setCookie(LLM_CHAT_EXPANDED, expanded ? "false" : "true", { path: "/"})
+  }
+
+  return <Paper className={classNames(classes.root, {[classes.expanded]: expanded})}>
     <AnalyticsContext pageSectionContext='llmChatPopup'>
       <div className={classes.header}>
         <div className={classes.title}>
@@ -96,7 +112,13 @@ const PopupLanguageModelChat = ({onClose, classes}: {
             </div>
           </LWTooltip>
         </div>
-        <CloseIcon className={classes.close} onClick={handleClose} />
+        <div className={classes.icons}>
+          {expanded
+            ? <FullscreenExit className={classes.icon} onClick={toggleExpanded} />
+            : <Fullscreen className={classes.icon} onClick={toggleExpanded} />
+          }
+          <CloseIcon className={classes.icon} onClick={handleClose} />
+        </div>
       </div>
       <div className={classes.editor}>
         <LanguageModelChat />
