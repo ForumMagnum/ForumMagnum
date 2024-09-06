@@ -85,7 +85,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
   onClose: () => void,
   classes: ClassesType
 }) => {
-  const { LanguageModelChat, LWTooltip } = Components;
+  const { LanguageModelChat, LWTooltip, ForumIcon } = Components;
 
   const { currentConversation } = useLlmChat();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE, LLM_CHAT_EXPANDED]);
@@ -114,10 +114,7 @@ const PopupLanguageModelChat = ({onClose, classes}: {
           </LWTooltip>
         </div>
         <div className={classes.icons}>
-          {expanded
-            ? <FullscreenExit className={classes.icon} onClick={toggleExpanded} />
-            : <Fullscreen className={classes.icon} onClick={toggleExpanded} />
-          }
+          <ForumIcon icon={expanded ? "FullscreenExit" : "Fullscreen"} className={classes.icon} onClick={toggleExpanded} />
           <CloseIcon className={classes.icon} onClick={handleClose} />
         </div>
       </div>
