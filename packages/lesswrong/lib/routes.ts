@@ -1607,6 +1607,16 @@ addRoute(
 
 addRoute(
   {
+    name: 'admin.curation',
+    path:'/admin/curation',
+    componentName: "CurationPage",
+    title: "Curation Dashboard",
+    noIndex: true,
+  }
+);
+
+addRoute(
+  {
     name: 'allPosts',
     path: '/allPosts',
     componentName: 'AllPostsPage',

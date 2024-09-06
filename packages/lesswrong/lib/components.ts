@@ -759,6 +759,8 @@ importComponent("SunshineCommentsItemOverview", () => require('../components/sun
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
+importComponent("CurationPage", () => require('../components/admin/CurationPage'));
+importComponent("CurationNoticesItem", () => require('../components/admin/CurationNoticesItem'));
 
 importComponent("AdminForumEventsPage", () => require('../components/forumEvents/AdminForumEventsPage'));
 importComponent("EditForumEventPage", () => require('../components/forumEvents/EditForumEventPage'));
