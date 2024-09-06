@@ -25,7 +25,7 @@ import { editableCollectionsFieldOptions } from '@/lib/editor/makeEditableOption
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
-type AutosaveFunc = () => Promise<string | undefined>;
+type AutosaveFunc = () => Promise<void>;
 interface AutosaveEditorStateContext {
   autosaveEditorState: AutosaveFunc | null;
   /**
@@ -251,7 +251,7 @@ export const EditorFormComponent = ({
   `);
 
   // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
-  const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<string | undefined> => {
+  const saveRemoteBackup = useCallback(async (newContents: EditorContents): Promise<void> => {
     // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
@@ -266,9 +266,7 @@ export const EditorFormComponent = ({
         const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
         await updateCurrentValues({ draft: true, ...defaultTitle });
         // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
-        const result = await submitForm(null, { noReload: true });
-
-        return result._id;
+        await submitForm(null, { noReload: true });
       } else {
         await autosaveRevision({ 
           variables: { postId: document._id, contents: newContents }
@@ -462,7 +460,7 @@ export const EditorFormComponent = ({
 
   useEffect(() => {
     if (!isCollabEditor && fieldName === 'contents') {
-      setAutosaveEditorState((_) => () => new Promise<string | undefined>((resolve, reject) => {
+      setAutosaveEditorState((_) => () => new Promise((resolve, reject) => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
           void editorRef.current?.submitData()
             .then(({ originalContents: { type, data: value }}) => ({ type, value }))
