@@ -69,6 +69,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 8,
     position: "relative",
     display: "flex",
+    justifyContent: "space-between",
   },
   editor: {
     paddingLeft: 20,
