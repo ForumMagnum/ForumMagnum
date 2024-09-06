@@ -25,7 +25,7 @@ export type CustomPgIndex = {
 
 export const expectedCustomPgIndexes: CustomPgIndex[] = [];
 
-export const ensureCustomPgIndex = async (
+export const ensureCustomPgIndex = (
   source: string,
   options?: CustomPgIndexOptions,
 ) => {
