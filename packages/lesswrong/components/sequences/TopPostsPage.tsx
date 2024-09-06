@@ -688,6 +688,14 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const years = useMemo(() => Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)), [yearGroupsInfo]);
   const topics = useMemo(() => Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)), [sectionsInfo]);
 
+  const year = (params.year && years.includes(params.year)) 
+    ? params.year 
+    : "2022"
+
+  const topic = (params.topic && topics.includes(params.topic)) 
+    ? params.topic 
+    : "rationality" 
+  
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
     console.error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
@@ -709,15 +717,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
-
-
-  const year = (params.year && years.includes(params.year)) 
-    ? params.year 
-    : "2022"
-
-  const topic = (params.topic && topics.includes(params.topic)) 
-    ? params.topic 
-    : "rationality" 
 
   const { SpotlightItem, Divider } = Components;
 
