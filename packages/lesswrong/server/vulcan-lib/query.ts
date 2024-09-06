@@ -40,7 +40,6 @@ export const runQuery = async <T = Record<string, any>>(query: string | Document
     ? query
     : print(query)
 
-  console.log({ stringQuery: stringQuery.slice(0, 300), variables: JSON.stringify(variables, null, 2) });
   // see http://graphql.org/graphql-js/graphql/#graphql
   const result = await graphql<T>(executableSchema, stringQuery, {}, queryContext, variables);
 
