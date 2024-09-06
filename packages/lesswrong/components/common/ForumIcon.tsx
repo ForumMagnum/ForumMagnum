@@ -114,6 +114,9 @@ import MuiNotInterestedIcon from '@material-ui/icons/NotInterested';
 import MuiExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import MuiExpandLessIcon from "@material-ui/icons/ExpandLess";
 import MuiPlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
+import PlusOneIcon from '@material-ui/icons/PlusOne';
+import UndoIcon from '@material-ui/icons/Undo';
+import ClearIcon from '@material-ui/icons/Clear';
 
 
 /**
@@ -266,7 +269,10 @@ export type ForumIconName =
   "Robot" |
   "ExpandMore" |
   "ExpandLess" |
-  "PlaylistAdd"
+  "PlaylistAdd"|
+  "PlusOne" |
+  "Undo" |
+  "Clear" 
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -381,7 +387,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Robot: RobotIcon,
     ExpandMore: MuiExpandMoreIcon,
     ExpandLess: MuiExpandLessIcon,
-    PlaylistAdd: MuiPlaylistAddIcon
+    PlaylistAdd: MuiPlaylistAddIcon,
+    PlusOne: PlusOneIcon,
+    Undo: UndoIcon,
+    Clear: ClearIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -494,7 +503,10 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Robot: RobotIcon,
     ExpandMore: MuiExpandMoreIcon,
     ExpandLess: MuiExpandLessIcon,
-    PlaylistAdd: MuiPlaylistAddIcon
+    PlaylistAdd: MuiPlaylistAddIcon,
+    PlusOne: PlusOneIcon,
+    Undo: UndoIcon,
+    Clear: ClearIcon
   },
 };
 

@@ -16,12 +16,13 @@ const styles = (theme: ThemeType) => ({
 
   sidebarInlineReactIcons: {
     display: "none",
-    width: "100%",
     opacity: 0.5,
-    paddingLeft: 8,
+    marginLeft: 4,
+    paddingLeft: 4,
+    paddingRight: 4,
     
     [theme.breakpoints.up('sm')]: {
-      display: "block",
+      display: "inline-block",
     },
   },
   inlineReactSidebarLine: {
@@ -30,19 +31,6 @@ const styles = (theme: ThemeType) => ({
   
   // Keeping this empty class around is necessary for the following @global style to work properly
   highlight: {},
-
-  // Comment hovered (post uses side-icons instead)
-  "@global": {
-    [
-      ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight"
-      +", .Answer-answer:hover .InlineReactHoverableHighlight-highlight"
-    ]: {
-      textDecorationLine: 'underline',
-      textDecorationStyle: 'dashed',
-      textDecorationColor: theme.palette.text.dim4,
-      textUnderlineOffset: '3px'
-    },
-  }
 })
 
 const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinuation=false, children, classes}: {

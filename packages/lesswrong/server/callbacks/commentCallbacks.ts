@@ -6,7 +6,6 @@ import { Posts } from "../../lib/collections/posts/collection";
 import { Tags } from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 import { userCanDo, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { performVoteServer } from '../voteServer';
 import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
@@ -397,6 +396,7 @@ getCollectionHooks("Comments").newAfter.add(async function LWCommentsNewUpvoteOw
   const start = Date.now();
   var commentAuthor = await Users.findOne(comment.userId);
   if (!commentAuthor) throw new Error(`Could not find user: ${comment.userId}`);
+  const { performVoteServer } = require("../voteServer");
   const {modifiedDocument: votedComment} = await performVoteServer({
     document: comment,
     voteType: 'smallUpvote',

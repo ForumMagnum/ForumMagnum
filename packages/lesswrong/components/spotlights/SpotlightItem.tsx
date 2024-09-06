@@ -483,7 +483,7 @@ export const SpotlightItem = ({
           )
         }
         <div className={classes.editAllButton}>
-          {showAdminInfo && userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
+          {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
             <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>
           </LWTooltip>}
         </div>
@@ -501,8 +501,7 @@ export const SpotlightItem = ({
           </LWTooltip>}
         </div>}
       </div>
-      {showAdminInfo && <>
-        {edit ? <div className={classes.form}>
+      {edit && <div className={classes.form}>
             <SpotlightEditorStyles>
             <WrappedSmartForm
               collectionName="Spotlights"
@@ -513,8 +512,8 @@ export const SpotlightItem = ({
             />
             </SpotlightEditorStyles>
           </div>
-           :
-          <div className={classes.metaData}>
+      }
+      {!edit && showAdminInfo &&  <div className={classes.metaData}>
             {spotlight.draft && <MetaInfo>[Draft]</MetaInfo>}
             <MetaInfo>{spotlight.position}</MetaInfo>
             <MetaInfo><FormatDate date={spotlight.lastPromotedAt} format="YYYY-MM-DD"/></MetaInfo>
@@ -522,8 +521,7 @@ export const SpotlightItem = ({
               <MetaInfo>{duration} days</MetaInfo>
             </LWTooltip>
           </div>
-        }
-      </>}
+      }
     </div>
   </AnalyticsTracker>
 }
