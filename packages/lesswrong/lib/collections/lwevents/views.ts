@@ -64,7 +64,7 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
 
 // Index used in manual user-by-IP queries, and in some moderator UI
 ensureCustomPgIndex(`
-  CREATE INDEX CONCURRENTLY "manual_idx__LWEvents_properties_ip"
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "manual_idx__LWEvents_properties_ip"
     ON public."LWEvents" USING gin
     ((("properties"->>'ip')::TEXT))
     WITH (fastupdate=True)
