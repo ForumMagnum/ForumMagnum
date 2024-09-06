@@ -1,5 +1,5 @@
 import { LWEvents } from "./collection"
-import { ensureIndex } from '../../collectionIndexUtils';
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface LWEventsViewTerms extends ViewTermsBase {
@@ -63,7 +63,13 @@ LWEvents.addView("gatherTownUsers", (terms: LWEventsViewTerms) => {
 })
 
 // Index used in manual user-by-IP queries, and in some moderator UI
-ensureIndex(LWEvents, {name:1, "properties.ip":1, createdAt:1, userId:1})
+ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY "manual_idx__LWEvents_properties_ip"
+    ON public."LWEvents" USING gin
+    ((("properties"->>'ip')::TEXT))
+    WITH (fastupdate=True)
+    WHERE name='login';
+`);
 
 LWEvents.addView("postEverPublished", (terms) => ({
   selector: {
