@@ -370,7 +370,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false); 
-  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<string | undefined>) | null>(null);
+  const [autosaveEditorState, setAutosaveEditorState] = useState<(() => Promise<void>) | null>(null);
   const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();

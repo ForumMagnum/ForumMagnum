@@ -308,18 +308,10 @@ export const ChatInterface = ({classes}: {
   const { LlmChatMessage, Loading, MenuItem, ContentStyles, ContentItemBody } = Components;
 
   const { currentConversation, setCurrentConversation, archiveConversation, orderedConversations, submitMessage, currentConversationLoading } = useLlmChat();
-
+  const { currentPostId, postContext } = useCurrentPostContext();
   const { autosaveEditorState } = useContext(AutosaveEditorStateContext);
 
   const { flash } = useMessages();
-
-  // TODO: come back and refactor this to use currentRoute & matchPath to get the url parameter instead
-  // const { location } = useLocation();
-  // const { pathname, query } = location;
-  // const postsPageContext = usePostsPageContext();
-  // const currentPostId = postsPageContext?.fullPost?._id ?? postsPageContext?.postPreload?._id ?? query.postId;
-  const { currentPostId, postContext } = useCurrentPostContext();
-  // const currentPostId = pathname.match(/\/posts\/([^/]+)\/[^/]+/)?.[1] ?? query.postId;
 
   const messagesRef = useRef<HTMLDivElement>(null);
   const lastMessageLengthRef = useRef(0);
