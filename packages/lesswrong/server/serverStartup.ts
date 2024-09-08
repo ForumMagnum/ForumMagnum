@@ -145,7 +145,7 @@ export const serverStartup = async () => {
 
     cluster.on('exit', (worker, _code, _signal) => {
       console.log(`Worker ${worker.process.pid} died`);
-      setTimeout(() => cluster.fork(), processRestartDelay);;
+      setTimeout(() => cluster.fork(), processRestartDelay);
     });
   } else {
     if (clusterRole !== "standalone") {
