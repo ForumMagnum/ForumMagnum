@@ -753,5 +753,10 @@
     "acceptsSchemaHash": "f857f474b5a374350cc1797a5d9240fa",
     "acceptedByMigration": "20240904T205502.create_curation_notices_table.ts",
     "timestamp": "2024-09-04T20:55:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4478fe67319e5ebbe8327768fc26f5f4",
+    "acceptedByMigration": "20240906T192038.lwevents_ip_index.ts",
+    "timestamp": "2024-09-06T19:20:38.000Z"
   }
 ]
