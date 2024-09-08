@@ -107,7 +107,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   }, []);
 
   if (flattenedComments.length === 0) {
-    console.log(`Skipping CommentsTableOfContents (no comments)`);
     return null;
   }
   
