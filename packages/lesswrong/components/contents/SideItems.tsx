@@ -250,6 +250,10 @@ const SideItem = ({options, children}: {
   </span>
 }
 
+export const useHasSideItemsSidebar = (): boolean => {
+  return !!useContext(SideItemsPlacementContext);
+}
+
 const SideItemsContainerComponent = registerComponent('SideItemsContainer', SideItemsContainer, {styles});
 const SideItemsSidebarComponent = registerComponent('SideItemsSidebar', SideItemsSidebar, {styles});
 const SideItemComponent = registerComponent('SideItem', SideItem, {});

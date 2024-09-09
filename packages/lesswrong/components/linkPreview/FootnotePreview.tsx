@@ -9,6 +9,7 @@ import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/PostsPage';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { useHasSideItemsSidebar } from '../contents/SideItems';
 
 const footnotePreviewStyles = (theme: ThemeType) => ({
   hovercard: {
@@ -82,6 +83,10 @@ const footnotePreviewStyles = (theme: ThemeType) => ({
     "$sidenoteHover &": {
       color: theme.palette.text.normal,
     },
+    "& li": {
+      fontSize: "0.9em",
+      lineHeight: "1.4em",
+    },
   },
   
   overflowFade: {
@@ -132,10 +137,25 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   // links to anchors like "#fn:1" which will crash this because it has a ':' in
   // it.
   try {
-    // Grab contents of linked footnote if it exists
-    footnoteHTML = document.querySelector(href)?.innerHTML || "";
-    // Check whether the footnotehas nonempty contents
-    footnoteContentsNonempty = !!Array.from(document.querySelectorAll(`${href} p`)).reduce((acc, p) => acc + p.textContent, "").trim();
+    // `href` is (probably) an anchor link, of the form `#fn1234`. Since it starts
+    // with a hash it can also be used as a CSS selector, which finds its contents
+    // in the footer.
+    const footnoteContentsElement = document.querySelector(href);
+    footnoteHTML = footnoteContentsElement?.innerHTML || "";
+    
+    // Decide whether the footnote is nonempty. This is tricky because while there
+    // are consistently formatted footnotes created by our editor plugins, there
+    // are also wacky irregular footnotes present in imported HTML and similar
+    // things. Eg https://www.lesswrong.com/posts/ACGeaAk6KButv2xwQ/the-halo-effect
+    // We can't just condition on the footnote containing non-whitespace text,
+    // because footnotes sometimes have their number and backlink in a place that
+    // would be mistaken for their body. Our current heuristic is that a footnote
+    // is nonempty if it contains at least one <p> which contains non-whitespace
+    // text, which might false-negative on rare cases like an image-only footnote
+    // but which seems to work in practice.
+    footnoteContentsNonempty = !!footnoteContentsElement
+      && !!Array.from(footnoteContentsElement.querySelectorAll("p"))
+        .reduce((acc, p) => acc + p.textContent, "").trim();
   // eslint-disable-next-line no-empty
   } catch(e) { }
   
@@ -155,7 +175,8 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
   const post = postPageContext?.fullPost ?? postPageContext?.postPreload;
   const sidenotesDisabledOnPost = post?.disableSidenotes;
   const screenIsWideEnoughForSidenotes = useIsAboveBreakpoint("lg");
-  const sidenoteIsVisible = hasSidenotes && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
+  const hasSideItemsSidebar = useHasSideItemsSidebar();
+  const sidenoteIsVisible = hasSidenotes && hasSideItemsSidebar && !sidenotesDisabledOnPost && screenIsWideEnoughForSidenotes;
 
   return (
     <span>
@@ -172,7 +193,7 @@ const FootnotePreview = ({classes, href, id, rel, children}: {
         </Card>
       </LWPopper>}
       
-      {hasSidenotes && !sidenotesDisabledOnPost && <SideItem options={{offsetTop: -6}}>
+      {hasSidenotes && !sidenotesDisabledOnPost && footnoteContentsNonempty && <SideItem options={{offsetTop: -6}}>
         <div
           {...sidenoteEventHandlers}
           className={classNames(
@@ -267,11 +288,17 @@ function getFootnoteIndex(href: string, html: string): string|null {
       const olStartAttr = parentElement.getAttribute("start");
       const olStart = olStartAttr ? parseInt(olStartAttr) : 1;
 
+      let numPrecedingLiElements = 0;
       for (let i=0; i<parentElement.children.length; i++) {
-        if (parentElement.children.item(i) === footnoteElement) {
-          return ""+(i+olStart);
+        const elem = parentElement.children.item(i);
+        if (elem?.tagName === 'LI') {
+          numPrecedingLiElements++;
+        }
+        if (elem === footnoteElement) {
+          break;
         }
       }
+      return ""+(numPrecedingLiElements+olStart);
     }
   }
   

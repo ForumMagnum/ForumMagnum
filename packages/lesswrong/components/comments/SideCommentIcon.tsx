@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   clickToPinMessage: {
     position: "absolute",
     display: "inline-block",
-    top: -2, left: 28,
+    top: -2, left: 36,
     fontSize: 13,
     color: theme.palette.text.dim45,
     fontFamily: theme.palette.fonts.sansSerifStack,
