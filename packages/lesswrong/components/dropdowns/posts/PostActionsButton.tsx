@@ -68,7 +68,10 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 
   return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
+      <Icon
+        className={classes.icon}
+        onMouseDown={(ev) => handleSetOpen(!isOpen)}
+      />
     </div>
     <PopperCard
       open={isOpen}
@@ -79,13 +82,15 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
       style={gapStyle}
     >
       {/*FIXME: ClickAwayListener doesn't handle portals correctly, which winds up making submenus inoperable. But we do still need clickaway to close.*/}
-      <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
+      <LWClickAwayListener
+        onClickAway={() => handleSetOpen(false)}
+        doOnDown
+      >
         <PostActions post={post} closeMenu={() => handleSetOpen(false)} includeBookmark={includeBookmark} />
       </LWClickAwayListener>
     </PopperCard>
   </div>
 }
-
 
 const PostActionsButtonComponent = registerComponent('PostActionsButton', PostActionsButton, {styles});
 
