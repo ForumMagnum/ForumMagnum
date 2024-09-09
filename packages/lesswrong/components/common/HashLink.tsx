@@ -1,6 +1,6 @@
 // Modified From: https://github.com/rafrex/react-router-hash-link/blob/master/src/index.js
 
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line no-restricted-imports
 import { Link } from 'react-router-dom';
@@ -70,6 +70,7 @@ function hashLinkScroll() {
 
 export function HashLink(props: HashLinkProps) {
   const navigate = useNavigate();
+  const allowDefaultOnClick = useRef(false);
 
   function handleClick(e: React.MouseEvent<HTMLAnchorElement>) {
     reset();
@@ -97,11 +98,26 @@ export function HashLink(props: HashLinkProps) {
         // Run any custom onMouseDown logic, including event tracking (such as that passed in from `Link`) before checking for modifier keys
         // This is necessary to capture e.g. `linkClicked` events when cmd-clicking to open links in a new tab
         filteredProps.onMouseDown?.(ev);
-        if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) {
+
+        // If any modifier key is held, do nothing on down, and let the
+        // default behavior happen on the click event (ie on mouse up).
+        // Clicking on links with a modifier may mean opening in a new
+        // tab, or saving the destination of a page, but the exact behavior
+        // is browser-dependent.
+        if (ev.metaKey || ev.altKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0 || allowDefaultOnClick.current) {
+          allowDefaultOnClick.current = true;
           return;
         }
         navigate(to);
         ev.preventDefault();
+      }}
+      onClick={(ev) => {
+        filteredProps.onClick?.(ev);
+        if (allowDefaultOnClick.current) {
+          allowDefaultOnClick.current = false;
+        } else {
+          ev.preventDefault();
+        }
       }}
     >
       {props.children}
