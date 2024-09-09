@@ -125,6 +125,8 @@ export const eaForumTheme: SiteThemeSpecification = {
     return {
       zIndexes: {
         searchResults: 1300,
+        intercomButton: 1400,
+        blurredBackgroundModal: 1350,
       },
       spacing: {
         mainLayoutPaddingTop: 20

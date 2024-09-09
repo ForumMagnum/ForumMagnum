@@ -602,7 +602,7 @@ declare global {
       italic: JssStyles,
       smallCaps: JssStyles,
     },
-    zIndexes: any,
+    zIndexes: Record<string, number>,
     overrides: any,
     postImageStyles: JssStyles,
     voting: {strongVoteDelay: number},
