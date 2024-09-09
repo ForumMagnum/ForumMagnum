@@ -266,7 +266,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
     return <AnalyticsContext pageSection="karmaChangeNotifer">
       <div className={classNames(classes.root, className)}>
         <div ref={anchorEl}>
-          <IconButton onClick={handleToggle} className={classes.karmaNotifierButton}>
+          <IconButton onMouseDown={handleToggle} className={classes.karmaNotifierButton}>
             {starIsHollow
               ? <ForumIcon icon="KarmaOutline" className={classes.starIcon}/>
               : <Badge badgeContent={
@@ -285,7 +285,7 @@ const KarmaChangeNotifier = ({currentUser, className, classes}: {
           placement="bottom-end"
           className={classes.karmaNotifierPopper}
         >
-          <LWClickAwayListener onClickAway={handleClose}>
+          <LWClickAwayListener onClickAway={handleClose} doOnDown>
             <Paper className={classes.karmaNotifierPaper}>
               <KarmaChangesDisplay karmaChanges={karmaChanges} classes={classes} handleClose={handleClose} />
             </Paper>

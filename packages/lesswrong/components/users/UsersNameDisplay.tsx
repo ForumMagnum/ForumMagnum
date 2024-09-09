@@ -121,6 +121,7 @@ const UsersNameDisplay = ({
               noKibitz && classes.noKibitz,
               nowrap && classes.nowrap,
             )}
+            doOnDown
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}

@@ -521,6 +521,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
 export type IconProps = {
   className: string,
   onClick: MouseEventHandler<SVGElement>,
+  onMouseDown: MouseEventHandler<SVGElement>,
 }
 
 export type IconComponent = ComponentType<Partial<IconProps>>;

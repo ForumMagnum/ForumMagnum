@@ -77,7 +77,7 @@ const ExpandableSection = ({
               >
                 <ForumIcon
                   icon="ThickChevronRight"
-                  onClick={toggleExpanded}
+                  onMouseDown={toggleExpanded}
                   className={classNames(classes.expandIcon, {
                     [classes.chevronExpanded]: expanded,
                   })}

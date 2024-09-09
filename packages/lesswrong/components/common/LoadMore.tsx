@@ -99,7 +99,6 @@ const LoadMore = ({
 
   const { Loading } = Components
   const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
     void loadMore();
     captureEvent("loadMoreClicked")
   }
@@ -118,7 +117,8 @@ const LoadMore = ({
         [classes.afterPostsListMarginTop]: afterPostsListMarginTop,
       })}
       href="#"
-      onClick={handleClickLoadMore}
+      onMouseDown={handleClickLoadMore}
+      onClick={ev => ev.preventDefault()}
     >
       {totalCount ? `${message} (${count}/${totalCount})` : `${message}`}
     </a>
