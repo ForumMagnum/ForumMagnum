@@ -110,7 +110,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   return <div>
     <TableOfContentsRow key="postTitle"
       href="#"
-      onClick={ev => {
+      onMouseDown={ev => {
         if (isRegularClick(ev)) {
           void handleClick(ev, () => {
             navigate("#");
@@ -132,7 +132,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
           divider={section.divider}
           highlighted={section.anchor === currentSection}
           href={"#"+section.anchor}
-          onClick={(ev) => {
+          onMouseDown={(ev) => {
             if (isRegularClick(ev)) {
               void handleClick(ev, () => {
                 jumpToAnchor(section.anchor)

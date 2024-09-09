@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { fullHeightToCEnabled } from '../../../lib/betas';
+import { Link } from '@/lib/reactRouterWrapper';
 
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
@@ -118,12 +119,12 @@ const levelToClassName = (level: number, classes: ClassesType<typeof styles>) =>
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, scale, fullHeight, commentToC
+  indentLevel=0, highlighted=false, href, onMouseDown, children, classes, title, divider, answer, dense, scale, fullHeight, commentToC
 }: {
   indentLevel?: number,
   highlighted?: boolean,
   href: string,
-  onClick?: (ev: any) => void,
+  onMouseDown?: (ev: any) => void,
   children?: React.ReactNode,
   classes: ClassesType<typeof styles>,
   title?: boolean,
@@ -152,13 +153,13 @@ const TableOfContentsRow = ({
     )}
     style={scaleStyling}
   >
-    <a href={href} onClick={onClick} className={classNames(classes.link, {
+    <Link doOnDown to={href} onMouseDown={onMouseDown} className={classNames(classes.link, {
       [classes.title]: title,
       [classes.highlightDot]: !answer,
       [classes.dense]: dense
     })}>
       {children}
-    </a>
+    </Link>
   </div>
 }
 
