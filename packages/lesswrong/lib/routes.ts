@@ -1,4 +1,4 @@
-import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting } from './instanceSettings';
+import { forumTypeSetting, PublicInstanceSetting, hasEventsSetting, taggingNamePluralSetting, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameCapitalSetting, isEAForum, taggingNameSetting, aboutPostIdSetting, isLW } from './instanceSettings';
 import { blackBarTitle, legacyRouteAcronymSetting } from './publicSettings';
 import { addRoute, RouterLocation, Route } from './vulcan-lib/routes';
 import { REVIEW_YEAR } from './reviewUtils';
@@ -309,7 +309,9 @@ addRoute(
   {
     name: 'collections',
     path: '/collections/:_id',
-    componentName: 'CollectionsSingle'
+    componentName: 'CollectionsSingle',
+    hasLeftNavigationColumn: isLW,
+    navigationFooterBar: true,
   },
   {
     name: 'highlights',
@@ -542,6 +544,8 @@ addRoute(
     componentName: isEAForum ? 'EAAllTagsPage' : 'AllTagsPage',
     title: isEAForum ? `${taggingNamePluralCapitalSetting.get()} — Main Page` : "Concepts Portal",
     description: isEAForum ? `Browse the core ${taggingNamePluralSetting.get()} discussed on the EA Forum and an organised wiki of key ${taggingNameSetting.get()} pages` : undefined,
+    hasLeftNavigationColumn: false,
+    navigationFooterBar: true,
   },
   // And all the redirects to it
   ...getAllTagsRedirectPaths().map((path, idx) => ({
@@ -584,7 +588,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
       sunshineSidebar: true,
-      hasStandaloneNav: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name:'about',
@@ -666,7 +671,9 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/library',
       title: 'Library',
       description: eaSequencesHomeDescription,
-      componentName: 'EASequencesHome'
+      componentName: 'EASequencesHome',
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'EventsHome',
@@ -761,6 +768,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       subtitleComponentName: 'TagPageTitle',
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'EAForumWrapped',
@@ -837,7 +846,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       enableResourcePrefetch: true,
       sunshineSidebar: true, 
       ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
-      hasStandaloneNav: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'dialogues',
@@ -1047,7 +1057,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/library',
       componentName: 'LibraryPage',
       title: "The Library",
-      hasStandaloneNav: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'Sequences',
@@ -1095,7 +1106,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'AlignmentForumHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true,
-      hasStandaloneNav: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name:'about',
@@ -1178,7 +1190,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
       title: "The Library",
-      hasStandaloneNav: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name: 'Sequences',
@@ -1217,7 +1230,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true,
-      hasStandaloneNav: true,
+      hasLeftNavigationColumn: true,
+      navigationFooterBar: true,
     },
     {
       name:'about',
@@ -1334,7 +1348,8 @@ addRoute(
     path: '/quicktakes',
     componentName: 'ShortformPage',
     title: "Quick Takes",
-    hasStandaloneNav: true,
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
   },
   {
     name: 'ShortformRedirect',
@@ -1362,6 +1377,7 @@ if (hasEventsSetting.get()) {
       path: forumTypeSetting.get() === 'EAForum' ? '/community-old' : communityPath,
       componentName: 'CommunityHome',
       title: 'Community',
+      navigationFooterBar: true,
       ...communitySubtitle
     },
     {
@@ -1621,14 +1637,16 @@ addRoute(
     componentName: 'AllPostsPage',
     enableResourcePrefetch: true,
     title: "All Posts",
-    hasStandaloneNav: true,
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
   },
   {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',
     title: "All Questions",
-    hasStandaloneNav: true,
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
   },
   {
     name: 'recommendations',
@@ -1673,6 +1691,8 @@ addRoute(
     path:'/reviews/:year',
     componentName: 'ReviewsPage',
     title: "Reviews",
+    hasLeftNavigationColumn: true,
+    navigationFooterBar: true,
   },
   {
     name: 'reviewAdmin',

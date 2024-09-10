@@ -455,7 +455,9 @@ const Layout = ({currentUser, children, classes}: {
       ForumEventBanner,
       GlobalHotkeys,
       LanguageModelLauncherButton,
-      LlmChatWrapper
+      LlmChatWrapper,
+      TabNavigationMenuFooter
+      
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -464,10 +466,10 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || !!currentRoute.hasStandaloneNav,
+      standaloneNavigation: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
-      shouldUseGridLayout: !currentRoute || !!currentRoute.hasStandaloneNav,
+      shouldUseGridLayout: !currentRoute || !!currentRoute.hasLeftNavigationColumn,
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 
@@ -478,6 +480,7 @@ const Layout = ({currentUser, children, classes}: {
     const renderLanguageModelChatLauncher = overrideLayoutOptions.renderLanguageModelChatLauncher ?? baseLayoutOptions.renderLanguageModelChatLauncher
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
+    const navigationFooterBar = !currentRoute || currentRoute.navigationFooterBar;
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
@@ -570,6 +573,7 @@ const Layout = ({currentUser, children, classes}: {
                     </DeferRender>
                   </StickyWrapper>
                 }
+                {isLWorAF && navigationFooterBar && <TabNavigationMenuFooter />}
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
