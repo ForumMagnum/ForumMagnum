@@ -645,8 +645,9 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
 
-  const authors = data?.GetAllReviewWinners?.map((reviewWinner) => { console.log({reviewWinner}); return reviewWinner.reviewWinner.post.user.displayName});
-  const uniqueAuthors = [...new Set(authors)].sort((a, b) => a.localeCompare(b));
+  // const authors = data?.GetAllReviewWinners?.map((reviewWinner: any) => reviewWinner.reviewWinner.user?.displayName);
+  // const uniqueAuthors = [...new Set(authors)].sort((a: string, b: string) => a.localeCompare(b));
+  // console.log({uniqueAuthors});
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
