@@ -23,13 +23,14 @@ export const SpotlightsPage = ({classes}: {
 
   const { query } = useLocation();
   const onlyDrafts = query.drafts === 'true';
+  const noDrafts = query.drafts === 'false';
 
   const { results: spotlights = [], loading, refetch, loadMoreProps } = useMulti({
     collectionName: 'Spotlights',
     fragmentName: 'SpotlightDisplay',
     terms: {
       view: onlyDrafts ? "spotlightsPageDraft" : "spotlightsPage",
-      limit: 100
+      limit: 500
     },
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
@@ -45,7 +46,8 @@ export const SpotlightsPage = ({classes}: {
   }, [spotlights]);
 
   const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
-  const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
+  const draftSpotlights = spotlights.filter(spotlight => spotlight.draft)
+  const uniqueDocumentIds = [...new Set(draftSpotlights.map(spotlight => spotlight.documentId))];
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
     return <SingleColumnSection>
@@ -70,16 +72,18 @@ export const SpotlightsPage = ({classes}: {
         anchor: spotlight._id,
         level: 2
       })),
-      {
-        title: "Draft Spotlights",
-        anchor: "draft-spotlights",
-        level: 1
-      },
-      ...draftSpotlights.map(spotlight => ({
-        title: spotlight.document.title,
-        anchor: spotlight._id,
-        level: 2
-      })),
+      ...(noDrafts ? [] : [
+        {
+          title: "Draft Spotlights",
+          anchor: "draft-spotlights",
+          level: 1
+        },
+        ...draftSpotlights.map(spotlight => ({
+          title: spotlight.document.title,
+          anchor: spotlight._id,
+          level: 2
+        }))
+      ]),
     ],
   }
 
@@ -99,14 +103,17 @@ export const SpotlightsPage = ({classes}: {
       </div>
       {loading && !onlyDrafts && <Loading/>}
       <SectionTitle title="Upcoming Spotlights">
-        <div>Total: {totalUpcomingDuration} days</div>
+        <div>Total: {totalUpcomingDuration} days, {upcomingSpotlights.length} spotlights</div>
       </SectionTitle>
       {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
       <LoadMore {...loadMoreProps} />
-      <SectionTitle title="Draft Spotlights">
-        <div>Total: {totalDraftDuration} days</div>
-      </SectionTitle>
-      {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {!noDrafts && <div>
+        <SectionTitle title="Draft Spotlights">
+          <div>Total: {totalDraftDuration} days, {uniqueDocumentIds.length} spotlights</div>
+        </SectionTitle>
+        {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
+        <LoadMore {...loadMoreProps} />
+      </div>}
     </SingleColumnSection>
   </ToCColumn>
 }
