@@ -11,7 +11,7 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
+import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionNamesSet, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo, reviewWinnerYearSet } from '../../lib/publicSettings';
 import { useCurrentUser } from '../common/withUser';
 import { useMulti } from '@/lib/crud/withMulti';
 import qs from "qs";
@@ -589,7 +589,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
 
   const location = useLocation();
-  const { query, params } = location;
+  const { query } = location;
 
   const screenWidth = useWindowWidth(2000);
   /** 
@@ -645,8 +645,8 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
 
-  const authors = data?.GetAllReviewWinners?.map((reviewWinner) => { console.log({reviewWinner}); return reviewWinner.reviewWinner.post.user.displayName});
-  const uniqueAuthors = [...new Set(authors)].sort((a, b) => a.localeCompare(b));
+  const authors = data?.GetAllReviewWinners?.map((reviewWinner: any) => reviewWinner.reviewWinner.user?.displayName);
+  const uniqueAuthors = [...new Set(authors)].sort((a: string, b: string) => a.localeCompare(b));
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
@@ -671,57 +671,6 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
   const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
-  useEffect(() => {
-    if (params.year) {
-      const element = document.getElementById('year-topic-section');
-      if (element) {
-        element.scrollIntoView({ });
-      }
-    }
-  }, [params.year]);
-
-  const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a))
-  const topics = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a))
-
-  const navigate = useNavigate();
-
-  const [year, setYear] = useState(query.year && years.includes(query.year) ? query.year : "2022")
-  const [topic, setTopic] = useState<ReviewWinnerSectionName>(query.topic && topics.includes(query.topic) ? query.topic as ReviewWinnerSectionName : "rationality")
-
-  const { results: spotlights = [] } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: "spotlightsBySubtitle",
-      subtitle: `Best of LessWrong ${year}`,
-      limit: 50
-    },
-    enableTotal: false
-  });
-
-  const filteredSpotlights = spotlights.filter(spotlight => 
-    reviewWinnersWithPosts.some(post => 
-      post._id === spotlight.documentId && 
-      post.reviewWinner?.category === topic
-    )
-  );
-
-  const handleSetYear = (y: string) => {
-    const currentScrollPosition = window.scrollY;
-    setYear(y);
-    navigate({
-      search: `?${qs.stringify({year: y, topic})}`,
-    }, {replace: true});
-    setTimeout(() => window.scrollTo(0, currentScrollPosition), 0);
-  }
-
-  const handleSetTopic = (t) => {
-    setTopic(t);
-    const currentScrollPosition = window.scrollY;
-    navigate({search: `?${qs.stringify({year, topic: t})}`}, {replace: true});
-    setTimeout(() => window.scrollTo(0, currentScrollPosition), 0);
-  }
-
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
     console.error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
@@ -744,7 +693,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
 
-  const { SpotlightItem, Divider } = Components;
+  const { Divider } = Components;
 
   return (
     <>
@@ -767,27 +716,112 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             </div>
           </div>
           <Divider margin={100}/>
-          <div className={classes.postsByYearSectionCentered} id="year-topic-section">
-            <h1 className={classes.yearTopicSectionTitle}>Best of <span className={classes.topicTitle}>{sectionsInfo[topic].title}</span> {year}</h1>
-            <div className={classes.yearSelector}>
-              {years.map((y) => {
-                return <a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a>
-              })}
-            </div>
-            <div className={classes.topicSelector}>
-              {topics.map((t) => <a onClick={() => handleSetTopic(t)} className={classes.topic} key={t} style={{color: t === topic ? '#000' : '#888'}}>{t} {spotlights.filter(spotlight => ReviewWinners.findOne({category: t, year: year})).length}</a>)}
-              <a onClick={() => handleSetTopic(null)} className={classes.topic} key="all" style={{color: topic === null ? '#000' : '#888'}}>
-                All ({reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear.toString() === year).length})
-              </a>
-            </div>
-            <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
-              {filteredSpotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} key={spotlight._id} showSubtitle={false} />)}
-            </div>
-          </div>
+          <TopSpotlightsSection classes={classes} 
+            yearGroupsInfo={yearGroupsInfo} 
+            sectionsInfo={sectionsInfo} 
+            reviewWinnersWithPosts={reviewWinnersWithPosts} 
+          />
         </div>
       </AnalyticsContext>
     </>
   );
+}
+
+function TopSpotlightsSection({classes, yearGroupsInfo, sectionsInfo, reviewWinnersWithPosts}:{
+  classes: ClassesType<typeof styles>,
+  yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>,
+  sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>,
+  reviewWinnersWithPosts: PostsTopItemInfo[]
+}) {
+  const { SpotlightItem, LWTooltip } = Components;
+
+  const location = useLocation();
+  const { query } = location;
+
+  const years = Object.keys(yearGroupsInfo || {}).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => parseInt(year)) as ReviewWinnerYear[]
+  const topics = Object.keys(sectionsInfo || {}).sort((a, b) => b.localeCompare(a)) as ReviewWinnerSectionName[]
+
+  const navigate = useNavigate();
+
+  const [year, setYear] = useState<ReviewWinnerYear|null>(query.year && reviewWinnerYearSet.has(parseInt(query.year)) ? parseInt(query.year) as ReviewWinnerYear : 2022)
+  const [topic, setTopic] = useState<ReviewWinnerSectionName|null>(query.topic && reviewWinnerSectionNamesSet.has(query.topic) ? query.topic as ReviewWinnerSectionName : "rationality")
+
+  useEffect(() => {
+    if (query.year) {
+      const element = document.getElementById('year-topic-section');
+      if (element) {
+        element.scrollIntoView({ });
+      }
+    }
+  }, [query.year]);
+
+  const { results: spotlights = [] } = useMulti({
+    collectionName: 'Spotlights',
+    fragmentName: 'SpotlightDisplay',
+    terms: {
+      view: "spotlightsBySubtitle",
+      subtitle: `Best of LessWrong ${year}`,
+      limit: 50
+    },
+    enableTotal: false
+  });
+
+  const filteredSpotlights = spotlights.filter(spotlight => {
+      if (topic) {
+        return reviewWinnersWithPosts.some(post => 
+          post._id === spotlight.documentId && 
+        post.reviewWinner?.category === topic) 
+      } else {
+        return spotlights
+      }
+    }
+  );
+
+  const topicTitle = topic ? sectionsInfo[topic].title : ""
+
+  const handleSetYear = (y: ReviewWinnerYear|null) => {
+    const currentScrollPosition = window.scrollY;
+    setYear(y);
+    navigate({
+      search: `?${qs.stringify({year: y, topic})}`,
+    }, {replace: true});
+    setTimeout(() => window.scrollTo(0, currentScrollPosition), 0);
+  }
+
+  const handleSetTopic = (t: ReviewWinnerSectionName|null) => {
+    setTopic(t);
+    const currentScrollPosition = window.scrollY;
+    navigate({search: `?${qs.stringify({year, topic: t})}`}, {replace: true});
+    setTimeout(() => window.scrollTo(0, currentScrollPosition), 0);
+  }
+
+  return <div className={classes.postsByYearSectionCentered} id="year-topic-section">
+      <h1 className={classes.yearTopicSectionTitle}>Best of <span className={classes.topicTitle}>{topicTitle}</span> {year}</h1>
+      <div className={classes.yearSelector}>
+        {years.map((y) => {
+          const postsCount = reviewWinnersWithPosts.filter(post => {
+            return post.reviewWinner?.reviewYear === y
+          }).length
+          return <LWTooltip title={`${postsCount} posts`} placement="top"><a onClick={() => handleSetYear(y)} className={classes.year} key={y} style={{color: y === year ? '#000' : '#888'}}>{y}</a></LWTooltip>
+        })}
+      </div>
+      <div className={classes.topicSelector}>
+        {topics.map((t) => {
+          const postsCount = reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year && post.reviewWinner?.category === t).length
+          return <LWTooltip key={t} title={`${postsCount} posts`} inlineBlock={false}>
+            <a onClick={() => handleSetTopic(t)} className={classes.topic} style={{color: t === topic ? '#000' : '#888'}}>{t}</a>
+          </LWTooltip>
+        })}
+        <LWTooltip key="all" title={`${reviewWinnersWithPosts.filter(post => post.reviewWinner?.reviewYear === year).length} posts`} inlineBlock={false}>
+          <a onClick={() => handleSetTopic(null)} className={classes.topic} style={{color: topic === null ? '#000' : '#888'}}>
+            All
+          </a>
+        </LWTooltip>
+      </div>
+      <div style={{ maxWidth: SECTION_WIDTH, paddingBottom: 1000 }}>
+        {filteredSpotlights.map((spotlight) => <SpotlightItem spotlight={spotlight} key={spotlight._id} showSubtitle={false} />)}
+      </div>
+    </div>
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {
