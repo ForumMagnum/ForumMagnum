@@ -722,6 +722,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            annualReviewMarketInfo={marketInfo}
             />}
           {!showSplashPageHeader && !isBookUI && <PostsPagePostHeader
             post={post}
