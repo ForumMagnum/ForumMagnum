@@ -38,19 +38,6 @@ import { userHasLlmChat } from '@/lib/betas';
 
 const STICKY_SECTION_TOP_MARGIN = 20;
 
-// These routes will have the standalone TabNavigationMenu (aka sidebar)
-//
-// Refer to routes.js for the route names. Or console log in the route you'd
-// like to include
-const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
-  'LessWrong': [
-    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
-  ],
-  'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
-  'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
-}
-
 /**
  * When a new user signs up, their profile is 'incomplete' (ie; without a display name)
  * and we require them to fill this in using the onboarding flow before continuing.
@@ -477,10 +464,10 @@ const Layout = ({currentUser, children, classes}: {
       // then it should.
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
-      standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      standaloneNavigation: !currentRoute || !!currentRoute.hasStandaloneNav,
       renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       renderLanguageModelChatLauncher: !!currentUser && userHasLlmChat(currentUser),
-      shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
+      shouldUseGridLayout: !currentRoute || !!currentRoute.hasStandaloneNav,
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
 

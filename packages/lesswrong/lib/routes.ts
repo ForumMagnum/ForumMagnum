@@ -583,7 +583,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EAHome',
       description: "Research, discussion, and updates on the world's most pressing problems. Including global health and development, animal welfare, AI safety, and biosecurity.",
       enableResourcePrefetch: true,
-      sunshineSidebar: true
+      sunshineSidebar: true,
+      hasStandaloneNav: true,
     },
     {
       name:'about',
@@ -836,6 +837,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       enableResourcePrefetch: true,
       sunshineSidebar: true, 
       ...(blackBarTitle.get() ? { subtitleLink: "/tag/death", headerSubtitle: blackBarTitle.get()! } : {}),
+      hasStandaloneNav: true,
     },
     {
       name: 'dialogues',
@@ -1044,13 +1046,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'library',
       path: '/library',
       componentName: 'LibraryPage',
-      title: "The Library"
+      title: "The Library",
+      hasStandaloneNav: true,
     },
     {
       name: 'Sequences',
       path: '/sequences',
       componentName: 'CoreSequences',
-      title: "Rationality: A-Z"
+      title: "Rationality: A-Z",
     },
     {
       name: 'Rationality',
@@ -1091,7 +1094,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       componentName: 'AlignmentForumHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true //TODO: remove this in production?
+      sunshineSidebar: true,
+      hasStandaloneNav: true,
     },
     {
       name:'about',
@@ -1173,14 +1177,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/library',
       componentName: 'AFLibraryPage',
       enableResourcePrefetch: true,
-      title: "The Library"
+      title: "The Library",
+      hasStandaloneNav: true,
     },
     {
       name: 'Sequences',
       path: '/sequences',
       enableResourcePrefetch: true,
       componentName: 'CoreSequences',
-      title: "Rationality: A-Z"
+      title: "Rationality: A-Z",
     },
     {
       name: 'Rationality',
@@ -1211,7 +1216,8 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path:'/',
       componentName: 'LWHome',
       enableResourcePrefetch: true,
-      sunshineSidebar: true //TODO: remove this in production?
+      sunshineSidebar: true,
+      hasStandaloneNav: true,
     },
     {
       name:'about',
@@ -1328,6 +1334,7 @@ addRoute(
     path: '/quicktakes',
     componentName: 'ShortformPage',
     title: "Quick Takes",
+    hasStandaloneNav: true,
   },
   {
     name: 'ShortformRedirect',
@@ -1614,12 +1621,14 @@ addRoute(
     componentName: 'AllPostsPage',
     enableResourcePrefetch: true,
     title: "All Posts",
+    hasStandaloneNav: true,
   },
   {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',
     title: "All Questions",
+    hasStandaloneNav: true,
   },
   {
     name: 'recommendations',
