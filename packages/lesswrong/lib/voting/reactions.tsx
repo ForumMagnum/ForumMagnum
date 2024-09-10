@@ -135,6 +135,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/verified.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
+    deprecated:true
   },
   {
     name: "verifiedFalse",
@@ -142,6 +143,7 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     searchTerms: ["check", "correct", "confirm"],
     svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
+    deprecated:true
   },
   {
     name: "betTrue",
