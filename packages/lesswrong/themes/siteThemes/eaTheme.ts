@@ -124,7 +124,7 @@ export const eaForumTheme: SiteThemeSpecification = {
     }
     return {
       zIndexes: {
-        searchResults: 1300,
+        searchResults: 1450,
         intercomButton: 1400,
         blurredBackgroundModal: 1350,
       },
