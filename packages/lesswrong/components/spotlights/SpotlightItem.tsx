@@ -345,6 +345,7 @@ export const SpotlightItem = ({
   spotlight,
   showAdminInfo,
   hideBanner,
+  showSubtitle=true,
   refetchAllSpotlights,
   isDraftProcessing,
   className,
@@ -353,6 +354,7 @@ export const SpotlightItem = ({
   spotlight: SpotlightDisplay,
   showAdminInfo?: boolean,
   hideBanner?: () => void,
+  showSubtitle?: boolean,
   // This is so that if a spotlight's position is updated (in SpotlightsPage), we refetch all of them to display them with their updated positions and in the correct order
   refetchAllSpotlights?: () => void,
   isDraftProcessing?: boolean,
@@ -398,7 +400,6 @@ export const SpotlightItem = ({
   }, [currentUser, spotlight._id, spotlight.draft, updateSpotlight, publishAndDeDuplicateSpotlight, refetchAllSpotlights]);
 
   const handleUndraftSpotlight = async () => {
-    console.log("isDraftProcessing", isDraftProcessing, spotlight.draft)
     if (isDraftProcessing && spotlight.draft) {
       await publishAndDeDuplicateSpotlight({spotlightId: spotlight._id})
       refetchAllSpotlights?.()
@@ -446,7 +447,7 @@ export const SpotlightItem = ({
               </LWTooltip>}
             </span>
           </div>
-          {spotlight.customSubtitle && <div className={classes.subtitle}>
+          {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
             {spotlight.customSubtitle}
           </div>}
           {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
@@ -458,7 +459,7 @@ export const SpotlightItem = ({
                   documentId={spotlight._id}
                   mutationFragment={getFragment('SpotlightEditQueryFragment')}
                   queryFragment={getFragment('SpotlightEditQueryFragment')}
-                  successCallback={() => { setEditDescription(false); handleUndraftSpotlight() }}
+                  successCallback={() => { setEditDescription(false); void handleUndraftSpotlight() }}
                 />
               </div>
               :
