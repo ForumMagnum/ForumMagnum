@@ -11,6 +11,7 @@ type CommentsViewName = "commentReplies"|"postCommentsDeleted"|"allCommentsDelet
 type ConversationsViewName = "moderatorConversations"|"userConversations"|"userConversationsAll"|"userGroupUntitledConversations";
 type CronHistoriesViewName = never
 type CurationEmailsViewName = never
+type CurationNoticesViewName = "curationNoticesPage";
 type DatabaseMetadataViewName = never
 type DebouncerEventsViewName = never
 type DialogueChecksViewName = "userDialogueChecks"|"userTargetDialogueChecks";
@@ -60,7 +61,7 @@ type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"cu
 type SessionsViewName = never
 type SideCommentCachesViewName = never
 type SplashArtCoordinatesViewName = never
-type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightForSequence";
+type SpotlightsViewName = "mostRecentlyPromotedSpotlights"|"spotlightsPage"|"spotlightsPageDraft"|"spotlightForSequence";
 type SubscriptionsViewName = "subscriptionState"|"subscriptionsOfType";
 type SurveyQuestionsViewName = never
 type SurveyResponsesViewName = never
@@ -94,6 +95,7 @@ interface ViewTermsByCollectionName {
   Conversations: ConversationsViewTerms
   CronHistories: ViewTermsBase
   CurationEmails: ViewTermsBase
+  CurationNotices: CurationNoticesViewTerms
   DatabaseMetadata: ViewTermsBase
   DebouncerEvents: ViewTermsBase
   DialogueChecks: DialogueChecksViewTerms
@@ -165,4 +167,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

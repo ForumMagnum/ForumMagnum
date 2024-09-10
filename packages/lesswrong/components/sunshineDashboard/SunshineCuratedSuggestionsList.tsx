@@ -32,10 +32,11 @@ const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCur
   }
 }
 
-const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }: {
+const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes, setCurationPost }: {
   terms: PostsViewTerms,
   belowFold?: boolean,
   classes: ClassesType,
+  setCurationPost?: (post: PostsList) => void,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -83,7 +84,7 @@ const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }: {
       </SunshineListTitle>
       {results?.map(post =>
         <div key={post._id} >
-          <SunshineCuratedSuggestionsItem post={post} />
+          <SunshineCuratedSuggestionsItem post={post} setCurationPost={setCurationPost}/>
         </div>
       )}
       {showLoadMore && <div className={classes.loadMorePadding}>

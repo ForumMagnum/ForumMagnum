@@ -8,7 +8,7 @@ import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
-import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
 import { isEAForum, isLW, isLWorAF, verifyEmailsSetting } from "../../lib/instanceSettings";
@@ -37,7 +37,7 @@ import { hasType3ApiAccess, regenerateAllType3AudioForUser } from '../type3';
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 
-voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
+export async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
@@ -45,9 +45,9 @@ voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser?.username, updatedUser?._id, updatedUser?.karma, updatedUser?.groups)
   }
-});
+}
 
-voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
+export async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
   if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
@@ -57,7 +57,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
     //eslint-disable-next-line no-console
     console.info("User gained trusted status", updatedUser.username, updatedUser._id, updatedUser.karma, updatedUser.groups)
   }
-});
+}
 
 getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (modifier, user: DbUser)
 {

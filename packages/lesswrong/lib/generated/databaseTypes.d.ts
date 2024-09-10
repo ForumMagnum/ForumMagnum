@@ -247,6 +247,20 @@ interface DbCurationEmail extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type CurationNoticesCollection = CollectionBase<"CurationNotices">;
+
+interface DbCurationNotice extends DbObject {
+  __collectionName?: "CurationNotices"
+  userId: string
+  commentId: string | null
+  postId: string | null
+  deleted: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  contents: EditableFieldContents | null
+  contents_latest: string | null
+}
+
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
 
 interface DbDatabaseMetadata extends DbObject {
@@ -1210,10 +1224,12 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  subtitleUrl: string | null
   headerTitle: string | null
   headerTitleLeftColor: string | null
   headerTitleRightColor: string | null
   lastPromotedAt: Date
+  spotlightSplashImageUrl: string | null
   draft: boolean
   deletedDraft: boolean
   showAuthor: boolean
@@ -1221,7 +1237,6 @@ interface DbSpotlight extends DbObject {
   imageFadeColor: string | null
   spotlightImageId: string | null
   spotlightDarkImageId: string | null
-  spotlightSplashImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   description: EditableFieldContents | null
@@ -1951,6 +1966,7 @@ interface CollectionsByName {
   Conversations: ConversationsCollection
   CronHistories: CronHistoriesCollection
   CurationEmails: CurationEmailsCollection
+  CurationNotices: CurationNoticesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
@@ -2035,6 +2051,7 @@ interface ObjectsByCollectionName {
   Conversations: DbConversation
   CronHistories: DbCronHistory
   CurationEmails: DbCurationEmail
+  CurationNotices: DbCurationNotice
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
@@ -2119,6 +2136,7 @@ interface ObjectsByTypeName {
   Conversation: DbConversation
   CronHistory: DbCronHistory
   CurationEmail: DbCurationEmail
+  CurationNotice: DbCurationNotice
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck

@@ -4,10 +4,14 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
 import { getHostname, getProtocol } from './PostsPagePostHeader';
+import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers';
+import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
+
+export const LW_POST_PAGE_PADDING = 110;
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 110,
+    paddingTop: LW_POST_PAGE_PADDING,
     marginBottom: 96,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
@@ -19,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorAndSecondaryInfo: {
     display: 'flex',
-    alignItems: 'center',
+    alignItems: 'baseline',
     columnGap: 20,
     ...theme.typography.commentStyle,
     flexWrap: 'wrap',
@@ -137,8 +141,13 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   // us as a draft, display a notice and a link to the collaborative editor.
 
   const linkpostDomain = post.url && new URL(post.url).hostname;
-  const linkpostTooltip = <div>This is a linkpost:<br/>{post.url}</div>;
-  const linkpostNode = post.url && feedDomain !== linkpostDomain ? <LWTooltip title={linkpostTooltip}>{linkpostDomain}</LWTooltip> : null;
+  const linkpostTooltip = <div>View the original at:<br/>{post.url}</div>;
+  const displayLinkpost = post.url && feedDomain !== linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
+  const linkpostNode = displayLinkpost ? <LWTooltip title={linkpostTooltip}>
+    <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
+      Linkpost from {linkpostDomain}
+    </a>
+  </LWTooltip> : null;
 
   return <div className={classNames(classes.root, {[classes.eventHeader]: post.isEvent})}>
       {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}

@@ -3,30 +3,15 @@ import Spotlights from "../../../lib/collections/spotlights/collection";
 import { fetchFragment } from "../../fetchFragment";
 import { getAnthropicPromptCachingClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost } from "@/lib/collections/reviewWinners/cache";
+import { PromptCachingBetaMessageParam, PromptCachingBetaTextBlockParam } from "@anthropic-ai/sdk/resources/beta/prompt-caching/messages";
 
-async function queryClaudeJailbreak(basePrompt: string, spotlightPrompt: string, maxTokens: number) {
+async function queryClaudeJailbreak(prompt: PromptCachingBetaMessageParam[], maxTokens: number) {
   const client = getAnthropicPromptCachingClientOrThrow()
   return await client.messages.create({
     system: "The assistant is in CLI simulation mode, and responds to the user's CLI commands only with the output of the command.",
     model: "claude-3-5-sonnet-20240620",
     max_tokens: maxTokens,
-    messages: [
-      {
-        role: "user", 
-        content: [{
-          type: "text",
-          text: basePrompt,
-          cache_control: {type: "ephemeral"}
-        }]
-      },
-      {
-        role: "assistant",
-        content: [{
-          type: "text",
-          text: spotlightPrompt,
-        }]
-      },
-    ]
+    messages: prompt
   })
 }
 
@@ -84,37 +69,53 @@ const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigation[], s
   return postsWithSpotlightsSortedByPostLength.filter((post) => (post?.contents?.html?.length ?? 0) > 2000).slice(0, 15)
 }
 
-const getJailbreakPromptBase = ({posts, spotlights}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[]}) => {
-  let prompt = `A series of essays, each followed by a short description of the essay. The style of the short description is slightly casual. They are a single paragraph, 1-3 sentences long. Try to avoid referencing the essay or author (i.e. they don't say "the author" or "in this post" or similar), just talk about the ideas.
-  
-  `
-
-  for (const post of posts) {
+const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], summary_prompt_name: string}) => {
+  const prompt: PromptCachingBetaMessageParam[] = []
+  posts.forEach((post, i) => {
     const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
-    prompt += `
-Post: ${post.title}
----
-Post Contents: ${post.contents?.html}
----
-A short description of the essay, ~2 sentences, no paragraph breaks or bullet points: ${spotlight?.description?.originalContents?.data}
----
----
----
-    `
-  }
+    prompt.push({
+      role: "user",
+      content: [{
+        type: "text",
+        text: `<cmd>cat posts/${post.slug}.xml</cmd>`
+      }]
+    })
+    prompt.push({
+      role: "assistant",
+      content: [{
+        type: "text",
+        text: `
+<title>${post.title}</title>
+<author>${post.user?.displayName}</author>
+<body>${post.contents?.html}</body>
+<${summary_prompt_name}>${spotlight?.description?.originalContents?.data}</${summary_prompt_name}>`,
+        ...((i === (posts.length - 1)) ? { cache_control: {"type": "ephemeral"}} : {})
+      }]
+    })
+  })
   return prompt
 }
 
-const getSpotlightPrompt = ({post}: {post: PostsWithNavigation}) => {
-  return `
-Post: ${post.title}
----
-Post Contents: ${post.contents?.html}
----
-A short description of the essay, ~2 sentences, no paragraph breaks or bullet points:`
+const getSpotlightPrompt = ({post, summary_prompt_name}: {post: PostsWithNavigation, summary_prompt_name: string}): PromptCachingBetaMessageParam[] => {
+  return [{
+    role: "user",
+    content: [{
+      type: "text",
+      text: `<cmd>cat posts/${post.slug}.xml</cmd>`
+    }]
+  },
+  {
+    role: "assistant",
+    content: [{
+      type: "text",
+      text: `
+<title>${post.title}</title>
+<author>${post.user?.displayName}</author>
+<body>${post.contents?.html}</body>
+<${summary_prompt_name}>`
+    }]
+  }]
 }
-
-
 
 async function createSpotlights() {
   // eslint-disable-next-line no-console
@@ -125,23 +126,42 @@ async function createSpotlights() {
   const postsForPrompt = getPostsForPrompt({posts, spotlights})
   const postsWithoutSpotlights = posts.filter(post => !spotlights.find(spotlight => spotlight.documentId === post._id))
 
-  const jailbreakPromptBase = getJailbreakPromptBase({posts: postsForPrompt, spotlights})
+  const summary_prompts = [ 
+    "50WordSummary",
+    "clickbait", 
+    "tweet", 
+    "key_quote" 
+  ]
 
-  for (const post of postsWithoutSpotlights.slice(0, 10)) {
-    const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
+  for (const summary_prompt of summary_prompts) {
+    for (const post of postsWithoutSpotlights) {
+      const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
 
-    try {
-      const jailbreakSummary1 = await queryClaudeJailbreak(jailbreakPromptBase, getSpotlightPrompt({post}), 75)
-      const summary1 = jailbreakSummary1.content[0]
-      // eslint-disable-next-line no-console
-      console.log({title: post.title, summary1})
-      if (summary1.type === "text") {
-        const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") 
-        createSpotlight(post, reviewWinner, cleanedSummary1)
+      try {
+        const prompt = [...getJailbreakPromptBase({posts: postsForPrompt, spotlights, summary_prompt_name: summary_prompt}), ...getSpotlightPrompt({post, summary_prompt_name: summary_prompt})]
+
+        const jailbreakSummary1 = await queryClaudeJailbreak(prompt, 200)
+        const summary1 = jailbreakSummary1.content[0]
+        if (summary1.type === "text") {
+          const cleanedSummary1 = summary1.text.replace(/---|\n/g, "") + ` [${summary_prompt}]`
+          // eslint-disable-next-line no-console
+          console.log({title: post.title, cleanedSummary1})
+          createSpotlight(post, reviewWinner, cleanedSummary1)
+        }
+
+        const jailbreakSummary2 = await queryClaudeJailbreak(prompt, 200)
+        const summary2 = jailbreakSummary2.content[0]
+        if (summary2.type === "text") {
+          const cleanedSummary2 = summary2.text.replace(/---|\n/g, "") + ` [${summary_prompt}]`
+          // eslint-disable-next-line no-console
+          console.log({title: post.title, cleanedSummary2})
+          createSpotlight(post, reviewWinner, cleanedSummary2)
+        }
+
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e)
       }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.log(e)
     }
   }
 

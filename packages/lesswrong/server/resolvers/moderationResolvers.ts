@@ -26,7 +26,7 @@ defineQuery({
     const loginEvents = await LWEvents.find({
       name: "login",
       "properties.ip": ipAddress,
-    }, {limit: 20}).fetch();
+    }, {limit: 100}).fetch();
     
     const userIds = uniq(loginEvents.map(loginEvent => loginEvent.userId));
     return {

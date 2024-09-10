@@ -13,7 +13,7 @@ import type { PartialDeep } from 'type-fest'
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Localgroups from '../lib/collections/localgroups/collection';
 import { UserRateLimits } from '../lib/collections/userRateLimits';
-import { callbacksArePending } from "@/lib/vulcan-lib/callbacks";
+import { callbacksArePending } from '@/server/utils/callbackHooks';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from "@/server/sql/PgCollection";
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan

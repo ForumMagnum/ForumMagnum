@@ -133,7 +133,11 @@ module.exports = {
     "import/no-extraneous-dependencies": 0,
     "import/no-duplicates": 1,
     "import/extensions": 0,
-    "import/no-cycle": 1,
+    "import/no-cycle": ["error", {
+      // A dynamic cyclic import (ie,  a require() inside a function) is okay
+      // if you're confident it won't be called at import-time.
+      allowUnsafeDynamicCyclicDependency: true,
+    }],
     "import/no-mutable-exports": 1,
     "import/no-restricted-paths": ["error", {"zones": [
       {
@@ -270,7 +274,8 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
-    "@typescript-eslint/type-annotation-spacing": 1
+    "@typescript-eslint/type-annotation-spacing": 1,
+    "@typescript-eslint/switch-exhaustiveness-check": 1,
   },
   "overrides": [
     {

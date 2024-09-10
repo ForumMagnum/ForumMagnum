@@ -40,7 +40,7 @@ describe("syncDocumentWithLatestRevision", () => {
     const postAfterUpdate = await fetchFragmentSingle({
       collectionName: "Posts",
       fragmentName: "PostsOriginalContents",
-      currentUser: null,
+      currentUser: user,
       selector: {_id: post._id},
     });
     if (!postAfterUpdate) {
@@ -60,7 +60,7 @@ describe("syncDocumentWithLatestRevision", () => {
     const postAfterSync = await fetchFragmentSingle({
       collectionName: "Posts",
       fragmentName: "PostsOriginalContents",
-      currentUser: null,
+      currentUser: user,
       selector: {_id: post._id},
     });
     if (!postAfterSync) {

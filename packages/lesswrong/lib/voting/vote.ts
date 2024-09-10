@@ -1,4 +1,3 @@
-import { CallbackHook, CallbackChainHook } from '../vulcan-lib/callbacks';
 import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { voteTypes, calculateVotePower } from './voteTypes';
@@ -9,13 +8,6 @@ export interface VoteDocTuple {
   newDocument: DbVoteableType
   vote: DbVote
 }
-export const voteCallbacks = {
-  cancelSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.sync"),
-  cancelAsync: new CallbackHook<[VoteDocTuple,CollectionBase<VoteableCollectionName>,DbUser]>("votes.cancel.async"),
-  castVoteSync: new CallbackChainHook<VoteDocTuple,[CollectionBase<VoteableCollectionName>,DbUser]>("votes.castVote.sync"),
-  castVoteAsync: new CallbackHook<[VoteDocTuple,CollectionBase<VoteableCollectionName>,DbUser,ResolverContext]>("votes.castVote.async"),
-};
-
 
 // Given a client-side view of a document, return a modified version in which
 // the user has voted and the scores are updated appropriately.
@@ -59,7 +51,6 @@ const addVoteClient = ({ document, collectionName, voteType, extendedVote, user,
   newDocument.score = recalculateScore(newDocument);
   return newDocument;
 }
-
 
 // Given a client-side view of a document, return a modified version in which
 // the current user's vote is removed and the score is adjusted accordingly.

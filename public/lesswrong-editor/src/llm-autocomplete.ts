@@ -29,16 +29,17 @@ export default class AIAutocomplete extends Plugin {
 
         // Add keyboard shortcut
         editor.editing.view.document.on('keydown', (evt, data) => {            
-            // Check for Ctrl+E (Windows/Linux)
-            if ((data.ctrlKey) && !data.shiftKey && data.keyCode === 69) {
+            // Check for Ctrl+Y (Windows/Linux)
+            if ((data.ctrlKey) && !data.shiftKey && data.keyCode === 89) {
                 evt.stop();
                 this.autocomplete();
+                
             }
         });
 
         editor.editing.view.document.on('keydown', (evt, data) => {            
-            // Check for Ctrl+shift+e (Windows/Linux)
-            if ((data.ctrlKey) && data.shiftKey && data.keyCode === 69) {
+            // Check for Ctrl+Shift+Y (Windows/Linux)
+            if ((data.ctrlKey) && data.shiftKey && data.keyCode === 89) {
                 evt.stop();
                 this.autocomplete405b();
             }
@@ -130,6 +131,8 @@ ${selectedContent}`;
 
         // Convert the HTML into markdown
         const turnDownService = new TurndownService();
+        // Override turndown escape rules to never escape characters
+        turnDownService.escape = (string: string) => string;
         return turnDownService.turndown(content);
     }
 }
@@ -189,6 +192,7 @@ async function getAutocompletion(prefix: string, onCompletion: (completion: stri
     // Get the id of the comment we are replying to from the DOM
     const replyingCommentId = getReplyingCommentId();
     const postId = getPostId();
+    const selectedTrainingUserId = JSON.parse(localStorage.getItem("selectedTrainingUserId") || "null");
 
     const response = await fetch('/api/autocomplete', {
         method: 'POST',
@@ -200,7 +204,8 @@ async function getAutocompletion(prefix: string, onCompletion: (completion: stri
             commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
             postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
             replyingCommentId,
-            postId
+            postId,
+            userId: selectedTrainingUserId ? selectedTrainingUserId : undefined,
         }),
     });
 
@@ -211,6 +216,7 @@ async function get405bCompletion(prefix: string, onCompletion: (completion: stri
     // Get the id of the comment we are replying to from the DOM
     const replyingCommentId = getReplyingCommentId();
     const postId = getPostId();
+    const selectedTrainingUserId = JSON.parse(localStorage.getItem("selectedTrainingUserId") || "null");
 
     const response = await fetch('/api/autocomplete405b', {
         method: 'POST',
@@ -222,7 +228,8 @@ async function get405bCompletion(prefix: string, onCompletion: (completion: stri
             commentIds: JSON.parse(localStorage.getItem("selectedTrainingComments") || "[]"),
             postIds: JSON.parse(localStorage.getItem("selectedTrainingPosts") || "[]"),
             replyingCommentId,
-            postId
+            postId,
+            userId: selectedTrainingUserId ? selectedTrainingUserId : undefined,
         }),
     });
 

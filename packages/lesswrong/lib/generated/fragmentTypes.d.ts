@@ -3636,10 +3636,12 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly duration: number,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly subtitleUrl: string | null,
   readonly headerTitle: string | null,
   readonly headerTitleLeftColor: string | null,
   readonly headerTitleRightColor: string | null,
   readonly lastPromotedAt: Date,
+  readonly spotlightSplashImageUrl: string | null,
   readonly draft: boolean,
   readonly deletedDraft: boolean,
   readonly showAuthor: boolean,
@@ -3647,7 +3649,6 @@ interface SpotlightsDefaultFragment { // fragment on Spotlights
   readonly imageFadeColor: string | null,
   readonly spotlightImageId: string | null,
   readonly spotlightDarkImageId: string | null,
-  readonly spotlightSplashImageUrl: string | null,
 }
 
 interface SpotlightMinimumInfo { // fragment on Spotlights
@@ -3663,6 +3664,7 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly lastPromotedAt: Date,
   readonly customTitle: string | null,
   readonly customSubtitle: string | null,
+  readonly subtitleUrl: string | null,
   readonly headerTitle: string | null,
   readonly headerTitleLeftColor: string | null,
   readonly headerTitleRightColor: string | null,
@@ -3752,6 +3754,26 @@ interface ModerationTemplateFragment { // fragment on ModerationTemplates
   readonly name: string,
   readonly collectionName: "Messages" | "Comments" | "Rejections",
   readonly order: number,
+  readonly deleted: boolean,
+  readonly contents: RevisionEdit|null,
+}
+
+interface CurationNoticesDefaultFragment { // fragment on CurationNotices
+  readonly userId: string,
+  readonly commentId: string | null,
+  readonly postId: string,
+  readonly deleted: boolean,
+}
+
+interface CurationNoticesFragment { // fragment on CurationNotices
+  readonly _id: string,
+  readonly createdAt: Date,
+  readonly userId: string,
+  readonly user: UsersMinimumInfo|null,
+  readonly commentId: string | null,
+  readonly comment: CommentsList|null,
+  readonly postId: string,
+  readonly post: PostsMinimumInfo|null,
   readonly deleted: boolean,
   readonly contents: RevisionEdit|null,
 }
@@ -4104,7 +4126,8 @@ interface LlmConversationsFragment { // fragment on LlmConversations
   readonly deleted: boolean,
 }
 
-interface LlmConversationsWithUserInfoFragment extends LlmConversationsFragment { // fragment on LlmConversations
+interface LlmConversationsViewingPageFragment extends LlmConversationsFragment { // fragment on LlmConversations
+  readonly totalCharacterCount: number|null,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -4384,6 +4407,8 @@ interface FragmentTypes {
   CommentModeratorActionDisplay: CommentModeratorActionDisplay
   ModerationTemplatesDefaultFragment: ModerationTemplatesDefaultFragment
   ModerationTemplateFragment: ModerationTemplateFragment
+  CurationNoticesDefaultFragment: CurationNoticesDefaultFragment
+  CurationNoticesFragment: CurationNoticesFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
@@ -4418,7 +4443,7 @@ interface FragmentTypes {
   SurveyScheduleEdit: SurveyScheduleEdit
   LlmConversationsDefaultFragment: LlmConversationsDefaultFragment
   LlmConversationsFragment: LlmConversationsFragment
-  LlmConversationsWithUserInfoFragment: LlmConversationsWithUserInfoFragment
+  LlmConversationsViewingPageFragment: LlmConversationsViewingPageFragment
   LlmConversationsWithMessagesFragment: LlmConversationsWithMessagesFragment
   LlmMessagesDefaultFragment: LlmMessagesDefaultFragment
   LlmMessagesFragment: LlmMessagesFragment
@@ -4485,6 +4510,7 @@ interface FragmentTypesByCollection {
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
+  CurationNotices: "CurationNoticesDefaultFragment"|"CurationNoticesFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
@@ -4493,7 +4519,7 @@ interface FragmentTypesByCollection {
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
   SurveyQuestions: "SurveyQuestionsDefaultFragment"|"SurveyQuestionMinimumInfo"
   SurveyResponses: "SurveyResponsesDefaultFragment"|"SurveyResponseMinimumInfo"
-  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsWithUserInfoFragment"|"LlmConversationsWithMessagesFragment"
+  LlmConversations: "LlmConversationsDefaultFragment"|"LlmConversationsFragment"|"LlmConversationsViewingPageFragment"|"LlmConversationsWithMessagesFragment"
   LlmMessages: "LlmMessagesDefaultFragment"|"LlmMessagesFragment"
   SubscribedPostAndCommentses: "SubscribedPostAndCommentsFeed"
 }
@@ -4735,6 +4761,8 @@ interface CollectionNamesByFragmentName {
   CommentModeratorActionDisplay: "CommentModeratorActions"
   ModerationTemplatesDefaultFragment: "ModerationTemplates"
   ModerationTemplateFragment: "ModerationTemplates"
+  CurationNoticesDefaultFragment: "CurationNotices"
+  CurationNoticesFragment: "CurationNotices"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   SideCommentCacheMinimumInfo: "SideCommentCaches"
@@ -4769,7 +4797,7 @@ interface CollectionNamesByFragmentName {
   SurveyScheduleEdit: "SurveySchedules"
   LlmConversationsDefaultFragment: "LlmConversations"
   LlmConversationsFragment: "LlmConversations"
-  LlmConversationsWithUserInfoFragment: "LlmConversations"
+  LlmConversationsViewingPageFragment: "LlmConversations"
   LlmConversationsWithMessagesFragment: "LlmConversations"
   LlmMessagesDefaultFragment: "LlmMessages"
   LlmMessagesFragment: "LlmMessages"
@@ -4777,9 +4805,9 @@ interface CollectionNamesByFragmentName {
   SubscribedPostAndCommentsFeed: never
 }
 
-type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"ArbitalCaches"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationEmails"|"CurationNotices"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"ForumEvents"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"LlmConversations"|"LlmMessages"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"RecommendationsCaches"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SideCommentCaches"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"SurveyQuestions"|"SurveyResponses"|"SurveySchedules"|"Surveys"|"TagFlags"|"TagRels"|"Tags"|"Tweets"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

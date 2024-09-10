@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '& .input-spotlightImageId, & .input-darkImageId, & .input-spotlightSplashImageUrl': {
         width: "50%"
       },
-      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade, & .input-headerTitle, & .input-headerTitleLeftColor, & .input-headerTitleRightColor, & .input-showAuthor': {
+      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade, & .input-headerTitle, & .input-headerTitleLeftColor, & .input-headerTitleRightColor, & .input-showAuthor, & .input-subtitleUrl': {
         width: "calc(25% - 12px)",
         overflow: "hidden",
         marginRight: 12

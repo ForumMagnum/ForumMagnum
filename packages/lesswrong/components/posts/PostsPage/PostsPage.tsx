@@ -10,10 +10,9 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting, commentPermalinkStyleSetting, recombeeEnabledSetting, vertexEnabledSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
+import { hasPostRecommendations, commentsTableOfContentsEnabled, hasDigests, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
-import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
@@ -40,8 +39,8 @@ import { HoveredReactionContextProvider } from '@/components/votes/lwReactions/H
 import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
-import { LWUserTooltipContent } from '@/components/users/LWUserTooltipContent';
-import { extractVersionsFromSemver } from '@/lib/editor/utils';
+import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -310,6 +309,8 @@ export const styles = (theme: ThemeType) => ({
     display: "none"
   },
   welcomeBox: {
+    marginTop: LW_POST_PAGE_PADDING,
+    maxWidth: 220,
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
@@ -577,16 +578,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post._id]);
   
-  const isOldVersion = query.revision && post.contents;
-  
-  const defaultSideCommentVisibility = hasSideComments
-    ? (fullPost?.sideCommentVisibility ?? "highKarma")
-    : "hidden";
-  const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
-  const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
-    () => ({ sideCommentMode, setSideCommentMode }),
-    [sideCommentMode, setSideCommentMode]
-  );
+  const isOldVersion = !!(query.revision && post.contents);
   
   const sequenceId = getSequenceId();
   const sectionData = useDynamicTableOfContents({
@@ -748,7 +740,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const welcomeBox = (
     <DeferRender ssr={false}>
-      <WelcomeBox />
+      <div className={classes.welcomeBox}>
+        <WelcomeBox />
+      </div>
     </DeferRender>
   );
   
@@ -805,22 +799,27 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
       {/* Body */}
       {fullPost && isEAForum && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
-      {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+      {!post.debate && <ContentStyles
+        contentType="post"
+        className={classNames(classes.postContent, "instapaper_body")}
+      >
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
           <HoveredReactionContextProvider voteProps={voteProps}>
           <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+          <div id="postContent">
             {htmlWithAnchors && <>
               <PostBody
                 post={post}
                 html={htmlWithAnchors}
-                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+                isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
               {post.isEvent && isBookUI && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
               }
               </>
             }
+          </div>
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
         </AnalyticsContext>
@@ -931,7 +930,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
     <RecombeeRecommendationsContextWrapper postId={post._id} recommId={recommId}>
     <Components.SideItemsContainer>
     <ImageProvider>
-    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
+    <SideItemVisibilityContextProvider post={fullPost}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {fullPost && showSplashPageHeader && !permalinkedCommentId && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
@@ -978,7 +977,7 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
         hasTableOfContents={hasTableOfContents}
       />
     </AnalyticsInViewTracker>}
-    </SideCommentVisibilityContext.Provider>
+    </SideItemVisibilityContextProvider>
     </ImageProvider>
     </Components.SideItemsContainer>
     </RecombeeRecommendationsContextWrapper>
