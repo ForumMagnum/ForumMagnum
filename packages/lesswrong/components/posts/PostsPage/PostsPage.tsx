@@ -40,6 +40,7 @@ import { useVote } from '@/components/votes/withVote';
 import { getVotingSystemByName } from '@/lib/voting/votingSystems';
 import DeferRender from '@/components/common/DeferRender';
 import { SideItemVisibilityContextProvider } from '@/components/dropdowns/posts/SetSideItemVisibility';
+import { LW_POST_PAGE_PADDING } from './LWPostsPageHeader';
 
 const HIDE_TOC_WORDCOUNT_LIMIT = 300
 export const MAX_COLUMN_WIDTH = 720
@@ -308,6 +309,8 @@ export const styles = (theme: ThemeType) => ({
     display: "none"
   },
   welcomeBox: {
+    marginTop: LW_POST_PAGE_PADDING,
+    maxWidth: 220,
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
@@ -737,7 +740,9 @@ const { HeadTags, CitationTags, PostsPagePostHeader, LWPostsPageHeader, PostsPag
 
   const welcomeBox = (
     <DeferRender ssr={false}>
-      <WelcomeBox />
+      <div className={classes.welcomeBox}>
+        <WelcomeBox />
+      </div>
     </DeferRender>
   );
   
