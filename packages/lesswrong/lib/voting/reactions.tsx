@@ -143,6 +143,20 @@ export const namesAttachedReactions: NamesAttachedReactionType[] = [
     svg: "/reactionImages/nounproject/noun-cross-2014310.svg",
     description: "I looked up sources, did empiricism, checked the equations, etc.",
   },
+  {
+    name: "betTrue",
+    label: "I'd bet this is true",
+    searchTerms: ["bet", "betting", "true"],
+    svg: "/reactionImages/nounproject/noun-dice-7011847.svg",
+    description: "I'm willing to operationalize this, find an adjudicator, and bet this claim is true",
+  },
+  {
+    name: "betFalse",
+    label: "I'd bet this is false",
+    searchTerms: ["bet", "betting", "false"],
+    svg: "/reactionImages/nounproject/noun-dice-7119510.svg",
+    description: "I'm willing to operationalize this, find an adjudicator, and bet this claim is false",
+  },
   
   {
     name: "surprise",
