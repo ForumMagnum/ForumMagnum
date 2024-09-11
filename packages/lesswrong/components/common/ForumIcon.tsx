@@ -117,6 +117,8 @@ import MuiPlaylistAddIcon from "@material-ui/icons/PlaylistAdd";
 import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
+import FullscreenIcon from '@material-ui/icons/Fullscreen';
+import FullscreenExitIcon from '@material-ui/icons/FullscreenExit';
 
 
 /**
@@ -272,7 +274,9 @@ export type ForumIconName =
   "PlaylistAdd"|
   "PlusOne" |
   "Undo" |
-  "Clear" 
+  "Clear" |
+  "Fullscreen" |
+  "FullscreenExit"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -390,7 +394,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     PlaylistAdd: MuiPlaylistAddIcon,
     PlusOne: PlusOneIcon,
     Undo: UndoIcon,
-    Clear: ClearIcon
+    Clear: ClearIcon,
+    Fullscreen: FullscreenIcon,
+    FullscreenExit: FullscreenExitIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -506,7 +512,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     PlaylistAdd: MuiPlaylistAddIcon,
     PlusOne: PlusOneIcon,
     Undo: UndoIcon,
-    Clear: ClearIcon
+    Clear: ClearIcon,
+    Fullscreen: FullscreenIcon,
+    FullscreenExit: FullscreenExitIcon
   },
 };
 

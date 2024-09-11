@@ -8,9 +8,11 @@ import { postGetLink, postGetLinkTarget } from '@/lib/collections/posts/helpers'
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './PostBodyPrefix';
 import { AnnualReviewMarketInfo } from '@/lib/annualReviewMarkets';
 
+export const LW_POST_PAGE_PADDING = 110;
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 110,
+    paddingTop: LW_POST_PAGE_PADDING,
     marginBottom: 96,
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
